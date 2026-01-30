@@ -1,0 +1,84 @@
+/* InkForge Nexus - Premium UI System */
+:root {
+    /* Core Base */
+    --nx-bg-app: #09090b;
+    /* Deepest Black */
+    --nx-bg-panel: #121215bb;
+    /* Glassy Panel */
+    --nx-bg-surface: #1e1e24;
+    /* Surface elements */
+
+    /* Glass Effects */
+    --nx-glass-blur: 20px;
+    --nx-glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --nx-glass-shine: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+
+    /* Brand Gradients */
+    --nx-gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --nx-gradient-text: linear-gradient(to right, #ffffff, #a5b4fc);
+
+    /* Text */
+    --nx-text-main: #e2e8f0;
+    --nx-text-muted: #94a3b8;
+    --nx-text-dim: #64748b;
+
+    /* Borders */
+    --nx-border-light: rgba(255, 255, 255, 0.06);
+    --nx-border-active: rgba(139, 92, 246, 0.3);
+}
+
+/* Base Reset for Nexus */
+.nexus-app {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background-color: var(--nx-bg-app);
+    color: var(--nx-text-main);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    /* Subtle ambient background mesh */
+    background-image:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+}
+
+/* Animations */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Scrollbar refinement */
+.nexus-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.nexus-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.nexus-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.nexus-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
