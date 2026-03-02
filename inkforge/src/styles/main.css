@@ -1,0 +1,20 @@
+/**
+ * InkForge 全局样式入口
+ * 基于 Ethereal Constructivism 设计系统
+ *
+ * 注意：所有 @import 语句必须在 @tailwind 指令之前
+ */
+
+/* 1. 外部字体（必须最先） */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* 2. 设计系统 */
+@import './design-system.css';
+
+/* 3. 共享组件样式 */
+@import './components/modal.css';
+
+/* 4. Tailwind CSS（必须在所有 @import 之后） */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

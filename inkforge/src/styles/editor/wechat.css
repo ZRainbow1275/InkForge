@@ -1,0 +1,105 @@
+/* WeChat Official Account Standard Style */
+.ProseMirror {
+    font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    word-wrap: break-word;
+    padding: 16px;
+    background-color: #fff;
+}
+
+.ProseMirror p {
+    margin-bottom: 1.5em;
+    text-align: justify;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+    font-weight: bold;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    color: #1a1a1a;
+}
+
+.ProseMirror h1 {
+    font-size: 22px;
+}
+
+.ProseMirror h2 {
+    font-size: 18px;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 10px;
+}
+
+.ProseMirror h3 {
+    font-size: 16px;
+}
+
+.ProseMirror blockquote {
+    margin: 1.5em 0;
+    padding: 1em 1em 1em 1.2em;
+    border-left: 4px solid var(--color-primary, #0066cc);
+    background: #f8f8f8;
+    color: #666;
+    font-size: 15px;
+    border-radius: 4px;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+    padding-left: 2em;
+    margin-bottom: 1.5em;
+}
+
+.ProseMirror li {
+    margin-bottom: 0.5em;
+}
+
+.ProseMirror img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 4px;
+    display: block;
+    margin: 1.5em auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    /* Soviet/Modern Box Shadow */
+}
+
+/* Code Blocks (WeChat Compatible) */
+.ProseMirror pre {
+    background: #282c34;
+    color: #abb2bf;
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: 'Fira Code', 'Roboto Mono', monospace;
+    font-size: 14px;
+    line-height: 1.45;
+    margin: 1.5em 0;
+}
+
+.ProseMirror code {
+    font-family: 'Fira Code', 'Roboto Mono', monospace;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #d14;
+}
+
+/* Links */
+.ProseMirror a {
+    color: #576b95;
+    text-decoration: none;
+    border-bottom: 1px dashed #576b95;
+}
+
+/* HR */
+.ProseMirror hr {
+    border: none;
+    height: 1px;
+    background: #eaeaea;
+    margin: 2em 0;
+}

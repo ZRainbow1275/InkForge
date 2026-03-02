@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "grok-search": {
+      "command": "uv",
+      "args": ["run", "--directory", "D:/GrokSearch", "grok-search"],
+      "env": {
+        "GROK_API_URL": "http://127.0.0.1:8100/v1",
+        "GROK_API_KEY": "B5dtsrrZ55gjX0yL",
+        "GROK_DEBUG": "true",
+        "NO_PROXY": "127.0.0.1,localhost",
+        "no_proxy": "127.0.0.1,localhost"
+      }
+    },
+    "markitdown": {
+      "command": "C:/Users/HP/AppData/Roaming/Python/Python313/Scripts/markitdown-mcp.exe",
+      "args": []
+    },
+    "memory": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-memory"]
+    },
+    "metamcp": {
+      "type": "sse",
+      "url": "http://localhost:12300/metamcp/claude/sse"
+    },
+    "sequential-thinking": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@playwright/mcp@latest"]
+    }
+  }
+}

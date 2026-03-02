@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InkForge Studio — 编辑器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════
+           InkForge Studio v5.0 — Design System
+           Philosophy: Ethereal Constructivism
+           "在克制中寻找张力，在留白中孕育气韵"
+        ═══════════════════════════════════════════════════════════════════ */
+
+        :root {
+            /* ═══ 材质 (Materiality) ═══ */
+            --bg-rice-paper: #FAFBFC;
+            --bg-surface: #FFFFFF;
+            --bg-frosted: rgba(255, 255, 255, 0.85);
+            --bg-elevated: rgba(255, 255, 255, 0.95);
+
+            /* ═══ 构成主义色彩 (Constructivist Palette) ═══ */
+            --accent-primary: #D32F2F;
+            --accent-primary-light: #FFEBEE;
+            --accent-secondary: #1565C0;
+            --accent-secondary-light: #E3F2FD;
+
+            /* ═══ 中性色 (Neutral) ═══ */
+            --text-primary: #263238;
+            --text-secondary: #607D8B;
+            --text-muted: #90A4AE;
+            --border: #ECEFF1;
+            --border-light: #F5F5F5;
+
+            /* ═══ 语义色 (Semantic) ═══ */
+            --success: #2E7D32;
+            --warning: #F57C00;
+            --error: #C62828;
+
+            /* ═══ 留白节奏 (Space Rhythm - 8px Grid) ═══ */
+            --space-micro: 4px;
+            --space-small: 8px;
+            --space-medium: 16px;
+            --space-large: 32px;
+            --space-macro: 64px;
+
+            /* ═══ 动效 (Motion) ═══ */
+            --ease-panel: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* ═══ 阴影层级 (Elevation) ═══ */
+            --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            height: 100vh;
+            background: var(--bg-rice-paper);
+            color: var(--text-primary);
+            overflow: hidden;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* ═══ HEADER ═══ */
+        .header {
+            height: 52px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-medium);
+            gap: var(--space-medium);
+            backdrop-filter: blur(12px);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: var(--space-medium);
+            border-right: 1px solid var(--border);
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .header-brand:hover {
+            opacity: 0.7;
+        }
+
+        .header-brand .logo {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .header-brand .brand-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--space-small);
+        }
+
+        .header-title input {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            min-width: 280px;
+            transition: background 0.15s;
+        }
+
+        .header-title input:hover {
+            background: var(--bg-rice-paper);
+        }
+
+        .header-title input:focus {
+            background: var(--accent-primary-light);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-indicator.saved {
+            background: #E8F5E9;
+            color: var(--success);
+        }
+
+        .status-indicator.unsaved {
+            background: #FFF3E0;
+            color: var(--warning);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-small);
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-rice-paper);
+            color: var(--text-secondary);
+            transform: scale(1.05);
+        }
+
+        .icon-btn.active {
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        .publish-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(211, 47, 47, 0.25);
+        }
+
+        .publish-btn:hover {
+            background: #B71C1C;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.35);
+        }
+
+        /* ═══ WORKSPACE ═══ */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ═══ MANAGER PANEL ═══ */
+        .manager-panel {
+            width: 240px;
+            background: var(--bg-frosted);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.3s var(--ease-panel), opacity 0.3s;
+            overflow: hidden;
+        }
+
+        .manager-panel.collapsed {
+            width: 0;
+            border-right: none;
+            opacity: 0;
+        }
+
+        .edge-trigger {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 12px;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        .edge-trigger.left {
+            left: 0;
+        }
+
+        .edge-trigger.right {
+            right: 0;
+        }
+
+        .edge-trigger::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 48px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s var(--ease-bounce);
+        }
+
+        .edge-trigger.left::before {
+            left: 4px;
+        }
+
+        .edge-trigger.right::before {
+            right: 4px;
+        }
+
+        .edge-trigger:hover::before {
+            opacity: 0.6;
+            transform: translateY(-50%) scaleY(1.2);
+        }
+
+        .panel-header {
+            padding: var(--space-medium);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-small);
+        }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: var(--space-small);
+            margin-top: var(--space-small);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-small);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .file-item:hover {
+            background: var(--bg-rice-paper);
+            color: var(--text-primary);
+        }
+
+        .file-item.active {
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        .file-item.folder {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .file-item .count {
+            margin-left: auto;
+            font-size: 10px;
+            color: var(--text-muted);
+            background: var(--bg-rice-paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ═══ EDITOR AREA ═══ */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            position: relative;
+        }
+
+        .editor-scroll {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            padding: var(--space-large);
+        }
+
+        .editor-paper {
+            width: 100%;
+            max-width: 680px;
+            min-height: 800px;
+            background: var(--bg-surface);
+            border-radius: 2px;
+            box-shadow: var(--shadow-soft);
+            padding: var(--space-macro) 72px;
+            outline: none;
+            line-height: 1.618;
+        }
+
+        .editor-paper:focus {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .editor-paper h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-large);
+            line-height: 1.4;
+        }
+
+        .editor-paper p {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 17px;
+            line-height: calc(17px * 1.618);
+            color: #37474F;
+            margin-bottom: var(--space-medium);
+        }
+
+        .editor-paper blockquote {
+            border-left: 3px solid var(--accent-primary);
+            padding-left: var(--space-medium);
+            margin: var(--space-large) 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .editor-paper h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin: var(--space-large) 0 var(--space-medium);
+            color: var(--text-primary);
+        }
+
+        .editor-paper code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #ECEFF1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--accent-primary);
+        }
+
+        /* ═══ FLOATING MENU ═══ */
+        .floating-menu {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(8px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.2s var(--ease-bounce);
+        }
+
+        .floating-menu.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .floating-menu button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.1s;
+        }
+
+        .floating-menu button:hover {
+            background: var(--bg-rice-paper);
+            color: var(--text-primary);
+        }
+
+        .floating-menu .divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        /* ═══ STAGE PANEL ═══ */
+        .stage-panel {
+            width: 360px;
+            background: var(--bg-frosted);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.3s var(--ease-panel), opacity 0.3s;
+            overflow: hidden;
+        }
+
+        .stage-panel.collapsed {
+            width: 0;
+            border-left: none;
+            opacity: 0;
+        }
+
+        .stage-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-light);
+            padding: var(--space-small);
+            gap: var(--space-micro);
+        }
+
+        .stage-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .stage-tab:hover {
+            background: var(--bg-rice-paper);
+            color: var(--text-secondary);
+        }
+
+        .stage-tab.active {
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        .stage-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-medium);
+            overflow: hidden;
+        }
+
+        .device-frame {
+            width: 280px;
+            height: 560px;
+            background: #1C1C1E;
+            border-radius: 36px;
+            padding: 12px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .dynamic-island {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 28px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 10;
+        }
+
+        .device-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-surface);
+            border-radius: 28px;
+            overflow-y: auto;
+            padding: 48px 16px 16px;
+        }
+
+        .device-screen h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .device-screen p {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        /* ═══ INSPECTOR PANEL ═══ */
+        .inspector-panel {
+            width: 280px;
+            background: var(--bg-frosted);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.3s var(--ease-panel);
+            overflow: hidden;
+        }
+
+        .inspector-panel.collapsed {
+            width: 0;
+            border-left: none;
+        }
+
+        .inspector-section {
+            padding: var(--space-medium);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .inspector-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-muted);
+            margin-bottom: var(--space-small);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-colors {
+            display: flex;
+            gap: var(--space-small);
+        }
+
+        .theme-color {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .theme-color:hover {
+            transform: scale(1.15);
+        }
+
+        .theme-color.active {
+            border-color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-link {
+            display: block;
+            font-size: 12px;
+            color: var(--accent-primary);
+            text-decoration: none;
+            margin-top: var(--space-small);
+        }
+
+        .theme-link:hover {
+            text-decoration: underline;
+        }
+
+        .font-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            cursor: pointer;
+        }
+
+        .font-select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: var(--space-medium);
+            text-align: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 12px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-small);
+        }
+
+        .asset-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            background: var(--bg-rice-paper);
+        }
+
+        .asset-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .asset-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ═══ STATUS BAR ═══ */
+        .status-bar {
+            height: 26px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-medium);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .status-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-medium);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-divider {
+            width: 1px;
+            height: 12px;
+            background: var(--border);
+        }
+
+        /* ═══ FOCUS MODE ═══ */
+        .focus-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.03) 60%, rgba(0, 0, 0, 0.08) 100%);
+        }
+
+        .focus-mode .focus-overlay {
+            opacity: 1;
+        }
+
+        .focus-mode .header,
+        .focus-mode .status-bar {
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .focus-mode .header:hover,
+        .focus-mode .status-bar:hover {
+            opacity: 1;
+        }
+
+        /* ═══ MANAGER TABS ═══ */
+        .manager-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .manager-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .manager-tab:hover {
+            background: var(--bg-rice-paper);
+            color: var(--text-secondary);
+        }
+
+        .manager-tab.active {
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        /* ═══ VERSION PANEL ═══ */
+        .versions-panel {
+            padding-top: 8px;
+        }
+
+        .version-actions {
+            padding: 0 8px 12px;
+        }
+
+        .version-action-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .version-action-btn:hover {
+            background: #B71C1C;
+        }
+
+        .version-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin: 0 4px 4px;
+        }
+
+        .version-item:hover {
+            background: var(--bg-rice-paper);
+        }
+
+        .version-item.active {
+            background: var(--accent-primary-light);
+        }
+
+        .version-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .version-indicator.current {
+            background: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-primary-light);
+        }
+
+        .version-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .version-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .version-tag {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: var(--accent-primary);
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .version-tag.init {
+            background: var(--text-muted);
+        }
+
+        .version-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .version-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .version-menu {
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .version-item:hover .version-menu {
+            opacity: 1;
+        }
+
+        .version-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 16px 8px 8px;
+            padding: 10px;
+            background: var(--bg-rice-paper);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ═══ SLASH MENU ═══ */
+        .slash-menu {
+            position: fixed;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            padding: 8px;
+            min-width: 200px;
+            z-index: 1001;
+            animation: slashMenuIn 0.15s var(--ease-bounce);
+        }
+
+        @keyframes slashMenuIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .slash-menu-header {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 4px;
+        }
+
+        .slash-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .slash-menu-item:hover {
+            background: var(--accent-primary-light);
+        }
+
+        .slash-menu-item.selected {
+            background: var(--accent-primary-light);
+        }
+
+        .slash-menu-item .icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-rice-paper);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .slash-menu-item .label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .slash-menu-item .shortcut {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="app" :class="{ 'focus-mode': isFocusMode }">
+
+        <div class="focus-overlay"></div>
+
+        <!-- ══════ HEADER ══════ -->
+        <header class="header">
+            <div class="header-brand" @click="goToHub" title="返回首页">
+                <div class="logo">IF</div>
+                <span class="brand-name">InkForge</span>
+            </div>
+
+            <div class="header-title">
+                <input type="text" v-model="articleTitle" placeholder="无标题文章">
+                <div class="status-indicator" :class="isDirty ? 'unsaved' : 'saved'">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="isDirty ? 'bg-amber-500' : 'bg-green-600'"></span>
+                    {{ isDirty ? '编辑中' : '已保存' }}
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="icon-btn" :class="{ active: isFocusMode }" @click="toggleFocusMode" title="专注模式 (F11)">
+                    <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                </div>
+                <div class="icon-btn" @click="goToSettings" title="设置">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </div>
+                <div class="publish-btn" @click="goToPublish">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    发布中心
+                </div>
+            </div>
+        </header>
+
+        <!-- ══════ WORKSPACE ══════ -->
+        <div class="workspace">
+
+            <div class="edge-trigger left" v-if="managerCollapsed" @mouseenter="managerCollapsed = false"></div>
+
+            <!-- ═══ MANAGER PANEL ═══ -->
+            <aside class="manager-panel" :class="{ collapsed: managerCollapsed }">
+                <div class="panel-header">
+                    <span class="panel-title">资源管理器</span>
+                    <div class="icon-btn" @click="managerCollapsed = true" style="width:24px;height:24px;">
+                        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <div class="panel-content">
+                    <!-- Tab 切换 -->
+                    <div class="manager-tabs">
+                        <div class="manager-tab" :class="{ active: managerTab === 'files' }"
+                            @click="managerTab = 'files'">
+                            <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                            文件
+                        </div>
+                        <div class="manager-tab" :class="{ active: managerTab === 'versions' }"
+                            @click="managerTab = 'versions'">
+                            <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+                            版本
+                        </div>
+                    </div>
+
+                    <!-- 文件视图 -->
+                    <div v-show="managerTab === 'files'">
+                        <div class="section-label">Bundle 内容</div>
+                        <div class="file-item folder active">
+                            <i data-lucide="folder-open" class="w-4 h-4"></i>
+                            2024-Year-End-Review
+                        </div>
+                        <div class="file-item" style="padding-left: 28px;">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            main.md
+                        </div>
+                        <div class="file-item" style="padding-left: 28px;">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                            assets/
+                            <span class="count">3</span>
+                        </div>
+
+                        <div class="section-label" style="margin-top: 16px;">草稿箱</div>
+                        <div class="file-item">
+                            <i data-lucide="file" class="w-4 h-4"></i>
+                            Q1-营销方案
+                        </div>
+                        <div class="file-item">
+                            <i data-lucide="file" class="w-4 h-4"></i>
+                            产品发布会文案
+                        </div>
+                    </div>
+
+                    <!-- 版本历史视图 -->
+                    <div v-show="managerTab === 'versions'" class="versions-panel">
+                        <div class="version-actions">
+                            <button class="version-action-btn" @click="createVersion">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                创建版本
+                            </button>
+                        </div>
+
+                        <div class="section-label">版本历史</div>
+
+                        <div class="version-item" :class="{ active: currentVersion === 'v3' }"
+                            @click="switchVersion('v3')">
+                            <div class="version-indicator current"></div>
+                            <div class="version-info">
+                                <div class="version-label">v3 <span class="version-tag">当前</span></div>
+                                <div class="version-time">今天 23:45</div>
+                                <div class="version-desc">添加第二章内容</div>
+                            </div>
+                            <div class="version-menu">
+                                <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+
+                        <div class="version-item" :class="{ active: currentVersion === 'v2' }"
+                            @click="switchVersion('v2')">
+                            <div class="version-indicator"></div>
+                            <div class="version-info">
+                                <div class="version-label">v2</div>
+                                <div class="version-time">今天 21:30</div>
+                                <div class="version-desc">完善引言部分</div>
+                            </div>
+                            <div class="version-menu">
+                                <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+
+                        <div class="version-item" :class="{ active: currentVersion === 'v1' }"
+                            @click="switchVersion('v1')">
+                            <div class="version-indicator"></div>
+                            <div class="version-info">
+                                <div class="version-label">v1 <span class="version-tag init">初稿</span></div>
+                                <div class="version-time">昨天 15:20</div>
+                                <div class="version-desc">初始版本</div>
+                            </div>
+                            <div class="version-menu">
+                                <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+
+                        <div class="version-tip">
+                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            点击版本可切换，历史版本为只读
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ═══ FLOW EDITOR ═══ -->
+            <main class="editor-area">
+                <div class="editor-scroll">
+                    <div class="editor-paper" contenteditable="true" ref="editorPaper" @mouseup="handleSelection"
+                        @keyup="handleSelection" @input="onEditorInput" @keydown="onEditorKeydown">
+                        <h1>2024 年终总结：技术与人文的十字路口</h1>
+                        <p>站在 2024 的尾巴上回望，这一年我们见证了太多变革。从 AI 的狂飙突进到设计语言的范式转移，每一次技术浪潮都在重塑我们对"创作"的理解。</p>
+                        <blockquote>设计不仅仅是外表和感觉。设计是关于它如何工作的。—— 史蒂夫·乔布斯</blockquote>
+                        <h2>第一章：构成主义的回归</h2>
+                        <p>当我们审视 2024 年的设计趋势，会发现一个有趣的现象：源自 1920
+                            年代苏联的<code>构成主义</code>正以全新的姿态回归。不对称的布局、几何化的形态、以及那抹标志性的红色，正在重新定义数字界面的视觉语言。</p>
+                        <p>这种回归并非简单的复古，而是一种对"功能主义"的重新诠释。在过度装饰的 Web 3.0 时代之后，设计师们开始追问：我们真的需要那么多渐变和阴影吗？</p>
+                    </div>
+                </div>
+
+                <div class="floating-menu" ref="floatingMenu" :class="{ visible: showFloatingMenu }"
+                    :style="floatingMenuStyle">
+                    <button @click="toggleBold" title="加粗 (Ctrl+B)"><b>B</b></button>
+                    <button @click="toggleItalic" title="斜体 (Ctrl+I)"><i>I</i></button>
+                    <button @click="toggleUnderline" title="下划线"><u>U</u></button>
+                    <button @click="toggleStrikethrough" title="删除线" style="text-decoration: line-through;">S</button>
+                    <div class="divider"></div>
+                    <button @click="insertLink" title="链接"><i data-lucide="link" class="w-4 h-4"></i></button>
+                    <button @click="applyColor" title="颜色"><i data-lucide="palette" class="w-4 h-4"></i></button>
+                    <button @click="toggleCode" title="代码"><i data-lucide="code" class="w-4 h-4"></i></button>
+                    <div class="divider"></div>
+                    <button @click="toggleHeadingMenu" title="标题">H▼</button>
+                    <!-- 标题子菜单 -->
+                    <div v-if="showHeadingMenu" style="position: absolute; top: 100%; left: 0; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 4px; box-shadow: var(--shadow-float); z-index: 10;">
+                        <button @click="setHeading(1)" style="display: block; width: 100%; padding: 6px 12px; text-align: left;">H1 标题</button>
+                        <button @click="setHeading(2)" style="display: block; width: 100%; padding: 6px 12px; text-align: left;">H2 标题</button>
+                        <button @click="setHeading(3)" style="display: block; width: 100%; padding: 6px 12px; text-align: left;">H3 标题</button>
+                        <button @click="setNormalText" style="display: block; width: 100%; padding: 6px 12px; text-align: left;">正文</button>
+                    </div>
+                </div>
+
+                <!-- ═══ SLASH MENU ═══ -->
+                <div class="slash-menu" v-if="showSlashMenu" :style="slashMenuStyle">
+                    <div class="slash-menu-header">插入内容</div>
+                    <div v-for="(cmd, index) in filteredSlashCommands" :key="cmd.id"
+                         class="slash-menu-item" :class="{ selected: slashSelectedIndex === index }"
+                         @click="executeSlashCommand(cmd)">
+                        <span class="icon">{{ cmd.icon }}</span>
+                        <span class="label">{{ cmd.label }}</span>
+                        <span class="shortcut">{{ cmd.shortcut }}</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ═══ STAGE PANEL ═══ -->
+            <aside class="stage-panel" :class="{ collapsed: stageCollapsed }">
+                <div class="stage-tabs">
+                    <div class="stage-tab" :class="{ active: platform === 'wechat' }" @click="platform = 'wechat'">微信
+                    </div>
+                    <div class="stage-tab" :class="{ active: platform === 'xiaohongshu' }"
+                        @click="platform = 'xiaohongshu'">小红书</div>
+                    <div class="stage-tab" :class="{ active: platform === 'zhihu' }" @click="platform = 'zhihu'">知乎
+                    </div>
+                </div>
+
+                <div class="stage-content">
+                    <div class="device-frame">
+                        <div class="dynamic-island"></div>
+                        <div class="device-screen" v-html="previewContent || defaultPreviewContent"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ═══ INSPECTOR PANEL ═══ -->
+            <aside class="inspector-panel" :class="{ collapsed: inspectorCollapsed }">
+                <div class="inspector-section">
+                    <div class="inspector-label">
+                        <i data-lucide="palette" class="w-3.5 h-3.5"></i>
+                        排版风格
+                    </div>
+                    <div class="theme-colors">
+                        <div class="theme-color" :class="{ active: themeColor === 'red' }" style="background: #D32F2F;"
+                            @click="themeColor = 'red'"></div>
+                        <div class="theme-color" :class="{ active: themeColor === 'blue' }" style="background: #1565C0;"
+                            @click="themeColor = 'blue'"></div>
+                        <div class="theme-color" :class="{ active: themeColor === 'purple' }"
+                            style="background: #7B1FA2;" @click="themeColor = 'purple'"></div>
+                        <div class="theme-color" :class="{ active: themeColor === 'teal' }" style="background: #00796B;"
+                            @click="themeColor = 'teal'"></div>
+                        <div class="theme-color" :class="{ active: themeColor === 'black' }"
+                            style="background: #263238;" @click="themeColor = 'black'"></div>
+                    </div>
+                    <a href="inkforge_themes.html" class="theme-link">查看全部 10 种预设 →</a>
+                </div>
+
+                <div class="inspector-section">
+                    <div class="inspector-label">
+                        <i data-lucide="type" class="w-3.5 h-3.5"></i>
+                        字体控制
+                    </div>
+                    <select class="font-select" v-model="fontFamily">
+                        <option value="serif">宋体 (Serif)</option>
+                        <option value="sans">黑体 (Sans)</option>
+                        <option value="kai">楷体 (Kai)</option>
+                    </select>
+                </div>
+
+                <div class="inspector-section">
+                    <div class="inspector-label">
+                        <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                        素材库
+                    </div>
+                    <div class="upload-zone">
+                        <i data-lucide="upload" class="w-5 h-5 mx-auto mb-2"></i>
+                        <div>拖拽上传图片</div>
+                    </div>
+                    <div class="asset-grid">
+                        <div class="asset-item">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop"
+                                alt="">
+                        </div>
+                        <div class="asset-item">
+                            <img src="https://images.unsplash.com/photo-1634017839464-5c339afa5c72?w=200&h=200&fit=crop"
+                                alt="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inspector-section">
+                    <div class="inspector-label">
+                        <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+                        引用链接
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 16px;">
+                        暂无外部链接
+                    </div>
+                </div>
+            </aside>
+
+            <div class="edge-trigger right" v-if="stageCollapsed || inspectorCollapsed"
+                @mouseenter="stageCollapsed = false; inspectorCollapsed = false"></div>
+        </div>
+
+        <!-- ══════ STATUS BAR ══════ -->
+        <footer class="status-bar">
+            <div class="status-group">
+                <div class="status-item">
+                    <i data-lucide="file-text" class="w-3 h-3"></i>
+                    {{ wordCount }} 字
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-item">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    约 {{ readingTime }} 分钟
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-item">
+                    <i data-lucide="git-branch" class="w-3 h-3"></i>
+                    v1.2
+                </div>
+            </div>
+            <div class="status-group">
+                <div class="status-item">
+                    <i data-lucide="check-circle" class="w-3 h-3" style="color: var(--success);"></i>
+                    Pre-flight Ready
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-item">
+                    Platform: {{ platform === 'wechat' ? '微信公众号' : platform === 'xiaohongshu' ? '小红书' : '知乎' }}
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
+
+        createApp({
+            setup() {
+                const articleTitle = ref('2024-Year-End-Review');
+                const isDirty = ref(true);
+                const isFocusMode = ref(false);
+
+                const managerCollapsed = ref(false);
+                const stageCollapsed = ref(false);
+                const inspectorCollapsed = ref(false);
+
+                const platform = ref('wechat');
+                const themeColor = ref('red');
+                const fontFamily = ref('serif');
+
+                const showFloatingMenu = ref(false);
+                const floatingMenuStyle = ref({ top: '0px', left: '0px' });
+                const editorPaper = ref(null);
+                const floatingMenu = ref(null);
+
+                const wordCount = ref(2401);
+                const readingTime = computed(() => Math.ceil(wordCount.value / 500));
+
+                // 版本管理
+                const managerTab = ref('files');
+                const currentVersion = ref('v3');
+
+                // ═══ 版本管理数据 ═══
+                const versions = ref([]);
+                const STORAGE_KEY = 'inkforge_versions';
+                const CONTENT_KEY = 'inkforge_current_content';
+
+                // ═══ 预览同步 ═══
+                const previewContent = ref('');
+                const defaultPreviewContent = `
+                    <h1 style="font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 700; color: #D32F2F; margin-bottom: 12px;">2024 年终总结：技术与人文的十字路口</h1>
+                    <p style="font-family: 'Noto Serif SC', serif; font-size: 15px; line-height: 1.7; color: #333; margin-bottom: 12px;">站在 2024 的尾巴上回望，这一年我们见证了太多变革...</p>
+                `;
+                const themeColors = {
+                    red: '#D32F2F',
+                    blue: '#1565C0',
+                    purple: '#7B1FA2',
+                    teal: '#00796B',
+                    black: '#263238'
+                };
+
+                // ═══ 斜杠命令系统 ═══
+                const showSlashMenu = ref(false);
+                const slashMenuStyle = ref({ top: '0px', left: '0px' });
+                const slashFilter = ref('');
+                const slashSelectedIndex = ref(0);
+
+                const slashCommands = [
+                    { id: 'h2', label: '标题 2', icon: 'H2', shortcut: '##', action: () => formatText('formatBlock', '<h2>') },
+                    { id: 'h3', label: '标题 3', icon: 'H3', shortcut: '###', action: () => formatText('formatBlock', '<h3>') },
+                    { id: 'quote', label: '引用块', icon: '❝', shortcut: '>', action: () => formatText('formatBlock', '<blockquote>') },
+                    { id: 'code', label: '代码块', icon: '⌘', shortcut: '```', action: insertCodeBlock },
+                    { id: 'divider', label: '分割线', icon: '—', shortcut: '---', action: insertDivider },
+                    { id: 'image', label: '图片', icon: '🖼', shortcut: '![]', action: insertImage }
+                ];
+
+                const filteredSlashCommands = computed(() => {
+                    if (!slashFilter.value) return slashCommands;
+                    return slashCommands.filter(cmd =>
+                        cmd.label.toLowerCase().includes(slashFilter.value.toLowerCase()) ||
+                        cmd.id.toLowerCase().includes(slashFilter.value.toLowerCase())
+                    );
+                });
+
+                function insertCodeBlock() {
+                    const pre = document.createElement('pre');
+                    pre.innerHTML = '<code>// 在此输入代码</code>';
+                    pre.style.cssText = 'background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: 8px; font-family: "JetBrains Mono", monospace; overflow-x: auto;';
+                    insertNodeAtCursor(pre);
+                }
+
+                function insertDivider() {
+                    const hr = document.createElement('hr');
+                    hr.style.cssText = 'border: none; border-top: 2px solid var(--border); margin: 24px 0;';
+                    insertNodeAtCursor(hr);
+                }
+
+                function insertImage() {
+                    const url = prompt('请输入图片 URL:', 'https://');
+                    if (url && url !== 'https://') {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.cssText = 'max-width: 100%; border-radius: 8px; margin: 16px 0;';
+                        insertNodeAtCursor(img);
+                    }
+                }
+
+                function insertNodeAtCursor(node) {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(node);
+                        range.setStartAfter(node);
+                        range.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                    syncPreview();
+                }
+
+                function showSlashMenuAtCursor() {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+                        slashMenuStyle.value = {
+                            top: `${rect.bottom + 8}px`,
+                            left: `${rect.left}px`
+                        };
+                        showSlashMenu.value = true;
+                        slashFilter.value = '';
+                        slashSelectedIndex.value = 0;
+                    }
+                }
+
+                function executeSlashCommand(cmd) {
+                    // 删除斜杠字符
+                    document.execCommand('delete');
+                    // 执行命令
+                    cmd.action();
+                    showSlashMenu.value = false;
+                    syncPreview();
+                    nextTick(() => lucide.createIcons());
+                }
+
+                function handleSlashKeydown(e) {
+                    if (!showSlashMenu.value) return;
+
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        slashSelectedIndex.value = (slashSelectedIndex.value + 1) % filteredSlashCommands.value.length;
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        slashSelectedIndex.value = slashSelectedIndex.value <= 0
+                            ? filteredSlashCommands.value.length - 1
+                            : slashSelectedIndex.value - 1;
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (filteredSlashCommands.value[slashSelectedIndex.value]) {
+                            executeSlashCommand(filteredSlashCommands.value[slashSelectedIndex.value]);
+                        }
+                    } else if (e.key === 'Escape') {
+                        showSlashMenu.value = false;
+                    } else if (e.key === 'Backspace' && slashFilter.value === '') {
+                        showSlashMenu.value = false;
+                    }
+                }
+
+                function syncPreview() {
+                    if (editorPaper.value) {
+                        const html = editorPaper.value.innerHTML;
+                        previewContent.value = applyThemeStyles(html);
+                    }
+                }
+
+                function applyThemeStyles(html) {
+                    const color = themeColors[themeColor.value] || '#D32F2F';
+                    const fontMap = {
+                        serif: "'Noto Serif SC', serif",
+                        sans: "'Inter', sans-serif",
+                        kai: "'KaiTi', serif"
+                    };
+                    const font = fontMap[fontFamily.value] || fontMap.serif;
+
+                    // 应用主题样式到 HTML
+                    return html
+                        .replace(/<h1([^>]*)>/g, `<h1 style="font-family: ${font}; font-size: 18px; font-weight: 700; color: ${color}; margin-bottom: 12px; line-height: 1.4;"$1>`)
+                        .replace(/<h2([^>]*)>/g, `<h2 style="font-family: ${font}; font-size: 16px; font-weight: 600; color: ${color}; margin: 16px 0 8px; border-bottom: 2px solid ${color}; padding-bottom: 4px;"$1>`)
+                        .replace(/<p([^>]*)>/g, `<p style="font-family: ${font}; font-size: 15px; line-height: 1.7; color: #333; margin-bottom: 12px;"$1>`)
+                        .replace(/<blockquote([^>]*)>/g, `<blockquote style="border-left: 3px solid ${color}; padding-left: 12px; margin: 12px 0; font-style: italic; color: #666;"$1>`)
+                        .replace(/<code([^>]*)>/g, `<code style="background: ${color}20; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: ${color};"$1>`);
+                }
+
+                // ═══ 悬浮菜单格式化功能 ═══
+                function formatText(command, value = null) {
+                    document.execCommand(command, false, value);
+                    editorPaper.value?.focus();
+                    syncPreview();
+                }
+
+                function toggleBold() { formatText('bold'); }
+                function toggleItalic() { formatText('italic'); }
+                function toggleUnderline() { formatText('underline'); }
+                function toggleStrikethrough() { formatText('strikeThrough'); }
+
+                function insertLink() {
+                    const url = prompt('请输入链接地址:', 'https://');
+                    if (url && url !== 'https://') {
+                        formatText('createLink', url);
+                    }
+                }
+
+                function toggleCode() {
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0 && selection.toString().trim().length > 0) {
+                        const range = selection.getRangeAt(0);
+                        const selectedText = range.toString();
+                        const code = document.createElement('code');
+                        code.textContent = selectedText;
+                        range.deleteContents();
+                        range.insertNode(code);
+                        syncPreview();
+                    }
+                }
+
+                // 标题菜单
+                const showHeadingMenu = ref(false);
+                function toggleHeadingMenu() {
+                    showHeadingMenu.value = !showHeadingMenu.value;
+                }
+
+                function setHeading(level) {
+                    formatText('formatBlock', `<h${level}>`);
+                    showHeadingMenu.value = false;
+                }
+
+                function setNormalText() {
+                    formatText('formatBlock', '<p>');
+                    showHeadingMenu.value = false;
+                }
+
+                // 颜色选择
+                function applyColor() {
+                    const color = prompt('请输入颜色值 (如 #FF0000 或 red):', themeColors[themeColor.value]);
+                    if (color) {
+                        formatText('foreColor', color);
+                    }
+                }
+
+                // ═══ 版本管理功能 ═══
+                function loadVersions() {
+                    try {
+                        const saved = localStorage.getItem(STORAGE_KEY);
+                        if (saved) {
+                            versions.value = JSON.parse(saved);
+                        } else {
+                            // 创建初始版本
+                            const initialVersion = {
+                                id: 'v1',
+                                label: 'v1',
+                                title: articleTitle.value,
+                                content: editorPaper.value?.innerHTML || '',
+                                createdAt: new Date().toISOString(),
+                                description: '初始版本',
+                                isInitial: true
+                            };
+                            versions.value = [initialVersion];
+                            saveVersions();
+                        }
+                        // 设置当前版本为最新
+                        if (versions.value.length > 0) {
+                            currentVersion.value = versions.value[0].id;
+                        }
+                    } catch (e) {
+                        console.error('加载版本失败:', e);
+                    }
+                }
+
+                function saveVersions() {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(versions.value));
+                    } catch (e) {
+                        console.error('保存版本失败:', e);
+                    }
+                }
+
+                function createVersion() {
+                    const newId = `v${versions.value.length + 1}`;
+                    const newVersion = {
+                        id: newId,
+                        label: newId,
+                        title: articleTitle.value,
+                        content: editorPaper.value?.innerHTML || '',
+                        createdAt: new Date().toISOString(),
+                        description: '手动保存'
+                    };
+                    versions.value.unshift(newVersion);
+                    currentVersion.value = newId;
+                    saveVersions();
+                    isDirty.value = false;
+                    nextTick(() => lucide.createIcons());
+                }
+
+                function switchVersion(version) {
+                    const versionData = versions.value.find(v => v.id === version);
+                    if (versionData) {
+                        currentVersion.value = version;
+                        articleTitle.value = versionData.title || articleTitle.value;
+                        if (editorPaper.value) {
+                            editorPaper.value.innerHTML = versionData.content;
+                        }
+                        syncPreview();
+                        // 非最新版本提示只读
+                        if (version !== versions.value[0]?.id) {
+                            console.log(`已切换到 ${version}（历史版本）`);
+                        }
+                    }
+                    nextTick(() => lucide.createIcons());
+                }
+
+                // ═══ 自动保存 ═══
+                let autoSaveTimer = null;
+                function startAutoSave() {
+                    autoSaveTimer = setInterval(() => {
+                        if (isDirty.value) {
+                            autoSave();
+                        }
+                    }, 5 * 60 * 1000); // 5分钟
+                }
+
+                function autoSave() {
+                    // 更新当前版本内容
+                    const currentVer = versions.value.find(v => v.id === currentVersion.value);
+                    if (currentVer) {
+                        currentVer.content = editorPaper.value?.innerHTML || '';
+                        currentVer.title = articleTitle.value;
+                        currentVer.updatedAt = new Date().toISOString();
+                        saveVersions();
+                        isDirty.value = false;
+                        console.log('自动保存完成:', new Date().toLocaleTimeString());
+                    }
+                }
+
+                const toggleFocusMode = () => {
+                    isFocusMode.value = !isFocusMode.value;
+                    if (isFocusMode.value) {
+                        managerCollapsed.value = true;
+                        inspectorCollapsed.value = true;
+                    }
+                };
+
+                const handleSelection = () => {
+                    const selection = window.getSelection();
+                    if (selection && selection.toString().trim().length > 0) {
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+
+                        floatingMenuStyle.value = {
+                            top: `${rect.top - 50}px`,
+                            left: `${rect.left + rect.width / 2 - 140}px`
+                        };
+                        showFloatingMenu.value = true;
+                    } else {
+                        showFloatingMenu.value = false;
+                    }
+                };
+
+                const onEditorInput = () => {
+                    isDirty.value = true;
+                    const text = editorPaper.value?.innerText || '';
+                    wordCount.value = text.replace(/\s/g, '').length;
+                    // 同步预览
+                    syncPreview();
+                };
+
+                const onEditorKeydown = (e) => {
+                    // 斜杠命令触发
+                    if (e.key === '/' && !showSlashMenu.value) {
+                        setTimeout(() => {
+                            showSlashMenuAtCursor();
+                        }, 10);
+                    }
+                    // 斜杠菜单键盘导航
+                    handleSlashKeydown(e);
+                };
+
+                function goToHub() {
+                    window.location.href = 'inkforge_hub.html';
+                }
+
+                function goToSettings() {
+                    window.location.href = 'inkforge_settings.html';
+                }
+
+                function goToPublish() {
+                    window.location.href = 'inkforge_publish.html';
+                }
+
+                // ═══ 主题变化监听 ═══
+                watch(themeColor, () => {
+                    syncPreview();
+                    nextTick(() => lucide.createIcons());
+                });
+
+                watch(fontFamily, () => {
+                    syncPreview();
+                });
+
+                onMounted(() => {
+                    lucide.createIcons();
+
+                    // 加载版本数据
+                    nextTick(() => {
+                        loadVersions();
+                        syncPreview();
+                    });
+
+                    // 启动自动保存
+                    startAutoSave();
+
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'F11') {
+                            e.preventDefault();
+                            toggleFocusMode();
+                        }
+                        if (e.key === 'Escape' && isFocusMode.value) {
+                            isFocusMode.value = false;
+                            managerCollapsed.value = false;
+                            inspectorCollapsed.value = false;
+                        }
+                        // 快捷键支持
+                        if (e.ctrlKey || e.metaKey) {
+                            if (e.key === 'b') { e.preventDefault(); toggleBold(); }
+                            if (e.key === 'i') { e.preventDefault(); toggleItalic(); }
+                            if (e.key === 'u') { e.preventDefault(); toggleUnderline(); }
+                            if (e.key === 's') { e.preventDefault(); createVersion(); }
+                        }
+                    });
+
+                    document.addEventListener('mousedown', (e) => {
+                        if (floatingMenu.value && !floatingMenu.value.contains(e.target)) {
+                            setTimeout(() => {
+                                if (window.getSelection().toString().trim().length === 0) {
+                                    showFloatingMenu.value = false;
+                                    showHeadingMenu.value = false;
+                                }
+                            }, 100);
+                        }
+                    });
+
+                    nextTick(() => {
+                        lucide.createIcons();
+                    });
+                });
+
+                return {
+                    articleTitle, isDirty, isFocusMode,
+                    managerCollapsed, stageCollapsed, inspectorCollapsed,
+                    platform, themeColor, fontFamily,
+                    showFloatingMenu, floatingMenuStyle, editorPaper, floatingMenu,
+                    wordCount, readingTime,
+                    managerTab, currentVersion, versions,
+                    previewContent, showHeadingMenu, defaultPreviewContent,
+                    toggleFocusMode, handleSelection, onEditorInput, onEditorKeydown,
+                    goToHub, goToSettings, goToPublish,
+                    createVersion, switchVersion,
+                    // 悬浮菜单功能
+                    toggleBold, toggleItalic, toggleUnderline, toggleStrikethrough,
+                    insertLink, toggleCode, applyColor,
+                    toggleHeadingMenu, setHeading, setNormalText,
+                    // 预览同步
+                    syncPreview, themeColors,
+                    // 斜杠命令
+                    showSlashMenu, slashMenuStyle, slashFilter, slashSelectedIndex,
+                    filteredSlashCommands, executeSlashCommand
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

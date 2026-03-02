@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InkForge — 设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-rice-paper: #FAFBFC;
+            --bg-surface: #FFFFFF;
+            --accent-primary: #D32F2F;
+            --accent-primary-light: #FFEBEE;
+            --text-primary: #263238;
+            --text-secondary: #607D8B;
+            --text-muted: #90A4AE;
+            --border: #ECEFF1;
+            --border-light: #F5F5F5;
+            --ease-panel: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            min-height: 100vh;
+            background: var(--bg-rice-paper);
+            color: var(--text-primary);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+        }
+
+        .settings-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* ═══ HEADER ═══ */
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-primary-light);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .settings-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* ═══ LAYOUT ═══ */
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 32px;
+        }
+
+        /* ═══ NAV ═══ */
+        .settings-nav {
+            position: sticky;
+            top: 32px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+        }
+
+        /* ═══ CONTENT ═══ */
+        .settings-content {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .section {
+            padding: 28px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--accent-primary);
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .form-row:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .form-label .title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-label .desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            min-width: 200px;
+            transition: border-color 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+
+        .form-select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.on {
+            background: var(--accent-primary);
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toggle-switch.on::before {
+            transform: translateX(20px);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .range-input {
+            width: 140px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 40px;
+        }
+
+        /* ═══ ACCOUNT SECTION ═══ */
+        .account-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-rice-paper);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .account-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+        }
+
+        .account-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .account-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* ═══ BUTTON ═══ */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-rice-paper);
+            border-color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="settings-container">
+            <header class="settings-header">
+                <div class="back-btn" @click="goBack">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </div>
+                <h1>设置</h1>
+            </header>
+
+            <div class="settings-layout">
+                <nav class="settings-nav">
+                    <div class="nav-item" :class="{ active: tab === 'appearance' }" @click="tab = 'appearance'">
+                        <i data-lucide="sun" class="w-4 h-4"></i>
+                        外观
+                    </div>
+                    <div class="nav-item" :class="{ active: tab === 'editor' }" @click="tab = 'editor'">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        编辑器
+                    </div>
+                    <div class="nav-item" :class="{ active: tab === 'export' }" @click="tab = 'export'">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        导出
+                    </div>
+                    <div class="nav-item" :class="{ active: tab === 'account' }" @click="tab = 'account'">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        账户
+                    </div>
+                    <div class="nav-item" :class="{ active: tab === 'ai' }" @click="tab = 'ai'">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        AI 服务
+                    </div>
+                </nav>
+
+                <div class="settings-content">
+                    <!-- Appearance -->
+                    <div class="section" v-show="tab === 'appearance'">
+                        <h2 class="section-title">
+                            <i data-lucide="sun" class="w-5 h-5"></i>
+                            外观设置
+                        </h2>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">深色模式</span>
+                                <span class="desc">切换深色/浅色界面</span>
+                            </div>
+                            <div class="toggle-switch" :class="{ on: darkMode }" @click="darkMode = !darkMode"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">界面字号</span>
+                                <span class="desc">调整界面元素大小</span>
+                            </div>
+                            <select class="form-select" v-model="uiScale">
+                                <option value="small">小</option>
+                                <option value="medium">中</option>
+                                <option value="large">大</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">动画效果</span>
+                                <span class="desc">启用界面动画过渡</span>
+                            </div>
+                            <div class="toggle-switch" :class="{ on: animations }" @click="animations = !animations">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor -->
+                    <div class="section" v-show="tab === 'editor'">
+                        <h2 class="section-title">
+                            <i data-lucide="edit-3" class="w-5 h-5"></i>
+                            编辑器设置
+                        </h2>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">默认字体</span>
+                                <span class="desc">编辑器默认字体族</span>
+                            </div>
+                            <select class="form-select" v-model="fontFamily">
+                                <option value="serif">宋体 (Serif)</option>
+                                <option value="sans">黑体 (Sans)</option>
+                                <option value="kai">楷体 (Kai)</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">字号</span>
+                                <span class="desc">正文默认字号</span>
+                            </div>
+                            <div class="range-container">
+                                <input type="range" class="range-input" v-model="fontSize" min="12" max="20">
+                                <span class="range-value">{{ fontSize }}px</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">行高</span>
+                                <span class="desc">行间距比例</span>
+                            </div>
+                            <div class="range-container">
+                                <input type="range" class="range-input" v-model="lineHeight" min="1.4" max="2.2"
+                                    step="0.1">
+                                <span class="range-value">{{ lineHeight }}</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">自动保存</span>
+                                <span class="desc">自动保存间隔时间</span>
+                            </div>
+                            <select class="form-select" v-model="autoSave">
+                                <option value="30">30 秒</option>
+                                <option value="60">1 分钟</option>
+                                <option value="300">5 分钟</option>
+                                <option value="0">关闭</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">拼写检查</span>
+                                <span class="desc">启用实时拼写检查</span>
+                            </div>
+                            <div class="toggle-switch" :class="{ on: spellCheck }" @click="spellCheck = !spellCheck">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export -->
+                    <div class="section" v-show="tab === 'export'">
+                        <h2 class="section-title">
+                            <i data-lucide="upload" class="w-5 h-5"></i>
+                            导出设置
+                        </h2>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">默认平台</span>
+                                <span class="desc">发布时的默认目标平台</span>
+                            </div>
+                            <select class="form-select" v-model="defaultPlatform">
+                                <option value="wechat">微信公众号</option>
+                                <option value="xhs">小红书</option>
+                                <option value="zhihu">知乎</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">默认主题</span>
+                                <span class="desc">导出时默认使用的主题预设</span>
+                            </div>
+                            <select class="form-select" v-model="defaultTheme">
+                                <option value="thesis">论文翻译</option>
+                                <option value="legal">法学研讨</option>
+                                <option value="report">行业研报</option>
+                                <option value="aigc">AIGC创意</option>
+                                <option value="code">编程创造</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Account -->
+                    <div class="section" v-show="tab === 'account'">
+                        <h2 class="section-title">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                            账户信息
+                        </h2>
+                        <div class="account-card">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=InkForge" class="account-avatar"
+                                alt="">
+                            <div class="account-info">
+                                <h3>InkForge 用户 <span class="badge">Pro</span></h3>
+                                <p>creator@inkforge.app</p>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">用户名</span>
+                            </div>
+                            <input type="text" class="form-input" value="InkForge 用户">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">邮箱</span>
+                            </div>
+                            <input type="email" class="form-input" value="creator@inkforge.app">
+                        </div>
+                    </div>
+
+                    <!-- AI -->
+                    <div class="section" v-show="tab === 'ai'">
+                        <h2 class="section-title">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            AI 服务配置
+                        </h2>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">AI 服务商</span>
+                                <span class="desc">选择 AI 服务提供商</span>
+                            </div>
+                            <select class="form-select" v-model="aiProvider">
+                                <option value="openai">OpenAI</option>
+                                <option value="claude">Claude</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">API Key</span>
+                                <span class="desc">输入您的 API 密钥</span>
+                            </div>
+                            <input type="password" class="form-input" placeholder="sk-..." v-model="apiKey">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-label">
+                                <span class="title">模型</span>
+                                <span class="desc">选择使用的模型</span>
+                            </div>
+                            <select class="form-select" v-model="aiModel">
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                <option value="gpt-3.5">GPT-3.5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        createApp({
+            setup() {
+                const tab = ref('appearance')
+
+                // Appearance
+                const darkMode = ref(false)
+                const uiScale = ref('medium')
+                const animations = ref(true)
+
+                // Editor
+                const fontFamily = ref('serif')
+                const fontSize = ref(16)
+                const lineHeight = ref(1.8)
+                const autoSave = ref('60')
+                const spellCheck = ref(true)
+
+                // Export
+                const defaultPlatform = ref('wechat')
+                const defaultTheme = ref('thesis')
+
+                // AI
+                const aiProvider = ref('openai')
+                const apiKey = ref('')
+                const aiModel = ref('gpt-4')
+
+                function goBack() {
+                    const from = new URLSearchParams(window.location.search).get('from')
+                    window.location.href = from === 'hub' ? 'inkforge_hub.html' : 'inkforge_workstation.html'
+                }
+
+                return {
+                    tab,
+                    darkMode, uiScale, animations,
+                    fontFamily, fontSize, lineHeight, autoSave, spellCheck,
+                    defaultPlatform, defaultTheme,
+                    aiProvider, apiKey, aiModel,
+                    goBack
+                }
+            },
+            mounted() {
+                lucide.createIcons()
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>

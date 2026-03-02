@@ -1,0 +1,16 @@
+[ 2531210ms] [ERROR] {"code":"UNKNOWN_ERROR","message":"Cannot read properties of undefined (reading 'localsInner')","context":{"componentName":"Unknown","errorInfo":"mounted hook","stack":"TypeError: Cannot read properties of undefined (reading 'localsInner')\n    at _DecorationGroup.locals (http://localhost:3013/node_modules/.vite/deps/chunk-QQTDYVSF.js?v=88116ba5:3867:36)\n    at iterDeco (http://localhost:3013/node_modules/.vite/deps/chunk-QQTDYVSF.js?v=88116ba5:1862:21)\n    at _NodeViewDesc.updateChildren (http://localhost:3013/node_modules/.vite/deps/chunk-QQTDYVSF.js?v=88116ba5:1250:5)\n    at docViewDesc (http://localhost:3013/node_modules/.vite/deps/chunk-QQTDYVSF.js?v=88116b... [TRUNCATED, original length: 1138]"},"timestamp":"2026-03-01T10:29:28.407Z"} @ http://localhost:3013/src/services/error.ts:182
+[ 2784736ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3013/src/views/WorkstationView.vue?t=1772361221846&vue&type=style&index=0&scoped=a8763d5a&lang.css:0
+[ 2784738ms] [ERROR] [vite] Failed to reload /src/views/WorkstationView.vue?vue&type=style&index=0&scoped=a8763d5a&lang.css. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:3013/@vite/client:881
+[ 2790033ms] [ERROR] [vite] Failed to reload /src/views/WorkstationView.vue. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:3013/@vite/client:881
+[ 2907383ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "editor". Expected Object | Null, got Undefined  
+  at <SlashCommandMenu editor=undefined > 
+  at <EditorPanel ref="editorPanelRef" > 
+  at <WorkstationView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView> 
+  at <App> @ http://localhost:3013/node_modules/.vite/deps/chunk-MG52UOXF.js?v=b1ce68fc:2196
+[ 2914168ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "editor". Expected Object | Null, got Undefined  
+  at <SlashCommandMenu editor=undefined > 
+  at <EditorPanel ref="editorPanelRef" > 
+  at <WorkstationView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView> 
+  at <App> @ http://localhost:3013/node_modules/.vite/deps/chunk-MG52UOXF.js?v=b1ce68fc:2196
