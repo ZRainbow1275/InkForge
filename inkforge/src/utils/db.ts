@@ -1,10 +1,8 @@
 import Dexie, { type Table } from 'dexie'
-import { z } from 'zod'
 import type { Category, Article, EditedContent } from '@/types'
 import { DEFAULT_PRESET_ID, DOCUMENT_STATUS, VERSION } from '@/constants'
 import { VERSION_MANAGEMENT } from '@/config/security'
 import { CreateDocumentDTOSchema } from '@/schemas/article'
-import { computeChecksum } from '@/services/sync/key-derivation'
 import { encrypt } from '@/utils/crypto'
 import { logger } from '@/services/error'
 
@@ -23,18 +21,6 @@ export interface DocumentVersion {
     isPinned?: boolean  // 是否置顶/星标（置顶版本不会被自动删除）
 }
 
-const DOCUMENT_SYNC_STATUS_VALUES = ['local', 'synced', 'modified', 'conflict'] as const
-const SYNC_LOG_ACTION_VALUES = ['push', 'pull', 'conflict', 'resolve', 'error'] as const
-const SYNC_LOG_STATUS_VALUES = ['success', 'error', 'pending'] as const
-const ACTIVITY_ACTION_VALUES = ['create', 'edit', 'delete', 'export', 'sync', 'import', 'version', 'backup'] as const
-const ACTIVITY_TARGET_TYPE_VALUES = ['document', 'version', 'category', 'asset', 'settings', 'account'] as const
-
-export type DocumentSyncStatus = typeof DOCUMENT_SYNC_STATUS_VALUES[number]
-export type SyncLogAction = typeof SYNC_LOG_ACTION_VALUES[number]
-export type SyncLogStatus = typeof SYNC_LOG_STATUS_VALUES[number]
-export type ActivityAction = typeof ACTIVITY_ACTION_VALUES[number]
-export type ActivityTargetType = typeof ACTIVITY_TARGET_TYPE_VALUES[number]
-
 /**
  * 文档（Bundle）
  */
@@ -45,84 +31,9 @@ export interface Document {
     categoryId: string | null
     currentVersionId: string
     status: 'draft' | 'published'
-    syncStatus: DocumentSyncStatus
-    syncedAt: Date | null
-    remoteVersion: number
-    accountId: string
-    checksum: string
     presetId: string
     createdAt: Date
     updatedAt: Date
-}
-
-/**
- * 本地账户
- */
-export interface Account {
-    id: string
-    name: string
-    email: string
-    avatarBlobId: string | null
-    bio: string
-    createdAt: Date
-    updatedAt: Date
-}
-
-export interface SyncLogMetadata {
-    localVersion?: number
-    remoteVersion?: number
-    strategy?: 'local-wins' | 'remote-wins' | 'manual'
-    bytesTransferred?: number
-}
-
-/**
- * 同步日志
- */
-export interface SyncLog {
-    id: string
-    action: SyncLogAction
-    documentId: string
-    timestamp: Date
-    status: SyncLogStatus
-    details: string
-    metadata?: SyncLogMetadata
-}
-
-export interface PendingChangeRecord {
-    id: string
-    articleId: string
-    operation: 'create' | 'update' | 'delete'
-    timestamp: string
-    checksum: string
-    encryptedContent?: ArrayBuffer
-    synced: boolean
-    retryCount: number
-    accountId: string
-}
-
-/**
- * 设置档案
- */
-export interface SettingsProfile {
-    id: string
-    name: string
-    settings: string
-    createdAt: Date
-    updatedAt: Date
-    isDefault: boolean
-}
-
-/**
- * 活动日志
- */
-export interface ActivityLog {
-    id: string
-    action: ActivityAction
-    targetType: ActivityTargetType
-    targetId: string
-    targetTitle: string
-    timestamp: Date
-    metadata: Record<string, unknown>
 }
 
 /**
@@ -156,27 +67,6 @@ class InkForgeDB extends Dexie {
     documents!: Table<Document>
     versions!: Table<DocumentVersion>
     assets!: Table<AssetRecord>
-    accounts!: Table<Account>
-    pending_changes!: Table<PendingChangeRecord>
-    sync_logs!: Table<SyncLog>
-    settings_profiles!: Table<SettingsProfile>
-    activity_logs!: Table<ActivityLog>
-
-    get syncLogs(): Table<SyncLog> {
-        return this.sync_logs
-    }
-
-    get pendingChanges(): Table<PendingChangeRecord> {
-        return this.pending_changes
-    }
-
-    get settingsProfiles(): Table<SettingsProfile> {
-        return this.settings_profiles
-    }
-
-    get activityLogs(): Table<ActivityLog> {
-        return this.activity_logs
-    }
 
     constructor() {
         super('InkForgeDB')
@@ -205,129 +95,10 @@ class InkForgeDB extends Dexie {
             versions: 'id, documentId, createdAt',
             assets: 'id, articleId, type, name, *tags, createdAt'
         })
-
-        // v4: 同步与企业级设置基础设施
-        this.version(4).stores({
-            categories: 'id, name, createdAt',
-            articles: 'id, categoryId, status, createdAt, sourceUrl',
-            contents: 'id, articleId, createdAt',
-            documents: 'id, categoryId, status, syncStatus, accountId, createdAt, updatedAt',
-            versions: 'id, documentId, createdAt',
-            assets: 'id, articleId, type, name, *tags, createdAt',
-            accounts: 'id, email, createdAt',
-            sync_logs: 'id, documentId, action, timestamp, status',
-            settings_profiles: 'id, name, isDefault, createdAt',
-            activity_logs: 'id, action, targetType, targetId, timestamp'
-        }).upgrade(async (tx) => {
-            await tx.table('documents').toCollection().modify((doc: Record<string, unknown>) => {
-                if (typeof doc.syncStatus !== 'string') doc.syncStatus = 'local'
-                if (!Object.prototype.hasOwnProperty.call(doc, 'syncedAt')) doc.syncedAt = null
-                if (typeof doc.remoteVersion !== 'number') doc.remoteVersion = 0
-                if (typeof doc.accountId !== 'string' || doc.accountId.length === 0) {
-                    doc.accountId = 'local-default'
-                }
-                if (typeof doc.checksum !== 'string') doc.checksum = ''
-            })
-
-            const accountsTable = tx.table('accounts')
-            const count = await accountsTable.count()
-
-            if (count === 0) {
-                const now = new Date()
-                await accountsTable.add({
-                    id: 'local-default',
-                    name: 'InkForge 用户',
-                    email: '',
-                    avatarBlobId: null,
-                    bio: '',
-                    createdAt: now,
-                    updatedAt: now
-                })
-            }
-        })
-
-        this.version(5).stores({
-            categories: 'id, name, createdAt',
-            articles: 'id, categoryId, status, createdAt, sourceUrl',
-            contents: 'id, articleId, createdAt',
-            documents: 'id, categoryId, status, syncStatus, accountId, createdAt, updatedAt',
-            versions: 'id, documentId, createdAt',
-            assets: 'id, articleId, type, name, *tags, createdAt',
-            accounts: 'id, email, createdAt',
-            pending_changes: 'id, articleId, operation, synced, timestamp, accountId',
-            sync_logs: 'id, documentId, action, timestamp, status',
-            settings_profiles: 'id, name, isDefault, createdAt',
-            activity_logs: 'id, action, targetType, targetId, timestamp'
-        }).upgrade(async (tx) => {
-            const pendingChangesTable = tx.table('pending_changes')
-            await pendingChangesTable.toCollection().modify((change: Record<string, unknown>) => {
-                if (typeof change.accountId !== 'string' || change.accountId.length === 0) {
-                    change.accountId = 'local-default'
-                }
-                if (typeof change.synced !== 'boolean') {
-                    change.synced = false
-                }
-                if (typeof change.retryCount !== 'number') {
-                    change.retryCount = 0
-                }
-            })
-        })
     }
 }
 
 export const db = new InkForgeDB()
-
-const MetadataSchema = z.record(z.string(), z.unknown())
-const DocumentSyncStatusSchema = z.enum(DOCUMENT_SYNC_STATUS_VALUES)
-const CreateAccountInputSchema = z.object({
-    id: z.string().min(1).optional(),
-    name: z.string().trim().min(1).max(100),
-    email: z.union([z.literal(''), z.string().trim().email()]).default(''),
-    avatarBlobId: z.string().min(1).nullable().default(null),
-    bio: z.string().max(2_000).default('')
-})
-const UpdateAccountInputSchema = CreateAccountInputSchema.partial()
-const AddSyncLogInputSchema = z.object({
-    action: z.enum(SYNC_LOG_ACTION_VALUES),
-    documentId: z.string().min(1),
-    timestamp: z.date().optional(),
-    status: z.enum(SYNC_LOG_STATUS_VALUES),
-    details: z.string().trim().min(1).max(5_000),
-    metadata: MetadataSchema.optional()
-})
-const SaveSettingsProfileInputSchema = z.object({
-    id: z.string().min(1).optional(),
-    name: z.string().trim().min(1).max(100),
-    settings: z.string().refine((value) => {
-        try {
-            JSON.parse(value)
-            return true
-        } catch {
-            return false
-        }
-    }, 'settings 必须是合法 JSON 字符串'),
-    isDefault: z.boolean().optional()
-})
-const LogActivityInputSchema = z.object({
-    action: z.enum(ACTIVITY_ACTION_VALUES),
-    targetType: z.enum(ACTIVITY_TARGET_TYPE_VALUES),
-    targetId: z.string().min(1),
-    targetTitle: z.string().trim().min(1).max(200),
-    metadata: MetadataSchema.optional()
-})
-
-function resolveDirtySyncStatus(currentStatus: DocumentSyncStatus | undefined): DocumentSyncStatus {
-    if (currentStatus === 'conflict') {
-        return 'conflict'
-    }
-
-    return currentStatus === 'synced' ? 'modified' : 'local'
-}
-
-async function computeDocumentChecksum(content: string): Promise<string> {
-    const contentBytes = new TextEncoder().encode(content)
-    return computeChecksum(contentBytes)
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // 版本管理服务
@@ -408,7 +179,6 @@ export async function createDocument(title: string, content: string = ''): Promi
     const now = new Date()
     const docId = generatePrefixedId('doc')
     const versionId = generatePrefixedId('v')
-    const checksum = await computeDocumentChecksum(validated.content)
 
     const doc: Document = {
         id: docId,
@@ -417,11 +187,6 @@ export async function createDocument(title: string, content: string = ''): Promi
         categoryId: null,
         currentVersionId: versionId,
         status: DOCUMENT_STATUS.DRAFT,
-        syncStatus: DocumentSyncStatusSchema.enum.local,
-        syncedAt: null,
-        remoteVersion: 0,
-        accountId: 'local-default',
-        checksum,
         presetId: DEFAULT_PRESET_ID,
         createdAt: now,
         updatedAt: now
@@ -444,11 +209,6 @@ export async function createDocument(title: string, content: string = ''): Promi
         await db.versions.add(version)
     })
 
-    await logActivity('create', 'document', doc.id, doc.title, {
-        status: doc.status,
-        versionId,
-    })
-
     return doc
 }
 
@@ -463,8 +223,6 @@ export async function saveVersion(
     description: string = '新版本'
 ): Promise<SaveVersionResult> {
     const now = new Date()
-    const existingDocument = await db.documents.get(documentId)
-    const checksum = await computeDocumentChecksum(content)
 
     // 使用统一的版本标签格式
     const versionCount = await db.versions.where('documentId').equals(documentId).count()
@@ -489,8 +247,6 @@ export async function saveVersion(
             currentVersionId: version.id,
             content,
             title,
-            syncStatus: resolveDirtySyncStatus(existingDocument?.syncStatus),
-            checksum,
             updatedAt: now
         })
 
@@ -536,12 +292,6 @@ export async function saveVersion(
             ]
         }
     }
-
-    await logActivity('version', 'version', version.id, version.label, {
-        documentId,
-        title,
-        currentVersionId: version.id,
-    })
 
     return result
 }
@@ -611,21 +361,12 @@ export async function switchToVersion(
     try {
         const version = await db.versions.get(versionId)
         if (!version) return null
-        const existingDocument = await db.documents.get(documentId)
-        const checksum = await computeDocumentChecksum(version.content)
 
         await db.documents.update(documentId, {
             currentVersionId: versionId,
             content: version.content,
             title: version.title,
-            syncStatus: resolveDirtySyncStatus(existingDocument?.syncStatus),
-            checksum,
             updatedAt: new Date()
-        })
-
-        await logActivity('edit', 'document', documentId, version.title, {
-            versionId,
-            source: 'switch-version',
         })
 
         return version
@@ -664,300 +405,15 @@ export async function getAllDocuments(): Promise<Document[]> {
  */
 export async function deleteDocument(documentId: string): Promise<void> {
     try {
-        const existingDocument = await db.documents.get(documentId)
-
         // 使用事务确保原子性
         await db.transaction('rw', [db.versions, db.documents], async () => {
             await db.versions.where('documentId').equals(documentId).delete()
             await db.documents.delete(documentId)
         })
-
-        await logActivity('delete', 'document', documentId, existingDocument?.title ?? '未命名文档')
     } catch (error) {
         logger.error('删除文档失败', { documentId, error })
         throw error
     }
-}
-
-/**
- * 创建账户
- */
-export async function createAccount(input: z.input<typeof CreateAccountInputSchema>): Promise<Account> {
-    try {
-        const validated = CreateAccountInputSchema.parse(input)
-        const now = new Date()
-
-        const account: Account = {
-            id: validated.id ?? generatePrefixedId('account'),
-            name: validated.name,
-            email: validated.email,
-            avatarBlobId: validated.avatarBlobId,
-            bio: validated.bio,
-            createdAt: now,
-            updatedAt: now
-        }
-
-        await db.accounts.add(account)
-        return account
-    } catch (error) {
-        logger.error('创建账户失败', { error, input })
-        throw error
-    }
-}
-
-/**
- * 获取账户
- */
-export async function getAccount(accountId: string): Promise<Account | undefined> {
-    try {
-        return await db.accounts.get(accountId)
-    } catch (error) {
-        logger.error('获取账户失败', { accountId, error })
-        throw error
-    }
-}
-
-/**
- * 更新账户
- */
-export async function updateAccount(
-    accountId: string,
-    updates: z.input<typeof UpdateAccountInputSchema>
-): Promise<void> {
-    try {
-        const validated = UpdateAccountInputSchema.parse(updates)
-        await db.accounts.update(accountId, {
-            ...validated,
-            updatedAt: new Date()
-        })
-    } catch (error) {
-        logger.error('更新账户失败', { accountId, error })
-        throw error
-    }
-}
-
-/**
- * 删除账户，并将关联文档回退到默认本地账户
- */
-export async function deleteAccount(accountId: string): Promise<void> {
-    if (accountId === 'local-default') {
-        throw new Error('默认本地账户不可删除')
-    }
-
-    try {
-        await db.transaction('rw', [db.accounts, db.documents], async () => {
-            await db.documents.where('accountId').equals(accountId).modify({ accountId: 'local-default' })
-            await db.accounts.delete(accountId)
-        })
-    } catch (error) {
-        logger.error('删除账户失败', { accountId, error })
-        throw error
-    }
-}
-
-/**
- * 新增同步日志
- */
-export async function addSyncLog(input: z.input<typeof AddSyncLogInputSchema>): Promise<SyncLog> {
-    try {
-        const validated = AddSyncLogInputSchema.parse(input)
-
-        const log: SyncLog = {
-            id: generatePrefixedId('sync'),
-            action: validated.action,
-            documentId: validated.documentId,
-            timestamp: validated.timestamp ?? new Date(),
-            status: validated.status,
-            details: validated.details,
-            metadata: validated.metadata
-        }
-
-        await db.syncLogs.add(log)
-        return log
-    } catch (error) {
-        logger.error('写入同步日志失败', { error, input })
-        throw error
-    }
-}
-
-/**
- * 获取同步日志
- */
-export async function getSyncLogs(documentId?: string): Promise<SyncLog[]> {
-    try {
-        if (documentId) {
-            const logs = await db.syncLogs.where('documentId').equals(documentId).toArray()
-            return logs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        }
-
-        return await db.syncLogs.orderBy('timestamp').reverse().toArray()
-    } catch (error) {
-        logger.error('获取同步日志失败', { documentId, error })
-        throw error
-    }
-}
-
-/**
- * 保存设置档案
- */
-export async function saveSettingsProfile(
-    input: z.input<typeof SaveSettingsProfileInputSchema>
-): Promise<SettingsProfile> {
-    try {
-        const validated = SaveSettingsProfileInputSchema.parse(input)
-        const now = new Date()
-        const existingProfile = validated.id
-            ? await db.settingsProfiles.get(validated.id)
-            : undefined
-
-        const profile: SettingsProfile = {
-            id: validated.id ?? generatePrefixedId('profile'),
-            name: validated.name,
-            settings: validated.settings,
-            createdAt: existingProfile?.createdAt ?? now,
-            updatedAt: now,
-            isDefault: validated.isDefault ?? existingProfile?.isDefault ?? false
-        }
-
-        await db.transaction('rw', [db.settingsProfiles], async () => {
-            if (profile.isDefault) {
-                await db.settingsProfiles.toCollection().modify((item) => {
-                    item.isDefault = false
-                })
-            }
-
-            await db.settingsProfiles.put(profile)
-        })
-
-        return profile
-    } catch (error) {
-        logger.error('保存设置档案失败', { error, input })
-        throw error
-    }
-}
-
-/**
- * 获取设置档案列表
- */
-export async function getSettingsProfiles(): Promise<SettingsProfile[]> {
-    try {
-        const profiles = await db.settingsProfiles.toArray()
-        return profiles.sort((a, b) => {
-            if (a.isDefault !== b.isDefault) {
-                return Number(b.isDefault) - Number(a.isDefault)
-            }
-
-            return b.updatedAt.getTime() - a.updatedAt.getTime()
-        })
-    } catch (error) {
-        logger.error('获取设置档案失败', { error })
-        throw error
-    }
-}
-
-/**
- * 删除设置档案
- */
-export async function deleteSettingsProfile(profileId: string): Promise<void> {
-    try {
-        await db.settingsProfiles.delete(profileId)
-    } catch (error) {
-        logger.error('删除设置档案失败', { profileId, error })
-        throw error
-    }
-}
-
-/**
- * 记录活动日志
- */
-export async function logActivity(
-    action: ActivityAction,
-    targetType: ActivityTargetType,
-    targetId: string,
-    targetTitle: string,
-    metadata: Record<string, unknown> = {}
-): Promise<ActivityLog> {
-    try {
-        const validated = LogActivityInputSchema.parse({
-            action,
-            targetType,
-            targetId,
-            targetTitle,
-            metadata
-        })
-
-        const activity: ActivityLog = {
-            id: generatePrefixedId('activity'),
-            action: validated.action,
-            targetType: validated.targetType,
-            targetId: validated.targetId,
-            targetTitle: validated.targetTitle,
-            timestamp: new Date(),
-            metadata: validated.metadata ?? {}
-        }
-
-        await db.activityLogs.add(activity)
-        if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('inkforge:activity-log-updated', {
-                detail: {
-                    action: activity.action,
-                    targetType: activity.targetType,
-                    targetId: activity.targetId,
-                }
-            }))
-        }
-        return activity
-    } catch (error) {
-        logger.error('写入活动日志失败', { action, targetType, targetId, error })
-        throw error
-    }
-}
-
-/**
- * 获取活动日志
- */
-export async function getActivityLogs(limit: number = 50): Promise<ActivityLog[]> {
-    try {
-        return await db.activityLogs.orderBy('timestamp').reverse().limit(limit).toArray()
-    } catch (error) {
-        logger.error('获取活动日志失败', { limit, error })
-        throw error
-    }
-}
-
-export interface DatabaseSizeResult {
-    tables: Record<string, number>
-    total: number
-}
-
-/**
- * 获取数据库各表记录数量
- */
-export async function getDatabaseSize(): Promise<DatabaseSizeResult> {
-    const tableNames = [
-        'categories',
-        'articles',
-        'contents',
-        'documents',
-        'versions',
-        'assets',
-        'accounts',
-        'pending_changes',
-        'sync_logs',
-        'settings_profiles',
-        'activity_logs'
-    ] as const
-
-    const tables: Record<string, number> = {}
-    let total = 0
-
-    for (const tableName of tableNames) {
-        const count = await db.table(tableName).count()
-        tables[tableName] = count
-        total += count
-    }
-
-    return { tables, total }
 }
 
 /**

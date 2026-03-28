@@ -13,9 +13,7 @@ function goHome() {
     <div class="content">
       <h1>404</h1>
       <p>页面不存在</p>
-      <button @click="goHome">
-        返回首页
-      </button>
+      <button @click="goHome">返回首页</button>
     </div>
   </div>
 </template>

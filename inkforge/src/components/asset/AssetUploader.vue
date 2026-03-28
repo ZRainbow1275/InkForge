@@ -171,32 +171,15 @@ function dismissError() {
       class="hidden-input"
       @change="handleFileSelect"
       @click.stop
-    >
+    />
 
     <!-- Idle 状态 -->
-    <div
-      v-if="state === 'idle' && uploadingFiles.length === 0"
-      class="uploader-content idle-content"
-    >
+    <div v-if="state === 'idle' && uploadingFiles.length === 0" class="uploader-content idle-content">
       <div class="upload-icon">
-        <svg
-          width="36"
-          height="36"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line
-            x1="12"
-            y1="3"
-            x2="12"
-            y2="15"
-          />
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
       </div>
       <div class="upload-text">
@@ -206,40 +189,19 @@ function dismissError() {
     </div>
 
     <!-- Hover 状态 -->
-    <div
-      v-if="state === 'hover'"
-      class="uploader-content hover-content"
-    >
+    <div v-if="state === 'hover'" class="uploader-content hover-content">
       <div class="upload-icon pulse">
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line
-            x1="12"
-            y1="3"
-            x2="12"
-            y2="15"
-          />
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
       </div>
       <span class="upload-primary-text">松开以上传文件</span>
     </div>
 
     <!-- Uploading 状态 -->
-    <div
-      v-if="state === 'uploading'"
-      class="uploader-content uploading-content"
-      @click.stop
-    >
+    <div v-if="state === 'uploading'" class="uploader-content uploading-content" @click.stop>
       <div class="upload-progress-header">
         <span class="uploading-title">
           正在上传 ({{ uploadSummary.done }}/{{ uploadSummary.total }})
@@ -253,84 +215,26 @@ function dismissError() {
           :class="{ error: file.error, done: file.progress >= 100 }"
         >
           <span class="upload-file-name">{{ file.name }}</span>
-          <div
-            v-if="file.error"
-            class="upload-file-error"
-          >
-            {{ file.error }}
-          </div>
-          <div
-            v-else
-            class="upload-file-bar"
-          >
-            <div
-              class="upload-file-bar-fill"
-              :style="{ width: `${file.progress}%` }"
-            />
+          <div v-if="file.error" class="upload-file-error">{{ file.error }}</div>
+          <div v-else class="upload-file-bar">
+            <div class="upload-file-bar-fill" :style="{ width: `${file.progress}%` }"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 错误提示条 -->
-    <div
-      v-if="errorMessage && state === 'idle'"
-      class="error-banner"
-      @click.stop
-    >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="10"
-        />
-        <line
-          x1="15"
-          y1="9"
-          x2="9"
-          y2="15"
-        />
-        <line
-          x1="9"
-          y1="9"
-          x2="15"
-          y2="15"
-        />
+    <div v-if="errorMessage && state === 'idle'" class="error-banner" @click.stop>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
       <span class="error-text">{{ errorMessage }}</span>
-      <button
-        class="error-dismiss"
-        @click.stop="dismissError"
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <line
-            x1="18"
-            y1="6"
-            x2="6"
-            y2="18"
-          />
-          <line
-            x1="6"
-            y1="6"
-            x2="18"
-            y2="18"
-          />
+      <button class="error-dismiss" @click.stop="dismissError">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
     </div>

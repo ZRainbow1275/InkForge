@@ -58,7 +58,7 @@ export function markdownToZhihuClean(
     if (match.startsWith('```mermaid')) {
       mermaidCount++
       if (mermaidHandling === 'prompt') {
-        codeBlocks.push('> 提示：此处原为 Mermaid 图表，知乎不支持 Mermaid 渲染，建议截图后上传。')
+        codeBlocks.push('> ⚠️ 此处原为 Mermaid 图表，知乎不支持 Mermaid 渲染，建议截图后上传。')
       } else {
         codeBlocks.push('') // remove 模式
       }
@@ -91,11 +91,11 @@ export function markdownToZhihuClean(
   if (convertTasks) {
     result = result.replace(/^(\s*)- \[x\]\s*/gm, (_match, indent: string) => {
       taskListCount++
-      return `${indent}- 已完成 `
+      return `${indent}- ✅ `
     })
     result = result.replace(/^(\s*)- \[ \]\s*/gm, (_match, indent: string) => {
       taskListCount++
-      return `${indent}- 待办 `
+      return `${indent}- ☐ `
     })
   }
 
@@ -200,7 +200,7 @@ function cleanPlatformSpecific(text: string): string {
   text = text.replace(/<!--[\s\S]*?-->/g, '')
 
   // 移除零宽字符
-  text = text.replace(/\u200B|\u200C|\u200D|\uFEFF/g, '')
+  text = text.replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
 
   return text
 }

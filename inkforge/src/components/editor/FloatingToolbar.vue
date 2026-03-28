@@ -2,7 +2,7 @@
 /**
  * FloatingToolbar — 手动实现的浮动格式工具栏
  *
- * 不使用 @tiptap/vue-3 的 <BubbleMenu> 组件！
+ * ⚠️ 不使用 @tiptap/vue-3 的 <BubbleMenu> 组件！
  * BubbleMenu 在 onMounted 中调用 editor.registerPlugin() → view.updateState()，
  * 而 EditorContent 的元素交换用了 nextTick 延迟，存在不可避免的竞态条件，
  * 导致 view.docView.localsInner 崩溃。
@@ -22,7 +22,6 @@ import {
   Superscript, Subscript,
   Table, CheckSquare
 } from 'lucide-vue-next'
-import { useSettingsStore } from '@/stores/settings'
 
 const props = defineProps<{
   editor: Editor | undefined
@@ -30,12 +29,8 @@ const props = defineProps<{
 
 // ---- 工具栏可见性与定位 ----
 const visible = ref(false)
-const compactToolbar = ref(false)
-const toolbarStyle = ref<Record<string, string>>({ top: '0px', left: '0px', maxWidth: '680px' })
+const toolbarStyle = ref({ top: '0px', left: '0px' })
 const toolbarEl = ref<HTMLElement | null>(null)
-const settingsStore = useSettingsStore()
-
-let layoutResizeObserver: ResizeObserver | null = null
 
 function isActive(type: string | Record<string, unknown>, options?: Record<string, unknown>): boolean {
   if (typeof type === 'string') {
@@ -72,29 +67,13 @@ function updateToolbar(): void {
     // 计算中心位置（相对于编辑器容器）
     const editorRect = view.dom.closest('.editor-paper')?.getBoundingClientRect()
       ?? view.dom.getBoundingClientRect()
-    const toolbarWidth = toolbarEl.value?.offsetWidth ?? 360
-    const toolbarHeight = toolbarEl.value?.offsetHeight ?? 44
 
     const centerX = (start.left + end.right) / 2 - editorRect.left
-    const preferredTop = start.top - editorRect.top - toolbarHeight - 12
-    const fallbackTop = end.bottom - editorRect.top + 12
-    const preferredLeft = centerX - toolbarWidth / 2
-    const leftEdge = 8
-    const rightEdge = Math.max(8, editorRect.width - toolbarWidth - 8)
-    const adjustedLeft = editorRect.width <= toolbarWidth + 16
-      ? 8
-      : Math.min(Math.max(preferredLeft, leftEdge), rightEdge)
-    const maxTop = Math.max(4, editorRect.height - toolbarHeight - 4)
-    const adjustedTop = preferredTop >= 4
-      ? preferredTop
-      : Math.min(Math.max(4, fallbackTop), maxTop)
-
-    compactToolbar.value = editorRect.width < 480 || toolbarWidth > editorRect.width - 24
+    const topY = start.top - editorRect.top - 50 // 工具栏在选区上方
 
     toolbarStyle.value = {
-      top: `${adjustedTop}px`,
-      left: `${adjustedLeft}px`,
-      maxWidth: `${Math.max(220, editorRect.width - 16)}px`,
+      top: `${Math.max(4, topY)}px`,
+      left: `${centerX}px`,
     }
     visible.value = true
   } catch {
@@ -137,49 +116,6 @@ function detachListeners(): void {
   }
 }
 
-function detachLayoutObserver(): void {
-  if (layoutResizeObserver) {
-    layoutResizeObserver.disconnect()
-    layoutResizeObserver = null
-  }
-}
-
-function attachLayoutObserver(): void {
-  detachLayoutObserver()
-
-  if (typeof ResizeObserver === 'undefined' || !visible.value) {
-    return
-  }
-
-  layoutResizeObserver = new ResizeObserver(() => {
-    void nextTick(updateToolbar)
-  })
-
-  if (toolbarEl.value) {
-    layoutResizeObserver.observe(toolbarEl.value)
-  }
-
-  const paperEl = props.editor?.view.dom.closest('.editor-paper')
-  if (paperEl instanceof HTMLElement) {
-    layoutResizeObserver.observe(paperEl)
-  }
-}
-
-function handleViewportResize(): void {
-  if (visible.value) {
-    void nextTick(updateToolbar)
-  }
-}
-
-function formatTitle(label: string, shortcutKey?: string): string {
-  if (!shortcutKey) {
-    return label
-  }
-
-  const shortcut = settingsStore.settings.shortcuts[shortcutKey]
-  return shortcut ? `${label} (${shortcut})` : label
-}
-
 watch(
   () => props.editor,
   (editor, oldEditor) => {
@@ -189,23 +125,7 @@ watch(
   { immediate: true }
 )
 
-watch(
-  [visible, toolbarEl, () => props.editor],
-  () => {
-    void nextTick(() => {
-      if (visible.value) {
-        attachLayoutObserver()
-      } else {
-        detachLayoutObserver()
-      }
-    })
-  },
-)
-
-onBeforeUnmount(() => {
-  detachListeners()
-  detachLayoutObserver()
-})
+onBeforeUnmount(detachListeners)
 
 // ---- 链接插入逻辑 ----
 const showLinkInput = ref(false)
@@ -260,10 +180,6 @@ function cancelLink(): void {
   showLinkInput.value = false
   linkUrl.value = ''
   props.editor?.chain().focus().run()
-}
-
-function handleExternalLinkEdit(): void {
-  handleLinkClick()
 }
 
 // ---- 高亮颜色面板 ----
@@ -340,14 +256,10 @@ function handleClickOutside(e: MouseEvent): void {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside, true)
-  window.addEventListener('inkforge:edit-link', handleExternalLinkEdit as EventListener)
-  window.addEventListener('resize', handleViewportResize)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside, true)
-  window.removeEventListener('inkforge:edit-link', handleExternalLinkEdit as EventListener)
-  window.removeEventListener('resize', handleViewportResize)
 })
 </script>
 
@@ -357,162 +269,334 @@ onBeforeUnmount(() => {
       v-if="visible && editor"
       ref="toolbarEl"
       class="floating-toolbar"
-      :class="{ 'is-compact': compactToolbar }"
       :style="toolbarStyle"
       @mousedown.prevent
     >
-      <!-- 格式组 -->
-      <button :class="{ active: isActive('bold') }" :title="formatTitle('加粗', 'bold')" @click="editor?.chain().focus().toggleBold().run()"><Bold :size="15" /></button>
-      <button :class="{ active: isActive('italic') }" :title="formatTitle('斜体', 'italic')" @click="editor?.chain().focus().toggleItalic().run()"><Italic :size="15" /></button>
-      <button :class="{ active: isActive('underline') }" :title="formatTitle('下划线', 'underline')" @click="editor?.chain().focus().toggleUnderline().run()"><Underline :size="15" /></button>
-      <button :class="{ active: isActive('strike') }" :title="formatTitle('删除线', 'strikethrough')" @click="editor?.chain().focus().toggleStrike().run()"><Strikethrough :size="15" /></button>
-      <button :class="{ active: isActive('code') }" :title="formatTitle('行内代码', 'inlineCode')" @click="editor?.chain().focus().toggleCode().run()"><Code :size="15" /></button>
-
+      <!-- 格式组: Bold / Italic / Underline / Strikethrough / Code -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('bold') }"
+        @click="editor?.chain().focus().toggleBold().run()"
+        title="加粗 (Ctrl+B)"
+      >
+        <Bold :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('italic') }"
+        @click="editor?.chain().focus().toggleItalic().run()"
+        title="斜体 (Ctrl+I)"
+      >
+        <Italic :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('underline') }"
+        @click="editor?.chain().focus().toggleUnderline().run()"
+        title="下划线 (Ctrl+U)"
+      >
+        <Underline :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('strike') }"
+        @click="editor?.chain().focus().toggleStrike().run()"
+        title="删除线 (Ctrl+Shift+X)"
+      >
+        <Strikethrough :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('code') }"
+        @click="editor?.chain().focus().toggleCode().run()"
+        title="行内代码 (Ctrl+E)"
+      >
+        <Code :size="15" />
+      </button>
       <!-- 高亮 (带颜色面板) -->
-      <div ref="highlightPanelEl" class="toolbar-btn-wrapper">
-        <button :class="{ active: isActive('highlight') }" :title="formatTitle('高亮标记', 'highlight')" @click="toggleHighlightPanel"><Highlighter :size="15" /></button>
-        <div v-if="showHighlightPanel" class="toolbar-color-panel">
-          <button v-for="hc in highlightColors" :key="hc.color" class="toolbar-color-swatch" :style="{ background: hc.color }" :title="hc.label" @click="applyHighlight(hc.color)" />
-          <button class="toolbar-color-reset" title="清除高亮" @click="removeHighlight">清除</button>
+      <div class="ft-btn-wrapper" ref="highlightPanelEl">
+        <button
+          class="ft-btn"
+          :class="{ active: isActive('highlight') }"
+          @click="toggleHighlightPanel"
+          title="高亮标记"
+        >
+          <Highlighter :size="15" />
+        </button>
+        <div v-if="showHighlightPanel" class="ft-color-panel">
+          <button
+            v-for="hc in highlightColors"
+            :key="hc.color"
+            class="ft-color-swatch"
+            :style="{ background: hc.color }"
+            :title="hc.label"
+            @click="applyHighlight(hc.color)"
+          />
+          <button
+            class="ft-color-reset"
+            title="清除高亮"
+            @click="removeHighlight"
+          >
+            清除
+          </button>
         </div>
       </div>
-
       <!-- 文字颜色 (带颜色面板) -->
-      <div ref="textColorPanelEl" class="toolbar-btn-wrapper">
-        <button :class="{ active: isActive('textStyle') }" :title="formatTitle('文字颜色')" @click="toggleTextColorPanel"><Palette :size="15" /></button>
-        <div v-if="showTextColorPanel" class="toolbar-color-panel">
-          <button v-for="tc in textColors" :key="tc.color" class="toolbar-color-swatch" :style="{ background: tc.color }" :title="tc.label" @click="applyTextColor(tc.color)" />
-          <button class="toolbar-color-reset" title="重置颜色" @click="resetTextColor">重置</button>
+      <div class="ft-btn-wrapper" ref="textColorPanelEl">
+        <button
+          class="ft-btn"
+          :class="{ active: isActive('textStyle') }"
+          @click="toggleTextColorPanel"
+          title="文字颜色"
+        >
+          <Palette :size="15" />
+        </button>
+        <div v-if="showTextColorPanel" class="ft-color-panel">
+          <button
+            v-for="tc in textColors"
+            :key="tc.color"
+            class="ft-color-swatch"
+            :style="{ background: tc.color }"
+            :title="tc.label"
+            @click="applyTextColor(tc.color)"
+          />
+          <button
+            class="ft-color-reset"
+            title="重置颜色"
+            @click="resetTextColor"
+          >
+            重置
+          </button>
         </div>
       </div>
-
-      <span class="toolbar-sep" />
-
       <!-- 上标 / 下标 -->
-      <button :class="{ active: isActive('superscript') }" :title="formatTitle('上标')" @click="editor?.chain().focus().toggleSuperscript().run()"><Superscript :size="15" /></button>
-      <button :class="{ active: isActive('subscript') }" :title="formatTitle('下标')" @click="editor?.chain().focus().toggleSubscript().run()"><Subscript :size="15" /></button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('superscript') }"
+        @click="editor?.chain().focus().toggleSuperscript().run()"
+        title="上标"
+      >
+        <Superscript :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('subscript') }"
+        @click="editor?.chain().focus().toggleSubscript().run()"
+        title="下标"
+      >
+        <Subscript :size="15" />
+      </button>
 
-      <span class="toolbar-sep" />
+      <div class="ft-divider" />
 
-      <!-- 标题组 -->
-      <button :class="{ active: isActive('heading', { level: 1 }) }" :title="formatTitle('一级标题', 'heading1')" @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"><Heading1 :size="15" /></button>
-      <button :class="{ active: isActive('heading', { level: 2 }) }" :title="formatTitle('二级标题', 'heading2')" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"><Heading2 :size="15" /></button>
-      <button :class="{ active: isActive('heading', { level: 3 }) }" :title="formatTitle('三级标题', 'heading3')" @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"><Heading3 :size="15" /></button>
+      <!-- 标题组: H1 / H2 / H3 -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('heading', { level: 1 }) }"
+        @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+        title="一级标题"
+      >
+        <Heading1 :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('heading', { level: 2 }) }"
+        @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
+        title="二级标题"
+      >
+        <Heading2 :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('heading', { level: 3 }) }"
+        @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
+        title="三级标题"
+      >
+        <Heading3 :size="15" />
+      </button>
 
-      <span class="toolbar-sep" />
+      <div class="ft-divider" />
 
-      <!-- 块级组 -->
-      <button :class="{ active: isActive('blockquote') }" :title="formatTitle('引用', 'blockquote')" @click="editor?.chain().focus().toggleBlockquote().run()"><Quote :size="15" /></button>
-      <button :class="{ active: isActive('bulletList') }" :title="formatTitle('无序列表', 'bulletList')" @click="editor?.chain().focus().toggleBulletList().run()"><List :size="15" /></button>
-      <button :class="{ active: isActive('orderedList') }" :title="formatTitle('有序列表', 'orderedList')" @click="editor?.chain().focus().toggleOrderedList().run()"><ListOrdered :size="15" /></button>
-      <button :class="{ active: isActive('taskList') }" :title="formatTitle('任务列表', 'taskList')" @click="editor?.chain().focus().toggleTaskList().run()"><CheckSquare :size="15" /></button>
+      <!-- 块级组: Blockquote / BulletList / OrderedList -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('blockquote') }"
+        @click="editor?.chain().focus().toggleBlockquote().run()"
+        title="引用 (Ctrl+Shift+B)"
+      >
+        <Quote :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('bulletList') }"
+        @click="editor?.chain().focus().toggleBulletList().run()"
+        title="无序列表"
+      >
+        <List :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('orderedList') }"
+        @click="editor?.chain().focus().toggleOrderedList().run()"
+        title="有序列表"
+      >
+        <ListOrdered :size="15" />
+      </button>
+      <!-- 任务列表 -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('taskList') }"
+        @click="editor?.chain().focus().toggleTaskList().run()"
+        title="任务列表"
+      >
+        <CheckSquare :size="15" />
+      </button>
 
-      <span class="toolbar-sep" />
+      <div class="ft-divider" />
 
-      <!-- 对齐组 -->
-      <button :class="{ active: isActive({ textAlign: 'left' }) }" :title="formatTitle('左对齐')" @click="editor?.chain().focus().setTextAlign('left').run()"><AlignLeft :size="15" /></button>
-      <button :class="{ active: isActive({ textAlign: 'center' }) }" :title="formatTitle('居中对齐')" @click="editor?.chain().focus().setTextAlign('center').run()"><AlignCenter :size="15" /></button>
-      <button :class="{ active: isActive({ textAlign: 'right' }) }" :title="formatTitle('右对齐')" @click="editor?.chain().focus().setTextAlign('right').run()"><AlignRight :size="15" /></button>
-      <button :class="{ active: isActive({ textAlign: 'justify' }) }" :title="formatTitle('两端对齐')" @click="editor?.chain().focus().setTextAlign('justify').run()"><AlignJustify :size="15" /></button>
+      <!-- 对齐组: Left / Center / Right / Justify -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive({ textAlign: 'left' }) }"
+        @click="editor?.chain().focus().setTextAlign('left').run()"
+        title="左对齐"
+      >
+        <AlignLeft :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive({ textAlign: 'center' }) }"
+        @click="editor?.chain().focus().setTextAlign('center').run()"
+        title="居中对齐"
+      >
+        <AlignCenter :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive({ textAlign: 'right' }) }"
+        @click="editor?.chain().focus().setTextAlign('right').run()"
+        title="右对齐"
+      >
+        <AlignRight :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive({ textAlign: 'justify' }) }"
+        @click="editor?.chain().focus().setTextAlign('justify').run()"
+        title="两端对齐"
+      >
+        <AlignJustify :size="15" />
+      </button>
 
-      <span class="toolbar-sep" />
+      <div class="ft-divider" />
 
-      <!-- 插入组 -->
-      <button :class="{ active: isActive('link') }" :title="formatTitle('链接', 'link')" @click="handleLinkClick"><Link :size="15" /></button>
-      <button :class="{ active: isActive('codeBlock') }" :title="formatTitle('代码块', 'codeBlock')" @click="editor?.chain().focus().toggleCodeBlock().run()"><Code2 :size="15" /></button>
-      <button :title="formatTitle('分割线', 'horizontalRule')" @click="editor?.chain().focus().setHorizontalRule().run()"><Minus :size="15" /></button>
-      <button :title="formatTitle('插入表格', 'table')" @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"><Table :size="15" /></button>
+      <!-- 插入组: Link / CodeBlock / HorizontalRule / Table -->
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('link') }"
+        @click="handleLinkClick"
+        title="链接 (Ctrl+K)"
+      >
+        <Link :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        :class="{ active: isActive('codeBlock') }"
+        @click="editor?.chain().focus().toggleCodeBlock().run()"
+        title="代码块"
+      >
+        <Code2 :size="15" />
+      </button>
+      <button
+        class="ft-btn"
+        @click="editor?.chain().focus().setHorizontalRule().run()"
+        title="分割线"
+      >
+        <Minus :size="15" />
+      </button>
+      <!-- 插入表格 -->
+      <button
+        class="ft-btn"
+        @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
+        title="插入表格"
+      >
+        <Table :size="15" />
+      </button>
 
       <!-- 链接输入浮层 -->
-      <div v-if="showLinkInput" class="toolbar-link-input">
+      <div v-if="showLinkInput" class="ft-link-input">
         <input
           v-model="linkUrl"
           type="url"
           placeholder="输入链接地址..."
-          class="toolbar-link-field"
+          class="ft-link-field"
           @keydown.enter.prevent="confirmLink"
           @keydown.escape.prevent="cancelLink"
-        >
-        <button class="toolbar-link-confirm" @click="confirmLink">确定</button>
-        <button class="toolbar-link-cancel" @click="cancelLink">取消</button>
+        />
+        <button class="ft-link-confirm" @click="confirmLink">确定</button>
+        <button class="ft-link-cancel" @click="cancelLink">取消</button>
       </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
-/* ---- 浮动工具栏主容器 ---- */
 .floating-toolbar {
   position: absolute;
-  z-index: 50;
+  z-index: 100;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 2px;
   padding: 6px 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
-  flex-wrap: wrap;
-  max-width: calc(var(--paper-width, 680px) - 16px);
+  background: rgba(38, 50, 56, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
   pointer-events: auto;
-  white-space: normal;
+  white-space: nowrap;
 }
 
-/* ---- 按钮 ---- */
-.floating-toolbar button {
-  width: 28px;
-  height: 28px;
+.ft-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: transparent;
-  color: #475569;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.12s ease;
-  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.1s ease;
 }
 
-.floating-toolbar button:hover {
-  background: rgba(211, 47, 47, 0.08);
-  color: #1e293b;
+.ft-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
 }
 
-.floating-toolbar button.active {
-  background: rgba(211, 47, 47, 0.12);
-  color: #D32F2F;
+.ft-btn.active {
+  background: rgba(211, 47, 47, 0.85);
+  color: white;
 }
 
-/* ---- 分隔线 ---- */
-.toolbar-sep {
+.ft-divider {
   width: 1px;
-  height: 16px;
-  background: rgba(0, 0, 0, 0.08);
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
   margin: 0 4px;
-  flex-shrink: 0;
-}
-
-/* ---- Compact 模式 ---- */
-.floating-toolbar.is-compact button:nth-child(n+8) {
-  display: none;
-}
-.floating-toolbar.is-compact .toolbar-sep {
-  display: none;
 }
 
 /* ---- 按钮容器 (用于包含弹出面板的按钮) ---- */
-.toolbar-btn-wrapper {
+.ft-btn-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
 /* ---- 颜色选择面板 ---- */
-.toolbar-color-panel {
+.ft-color-panel {
   position: absolute;
   top: calc(100% + 6px);
   left: 50%;
@@ -521,124 +605,108 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05);
+  background: rgba(38, 50, 56, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
   white-space: nowrap;
   z-index: 110;
 }
 
-.toolbar-color-swatch {
+.ft-color-swatch {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.1s ease;
   padding: 0;
 }
 
-.toolbar-color-swatch:hover {
-  border-color: #D32F2F;
+.ft-color-swatch:hover {
+  border-color: white;
   transform: scale(1.15);
 }
 
-.toolbar-color-reset {
+.ft-color-reset {
   height: 20px;
   padding: 0 6px;
   margin-left: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   background: transparent;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 11px;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.1s ease;
   white-space: nowrap;
 }
 
-.toolbar-color-reset:hover {
-  color: #1e293b;
-  border-color: rgba(0, 0, 0, 0.20);
-  background: rgba(0, 0, 0, 0.04);
+.ft-color-reset:hover {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ---- 链接输入浮层 ---- */
-.toolbar-link-input {
+.ft-link-input {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 4px;
   padding: 4px 6px;
   margin-left: 4px;
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.floating-toolbar.is-compact .toolbar-link-input {
-  width: 100%;
-  margin-left: 0;
-  padding: 8px 0 0;
-  border-left: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.toolbar-link-field {
+.ft-link-field {
   width: 180px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.03);
-  color: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
   font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
 }
 
-.floating-toolbar.is-compact .toolbar-link-field {
-  width: 100%;
+.ft-link-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
-.toolbar-link-field::placeholder {
-  color: #94a3b8;
+.ft-link-field:focus {
+  border-color: rgba(211, 47, 47, 0.6);
 }
 
-.toolbar-link-field:focus {
-  border-color: rgba(211, 47, 47, 0.5);
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.08);
-}
-
-.toolbar-link-confirm,
-.toolbar-link-cancel {
+.ft-link-confirm,
+.ft-link-cancel {
   height: 26px;
-  padding: 0 10px;
+  padding: 0 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: all 0.1s ease;
 }
 
-.toolbar-link-confirm {
-  background: #D32F2F;
+.ft-link-confirm {
+  background: rgba(211, 47, 47, 0.85);
   color: white;
 }
 
-.toolbar-link-confirm:hover {
-  background: #c62828;
+.ft-link-confirm:hover {
+  background: rgba(211, 47, 47, 1);
 }
 
-.toolbar-link-cancel {
+.ft-link-cancel {
   background: transparent;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.toolbar-link-cancel:hover {
-  color: #1e293b;
-  background: rgba(0, 0, 0, 0.05);
+.ft-link-cancel:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ---- Transition ---- */
@@ -653,11 +721,11 @@ onBeforeUnmount(() => {
 @keyframes ftAppear {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(4px);
+    transform: translateX(-50%) scale(0.95) translateY(4px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateX(-50%) scale(1) translateY(0);
   }
 }
 </style>

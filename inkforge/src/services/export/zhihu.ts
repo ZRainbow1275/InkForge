@@ -38,7 +38,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-academic',
     name: '学术论文',
-    icon: '专题',
+    icon: '🎓',
     primaryColor: '#0066ff',
     accentColor: '#003d99',
     fontSize: '16px',
@@ -47,7 +47,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-tech',
     name: '技术博客',
-    icon: '代码',
+    icon: '💻',
     primaryColor: '#1a1a2e',
     accentColor: '#16213e',
     fontSize: '15px',
@@ -56,7 +56,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-insight',
     name: '深度评论',
-    icon: '写作',
+    icon: '📝',
     primaryColor: '#2d3436',
     accentColor: '#636e72',
     fontSize: '16px',
@@ -346,7 +346,7 @@ function buildZhihuFootnoteSection(
 
   let section = `
 <section style="margin-top:32px;padding-top:20px;border-top:2px solid ${primaryColor};">
-  <h4 style="font-size:16px;font-weight:700;color:${primaryColor};margin-bottom:16px;letter-spacing:0.5px;">参考链接</h4>
+  <h4 style="font-size:16px;font-weight:700;color:${primaryColor};margin-bottom:16px;letter-spacing:0.5px;">📚 参考链接</h4>
   <div style="font-size:13px;color:#555;line-height:2;">`
 
   footnotes.forEach((fn, index) => {

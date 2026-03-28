@@ -1,6 +1,0 @@
-{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
-{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
-{"file": "inkforge/src/components/editor/FloatingToolbar.vue", "reason": "工具栏"}
-{"file": "inkforge/src/components/editor/EditorPanel.vue", "reason": "编辑器集成"}
-{"file": "inkforge/src/styles/design-system.css", "reason": "检查全局样式冲突"}
-{"file": "prompts/0327/05-toolbar-complete-spec.md", "reason": "工具栏规格"}

@@ -153,7 +153,7 @@ export const useAssetStore = defineStore('asset', () => {
             try {
                 const asset = await uploadAsset(file, articleId)
                 results.push(asset)
-            } catch {
+            } catch (err) {
                 logger.warn('批量上传中单文件失败', { fileName: file.name })
             }
         }

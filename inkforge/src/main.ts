@@ -4,12 +4,6 @@ import App from './App.vue'
 import router from './router'
 import { logger } from './services/error'
 import { isTauriEnv } from '@/utils/platform'
-import { useAccountStore } from './stores/account'
-import { useAIStore } from './stores/ai'
-import { useArticleStore } from './stores/article'
-import { useCategoryStore } from './stores/category'
-import { useEditorStore } from './stores/editor'
-import { useSettingsStore } from './stores/settings'
 import './styles/main.css'
 import './styles/client.css'
 
@@ -52,16 +46,18 @@ function setupCleanupHandlers(): void {
 
 // 显式初始化 Store（在 Pinia 注册后、挂载前）
 async function initializeStores() {
+    const { useArticleStore } = await import('./stores/article')
+    const { useAIStore } = await import('./stores/ai')
+    const { useCategoryStore } = await import('./stores/category')
+    const { useEditorStore } = await import('./stores/editor')
+
     const articleStore = useArticleStore()
     const aiStore = useAIStore()
-    const accountStore = useAccountStore()
     const categoryStore = useCategoryStore()
     const editorStore = useEditorStore()
-    const settingsStore = useSettingsStore()
 
     // 注册统一的清理函数
     cleanupStores = () => {
-        accountStore.cleanup()
         editorStore.cleanup()
         aiStore.reset()
         logger.info('所有 Store 资源已清理')
@@ -73,8 +69,7 @@ async function initializeStores() {
     await Promise.all([
         articleStore.initialize(),
         aiStore.initialize(),
-        categoryStore.initialize(),
-        accountStore.loadAccount(settingsStore.settings.account.profileId)
+        categoryStore.initialize()
     ])
 }
 

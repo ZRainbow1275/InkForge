@@ -5,8 +5,7 @@
  * 包含全局错误边界，捕获未处理的组件异常
  * + 全局 CSS Variables 从 Settings Store 同步
  */
-import { ref, computed, watch, onMounted, onBeforeUnmount, onErrorCaptured } from 'vue'
-import { AlertTriangle } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onErrorCaptured } from 'vue'
 import { logger, ErrorCode, AppError } from './services/error'
 import { useSettingsStore } from './stores/settings'
 
@@ -14,13 +13,11 @@ import { useSettingsStore } from './stores/settings'
  * Settings → 全局 CSS Variables 同步
  */
 const settingsStore = useSettingsStore()
-let systemThemeQuery: MediaQueryList | null = null
-let handleSystemThemeChange: ((event: MediaQueryListEvent) => void) | null = null
 
 /** 将 settings 中的外观配置同步到 :root CSS 变量 */
 function syncCSSVariables(): void {
   const root = document.documentElement
-  const { accentColor, theme, fontFamily, fontSize, lineHeight, reducedMotion, sidebarWidth } = settingsStore.settings.appearance
+  const { accentColor, theme, fontFamily, fontSize, lineHeight, reducedMotion } = settingsStore.settings.appearance
 
   // 主题色
   root.style.setProperty('--accent-primary', accentColor)
@@ -38,7 +35,6 @@ function syncCSSVariables(): void {
   root.style.setProperty('--font-body', fontMap[fontFamily] || fontMap.serif)
   root.style.setProperty('--font-size-body', `${fontSize}px`)
   root.style.setProperty('--line-height-body', String(lineHeight))
-  root.style.setProperty('--sidebar-width', `${sidebarWidth}px`)
 
   // 主题 (light/dark/system)
   applyTheme(theme)
@@ -49,7 +45,6 @@ function syncCSSVariables(): void {
   } else {
     root.classList.remove('reduce-motion')
   }
-  root.setAttribute('data-reduced-motion', String(reducedMotion))
 }
 
 /** 应用主题 class */
@@ -57,12 +52,12 @@ function applyTheme(theme: 'light' | 'dark' | 'system'): void {
   const root = document.documentElement
   root.classList.remove('theme-light', 'theme-dark')
 
-  const resolvedTheme = theme === 'system'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    : theme
-
-  root.classList.add(`theme-${resolvedTheme}`)
-  root.setAttribute('data-theme', resolvedTheme)
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    root.classList.add(prefersDark ? 'theme-dark' : 'theme-light')
+  } else {
+    root.classList.add(`theme-${theme}`)
+  }
 }
 
 /** 简单的颜色明度调整 */
@@ -79,19 +74,11 @@ onMounted(() => {
   syncCSSVariables()
 
   // 监听系统主题变化
-  systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  handleSystemThemeChange = () => {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (settingsStore.settings.appearance.theme === 'system') {
       applyTheme('system')
     }
-  }
-  systemThemeQuery.addEventListener('change', handleSystemThemeChange)
-})
-
-onBeforeUnmount(() => {
-  if (systemThemeQuery && handleSystemThemeChange) {
-    systemThemeQuery.removeEventListener('change', handleSystemThemeChange)
-  }
+  })
 })
 
 watch(
@@ -163,40 +150,25 @@ function handleDismiss(): void {
 
 <template>
   <!-- 错误回退 UI -->
-  <div
-    v-if="hasError"
-    class="error-boundary"
-  >
+  <div v-if="hasError" class="error-boundary">
     <div class="error-boundary__content">
       <div class="error-boundary__icon">
-        <AlertTriangle
-          :size="64"
-          :stroke-width="1.5"
-        />
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
       </div>
-      <h1 class="error-boundary__title">
-        页面出现问题
-      </h1>
-      <p class="error-boundary__message">
-        {{ errorMessage }}
-      </p>
-      <p
-        v-if="showTechnicalDetails"
-        class="error-boundary__details"
-      >
+      <h1 class="error-boundary__title">页面出现问题</h1>
+      <p class="error-boundary__message">{{ errorMessage }}</p>
+      <p v-if="showTechnicalDetails" class="error-boundary__details">
         错误位置: {{ errorDetails }}
       </p>
       <div class="error-boundary__actions">
-        <button
-          class="error-boundary__btn error-boundary__btn--primary"
-          @click="handleRetry"
-        >
+        <button class="error-boundary__btn error-boundary__btn--primary" @click="handleRetry">
           刷新页面
         </button>
-        <button
-          class="error-boundary__btn error-boundary__btn--secondary"
-          @click="handleDismiss"
-        >
+        <button class="error-boundary__btn error-boundary__btn--secondary" @click="handleDismiss">
           尝试恢复
         </button>
       </div>
@@ -204,20 +176,7 @@ function handleDismiss(): void {
   </div>
 
   <!-- 正常内容 -->
-  <router-view
-    v-else
-    v-slot="{ Component, route }"
-  >
-    <Transition
-      :name="route.meta.transition || 'page-fade'"
-      mode="out-in"
-    >
-      <component
-        :is="Component"
-        :key="route.fullPath"
-      />
-    </Transition>
-  </router-view>
+  <router-view v-else />
 </template>
 
 <style>

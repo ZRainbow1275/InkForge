@@ -13,7 +13,7 @@ type ReadyPayload = Parameters<Events['ready']>[0]
 
 // Props with defaults
 const props = withDefaults(defineProps<{
-  modelValue?: string
+  modelValue: string
   placeholder?: string
   readonly?: boolean
 }>(), {

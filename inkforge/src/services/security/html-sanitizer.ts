@@ -249,7 +249,7 @@ export function createDOMPurifyConfig(options: HtmlSanitizerOptions = {}): Confi
 
   // 如果不允许外部链接，添加 URI 钩子
   if (!allowExternalLinks) {
-    config.ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i
+    config.ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
   }
 
   return config

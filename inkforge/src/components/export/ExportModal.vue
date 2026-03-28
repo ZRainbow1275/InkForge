@@ -3,21 +3,13 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { marked } from 'marked'
 import {
   X, Copy, Download, CheckCircle,
-  Hash, Link2, AlertCircle, Loader2,
-  Archive, BookOpen, CircleHelp, CircleX, FileJson, FileText, Lightbulb, MessagesSquare, TriangleAlert,
-  type LucideIcon,
+  Hash, Link2, AlertCircle, Loader2
 } from 'lucide-vue-next'
 import {
   convertToPlatform, getPlatformPresets,
   convertToWechatWithStats, copyToClipboard, getDefaultPreset,
   detectQuality, themePresets
 } from '@/services/export'
-import {
-  downloadAllDocumentsAsZip,
-  downloadDocumentAsJson,
-  downloadDocumentAsMarkdown,
-} from '@/services/export/local-export'
-import { resolveIconComponent } from '@/utils/lucide-icons'
 import type {
   Platform, ExportOptions, ExportStats,
   QualityReport, QualityIssueSeverity, CodeTheme
@@ -38,23 +30,15 @@ const CODE_THEMES: { id: CodeTheme; label: string }[] = [
 ]
 
 const PLATFORMS = [
-  { id: 'wechat' as Platform, name: '微信公众号', icon: MessagesSquare, copyLabel: '复制到微信' },
-  { id: 'xiaohongshu' as Platform, name: '小红书', icon: BookOpen, copyLabel: '复制到小红书' },
-  { id: 'zhihu' as Platform, name: '知乎', icon: CircleHelp, copyLabel: '复制到知乎' },
-] as const satisfies ReadonlyArray<{
-  id: Platform
-  name: string
-  icon: LucideIcon
-  copyLabel: string
-}>
+  { id: 'wechat' as Platform, name: '微信公众号', icon: '\uD83D\uDCAC', copyLabel: '复制到微信' },
+  { id: 'xiaohongshu' as Platform, name: '小红书', icon: '\uD83D\uDCD5', copyLabel: '复制到小红书' },
+  { id: 'zhihu' as Platform, name: '知乎', icon: '\uD83D\uDD35', copyLabel: '复制到知乎' },
+] as const
 
 // ─── Props / Emits ───────────────────────────────────────
 const props = defineProps<{
   visible: boolean
   content: string
-  title?: string
-  articleId?: string
-  updatedAt?: Date | string | number
 }>()
 
 const emit = defineEmits<{
@@ -167,18 +151,6 @@ watch(
 
 // ─── Copy ────────────────────────────────────────────────
 const copySuccess = ref(false)
-const localExportFeedback = ref<{ kind: 'success' | 'error'; message: string } | null>(null)
-const isBatchExporting = ref(false)
-const currentDocumentExportDisabled = computed(() => isRendering.value || !props.content.trim())
-let localExportFeedbackTimer: ReturnType<typeof setTimeout> | undefined
-
-function setLocalExportFeedback(kind: 'success' | 'error', message: string) {
-  localExportFeedback.value = { kind, message }
-  clearTimeout(localExportFeedbackTimer)
-  localExportFeedbackTimer = setTimeout(() => {
-    localExportFeedback.value = null
-  }, FEEDBACK_DURATION)
-}
 
 async function handleCopy() {
   const content = previewHtml.value
@@ -211,58 +183,12 @@ function handleDownload() {
   }
 }
 
-async function handleMarkdownDownload() {
-  if (currentDocumentExportDisabled.value) return
-
-  try {
-    const filename = await downloadDocumentAsMarkdown({
-      articleId: props.articleId,
-      title: props.title,
-      body: props.content,
-      updatedAt: props.updatedAt,
-    })
-    setLocalExportFeedback('success', `已下载 ${filename}`)
-  } catch {
-    setLocalExportFeedback('error', 'Markdown 导出失败')
-  }
-}
-
-async function handleJsonDownload() {
-  if (currentDocumentExportDisabled.value) return
-
-  try {
-    const filename = await downloadDocumentAsJson({
-      articleId: props.articleId,
-      title: props.title,
-      body: props.content,
-      updatedAt: props.updatedAt,
-    })
-    setLocalExportFeedback('success', `已下载 ${filename}`)
-  } catch {
-    setLocalExportFeedback('error', 'JSON 导出失败')
-  }
-}
-
-async function handleBatchZipDownload() {
-  if (isBatchExporting.value) return
-
-  isBatchExporting.value = true
-  try {
-    const result = await downloadAllDocumentsAsZip()
-    setLocalExportFeedback('success', `已打包 ${result.documentCount} 篇文档`)
-  } catch {
-    setLocalExportFeedback('error', '批量导出失败或当前没有可导出的文档')
-  } finally {
-    isBatchExporting.value = false
-  }
-}
-
 // ─── Quality Helpers ─────────────────────────────────────
-function severityIcon(severity: QualityIssueSeverity): LucideIcon {
+function severityIcon(severity: QualityIssueSeverity): string {
   switch (severity) {
-    case 'error': return CircleX
-    case 'warning': return TriangleAlert
-    case 'suggestion': return Lightbulb
+    case 'error': return '\u274C'
+    case 'warning': return '\u26A0\uFE0F'
+    case 'suggestion': return '\uD83D\uDCA1'
     default: {
       const _exhaustiveCheck: never = severity
       return _exhaustiveCheck
@@ -285,29 +211,17 @@ watch(() => props.visible, (visible) => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
-  clearTimeout(localExportFeedbackTimer)
 })
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-v-html -->
   <Teleport to="body">
-    <div
-      v-if="visible"
-      class="export-overlay"
-      @click.self="emit('close')"
-    >
+    <div v-if="visible" class="export-overlay" @click.self="emit('close')">
       <div class="export-panel">
         <!-- ════ Header ════ -->
         <div class="export-header">
-          <h2 class="export-title">
-            导出文章
-          </h2>
-          <button
-            class="header-close"
-            title="关闭"
-            @click="emit('close')"
-          >
+          <h2 class="export-title">导出文章</h2>
+          <button class="header-close" @click="emit('close')" title="关闭">
             <X :size="18" />
           </button>
         </div>
@@ -327,12 +241,7 @@ onUnmounted(() => {
                     :class="{ active: selectedPlatform === p.id }"
                     @click="selectedPlatform = p.id"
                   >
-                    <span class="pill-icon">
-                      <component
-                        :is="p.icon"
-                        :size="13"
-                      />
-                    </span>
+                    <span class="pill-icon">{{ p.icon }}</span>
                     <span class="pill-label">{{ p.name }}</span>
                   </button>
                 </div>
@@ -340,9 +249,7 @@ onUnmounted(() => {
 
               <!-- Preset Theme Grid -->
               <div class="ctrl-section">
-                <div class="section-label">
-                  选择风格
-                </div>
+                <div class="section-label">选择风格</div>
                 <div class="preset-grid">
                   <button
                     v-for="preset in currentPresets"
@@ -351,37 +258,27 @@ onUnmounted(() => {
                     :class="{ active: selectedPresetId === preset.id }"
                     @click="selectPreset(preset.id)"
                   >
-                    <span class="preset-icon">
-                      <component
-                        :is="resolveIconComponent(preset.icon, 'Palette')"
-                        :size="20"
-                      />
-                    </span>
+                    <span class="preset-icon">{{ preset.icon }}</span>
                     <span class="preset-name">{{ preset.name }}</span>
                     <span
                       class="preset-color-bar"
                       :style="{ backgroundColor: preset.primaryColor }"
-                    />
+                    ></span>
                   </button>
                 </div>
               </div>
 
               <!-- Export Options -->
               <div class="ctrl-section">
-                <div class="section-label">
-                  导出选项
-                </div>
+                <div class="section-label">导出选项</div>
 
                 <!-- Code Theme Dropdown -->
                 <div class="option-row">
-                  <label
-                    class="option-label"
-                    for="code-theme-select"
-                  >代码主题</label>
+                  <label class="option-label" for="code-theme-select">代码主题</label>
                   <select
                     id="code-theme-select"
-                    v-model="exportOptions.codeTheme"
                     class="option-select"
+                    v-model="exportOptions.codeTheme"
                   >
                     <option
                       v-for="theme in CODE_THEMES"
@@ -396,165 +293,61 @@ onUnmounted(() => {
                 <!-- Toggle Options -->
                 <div class="toggle-list">
                   <label class="toggle-item">
-                    <input
-                      v-model="exportOptions.enableMacCodeBlock"
-                      type="checkbox"
-                    >
+                    <input type="checkbox" v-model="exportOptions.enableMacCodeBlock" />
                     <span class="toggle-text">Mac 窗口风格代码块</span>
                   </label>
                   <label class="toggle-item">
-                    <input
-                      v-model="exportOptions.enableLineNumbers"
-                      type="checkbox"
-                    >
-                    <Hash
-                      :size="13"
-                      class="toggle-icon"
-                    />
+                    <input type="checkbox" v-model="exportOptions.enableLineNumbers" />
+                    <Hash :size="13" class="toggle-icon" />
                     <span class="toggle-text">显示行号</span>
                   </label>
-                  <label
-                    v-if="selectedPlatform !== 'xiaohongshu'"
-                    class="toggle-item"
-                  >
-                    <input
-                      v-model="exportOptions.enableCiteStatus"
-                      type="checkbox"
-                    >
-                    <Link2
-                      :size="13"
-                      class="toggle-icon"
-                    />
+                  <label v-if="selectedPlatform !== 'xiaohongshu'" class="toggle-item">
+                    <input type="checkbox" v-model="exportOptions.enableCiteStatus" />
+                    <Link2 :size="13" class="toggle-icon" />
                     <span class="toggle-text">外链转脚注</span>
                   </label>
                 </div>
               </div>
 
-              <div class="ctrl-section">
-                <div class="section-label">
-                  本地保存
-                </div>
-
-                <div class="local-export-grid">
-                  <button
-                    class="local-export-btn"
-                    :disabled="currentDocumentExportDisabled"
-                    title="下载当前 Markdown"
-                    @click="handleMarkdownDownload"
-                  >
-                    <FileText :size="14" />
-                    <span>下载 Markdown</span>
-                  </button>
-                  <button
-                    class="local-export-btn"
-                    :disabled="currentDocumentExportDisabled"
-                    title="下载当前 JSON"
-                    @click="handleJsonDownload"
-                  >
-                    <FileJson :size="14" />
-                    <span>下载 JSON</span>
-                  </button>
-                  <button
-                    class="local-export-btn local-export-btn-wide"
-                    :disabled="isBatchExporting"
-                    title="批量导出 ZIP"
-                    @click="handleBatchZipDownload"
-                  >
-                    <Loader2
-                      v-if="isBatchExporting"
-                      :size="14"
-                      class="spinner"
-                    />
-                    <Archive
-                      v-else
-                      :size="14"
-                    />
-                    <span>{{ isBatchExporting ? '正在打包...' : '批量导出 ZIP' }}</span>
-                  </button>
-                </div>
-
-                <div
-                  v-if="localExportFeedback"
-                  class="local-export-feedback"
-                  :class="localExportFeedback.kind === 'success' ? 'is-success' : 'is-error'"
-                >
-                  {{ localExportFeedback.message }}
-                </div>
-              </div>
-
               <!-- Quality Detection -->
-              <div
-                v-if="qualityReport"
-                class="ctrl-section quality-area"
-              >
-                <div class="section-label">
-                  质量检测
-                </div>
+              <div v-if="qualityReport" class="ctrl-section quality-area">
+                <div class="section-label">质量检测</div>
                 <div
                   class="quality-banner"
                   :class="qualityReport.passed ? 'quality-passed' : 'quality-failed'"
                 >
                   <span>{{ qualityReport.passed ? '检测通过' : '发现问题' }}</span>
                   <div class="quality-counts">
-                    <span
-                      v-if="qualityReport.stats.errors"
-                      class="qc-badge qc-error"
-                    >
+                    <span v-if="qualityReport.stats.errors" class="qc-badge qc-error">
                       {{ qualityReport.stats.errors }} 错误
                     </span>
-                    <span
-                      v-if="qualityReport.stats.warnings"
-                      class="qc-badge qc-warning"
-                    >
+                    <span v-if="qualityReport.stats.warnings" class="qc-badge qc-warning">
                       {{ qualityReport.stats.warnings }} 警告
                     </span>
-                    <span
-                      v-if="qualityReport.stats.suggestions"
-                      class="qc-badge qc-info"
-                    >
+                    <span v-if="qualityReport.stats.suggestions" class="qc-badge qc-info">
                       {{ qualityReport.stats.suggestions }} 建议
                     </span>
                   </div>
                 </div>
-                <div
-                  v-if="qualityReport.issues.length"
-                  class="quality-list"
-                >
+                <div v-if="qualityReport.issues.length" class="quality-list">
                   <div
                     v-for="issue in qualityReport.issues"
                     :key="issue.id"
                     class="quality-item"
                     :class="issue.severity"
                   >
-                    <span class="qi-icon">
-                      <component
-                        :is="severityIcon(issue.severity)"
-                        :size="13"
-                      />
-                    </span>
+                    <span class="qi-icon">{{ severityIcon(issue.severity) }}</span>
                     <div class="qi-body">
-                      <p class="qi-message">
-                        {{ issue.message }}
-                      </p>
-                      <p
-                        v-if="issue.suggestion"
-                        class="qi-tip"
-                      >
-                        {{ issue.suggestion }}
-                      </p>
+                      <p class="qi-message">{{ issue.message }}</p>
+                      <p v-if="issue.suggestion" class="qi-tip">{{ issue.suggestion }}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <!-- WeChat Stats (when available) -->
-              <div
-                v-if="wechatStats && selectedPlatform === 'wechat'"
-                class="ctrl-section"
-              >
-                <div class="section-label">
-                  文章统计
-                </div>
+              <div v-if="wechatStats && selectedPlatform === 'wechat'" class="ctrl-section">
+                <div class="section-label">文章统计</div>
                 <div class="stats-row">
                   <div class="stat-chip">
                     <span class="stat-num">{{ wechatStats.wordCount }}</span>
@@ -578,11 +371,7 @@ onUnmounted(() => {
 
             <!-- Action Buttons (pinned to bottom) -->
             <div class="action-bar">
-              <button
-                class="act-btn act-secondary"
-                :disabled="isRendering || !previewHtml"
-                @click="handleDownload"
-              >
+              <button class="act-btn act-secondary" @click="handleDownload" :disabled="isRendering || !previewHtml">
                 <Download :size="14" />
                 <span>下载HTML</span>
               </button>
@@ -592,14 +381,8 @@ onUnmounted(() => {
                 :disabled="isRendering || !previewHtml"
                 @click="handleCopy"
               >
-                <CheckCircle
-                  v-if="copySuccess"
-                  :size="14"
-                />
-                <Copy
-                  v-else
-                  :size="14"
-                />
+                <CheckCircle v-if="copySuccess" :size="14" />
+                <Copy v-else :size="14" />
                 <span>{{ copySuccess ? '已复制!' : platformInfo.copyLabel }}</span>
               </button>
             </div>
@@ -609,50 +392,28 @@ onUnmounted(() => {
           <div class="preview-column">
             <div class="preview-topbar">
               <span class="preview-topbar-label">
-                <component
-                  :is="platformInfo.icon"
-                  :size="14"
-                />
-                <span>{{ platformInfo.name }} 预览</span>
+                {{ platformInfo.icon }} {{ platformInfo.name }} 预览
               </span>
             </div>
             <div class="preview-viewport">
               <!-- Loading Spinner -->
-              <div
-                v-if="isRendering"
-                class="preview-loading"
-              >
-                <Loader2
-                  :size="28"
-                  class="spinner"
-                />
+              <div v-if="isRendering" class="preview-loading">
+                <Loader2 :size="28" class="spinner" />
                 <span class="loading-text">渲染中...</span>
               </div>
               <!-- Empty State -->
-              <div
-                v-else-if="!previewHtml"
-                class="preview-empty"
-              >
-                <AlertCircle
-                  :size="32"
-                  class="empty-icon"
-                />
+              <div v-else-if="!previewHtml" class="preview-empty">
+                <AlertCircle :size="32" class="empty-icon" />
                 <span class="empty-text">暂无内容可预览</span>
               </div>
               <!-- v-html Preview -->
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <div
-                v-else
-                class="preview-render"
-                v-html="previewHtml"
-              />
+              <div v-else class="preview-render" v-html="previewHtml"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </Teleport>
-  <!-- eslint-enable vue/no-v-html -->
 </template>
 
 <style scoped>
@@ -809,10 +570,7 @@ onUnmounted(() => {
 }
 
 .pill-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  font-size: 13px;
 }
 
 .pill-label {
@@ -853,10 +611,7 @@ onUnmounted(() => {
 }
 
 .preset-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -961,61 +716,6 @@ onUnmounted(() => {
   font-size: 13px;
 }
 
-/* 鈹€鈹€ Local Export 鈹€鈹€ */
-.local-export-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.local-export-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 12px;
-  border: 1px solid #ECEFF1;
-  border-radius: 8px;
-  background: #FFFFFF;
-  color: #263238;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.local-export-btn:hover:not(:disabled) {
-  border-color: #D32F2F;
-  background: #FFEBEE;
-}
-
-.local-export-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.local-export-btn-wide {
-  grid-column: 1 / -1;
-}
-
-.local-export-feedback {
-  margin-top: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.local-export-feedback.is-success {
-  background: rgba(46, 125, 50, 0.08);
-  color: #2E7D32;
-}
-
-.local-export-feedback.is-error {
-  background: rgba(198, 40, 40, 0.08);
-  color: #C62828;
-}
-
 /* ── Quality Detection ── */
 .quality-area {
   /* no extra style needed */
@@ -1100,9 +800,7 @@ onUnmounted(() => {
 
 .qi-icon {
   flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 13px;
 }
 
 .qi-body {
@@ -1230,9 +928,6 @@ onUnmounted(() => {
 }
 
 .preview-topbar-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: 12px;
   font-weight: 500;
   color: #607D8B;

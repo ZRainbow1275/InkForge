@@ -4,13 +4,12 @@ import { useArticleStore } from '@/stores/article'
 import { useEditorStore } from '@/stores/editor'
 import { storeToRefs } from 'pinia'
 import {
-  ArrowLeft, BookOpen, Calendar, CheckCircle, CircleHelp, Copy, Eye,
-  ExternalLink, Maximize2, MessagesSquare, Tag, User, type LucideIcon,
+  ExternalLink, User, Calendar, Tag, Copy,
+  CheckCircle, Maximize2
 } from 'lucide-vue-next'
 import {
   convertToPlatform, getPlatformPresets, copyToClipboard, getDefaultPreset
 } from '@/services/export'
-import { resolveIconComponent } from '@/utils/lucide-icons'
 import type { Platform } from '@/services/export'
 import ExportModal from '@/components/export/ExportModal.vue'
 
@@ -24,14 +23,10 @@ const showExportModal = ref(false)
 
 // ─── 平台选择 ──────────────────────────────────────
 const PLATFORMS = [
-  { id: 'wechat' as Platform, name: '微信', icon: MessagesSquare },
-  { id: 'xiaohongshu' as Platform, name: '小红书', icon: BookOpen },
-  { id: 'zhihu' as Platform, name: '知乎', icon: CircleHelp },
-] as const satisfies ReadonlyArray<{
-  id: Platform
-  name: string
-  icon: LucideIcon
-}>
+  { id: 'wechat' as Platform, name: '微信', icon: '💬' },
+  { id: 'xiaohongshu' as Platform, name: '小红书', icon: '📕' },
+  { id: 'zhihu' as Platform, name: '知乎', icon: '🔵' },
+] as const
 
 const selectedPlatform = ref<Platform>('wechat')
 const platformInfo = computed(() => PLATFORMS.find(p => p.id === selectedPlatform.value)!)
@@ -92,55 +87,35 @@ async function handleCopy() {
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-v-html -->
   <div class="preview-panel">
     <template v-if="selectedArticle">
       <!-- 元数据区 -->
       <div class="metadata">
-        <h1 class="article-title">
-          {{ selectedArticle.title }}
-        </h1>
+        <h1 class="article-title">{{ selectedArticle.title }}</h1>
 
         <div class="meta-row">
           <span class="meta-item">
             <ExternalLink :size="14" />
-            <a
-              :href="selectedArticle.sourceUrl"
-              target="_blank"
-              class="source-link"
-            >
+            <a :href="selectedArticle.sourceUrl" target="_blank" class="source-link">
               {{ selectedArticle.sourceName }}
             </a>
           </span>
         </div>
 
         <div class="meta-row">
-          <span
-            v-if="selectedArticle.authors?.length"
-            class="meta-item"
-          >
+          <span v-if="selectedArticle.authors?.length" class="meta-item">
             <User :size="14" />
             {{ selectedArticle.authors.join(', ') }}
           </span>
-          <span
-            v-if="selectedArticle.publishedAt"
-            class="meta-item"
-          >
+          <span v-if="selectedArticle.publishedAt" class="meta-item">
             <Calendar :size="14" />
             {{ new Date(selectedArticle.publishedAt).toLocaleDateString('zh-CN') }}
           </span>
         </div>
 
-        <div
-          v-if="selectedArticle.tags?.length"
-          class="tags-row"
-        >
+        <div v-if="selectedArticle.tags?.length" class="tags-row">
           <Tag :size="14" />
-          <span
-            v-for="tag in selectedArticle.tags"
-            :key="tag"
-            class="tag"
-          >
+          <span v-for="tag in selectedArticle.tags" :key="tag" class="tag">
             {{ tag }}
           </span>
         </div>
@@ -156,10 +131,7 @@ async function handleCopy() {
             :class="{ active: selectedPlatform === p.id }"
             @click="selectedPlatform = p.id"
           >
-            <component
-              :is="p.icon"
-              :size="13"
-            />
+            <span>{{ p.icon }}</span>
             {{ p.name }}
           </button>
         </div>
@@ -167,13 +139,7 @@ async function handleCopy() {
 
       <!-- 预设选择 -->
       <div class="preset-section">
-        <h3>
-          <component
-            :is="platformInfo.icon"
-            :size="16"
-          />
-          <span>文章风格</span>
-        </h3>
+        <h3>{{ platformInfo.icon }} 文章风格</h3>
         <div class="preset-grid">
           <button
             v-for="preset in currentPresets"
@@ -182,12 +148,7 @@ async function handleCopy() {
             :class="{ active: selectedPresetId === preset.id }"
             @click="selectPreset(preset.id)"
           >
-            <span class="preset-icon">
-              <component
-                :is="resolveIconComponent(preset.icon, 'Palette')"
-                :size="18"
-              />
-            </span>
+            <span class="preset-icon">{{ preset.icon }}</span>
             <span class="preset-name">{{ preset.name }}</span>
           </button>
         </div>
@@ -197,23 +158,17 @@ async function handleCopy() {
       <div class="action-section">
         <button
           class="action-btn primary"
-          :class="{ success: copySuccess }"
           @click="handleCopy"
+          :class="{ success: copySuccess }"
         >
-          <CheckCircle
-            v-if="copySuccess"
-            :size="16"
-          />
-          <Copy
-            v-else
-            :size="16"
-          />
+          <CheckCircle v-if="copySuccess" :size="16" />
+          <Copy v-else :size="16" />
           {{ copySuccess ? '已复制!' : `复制到${platformInfo.name}` }}
         </button>
         <button
           class="action-btn"
-          title="全屏导出"
           @click="showExportModal = true"
+          title="全屏导出"
         >
           <Maximize2 :size="16" />
         </button>
@@ -221,41 +176,24 @@ async function handleCopy() {
 
       <!-- 预览区域 -->
       <div class="preview-section">
-        <h3>
-          <Eye :size="16" />
-          <span>预览效果</span>
-        </h3>
+        <h3>👁️ 预览效果</h3>
         <div class="preview-frame">
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <div
-            class="preview-content"
-            v-html="previewHtml"
-          />
+          <div class="preview-content" v-html="previewHtml"></div>
         </div>
       </div>
     </template>
 
-    <div
-      v-else
-      class="empty-state"
-    >
-      <p>
-        <ArrowLeft :size="16" />
-        <span>请从左侧选择一条资讯</span>
-      </p>
+    <div v-else class="empty-state">
+      <p>👈 请从左侧选择一条资讯</p>
     </div>
 
     <!-- 导出模态框 -->
     <ExportModal
       :visible="showExportModal"
-      :article-id="currentContent?.articleId || selectedArticle?.id"
       :content="currentContent?.body || ''"
-      :title="currentContent?.title || selectedArticle?.title || ''"
-      :updated-at="currentContent?.updatedAt || selectedArticle?.updatedAt"
       @close="showExportModal = false"
     />
   </div>
-  <!-- eslint-enable vue/no-v-html -->
 </template>
 
 <style scoped>
@@ -360,9 +298,6 @@ async function handleCopy() {
 
 /* 预设选择 */
 .preset-section h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
@@ -398,10 +333,7 @@ async function handleCopy() {
 }
 
 .preset-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 20px;
+  font-size: 20px;
 }
 
 .preset-name {
@@ -455,9 +387,6 @@ async function handleCopy() {
 }
 
 .preview-section h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
@@ -482,12 +411,5 @@ async function handleCopy() {
   height: 200px;
   color: var(--color-text-secondary);
   font-size: 14px;
-}
-
-.empty-state p {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 """
 CLI Adapter for Multi-Platform Support.
 
-Abstracts differences between Claude Code, OpenCode, Cursor, iFlow, Codex, Kilo, Kiro Code, Gemini CLI, Antigravity, Qoder, and CodeBuddy interfaces.
+Abstracts differences between Claude Code, OpenCode, Cursor, iFlow, Codex, Kilo, Kiro Code, Gemini CLI, and Antigravity interfaces.
 
 Supported platforms:
 - claude: Claude Code (default)
@@ -13,8 +13,6 @@ Supported platforms:
 - kiro: Kiro Code (skills-based)
 - gemini: Gemini CLI
 - antigravity: Antigravity (workflow-based)
-- qoder: Qoder
-- codebuddy: CodeBuddy
 
 Usage:
     from common.cli_adapter import CLIAdapter
@@ -33,19 +31,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Literal
 
-Platform = Literal[
-    "claude",
-    "opencode",
-    "cursor",
-    "iflow",
-    "codex",
-    "kilo",
-    "kiro",
-    "gemini",
-    "antigravity",
-    "qoder",
-    "codebuddy",
-]
+Platform = Literal["claude", "opencode", "cursor", "iflow", "codex", "kilo", "kiro", "gemini", "antigravity"]
 
 
 @dataclass
@@ -89,7 +75,7 @@ class CLIAdapter:
         """Get platform-specific config directory name.
 
         Returns:
-            Directory name ('.claude', '.opencode', '.cursor', '.iflow', '.codex', '.kilocode', '.kiro', '.gemini', '.agent', '.qoder', or '.codebuddy')
+            Directory name ('.claude', '.opencode', '.cursor', '.iflow', '.agents', '.kilocode', '.kiro', '.gemini', or '.agent')
         """
         if self.platform == "opencode":
             return ".opencode"
@@ -98,7 +84,7 @@ class CLIAdapter:
         elif self.platform == "iflow":
             return ".iflow"
         elif self.platform == "codex":
-            return ".codex"
+            return ".agents"
         elif self.platform == "kilo":
             return ".kilocode"
         elif self.platform == "kiro":
@@ -107,10 +93,6 @@ class CLIAdapter:
             return ".gemini"
         elif self.platform == "antigravity":
             return ".agent"
-        elif self.platform == "qoder":
-            return ".qoder"
-        elif self.platform == "codebuddy":
-            return ".codebuddy"
         else:
             return ".claude"
 
@@ -121,7 +103,7 @@ class CLIAdapter:
             project_root: Project root directory
 
         Returns:
-            Path to config directory (.claude, .opencode, .cursor, .iflow, .codex, .kilocode, .kiro, .gemini, .agent, .qoder, or .codebuddy)
+            Path to config directory (.claude, .opencode, .cursor, .iflow, .agents, .kilocode, .kiro, or .agent)
         """
         return project_root / self.config_dir_name
 
@@ -133,11 +115,9 @@ class CLIAdapter:
             project_root: Project root directory
 
         Returns:
-            Path to agent definition file (.md for most platforms, .toml for Codex)
+            Path to agent .md file
         """
         mapped_name = self.get_agent_name(agent)
-        if self.platform == "codex":
-            return self.get_config_dir(project_root) / "agents" / f"{mapped_name}.toml"
         return self.get_config_dir(project_root) / "agents" / f"{mapped_name}.md"
 
     def get_commands_path(self, project_root: Path, *parts: str) -> Path:
@@ -155,7 +135,7 @@ class CLIAdapter:
             Antigravity uses workflow directory: .agent/workflows/<name>.md
             Claude/OpenCode use subdirectory: .claude/commands/trellis/<name>.md
         """
-        if self.platform in ("antigravity", "kilo"):
+        if self.platform == "antigravity":
             workflow_dir = self.get_config_dir(project_root) / "workflows"
             if not parts:
                 return workflow_dir
@@ -171,9 +151,7 @@ class CLIAdapter:
         if self.platform == "cursor" and len(parts) >= 2 and parts[0] == "trellis":
             # Convert trellis/<name>.md to trellis-<name>.md
             filename = parts[-1]
-            return (
-                self.get_config_dir(project_root) / "commands" / f"trellis-{filename}"
-            )
+            return self.get_config_dir(project_root) / "commands" / f"trellis-{filename}"
 
         return self.get_config_dir(project_root) / "commands" / Path(*parts)
 
@@ -181,7 +159,7 @@ class CLIAdapter:
         """Get relative path to a trellis command file.
 
         Args:
-            name: Command name without extension (e.g., 'finish-work', 'check')
+            name: Command name without extension (e.g., 'finish-work', 'check-backend')
 
         Returns:
             Relative path string for use in JSONL entries
@@ -204,8 +182,6 @@ class CLIAdapter:
             return f".gemini/commands/trellis/{name}.toml"
         elif self.platform == "antigravity":
             return f".agent/workflows/{name}.md"
-        elif self.platform == "kilo":
-            return f".kilocode/workflows/{name}.md"
         else:
             return f"{self.config_dir_name}/commands/trellis/{name}.md"
 
@@ -221,8 +197,6 @@ class CLIAdapter:
         """
         if self.platform == "opencode":
             return {"OPENCODE_NON_INTERACTIVE": "1"}
-        elif self.platform == "iflow":
-            return {"IFLOW_NON_INTERACTIVE": "1"}
         elif self.platform == "codex":
             return {"CODEX_NON_INTERACTIVE": "1"}
         elif self.platform == "kiro":
@@ -230,10 +204,6 @@ class CLIAdapter:
         elif self.platform == "gemini":
             return {}  # Gemini CLI doesn't have a non-interactive env var
         elif self.platform == "antigravity":
-            return {}
-        elif self.platform == "qoder":
-            return {}
-        elif self.platform == "codebuddy":
             return {}
         else:
             return {"CLAUDE_NON_INTERACTIVE": "1"}
@@ -285,9 +255,6 @@ class CLIAdapter:
 
             cmd.append(prompt)
 
-        elif self.platform == "iflow":
-            cmd = ["iflow", "-y", "-p"]
-            cmd.append(f"${mapped_agent} {prompt}")
         elif self.platform == "codex":
             cmd = ["codex", "exec"]
             cmd.append(prompt)
@@ -299,12 +266,6 @@ class CLIAdapter:
         elif self.platform == "antigravity":
             raise ValueError(
                 "Antigravity workflows are UI slash commands; CLI agent run is not supported."
-            )
-        elif self.platform == "qoder":
-            cmd = ["qodercli", "-p", prompt]
-        elif self.platform == "codebuddy":
-            raise ValueError(
-                "CodeBuddy does not support non-interactive mode (no CLI agent)"
             )
 
         else:  # claude
@@ -331,17 +292,13 @@ class CLIAdapter:
         """Build CLI command for resuming a session.
 
         Args:
-            session_id: Session ID to resume (ignored for iFlow)
+            session_id: Session ID to resume
 
         Returns:
             List of command arguments
         """
         if self.platform == "opencode":
             return ["opencode", "run", "--session", session_id]
-        elif self.platform == "iflow":
-            # iFlow uses -c to continue most recent conversation
-            # session_id is ignored as iFlow doesn't support session IDs
-            return ["iflow", "-c"]
         elif self.platform == "codex":
             return ["codex", "resume", session_id]
         elif self.platform == "kiro":
@@ -351,12 +308,6 @@ class CLIAdapter:
         elif self.platform == "antigravity":
             raise ValueError(
                 "Antigravity workflows are UI slash commands; CLI resume is not supported."
-            )
-        elif self.platform == "qoder":
-            return ["qodercli", "--resume", session_id]
-        elif self.platform == "codebuddy":
-            raise ValueError(
-                "CodeBuddy does not support non-interactive mode (no CLI agent)"
             )
         else:
             return ["claude", "--resume", session_id]
@@ -398,11 +349,6 @@ class CLIAdapter:
         return self.platform == "cursor"
 
     @property
-    def is_iflow(self) -> bool:
-        """Check if platform is iFlow CLI."""
-        return self.platform == "iflow"
-
-    @property
     def cli_name(self) -> str:
         """Get CLI executable name.
 
@@ -412,18 +358,12 @@ class CLIAdapter:
             return "opencode"
         elif self.is_cursor:
             return "cursor"  # Note: Cursor is IDE-only, no CLI
-        elif self.platform == "iflow":
-            return "iflow"
         elif self.platform == "kiro":
             return "kiro"
         elif self.platform == "gemini":
             return "gemini"
         elif self.platform == "antigravity":
             return "agy"
-        elif self.platform == "qoder":
-            return "qodercli"
-        elif self.platform == "codebuddy":
-            return "codebuddy"
         else:
             return "claude"
 
@@ -431,19 +371,10 @@ class CLIAdapter:
     def supports_cli_agents(self) -> bool:
         """Check if platform supports running agents via CLI.
 
-        Claude Code, OpenCode, iFlow, and Codex support CLI agent execution.
+        Claude Code and OpenCode support CLI agent execution.
         Cursor is IDE-only and doesn't support CLI agents.
         """
-        return self.platform in ("claude", "opencode", "iflow", "codex")
-
-    @property
-    def requires_agent_definition_file(self) -> bool:
-        """Check if platform requires an agent definition file (.md/.toml) to run.
-
-        Claude Code, OpenCode, iFlow: require agent .md files (--agent flag).
-        Codex: auto-discovers agents from .codex/agents/*.toml, no --agent flag.
-        """
-        return self.platform in ("claude", "opencode", "iflow")
+        return self.platform in ("claude", "opencode")
 
     # =========================================================================
     # Session ID Handling
@@ -455,7 +386,6 @@ class CLIAdapter:
 
         Claude Code: Yes (--session-id)
         OpenCode: No (auto-generated, extract from logs)
-        iFlow: No (no session ID support)
         """
         return self.platform == "claude"
 
@@ -488,7 +418,7 @@ def get_cli_adapter(platform: str = "claude") -> CLIAdapter:
     """Get CLI adapter for the specified platform.
 
     Args:
-        platform: Platform name ('claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', 'gemini', 'antigravity', 'qoder', or 'codebuddy')
+        platform: Platform name ('claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', or 'antigravity')
 
     Returns:
         CLIAdapter instance
@@ -496,50 +426,10 @@ def get_cli_adapter(platform: str = "claude") -> CLIAdapter:
     Raises:
         ValueError: If platform is not supported
     """
-    if platform not in (
-        "claude",
-        "opencode",
-        "cursor",
-        "iflow",
-        "codex",
-        "kilo",
-        "kiro",
-        "gemini",
-        "antigravity",
-        "qoder",
-        "codebuddy",
-    ):
-        raise ValueError(
-            f"Unsupported platform: {platform} (must be 'claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', 'gemini', 'antigravity', 'qoder', or 'codebuddy')"
-        )
+    if platform not in ("claude", "opencode", "cursor", "iflow", "codex", "kilo", "kiro", "gemini", "antigravity"):
+        raise ValueError(f"Unsupported platform: {platform} (must be 'claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', 'gemini', or 'antigravity')")
 
     return CLIAdapter(platform=platform)  # type: ignore
-
-
-_ALL_PLATFORM_CONFIG_DIRS = (
-    ".claude",
-    ".cursor",
-    ".iflow",
-    ".opencode",
-    ".agents",
-    ".codex",
-    ".kilocode",
-    ".kiro",
-    ".gemini",
-    ".agent",
-    ".qoder",
-    ".codebuddy",
-)
-"""All platform config directory names (used by detect_platform exclusion checks)."""
-
-
-def _has_other_platform_dir(project_root: Path, exclude: set[str]) -> bool:
-    """Check if any platform config dir exists besides those in *exclude*."""
-    return any(
-        (project_root / d).is_dir()
-        for d in _ALL_PLATFORM_CONFIG_DIRS
-        if d not in exclude
-    )
 
 
 def detect_platform(project_root: Path) -> Platform:
@@ -550,45 +440,33 @@ def detect_platform(project_root: Path) -> Platform:
     2. .opencode directory exists → opencode
     3. .iflow directory exists → iflow
     4. .cursor directory exists (without .claude) → cursor
-    5. .codex exists and no other platform dirs → codex
+    5. .agents/skills exists and no other platform dirs → codex
     6. .kilocode directory exists → kilo
     7. .kiro/skills exists and no other platform dirs → kiro
     8. .gemini directory exists → gemini
     9. .agent/workflows exists and no other platform dirs → antigravity
-    10. .codebuddy directory exists → codebuddy
-    11. .qoder directory exists → qoder
-    12. Default → claude
+    10. Default → claude
 
     Args:
         project_root: Project root directory
 
     Returns:
-        Detected platform ('claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', 'gemini', 'antigravity', 'qoder', 'codebuddy', or default 'claude')
+        Detected platform ('claude', 'opencode', 'cursor', 'iflow', 'codex', 'kilo', 'kiro', 'gemini', or 'antigravity')
     """
     import os
 
     # Check environment variable first
     env_platform = os.environ.get("TRELLIS_PLATFORM", "").lower()
-    if env_platform in (
-        "claude",
-        "opencode",
-        "cursor",
-        "iflow",
-        "codex",
-        "kilo",
-        "kiro",
-        "gemini",
-        "antigravity",
-        "qoder",
-        "codebuddy",
-    ):
+    if env_platform in ("claude", "opencode", "cursor", "iflow", "codex", "kilo", "kiro", "gemini", "antigravity"):
         return env_platform  # type: ignore
 
     # Check for .opencode directory (OpenCode-specific)
+    # Note: .claude might exist in both platforms during migration
     if (project_root / ".opencode").is_dir():
         return "opencode"
 
     # Check for .iflow directory (iFlow-specific)
+    # Note: .claude might exist in both platforms during migration
     if (project_root / ".iflow").is_dir():
         return "iflow"
 
@@ -601,11 +479,12 @@ def detect_platform(project_root: Path) -> Platform:
     if (project_root / ".gemini").is_dir():
         return "gemini"
 
-    # Check for .codex directory (Codex-specific)
-    # .agents/skills/ alone does NOT trigger codex detection (it's a shared standard)
-    if (project_root / ".codex").is_dir() and not _has_other_platform_dir(
-        project_root, {".codex", ".agents"}
-    ):
+    # Check for Codex skills directory only when no other platform config exists
+    other_platform_dirs_codex = (".claude", ".cursor", ".iflow", ".opencode", ".kilocode", ".kiro", ".gemini", ".agent")
+    has_other_platform_config = any(
+        (project_root / directory).is_dir() for directory in other_platform_dirs_codex
+    )
+    if (project_root / ".agents" / "skills").is_dir() and not has_other_platform_config:
         return "codex"
 
     # Check for .kilocode directory (Kilo-specific)
@@ -613,26 +492,20 @@ def detect_platform(project_root: Path) -> Platform:
         return "kilo"
 
     # Check for Kiro skills directory only when no other platform config exists
-    if (project_root / ".kiro" / "skills").is_dir() and not _has_other_platform_dir(
-        project_root, {".kiro"}
-    ):
+    other_platform_dirs_kiro = (".claude", ".cursor", ".iflow", ".opencode", ".agents", ".kilocode", ".gemini", ".agent")
+    has_other_platform_config = any(
+        (project_root / directory).is_dir() for directory in other_platform_dirs_kiro
+    )
+    if (project_root / ".kiro" / "skills").is_dir() and not has_other_platform_config:
         return "kiro"
 
     # Check for Antigravity workflow directory only when no other platform config exists
-    if (
-        project_root / ".agent" / "workflows"
-    ).is_dir() and not _has_other_platform_dir(
-        project_root, {".agent", ".gemini"}
-    ):
+    other_platform_dirs_antigravity = (".claude", ".cursor", ".iflow", ".opencode", ".agents", ".kilocode", ".kiro")
+    has_other_platform_config = any(
+        (project_root / directory).is_dir() for directory in other_platform_dirs_antigravity
+    )
+    if (project_root / ".agent" / "workflows").is_dir() and not has_other_platform_config:
         return "antigravity"
-
-    # Check for .codebuddy directory (CodeBuddy-specific)
-    if (project_root / ".codebuddy").is_dir():
-        return "codebuddy"
-
-    # Check for .qoder directory (Qoder-specific)
-    if (project_root / ".qoder").is_dir():
-        return "qoder"
 
     return "claude"
 

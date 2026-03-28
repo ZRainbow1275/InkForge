@@ -60,10 +60,7 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
           :class="{ active: currentPresetId === p.id }"
           @click="selectPreset(p.id)"
         >
-          <span
-            class="preset-color"
-            :style="{ background: p.primaryColor }"
-          />
+          <span class="preset-color" :style="{ background: p.primaryColor }"></span>
           {{ p.name }}
         </button>
       </div>
@@ -74,71 +71,35 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
       <h3>样式设置</h3>
       <div class="setting-group">
         <label>主题色</label>
-        <input
-          v-model="primaryColor"
-          type="color"
-          class="color-input"
-        >
+        <input type="color" v-model="primaryColor" class="color-input" />
       </div>
       <div class="setting-group">
         <label>字体</label>
-        <select
-          v-model="fontFamily"
-          class="select-input"
-        >
-          <option value="sans">
-            无衬线
-          </option>
-          <option value="serif">
-            衬线
-          </option>
-          <option value="mono">
-            等宽
-          </option>
+        <select v-model="fontFamily" class="select-input">
+          <option value="sans">无衬线</option>
+          <option value="serif">衬线</option>
+          <option value="mono">等宽</option>
         </select>
       </div>
       <div class="setting-group">
         <label>字号 {{ fontSize }}px</label>
-        <input
-          v-model.number="fontSize"
-          type="range"
-          min="12"
-          max="20"
-          class="range-input"
-        >
+        <input type="range" v-model.number="fontSize" min="12" max="20" class="range-input" />
       </div>
       <div class="setting-group">
         <label>行高 {{ lineHeight.toFixed(1) }}</label>
-        <input
-          v-model.number="lineHeight"
-          type="range"
-          min="1.2"
-          max="2.2"
-          step="0.1"
-          class="range-input"
-        >
+        <input type="range" v-model.number="lineHeight" min="1.2" max="2.2" step="0.1" class="range-input" />
       </div>
       <div class="setting-group checkbox-group">
         <label>
-          <input
-            v-model="firstLineIndent"
-            type="checkbox"
-          >
+          <input type="checkbox" v-model="firstLineIndent" />
           首行缩进
         </label>
       </div>
       <div class="setting-group">
         <label>对齐方式</label>
-        <select
-          v-model="textAlign"
-          class="select-input"
-        >
-          <option value="left">
-            左对齐
-          </option>
-          <option value="justify">
-            两端对齐
-          </option>
+        <select v-model="textAlign" class="select-input">
+          <option value="left">左对齐</option>
+          <option value="justify">两端对齐</option>
         </select>
       </div>
     </section>
@@ -150,7 +111,7 @@ function selectBaseTheme(themeId: 'default' | 'grace' | 'simple') {
         v-model="customCSS" 
         class="css-input" 
         placeholder="/* 在此输入自定义 CSS */"
-      />
+      ></textarea>
     </section>
   </div>
 </template>

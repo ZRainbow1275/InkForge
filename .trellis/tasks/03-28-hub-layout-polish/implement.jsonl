@@ -1,6 +1,0 @@
-{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
-{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
-{"file": "inkforge/src/views/HubView.vue", "reason": "主布局"}
-{"file": "inkforge/src/components/hub/HubHeader.vue", "reason": "搜索框"}
-{"file": "prompts/0327/02-hub-layout-spec.md", "reason": "规格"}
-{"file": "prompts/0327/09-ui-polish-spec.md", "reason": "打磨规格"}

@@ -280,7 +280,7 @@ export interface XiaohongshuTextResult {
   overLimit: boolean
   /** 段落数 */
   paragraphCount: number
-  /** 装饰标记数量（兼容历史字段名） */
+  /** emoji 数量 */
   emojiCount: number
   /** 生成的话题标签建议 */
   suggestedTags: string[]
@@ -288,7 +288,7 @@ export interface XiaohongshuTextResult {
 
 /** 小红书纯文本导出选项 */
 export interface XiaohongshuTextOptions {
-  /** 文本装饰风格（兼容历史字段名，默认 'fresh'） */
+  /** emoji 风格 (默认 'fresh') */
   emojiStyle?: 'fresh' | 'simple' | 'warm' | 'tech' | 'nature'
   /** 是否自动分段 (默认 true) */
   autoSplitParagraphs?: boolean

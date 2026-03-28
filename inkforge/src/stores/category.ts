@@ -8,9 +8,8 @@ import {
 } from '@/schemas/article'
 import { categoryRepository } from '@/services/repository'
 import { logger, ErrorCode, AppError } from '@/services/error'
-import { db, logActivity } from '@/utils/db'
+import { db } from '@/utils/db'
 import { generateId } from '@/utils/uuid'
-import { normalizeIconName } from '@/utils/lucide-icons'
 
 /**
  * 分类管理 Store
@@ -38,10 +37,7 @@ export const useCategoryStore = defineStore('category', () => {
         loading.value = true
         error.value = null
         try {
-            categories.value = (await categoryRepository.findAll()).map(category => ({
-                ...category,
-                icon: normalizeIconName(category.icon, 'Folder'),
-            }))
+            categories.value = await categoryRepository.findAll()
         } catch (err) {
             const msg = err instanceof AppError ? err.toUserMessage() : '加载失败'
             error.value = msg
@@ -64,7 +60,7 @@ export const useCategoryStore = defineStore('category', () => {
         const category: Category = {
             id: generateId(),
             name: validated.name,
-            icon: normalizeIconName(validated.icon, 'Folder'),
+            icon: validated.icon || '📁',
             articleCount: 0,
             createdAt: new Date(),
             updatedAt: new Date()
@@ -73,9 +69,6 @@ export const useCategoryStore = defineStore('category', () => {
         await categoryRepository.create(category)
         // 不可变更新：创建新数组而非 push
         categories.value = [...categories.value, category]
-        await logActivity('create', 'category', category.id, category.name, {
-            icon: category.icon ?? null,
-        })
         return category
     }
 
@@ -83,33 +76,22 @@ export const useCategoryStore = defineStore('category', () => {
     async function updateCategory(id: string, updates: UpdateCategoryDTO) {
         // 运行时校验：确保更新数据符合 Schema
         const validated = UpdateCategoryDTOSchema.parse(updates)
-        const normalizedUpdates = validated.icon === undefined
-            ? validated
-            : { ...validated, icon: normalizeIconName(validated.icon, 'Folder') }
-        const currentCategory = categories.value.find(c => c.id === id)
 
-        await categoryRepository.update(id, { ...normalizedUpdates, updatedAt: new Date() })
+        await categoryRepository.update(id, { ...validated, updatedAt: new Date() })
         const index = categories.value.findIndex(c => c.id === id)
         if (index !== -1) {
             // 不可变更新：创建新数组
             categories.value = [
                 ...categories.value.slice(0, index),
-                { ...categories.value[index], ...normalizedUpdates },
+                { ...categories.value[index], ...validated },
                 ...categories.value.slice(index + 1)
             ]
         }
-
-        await logActivity('edit', 'category', id, normalizedUpdates.name ?? currentCategory?.name ?? '未命名分类', {
-            previousName: currentCategory?.name ?? null,
-            nextName: normalizedUpdates.name ?? currentCategory?.name ?? null,
-        })
     }
 
     // 删除分类（使用事务保护，先迁移关联资讯）
     async function deleteCategory(id: string) {
         try {
-            const currentCategory = categories.value.find(c => c.id === id)
-
             // 使用 Dexie 事务确保原子性
             await db.transaction('rw', [db.categories, db.articles], async () => {
                 // 将该分类下的所有资讯迁移到"全部"（categoryId = null）
@@ -135,8 +117,6 @@ export const useCategoryStore = defineStore('category', () => {
                     ? { ...article, categoryId: null }
                     : article
             )
-
-            await logActivity('delete', 'category', id, currentCategory?.name ?? '未命名分类')
 
             logger.info('分类删除成功', { id })
         } catch (err) {

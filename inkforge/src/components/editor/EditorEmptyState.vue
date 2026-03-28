@@ -6,20 +6,13 @@ import { PenTool } from 'lucide-vue-next'
   <div class="empty-state">
     <div class="soviet-card">
       <div class="icon-wrapper">
-        <PenTool
-          :size="48"
-          class="icon"
-        />
+        <PenTool :size="48" class="icon" />
       </div>
       
-      <h2 class="title">
-        准备写作
-      </h2>
-      <h3 class="subtitle">
-        READY FOR WRITING
-      </h3>
+      <h2 class="title">准备写作</h2>
+      <h3 class="subtitle">READY FOR WRITING</h3>
       
-      <div class="divider" />
+      <div class="divider"></div>
       
       <p class="instruction">
         请从左侧列表选择一篇资讯<br>

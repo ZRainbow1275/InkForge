@@ -1,7 +1,0 @@
-{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
-{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
-{"file": "docs/specs/04-data-model-evolution.md", "reason": "数据模型演进规格"}
-{"file": "docs/specs/00-master-plan.md", "reason": "总体规划约束"}
-{"file": "inkforge/src/utils/db.ts", "reason": "现有数据库层"}
-{"file": "docs/specs/06-codex-tasks.md", "reason": "Phase 0 task breakdown and acceptance criteria"}
-{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer data contract checklist for DB schema evolution"}

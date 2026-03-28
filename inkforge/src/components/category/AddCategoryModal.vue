@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch } from 'vue'
 import { X, FolderPlus } from 'lucide-vue-next'
-import { CATEGORY_ICON_OPTIONS, resolveIconComponent } from '@/utils/lucide-icons'
 
 const props = defineProps<{
   visible: boolean
@@ -13,7 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const categoryName = ref('')
-const selectedIcon = ref('Folder')
+const selectedIcon = ref('📁')
+
+// 可选图标列表
+const iconOptions = ['📁', '🤖', '📜', '📊', '💡', '📰', '💻', '🎯', '📌', '⭐', '🔥', '💬']
 
 function handleConfirm() {
   if (!categoryName.value.trim()) return
@@ -31,7 +33,7 @@ function handleClose() {
 
 function resetForm() {
   categoryName.value = ''
-  selectedIcon.value = 'Folder'
+  selectedIcon.value = '📁'
 }
 
 // ESC 关闭
@@ -50,29 +52,18 @@ watch(() => props.visible, (visible) => {
     document.removeEventListener('keydown', handleKeydown)
   }
 })
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydown)
-})
 </script>
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="visible"
-      class="modal-overlay"
-      @click.self="handleClose"
-    >
+    <div v-if="visible" class="modal-overlay" @click.self="handleClose">
       <div class="modal-container">
         <div class="modal-header">
           <h3>
             <FolderPlus :size="18" />
             添加分类
           </h3>
-          <button
-            class="close-btn"
-            @click="handleClose"
-          >
+          <button class="close-btn" @click="handleClose">
             <X :size="18" />
           </button>
         </div>
@@ -82,19 +73,14 @@ onUnmounted(() => {
           <div class="form-group">
             <label>选择图标</label>
             <div class="icon-grid">
-              <button
-                v-for="option in CATEGORY_ICON_OPTIONS"
-                :key="option.value"
+              <button 
+                v-for="icon in iconOptions" 
+                :key="icon"
                 class="icon-btn"
-                :class="{ active: selectedIcon === option.value }"
-                :title="option.label"
-                type="button"
-                @click="selectedIcon = option.value"
+                :class="{ active: selectedIcon === icon }"
+                @click="selectedIcon = icon"
               >
-                <component
-                  :is="resolveIconComponent(option.value, 'Folder')"
-                  :size="18"
-                />
+                {{ icon }}
               </button>
             </div>
           </div>
@@ -108,21 +94,16 @@ onUnmounted(() => {
               class="form-input"
               placeholder="输入分类名称..."
               autofocus
-            >
+            />
           </div>
         </div>
         
         <div class="modal-footer">
-          <button
-            class="btn cancel"
-            @click="handleClose"
-          >
-            取消
-          </button>
+          <button class="btn cancel" @click="handleClose">取消</button>
           <button 
             class="btn confirm" 
-            :disabled="!categoryName.trim()"
             @click="handleConfirm"
+            :disabled="!categoryName.trim()"
           >
             确认添加
           </button>
@@ -220,20 +201,18 @@ onUnmounted(() => {
   border-radius: 8px;
   background: var(--color-bg);
   cursor: pointer;
-  color: var(--color-text-secondary);
+  font-size: 20px;
   transition: all 0.15s ease;
 }
 
 .icon-btn:hover {
   border-color: var(--color-primary);
   background: var(--color-bg-secondary);
-  color: var(--color-primary);
 }
 
 .icon-btn.active {
   border-color: var(--color-primary);
   background: rgba(0, 102, 204, 0.1);
-  color: var(--color-primary);
 }
 
 .form-input {

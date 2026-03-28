@@ -19,7 +19,6 @@ import { defineStore } from 'pinia'
 import { ref, computed, onScopeDispose } from 'vue'
 import { SyncEngine, type SyncState, type SyncResult } from '@/services/sync/engine'
 import type { ConflictStrategy, SyncConflict } from '@/services/sync/conflict-resolver'
-import { useSettingsStore, type SyncTarget } from '@/stores/settings'
 import { logger } from '@/services/error'
 
 // ===================================================================
@@ -27,18 +26,8 @@ import { logger } from '@/services/error'
 // ===================================================================
 
 export const useSyncStore = defineStore('sync', () => {
-    const settingsStore = useSettingsStore()
-
     // 创建同步引擎实例
-    const syncEngine = new SyncEngine({
-        getSyncSettings: () => ({
-            enabled: settingsStore.settings.sync.enabled,
-            target: settingsStore.settings.sync.target,
-            conflictStrategy: settingsStore.settings.sync.conflictStrategy,
-            encryptionEnabled: settingsStore.settings.sync.encryptionEnabled,
-            selectedCategoryIds: [...settingsStore.settings.sync.selectedCategoryIds],
-        }),
-    })
+    const syncEngine = new SyncEngine()
 
     // 响应式状态 (从引擎同步)
     const state = ref<SyncState>(syncEngine.getState())
@@ -72,9 +61,6 @@ export const useSyncStore = defineStore('sync', () => {
 
     /** 待同步变更数量 */
     const pendingCount = computed(() => state.value.pendingChanges)
-
-    /** 当前待同步的文档 ID 列表 */
-    const trackedDocumentIds = computed(() => state.value.trackedDocumentIds)
 
     /** 活跃冲突列表 */
     const conflicts = computed(() => state.value.conflicts)
@@ -156,18 +142,6 @@ export const useSyncStore = defineStore('sync', () => {
         }
     }
 
-    async function testConnection(targetOverride?: SyncTarget): Promise<{ success: boolean; message: string }> {
-        try {
-            return await syncEngine.testConnection(targetOverride)
-        } catch (err) {
-            logger.error('[SyncStore] testConnection 失败', err)
-            return {
-                success: false,
-                message: err instanceof Error ? err.message : '同步目标连接失败',
-            }
-        }
-    }
-
     /**
      * 解决冲突
      *
@@ -206,14 +180,6 @@ export const useSyncStore = defineStore('sync', () => {
         return state.value.conflicts.find((c) => c.documentId === documentId)
     }
 
-    async function reloadPendingChanges(): Promise<void> {
-        try {
-            await syncEngine.reloadPendingChanges()
-        } catch (err) {
-            logger.error('[SyncStore] reloadPendingChanges 失败', err)
-        }
-    }
-
     /**
      * 清理 Store 资源
      */
@@ -244,7 +210,6 @@ export const useSyncStore = defineStore('sync', () => {
         hasConflicts,
         hasPendingChanges,
         pendingCount,
-        trackedDocumentIds,
         conflicts,
         conflictCount,
         lastSyncAt,
@@ -256,11 +221,9 @@ export const useSyncStore = defineStore('sync', () => {
         markDirty,
         sync,
         resolveConflict,
-        testConnection,
         startAutoSync,
         stopAutoSync,
         getConflictForDocument,
-        reloadPendingChanges,
 
         // 生命周期
         cleanup,

@@ -14,7 +14,6 @@ import { CRYPTO_CONFIG } from './config'
 import { ensureCryptoAvailable, isTauriEnvironment, logKeyAccess } from './environment'
 import {
     getCachedKey,
-    getCachedWrappingKey,
     setCachedKey,
     setCachedWrappingKey,
     clearKeyCache,
@@ -342,7 +341,7 @@ export async function changePassword(oldPassword: string, newPassword: string): 
         }
     }
 
-    const currentKey = await getMasterKey({ extractable: true })
+    const currentKey = getCachedKey()
     if (!currentKey) {
         throw new Error('主密钥未加载')
     }
@@ -368,56 +367,7 @@ export async function changePassword(oldPassword: string, newPassword: string): 
  * @returns CryptoKey
  * @throws Error 如果未解锁
  */
-async function getExtractableMasterKey(cachedKey: CryptoKey): Promise<CryptoKey> {
-    if (cachedKey.extractable) {
-        return cachedKey
-    }
-
-    if (isTauriEnvironment()) {
-        const keyData = await loadMasterKeyFromTauriKeychain()
-        if (!keyData) {
-            throw new Error('Unable to restore an exportable master key')
-        }
-
-        const keyBytes = fromBase64(keyData)
-        try {
-            return await crypto.subtle.importKey(
-                'raw',
-                keyBytes,
-                {
-                    name: CRYPTO_CONFIG.ALGORITHM,
-                    length: CRYPTO_CONFIG.KEY_LENGTH
-                },
-                true,
-                ['encrypt', 'decrypt']
-            )
-        } finally {
-            secureZero(keyBytes)
-        }
-    }
-
-    const wrappingKey = getCachedWrappingKey()
-    if (!wrappingKey) {
-        throw new Error('Master key wrapping key is unavailable')
-    }
-
-    const stored = await loadWrappedMasterKeyFromStore()
-    if (!stored) {
-        throw new Error('Wrapped master key is missing')
-    }
-
-    const wrappedKeyBytes = fromBase64(stored.wrappedKey.wrappedKey)
-    const ivBytes = fromBase64(stored.wrappedKey.iv)
-
-    try {
-        return await unwrapMasterKey(wrappedKeyBytes, ivBytes, wrappingKey, true)
-    } finally {
-        secureZero(wrappedKeyBytes)
-        secureZero(ivBytes)
-    }
-}
-
-export async function getMasterKey(options: { extractable?: boolean } = {}): Promise<CryptoKey> {
+export async function getMasterKey(): Promise<CryptoKey> {
     const cachedKey = getCachedKey()
 
     if (!cachedKey) {
@@ -426,10 +376,6 @@ export async function getMasterKey(options: { extractable?: boolean } = {}): Pro
 
     resetCacheTimeout()
     logKeyAccess('access')
-
-    if (options.extractable) {
-        return getExtractableMasterKey(cachedKey)
-    }
 
     return cachedKey
 }
@@ -457,7 +403,7 @@ async function computeChecksum(data: string): Promise<string> {
  * @description 使用单独的密码加密主密钥，生成可安全传输的备份
  */
 export async function exportMasterKey(exportPassword: string): Promise<ExportedKeyBundle> {
-    const cachedKey = await getMasterKey({ extractable: true })
+    const cachedKey = getCachedKey()
 
     if (!cachedKey) {
         throw new Error('主密钥未解锁。请先调用 unlockWithPassword() 解锁。')
@@ -611,9 +557,7 @@ export async function importMasterKey(
         return false
     } catch (error) {
         logger.error('密钥导入失败', error)
-        const wrappedError = new Error('密钥导入失败，请检查导出密码是否正确') as Error & { cause?: unknown }
-        wrappedError.cause = error
-        throw wrappedError
+        throw new Error('密钥导入失败，请检查导出密码是否正确')
     }
 }
 

@@ -14,7 +14,6 @@
 
 import { computeChecksum } from './key-derivation'
 import { logger } from '@/services/error'
-import { db, type PendingChangeRecord } from '@/utils/db'
 import { generateId } from '@/utils/uuid'
 
 // ===================================================================
@@ -54,8 +53,6 @@ export interface ChangeTrackerState {
     trackedDocuments: string[]
 }
 
-export type ChangeTrackerStorage = 'memory' | 'persistent'
-
 // ===================================================================
 // 变更追踪器
 // ===================================================================
@@ -81,18 +78,9 @@ export class ChangeTracker {
 
     /** 去重窗口 (毫秒): 同一文档在此时间内的变更会合并 */
     private readonly dedupeWindowMs: number
-    /** 存储模式 */
-    private readonly storage: ChangeTrackerStorage
-    /** 初始化完成承诺 */
-    private readonly readyPromise: Promise<void>
 
-    constructor(
-        dedupeWindowMs: number = 2000,
-        storage: ChangeTrackerStorage = 'persistent'
-    ) {
+    constructor(dedupeWindowMs: number = 2000) {
         this.dedupeWindowMs = dedupeWindowMs
-        this.storage = storage
-        this.readyPromise = this.hydrate()
     }
 
     /**
@@ -107,7 +95,6 @@ export class ChangeTracker {
         operation: ChangeOperation,
         content?: string
     ): Promise<ChangeRecord> {
-        await this.readyPromise
         const now = new Date().toISOString()
 
         // 计算校验和
@@ -137,8 +124,6 @@ export class ChangeTracker {
             this.changes.set(record.id, record)
         }
 
-        await this.persistRecord(record)
-
         this.notifyListeners()
 
         logger.debug('[ChangeTracker] 记录变更', {
@@ -154,8 +139,7 @@ export class ChangeTracker {
     /**
      * 获取所有待同步的变更 (按时间排序)
      */
-    async getPendingChanges(): Promise<ChangeRecord[]> {
-        await this.readyPromise
+    getPendingChanges(): ChangeRecord[] {
         return Array.from(this.changes.values())
             .filter((c) => !c.synced)
             .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
@@ -166,14 +150,12 @@ export class ChangeTracker {
      *
      * @param changeId - 变更记录 ID
      */
-    async markSynced(changeId: string): Promise<void> {
-        await this.readyPromise
+    markSynced(changeId: string): void {
         const record = this.changes.get(changeId)
         if (record) {
             record.synced = true
             // 已同步的记录可以安全删除以释放内存
             this.changes.delete(changeId)
-            await this.deleteRecords([changeId])
             this.notifyListeners()
         }
     }
@@ -181,8 +163,7 @@ export class ChangeTracker {
     /**
      * 批量标记已同步
      */
-    async markSyncedBatch(changeIds: string[]): Promise<void> {
-        await this.readyPromise
+    markSyncedBatch(changeIds: string[]): void {
         for (const id of changeIds) {
             const record = this.changes.get(id)
             if (record) {
@@ -190,19 +171,16 @@ export class ChangeTracker {
                 this.changes.delete(id)
             }
         }
-        await this.deleteRecords(changeIds)
         this.notifyListeners()
     }
 
     /**
      * 增加重试计数
      */
-    async incrementRetry(changeId: string): Promise<void> {
-        await this.readyPromise
+    incrementRetry(changeId: string): void {
         const record = this.changes.get(changeId)
         if (record) {
             record.retryCount += 1
-            await this.persistRecord(record)
         }
     }
 
@@ -210,9 +188,7 @@ export class ChangeTracker {
      * 获取当前追踪状态
      */
     getState(): ChangeTrackerState {
-        const pending = Array.from(this.changes.values())
-            .filter((c) => !c.synced)
-            .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+        const pending = this.getPendingChanges()
         const trackedDocuments = [...new Set(pending.map((c) => c.articleId))]
 
         return {
@@ -227,24 +203,9 @@ export class ChangeTracker {
     /**
      * 清空所有变更记录
      */
-    async clear(): Promise<void> {
-        await this.readyPromise
+    clear(): void {
         this.changes.clear()
-        if (this.storage === 'persistent') {
-            await db.pendingChanges.clear()
-        }
         this.notifyListeners()
-    }
-
-    async reload(): Promise<void> {
-        await this.readyPromise
-        this.changes.clear()
-        await this.loadPersistedChanges()
-        this.notifyListeners()
-    }
-
-    dispose(): void {
-        this.listeners = []
     }
 
     /**
@@ -254,7 +215,6 @@ export class ChangeTracker {
      */
     onStateChange(callback: (state: ChangeTrackerState) => void): () => void {
         this.listeners.push(callback)
-        callback(this.getState())
         return () => {
             const index = this.listeners.indexOf(callback)
             if (index !== -1) {
@@ -288,67 +248,6 @@ export class ChangeTracker {
         }
 
         return null
-    }
-
-    private async hydrate(): Promise<void> {
-        if (this.storage !== 'persistent') {
-            return
-        }
-
-        try {
-            await this.loadPersistedChanges()
-            this.notifyListeners()
-        } catch (err) {
-            logger.error('[ChangeTracker] 持久化队列加载失败', err)
-        }
-    }
-
-    private async loadPersistedChanges(): Promise<void> {
-        if (this.storage !== 'persistent') {
-            return
-        }
-
-        const persisted = await db.pendingChanges.toArray()
-        for (const record of persisted) {
-            if (!record.synced) {
-                this.changes.set(record.id, this.toChangeRecord(record))
-            }
-        }
-    }
-
-    private async persistRecord(record: ChangeRecord): Promise<void> {
-        if (this.storage !== 'persistent') {
-            return
-        }
-
-        const existingDocument = await db.documents.get(record.articleId)
-        const persistentRecord: PendingChangeRecord = {
-            ...record,
-            accountId: existingDocument?.accountId ?? 'local-default',
-        }
-
-        await db.pendingChanges.put(persistentRecord)
-    }
-
-    private async deleteRecords(changeIds: string[]): Promise<void> {
-        if (this.storage !== 'persistent' || changeIds.length === 0) {
-            return
-        }
-
-        await db.pendingChanges.bulkDelete(changeIds)
-    }
-
-    private toChangeRecord(record: PendingChangeRecord): ChangeRecord {
-        return {
-            id: record.id,
-            articleId: record.articleId,
-            operation: record.operation,
-            timestamp: record.timestamp,
-            checksum: record.checksum,
-            encryptedContent: record.encryptedContent,
-            synced: record.synced,
-            retryCount: record.retryCount,
-        }
     }
 
     /** 通知所有监听器 */

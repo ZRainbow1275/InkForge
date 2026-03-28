@@ -124,13 +124,6 @@ export default defineConfig({
             'prosemirror-history',
             '@tiptap/core',
             '@tiptap/pm',
-            '@codemirror/state',
-            '@codemirror/view',
-            '@codemirror/language',
-            '@codemirror/commands',
-            '@codemirror/autocomplete',
-            '@codemirror/lint',
-            '@codemirror/search',
         ],
     },
     server: {

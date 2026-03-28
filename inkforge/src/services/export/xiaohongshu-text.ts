@@ -1,8 +1,8 @@
 /**
  * 小红书纯文本导出引擎
  *
- * 小红书平台以纯文本为主，不支持 HTML/CSS/Markdown 格式。
- * 本模块将 Markdown 转换为清洗后的纯文本，并自动注入短文本装饰标记。
+ * 小红书平台只支持纯文本 + emoji，不支持任何 HTML/CSS/Markdown 格式。
+ * 本模块将 Markdown 转换为清洗后的纯文本，并自动注入 emoji 装饰。
  *
  * 参考：docs/platform-rendering-rules/xiaohongshu-rules.md
  */
@@ -42,18 +42,18 @@ interface EmojiStyleConfig {
 
 const EMOJI_STYLES: Record<string, EmojiStyleConfig> = {
   fresh: {
-    h1: '花',
-    h2: '柔',
-    h3: '轻',
-    orderedMarkers: ['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.'],
-    unorderedMarker: '·',
-    quoteMarker: '引',
+    h1: '🌸',
+    h2: '🌷',
+    h3: '💐',
+    orderedMarkers: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
+    unorderedMarker: '✅',
+    quoteMarker: '💬',
     divider: '━━━━━━━━━━━━━━',
-    signaturePrefix: '花',
-    codePrompt: '代码',
-    imagePrompt: '图片',
-    linkPrompt: '链接',
-    tableTitle: '表格',
+    signaturePrefix: '✨',
+    codePrompt: '💻',
+    imagePrompt: '📷',
+    linkPrompt: '👉',
+    tableTitle: '📊',
   },
   simple: {
     h1: '◆',
@@ -61,55 +61,55 @@ const EMOJI_STYLES: Record<string, EmojiStyleConfig> = {
     h3: '▫',
     orderedMarkers: ['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.'],
     unorderedMarker: '·',
-    quoteMarker: '引',
+    quoteMarker: '"',
     divider: '· · · · · · · · ·',
-    signaturePrefix: '简',
-    codePrompt: '代码',
-    imagePrompt: '图片',
-    linkPrompt: '链接',
-    tableTitle: '表格',
+    signaturePrefix: '—',
+    codePrompt: '[]',
+    imagePrompt: '▣',
+    linkPrompt: '→',
+    tableTitle: '▦',
   },
   warm: {
-    h1: '暖',
-    h2: '柔',
-    h3: '醇',
-    orderedMarkers: ['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.'],
-    unorderedMarker: '·',
-    quoteMarker: '想',
-    divider: '· · · · ·',
-    signaturePrefix: '暖',
-    codePrompt: '记录',
-    imagePrompt: '配图',
-    linkPrompt: '链接',
-    tableTitle: '清单',
+    h1: '🧡',
+    h2: '💛',
+    h3: '🤎',
+    orderedMarkers: ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'],
+    unorderedMarker: '🌻',
+    quoteMarker: '💭',
+    divider: '✦ ✦ ✦ ✦ ✦',
+    signaturePrefix: '🧸',
+    codePrompt: '📝',
+    imagePrompt: '🖼️',
+    linkPrompt: '🔗',
+    tableTitle: '📋',
   },
   tech: {
-    h1: '技',
-    h2: '数',
-    h3: '序',
-    orderedMarkers: ['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.'],
-    unorderedMarker: '▪',
-    quoteMarker: '注',
-    divider: '▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪',
-    signaturePrefix: '技',
-    codePrompt: '代码',
-    imagePrompt: '截图',
-    linkPrompt: '链接',
-    tableTitle: '表格',
+    h1: '⚡',
+    h2: '💫',
+    h3: '✦',
+    orderedMarkers: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
+    unorderedMarker: '🔹',
+    quoteMarker: '💡',
+    divider: '▪️▪️▪️▪️▪️▪️▪️▪️',
+    signaturePrefix: '🔮',
+    codePrompt: '💻',
+    imagePrompt: '📸',
+    linkPrompt: '🔗',
+    tableTitle: '📊',
   },
   nature: {
-    h1: '森',
-    h2: '叶',
-    h3: '青',
-    orderedMarkers: ['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.'],
-    unorderedMarker: '·',
-    quoteMarker: '引',
-    divider: '· · · 森 · · ·',
-    signaturePrefix: '森',
-    codePrompt: '记录',
-    imagePrompt: '图片',
-    linkPrompt: '链接',
-    tableTitle: '清单',
+    h1: '🌿',
+    h2: '🍀',
+    h3: '🌱',
+    orderedMarkers: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
+    unorderedMarker: '🍃',
+    quoteMarker: '🌿',
+    divider: '· · · 🌿 · · ·',
+    signaturePrefix: '🌸',
+    codePrompt: '📝',
+    imagePrompt: '📷',
+    linkPrompt: '👉',
+    tableTitle: '📋',
   },
 }
 
@@ -184,8 +184,8 @@ export function markdownToXiaohongshuText(
   text = text.replace(/^(-{3,}|_{3,}|\*{3,})$/gm, emojis.divider)
 
   // Step 13: 处理任务列表
-  text = text.replace(/^- \[x\]/gm, '已完成')
-  text = text.replace(/^- \[ \]/gm, '待办')
+  text = text.replace(/^- \[x\]/gm, '✅')
+  text = text.replace(/^- \[ \]/gm, '☐')
 
   // Step 14: 清理 Markdown 格式标记
   text = cleanMarkdownSyntax(text)
@@ -195,9 +195,9 @@ export function markdownToXiaohongshuText(
     text = splitParagraphs(text, maxLines)
   }
 
-  // Step 16: 装饰标记密度检查和补充
+  // Step 16: emoji 密度检查和补充
   if (injectEmojis) {
-    text = adjustDecorDensity(text)
+    text = adjustEmojiDensity(text)
   }
 
   // Step 17: 添加签名
@@ -211,7 +211,7 @@ export function markdownToXiaohongshuText(
 
   // 统计
   const charCount = text.length
-  const decorationCount = countDecorMarkers(text)
+  const emojiCount = countEmojis(text)
   const paragraphCount = text.split(/\n\s*\n/).filter(p => p.trim()).length
   const suggestedTags = generateTags ? extractSuggestedTags(markdown) : []
 
@@ -220,7 +220,7 @@ export function markdownToXiaohongshuText(
     charCount,
     overLimit: charCount > 1000,
     paragraphCount,
-    emojiCount: decorationCount,
+    emojiCount,
     suggestedTags,
   }
 }
@@ -290,7 +290,7 @@ function convertHeadings(text: string, emojis: EmojiStyleConfig): string {
   // H3
   text = text.replace(/^### (.+)$/gm, `\n${emojis.h3} $1`)
   // H4-H6 降级为普通加粗文本
-  text = text.replace(/^#{4,6} (.+)$/gm, '\n重点 $1')
+  text = text.replace(/^#{4,6} (.+)$/gm, '\n📌 $1')
 
   return text
 }
@@ -380,17 +380,17 @@ function convertBlockquotes(text: string, emojis: EmojiStyleConfig): string {
 /** 转换 GFM Alert 块 */
 function convertAlertBlocks(text: string, _emojis: EmojiStyleConfig): string {
   const alertMap: Record<string, string> = {
-    'NOTE': '笔记',
-    'TIP': '提示',
-    'WARNING': '警示',
-    'CAUTION': '注意',
-    'IMPORTANT': '重点',
+    'NOTE': '📝',
+    'TIP': '💡',
+    'WARNING': '⚠️',
+    'CAUTION': '🚨',
+    'IMPORTANT': '❗',
   }
 
   return text.replace(
     />\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)\]\s*\n((?:>.*\n?)*)/gi,
     (_match, type: string, content: string) => {
-      const emoji = alertMap[type.toUpperCase()] ?? '重点'
+      const emoji = alertMap[type.toUpperCase()] ?? '📌'
       const cleanContent = content.replace(/^>\s*/gm, '').trim()
       return `${emoji} ${cleanContent}`
     }
@@ -430,7 +430,7 @@ function convertImages(text: string, emojis: EmojiStyleConfig): string {
 function convertLatex(text: string): string {
   // 块级公式
   text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_match, formula: string) => {
-    return `公式：${formula.trim()}`
+    return `📐 公式：${formula.trim()}`
   })
   // 行内公式
   text = text.replace(/\$([^$\n]+)\$/g, '$1')
@@ -489,31 +489,30 @@ function splitParagraphs(text: string, maxLines: number): string {
   return result.join('\n\n')
 }
 
-/** 装饰标记密度调整 — 确保长文本具备足够的视觉锚点 */
-function adjustDecorDensity(text: string): string {
+/** emoji 密度调整 — 确保 1-2 个 emoji / 100 字 */
+function adjustEmojiDensity(text: string): string {
   const charCount = text.length
-  const currentMarkers = countDecorMarkers(text)
+  const currentEmojis = countEmojis(text)
   const targetMin = Math.floor(charCount / 200)
 
-  if (currentMarkers >= targetMin) {
+  if (currentEmojis >= targetMin) {
     return text // 密度足够
   }
 
-  // 密度不足时，在段落首添加装饰标记
-  const decorMarkers = ['重点', '提示', '摘要', '亮点', '脉络', '笔记']
+  // 密度不足时，在段落首添加装饰 emoji
+  const decorEmojis = ['📌', '💡', '✨', '🌟', '💫', '🎯', '📝']
   const paragraphs = text.split(/\n\s*\n/)
   let added = 0
-  const needed = targetMin - currentMarkers
+  const needed = targetMin - currentEmojis
 
   const result = paragraphs.map(para => {
     if (added >= needed) return para
     const trimmed = para.trim()
-    const hasStructuredPrefix = /^(?:\d+\.\s|[▪·]\s|已完成\s|待办\s)/.test(trimmed)
-    // 跳过已有装饰标记开头的段落、空段落、单行短段落
-    if (!trimmed || trimmed.length < 20 || hasStructuredPrefix || hasLeadingDecorMarker(trimmed)) return para
+    // 跳过已有 emoji 开头的段落、空段落、单行短段落
+    if (!trimmed || trimmed.length < 20 || hasLeadingEmoji(trimmed)) return para
     added++
-    const marker = decorMarkers[(added - 1) % decorMarkers.length]
-    return marker + ' ' + trimmed
+    const emoji = decorEmojis[(added - 1) % decorEmojis.length]
+    return emoji + ' ' + trimmed
   })
 
   return result.join('\n\n')
@@ -534,43 +533,18 @@ function finalCleanup(text: string): string {
 // 辅助函数
 // ═══════════════════════════════════════════════════════════════════
 
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+/** 统计文本中的 emoji 数量 */
+function countEmojis(text: string): number {
+  // 匹配常见 emoji（包括组合 emoji、keycap 序列）
+  const emojiPattern = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|[0-9]\uFE0F?\u20E3/gu
+  const matches = text.match(emojiPattern)
+  return matches ? matches.length : 0
 }
 
-const DECORATION_TOKENS = Array.from(
-  new Set(
-    Object.values(EMOJI_STYLES).flatMap(style => [
-      style.h1,
-      style.h2,
-      style.h3,
-      style.quoteMarker,
-      style.signaturePrefix,
-      style.codePrompt,
-      style.imagePrompt,
-      style.linkPrompt,
-      style.tableTitle,
-    ])
-  )
-).concat(['重点', '提示', '笔记', '警示', '注意', '公式', '摘要', '亮点', '脉络'])
-
-const DECORATION_PATTERN_SOURCE = DECORATION_TOKENS
-  .filter(token => token.trim().length > 0)
-  .sort((left, right) => right.length - left.length)
-  .map(escapeRegex)
-  .join('|')
-
-const DECORATION_TOKEN_PATTERN = new RegExp(`(?:^|\\s)(?:${DECORATION_PATTERN_SOURCE})(?=\\s)`, 'gu')
-const LEADING_DECORATION_PATTERN = new RegExp(`^(?:${DECORATION_PATTERN_SOURCE})(?=\\s)`, 'u')
-
-/** 统计文本中的装饰标记数量 */
-function countDecorMarkers(text: string): number {
-  return Array.from(text.matchAll(DECORATION_TOKEN_PATTERN)).length
-}
-
-/** 检测行首是否已有装饰标记 */
-function hasLeadingDecorMarker(text: string): boolean {
-  return LEADING_DECORATION_PATTERN.test(text.trim())
+/** 检测行首是否已有 emoji */
+function hasLeadingEmoji(text: string): boolean {
+  const emojiHeadPattern = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F|[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF])/u
+  return emojiHeadPattern.test(text.trim())
 }
 
 /** 从 Markdown 内容提取话题标签建议 */
@@ -613,10 +587,10 @@ export interface EmojiStyleInfo {
 
 export function getAvailableEmojiStyles(): EmojiStyleInfo[] {
   return [
-    { id: 'fresh', name: '清新少女', icon: '花', description: '花感前缀，清爽柔和' },
-    { id: 'simple', name: '极简高级', icon: '简', description: '极简标记，干净克制' },
-    { id: 'warm', name: '温暖治愈', icon: '暖', description: '暖色语气，适合生活内容' },
-    { id: 'tech', name: '科技数码', icon: '技', description: '科技感前缀，适合数码内容' },
-    { id: 'nature', name: '自然清新', icon: '森', description: '自然语汇，适合清新主题' },
+    { id: 'fresh', name: '清新少女', icon: '🌸', description: '花花草草，粉嫩可爱' },
+    { id: 'simple', name: '极简高级', icon: '✨', description: '简洁符号，高级质感' },
+    { id: 'warm', name: '温暖治愈', icon: '🧸', description: '暖色调，治愈系' },
+    { id: 'tech', name: '科技数码', icon: '🔮', description: '科技感，适合数码内容' },
+    { id: 'nature', name: '自然清新', icon: '🌿', description: '绿意盎然，自然风' },
   ]
 }

@@ -5,12 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:rest-sync-target": "node ./scripts/rest-sync-target.mjs",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.vue --fix",
-    "verify:sync-runtime": "node ./scripts/run-verify-sync-runtime.mjs",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "tauri": "tauri",

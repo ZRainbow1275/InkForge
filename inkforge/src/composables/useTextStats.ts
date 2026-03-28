@@ -61,12 +61,7 @@ const CHINESE_CHAR_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g
 const ENGLISH_WORD_RE = /[a-zA-Z]+(?:[''][a-zA-Z]+)*/g
 
 /** 标点符号正则 */
-const PUNCTUATION_CHARS = new Set([
-    '，', '。', '！', '？', '、', '；', '：',
-    '"', "'", '（', '）', '【', '】', '《', '》',
-    '…', '—', '.', ',', '!', '?', ';', ':',
-    '(', ')', '[', ']', '{', '}'
-])
+const PUNCTUATION_RE = /[，。！？、；：""''（）【】《》…—\.,!?;:'"\(\)\[\]{}]/g
 
 /** 句子结束正则 */
 const SENTENCE_END_RE = /[。！？.!?]+/g
@@ -87,7 +82,8 @@ function computeTextStats(text: string, html: string): TextStats {
     const englishWords = englishMatches ? englishMatches.length : 0
 
     // 标点
-    const punctuationCount = Array.from(text).filter((char) => PUNCTUATION_CHARS.has(char)).length
+    const punctMatches = text.match(PUNCTUATION_RE)
+    const punctuationCount = punctMatches ? punctMatches.length : 0
 
     // 句子（按句末标点分割）
     const sentenceMatches = text.match(SENTENCE_END_RE)

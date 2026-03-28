@@ -1,5 +1,0 @@
-{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
-{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
-{"file": "docs/specs/02-workstation-spec.md", "reason": "Workstation改造规格"}
-{"file": "docs/specs/00-master-plan.md", "reason": "总体规划约束"}
-{"file": "inkforge/src/views/WorkstationView.vue", "reason": "现有Workstation"}

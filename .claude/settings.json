@@ -6,27 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/session-start.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "clear",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/session-start.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/session-start.py",
+            "command": "python D:/Desktop/Inkforge/.claude/hooks/session-start.py",
             "timeout": 10
           }
         ]
@@ -38,17 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/inject-subagent-context.py",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/inject-subagent-context.py",
+            "command": "python D:/Desktop/Inkforge/.claude/hooks/inject-subagent-context.py",
             "timeout": 30
           }
         ]
@@ -60,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/ralph-loop.py",
+            "command": "python D:/Desktop/Inkforge/.claude/hooks/ralph-loop.py",
             "timeout": 10
           }
         ]
