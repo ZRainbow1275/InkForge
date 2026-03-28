@@ -20,12 +20,53 @@ import {
   Highlighter, Palette,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Superscript, Subscript,
-  Table, CheckSquare
+  Table, CheckSquare,
+  MoreHorizontal
 } from 'lucide-vue-next'
 
 const props = defineProps<{
   editor: Editor | undefined
 }>()
+
+// ---- Compact 模式 (窄屏 < 480px) ----
+const isCompact = ref(false)
+const isExpanded = ref(false)
+let resizeObserver: ResizeObserver | null = null
+
+function toggleExpanded(): void {
+  isExpanded.value = !isExpanded.value
+}
+
+/** 观察 .editor-paper 容器宽度，切换 compact 模式 */
+function setupResizeObserver(): void {
+  cleanupResizeObserver()
+
+  const editor = props.editor
+  if (!editor?.view) return
+
+  const paperEl = editor.view.dom.closest('.editor-paper') as HTMLElement | null
+  if (!paperEl) return
+
+  resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const width = entry.contentRect.width
+      const wasCompact = isCompact.value
+      isCompact.value = width < 480
+      // 退出 compact 模式时重置展开状态
+      if (wasCompact && !isCompact.value) {
+        isExpanded.value = false
+      }
+    }
+  })
+  resizeObserver.observe(paperEl)
+}
+
+function cleanupResizeObserver(): void {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+}
 
 // ---- 工具栏可见性与定位 ----
 const visible = ref(false)
@@ -120,12 +161,19 @@ watch(
   () => props.editor,
   (editor, oldEditor) => {
     if (oldEditor) detachListeners()
-    if (editor) attachListeners(editor)
+    if (editor) {
+      attachListeners(editor)
+      // editor 就绪后观察容器宽度
+      nextTick(setupResizeObserver)
+    }
   },
   { immediate: true }
 )
 
-onBeforeUnmount(detachListeners)
+onBeforeUnmount(() => {
+  detachListeners()
+  cleanupResizeObserver()
+})
 
 // ---- 链接插入逻辑 ----
 const showLinkInput = ref(false)
@@ -272,259 +320,353 @@ onBeforeUnmount(() => {
       :style="toolbarStyle"
       @mousedown.prevent
     >
-      <!-- 格式组: Bold / Italic / Underline / Strikethrough / Code -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('bold') }"
-        @click="editor?.chain().focus().toggleBold().run()"
-        title="加粗 (Ctrl+B)"
-      >
-        <Bold :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('italic') }"
-        @click="editor?.chain().focus().toggleItalic().run()"
-        title="斜体 (Ctrl+I)"
-      >
-        <Italic :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('underline') }"
-        @click="editor?.chain().focus().toggleUnderline().run()"
-        title="下划线 (Ctrl+U)"
-      >
-        <Underline :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('strike') }"
-        @click="editor?.chain().focus().toggleStrike().run()"
-        title="删除线 (Ctrl+Shift+X)"
-      >
-        <Strikethrough :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('code') }"
-        @click="editor?.chain().focus().toggleCode().run()"
-        title="行内代码 (Ctrl+E)"
-      >
-        <Code :size="15" />
-      </button>
-      <!-- 高亮 (带颜色面板) -->
-      <div class="ft-btn-wrapper" ref="highlightPanelEl">
-        <button
-          class="ft-btn"
-          :class="{ active: isActive('highlight') }"
-          @click="toggleHighlightPanel"
-          title="高亮标记"
-        >
-          <Highlighter :size="15" />
-        </button>
-        <div v-if="showHighlightPanel" class="ft-color-panel">
+      <!-- ====== Compact 模式: 只显示核心按钮 + 更多 ====== -->
+      <template v-if="isCompact && !isExpanded">
+        <!-- 核心按钮: Bold, Italic, Underline, Link, Heading1, CodeBlock -->
+        <div class="ft-group">
           <button
-            v-for="hc in highlightColors"
-            :key="hc.color"
-            class="ft-color-swatch"
-            :style="{ background: hc.color }"
-            :title="hc.label"
-            @click="applyHighlight(hc.color)"
-          />
-          <button
-            class="ft-color-reset"
-            title="清除高亮"
-            @click="removeHighlight"
+            class="ft-btn"
+            :class="{ active: isActive('bold') }"
+            title="加粗 (Ctrl+B)"
+            @click="editor?.chain().focus().toggleBold().run()"
           >
-            清除
+            <Bold :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('italic') }"
+            title="斜体 (Ctrl+I)"
+            @click="editor?.chain().focus().toggleItalic().run()"
+          >
+            <Italic :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('underline') }"
+            title="下划线 (Ctrl+U)"
+            @click="editor?.chain().focus().toggleUnderline().run()"
+          >
+            <Underline :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('link') }"
+            title="链接 (Ctrl+K)"
+            @click="handleLinkClick"
+          >
+            <Link :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('heading', { level: 1 }) }"
+            title="一级标题"
+            @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+          >
+            <Heading1 :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('codeBlock') }"
+            title="代码块"
+            @click="editor?.chain().focus().toggleCodeBlock().run()"
+          >
+            <Code2 :size="14" />
           </button>
         </div>
-      </div>
-      <!-- 文字颜色 (带颜色面板) -->
-      <div class="ft-btn-wrapper" ref="textColorPanelEl">
+        <!-- 更多按钮 -->
         <button
-          class="ft-btn"
-          :class="{ active: isActive('textStyle') }"
-          @click="toggleTextColorPanel"
-          title="文字颜色"
+          class="ft-btn ft-btn-more"
+          title="更多"
+          @click="toggleExpanded"
         >
-          <Palette :size="15" />
+          <MoreHorizontal :size="14" />
         </button>
-        <div v-if="showTextColorPanel" class="ft-color-panel">
+      </template>
+
+      <!-- ====== 完整模式 (含 compact 展开) ====== -->
+      <template v-else>
+        <!-- 组1: 格式 — B I U S Code Highlight Color -->
+        <div class="ft-group">
           <button
-            v-for="tc in textColors"
-            :key="tc.color"
-            class="ft-color-swatch"
-            :style="{ background: tc.color }"
-            :title="tc.label"
-            @click="applyTextColor(tc.color)"
-          />
-          <button
-            class="ft-color-reset"
-            title="重置颜色"
-            @click="resetTextColor"
+            class="ft-btn"
+            :class="{ active: isActive('bold') }"
+            title="加粗 (Ctrl+B)"
+            @click="editor?.chain().focus().toggleBold().run()"
           >
-            重置
+            <Bold :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('italic') }"
+            title="斜体 (Ctrl+I)"
+            @click="editor?.chain().focus().toggleItalic().run()"
+          >
+            <Italic :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('underline') }"
+            title="下划线 (Ctrl+U)"
+            @click="editor?.chain().focus().toggleUnderline().run()"
+          >
+            <Underline :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('strike') }"
+            title="删除线 (Ctrl+Shift+X)"
+            @click="editor?.chain().focus().toggleStrike().run()"
+          >
+            <Strikethrough :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('code') }"
+            title="行内代码 (Ctrl+E)"
+            @click="editor?.chain().focus().toggleCode().run()"
+          >
+            <Code :size="14" />
+          </button>
+          <!-- 高亮 (带颜色面板) -->
+          <div
+            ref="highlightPanelEl"
+            class="ft-btn-wrapper"
+          >
+            <button
+              class="ft-btn"
+              :class="{ active: isActive('highlight') }"
+              title="高亮标记"
+              @click="toggleHighlightPanel"
+            >
+              <Highlighter :size="14" />
+            </button>
+            <div
+              v-if="showHighlightPanel"
+              class="ft-color-panel"
+            >
+              <button
+                v-for="hc in highlightColors"
+                :key="hc.color"
+                class="ft-color-swatch"
+                :style="{ background: hc.color }"
+                :title="hc.label"
+                @click="applyHighlight(hc.color)"
+              />
+              <button
+                class="ft-color-reset"
+                title="清除高亮"
+                @click="removeHighlight"
+              >
+                清除
+              </button>
+            </div>
+          </div>
+          <!-- 文字颜色 (带颜色面板) -->
+          <div
+            ref="textColorPanelEl"
+            class="ft-btn-wrapper"
+          >
+            <button
+              class="ft-btn"
+              :class="{ active: isActive('textStyle') }"
+              title="文字颜色"
+              @click="toggleTextColorPanel"
+            >
+              <Palette :size="14" />
+            </button>
+            <div
+              v-if="showTextColorPanel"
+              class="ft-color-panel"
+            >
+              <button
+                v-for="tc in textColors"
+                :key="tc.color"
+                class="ft-color-swatch"
+                :style="{ background: tc.color }"
+                :title="tc.label"
+                @click="applyTextColor(tc.color)"
+              />
+              <button
+                class="ft-color-reset"
+                title="重置颜色"
+                @click="resetTextColor"
+              >
+                重置
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 组2: 上标 / 下标 -->
+        <div class="ft-group">
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('superscript') }"
+            title="上标"
+            @click="editor?.chain().focus().toggleSuperscript().run()"
+          >
+            <Superscript :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('subscript') }"
+            title="下标"
+            @click="editor?.chain().focus().toggleSubscript().run()"
+          >
+            <Subscript :size="14" />
           </button>
         </div>
-      </div>
-      <!-- 上标 / 下标 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('superscript') }"
-        @click="editor?.chain().focus().toggleSuperscript().run()"
-        title="上标"
-      >
-        <Superscript :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('subscript') }"
-        @click="editor?.chain().focus().toggleSubscript().run()"
-        title="下标"
-      >
-        <Subscript :size="15" />
-      </button>
 
-      <div class="ft-divider" />
+        <!-- 组3: H1 H2 H3 -->
+        <div class="ft-group">
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('heading', { level: 1 }) }"
+            title="一级标题"
+            @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+          >
+            <Heading1 :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('heading', { level: 2 }) }"
+            title="二级标题"
+            @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
+          >
+            <Heading2 :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('heading', { level: 3 }) }"
+            title="三级标题"
+            @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
+          >
+            <Heading3 :size="14" />
+          </button>
+        </div>
 
-      <!-- 标题组: H1 / H2 / H3 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 1 }) }"
-        @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
-        title="一级标题"
-      >
-        <Heading1 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 2 }) }"
-        @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-        title="二级标题"
-      >
-        <Heading2 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('heading', { level: 3 }) }"
-        @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-        title="三级标题"
-      >
-        <Heading3 :size="15" />
-      </button>
+        <!-- 组4: 块级 — 引用 无序 有序 任务 -->
+        <div class="ft-group">
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('blockquote') }"
+            title="引用 (Ctrl+Shift+B)"
+            @click="editor?.chain().focus().toggleBlockquote().run()"
+          >
+            <Quote :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('bulletList') }"
+            title="无序列表"
+            @click="editor?.chain().focus().toggleBulletList().run()"
+          >
+            <List :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('orderedList') }"
+            title="有序列表"
+            @click="editor?.chain().focus().toggleOrderedList().run()"
+          >
+            <ListOrdered :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('taskList') }"
+            title="任务列表"
+            @click="editor?.chain().focus().toggleTaskList().run()"
+          >
+            <CheckSquare :size="14" />
+          </button>
+        </div>
 
-      <div class="ft-divider" />
+        <!-- 组5: 对齐 — 左 中 右 两端 -->
+        <div class="ft-group">
+          <button
+            class="ft-btn"
+            :class="{ active: isActive({ textAlign: 'left' }) }"
+            title="左对齐"
+            @click="editor?.chain().focus().setTextAlign('left').run()"
+          >
+            <AlignLeft :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive({ textAlign: 'center' }) }"
+            title="居中对齐"
+            @click="editor?.chain().focus().setTextAlign('center').run()"
+          >
+            <AlignCenter :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive({ textAlign: 'right' }) }"
+            title="右对齐"
+            @click="editor?.chain().focus().setTextAlign('right').run()"
+          >
+            <AlignRight :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive({ textAlign: 'justify' }) }"
+            title="两端对齐"
+            @click="editor?.chain().focus().setTextAlign('justify').run()"
+          >
+            <AlignJustify :size="14" />
+          </button>
+        </div>
 
-      <!-- 块级组: Blockquote / BulletList / OrderedList -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('blockquote') }"
-        @click="editor?.chain().focus().toggleBlockquote().run()"
-        title="引用 (Ctrl+Shift+B)"
-      >
-        <Quote :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('bulletList') }"
-        @click="editor?.chain().focus().toggleBulletList().run()"
-        title="无序列表"
-      >
-        <List :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('orderedList') }"
-        @click="editor?.chain().focus().toggleOrderedList().run()"
-        title="有序列表"
-      >
-        <ListOrdered :size="15" />
-      </button>
-      <!-- 任务列表 -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('taskList') }"
-        @click="editor?.chain().focus().toggleTaskList().run()"
-        title="任务列表"
-      >
-        <CheckSquare :size="15" />
-      </button>
+        <!-- 组6: 插入 — 链接 代码块 分割线 表格 -->
+        <div class="ft-group">
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('link') }"
+            title="链接 (Ctrl+K)"
+            @click="handleLinkClick"
+          >
+            <Link :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            :class="{ active: isActive('codeBlock') }"
+            title="代码块"
+            @click="editor?.chain().focus().toggleCodeBlock().run()"
+          >
+            <Code2 :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            title="分割线"
+            @click="editor?.chain().focus().setHorizontalRule().run()"
+          >
+            <Minus :size="14" />
+          </button>
+          <button
+            class="ft-btn"
+            title="插入表格"
+            @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
+          >
+            <Table :size="14" />
+          </button>
+        </div>
 
-      <div class="ft-divider" />
-
-      <!-- 对齐组: Left / Center / Right / Justify -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'left' }) }"
-        @click="editor?.chain().focus().setTextAlign('left').run()"
-        title="左对齐"
-      >
-        <AlignLeft :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'center' }) }"
-        @click="editor?.chain().focus().setTextAlign('center').run()"
-        title="居中对齐"
-      >
-        <AlignCenter :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'right' }) }"
-        @click="editor?.chain().focus().setTextAlign('right').run()"
-        title="右对齐"
-      >
-        <AlignRight :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive({ textAlign: 'justify' }) }"
-        @click="editor?.chain().focus().setTextAlign('justify').run()"
-        title="两端对齐"
-      >
-        <AlignJustify :size="15" />
-      </button>
-
-      <div class="ft-divider" />
-
-      <!-- 插入组: Link / CodeBlock / HorizontalRule / Table -->
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('link') }"
-        @click="handleLinkClick"
-        title="链接 (Ctrl+K)"
-      >
-        <Link :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        :class="{ active: isActive('codeBlock') }"
-        @click="editor?.chain().focus().toggleCodeBlock().run()"
-        title="代码块"
-      >
-        <Code2 :size="15" />
-      </button>
-      <button
-        class="ft-btn"
-        @click="editor?.chain().focus().setHorizontalRule().run()"
-        title="分割线"
-      >
-        <Minus :size="15" />
-      </button>
-      <!-- 插入表格 -->
-      <button
-        class="ft-btn"
-        @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
-        title="插入表格"
-      >
-        <Table :size="15" />
-      </button>
+        <!-- compact 展开模式下的收起按钮 -->
+        <button
+          v-if="isCompact && isExpanded"
+          class="ft-btn ft-btn-more"
+          title="收起"
+          @click="toggleExpanded"
+        >
+          <MoreHorizontal :size="14" />
+        </button>
+      </template>
 
       <!-- 链接输入浮层 -->
-      <div v-if="showLinkInput" class="ft-link-input">
+      <div
+        v-if="showLinkInput"
+        class="ft-link-input"
+      >
         <input
           v-model="linkUrl"
           type="url"
@@ -532,60 +674,90 @@ onBeforeUnmount(() => {
           class="ft-link-field"
           @keydown.enter.prevent="confirmLink"
           @keydown.escape.prevent="cancelLink"
-        />
-        <button class="ft-link-confirm" @click="confirmLink">确定</button>
-        <button class="ft-link-cancel" @click="cancelLink">取消</button>
+        >
+        <button
+          class="ft-link-confirm"
+          @click="confirmLink"
+        >
+          确定
+        </button>
+        <button
+          class="ft-link-cancel"
+          @click="cancelLink"
+        >
+          取消
+        </button>
       </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
+/* ====== Ethereal Constructivism 浮动工具栏 ====== */
+
 .floating-toolbar {
   position: absolute;
   z-index: 100;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 6px 8px;
-  background: rgba(38, 50, 56, 0.95);
-  backdrop-filter: blur(12px);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   pointer-events: auto;
   white-space: nowrap;
 }
 
+/* ---- 分组容器: 组间 8px 间距替代分割线 ---- */
+.ft-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ft-group + .ft-group {
+  margin-left: 8px;
+}
+
+/* ---- 按钮: 28x28, slate-600 图标 ---- */
 .ft-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   background: transparent;
   border-radius: 6px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.7);
-  transition: all 0.1s ease;
+  color: #475569; /* slate-600 */
+  transition: all 0.12s ease;
 }
 
 .ft-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
+  background: rgba(211, 47, 47, 0.08);
+  color: #D32F2F;
 }
 
 .ft-btn.active {
-  background: rgba(211, 47, 47, 0.85);
-  color: white;
+  background: rgba(211, 47, 47, 0.12);
+  color: #D32F2F;
 }
 
-.ft-divider {
-  width: 1px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 0 4px;
+/* ---- "更多" 按钮 ---- */
+.ft-btn-more {
+  margin-left: 4px;
+  color: #94a3b8; /* slate-400 */
+}
+
+.ft-btn-more:hover {
+  color: #D32F2F;
+  background: rgba(211, 47, 47, 0.08);
 }
 
 /* ---- 按钮容器 (用于包含弹出面板的按钮) ---- */
@@ -595,7 +767,7 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 
-/* ---- 颜色选择面板 ---- */
+/* ---- 颜色选择面板 (白色毛玻璃风格) ---- */
 .ft-color-panel {
   position: absolute;
   top: calc(100% + 6px);
@@ -605,10 +777,11 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: rgba(38, 50, 56, 0.95);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
   white-space: nowrap;
   z-index: 110;
 }
@@ -616,7 +789,7 @@ onBeforeUnmount(() => {
 .ft-color-swatch {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -624,7 +797,7 @@ onBeforeUnmount(() => {
 }
 
 .ft-color-swatch:hover {
-  border-color: white;
+  border-color: #D32F2F;
   transform: scale(1.15);
 }
 
@@ -632,10 +805,10 @@ onBeforeUnmount(() => {
   height: 20px;
   padding: 0 6px;
   margin-left: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: #64748b; /* slate-500 */
   font-size: 11px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -643,40 +816,41 @@ onBeforeUnmount(() => {
 }
 
 .ft-color-reset:hover {
-  color: white;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.08);
+  color: #D32F2F;
+  border-color: rgba(211, 47, 47, 0.3);
+  background: rgba(211, 47, 47, 0.05);
 }
 
-/* ---- 链接输入浮层 ---- */
+/* ---- 链接输入浮层 (白色风格) ---- */
 .ft-link-input {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
   margin-left: 4px;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .ft-link-field {
   width: 180px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.03);
+  color: #1e293b; /* slate-800 */
   font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
 }
 
 .ft-link-field::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #94a3b8; /* slate-400 */
 }
 
 .ft-link-field:focus {
-  border-color: rgba(211, 47, 47, 0.6);
+  border-color: rgba(211, 47, 47, 0.5);
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
 }
 
 .ft-link-confirm,
@@ -684,29 +858,29 @@ onBeforeUnmount(() => {
   height: 26px;
   padding: 0 8px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.1s ease;
 }
 
 .ft-link-confirm {
-  background: rgba(211, 47, 47, 0.85);
+  background: #D32F2F;
   color: white;
 }
 
 .ft-link-confirm:hover {
-  background: rgba(211, 47, 47, 1);
+  background: #c62828;
 }
 
 .ft-link-cancel {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: #64748b; /* slate-500 */
 }
 
 .ft-link-cancel:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
+  color: #1e293b;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* ---- Transition ---- */
