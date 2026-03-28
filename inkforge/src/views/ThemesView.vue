@@ -138,14 +138,31 @@ function cancel() {
     <!-- Header -->
     <header class="themes-header">
       <div class="header-left">
-        <button class="back-btn" @click="cancel">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
+        <button
+          class="back-btn"
+          @click="cancel"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 class="header-title">主题中心</h1>
+        <h1 class="header-title">
+          主题中心
+        </h1>
       </div>
-      <button class="header-apply-btn" @click="applyPreset">应用</button>
+      <button
+        class="header-apply-btn"
+        @click="applyPreset"
+      >
+        应用
+      </button>
     </header>
 
     <!-- Main: Left Grid + Right Preview -->
@@ -161,19 +178,29 @@ function cancel() {
             @click="selectPreset(theme.id)"
           >
             <!-- Color Bar -->
-            <div class="theme-color-bar" :style="{ backgroundColor: theme.primaryColor }"></div>
+            <div
+              class="theme-color-bar"
+              :style="{ backgroundColor: theme.primaryColor }"
+            />
 
             <!-- Current Badge -->
-            <span v-if="currentPresetId === theme.id" class="current-badge">当前</span>
+            <span
+              v-if="currentPresetId === theme.id"
+              class="current-badge"
+            >当前</span>
 
             <!-- Card Content -->
             <div class="theme-card-content">
-              <div class="theme-card-name">{{ theme.name }}</div>
+              <div class="theme-card-name">
+                {{ theme.name }}
+              </div>
               <div class="theme-card-tags">
                 <span class="tag-pill">{{ theme.baseThemeLabel }}</span>
                 <span class="tag-pill">{{ theme.fontLabel }}</span>
               </div>
-              <p class="theme-card-preview">{{ theme.previewText }}</p>
+              <p class="theme-card-preview">
+                {{ theme.previewText }}
+              </p>
             </div>
           </div>
         </div>
@@ -182,17 +209,34 @@ function cancel() {
       <!-- Right: Preview Panel -->
       <aside class="preview-panel">
         <div class="preview-panel-header">
-          <h2 class="preview-panel-title">{{ selectedThemeData.name }}</h2>
-          <p class="preview-panel-desc">{{ selectedThemeData.description }}</p>
+          <h2 class="preview-panel-title">
+            {{ selectedThemeData.name }}
+          </h2>
+          <p class="preview-panel-desc">
+            {{ selectedThemeData.description }}
+          </p>
         </div>
 
         <div class="preview-render-area">
-          <div class="preview-render-content" v-html="previewHtml"></div>
+          <div
+            class="preview-render-content"
+            v-html="previewHtml"
+          />
         </div>
 
         <div class="preview-panel-actions">
-          <button class="btn-apply" @click="applyPreset">应用此主题</button>
-          <button class="btn-cancel" @click="cancel">取消</button>
+          <button
+            class="btn-apply"
+            @click="applyPreset"
+          >
+            应用此主题
+          </button>
+          <button
+            class="btn-cancel"
+            @click="cancel"
+          >
+            取消
+          </button>
         </div>
       </aside>
     </div>

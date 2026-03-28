@@ -51,113 +51,173 @@ function handleBackdropClick(e: MouseEvent) {
 </script>
 
 <template>
-    <Teleport to="body">
-        <div class="template-overlay" @click="handleBackdropClick">
-            <div class="template-modal">
-                <!-- 头部 -->
-                <div class="modal-header">
-                    <h3>选择模板</h3>
-                    <button class="close-btn" @click="$emit('close')">&times;</button>
-                </div>
-
-                <!-- 搜索 -->
-                <div class="search-bar">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
-                        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                    </svg>
-                    <input
-                        v-model="searchQuery"
-                        type="text"
-                        placeholder="搜索模板…"
-                        class="search-input"
-                    />
-                </div>
-
-                <div class="modal-body">
-                    <!-- 模板网格 -->
-                    <div class="templates-area">
-                        <!-- 搜索模式：平铺显示 -->
-                        <template v-if="filteredTemplates">
-                            <div v-if="filteredTemplates.length === 0" class="empty-state">
-                                没有匹配的模板
-                            </div>
-                            <div v-else class="template-grid">
-                                <div
-                                    v-for="t in filteredTemplates"
-                                    :key="t.id"
-                                    class="template-card"
-                                    :class="{ selected: selectedTemplate?.id === t.id }"
-                                    @click="handleSelect(t)"
-                                    @dblclick="handleSelect(t); confirmSelect()"
-                                >
-                                    <span class="template-icon">{{ t.icon }}</span>
-                                    <span class="template-name">{{ t.name }}</span>
-                                    <span class="template-desc">{{ t.description }}</span>
-                                </div>
-                            </div>
-                        </template>
-
-                        <!-- 分组模式：按分类展示 -->
-                        <template v-else>
-                            <div v-for="catName in categoryNames" :key="catName" class="category-group">
-                                <h4 class="category-title">{{ catName }}</h4>
-                                <div class="template-grid">
-                                    <div
-                                        v-for="t in grouped[catName]"
-                                        :key="t.id"
-                                        class="template-card"
-                                        :class="{ selected: selectedTemplate?.id === t.id }"
-                                        @click="handleSelect(t)"
-                                        @dblclick="handleSelect(t); confirmSelect()"
-                                    >
-                                        <span class="template-icon">{{ t.icon }}</span>
-                                        <span class="template-name">{{ t.name }}</span>
-                                        <span class="template-desc">{{ t.description }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- 预览区 -->
-                    <div class="preview-area">
-                        <template v-if="selectedTemplate">
-                            <div class="preview-header">
-                                <span class="preview-icon">{{ selectedTemplate.icon }}</span>
-                                <div>
-                                    <div class="preview-name">{{ selectedTemplate.name }}</div>
-                                    <div class="preview-desc">{{ selectedTemplate.description }}</div>
-                                </div>
-                            </div>
-                            <pre class="preview-body">{{ selectedTemplate.body }}</pre>
-                        </template>
-                        <div v-else class="preview-empty">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="16" y1="13" x2="8" y2="13" />
-                                <line x1="16" y1="17" x2="8" y2="17" />
-                                <polyline points="10 9 9 9 8 9" />
-                            </svg>
-                            <p>选择一个模板预览</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 底部 -->
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @click="$emit('close')">取消</button>
-                    <button
-                        class="btn btn-primary"
-                        :disabled="!selectedTemplate"
-                        @click="confirmSelect"
-                    >
-                        使用此模板
-                    </button>
-                </div>
-            </div>
+  <Teleport to="body">
+    <div
+      class="template-overlay"
+      @click="handleBackdropClick"
+    >
+      <div class="template-modal">
+        <!-- 头部 -->
+        <div class="modal-header">
+          <h3>选择模板</h3>
+          <button
+            class="close-btn"
+            @click="$emit('close')"
+          >
+            &times;
+          </button>
         </div>
-    </Teleport>
+
+        <!-- 搜索 -->
+        <div class="search-bar">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9CA3AF"
+            stroke-width="2"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            /><path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="搜索模板…"
+            class="search-input"
+          >
+        </div>
+
+        <div class="modal-body">
+          <!-- 模板网格 -->
+          <div class="templates-area">
+            <!-- 搜索模式：平铺显示 -->
+            <template v-if="filteredTemplates">
+              <div
+                v-if="filteredTemplates.length === 0"
+                class="empty-state"
+              >
+                没有匹配的模板
+              </div>
+              <div
+                v-else
+                class="template-grid"
+              >
+                <div
+                  v-for="t in filteredTemplates"
+                  :key="t.id"
+                  class="template-card"
+                  :class="{ selected: selectedTemplate?.id === t.id }"
+                  @click="handleSelect(t)"
+                  @dblclick="handleSelect(t); confirmSelect()"
+                >
+                  <span class="template-icon">{{ t.icon }}</span>
+                  <span class="template-name">{{ t.name }}</span>
+                  <span class="template-desc">{{ t.description }}</span>
+                </div>
+              </div>
+            </template>
+
+            <!-- 分组模式：按分类展示 -->
+            <template v-else>
+              <div
+                v-for="catName in categoryNames"
+                :key="catName"
+                class="category-group"
+              >
+                <h4 class="category-title">
+                  {{ catName }}
+                </h4>
+                <div class="template-grid">
+                  <div
+                    v-for="t in grouped[catName]"
+                    :key="t.id"
+                    class="template-card"
+                    :class="{ selected: selectedTemplate?.id === t.id }"
+                    @click="handleSelect(t)"
+                    @dblclick="handleSelect(t); confirmSelect()"
+                  >
+                    <span class="template-icon">{{ t.icon }}</span>
+                    <span class="template-name">{{ t.name }}</span>
+                    <span class="template-desc">{{ t.description }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- 预览区 -->
+          <div class="preview-area">
+            <template v-if="selectedTemplate">
+              <div class="preview-header">
+                <span class="preview-icon">{{ selectedTemplate.icon }}</span>
+                <div>
+                  <div class="preview-name">
+                    {{ selectedTemplate.name }}
+                  </div>
+                  <div class="preview-desc">
+                    {{ selectedTemplate.description }}
+                  </div>
+                </div>
+              </div>
+              <pre class="preview-body">{{ selectedTemplate.body }}</pre>
+            </template>
+            <div
+              v-else
+              class="preview-empty"
+            >
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#D1D5DB"
+                stroke-width="1.5"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line
+                  x1="16"
+                  y1="13"
+                  x2="8"
+                  y2="13"
+                />
+                <line
+                  x1="16"
+                  y1="17"
+                  x2="8"
+                  y2="17"
+                />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <p>选择一个模板预览</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            @click="$emit('close')"
+          >
+            取消
+          </button>
+          <button
+            class="btn btn-primary"
+            :disabled="!selectedTemplate"
+            @click="confirmSelect"
+          >
+            使用此模板
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>

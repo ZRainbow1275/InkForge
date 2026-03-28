@@ -91,31 +91,50 @@ async function handleCopy() {
     <template v-if="selectedArticle">
       <!-- 元数据区 -->
       <div class="metadata">
-        <h1 class="article-title">{{ selectedArticle.title }}</h1>
+        <h1 class="article-title">
+          {{ selectedArticle.title }}
+        </h1>
 
         <div class="meta-row">
           <span class="meta-item">
             <ExternalLink :size="14" />
-            <a :href="selectedArticle.sourceUrl" target="_blank" class="source-link">
+            <a
+              :href="selectedArticle.sourceUrl"
+              target="_blank"
+              class="source-link"
+            >
               {{ selectedArticle.sourceName }}
             </a>
           </span>
         </div>
 
         <div class="meta-row">
-          <span v-if="selectedArticle.authors?.length" class="meta-item">
+          <span
+            v-if="selectedArticle.authors?.length"
+            class="meta-item"
+          >
             <User :size="14" />
             {{ selectedArticle.authors.join(', ') }}
           </span>
-          <span v-if="selectedArticle.publishedAt" class="meta-item">
+          <span
+            v-if="selectedArticle.publishedAt"
+            class="meta-item"
+          >
             <Calendar :size="14" />
             {{ new Date(selectedArticle.publishedAt).toLocaleDateString('zh-CN') }}
           </span>
         </div>
 
-        <div v-if="selectedArticle.tags?.length" class="tags-row">
+        <div
+          v-if="selectedArticle.tags?.length"
+          class="tags-row"
+        >
           <Tag :size="14" />
-          <span v-for="tag in selectedArticle.tags" :key="tag" class="tag">
+          <span
+            v-for="tag in selectedArticle.tags"
+            :key="tag"
+            class="tag"
+          >
             {{ tag }}
           </span>
         </div>
@@ -158,17 +177,23 @@ async function handleCopy() {
       <div class="action-section">
         <button
           class="action-btn primary"
-          @click="handleCopy"
           :class="{ success: copySuccess }"
+          @click="handleCopy"
         >
-          <CheckCircle v-if="copySuccess" :size="16" />
-          <Copy v-else :size="16" />
+          <CheckCircle
+            v-if="copySuccess"
+            :size="16"
+          />
+          <Copy
+            v-else
+            :size="16"
+          />
           {{ copySuccess ? '已复制!' : `复制到${platformInfo.name}` }}
         </button>
         <button
           class="action-btn"
-          @click="showExportModal = true"
           title="全屏导出"
+          @click="showExportModal = true"
         >
           <Maximize2 :size="16" />
         </button>
@@ -178,12 +203,18 @@ async function handleCopy() {
       <div class="preview-section">
         <h3>👁️ 预览效果</h3>
         <div class="preview-frame">
-          <div class="preview-content" v-html="previewHtml"></div>
+          <div
+            class="preview-content"
+            v-html="previewHtml"
+          />
         </div>
       </div>
     </template>
 
-    <div v-else class="empty-state">
+    <div
+      v-else
+      class="empty-state"
+    >
       <p>👈 请从左侧选择一条资讯</p>
     </div>
 

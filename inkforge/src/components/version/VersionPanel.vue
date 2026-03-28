@@ -230,13 +230,22 @@ import { computeDiff } from '@/composables/useVersionManager'
       <div class="header-title">
         <GitBranch :size="14" />
         <span>版本管理</span>
-        <span v-if="versionCount > 0" class="version-count">{{ versionCount }}</span>
+        <span
+          v-if="versionCount > 0"
+          class="version-count"
+        >{{ versionCount }}</span>
       </div>
     </div>
 
     <!-- 无内容状态 -->
-    <div v-if="!hasContent" class="empty-state">
-      <GitBranch :size="28" class="empty-icon" />
+    <div
+      v-if="!hasContent"
+      class="empty-state"
+    >
+      <GitBranch
+        :size="28"
+        class="empty-icon"
+      />
       <span>选择文章后查看版本</span>
     </div>
 
@@ -251,7 +260,7 @@ import { computeDiff } from '@/composables/useVersionManager'
             placeholder="版本标签（可选）"
             maxlength="50"
             @keydown.enter="handleCreateVersion"
-          />
+          >
         </div>
         <div class="action-buttons">
           <button
@@ -265,8 +274,8 @@ import { computeDiff } from '@/composables/useVersionManager'
           <button
             class="diff-toggle-btn"
             :class="{ active: diffMode }"
-            @click="toggleDiffMode"
             title="对比模式"
+            @click="toggleDiffMode"
           >
             <Diff :size="13" />
           </button>
@@ -274,10 +283,16 @@ import { computeDiff } from '@/composables/useVersionManager'
 
         <!-- Diff 操作栏 -->
         <Transition name="slide-down">
-          <div v-if="diffMode" class="diff-action-bar">
+          <div
+            v-if="diffMode"
+            class="diff-action-bar"
+          >
             <span class="diff-hint">
               选择两个版本进行对比
-              <span v-if="selectedForDiff.length > 0" class="diff-selected-count">
+              <span
+                v-if="selectedForDiff.length > 0"
+                class="diff-selected-count"
+              >
                 ({{ selectedForDiff.length }}/2)
               </span>
             </span>
@@ -323,8 +338,14 @@ import { computeDiff } from '@/composables/useVersionManager'
                   class="version-type-badge"
                   :class="version.isAuto ? 'auto' : 'manual'"
                 >
-                  <Zap v-if="version.isAuto" :size="10" />
-                  <PenLine v-else :size="10" />
+                  <Zap
+                    v-if="version.isAuto"
+                    :size="10"
+                  />
+                  <PenLine
+                    v-else
+                    :size="10"
+                  />
                   {{ version.isAuto ? '自动' : '手动' }}
                 </span>
               </div>
@@ -338,7 +359,10 @@ import { computeDiff } from '@/composables/useVersionManager'
             </div>
 
             <!-- Diff 选中标记 -->
-            <div v-if="diffMode" class="diff-check">
+            <div
+              v-if="diffMode"
+              class="diff-check"
+            >
               <div
                 class="diff-checkbox"
                 :class="{ checked: selectedForDiff.includes(version.id) }"
@@ -352,24 +376,43 @@ import { computeDiff } from '@/composables/useVersionManager'
     <!-- 切换确认对话框 -->
     <Teleport to="body">
       <Transition name="modal-fade">
-        <div v-if="showSwitchConfirm" class="confirm-overlay" @click.self="cancelSwitch">
+        <div
+          v-if="showSwitchConfirm"
+          class="confirm-overlay"
+          @click.self="cancelSwitch"
+        >
           <div class="confirm-dialog">
             <div class="confirm-icon">
               <RotateCcw :size="20" />
             </div>
-            <h3 class="confirm-title">切换版本</h3>
+            <h3 class="confirm-title">
+              切换版本
+            </h3>
             <p class="confirm-desc">
               确定要切换到版本
               <strong>{{ pendingSwitchVersion?.label }}</strong>
               吗？当前未保存的更改将被覆盖。
             </p>
-            <div v-if="switchDiffSummary" class="confirm-diff-summary">
+            <div
+              v-if="switchDiffSummary"
+              class="confirm-diff-summary"
+            >
               <span class="diff-added">+{{ switchDiffSummary.addedCount }} 行</span>
               <span class="diff-removed">-{{ switchDiffSummary.removedCount }} 行</span>
             </div>
             <div class="confirm-actions">
-              <button class="confirm-cancel-btn" @click="cancelSwitch">取消</button>
-              <button class="confirm-ok-btn" @click="confirmSwitch">确认切换</button>
+              <button
+                class="confirm-cancel-btn"
+                @click="cancelSwitch"
+              >
+                取消
+              </button>
+              <button
+                class="confirm-ok-btn"
+                @click="confirmSwitch"
+              >
+                确认切换
+              </button>
             </div>
           </div>
         </div>

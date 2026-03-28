@@ -594,362 +594,820 @@ const deleteConfirmText = computed(() => {
 </script>
 
 <template>
-    <div class="fm-root">
-        <!-- 顶部工具栏 -->
-        <div class="fm-toolbar">
-            <div class="fm-search-wrap">
-                <!-- 搜索图标 SVG -->
-                <svg class="fm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input v-model="searchQuery" type="text" class="fm-search-input" placeholder="搜索文章..." />
-            </div>
-            <div ref="newMenuRef" class="fm-new-wrap">
-                <button class="fm-new-btn" @click.stop="toggleNewMenu" title="新建">
-                    <!-- Plus SVG -->
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    <!-- Chevron down SVG -->
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                </button>
-                <!-- 新建下拉菜单 -->
-                <Transition name="fm-fade">
-                    <div v-if="showNewMenu" class="fm-dropdown">
-                        <button class="fm-dropdown-item" @click.stop="createBlankArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="12" y1="18" x2="12" y2="12" />
-                                <line x1="9" y1="15" x2="15" y2="15" />
-                            </svg>
-                            <span>新建空白文章</span>
-                        </button>
-                        <button class="fm-dropdown-item" @click.stop="startNewCategory">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                                <line x1="12" y1="11" x2="12" y2="17" />
-                                <line x1="9" y1="14" x2="15" y2="14" />
-                            </svg>
-                            <span>新建分类</span>
-                        </button>
-                        <div class="fm-dropdown-separator" />
-                        <button class="fm-dropdown-item" :disabled="importing" @click.stop="handleImportFiles">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            <span>{{ importing ? '导入中...' : '导入文件' }}</span>
-                        </button>
-                    </div>
-                </Transition>
-            </div>
-        </div>
-
-        <!-- 导入结果通知 -->
+  <div class="fm-root">
+    <!-- 顶部工具栏 -->
+    <div class="fm-toolbar">
+      <div class="fm-search-wrap">
+        <!-- 搜索图标 SVG -->
+        <svg
+          class="fm-search-icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle
+            cx="11"
+            cy="11"
+            r="8"
+          />
+          <line
+            x1="21"
+            y1="21"
+            x2="16.65"
+            y2="16.65"
+          />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="fm-search-input"
+          placeholder="搜索文章..."
+        >
+      </div>
+      <div
+        ref="newMenuRef"
+        class="fm-new-wrap"
+      >
+        <button
+          class="fm-new-btn"
+          title="新建"
+          @click.stop="toggleNewMenu"
+        >
+          <!-- Plus SVG -->
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line
+              x1="12"
+              y1="5"
+              x2="12"
+              y2="19"
+            />
+            <line
+              x1="5"
+              y1="12"
+              x2="19"
+              y2="12"
+            />
+          </svg>
+          <!-- Chevron down SVG -->
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <!-- 新建下拉菜单 -->
         <Transition name="fm-fade">
-            <div v-if="importResult" class="fm-import-result"
-                :class="importResult.failed > 0 ? 'fm-import-warning' : 'fm-import-success'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <template v-if="importResult.failed > 0">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </template>
-                    <template v-else>
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </template>
-                </svg>
-                <span class="fm-import-text">{{ importResult.success }} 成功<template v-if="importResult.failed > 0"> / {{ importResult.failed }} 失败</template></span>
-                <button class="fm-import-close" @click="dismissImportResult" title="关闭">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button>
-            </div>
+          <div
+            v-if="showNewMenu"
+            class="fm-dropdown"
+          >
+            <button
+              class="fm-dropdown-item"
+              @click.stop="createBlankArticle"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line
+                  x1="12"
+                  y1="18"
+                  x2="12"
+                  y2="12"
+                />
+                <line
+                  x1="9"
+                  y1="15"
+                  x2="15"
+                  y2="15"
+                />
+              </svg>
+              <span>新建空白文章</span>
+            </button>
+            <button
+              class="fm-dropdown-item"
+              @click.stop="startNewCategory"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                />
+                <line
+                  x1="12"
+                  y1="11"
+                  x2="12"
+                  y2="17"
+                />
+                <line
+                  x1="9"
+                  y1="14"
+                  x2="15"
+                  y2="14"
+                />
+              </svg>
+              <span>新建分类</span>
+            </button>
+            <div class="fm-dropdown-separator" />
+            <button
+              class="fm-dropdown-item"
+              :disabled="importing"
+              @click.stop="handleImportFiles"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line
+                  x1="12"
+                  y1="3"
+                  x2="12"
+                  y2="15"
+                />
+              </svg>
+              <span>{{ importing ? '导入中...' : '导入文件' }}</span>
+            </button>
+          </div>
         </Transition>
-
-        <!-- 新建分类 inline 输入 -->
-        <div v-if="showNewCategoryInput" class="fm-inline-input">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-            </svg>
-            <input ref="newCategoryInputRef" v-model="newCategoryName" type="text" class="fm-rename-input"
-                placeholder="分类名称..." @keydown.enter="confirmNewCategory" @keydown.escape="cancelNewCategory"
-                @blur="confirmNewCategory" />
-        </div>
-
-        <!-- 文件树 -->
-        <div class="fm-tree">
-            <template v-if="fileTree.length === 0 && searchQuery.trim()">
-                <div class="fm-empty-search">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <p>未找到匹配的文章</p>
-                </div>
-            </template>
-
-            <template v-else-if="articles.length === 0 && !searchQuery.trim()">
-                <div class="fm-empty-state">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                    <p class="fm-empty-title">还没有任何文章</p>
-                    <p class="fm-empty-hint">点击上方 + 号新建文章或分类</p>
-                </div>
-            </template>
-
-            <template v-else>
-                <div v-for="node in fileTree" :key="getCategoryKey(node)" class="fm-category-node">
-                    <!-- 分类行 -->
-                    <div class="fm-category-row" :class="{ 'fm-expanded': expandedMap[getCategoryKey(node)] }"
-                        @click="toggleExpand(getCategoryKey(node))"
-                        @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)">
-
-                        <!-- 展开/折叠箭头 -->
-                        <svg class="fm-chevron" :class="{ 'fm-chevron-open': expandedMap[getCategoryKey(node)] }"
-                            width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-
-                        <!-- 分类图标 -->
-                        <span class="fm-cat-icon">{{ getCategoryIcon(node) }}</span>
-
-                        <!-- 重命名模式 -->
-                        <template v-if="renamingCategoryId === node.category?.id && node.category">
-                            <input ref="renameCategoryInputRef" v-model="renameCategoryValue" type="text"
-                                class="fm-rename-input fm-rename-inline" @keydown.enter="confirmRenameCategory"
-                                @keydown.escape="cancelRenameCategory" @blur="confirmRenameCategory"
-                                @click.stop />
-                        </template>
-                        <template v-else>
-                            <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
-                        </template>
-
-                        <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
-                    </div>
-
-                    <!-- 分类下的文章列表（展开/折叠动画） -->
-                    <div class="fm-articles-wrap"
-                        :class="{ 'fm-articles-expanded': expandedMap[getCategoryKey(node)] }">
-                        <div v-for="article in node.articles" :key="article.id" class="fm-article-row"
-                            :class="{
-                                'fm-article-active': selectedArticleId === article.id,
-                            }" @click="handleSelectArticle(article.id)"
-                            @contextmenu="openArticleContextMenu($event, article.id)">
-
-                            <!-- 文件图标 -->
-                            <svg class="fm-file-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                            </svg>
-
-                            <!-- 重命名模式 -->
-                            <template v-if="renamingArticleId === article.id">
-                                <input ref="renameInputRef" v-model="renameValue" type="text"
-                                    class="fm-rename-input fm-rename-inline" @keydown.enter="confirmRenameArticle"
-                                    @keydown.escape="cancelRenameArticle" @blur="confirmRenameArticle"
-                                    @click.stop />
-                            </template>
-                            <template v-else>
-                                <span class="fm-article-title">{{ article.title }}</span>
-                            </template>
-
-                            <!-- 状态标记 -->
-                            <span v-if="article.status === 'new'" class="fm-status"
-                                :class="getStatusClass(article.status)">
-                                {{ getStatusLabel(article.status) }}
-                            </span>
-
-                            <!-- 更新时间 -->
-                            <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </div>
-
-        <!-- 素材区域 -->
-        <div v-if="selectedArticleId && currentAssets.length > 0" class="fm-assets-section">
-            <div class="fm-assets-header" @click="assetsExpanded = !assetsExpanded">
-                <svg class="fm-chevron" :class="{ 'fm-chevron-open': assetsExpanded }" width="12" height="12"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                </svg>
-                <!-- 图片图标 -->
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                </svg>
-                <span class="fm-assets-label">素材 ({{ currentAssets.length }})</span>
-            </div>
-            <div class="fm-assets-grid" :class="{ 'fm-assets-grid-expanded': assetsExpanded }">
-                <div v-for="asset in currentAssets" :key="asset.id" class="fm-asset-item" :title="asset.name">
-                    <img v-if="getAssetThumbnail(asset.id)" :src="getAssetThumbnail(asset.id)!" :alt="asset.name"
-                        class="fm-asset-thumb" />
-                    <div v-else class="fm-asset-placeholder">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                    </div>
-                    <span class="fm-asset-name">{{ asset.name }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右键菜单（Teleport to body） -->
-        <Teleport to="body">
-            <Transition name="fm-fade">
-                <div v-if="contextMenu.visible" class="fm-context-menu"
-                    :style="{ left: adjustedMenuPosition.x + 'px', top: adjustedMenuPosition.y + 'px' }"
-                    @click.stop>
-
-                    <!-- 文章右键菜单 -->
-                    <template v-if="contextMenu.type === 'article'">
-                        <button class="fm-ctx-item" @click="ctxOpenArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            <span>打开</span>
-                        </button>
-                        <button class="fm-ctx-item" @click="ctxStartRenameArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            <span>重命名</span>
-                        </button>
-                        <div class="fm-ctx-separator" />
-                        <div class="fm-ctx-submenu-wrap">
-                            <button class="fm-ctx-item fm-ctx-has-submenu" @click.stop="ctxToggleMoveSubmenu">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                                </svg>
-                                <span>移动到分类</span>
-                                <svg class="fm-ctx-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </button>
-                            <!-- 子菜单 -->
-                            <Transition name="fm-fade">
-                                <div v-if="showMoveSubmenu" class="fm-ctx-submenu">
-                                    <button class="fm-ctx-item" @click="ctxMoveToCategory(null)">
-                                        <span>📄 未分类</span>
-                                    </button>
-                                    <button v-for="cat in categories" :key="cat.id" class="fm-ctx-item"
-                                        @click="ctxMoveToCategory(cat.id)">
-                                        <span>{{ cat.icon || '📁' }} {{ cat.name }}</span>
-                                    </button>
-                                </div>
-                            </Transition>
-                        </div>
-                        <div class="fm-ctx-separator" />
-                        <button class="fm-ctx-item fm-ctx-danger" @click="ctxDeleteArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6" />
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                            <span>删除</span>
-                        </button>
-                    </template>
-
-                    <!-- 分类右键菜单 -->
-                    <template v-if="contextMenu.type === 'category'">
-                        <!-- 仅对真实分类（非"未分类"）显示重命名和删除 -->
-                        <template v-if="contextMenu.targetCategoryId">
-                            <button class="fm-ctx-item" @click="ctxStartRenameCategory">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                </svg>
-                                <span>重命名</span>
-                            </button>
-                        </template>
-                        <button class="fm-ctx-item" @click="ctxNewArticleInCategory">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="12" y1="18" x2="12" y2="12" />
-                                <line x1="9" y1="15" x2="15" y2="15" />
-                            </svg>
-                            <span>在此分类新建文章</span>
-                        </button>
-                        <template v-if="contextMenu.targetCategoryId">
-                            <div class="fm-ctx-separator" />
-                            <button class="fm-ctx-item fm-ctx-danger" @click="ctxDeleteCategory">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6" />
-                                    <path
-                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                                <span>删除分类</span>
-                            </button>
-                        </template>
-                    </template>
-                </div>
-            </Transition>
-        </Teleport>
-
-        <!-- 删除确认模态框 -->
-        <Teleport to="body">
-            <Transition name="fm-fade">
-                <div v-if="showDeleteConfirm" class="fm-confirm-overlay" @click.self="cancelDelete">
-                    <div class="fm-confirm-modal">
-                        <h3 class="fm-confirm-title">确认删除</h3>
-                        <p class="fm-confirm-text">{{ deleteConfirmText }}</p>
-                        <div class="fm-confirm-actions">
-                            <button class="fm-btn fm-btn-cancel" @click="cancelDelete">取消</button>
-                            <button class="fm-btn fm-btn-danger" @click="confirmDelete">删除</button>
-                        </div>
-                    </div>
-                </div>
-            </Transition>
-        </Teleport>
+      </div>
     </div>
+
+    <!-- 导入结果通知 -->
+    <Transition name="fm-fade">
+      <div
+        v-if="importResult"
+        class="fm-import-result"
+        :class="importResult.failed > 0 ? 'fm-import-warning' : 'fm-import-success'"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <template v-if="importResult.failed > 0">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <line
+              x1="12"
+              y1="8"
+              x2="12"
+              y2="12"
+            />
+            <line
+              x1="12"
+              y1="16"
+              x2="12.01"
+              y2="16"
+            />
+          </template>
+          <template v-else>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </template>
+        </svg>
+        <span class="fm-import-text">{{ importResult.success }} 成功<template v-if="importResult.failed > 0"> / {{ importResult.failed }} 失败</template></span>
+        <button
+          class="fm-import-close"
+          title="关闭"
+          @click="dismissImportResult"
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line
+              x1="18"
+              y1="6"
+              x2="6"
+              y2="18"
+            />
+            <line
+              x1="6"
+              y1="6"
+              x2="18"
+              y2="18"
+            />
+          </svg>
+        </button>
+      </div>
+    </Transition>
+
+    <!-- 新建分类 inline 输入 -->
+    <div
+      v-if="showNewCategoryInput"
+      class="fm-inline-input"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+      </svg>
+      <input
+        ref="newCategoryInputRef"
+        v-model="newCategoryName"
+        type="text"
+        class="fm-rename-input"
+        placeholder="分类名称..."
+        @keydown.enter="confirmNewCategory"
+        @keydown.escape="cancelNewCategory"
+        @blur="confirmNewCategory"
+      >
+    </div>
+
+    <!-- 文件树 -->
+    <div class="fm-tree">
+      <template v-if="fileTree.length === 0 && searchQuery.trim()">
+        <div class="fm-empty-search">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
+          </svg>
+          <p>未找到匹配的文章</p>
+        </div>
+      </template>
+
+      <template v-else-if="articles.length === 0 && !searchQuery.trim()">
+        <div class="fm-empty-state">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          <p class="fm-empty-title">
+            还没有任何文章
+          </p>
+          <p class="fm-empty-hint">
+            点击上方 + 号新建文章或分类
+          </p>
+        </div>
+      </template>
+
+      <template v-else>
+        <div
+          v-for="node in fileTree"
+          :key="getCategoryKey(node)"
+          class="fm-category-node"
+        >
+          <!-- 分类行 -->
+          <div
+            class="fm-category-row"
+            :class="{ 'fm-expanded': expandedMap[getCategoryKey(node)] }"
+            @click="toggleExpand(getCategoryKey(node))"
+            @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
+          >
+            <!-- 展开/折叠箭头 -->
+            <svg
+              class="fm-chevron"
+              :class="{ 'fm-chevron-open': expandedMap[getCategoryKey(node)] }"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+
+            <!-- 分类图标 -->
+            <span class="fm-cat-icon">{{ getCategoryIcon(node) }}</span>
+
+            <!-- 重命名模式 -->
+            <template v-if="renamingCategoryId === node.category?.id && node.category">
+              <input
+                ref="renameCategoryInputRef"
+                v-model="renameCategoryValue"
+                type="text"
+                class="fm-rename-input fm-rename-inline"
+                @keydown.enter="confirmRenameCategory"
+                @keydown.escape="cancelRenameCategory"
+                @blur="confirmRenameCategory"
+                @click.stop
+              >
+            </template>
+            <template v-else>
+              <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
+            </template>
+
+            <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
+          </div>
+
+          <!-- 分类下的文章列表（展开/折叠动画） -->
+          <div
+            class="fm-articles-wrap"
+            :class="{ 'fm-articles-expanded': expandedMap[getCategoryKey(node)] }"
+          >
+            <div
+              v-for="article in node.articles"
+              :key="article.id"
+              class="fm-article-row"
+              :class="{
+                'fm-article-active': selectedArticleId === article.id,
+              }"
+              @click="handleSelectArticle(article.id)"
+              @contextmenu="openArticleContextMenu($event, article.id)"
+            >
+              <!-- 文件图标 -->
+              <svg
+                class="fm-file-icon"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+
+              <!-- 重命名模式 -->
+              <template v-if="renamingArticleId === article.id">
+                <input
+                  ref="renameInputRef"
+                  v-model="renameValue"
+                  type="text"
+                  class="fm-rename-input fm-rename-inline"
+                  @keydown.enter="confirmRenameArticle"
+                  @keydown.escape="cancelRenameArticle"
+                  @blur="confirmRenameArticle"
+                  @click.stop
+                >
+              </template>
+              <template v-else>
+                <span class="fm-article-title">{{ article.title }}</span>
+              </template>
+
+              <!-- 状态标记 -->
+              <span
+                v-if="article.status === 'new'"
+                class="fm-status"
+                :class="getStatusClass(article.status)"
+              >
+                {{ getStatusLabel(article.status) }}
+              </span>
+
+              <!-- 更新时间 -->
+              <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- 素材区域 -->
+    <div
+      v-if="selectedArticleId && currentAssets.length > 0"
+      class="fm-assets-section"
+    >
+      <div
+        class="fm-assets-header"
+        @click="assetsExpanded = !assetsExpanded"
+      >
+        <svg
+          class="fm-chevron"
+          :class="{ 'fm-chevron-open': assetsExpanded }"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+        <!-- 图片图标 -->
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect
+            x="3"
+            y="3"
+            width="18"
+            height="18"
+            rx="2"
+            ry="2"
+          />
+          <circle
+            cx="8.5"
+            cy="8.5"
+            r="1.5"
+          />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+        <span class="fm-assets-label">素材 ({{ currentAssets.length }})</span>
+      </div>
+      <div
+        class="fm-assets-grid"
+        :class="{ 'fm-assets-grid-expanded': assetsExpanded }"
+      >
+        <div
+          v-for="asset in currentAssets"
+          :key="asset.id"
+          class="fm-asset-item"
+          :title="asset.name"
+        >
+          <img
+            v-if="getAssetThumbnail(asset.id)"
+            :src="getAssetThumbnail(asset.id)!"
+            :alt="asset.name"
+            class="fm-asset-thumb"
+          >
+          <div
+            v-else
+            class="fm-asset-placeholder"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9CA3AF"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="2"
+                ry="2"
+              />
+              <circle
+                cx="8.5"
+                cy="8.5"
+                r="1.5"
+              />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+          <span class="fm-asset-name">{{ asset.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右键菜单（Teleport to body） -->
+    <Teleport to="body">
+      <Transition name="fm-fade">
+        <div
+          v-if="contextMenu.visible"
+          class="fm-context-menu"
+          :style="{ left: adjustedMenuPosition.x + 'px', top: adjustedMenuPosition.y + 'px' }"
+          @click.stop
+        >
+          <!-- 文章右键菜单 -->
+          <template v-if="contextMenu.type === 'article'">
+            <button
+              class="fm-ctx-item"
+              @click="ctxOpenArticle"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line
+                  x1="10"
+                  y1="14"
+                  x2="21"
+                  y2="3"
+                />
+              </svg>
+              <span>打开</span>
+            </button>
+            <button
+              class="fm-ctx-item"
+              @click="ctxStartRenameArticle"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              <span>重命名</span>
+            </button>
+            <div class="fm-ctx-separator" />
+            <div class="fm-ctx-submenu-wrap">
+              <button
+                class="fm-ctx-item fm-ctx-has-submenu"
+                @click.stop="ctxToggleMoveSubmenu"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                  />
+                </svg>
+                <span>移动到分类</span>
+                <svg
+                  class="fm-ctx-arrow"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+              <!-- 子菜单 -->
+              <Transition name="fm-fade">
+                <div
+                  v-if="showMoveSubmenu"
+                  class="fm-ctx-submenu"
+                >
+                  <button
+                    class="fm-ctx-item"
+                    @click="ctxMoveToCategory(null)"
+                  >
+                    <span>📄 未分类</span>
+                  </button>
+                  <button
+                    v-for="cat in categories"
+                    :key="cat.id"
+                    class="fm-ctx-item"
+                    @click="ctxMoveToCategory(cat.id)"
+                  >
+                    <span>{{ cat.icon || '📁' }} {{ cat.name }}</span>
+                  </button>
+                </div>
+              </Transition>
+            </div>
+            <div class="fm-ctx-separator" />
+            <button
+              class="fm-ctx-item fm-ctx-danger"
+              @click="ctxDeleteArticle"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                />
+              </svg>
+              <span>删除</span>
+            </button>
+          </template>
+
+          <!-- 分类右键菜单 -->
+          <template v-if="contextMenu.type === 'category'">
+            <!-- 仅对真实分类（非"未分类"）显示重命名和删除 -->
+            <template v-if="contextMenu.targetCategoryId">
+              <button
+                class="fm-ctx-item"
+                @click="ctxStartRenameCategory"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                <span>重命名</span>
+              </button>
+            </template>
+            <button
+              class="fm-ctx-item"
+              @click="ctxNewArticleInCategory"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line
+                  x1="12"
+                  y1="18"
+                  x2="12"
+                  y2="12"
+                />
+                <line
+                  x1="9"
+                  y1="15"
+                  x2="15"
+                  y2="15"
+                />
+              </svg>
+              <span>在此分类新建文章</span>
+            </button>
+            <template v-if="contextMenu.targetCategoryId">
+              <div class="fm-ctx-separator" />
+              <button
+                class="fm-ctx-item fm-ctx-danger"
+                @click="ctxDeleteCategory"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  />
+                </svg>
+                <span>删除分类</span>
+              </button>
+            </template>
+          </template>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- 删除确认模态框 -->
+    <Teleport to="body">
+      <Transition name="fm-fade">
+        <div
+          v-if="showDeleteConfirm"
+          class="fm-confirm-overlay"
+          @click.self="cancelDelete"
+        >
+          <div class="fm-confirm-modal">
+            <h3 class="fm-confirm-title">
+              确认删除
+            </h3>
+            <p class="fm-confirm-text">
+              {{ deleteConfirmText }}
+            </p>
+            <div class="fm-confirm-actions">
+              <button
+                class="fm-btn fm-btn-cancel"
+                @click="cancelDelete"
+              >
+                取消
+              </button>
+              <button
+                class="fm-btn fm-btn-danger"
+                @click="confirmDelete"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
 </template>
 
 <style scoped>

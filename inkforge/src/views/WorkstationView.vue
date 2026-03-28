@@ -381,15 +381,24 @@ const hasContent = computed(() => {
 </script>
 
 <template>
-  <div class="workstation" :class="{ 'focus-mode': isFocusMode }">
+  <div
+    class="workstation"
+    :class="{ 'focus-mode': isFocusMode }"
+  >
     <!-- Focus Overlay (专注模式暗角) -->
-    <div class="focus-overlay"></div>
+    <div class="focus-overlay" />
 
     <!-- ═══ Header (52px, 对齐原型) ═══ -->
     <header class="workstation-header">
       <!-- 品牌区 -->
-      <div class="header-brand" @click="handleBack" title="返回首页">
-        <div class="header-logo">IF</div>
+      <div
+        class="header-brand"
+        title="返回首页"
+        @click="handleBack"
+      >
+        <div class="header-logo">
+          IF
+        </div>
         <span class="header-brand-name">InkForge</span>
       </div>
 
@@ -404,7 +413,7 @@ const hasContent = computed(() => {
             @blur="confirmEditTitle"
             @keydown.enter="confirmEditTitle"
             @keydown.escape="cancelEditTitle"
-          />
+          >
         </template>
         <template v-else>
           <input
@@ -412,9 +421,9 @@ const hasContent = computed(() => {
             class="header-title-input"
             :value="displayTitle"
             readonly
-            @dblclick="startEditTitle"
             :title="displayTitle"
-          />
+            @dblclick="startEditTitle"
+          >
         </template>
 
         <!-- 保存状态 Pill -->
@@ -422,7 +431,7 @@ const hasContent = computed(() => {
           class="status-pill"
           :class="editorStatus === 'ready' ? 'saved' : editorStatus === 'saving' ? 'unsaved' : editorStatus === 'error' ? 'error' : ''"
         >
-          <span class="status-dot"></span>
+          <span class="status-dot" />
           {{ saveStatusText }}
         </div>
       </div>
@@ -437,11 +446,36 @@ const hasContent = computed(() => {
           :title="copySuccess ? '已复制' : '复制到剪贴板'"
           @click="handleCopyToClipboard"
         >
-          <svg v-if="copySuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            v-if="copySuccess"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="M20 6 9 17l-5-5" />
           </svg>
-          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          <svg
+            v-else
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="9"
+              y="9"
+              width="13"
+              height="13"
+              rx="2"
+              ry="2"
+            /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
         </button>
 
@@ -452,8 +486,22 @@ const hasContent = computed(() => {
           title="导出"
           @click="showExportModal = true"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line
+              x1="12"
+              y1="3"
+              x2="12"
+              y2="15"
+            />
           </svg>
         </button>
 
@@ -464,18 +512,55 @@ const hasContent = computed(() => {
           :title="isFocusMode ? '退出专注模式 (F11)' : '专注模式 (F11)'"
           @click="toggleFocusMode"
         >
-          <svg v-if="!isFocusMode" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            v-if="!isFocusMode"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />
           </svg>
-          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            v-else
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M8 3v3a2 2 0 0 1-2 2H3" /><path d="M21 8h-3a2 2 0 0 1-2-2V3" /><path d="M3 16h3a2 2 0 0 1 2 2v3" /><path d="M16 21v-3a2 2 0 0 1 2-2h3" />
           </svg>
         </button>
 
         <!-- 发布按钮 CTA -->
-        <button class="publish-btn" @click="showExportModal = true">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+        <button
+          class="publish-btn"
+          @click="showExportModal = true"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line
+              x1="22"
+              y1="2"
+              x2="11"
+              y2="13"
+            /><polygon points="22 2 15 22 11 13 2 9 22 2" />
           </svg>
           发布
         </button>
@@ -489,7 +574,7 @@ const hasContent = computed(() => {
         v-if="managerCollapsed"
         class="edge-trigger left"
         @mouseenter="managerCollapsed = false"
-      ></div>
+      />
 
       <!-- ─── 左栏 (Manager) ─── -->
       <aside
@@ -497,8 +582,19 @@ const hasContent = computed(() => {
         :class="{ collapsed: managerCollapsed }"
       >
         <!-- 折叠态竖标签 -->
-        <div v-if="managerCollapsed" class="collapsed-label" @click="managerCollapsed = false">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div
+          v-if="managerCollapsed"
+          class="collapsed-label"
+          @click="managerCollapsed = false"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="m9 18 6-6-6-6" />
           </svg>
           <span>管理</span>
@@ -513,7 +609,16 @@ const hasContent = computed(() => {
               :class="{ active: managerTab === 'files' }"
               @click="managerTab = 'files'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
               </svg>
               <span>文件</span>
@@ -523,8 +628,30 @@ const hasContent = computed(() => {
               :class="{ active: managerTab === 'versions' }"
               @click="managerTab = 'versions'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="6" y1="3" x2="6" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" />
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line
+                  x1="6"
+                  y1="3"
+                  x2="6"
+                  y2="15"
+                /><circle
+                  cx="18"
+                  cy="6"
+                  r="3"
+                /><circle
+                  cx="6"
+                  cy="18"
+                  r="3"
+                /><path d="M18 9a9 9 0 0 1-9 9" />
               </svg>
               <span>版本</span>
             </button>
@@ -533,15 +660,65 @@ const hasContent = computed(() => {
               :class="{ active: managerTab === 'outline' }"
               @click="managerTab = 'outline'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line
+                  x1="8"
+                  y1="6"
+                  x2="21"
+                  y2="6"
+                /><line
+                  x1="8"
+                  y1="12"
+                  x2="21"
+                  y2="12"
+                /><line
+                  x1="8"
+                  y1="18"
+                  x2="21"
+                  y2="18"
+                /><line
+                  x1="3"
+                  y1="6"
+                  x2="3.01"
+                  y2="6"
+                /><line
+                  x1="3"
+                  y1="12"
+                  x2="3.01"
+                  y2="12"
+                /><line
+                  x1="3"
+                  y1="18"
+                  x2="3.01"
+                  y2="18"
+                />
               </svg>
               <span>大纲</span>
             </button>
 
             <!-- 折叠按钮 -->
-            <button class="collapse-trigger" title="折叠左栏 (Ctrl+\)" @click="managerCollapsed = true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button
+              class="collapse-trigger"
+              title="折叠左栏 (Ctrl+\)"
+              @click="managerCollapsed = true"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="m15 18-6-6 6-6" />
               </svg>
             </button>
@@ -549,13 +726,22 @@ const hasContent = computed(() => {
 
           <!-- Tab 内容 -->
           <div class="panel-body">
-            <div v-show="managerTab === 'files'" class="tab-content">
+            <div
+              v-show="managerTab === 'files'"
+              class="tab-content"
+            >
               <FileManager />
             </div>
-            <div v-show="managerTab === 'versions'" class="tab-content">
+            <div
+              v-show="managerTab === 'versions'"
+              class="tab-content"
+            >
               <VersionPanel />
             </div>
-            <div v-show="managerTab === 'outline'" class="tab-content">
+            <div
+              v-show="managerTab === 'outline'"
+              class="tab-content"
+            >
               <OutlinePanel :editor="outlineEditor" />
             </div>
           </div>
@@ -567,7 +753,10 @@ const hasContent = computed(() => {
         <div class="editor-wrapper">
           <EditorPanel ref="editorPanelRef" />
         </div>
-        <EditorStatusBar :editor="editorPanelRef?.bodyEditor ?? undefined" :last-render-time="lastRenderTime" />
+        <EditorStatusBar
+          :editor="editorPanelRef?.bodyEditor ?? undefined"
+          :last-render-time="lastRenderTime"
+        />
       </main>
 
       <!-- ─── 预览栏 (Stage) ─── -->
@@ -576,8 +765,12 @@ const hasContent = computed(() => {
         :class="{ collapsed: stageCollapsed }"
       >
         <!-- 折叠态：12px 触发条 + hover 红色指示器 -->
-        <div v-if="stageCollapsed" class="stage-collapsed-bar" @click="stageCollapsed = false">
-          <div class="stage-collapsed-indicator"></div>
+        <div
+          v-if="stageCollapsed"
+          class="stage-collapsed-bar"
+          @click="stageCollapsed = false"
+        >
+          <div class="stage-collapsed-indicator" />
         </div>
 
         <!-- 展开态内容 -->
@@ -595,8 +788,19 @@ const hasContent = computed(() => {
                 {{ opt.label }}
               </button>
             </div>
-            <button class="collapse-trigger" title="折叠预览栏" @click="stageCollapsed = true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button
+              class="collapse-trigger"
+              title="折叠预览栏"
+              @click="stageCollapsed = true"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </button>
@@ -606,30 +810,61 @@ const hasContent = computed(() => {
             <!-- iPhone 设备框 -->
             <div class="device-frame">
               <!-- 刘海（黑色圆角矩形） -->
-              <div class="device-notch"></div>
+              <div class="device-notch" />
               <!-- 屏幕内容区域 -->
               <div class="device-screen">
                 <!-- 加载中 -->
-                <div v-if="previewLoading" class="preview-loading">
-                  <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div
+                  v-if="previewLoading"
+                  class="preview-loading"
+                >
+                  <svg
+                    class="spinner"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
                   <span>渲染中...</span>
                 </div>
 
                 <!-- 无内容 -->
-                <div v-else-if="!previewHtml" class="preview-empty">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+                <div
+                  v-else-if="!previewHtml"
+                  class="preview-empty"
+                >
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
                   </svg>
                   <span>选择文章后查看预览</span>
                 </div>
 
                 <!-- 渲染预览 -->
-                <div v-else class="preview-content" v-html="previewHtml" />
+                <div
+                  v-else
+                  class="preview-content"
+                  v-html="previewHtml"
+                />
               </div>
               <!-- Home Indicator（灰色圆角条） -->
-              <div class="device-home-indicator"></div>
+              <div class="device-home-indicator" />
             </div>
 
             <!-- 预设快速选择（当前平台前 5 个） -->
@@ -655,11 +890,36 @@ const hasContent = computed(() => {
                 :disabled="!hasContent"
                 @click="handleCopyToClipboard"
               >
-                <svg v-if="copySuccess" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg
+                  v-if="copySuccess"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
-                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                <svg
+                  v-else
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect
+                    x="9"
+                    y="9"
+                    width="13"
+                    height="13"
+                    rx="2"
+                    ry="2"
+                  /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 {{ copySuccess ? '已复制' : '复制到平台' }}
               </button>
@@ -668,7 +928,16 @@ const hasContent = computed(() => {
                 :disabled="!hasContent"
                 @click="showExportModal = true"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />
                 </svg>
                 全屏导出
@@ -684,16 +953,31 @@ const hasContent = computed(() => {
         :class="{ collapsed: inspectorCollapsed }"
       >
         <!-- 折叠态：12px 触发条 + hover 红色指示器 -->
-        <div v-if="inspectorCollapsed" class="inspector-collapsed-bar" @click="inspectorCollapsed = false">
-          <div class="inspector-collapsed-indicator"></div>
+        <div
+          v-if="inspectorCollapsed"
+          class="inspector-collapsed-bar"
+          @click="inspectorCollapsed = false"
+        >
+          <div class="inspector-collapsed-indicator" />
         </div>
 
         <!-- 展开态内容：4个垂直滚动 Section -->
         <template v-else>
           <div class="inspector-header">
             <span class="inspector-title">检查器</span>
-            <button class="collapse-trigger" title="折叠右栏" @click="inspectorCollapsed = true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button
+              class="collapse-trigger"
+              title="折叠右栏"
+              @click="inspectorCollapsed = true"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </button>
@@ -703,8 +987,21 @@ const hasContent = computed(() => {
             <!-- Section 1: 排版风格 -->
             <div class="inspector-section">
               <div class="inspector-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                  /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />
                 </svg>
                 <span>排版风格</span>
               </div>
@@ -719,7 +1016,15 @@ const hasContent = computed(() => {
                   :title="color.label"
                   @click="selectAccentColor(color.value)"
                 >
-                  <svg v-if="settingsStore.settings.appearance.accentColor === color.value" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                  <svg
+                    v-if="settingsStore.settings.appearance.accentColor === color.value"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="3"
+                  >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </button>
@@ -758,7 +1063,7 @@ const hasContent = computed(() => {
                   :step="ctrl.step"
                   :value="ctrl.value"
                   @input="updateTypography(key as string, Number(($event.target as HTMLInputElement).value))"
-                />
+                >
               </div>
 
               <!-- 首行缩进开关 -->
@@ -805,14 +1110,38 @@ const hasContent = computed(() => {
                 </div>
               </div>
 
-              <router-link to="/themes" class="inspector-link">查看全部预设 →</router-link>
+              <router-link
+                to="/themes"
+                class="inspector-link"
+              >
+                查看全部预设 →
+              </router-link>
             </div>
 
             <!-- Section 2: 字体控制 -->
             <div class="inspector-section">
               <div class="inspector-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="4 7 4 4 20 4 20 7" /><line
+                    x1="9"
+                    y1="20"
+                    x2="15"
+                    y2="20"
+                  /><line
+                    x1="12"
+                    y1="4"
+                    x2="12"
+                    y2="20"
+                  />
                 </svg>
                 <span>字体</span>
               </div>
@@ -823,7 +1152,10 @@ const hasContent = computed(() => {
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'serif' }"
                   @click="settingsStore.settings.appearance.fontFamily = 'serif'"
                 >
-                  <span class="font-family-preview" :style="{ fontFamily: fontFamilyMap.serif }">Aa</span>
+                  <span
+                    class="font-family-preview"
+                    :style="{ fontFamily: fontFamilyMap.serif }"
+                  >Aa</span>
                   <span class="font-family-name">衬线</span>
                 </button>
                 <button
@@ -831,7 +1163,10 @@ const hasContent = computed(() => {
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'sans' }"
                   @click="settingsStore.settings.appearance.fontFamily = 'sans'"
                 >
-                  <span class="font-family-preview" :style="{ fontFamily: fontFamilyMap.sans }">Aa</span>
+                  <span
+                    class="font-family-preview"
+                    :style="{ fontFamily: fontFamilyMap.sans }"
+                  >Aa</span>
                   <span class="font-family-name">无衬线</span>
                 </button>
                 <button
@@ -839,7 +1174,10 @@ const hasContent = computed(() => {
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'kai' }"
                   @click="settingsStore.settings.appearance.fontFamily = 'kai'"
                 >
-                  <span class="font-family-preview" :style="{ fontFamily: fontFamilyMap.kai }">Aa</span>
+                  <span
+                    class="font-family-preview"
+                    :style="{ fontFamily: fontFamilyMap.kai }"
+                  >Aa</span>
                   <span class="font-family-name">楷体</span>
                 </button>
                 <button
@@ -847,7 +1185,10 @@ const hasContent = computed(() => {
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'mono' }"
                   @click="settingsStore.settings.appearance.fontFamily = 'mono'"
                 >
-                  <span class="font-family-preview" :style="{ fontFamily: fontFamilyMap.mono }">Aa</span>
+                  <span
+                    class="font-family-preview"
+                    :style="{ fontFamily: fontFamilyMap.mono }"
+                  >Aa</span>
                   <span class="font-family-name">等宽</span>
                 </button>
               </div>
@@ -861,10 +1202,12 @@ const hasContent = computed(() => {
                 <input
                   type="range"
                   class="control-slider"
-                  min="12" max="24" step="1"
+                  min="12"
+                  max="24"
+                  step="1"
                   :value="settingsStore.settings.appearance.fontSize"
                   @input="settingsStore.settings.appearance.fontSize = Number(($event.target as HTMLInputElement).value)"
-                />
+                >
               </div>
 
               <!-- 行高滑块 (1.4-2.4, 步进 0.1) -->
@@ -876,10 +1219,12 @@ const hasContent = computed(() => {
                 <input
                   type="range"
                   class="control-slider"
-                  min="1.4" max="2.4" step="0.1"
+                  min="1.4"
+                  max="2.4"
+                  step="0.1"
                   :value="settingsStore.settings.appearance.lineHeight"
                   @input="settingsStore.settings.appearance.lineHeight = Number(($event.target as HTMLInputElement).value)"
-                />
+                >
               </div>
 
               <!-- 字体预览 -->
@@ -892,15 +1237,35 @@ const hasContent = computed(() => {
                 }"
               >
                 永远相信美好的事情即将发生。
-                <br />The quick brown fox jumps over the lazy dog.
+                <br>The quick brown fox jumps over the lazy dog.
               </div>
             </div>
 
             <!-- Section 3: 素材库 -->
             <div class="inspector-section">
               <div class="inspector-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect
+                    x="3"
+                    y="3"
+                    width="18"
+                    height="18"
+                    rx="2"
+                    ry="2"
+                  /><circle
+                    cx="8.5"
+                    cy="8.5"
+                    r="1.5"
+                  /><polyline points="21 15 16 10 5 21" />
                 </svg>
                 <span>素材库</span>
               </div>
@@ -912,17 +1277,37 @@ const hasContent = computed(() => {
             <!-- Section 4: 引用链接 -->
             <div class="inspector-section">
               <div class="inspector-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                 </svg>
                 <span>引用链接</span>
-                <span v-if="extractedLinks.length > 0" class="inspector-count">{{ extractedLinks.length }}</span>
+                <span
+                  v-if="extractedLinks.length > 0"
+                  class="inspector-count"
+                >{{ extractedLinks.length }}</span>
               </div>
-              <div v-if="extractedLinks.length === 0" class="inspector-empty-hint">
+              <div
+                v-if="extractedLinks.length === 0"
+                class="inspector-empty-hint"
+              >
                 <p>暂无外部链接引用</p>
-                <p class="inspector-empty-sub">在 Markdown 中使用 [文字](URL) 添加链接</p>
+                <p class="inspector-empty-sub">
+                  在 Markdown 中使用 [文字](URL) 添加链接
+                </p>
               </div>
-              <div v-else class="inspector-links-list">
+              <div
+                v-else
+                class="inspector-links-list"
+              >
                 <div
                   v-for="(link, idx) in extractedLinks"
                   :key="idx"
@@ -935,8 +1320,22 @@ const hasContent = computed(() => {
                     class="link-item-main"
                     :title="link.href"
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line
+                        x1="10"
+                        y1="14"
+                        x2="21"
+                        y2="3"
+                      />
                     </svg>
                     <div class="link-item-content">
                       <span class="link-text">{{ link.text }}</span>
@@ -949,11 +1348,36 @@ const hasContent = computed(() => {
                     :title="copiedLinkIndex === idx ? '已复制' : '复制链接'"
                     @click="copyLinkToClipboard(link.href, idx)"
                   >
-                    <svg v-if="copiedLinkIndex === idx" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      v-if="copiedLinkIndex === idx"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M20 6 9 17l-5-5" />
                     </svg>
-                    <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    <svg
+                      v-else
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="9"
+                        y="9"
+                        width="13"
+                        height="13"
+                        rx="2"
+                        ry="2"
+                      /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                     </svg>
                   </button>
                 </div>

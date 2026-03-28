@@ -374,31 +374,54 @@ onMounted(async () => {
 
 <template>
   <div class="hub-page">
-
     <!-- 加载状态 -->
-    <div v-if="pageLoading" class="page-loading">
-      <div class="loading-spinner"></div>
+    <div
+      v-if="pageLoading"
+      class="page-loading"
+    >
+      <div class="loading-spinner" />
       <span class="loading-text">加载中...</span>
     </div>
 
     <!-- HEADER -->
     <header class="hub-header">
       <div class="header-brand">
-        <div class="logo">IF</div>
+        <div class="logo">
+          IF
+        </div>
         <div class="brand-text">
           <h1>InkForge<span class="version-tag">v6.0</span></h1>
-          <p class="welcome-text">{{ currentDateTime }}</p>
+          <p class="welcome-text">
+            {{ currentDateTime }}
+          </p>
         </div>
       </div>
 
       <div class="header-actions">
         <div class="sync-badge">
-          <div class="sync-dot"></div>
+          <div class="sync-dot" />
           <span>{{ stats.totalArticles }} 篇文章</span>
         </div>
-        <button class="icon-btn" @click="goToSettings" title="设置">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3" />
+        <button
+          class="icon-btn"
+          title="设置"
+          @click="goToSettings"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+            />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
         </button>
@@ -415,40 +438,63 @@ onMounted(async () => {
     <!-- BENTO GRID: 4col x 3row, 撑满首屏                      -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <div class="bento-container">
-
       <!-- 1. Hero 创作流 (2col x 2row) -->
       <div class="bento-card card-hero">
-        <div class="hero-decor"></div>
+        <div class="hero-decor" />
         <div class="hero-content">
           <div class="hero-text">
-            <h2 class="hero-title">创作流</h2>
-            <p class="hero-subtitle">本周产出 {{ weeklyTotal }} 篇</p>
+            <h2 class="hero-title">
+              创作流
+            </h2>
+            <p class="hero-subtitle">
+              本周产出 {{ weeklyTotal }} 篇
+            </p>
           </div>
           <div class="chart-container">
-            <div v-for="(count, i) in weeklyChartData" :key="i"
+            <div
+              v-for="(count, i) in weeklyChartData"
+              :key="i"
               class="chart-bar"
               :class="{ active: i === todayIndex, selected: i === selectedDayIndex }"
               :style="{ height: getBarHeight(count) }"
-              @click="toggleDaySelection(i)">
+              @click="toggleDaySelection(i)"
+            >
               <span class="tooltip">{{ count }} 篇</span>
             </div>
           </div>
           <div class="chart-labels">
-            <span v-for="label in weekDayLabels" :key="label">{{ label }}</span>
+            <span
+              v-for="label in weekDayLabels"
+              :key="label"
+            >{{ label }}</span>
           </div>
           <!-- 选中日文章展开 -->
           <transition name="expand">
-            <div v-if="selectedDayIndex !== null" class="day-articles" :key="selectedDayIndex">
+            <div
+              v-if="selectedDayIndex !== null"
+              :key="selectedDayIndex"
+              class="day-articles"
+            >
               <template v-if="selectedDayArticles.length > 0">
-                <div v-for="article in selectedDayArticles" :key="article.id"
-                  class="day-article-item" @click.stop="openArticle(article.id)">
+                <div
+                  v-for="article in selectedDayArticles"
+                  :key="article.id"
+                  class="day-article-item"
+                  @click.stop="openArticle(article.id)"
+                >
                   <span class="day-article-title">{{ article.title }}</span>
-                  <span class="day-article-status" :class="statusClass(article.status)">
+                  <span
+                    class="day-article-status"
+                    :class="statusClass(article.status)"
+                  >
                     {{ getStatusLabel(article.status) }}
                   </span>
                 </div>
               </template>
-              <span v-else class="day-articles-empty-text">当天无文章</span>
+              <span
+                v-else
+                class="day-articles-empty-text"
+              >当天无文章</span>
             </div>
           </transition>
         </div>
@@ -458,93 +504,249 @@ onMounted(async () => {
       <div class="bento-card card-stats">
         <div class="stat-item">
           <div class="stat-icon stat-icon-red">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
           </div>
-          <div class="stat-value">{{ stats.totalArticles }}</div>
-          <div class="stat-label">文章</div>
+          <div class="stat-value">
+            {{ stats.totalArticles }}
+          </div>
+          <div class="stat-label">
+            文章
+          </div>
         </div>
-        <div class="stat-divider"></div>
+        <div class="stat-divider" />
         <div class="stat-item">
           <div class="stat-icon stat-icon-blue">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M12 20h9" />
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
           </div>
-          <div class="stat-value">{{ stats.totalWords }}</div>
-          <div class="stat-label">字数</div>
+          <div class="stat-value">
+            {{ stats.totalWords }}
+          </div>
+          <div class="stat-label">
+            字数
+          </div>
         </div>
-        <div class="stat-divider"></div>
+        <div class="stat-divider" />
         <div class="stat-item">
           <div class="stat-icon stat-icon-green">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <div class="stat-value">{{ stats.completionRate }}</div>
-          <div class="stat-label">完成率</div>
+          <div class="stat-value">
+            {{ stats.completionRate }}
+          </div>
+          <div class="stat-label">
+            完成率
+          </div>
         </div>
       </div>
 
       <!-- 3. 新建项目 (1col x 1row) -->
-      <div class="bento-card card-new" @click="startNewProject">
+      <div
+        class="bento-card card-new"
+        @click="startNewProject"
+      >
         <div class="new-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line
+              x1="12"
+              y1="5"
+              x2="12"
+              y2="19"
+            />
+            <line
+              x1="5"
+              y1="12"
+              x2="19"
+              y2="12"
+            />
           </svg>
         </div>
-        <h3 class="new-title">开始新项目</h3>
-        <p class="new-desc">从模板或空白开始</p>
+        <h3 class="new-title">
+          开始新项目
+        </h3>
+        <p class="new-desc">
+          从模板或空白开始
+        </p>
       </div>
 
       <!-- 4. 分类卡片 (2col x 1row) — 原型顺序：Categories 在 Recent 之前 -->
       <div class="bento-card card-categories">
         <div class="categories-header">
-          <h3 class="categories-title">我的分类</h3>
+          <h3 class="categories-title">
+            我的分类
+          </h3>
           <div class="categories-actions">
-            <span class="categories-add" @click.stop="showAddCategoryModal = true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            <span
+              class="categories-add"
+              @click.stop="showAddCategoryModal = true"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line
+                  x1="12"
+                  y1="5"
+                  x2="12"
+                  y2="19"
+                /><line
+                  x1="5"
+                  y1="12"
+                  x2="19"
+                  y2="12"
+                />
               </svg>
               添加
             </span>
-            <span class="categories-manage" @click.stop="goToSettings">管理</span>
+            <span
+              class="categories-manage"
+              @click.stop="goToSettings"
+            >管理</span>
           </div>
         </div>
         <div class="categories-grid">
-          <div v-for="(cat, i) in displayCategories" :key="cat.id"
+          <div
+            v-for="(cat, i) in displayCategories"
+            :key="cat.id"
             class="category-cell"
             :style="{
               background: cat.scheme.bg,
               color: cat.scheme.color,
               '--hover-border': cat.scheme.hoverBorder,
             }"
-            @click.stop="setFilterMode('category'); filterCategoryId = cat.id">
-            <svg class="category-icon-svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path v-if="i === 0" d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
+            @click.stop="setFilterMode('category'); filterCategoryId = cat.id"
+          >
+            <svg
+              class="category-icon-svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                v-if="i === 0"
+                d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"
+              />
               <template v-else-if="i === 1">
-                <path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line
+                  x1="6"
+                  y1="1"
+                  x2="6"
+                  y2="4"
+                /><line
+                  x1="10"
+                  y1="1"
+                  x2="10"
+                  y2="4"
+                /><line
+                  x1="14"
+                  y1="1"
+                  x2="14"
+                  y2="4"
+                />
               </template>
               <template v-else>
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                <rect
+                  x="2"
+                  y="7"
+                  width="20"
+                  height="14"
+                  rx="2"
+                  ry="2"
+                /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
               </template>
             </svg>
             <div>
-              <div class="category-name">{{ cat.name }}</div>
-              <div class="category-count">{{ cat.articleCount }} 篇文章</div>
+              <div class="category-name">
+                {{ cat.name }}
+              </div>
+              <div class="category-count">
+                {{ cat.articleCount }} 篇文章
+              </div>
             </div>
           </div>
-          <div v-if="displayCategories.length === 0" class="categories-empty"
-            @click.stop="showAddCategoryModal = true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #B0BEC5;">
+          <div
+            v-if="displayCategories.length === 0"
+            class="categories-empty"
+            @click.stop="showAddCategoryModal = true"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="color: #B0BEC5;"
+            >
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-              <line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" />
+              <line
+                x1="12"
+                y1="11"
+                x2="12"
+                y2="17"
+              /><line
+                x1="9"
+                y1="14"
+                x2="15"
+                y2="14"
+              />
             </svg>
             <span>点击创建第一个分类</span>
           </div>
@@ -552,38 +754,90 @@ onMounted(async () => {
       </div>
 
       <!-- 5. 最近文件 (1col x 1row) -->
-      <div class="bento-card card-recent" @click="latestArticle && openArticle(latestArticle.id)">
+      <div
+        class="bento-card card-recent"
+        @click="latestArticle && openArticle(latestArticle.id)"
+      >
         <div class="recent-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            /><polyline points="12 6 12 12 16 14" />
           </svg>
           最近编辑
         </div>
         <template v-if="latestArticle">
-          <h3 class="recent-title">{{ latestArticle.title }}</h3>
-          <p class="recent-excerpt">{{ getExcerpt(latestArticle) }}</p>
+          <h3 class="recent-title">
+            {{ latestArticle.title }}
+          </h3>
+          <p class="recent-excerpt">
+            {{ getExcerpt(latestArticle) }}
+          </p>
           <div class="recent-footer">
-            <span class="recent-status" :class="statusClass(latestArticle.status)">
+            <span
+              class="recent-status"
+              :class="statusClass(latestArticle.status)"
+            >
               {{ getStatusLabel(latestArticle.status) }}
             </span>
             <div class="recent-open-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line
+                  x1="5"
+                  y1="12"
+                  x2="19"
+                  y2="12"
+                />
                 <polyline points="12 5 19 12 12 19" />
               </svg>
             </div>
           </div>
         </template>
-        <p v-else class="recent-empty">暂无文章</p>
+        <p
+          v-else
+          class="recent-empty"
+        >
+          暂无文章
+        </p>
       </div>
 
       <!-- 6. 灵感卡片 (1col x 1row) -->
       <div class="bento-card card-inspiration">
-        <div class="inspiration-texture"></div>
+        <div class="inspiration-texture" />
         <div class="inspiration-content">
           <div class="inspiration-top">
             <div class="inspiration-header">
-              <svg class="inspiration-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                class="inspiration-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               <span class="inspiration-label">每日灵感</span>
@@ -594,9 +848,19 @@ onMounted(async () => {
               class="inspiration-refresh"
               :class="{ spinning: aiInspirationLoading }"
               :disabled="aiInspirationLoading"
+              title="AI 生成新灵感"
               @click.stop="generateAIInspiration"
-              title="AI 生成新灵感">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
               </svg>
@@ -605,33 +869,71 @@ onMounted(async () => {
             <button
               v-else
               class="inspiration-setup"
+              title="配置 AI 后可生成灵感"
               @click.stop="goToSettings"
-              title="配置 AI 后可生成灵感">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3" />
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
             </button>
           </div>
           <div class="inspiration-body">
-            <p v-if="aiInspirationLoading" class="inspiration-loading">AI 正在为你创作灵感...</p>
+            <p
+              v-if="aiInspirationLoading"
+              class="inspiration-loading"
+            >
+              AI 正在为你创作灵感...
+            </p>
             <template v-else>
-              <p class="inspiration-quote">"{{ displayQuote.text }}"</p>
-              <p class="inspiration-author">-- {{ displayQuote.author }}</p>
+              <p class="inspiration-quote">
+                "{{ displayQuote.text }}"
+              </p>
+              <p class="inspiration-author">
+                -- {{ displayQuote.author }}
+              </p>
             </template>
           </div>
-          <div class="inspiration-source" :class="aiInspiration ? 'source-ai' : 'source-local'">
+          <div
+            class="inspiration-source"
+            :class="aiInspiration ? 'source-ai' : 'source-local'"
+          >
             {{ aiInspiration ? 'AI 创作' : '本地名言' }}
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- 滚动引导指示器 -->
-    <div v-if="articles.length > 0" class="scroll-indicator">
+    <div
+      v-if="articles.length > 0"
+      class="scroll-indicator"
+    >
       <span class="scroll-text">下滑查看全部文章</span>
-      <svg class="scroll-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        class="scroll-arrow"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="6 9 12 15 18 9" />
       </svg>
     </div>
@@ -641,34 +943,94 @@ onMounted(async () => {
     <!-- ═══════════════════════════════════════════════════════ -->
     <div class="filter-bar">
       <div class="filter-tabs">
-        <button class="filter-tab" :class="{ active: filterMode === 'all' }" @click="setFilterMode('all')">全部</button>
-        <button class="filter-tab" :class="{ active: filterMode === 'week' }" @click="setFilterMode('week')">本周</button>
+        <button
+          class="filter-tab"
+          :class="{ active: filterMode === 'all' }"
+          @click="setFilterMode('all')"
+        >
+          全部
+        </button>
+        <button
+          class="filter-tab"
+          :class="{ active: filterMode === 'week' }"
+          @click="setFilterMode('week')"
+        >
+          本周
+        </button>
         <div class="filter-category-wrapper">
-          <button class="filter-tab" :class="{ active: filterMode === 'category' }" @click="setFilterMode('category')">
+          <button
+            class="filter-tab"
+            :class="{ active: filterMode === 'category' }"
+            @click="setFilterMode('category')"
+          >
             分类
           </button>
-          <div v-if="filterMode === 'category'" class="category-dropdown">
-            <div v-for="cat in categoryStore.categories" :key="cat.id"
-              class="category-option" :class="{ selected: filterCategoryId === cat.id }"
-              @click="filterCategoryId = cat.id">
+          <div
+            v-if="filterMode === 'category'"
+            class="category-dropdown"
+          >
+            <div
+              v-for="cat in categoryStore.categories"
+              :key="cat.id"
+              class="category-option"
+              :class="{ selected: filterCategoryId === cat.id }"
+              @click="filterCategoryId = cat.id"
+            >
               {{ cat.name }}
             </div>
-            <div v-if="categoryStore.categories.length === 0" class="category-option disabled">暂无分类</div>
+            <div
+              v-if="categoryStore.categories.length === 0"
+              class="category-option disabled"
+            >
+              暂无分类
+            </div>
           </div>
         </div>
       </div>
       <div class="filter-right">
         <div class="search-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
           </svg>
-          <input v-model="searchQuery" type="text" placeholder="搜索文章..." class="search-input" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="搜索文章..."
+            class="search-input"
+          >
         </div>
-        <select v-model="sortMode" class="sort-select">
-          <option value="recent">最近更新</option>
-          <option value="title">按标题</option>
-          <option value="wordcount">按字数</option>
+        <select
+          v-model="sortMode"
+          class="sort-select"
+        >
+          <option value="recent">
+            最近更新
+          </option>
+          <option value="title">
+            按标题
+          </option>
+          <option value="wordcount">
+            按字数
+          </option>
         </select>
       </div>
     </div>
@@ -676,20 +1038,44 @@ onMounted(async () => {
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- 瀑布流文章区                                             -->
     <!-- ═══════════════════════════════════════════════════════ -->
-    <div v-if="displayArticles.length > 0" class="waterfall-grid">
-      <div v-for="(article, index) in displayArticles" :key="article.id"
-        class="article-card" :style="{ '--i': index }" @click="openArticle(article.id)">
-        <div class="card-accent" :style="{ background: getCategoryColor(article.categoryId) }"></div>
+    <div
+      v-if="displayArticles.length > 0"
+      class="waterfall-grid"
+    >
+      <div
+        v-for="(article, index) in displayArticles"
+        :key="article.id"
+        class="article-card"
+        :style="{ '--i': index }"
+        @click="openArticle(article.id)"
+      >
+        <div
+          class="card-accent"
+          :style="{ background: getCategoryColor(article.categoryId) }"
+        />
         <div class="card-tags">
-          <span v-if="article.sourceName" class="source-tag">{{ article.sourceName }}</span>
-          <span class="status-tag" :class="statusClass(article.status)">
+          <span
+            v-if="article.sourceName"
+            class="source-tag"
+          >{{ article.sourceName }}</span>
+          <span
+            class="status-tag"
+            :class="statusClass(article.status)"
+          >
             {{ getStatusLabel(article.status) }}
           </span>
         </div>
-        <h3 class="card-title">{{ article.title }}</h3>
-        <p class="card-excerpt">{{ getExcerpt(article) }}</p>
+        <h3 class="card-title">
+          {{ article.title }}
+        </h3>
+        <p class="card-excerpt">
+          {{ getExcerpt(article) }}
+        </p>
         <div class="card-meta">
-          <span v-if="getCategoryName(article.categoryId)" class="meta-category">{{ getCategoryName(article.categoryId) }}</span>
+          <span
+            v-if="getCategoryName(article.categoryId)"
+            class="meta-category"
+          >{{ getCategoryName(article.categoryId) }}</span>
           <span class="meta-words">{{ (article.rawContent?.length || 0).toLocaleString() }} 字</span>
           <span class="meta-time">{{ formatRelativeTime(article.updatedAt || article.createdAt) }}</span>
         </div>
@@ -697,24 +1083,66 @@ onMounted(async () => {
     </div>
 
     <!-- 空状态 -->
-    <div v-else class="empty-state">
+    <div
+      v-else
+      class="empty-state"
+    >
       <template v-if="articles.length === 0">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #90A4AE;">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="color: #90A4AE;"
+        >
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
         </svg>
         <h3>开始你的第一篇创作</h3>
         <p>点击上方"开始新项目"卡片，开始创作之旅</p>
-        <button class="empty-create-btn" @click="startNewProject">新建文章</button>
+        <button
+          class="empty-create-btn"
+          @click="startNewProject"
+        >
+          新建文章
+        </button>
       </template>
       <template v-else>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: #90A4AE;">
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="color: #90A4AE;"
+        >
+          <circle
+            cx="11"
+            cy="11"
+            r="8"
+          />
+          <line
+            x1="21"
+            y1="21"
+            x2="16.65"
+            y2="16.65"
+          />
         </svg>
         <h3>没有找到匹配的文章</h3>
         <p>试试调整筛选条件或搜索关键词</p>
-        <button class="empty-create-btn" @click="setFilterMode('all'); searchQuery = ''">清除筛选</button>
+        <button
+          class="empty-create-btn"
+          @click="setFilterMode('all'); searchQuery = ''"
+        >
+          清除筛选
+        </button>
       </template>
     </div>
 

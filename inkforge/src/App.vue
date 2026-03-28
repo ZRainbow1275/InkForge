@@ -150,25 +150,65 @@ function handleDismiss(): void {
 
 <template>
   <!-- 错误回退 UI -->
-  <div v-if="hasError" class="error-boundary">
+  <div
+    v-if="hasError"
+    class="error-boundary"
+  >
     <div class="error-boundary__content">
       <div class="error-boundary__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <line
+            x1="12"
+            y1="8"
+            x2="12"
+            y2="12"
+          />
+          <line
+            x1="12"
+            y1="16"
+            x2="12.01"
+            y2="16"
+          />
         </svg>
       </div>
-      <h1 class="error-boundary__title">页面出现问题</h1>
-      <p class="error-boundary__message">{{ errorMessage }}</p>
-      <p v-if="showTechnicalDetails" class="error-boundary__details">
+      <h1 class="error-boundary__title">
+        页面出现问题
+      </h1>
+      <p class="error-boundary__message">
+        {{ errorMessage }}
+      </p>
+      <p
+        v-if="showTechnicalDetails"
+        class="error-boundary__details"
+      >
         错误位置: {{ errorDetails }}
       </p>
       <div class="error-boundary__actions">
-        <button class="error-boundary__btn error-boundary__btn--primary" @click="handleRetry">
+        <button
+          class="error-boundary__btn error-boundary__btn--primary"
+          @click="handleRetry"
+        >
           刷新页面
         </button>
-        <button class="error-boundary__btn error-boundary__btn--secondary" @click="handleDismiss">
+        <button
+          class="error-boundary__btn error-boundary__btn--secondary"
+          @click="handleDismiss"
+        >
           尝试恢复
         </button>
       </div>

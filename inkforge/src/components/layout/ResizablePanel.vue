@@ -67,10 +67,10 @@ onUnmounted(() => {
       class="resize-handle left"
       :class="{ active: isResizing }"
       @mousedown.prevent="startResize"
-    ></div>
+    />
 
     <div class="panel-container">
-      <slot></slot>
+      <slot />
     </div>
 
     <!-- 右侧把手 -->
@@ -79,7 +79,7 @@ onUnmounted(() => {
       class="resize-handle right"
       :class="{ active: isResizing }"
       @mousedown.prevent="startResize"
-    ></div>
+    />
   </aside>
 </template>
 

@@ -61,20 +61,29 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div class="diff-overlay" @click.self="emit('close')">
+    <div
+      class="diff-overlay"
+      @click.self="emit('close')"
+    >
       <div class="diff-modal">
         <!-- 头部 -->
         <div class="diff-header">
           <div class="diff-title-area">
             <FileText :size="18" />
-            <h2 class="diff-title">版本对比</h2>
+            <h2 class="diff-title">
+              版本对比
+            </h2>
             <div class="diff-summary-badges">
               <span class="badge added">+{{ summary.addedCount }}</span>
               <span class="badge removed">-{{ summary.removedCount }}</span>
               <span class="badge unchanged">{{ summary.unchangedCount }} 行未变</span>
             </div>
           </div>
-          <button class="close-btn" @click="emit('close')" title="关闭">
+          <button
+            class="close-btn"
+            title="关闭"
+            @click="emit('close')"
+          >
             <X :size="18" />
           </button>
         </div>
@@ -90,8 +99,19 @@ onUnmounted(() => {
             </span>
           </div>
           <div class="diff-arrow">
-            <svg width="20" height="12" viewBox="0 0 20 12">
-              <path d="M0 6h16M12 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg
+              width="20"
+              height="12"
+              viewBox="0 0 20 12"
+            >
+              <path
+                d="M0 6h16M12 1l5 5-5 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </div>
           <div class="diff-version-info new">
@@ -118,14 +138,20 @@ onUnmounted(() => {
                 <template v-else-if="line.type === 'removed'">-</template>
                 <template v-else>&nbsp;</template>
               </span>
-              <span v-if="line.lineNumber !== undefined" class="line-number">
+              <span
+                v-if="line.lineNumber !== undefined"
+                class="line-number"
+              >
                 {{ line.lineNumber }}
               </span>
               <span class="line-content">{{ line.content || ' ' }}</span>
             </div>
 
             <!-- 无差异提示 -->
-            <div v-if="diffLines.length === 0" class="no-diff">
+            <div
+              v-if="diffLines.length === 0"
+              class="no-diff"
+            >
               两个版本内容完全相同
             </div>
           </div>
@@ -136,7 +162,10 @@ onUnmounted(() => {
           <div class="footer-stats">
             <span>共 {{ diffLines.length }} 行</span>
           </div>
-          <button class="footer-close-btn" @click="emit('close')">
+          <button
+            class="footer-close-btn"
+            @click="emit('close')"
+          >
             关闭
           </button>
         </div>

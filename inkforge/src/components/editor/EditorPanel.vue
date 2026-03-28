@@ -208,13 +208,22 @@ onBeforeUnmount(() => {
 <template>
   <div class="editor-panel">
     <!-- 1. Loading -->
-    <div v-if="isLoading" class="state-container loading">
-      <Loader2 :size="32" class="animate-spin" />
+    <div
+      v-if="isLoading"
+      class="state-container loading"
+    >
+      <Loader2
+        :size="32"
+        class="animate-spin"
+      />
       <p>正在加载内容...</p>
     </div>
 
     <!-- 2. Error -->
-    <div v-else-if="editorStatus === 'error'" class="state-container error">
+    <div
+      v-else-if="editorStatus === 'error'"
+      class="state-container error"
+    >
       <AlertTriangle :size="32" />
       <h3>发生错误</h3>
       <p>{{ editorError }}</p>
@@ -228,7 +237,10 @@ onBeforeUnmount(() => {
       Editor 直接用 new Editor({ element }) 挂载到 editorContainerRef，
       不使用 EditorContent 的元素交换流程，彻底避免 localsInner 崩溃。
     -->
-    <div v-show="isReady" class="editor-scroll">
+    <div
+      v-show="isReady"
+      class="editor-scroll"
+    >
       <div
         class="editor-paper"
         :style="{
@@ -238,7 +250,10 @@ onBeforeUnmount(() => {
         }"
       >
         <!-- 编辑器直接挂载点 — Editor 在 onMounted 时直接挂到这个 div -->
-        <div ref="editorContainerRef" class="tiptap-content" />
+        <div
+          ref="editorContainerRef"
+          class="tiptap-content"
+        />
         <FloatingToolbar :editor="bodyEditor ?? undefined" />
         <SlashCommandMenu :editor="bodyEditor ?? undefined" />
       </div>

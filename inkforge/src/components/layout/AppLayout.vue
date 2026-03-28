@@ -45,7 +45,10 @@ const editorWidth = ref(400)
     </ResizablePanel>
 
     <!-- 中: 预览面板 -->
-    <main class="panel flex-1" style="min-width: 300px;">
+    <main
+      class="panel flex-1"
+      style="min-width: 300px;"
+    >
       <div class="panel-header">
         <span>👁️ 内容预览</span>
       </div>

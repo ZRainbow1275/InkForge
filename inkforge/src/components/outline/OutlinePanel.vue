@@ -65,16 +65,26 @@ const isEmpty = computed(() => outline.value.length === 0)
     </div>
 
     <!-- 空状态 -->
-    <div v-if="isEmpty" class="outline-empty">
+    <div
+      v-if="isEmpty"
+      class="outline-empty"
+    >
       <p class="outline-empty-text">
         还没有标题，使用 <code>##</code> 添加二级标题
       </p>
     </div>
 
     <!-- 大纲树 -->
-    <nav v-else class="outline-tree" aria-label="文档大纲">
+    <nav
+      v-else
+      class="outline-tree"
+      aria-label="文档大纲"
+    >
       <ul class="outline-list">
-        <template v-for="item in outline" :key="item.id">
+        <template
+          v-for="item in outline"
+          :key="item.id"
+        >
           <li class="outline-node">
             <!-- H2 节点 -->
             <div
@@ -95,8 +105,14 @@ const isEmpty = computed(() => outline.value.length === 0)
                   :class="{ expanded: !isCollapsed(item.id) }"
                 />
               </button>
-              <span v-else class="collapse-placeholder" />
-              <span class="outline-text" :title="item.text">{{ item.text }}</span>
+              <span
+                v-else
+                class="collapse-placeholder"
+              />
+              <span
+                class="outline-text"
+                :title="item.text"
+              >{{ item.text }}</span>
             </div>
 
             <!-- H3 子节点 -->
@@ -127,8 +143,14 @@ const isEmpty = computed(() => outline.value.length === 0)
                       :class="{ expanded: !isCollapsed(child.id) }"
                     />
                   </button>
-                  <span v-else class="collapse-placeholder" />
-                  <span class="outline-text" :title="child.text">{{ child.text }}</span>
+                  <span
+                    v-else
+                    class="collapse-placeholder"
+                  />
+                  <span
+                    class="outline-text"
+                    :title="child.text"
+                  >{{ child.text }}</span>
                 </div>
 
                 <!-- H4 子节点 -->
@@ -147,7 +169,10 @@ const isEmpty = computed(() => outline.value.length === 0)
                       @click="handleItemClick(grandchild)"
                     >
                       <span class="collapse-placeholder" />
-                      <span class="outline-text" :title="grandchild.text">{{ grandchild.text }}</span>
+                      <span
+                        class="outline-text"
+                        :title="grandchild.text"
+                      >{{ grandchild.text }}</span>
                     </div>
                   </li>
                 </ul>

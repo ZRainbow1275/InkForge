@@ -100,10 +100,13 @@ async function copyWeChat() {
 <template>
   <div class="cms-tools">
     <div class="cms-header">
-       <span>工具箱</span>
-       <button class="primary-btn" @click="copyWeChat">
-         <Copy :size="14" /> 复制
-       </button>
+      <span>工具箱</span>
+      <button
+        class="primary-btn"
+        @click="copyWeChat"
+      >
+        <Copy :size="14" /> 复制
+      </button>
     </div>
 
     <!-- Tab Bar -->
@@ -133,44 +136,72 @@ async function copyWeChat() {
 
     <!-- Content Area -->
     <div class="cms-scroll tool-content">
-      
       <!-- Links Panel -->
-      <div v-show="activeTab === 'links'" class="panel-inner">
+      <div
+        v-show="activeTab === 'links'"
+        class="panel-inner"
+      >
         <div class="tool-list">
-          <div v-for="(link, idx) in extractedLinks" :key="idx" class="tool-item">
+          <div
+            v-for="(link, idx) in extractedLinks"
+            :key="idx"
+            class="tool-item"
+          >
             <input 
               type="checkbox" 
               :checked="selectedLinkUrls.has(link.url)"
               @change="toggleLink(link.url)"
             >
             <div class="item-info">
-              <div class="item-text">{{ link.text }}</div>
-              <div class="item-url">{{ link.url }}</div>
+              <div class="item-text">
+                {{ link.text }}
+              </div>
+              <div class="item-url">
+                {{ link.url }}
+              </div>
             </div>
           </div>
-          <div v-if="extractedLinks.length === 0" class="empty">文中无链接</div>
+          <div
+            v-if="extractedLinks.length === 0"
+            class="empty"
+          >
+            文中无链接
+          </div>
         </div>
       </div>
 
       <!-- Images Panel -->
-      <div v-show="activeTab === 'images'" class="panel-inner">
+      <div
+        v-show="activeTab === 'images'"
+        class="panel-inner"
+      >
         <div class="image-grid">
-           <div 
-             v-for="(img, idx) in extractedImages" 
-             :key="idx" 
-             class="image-item"
-           >
-             <img :src="img.url" :title="img.alt">
-           </div>
+          <div 
+            v-for="(img, idx) in extractedImages" 
+            :key="idx" 
+            class="image-item"
+          >
+            <img
+              :src="img.url"
+              :title="img.alt"
+            >
+          </div>
         </div>
-        <div v-if="extractedImages.length === 0" class="empty">文中无图片</div>
+        <div
+          v-if="extractedImages.length === 0"
+          class="empty"
+        >
+          文中无图片
+        </div>
       </div>
 
       <!-- Theme Panel -->
-      <div v-show="activeTab === 'theme'" class="panel-inner">
-         <ThemePanel class="embedded-theme-panel"/>
+      <div
+        v-show="activeTab === 'theme'"
+        class="panel-inner"
+      >
+        <ThemePanel class="embedded-theme-panel" />
       </div>
-
     </div>
   </div>
 </template>

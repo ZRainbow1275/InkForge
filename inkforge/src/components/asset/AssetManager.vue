@@ -245,24 +245,60 @@ function handleUploadError(_message: string) {
       <div class="toolbar-left">
         <!-- 搜索栏 -->
         <div class="search-wrapper">
-          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <svg
+            class="search-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
           </svg>
           <input
             v-model="searchQuery"
             type="text"
             class="search-input"
             placeholder="搜索素材名称或标签..."
-          />
+          >
           <button
             v-if="searchQuery"
             class="search-clear"
             @click="searchQuery = ''"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line
+                x1="18"
+                y1="6"
+                x2="6"
+                y2="18"
+              />
+              <line
+                x1="6"
+                y1="6"
+                x2="18"
+                y2="18"
+              />
             </svg>
           </button>
         </div>
@@ -280,16 +316,52 @@ function handleUploadError(_message: string) {
         <!-- 批量操作 -->
         <template v-if="selectedCount > 0">
           <span class="selected-info">已选 {{ selectedCount }} 项</span>
-          <button class="tool-btn" @click="clearSelection" title="取消选择">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+          <button
+            class="tool-btn"
+            title="取消选择"
+            @click="clearSelection"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line
+                x1="18"
+                y1="6"
+                x2="6"
+                y2="18"
+              />
+              <line
+                x1="6"
+                y1="6"
+                x2="18"
+                y2="18"
+              />
             </svg>
           </button>
-          <button class="tool-btn danger" @click="showDeleteConfirm = true" title="删除选中">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          <button
+            class="tool-btn danger"
+            title="删除选中"
+            @click="showDeleteConfirm = true"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
           </button>
         </template>
@@ -298,13 +370,36 @@ function handleUploadError(_message: string) {
         <button
           class="tool-btn"
           :class="{ active: isAllSelected }"
-          @click="toggleSelectAll"
           title="全选"
+          @click="toggleSelectAll"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline v-if="isAllSelected" points="9 11 12 14 22 4"/>
-            <rect v-else x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <path v-if="isAllSelected" d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline
+              v-if="isAllSelected"
+              points="9 11 12 14 22 4"
+            />
+            <rect
+              v-else
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="2"
+              ry="2"
+            />
+            <path
+              v-if="isAllSelected"
+              d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+            />
           </svg>
         </button>
 
@@ -313,29 +408,97 @@ function handleUploadError(_message: string) {
           <button
             class="toggle-btn"
             :class="{ active: viewMode === 'grid' }"
-            @click="viewMode = 'grid'"
             title="网格视图"
+            @click="viewMode = 'grid'"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+              />
+              <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+              />
+              <rect
+                x="14"
+                y="14"
+                width="7"
+                height="7"
+              />
+              <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+              />
             </svg>
           </button>
           <button
             class="toggle-btn"
             :class="{ active: viewMode === 'list' }"
-            @click="viewMode = 'list'"
             title="列表视图"
+            @click="viewMode = 'list'"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6"/>
-              <line x1="8" y1="12" x2="21" y2="12"/>
-              <line x1="8" y1="18" x2="21" y2="18"/>
-              <line x1="3" y1="6" x2="3.01" y2="6"/>
-              <line x1="3" y1="12" x2="3.01" y2="12"/>
-              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line
+                x1="8"
+                y1="6"
+                x2="21"
+                y2="6"
+              />
+              <line
+                x1="8"
+                y1="12"
+                x2="21"
+                y2="12"
+              />
+              <line
+                x1="8"
+                y1="18"
+                x2="21"
+                y2="18"
+              />
+              <line
+                x1="3"
+                y1="6"
+                x2="3.01"
+                y2="6"
+              />
+              <line
+                x1="3"
+                y1="12"
+                x2="3.01"
+                y2="12"
+              />
+              <line
+                x1="3"
+                y1="18"
+                x2="3.01"
+                y2="18"
+              />
             </svg>
           </button>
         </div>
@@ -343,35 +506,101 @@ function handleUploadError(_message: string) {
     </div>
 
     <!-- 加载中 -->
-    <div v-if="assetStore.loading" class="loading-state">
-      <div class="loading-spinner"></div>
+    <div
+      v-if="assetStore.loading"
+      class="loading-state"
+    >
+      <div class="loading-spinner" />
       <span>加载素材中...</span>
     </div>
 
     <!-- 空状态 -->
-    <div v-else-if="!hasAssets" class="empty-state">
-      <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-        <circle cx="8.5" cy="8.5" r="1.5"/>
-        <polyline points="21 15 16 10 5 21"/>
+    <div
+      v-else-if="!hasAssets"
+      class="empty-state"
+    >
+      <svg
+        class="empty-icon"
+        width="64"
+        height="64"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect
+          x="3"
+          y="3"
+          width="18"
+          height="18"
+          rx="2"
+          ry="2"
+        />
+        <circle
+          cx="8.5"
+          cy="8.5"
+          r="1.5"
+        />
+        <polyline points="21 15 16 10 5 21" />
       </svg>
-      <h3 class="empty-title">素材库为空</h3>
-      <p class="empty-description">拖拽图片到上方区域，或点击上传区域选择文件</p>
+      <h3 class="empty-title">
+        素材库为空
+      </h3>
+      <p class="empty-description">
+        拖拽图片到上方区域，或点击上传区域选择文件
+      </p>
     </div>
 
     <!-- 搜索无结果 -->
-    <div v-else-if="!hasFilteredResults" class="empty-state">
-      <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        <line x1="8" y1="11" x2="14" y2="11"/>
+    <div
+      v-else-if="!hasFilteredResults"
+      class="empty-state"
+    >
+      <svg
+        class="empty-icon"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle
+          cx="11"
+          cy="11"
+          r="8"
+        />
+        <line
+          x1="21"
+          y1="21"
+          x2="16.65"
+          y2="16.65"
+        />
+        <line
+          x1="8"
+          y1="11"
+          x2="14"
+          y2="11"
+        />
       </svg>
-      <h3 class="empty-title">未找到匹配素材</h3>
-      <p class="empty-description">尝试调整搜索关键词</p>
+      <h3 class="empty-title">
+        未找到匹配素材
+      </h3>
+      <p class="empty-description">
+        尝试调整搜索关键词
+      </p>
     </div>
 
     <!-- 素材列表 -->
-    <div v-else class="asset-grid" :class="[viewMode]">
+    <div
+      v-else
+      class="asset-grid"
+      :class="[viewMode]"
+    >
       <AssetCard
         v-for="asset in filteredAssets"
         :key="asset.id"
@@ -391,9 +620,14 @@ function handleUploadError(_message: string) {
         class="tags-edit-overlay"
         @click.self="confirmTagEdit"
       >
-        <div class="tags-edit-modal" @click.stop>
+        <div
+          class="tags-edit-modal"
+          @click.stop
+        >
           <h4>编辑标签</h4>
-          <p class="tags-hint">多个标签用逗号分隔</p>
+          <p class="tags-hint">
+            多个标签用逗号分隔
+          </p>
           <input
             v-model="editingTagsInput"
             type="text"
@@ -402,10 +636,20 @@ function handleUploadError(_message: string) {
             autofocus
             @keydown.enter="confirmTagEdit"
             @keydown.escape="cancelTagEdit"
-          />
+          >
           <div class="tags-actions">
-            <button class="tags-cancel-btn" @click="cancelTagEdit">取消</button>
-            <button class="tags-confirm-btn" @click="confirmTagEdit">保存</button>
+            <button
+              class="tags-cancel-btn"
+              @click="cancelTagEdit"
+            >
+              取消
+            </button>
+            <button
+              class="tags-confirm-btn"
+              @click="confirmTagEdit"
+            >
+              保存
+            </button>
           </div>
         </div>
       </div>
@@ -419,33 +663,97 @@ function handleUploadError(_message: string) {
         :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
         @click.stop
       >
-        <button class="context-item" @click="contextInsert">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
+        <button
+          class="context-item"
+          @click="contextInsert"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="3"
+              y="3"
+              width="18"
+              height="18"
+              rx="2"
+              ry="2"
+            />
+            <circle
+              cx="8.5"
+              cy="8.5"
+              r="1.5"
+            />
+            <polyline points="21 15 16 10 5 21" />
           </svg>
           插入到编辑器
         </button>
-        <button class="context-item" @click="contextCopyLink">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        <button
+          class="context-item"
+          @click="contextCopyLink"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
           复制链接
         </button>
-        <button class="context-item" @click="contextEditTags">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-            <line x1="7" y1="7" x2="7.01" y2="7"/>
+        <button
+          class="context-item"
+          @click="contextEditTags"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+            <line
+              x1="7"
+              y1="7"
+              x2="7.01"
+              y2="7"
+            />
           </svg>
           编辑标签
         </button>
-        <div class="context-divider"></div>
-        <button class="context-item danger" @click="contextDelete">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        <div class="context-divider" />
+        <button
+          class="context-item danger"
+          @click="contextDelete"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           删除
         </button>
@@ -454,13 +762,27 @@ function handleUploadError(_message: string) {
 
     <!-- 批量删除确认 -->
     <Teleport to="body">
-      <div v-if="showDeleteConfirm" class="confirm-overlay" @click.self="cancelBatchDelete">
+      <div
+        v-if="showDeleteConfirm"
+        class="confirm-overlay"
+        @click.self="cancelBatchDelete"
+      >
         <div class="confirm-modal">
           <h3>确认删除</h3>
           <p>确定要删除选中的 {{ selectedCount }} 个素材吗？此操作不可撤销。</p>
           <div class="confirm-actions">
-            <button class="cancel-btn" @click="cancelBatchDelete">取消</button>
-            <button class="delete-confirm-btn" @click="confirmBatchDelete">删除</button>
+            <button
+              class="cancel-btn"
+              @click="cancelBatchDelete"
+            >
+              取消
+            </button>
+            <button
+              class="delete-confirm-btn"
+              @click="confirmBatchDelete"
+            >
+              删除
+            </button>
           </div>
         </div>
       </div>

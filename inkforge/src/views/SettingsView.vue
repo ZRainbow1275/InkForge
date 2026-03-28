@@ -503,13 +503,28 @@ onUnmounted(() => {
   <div class="settings-view">
     <!-- Header -->
     <header class="sv-header">
-      <button class="sv-back-btn" @click="goBack" title="返回上一页">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button
+        class="sv-back-btn"
+        title="返回上一页"
+        @click="goBack"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="15 18 9 12 15 6" />
         </svg>
         <span>返回</span>
       </button>
-      <h1 class="sv-header-title">设置</h1>
+      <h1 class="sv-header-title">
+        设置
+      </h1>
       <div class="sv-header-spacer" />
     </header>
 
@@ -526,49 +541,170 @@ onUnmounted(() => {
             @click="currentTab = tab.id"
           >
             <!-- Palette / Appearance -->
-            <svg v-if="tab.id === 'appearance'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+            <svg
+              v-if="tab.id === 'appearance'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle
+                cx="13.5"
+                cy="6.5"
+                r=".5"
+                fill="currentColor"
+              />
+              <circle
+                cx="17.5"
+                cy="10.5"
+                r=".5"
+                fill="currentColor"
+              />
+              <circle
+                cx="8.5"
+                cy="7.5"
+                r=".5"
+                fill="currentColor"
+              />
+              <circle
+                cx="6.5"
+                cy="12.5"
+                r=".5"
+                fill="currentColor"
+              />
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" />
             </svg>
             <!-- Edit / Editor -->
-            <svg v-else-if="tab.id === 'editor'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              v-else-if="tab.id === 'editor'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
             <!-- Share / Export -->
-            <svg v-else-if="tab.id === 'export'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              v-else-if="tab.id === 'export'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
               <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
+              <line
+                x1="12"
+                y1="2"
+                x2="12"
+                y2="15"
+              />
             </svg>
             <!-- Sparkles / AI -->
-            <svg v-else-if="tab.id === 'ai'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              v-else-if="tab.id === 'ai'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
               <path d="M5 3v4" /><path d="M3 5h4" />
               <path d="M19 17v4" /><path d="M17 19h4" />
             </svg>
             <!-- Database / Data -->
-            <svg v-else-if="tab.id === 'data'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <svg
+              v-else-if="tab.id === 'data'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <ellipse
+                cx="12"
+                cy="5"
+                rx="9"
+                ry="3"
+              />
               <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
               <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
             </svg>
             <!-- Keyboard / Shortcuts -->
-            <svg v-else-if="tab.id === 'shortcuts'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
+            <svg
+              v-else-if="tab.id === 'shortcuts'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="2"
+                y="4"
+                width="20"
+                height="16"
+                rx="2"
+                ry="2"
+              />
               <path d="M6 8h.001" /><path d="M10 8h.001" />
               <path d="M14 8h.001" /><path d="M18 8h.001" />
               <path d="M8 12h.001" /><path d="M12 12h.001" />
               <path d="M16 12h.001" /><path d="M7 16h10" />
             </svg>
             <!-- Info / About -->
-            <svg v-else-if="tab.id === 'about'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
+            <svg
+              v-else-if="tab.id === 'about'"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                y1="16"
+                x2="12"
+                y2="12"
+              />
+              <line
+                x1="12"
+                y1="8"
+                x2="12.01"
+                y2="8"
+              />
             </svg>
             <span>{{ tab.name }}</span>
           </button>
@@ -580,13 +716,22 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 1: 外观                         -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'appearance'" class="sv-tab">
-          <h2 class="sv-tab-title">外观</h2>
-          <p class="sv-tab-desc">自定义界面外观和视觉风格</p>
+        <section
+          v-show="currentTab === 'appearance'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            外观
+          </h2>
+          <p class="sv-tab-desc">
+            自定义界面外观和视觉风格
+          </p>
 
           <!-- 主题模式 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">主题模式</h3>
+            <h3 class="sv-section-title">
+              主题模式
+            </h3>
             <div class="sv-card-group">
               <label
                 v-for="opt in themeOptions"
@@ -595,12 +740,15 @@ onUnmounted(() => {
                 :class="{ selected: settings.appearance.theme === opt.value }"
               >
                 <input
+                  v-model="settings.appearance.theme"
                   type="radio"
                   :value="opt.value"
-                  v-model="settings.appearance.theme"
                   class="sv-hidden-radio"
                 >
-                <div class="sv-theme-card-preview" :data-theme="opt.value">
+                <div
+                  class="sv-theme-card-preview"
+                  :data-theme="opt.value"
+                >
                   <div class="sv-theme-preview-bar" />
                   <div class="sv-theme-preview-body">
                     <div class="sv-theme-preview-line" />
@@ -619,7 +767,9 @@ onUnmounted(() => {
 
           <!-- 字体选择 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">预览字体</h3>
+            <h3 class="sv-section-title">
+              预览字体
+            </h3>
             <div class="sv-font-group">
               <label
                 v-for="font in fontOptions"
@@ -628,13 +778,16 @@ onUnmounted(() => {
                 :class="{ selected: settings.appearance.fontFamily === font.value }"
               >
                 <input
+                  v-model="settings.appearance.fontFamily"
                   type="radio"
                   :value="font.value"
-                  v-model="settings.appearance.fontFamily"
                   class="sv-hidden-radio"
                 >
                 <span class="sv-font-card-label">{{ font.label }}</span>
-                <span class="sv-font-card-sample" :style="{ fontFamily: getFontStack(font.value) }">
+                <span
+                  class="sv-font-card-sample"
+                  :style="{ fontFamily: getFontStack(font.value) }"
+                >
                   {{ font.sample }}
                 </span>
               </label>
@@ -651,9 +804,11 @@ onUnmounted(() => {
             </div>
             <div class="sv-range-control">
               <input
-                type="range"
                 v-model.number="settings.appearance.fontSize"
-                min="12" max="24" step="1"
+                type="range"
+                min="12"
+                max="24"
+                step="1"
                 class="sv-range"
               >
               <span class="sv-range-value">{{ settings.appearance.fontSize }}px</span>
@@ -668,9 +823,11 @@ onUnmounted(() => {
             </div>
             <div class="sv-range-control">
               <input
-                type="range"
                 v-model.number="settings.appearance.lineHeight"
-                min="1.4" max="2.4" step="0.1"
+                type="range"
+                min="1.4"
+                max="2.4"
+                step="0.1"
                 class="sv-range"
               >
               <span class="sv-range-value">{{ settings.appearance.lineHeight.toFixed(1) }}</span>
@@ -681,7 +838,9 @@ onUnmounted(() => {
 
           <!-- 主题色 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">主题色</h3>
+            <h3 class="sv-section-title">
+              主题色
+            </h3>
             <div class="sv-accent-row">
               <button
                 v-for="color in accentColors"
@@ -692,14 +851,27 @@ onUnmounted(() => {
                 :title="color.label"
                 @click="settings.appearance.accentColor = color.value"
               >
-                <svg v-if="settings.appearance.accentColor === color.value" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  v-if="settings.appearance.accentColor === color.value"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </button>
-              <div class="sv-accent-custom" :class="{ active: isCustomAccent }">
+              <div
+                class="sv-accent-custom"
+                :class="{ active: isCustomAccent }"
+              >
                 <input
-                  type="color"
                   v-model="settings.appearance.accentColor"
+                  type="color"
                   class="sv-color-input"
                   title="自定义颜色"
                 >
@@ -718,9 +890,11 @@ onUnmounted(() => {
             </div>
             <div class="sv-range-control">
               <input
-                type="range"
                 v-model.number="settings.appearance.sidebarWidth"
-                min="180" max="400" step="10"
+                type="range"
+                min="180"
+                max="400"
+                step="10"
                 class="sv-range"
               >
               <span class="sv-range-value">{{ settings.appearance.sidebarWidth }}px</span>
@@ -734,7 +908,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">减少界面动画和过渡效果</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.appearance.reducedMotion">
+              <input
+                v-model="settings.appearance.reducedMotion"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -745,9 +922,16 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 2: 编辑器                       -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'editor'" class="sv-tab">
-          <h2 class="sv-tab-title">编辑器</h2>
-          <p class="sv-tab-desc">编辑器行为和功能设置</p>
+        <section
+          v-show="currentTab === 'editor'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            编辑器
+          </h2>
+          <p class="sv-tab-desc">
+            编辑器行为和功能设置
+          </p>
 
           <!-- 自动保存 -->
           <div class="sv-toggle-row">
@@ -756,7 +940,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">定时自动保存编辑内容</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.autoSave">
+              <input
+                v-model="settings.editor.autoSave"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -764,16 +951,21 @@ onUnmounted(() => {
           </div>
 
           <!-- 保存间隔（仅自动保存开启时显示） -->
-          <div v-if="settings.editor.autoSave" class="sv-row">
+          <div
+            v-if="settings.editor.autoSave"
+            class="sv-row"
+          >
             <div class="sv-row-info">
               <span class="sv-row-label">保存间隔</span>
               <span class="sv-row-desc">自动保存的时间间隔</span>
             </div>
             <div class="sv-range-control">
               <input
-                type="range"
                 v-model.number="settings.editor.autoSaveInterval"
-                min="10" max="300" step="10"
+                type="range"
+                min="10"
+                max="300"
+                step="10"
                 class="sv-range"
               >
               <span class="sv-range-value">{{ settings.editor.autoSaveInterval }}s</span>
@@ -789,7 +981,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">启用浏览器原生拼写检查</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.spellCheck">
+              <input
+                v-model="settings.editor.spellCheck"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -803,7 +998,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">输入时保持光标始终在屏幕中央区域</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.typewriterMode">
+              <input
+                v-model="settings.editor.typewriterMode"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -817,7 +1015,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">自动转换中英文标点符号</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.smartPunctuation">
+              <input
+                v-model="settings.editor.smartPunctuation"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -831,7 +1032,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">长文本自动换行显示</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.wordWrap">
+              <input
+                v-model="settings.editor.wordWrap"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -868,7 +1072,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">在编辑器左侧显示行号</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.showLineNumbers">
+              <input
+                v-model="settings.editor.showLineNumbers"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -882,7 +1089,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">高亮显示光标所在行</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.highlightActiveLine">
+              <input
+                v-model="settings.editor.highlightActiveLine"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -896,7 +1106,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">自动高亮匹配的括号对</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.bracketMatching">
+              <input
+                v-model="settings.editor.bracketMatching"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -907,13 +1120,22 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 3: 导出                         -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'export'" class="sv-tab">
-          <h2 class="sv-tab-title">导出</h2>
-          <p class="sv-tab-desc">导出和发布相关的默认设置</p>
+        <section
+          v-show="currentTab === 'export'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            导出
+          </h2>
+          <p class="sv-tab-desc">
+            导出和发布相关的默认设置
+          </p>
 
           <!-- 默认平台 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">默认导出平台</h3>
+            <h3 class="sv-section-title">
+              默认导出平台
+            </h3>
             <div class="sv-platform-group">
               <label
                 v-for="p in platformOptions"
@@ -922,9 +1144,9 @@ onUnmounted(() => {
                 :class="{ selected: settings.export.defaultPlatform === p.value }"
               >
                 <input
+                  v-model="settings.export.defaultPlatform"
                   type="radio"
                   :value="p.value"
-                  v-model="settings.export.defaultPlatform"
                   class="sv-hidden-radio"
                 >
                 <span class="sv-platform-label">{{ p.label }}</span>
@@ -941,8 +1163,15 @@ onUnmounted(() => {
               <span class="sv-row-label">默认主题预设</span>
               <span class="sv-row-desc">新建导出时使用的预设方案</span>
             </div>
-            <select v-model="settings.export.defaultPresetId" class="sv-select">
-              <option v-for="opt in presetOptions" :key="opt.value" :value="opt.value">
+            <select
+              v-model="settings.export.defaultPresetId"
+              class="sv-select"
+            >
+              <option
+                v-for="opt in presetOptions"
+                :key="opt.value"
+                :value="opt.value"
+              >
                 {{ opt.label }}
               </option>
             </select>
@@ -957,7 +1186,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">为代码块添加红黄绿圆点装饰</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.macCodeBlock">
+              <input
+                v-model="settings.export.macCodeBlock"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -970,7 +1202,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">在代码块中显示行号</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.lineNumbers">
+              <input
+                v-model="settings.export.lineNumbers"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -986,7 +1221,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">将外部链接转换为底部脚注引用</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.convertFootnotes">
+              <input
+                v-model="settings.export.convertFootnotes"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -999,7 +1237,10 @@ onUnmounted(() => {
               <span class="sv-toggle-desc">段落自动首行缩进两格</span>
             </div>
             <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.textIndent">
+              <input
+                v-model="settings.export.textIndent"
+                type="checkbox"
+              >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
               </span>
@@ -1016,9 +1257,11 @@ onUnmounted(() => {
             </div>
             <div class="sv-range-control">
               <input
-                type="range"
                 v-model.number="settings.export.imageMaxWidth"
-                min="320" max="1080" step="20"
+                type="range"
+                min="320"
+                max="1080"
+                step="20"
                 class="sv-range"
               >
               <span class="sv-range-value">{{ settings.export.imageMaxWidth }}px</span>
@@ -1031,8 +1274,15 @@ onUnmounted(() => {
               <span class="sv-row-label">代码高亮主题</span>
               <span class="sv-row-desc">代码块的语法高亮配色方案</span>
             </div>
-            <select v-model="settings.export.codeTheme" class="sv-select">
-              <option v-for="opt in codeThemeOptions" :key="opt.value" :value="opt.value">
+            <select
+              v-model="settings.export.codeTheme"
+              class="sv-select"
+            >
+              <option
+                v-for="opt in codeThemeOptions"
+                :key="opt.value"
+                :value="opt.value"
+              >
                 {{ opt.label }}
               </option>
             </select>
@@ -1042,13 +1292,22 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 4: AI 服务                      -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'ai'" class="sv-tab">
-          <h2 class="sv-tab-title">AI 服务</h2>
-          <p class="sv-tab-desc">配置 AI 辅助写作功能</p>
+        <section
+          v-show="currentTab === 'ai'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            AI 服务
+          </h2>
+          <p class="sv-tab-desc">
+            配置 AI 辅助写作功能
+          </p>
 
           <!-- Provider 选择 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">服务提供商</h3>
+            <h3 class="sv-section-title">
+              服务提供商
+            </h3>
             <div class="sv-provider-grid">
               <label
                 v-for="prov in providerOptions"
@@ -1057,33 +1316,76 @@ onUnmounted(() => {
                 :class="{ selected: settings.ai.provider === prov.value, disabled: prov.value === 'none' }"
               >
                 <input
+                  v-model="settings.ai.provider"
                   type="radio"
                   :value="prov.value"
-                  v-model="settings.ai.provider"
                   class="sv-hidden-radio"
                   @change="handleProviderChange"
                 >
                 <div class="sv-provider-icon">
                   <!-- OpenAI -->
-                  <svg v-if="prov.value === 'openai'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <svg
+                    v-if="prov.value === 'openai'"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
                     <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.677l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
                   </svg>
                   <!-- Anthropic -->
-                  <svg v-else-if="prov.value === 'anthropic'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <svg
+                    v-else-if="prov.value === 'anthropic'"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
                     <path d="M13.827 3.52h3.603L24 20.48h-3.603l-6.57-16.96zm-7.258 0h3.604L16.742 20.48h-3.603L6.569 3.52zM0 20.48h3.604L7.173 9.42l-1.8-4.648L0 20.48z" />
                   </svg>
                   <!-- DeepSeek -->
-                  <svg v-else-if="prov.value === 'deepseek'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <svg
+                    v-else-if="prov.value === 'deepseek'"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15.5v-3.07c-2.02-.46-3.39-1.56-3.97-2.67-.19-.36-.03-.79.35-.94.35-.13.73.03.89.36.44.92 1.58 1.73 2.73 2.05V9.88c-2.47-.55-4-1.82-4-3.88 0-2.19 1.78-3.64 4-4v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c1.63.26 2.93 1.12 3.54 2.26.17.33.02.73-.33.87-.33.14-.71 0-.87-.31-.44-.81-1.38-1.42-2.34-1.68v3.13c2.59.58 4 1.88 4 3.95 0 2.28-1.71 3.74-4 4.06v.72c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-.69zM11 5.17c-1.33.31-2 1.15-2 2.01 0 .94.64 1.72 2 2.19V5.17zm2 8.7v4.01c1.39-.29 2-1.17 2-2.09 0-1-.63-1.56-2-1.92z" />
                   </svg>
                   <!-- Ollama -->
-                  <svg v-else-if="prov.value === 'ollama'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <svg
+                    v-else-if="prov.value === 'ollama'"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
                     <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7zm-2 15v-1h4v1h-4zm3.5-5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-3 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM12 20a2 2 0 0 0 1.93-1.5h-3.86A2 2 0 0 0 12 20z" />
                   </svg>
                   <!-- None -->
-                  <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                  <svg
+                    v-else
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                    />
+                    <line
+                      x1="4.93"
+                      y1="4.93"
+                      x2="19.07"
+                      y2="19.07"
+                    />
                   </svg>
                 </div>
                 <span class="sv-provider-name">{{ prov.label }}</span>
@@ -1096,49 +1398,91 @@ onUnmounted(() => {
             <div class="sv-divider" />
 
             <!-- Ollama URL -->
-            <div v-if="settings.ai.provider === 'ollama'" class="sv-row sv-row-vertical">
+            <div
+              v-if="settings.ai.provider === 'ollama'"
+              class="sv-row sv-row-vertical"
+            >
               <div class="sv-row-info">
                 <span class="sv-row-label">Ollama 服务地址</span>
                 <span class="sv-row-desc">本地 Ollama 服务的 API 地址</span>
               </div>
               <input
-                type="text"
                 v-model="settings.ai.ollamaUrl"
+                type="text"
                 class="sv-input"
                 placeholder="http://localhost:11434"
               >
             </div>
 
             <!-- API Key（非 Ollama） -->
-            <div v-if="settings.ai.provider !== 'ollama'" class="sv-row sv-row-vertical">
+            <div
+              v-if="settings.ai.provider !== 'ollama'"
+              class="sv-row sv-row-vertical"
+            >
               <div class="sv-row-info">
                 <span class="sv-row-label">API Key</span>
                 <span class="sv-row-desc">您的密钥仅存储在本地设备，不会上传到任何服务器</span>
               </div>
               <div class="sv-input-group">
                 <input
-                  :type="showApiKey ? 'text' : 'password'"
                   v-model="settings.ai.apiKey"
+                  :type="showApiKey ? 'text' : 'password'"
                   class="sv-input sv-input-with-btn"
                   placeholder="sk-..."
                 >
-                <button class="sv-input-addon" @click="showApiKey = !showApiKey" :title="showApiKey ? '隐藏' : '显示'">
+                <button
+                  class="sv-input-addon"
+                  :title="showApiKey ? '隐藏' : '显示'"
+                  @click="showApiKey = !showApiKey"
+                >
                   <!-- Eye -->
-                  <svg v-if="!showApiKey" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg
+                    v-if="!showApiKey"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
                   </svg>
                   <!-- Eye Off -->
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg
+                    v-else
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <line
+                      x1="1"
+                      y1="1"
+                      x2="23"
+                      y2="23"
+                    />
                   </svg>
                 </button>
               </div>
             </div>
 
             <!-- Base URL（非 Ollama） -->
-            <div v-if="settings.ai.provider !== 'ollama'" class="sv-row sv-row-vertical">
+            <div
+              v-if="settings.ai.provider !== 'ollama'"
+              class="sv-row sv-row-vertical"
+            >
               <div class="sv-row-info">
                 <span class="sv-row-label">自定义 Base URL</span>
                 <span class="sv-row-desc">
@@ -1146,8 +1490,8 @@ onUnmounted(() => {
                 </span>
               </div>
               <input
-                type="text"
                 v-model="settings.ai.baseUrl"
+                type="text"
                 class="sv-input"
                 :placeholder="settings.ai.provider === 'openai' ? 'https://api.siliconflow.cn/v1' : '留空使用默认'"
               >
@@ -1161,8 +1505,15 @@ onUnmounted(() => {
                 <span class="sv-row-label">模型</span>
                 <span class="sv-row-desc">选择使用的 AI 模型</span>
               </div>
-              <select v-model="settings.ai.model" class="sv-select">
-                <option v-for="model in modelOptions" :key="model" :value="model">
+              <select
+                v-model="settings.ai.model"
+                class="sv-select"
+              >
+                <option
+                  v-for="model in modelOptions"
+                  :key="model"
+                  :value="model"
+                >
                   {{ model }}
                 </option>
               </select>
@@ -1176,9 +1527,11 @@ onUnmounted(() => {
               </div>
               <div class="sv-range-control">
                 <input
-                  type="range"
                   v-model.number="settings.ai.maxTokens"
-                  min="100" max="8000" step="100"
+                  type="range"
+                  min="100"
+                  max="8000"
+                  step="100"
                   class="sv-range"
                 >
                 <span class="sv-range-value">{{ settings.ai.maxTokens }}</span>
@@ -1193,9 +1546,11 @@ onUnmounted(() => {
               </div>
               <div class="sv-range-control">
                 <input
-                  type="range"
                   v-model.number="settings.ai.temperature"
-                  min="0" max="2" step="0.1"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
                   class="sv-range"
                 >
                 <span class="sv-range-value">{{ settings.ai.temperature.toFixed(1) }}</span>
@@ -1212,7 +1567,16 @@ onUnmounted(() => {
                 :disabled="aiTestStatus === 'testing'"
                 @click="testAIConnection"
               >
-                <svg v-if="aiTestStatus === 'testing'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sv-spin">
+                <svg
+                  v-if="aiTestStatus === 'testing'"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  class="sv-spin"
+                >
                   <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                 </svg>
                 {{ aiTestStatus === 'testing' ? '测试中...' : '测试连接' }}
@@ -1231,27 +1595,70 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 5: 数据                         -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'data'" class="sv-tab">
-          <h2 class="sv-tab-title">数据管理</h2>
-          <p class="sv-tab-desc">管理应用数据、备份和重置</p>
+        <section
+          v-show="currentTab === 'data'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            数据管理
+          </h2>
+          <p class="sv-tab-desc">
+            管理应用数据、备份和重置
+          </p>
 
           <!-- 设置导入导出 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">设置数据</h3>
+            <h3 class="sv-section-title">
+              设置数据
+            </h3>
             <div class="sv-btn-group">
-              <button class="sv-action-btn" @click="handleExportSettings">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                class="sv-action-btn"
+                @click="handleExportSettings"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
+                  <line
+                    x1="12"
+                    y1="15"
+                    x2="12"
+                    y2="3"
+                  />
                 </svg>
                 导出设置
               </button>
-              <button class="sv-action-btn" @click="handleImportSettings">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                class="sv-action-btn"
+                @click="handleImportSettings"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
+                  <line
+                    x1="12"
+                    y1="3"
+                    x2="12"
+                    y2="15"
+                  />
                 </svg>
                 导入设置
               </button>
@@ -1269,7 +1676,9 @@ onUnmounted(() => {
 
           <!-- 数据统计 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">数据统计</h3>
+            <h3 class="sv-section-title">
+              数据统计
+            </h3>
             <div class="sv-stats-grid">
               <div class="sv-stat-card">
                 <span class="sv-stat-value">{{ dataStats.articleCount }}</span>
@@ -1290,29 +1699,48 @@ onUnmounted(() => {
 
           <!-- 危险操作 -->
           <div class="sv-section">
-            <h3 class="sv-section-title sv-danger-title">危险区域</h3>
-            <p class="sv-danger-desc">以下操作不可恢复，请谨慎操作</p>
+            <h3 class="sv-section-title sv-danger-title">
+              危险区域
+            </h3>
+            <p class="sv-danger-desc">
+              以下操作不可恢复，请谨慎操作
+            </p>
             <div class="sv-danger-actions">
               <div class="sv-danger-row">
                 <div class="sv-danger-row-info">
                   <span class="sv-danger-row-label">清除所有文章</span>
                   <span class="sv-danger-row-desc">永久删除所有文章及其编辑内容</span>
                 </div>
-                <button class="sv-danger-btn" @click="handleClearArticles">清除</button>
+                <button
+                  class="sv-danger-btn"
+                  @click="handleClearArticles"
+                >
+                  清除
+                </button>
               </div>
               <div class="sv-danger-row">
                 <div class="sv-danger-row-info">
                   <span class="sv-danger-row-label">清除所有素材</span>
                   <span class="sv-danger-row-desc">永久删除所有上传的图片和文件</span>
                 </div>
-                <button class="sv-danger-btn" @click="handleClearAssets">清除</button>
+                <button
+                  class="sv-danger-btn"
+                  @click="handleClearAssets"
+                >
+                  清除
+                </button>
               </div>
               <div class="sv-danger-row">
                 <div class="sv-danger-row-info">
                   <span class="sv-danger-row-label">重置所有设置</span>
                   <span class="sv-danger-row-desc">将所有设置恢复为默认值</span>
                 </div>
-                <button class="sv-danger-btn" @click="handleResetSettings">重置</button>
+                <button
+                  class="sv-danger-btn"
+                  @click="handleResetSettings"
+                >
+                  重置
+                </button>
               </div>
             </div>
           </div>
@@ -1321,9 +1749,16 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 6: 快捷键                       -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'shortcuts'" class="sv-tab">
-          <h2 class="sv-tab-title">快捷键</h2>
-          <p class="sv-tab-desc">自定义键盘快捷键映射</p>
+        <section
+          v-show="currentTab === 'shortcuts'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            快捷键
+          </h2>
+          <p class="sv-tab-desc">
+            自定义键盘快捷键映射
+          </p>
 
           <div class="sv-shortcuts-table">
             <div class="sv-shortcuts-header">
@@ -1349,7 +1784,11 @@ onUnmounted(() => {
                   <span class="sv-shortcut-recording-text">按下新的快捷键...</span>
                 </template>
                 <template v-else>
-                  <kbd v-for="(part, i) in (value as string).split('+')" :key="i" class="sv-kbd">{{ part }}</kbd>
+                  <kbd
+                    v-for="(part, i) in (value as string).split('+')"
+                    :key="i"
+                    class="sv-kbd"
+                  >{{ part }}</kbd>
                 </template>
               </div>
               <button
@@ -1357,30 +1796,85 @@ onUnmounted(() => {
                 :class="{ active: editingShortcut === key }"
                 @click="editingShortcut === key ? (editingShortcut = null) : startEditShortcut(key as string)"
               >
-                <svg v-if="editingShortcut !== key" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                  v-if="editingShortcut !== key"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
-                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                <svg
+                  v-else
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line
+                    x1="18"
+                    y1="6"
+                    x2="6"
+                    y2="18"
+                  />
+                  <line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"
+                  />
                 </svg>
               </button>
             </div>
           </div>
 
           <!-- 冲突提示 -->
-          <div v-if="shortcutConflict" class="sv-shortcut-conflict">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div
+            v-if="shortcutConflict"
+            class="sv-shortcut-conflict"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
+              <line
+                x1="12"
+                y1="9"
+                x2="12"
+                y2="13"
+              />
+              <line
+                x1="12"
+                y1="17"
+                x2="12.01"
+                y2="17"
+              />
             </svg>
             {{ shortcutConflict }}
           </div>
 
           <div class="sv-shortcuts-footer">
-            <button class="sv-action-btn sv-action-btn-sm" @click="resetShortcuts">
+            <button
+              class="sv-action-btn sv-action-btn-sm"
+              @click="resetShortcuts"
+            >
               恢复默认快捷键
             </button>
           </div>
@@ -1389,9 +1883,16 @@ onUnmounted(() => {
         <!-- ═════════════════════════════════════ -->
         <!--  Tab 7: 关于                         -->
         <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'about'" class="sv-tab">
-          <h2 class="sv-tab-title">关于</h2>
-          <p class="sv-tab-desc">应用信息与致谢</p>
+        <section
+          v-show="currentTab === 'about'"
+          class="sv-tab"
+        >
+          <h2 class="sv-tab-title">
+            关于
+          </h2>
+          <p class="sv-tab-desc">
+            应用信息与致谢
+          </p>
 
           <!-- Logo Card -->
           <div class="sv-about-hero">
@@ -1399,9 +1900,13 @@ onUnmounted(() => {
               <span class="sv-about-logo-text">IF</span>
             </div>
             <div class="sv-about-hero-info">
-              <h3 class="sv-about-name">InkForge Studio</h3>
+              <h3 class="sv-about-name">
+                InkForge Studio
+              </h3>
               <span class="sv-about-version">v0.1.0-alpha</span>
-              <p class="sv-about-slogan">专为内容创作者打造的下一代写作工作站</p>
+              <p class="sv-about-slogan">
+                专为内容创作者打造的下一代写作工作站
+              </p>
             </div>
           </div>
 
@@ -1409,7 +1914,9 @@ onUnmounted(() => {
 
           <!-- 技术栈 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">技术栈</h3>
+            <h3 class="sv-section-title">
+              技术栈
+            </h3>
             <div class="sv-tech-grid">
               <span class="sv-tech-badge">Vue 3</span>
               <span class="sv-tech-badge">TypeScript</span>
@@ -1424,7 +1931,9 @@ onUnmounted(() => {
 
           <!-- 致谢 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">致谢</h3>
+            <h3 class="sv-section-title">
+              致谢
+            </h3>
             <div class="sv-credits">
               <div class="sv-credit-item">
                 <span class="sv-credit-name">doocs/md</span>
@@ -1441,8 +1950,12 @@ onUnmounted(() => {
 
           <!-- 开源协议 -->
           <div class="sv-section">
-            <h3 class="sv-section-title">开源协议</h3>
-            <p class="sv-license-text">MIT License</p>
+            <h3 class="sv-section-title">
+              开源协议
+            </h3>
+            <p class="sv-license-text">
+              MIT License
+            </p>
             <p class="sv-license-desc">
               本项目基于 MIT 协议开源，允许自由使用、修改和分发。
             </p>
@@ -1453,13 +1966,31 @@ onUnmounted(() => {
 
     <!-- 确认弹窗 -->
     <Teleport to="body">
-      <div v-if="confirmDialog.visible" class="sv-overlay" @click.self="cancelConfirm">
+      <div
+        v-if="confirmDialog.visible"
+        class="sv-overlay"
+        @click.self="cancelConfirm"
+      >
         <div class="sv-confirm-dialog">
-          <h3 class="sv-confirm-title">{{ confirmDialog.title }}</h3>
-          <p class="sv-confirm-message">{{ confirmDialog.message }}</p>
+          <h3 class="sv-confirm-title">
+            {{ confirmDialog.title }}
+          </h3>
+          <p class="sv-confirm-message">
+            {{ confirmDialog.message }}
+          </p>
           <div class="sv-confirm-actions">
-            <button class="sv-confirm-cancel" @click="cancelConfirm">取消</button>
-            <button class="sv-confirm-ok" @click="confirmAction">确认</button>
+            <button
+              class="sv-confirm-cancel"
+              @click="cancelConfirm"
+            >
+              取消
+            </button>
+            <button
+              class="sv-confirm-ok"
+              @click="confirmAction"
+            >
+              确认
+            </button>
           </div>
         </div>
       </div>

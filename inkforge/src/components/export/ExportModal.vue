@@ -216,12 +216,22 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="export-overlay" @click.self="emit('close')">
+    <div
+      v-if="visible"
+      class="export-overlay"
+      @click.self="emit('close')"
+    >
       <div class="export-panel">
         <!-- ════ Header ════ -->
         <div class="export-header">
-          <h2 class="export-title">导出文章</h2>
-          <button class="header-close" @click="emit('close')" title="关闭">
+          <h2 class="export-title">
+            导出文章
+          </h2>
+          <button
+            class="header-close"
+            title="关闭"
+            @click="emit('close')"
+          >
             <X :size="18" />
           </button>
         </div>
@@ -249,7 +259,9 @@ onUnmounted(() => {
 
               <!-- Preset Theme Grid -->
               <div class="ctrl-section">
-                <div class="section-label">选择风格</div>
+                <div class="section-label">
+                  选择风格
+                </div>
                 <div class="preset-grid">
                   <button
                     v-for="preset in currentPresets"
@@ -263,22 +275,27 @@ onUnmounted(() => {
                     <span
                       class="preset-color-bar"
                       :style="{ backgroundColor: preset.primaryColor }"
-                    ></span>
+                    />
                   </button>
                 </div>
               </div>
 
               <!-- Export Options -->
               <div class="ctrl-section">
-                <div class="section-label">导出选项</div>
+                <div class="section-label">
+                  导出选项
+                </div>
 
                 <!-- Code Theme Dropdown -->
                 <div class="option-row">
-                  <label class="option-label" for="code-theme-select">代码主题</label>
+                  <label
+                    class="option-label"
+                    for="code-theme-select"
+                  >代码主题</label>
                   <select
                     id="code-theme-select"
-                    class="option-select"
                     v-model="exportOptions.codeTheme"
+                    class="option-select"
                   >
                     <option
                       v-for="theme in CODE_THEMES"
@@ -293,43 +310,78 @@ onUnmounted(() => {
                 <!-- Toggle Options -->
                 <div class="toggle-list">
                   <label class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableMacCodeBlock" />
+                    <input
+                      v-model="exportOptions.enableMacCodeBlock"
+                      type="checkbox"
+                    >
                     <span class="toggle-text">Mac 窗口风格代码块</span>
                   </label>
                   <label class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableLineNumbers" />
-                    <Hash :size="13" class="toggle-icon" />
+                    <input
+                      v-model="exportOptions.enableLineNumbers"
+                      type="checkbox"
+                    >
+                    <Hash
+                      :size="13"
+                      class="toggle-icon"
+                    />
                     <span class="toggle-text">显示行号</span>
                   </label>
-                  <label v-if="selectedPlatform !== 'xiaohongshu'" class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableCiteStatus" />
-                    <Link2 :size="13" class="toggle-icon" />
+                  <label
+                    v-if="selectedPlatform !== 'xiaohongshu'"
+                    class="toggle-item"
+                  >
+                    <input
+                      v-model="exportOptions.enableCiteStatus"
+                      type="checkbox"
+                    >
+                    <Link2
+                      :size="13"
+                      class="toggle-icon"
+                    />
                     <span class="toggle-text">外链转脚注</span>
                   </label>
                 </div>
               </div>
 
               <!-- Quality Detection -->
-              <div v-if="qualityReport" class="ctrl-section quality-area">
-                <div class="section-label">质量检测</div>
+              <div
+                v-if="qualityReport"
+                class="ctrl-section quality-area"
+              >
+                <div class="section-label">
+                  质量检测
+                </div>
                 <div
                   class="quality-banner"
                   :class="qualityReport.passed ? 'quality-passed' : 'quality-failed'"
                 >
                   <span>{{ qualityReport.passed ? '检测通过' : '发现问题' }}</span>
                   <div class="quality-counts">
-                    <span v-if="qualityReport.stats.errors" class="qc-badge qc-error">
+                    <span
+                      v-if="qualityReport.stats.errors"
+                      class="qc-badge qc-error"
+                    >
                       {{ qualityReport.stats.errors }} 错误
                     </span>
-                    <span v-if="qualityReport.stats.warnings" class="qc-badge qc-warning">
+                    <span
+                      v-if="qualityReport.stats.warnings"
+                      class="qc-badge qc-warning"
+                    >
                       {{ qualityReport.stats.warnings }} 警告
                     </span>
-                    <span v-if="qualityReport.stats.suggestions" class="qc-badge qc-info">
+                    <span
+                      v-if="qualityReport.stats.suggestions"
+                      class="qc-badge qc-info"
+                    >
                       {{ qualityReport.stats.suggestions }} 建议
                     </span>
                   </div>
                 </div>
-                <div v-if="qualityReport.issues.length" class="quality-list">
+                <div
+                  v-if="qualityReport.issues.length"
+                  class="quality-list"
+                >
                   <div
                     v-for="issue in qualityReport.issues"
                     :key="issue.id"
@@ -338,16 +390,28 @@ onUnmounted(() => {
                   >
                     <span class="qi-icon">{{ severityIcon(issue.severity) }}</span>
                     <div class="qi-body">
-                      <p class="qi-message">{{ issue.message }}</p>
-                      <p v-if="issue.suggestion" class="qi-tip">{{ issue.suggestion }}</p>
+                      <p class="qi-message">
+                        {{ issue.message }}
+                      </p>
+                      <p
+                        v-if="issue.suggestion"
+                        class="qi-tip"
+                      >
+                        {{ issue.suggestion }}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <!-- WeChat Stats (when available) -->
-              <div v-if="wechatStats && selectedPlatform === 'wechat'" class="ctrl-section">
-                <div class="section-label">文章统计</div>
+              <div
+                v-if="wechatStats && selectedPlatform === 'wechat'"
+                class="ctrl-section"
+              >
+                <div class="section-label">
+                  文章统计
+                </div>
                 <div class="stats-row">
                   <div class="stat-chip">
                     <span class="stat-num">{{ wechatStats.wordCount }}</span>
@@ -371,7 +435,11 @@ onUnmounted(() => {
 
             <!-- Action Buttons (pinned to bottom) -->
             <div class="action-bar">
-              <button class="act-btn act-secondary" @click="handleDownload" :disabled="isRendering || !previewHtml">
+              <button
+                class="act-btn act-secondary"
+                :disabled="isRendering || !previewHtml"
+                @click="handleDownload"
+              >
                 <Download :size="14" />
                 <span>下载HTML</span>
               </button>
@@ -381,8 +449,14 @@ onUnmounted(() => {
                 :disabled="isRendering || !previewHtml"
                 @click="handleCopy"
               >
-                <CheckCircle v-if="copySuccess" :size="14" />
-                <Copy v-else :size="14" />
+                <CheckCircle
+                  v-if="copySuccess"
+                  :size="14"
+                />
+                <Copy
+                  v-else
+                  :size="14"
+                />
                 <span>{{ copySuccess ? '已复制!' : platformInfo.copyLabel }}</span>
               </button>
             </div>
@@ -397,17 +471,33 @@ onUnmounted(() => {
             </div>
             <div class="preview-viewport">
               <!-- Loading Spinner -->
-              <div v-if="isRendering" class="preview-loading">
-                <Loader2 :size="28" class="spinner" />
+              <div
+                v-if="isRendering"
+                class="preview-loading"
+              >
+                <Loader2
+                  :size="28"
+                  class="spinner"
+                />
                 <span class="loading-text">渲染中...</span>
               </div>
               <!-- Empty State -->
-              <div v-else-if="!previewHtml" class="preview-empty">
-                <AlertCircle :size="32" class="empty-icon" />
+              <div
+                v-else-if="!previewHtml"
+                class="preview-empty"
+              >
+                <AlertCircle
+                  :size="32"
+                  class="empty-icon"
+                />
                 <span class="empty-text">暂无内容可预览</span>
               </div>
               <!-- v-html Preview -->
-              <div v-else class="preview-render" v-html="previewHtml"></div>
+              <div
+                v-else
+                class="preview-render"
+                v-html="previewHtml"
+              />
             </div>
           </div>
         </div>

@@ -21,28 +21,51 @@ function selectArticle(id: string) {
       @click="selectArticle(article.id)"
     >
       <div class="card-header">
-        <h3 class="title">{{ article.title }}</h3>
+        <h3 class="title">
+          {{ article.title }}
+        </h3>
       </div>
       
-      <p class="summary">{{ article.description || '暂无摘要' }}</p>
+      <p class="summary">
+        {{ article.description || '暂无摘要' }}
+      </p>
       
       <div class="card-footer">
-        <div class="score-badge">{{ article.score || 0 }}</div>
+        <div class="score-badge">
+          {{ article.score || 0 }}
+        </div>
         
         <div class="tags">
-          <span v-for="tag in article.tags?.slice(0,3)" :key="tag" class="mini-tag">
+          <span
+            v-for="tag in article.tags?.slice(0,3)"
+            :key="tag"
+            class="mini-tag"
+          >
             {{ tag }}
           </span>
         </div>
         
         <div class="actions">
-          <button class="icon-btn" title="移动"><Move :size="14" /></button>
-          <button class="icon-btn danger" title="删除"><Trash2 :size="14" /></button>
+          <button
+            class="icon-btn"
+            title="移动"
+          >
+            <Move :size="14" />
+          </button>
+          <button
+            class="icon-btn danger"
+            title="删除"
+          >
+            <Trash2 :size="14" />
+          </button>
         </div>
       </div>
     </div>
     
-    <div v-if="filteredArticles.length === 0" class="empty-state">
+    <div
+      v-if="filteredArticles.length === 0"
+      class="empty-state"
+    >
       暂无资讯
     </div>
   </div>

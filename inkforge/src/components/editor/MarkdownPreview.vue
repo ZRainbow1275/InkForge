@@ -94,9 +94,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="previewContainer" class="markdown-preview" :class="[`theme-${baseTheme}`]">
+  <div
+    ref="previewContainer"
+    class="markdown-preview"
+    :class="[`theme-${baseTheme}`]"
+  >
     <!-- 动态样式通过 JavaScript 安全注入，不使用 v-html -->
-    <div class="preview-content" v-html="renderedHtml"></div>
+    <div
+      class="preview-content"
+      v-html="renderedHtml"
+    />
   </div>
 </template>
 

@@ -56,14 +56,21 @@ watch(() => props.visible, (visible) => {
 
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="modal-overlay" @click.self="handleClose">
+    <div
+      v-if="visible"
+      class="modal-overlay"
+      @click.self="handleClose"
+    >
       <div class="modal-container">
         <div class="modal-header">
           <h3>
             <FolderPlus :size="18" />
             添加分类
           </h3>
-          <button class="close-btn" @click="handleClose">
+          <button
+            class="close-btn"
+            @click="handleClose"
+          >
             <X :size="18" />
           </button>
         </div>
@@ -94,16 +101,21 @@ watch(() => props.visible, (visible) => {
               class="form-input"
               placeholder="输入分类名称..."
               autofocus
-            />
+            >
           </div>
         </div>
         
         <div class="modal-footer">
-          <button class="btn cancel" @click="handleClose">取消</button>
+          <button
+            class="btn cancel"
+            @click="handleClose"
+          >
+            取消
+          </button>
           <button 
             class="btn confirm" 
-            @click="handleConfirm"
             :disabled="!categoryName.trim()"
+            @click="handleConfirm"
           >
             确认添加
           </button>

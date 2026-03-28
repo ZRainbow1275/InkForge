@@ -249,19 +249,38 @@ onMounted(() => {
     <!-- Header -->
     <header class="publish-header">
       <div class="header-left">
-        <button class="back-btn" @click="goBack">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
+        <button
+          class="back-btn"
+          @click="goBack"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 class="header-title">发布中心</h1>
+        <h1 class="header-title">
+          发布中心
+        </h1>
         <span class="header-article-title">{{ currentContent?.title || '未命名文章' }}</span>
       </div>
       <div class="header-right">
         <div class="header-status">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2E7D32"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
           <span>CSS 已内联</span>
         </div>
@@ -274,7 +293,9 @@ onMounted(() => {
       <aside class="publish-sidebar">
         <!-- Platform Select -->
         <section class="sidebar-section">
-          <h3 class="section-title">目标平台</h3>
+          <h3 class="section-title">
+            目标平台
+          </h3>
           <div class="platform-list">
             <button
               class="platform-card"
@@ -282,8 +303,13 @@ onMounted(() => {
               @click="platform = 'wechat'"
             >
               <div class="platform-icon-circle wechat">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z" />
                 </svg>
               </div>
               <div class="platform-info">
@@ -321,8 +347,13 @@ onMounted(() => {
         </section>
 
         <!-- Theme Preset (wechat) -->
-        <section v-if="platform === 'wechat'" class="sidebar-section">
-          <h3 class="section-title">排版预设</h3>
+        <section
+          v-if="platform === 'wechat'"
+          class="sidebar-section"
+        >
+          <h3 class="section-title">
+            排版预设
+          </h3>
           <div class="preset-grid">
             <button
               v-for="preset in quickPresets"
@@ -331,24 +362,59 @@ onMounted(() => {
               :class="{ active: selectedPreset === preset.id }"
               @click="selectedPreset = preset.id"
             >
-              <div class="preset-color-bar" :style="{ backgroundColor: preset.primaryColor }"></div>
-              <div class="preset-color-dot" :style="{ backgroundColor: preset.primaryColor }"></div>
+              <div
+                class="preset-color-bar"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <div
+                class="preset-color-dot"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
               <span class="preset-name">{{ preset.name }}</span>
             </button>
           </div>
-          <button class="more-themes-btn" @click="goToThemes">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
+          <button
+            class="more-themes-btn"
+            @click="goToThemes"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                y1="8"
+                x2="12"
+                y2="16"
+              />
+              <line
+                x1="8"
+                y1="12"
+                x2="16"
+                y2="12"
+              />
             </svg>
             查看全部主题
           </button>
         </section>
 
         <!-- XHS Preset (xiaohongshu) -->
-        <section v-if="platform === 'xiaohongshu'" class="sidebar-section">
-          <h3 class="section-title">笔记风格</h3>
+        <section
+          v-if="platform === 'xiaohongshu'"
+          class="sidebar-section"
+        >
+          <h3 class="section-title">
+            笔记风格
+          </h3>
           <div class="preset-grid">
             <button
               v-for="preset in xhsPresets"
@@ -357,8 +423,14 @@ onMounted(() => {
               :class="{ active: xhsPreset === preset.id }"
               @click="xhsPreset = preset.id"
             >
-              <div class="preset-color-bar" :style="{ backgroundColor: preset.primaryColor }"></div>
-              <div class="preset-color-dot" :style="{ backgroundColor: preset.primaryColor }"></div>
+              <div
+                class="preset-color-bar"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <div
+                class="preset-color-dot"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
               <span class="preset-name">{{ preset.icon }} {{ preset.name }}</span>
             </button>
           </div>
@@ -366,42 +438,79 @@ onMounted(() => {
 
         <!-- Export Options -->
         <section class="sidebar-section">
-          <h3 class="section-title">导出选项</h3>
+          <h3 class="section-title">
+            导出选项
+          </h3>
           <div class="options-list">
             <div class="toggle-row">
               <div class="toggle-info">
-                <div class="toggle-title">Mac 风格代码块</div>
-                <div class="toggle-desc">添加三色圆点标题栏</div>
+                <div class="toggle-title">
+                  Mac 风格代码块
+                </div>
+                <div class="toggle-desc">
+                  添加三色圆点标题栏
+                </div>
               </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.macCodeBlock }" @click="exportOptions.macCodeBlock = !exportOptions.macCodeBlock">
-                <div class="toggle-knob"></div>
-              </div>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <div class="toggle-title">代码行号</div>
-                <div class="toggle-desc">显示代码块行号</div>
-              </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.lineNumbers }" @click="exportOptions.lineNumbers = !exportOptions.lineNumbers">
-                <div class="toggle-knob"></div>
-              </div>
-            </div>
-            <div v-if="platform === 'wechat'" class="toggle-row">
-              <div class="toggle-info">
-                <div class="toggle-title">外链转脚注</div>
-                <div class="toggle-desc">将外部链接转为底部引用</div>
-              </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.convertFootnotes }" @click="exportOptions.convertFootnotes = !exportOptions.convertFootnotes">
-                <div class="toggle-knob"></div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.macCodeBlock }"
+                @click="exportOptions.macCodeBlock = !exportOptions.macCodeBlock"
+              >
+                <div class="toggle-knob" />
               </div>
             </div>
             <div class="toggle-row">
               <div class="toggle-info">
-                <div class="toggle-title">首行缩进</div>
-                <div class="toggle-desc">段落首行缩进 2 字符</div>
+                <div class="toggle-title">
+                  代码行号
+                </div>
+                <div class="toggle-desc">
+                  显示代码块行号
+                </div>
               </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.textIndent }" @click="exportOptions.textIndent = !exportOptions.textIndent">
-                <div class="toggle-knob"></div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.lineNumbers }"
+                @click="exportOptions.lineNumbers = !exportOptions.lineNumbers"
+              >
+                <div class="toggle-knob" />
+              </div>
+            </div>
+            <div
+              v-if="platform === 'wechat'"
+              class="toggle-row"
+            >
+              <div class="toggle-info">
+                <div class="toggle-title">
+                  外链转脚注
+                </div>
+                <div class="toggle-desc">
+                  将外部链接转为底部引用
+                </div>
+              </div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.convertFootnotes }"
+                @click="exportOptions.convertFootnotes = !exportOptions.convertFootnotes"
+              >
+                <div class="toggle-knob" />
+              </div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">
+                  首行缩进
+                </div>
+                <div class="toggle-desc">
+                  段落首行缩进 2 字符
+                </div>
+              </div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.textIndent }"
+                @click="exportOptions.textIndent = !exportOptions.textIndent"
+              >
+                <div class="toggle-knob" />
               </div>
             </div>
           </div>
@@ -409,7 +518,9 @@ onMounted(() => {
 
         <!-- Stats -->
         <section class="sidebar-section">
-          <h3 class="section-title">输出统计</h3>
+          <h3 class="section-title">
+            输出统计
+          </h3>
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ stats.wordCount }}</span>
@@ -437,28 +548,76 @@ onMounted(() => {
             :class="{ success: copySuccess }"
             @click="copyRichText"
           >
-            <svg v-if="!copySuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            <svg
+              v-if="!copySuccess"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                ry="2"
+              />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
+            <svg
+              v-else
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="20 6 9 17 4 12" />
             </svg>
             {{ copySuccess ? '已复制!' : '复制到剪贴板' }}
           </button>
           <div class="btn-row">
-            <button class="btn-secondary" @click="viewMode = 'code'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
+            <button
+              class="btn-secondary"
+              @click="viewMode = 'code'"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
               </svg>
               查看源码
             </button>
-            <button class="btn-secondary" @click="copyHtmlCode">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
+            <button
+              class="btn-secondary"
+              @click="copyHtmlCode"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line
+                  x1="12"
+                  y1="15"
+                  x2="12"
+                  y2="3"
+                />
               </svg>
               下载HTML
             </button>
@@ -476,9 +635,20 @@ onMounted(() => {
               :class="{ active: viewMode === 'preview' }"
               @click="viewMode = 'preview'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                />
               </svg>
               预览
             </button>
@@ -487,54 +657,103 @@ onMounted(() => {
               :class="{ active: viewMode === 'code' }"
               @click="viewMode = 'code'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
               </svg>
               源码
             </button>
           </div>
-          <div class="view-toggle-spacer"></div>
-          <div v-if="isGenerating" class="generating-indicator">
-            <div class="generating-spinner"></div>
+          <div class="view-toggle-spacer" />
+          <div
+            v-if="isGenerating"
+            class="generating-indicator"
+          >
+            <div class="generating-spinner" />
             渲染中...
           </div>
         </div>
 
         <!-- Preview Mode - iPhone Device Frame -->
-        <div v-show="viewMode === 'preview'" class="preview-container">
+        <div
+          v-show="viewMode === 'preview'"
+          class="preview-container"
+        >
           <div class="device-frame">
-            <div class="device-notch"></div>
+            <div class="device-notch" />
             <div class="device-screen">
               <!-- Status Bar -->
               <div class="device-status-bar">
                 <span class="device-time">9:41</span>
-                <div class="device-notch-spacer"></div>
+                <div class="device-notch-spacer" />
                 <div class="device-status-icons">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  ><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" /></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  ><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z" /></svg>
                 </div>
               </div>
               <!-- Platform App Bar -->
-              <div class="device-app-bar" :class="platform">
+              <div
+                class="device-app-bar"
+                :class="platform"
+              >
                 <span class="device-app-title">{{ platformInfo[platform].name }}</span>
               </div>
               <!-- Rendered Content -->
-              <div class="device-content" v-html="generatedHtml"></div>
+              <div
+                class="device-content"
+                v-html="generatedHtml"
+              />
             </div>
-            <div class="device-home-indicator"></div>
+            <div class="device-home-indicator" />
           </div>
         </div>
 
         <!-- Code Mode -->
-        <div v-show="viewMode === 'code'" class="code-view-container">
+        <div
+          v-show="viewMode === 'code'"
+          class="code-view-container"
+        >
           <div class="code-panel">
             <div class="code-panel-header">
               <span class="code-lang-badge">HTML (带内联样式)</span>
-              <button class="code-copy-btn" @click="copyHtmlCode">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              <button
+                class="code-copy-btn"
+                @click="copyHtmlCode"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="9"
+                    y="9"
+                    width="13"
+                    height="13"
+                    rx="2"
+                    ry="2"
+                  />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 复制代码
               </button>
@@ -546,10 +765,20 @@ onMounted(() => {
     </main>
 
     <!-- Toast -->
-    <div class="toast" :class="{ visible: showToast }">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    <div
+      class="toast"
+      :class="{ visible: showToast }"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
       </svg>
       {{ toastMessage }}
     </div>

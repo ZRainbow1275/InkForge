@@ -95,7 +95,10 @@ onBeforeUnmount(() => {
     >
       <div class="slash-menu-header">
         <span class="slash-menu-label">命令</span>
-        <span v-if="query" class="slash-menu-query">{{ query }}</span>
+        <span
+          v-if="query"
+          class="slash-menu-query"
+        >{{ query }}</span>
       </div>
       <div class="slash-menu-list">
         <button
@@ -107,7 +110,11 @@ onBeforeUnmount(() => {
           @mouseenter="selectedIndex = index"
         >
           <span class="slash-item-icon">
-            <component :is="iconMap[cmd.icon]" :size="16" v-if="iconMap[cmd.icon]" />
+            <component
+              :is="iconMap[cmd.icon]"
+              v-if="iconMap[cmd.icon]"
+              :size="16"
+            />
           </span>
           <span class="slash-item-content">
             <span class="slash-item-label">{{ cmd.label }}</span>

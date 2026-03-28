@@ -18,45 +18,78 @@ function recheckStatus() {
 <template>
   <div class="ai-panel">
     <!-- AI 状态 -->
-    <div class="ai-status" :class="{ available: isAvailable, unavailable: !isAvailable }">
+    <div
+      class="ai-status"
+      :class="{ available: isAvailable, unavailable: !isAvailable }"
+    >
       <div class="status-indicator">
-        <CheckCircle v-if="isAvailable" :size="16" class="text-green-500" />
-        <AlertCircle v-else :size="16" class="text-orange-500" />
+        <CheckCircle
+          v-if="isAvailable"
+          :size="16"
+          class="text-green-500"
+        />
+        <AlertCircle
+          v-else
+          :size="16"
+          class="text-orange-500"
+        />
       </div>
       <div class="status-info">
-        <span v-if="isAvailable" class="status-text">
+        <span
+          v-if="isAvailable"
+          class="status-text"
+        >
           AI 就绪 · {{ currentModel }}
         </span>
-        <span v-else class="status-text">
+        <span
+          v-else
+          class="status-text"
+        >
           {{ status.error || 'AI 未连接' }}
         </span>
       </div>
-      <button class="refresh-btn" @click="recheckStatus" title="刷新状态">
+      <button
+        class="refresh-btn"
+        title="刷新状态"
+        @click="recheckStatus"
+      >
         <RefreshCw :size="14" />
       </button>
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="ai-loading">
-      <Loader2 :size="20" class="animate-spin" />
+    <div
+      v-if="loading"
+      class="ai-loading"
+    >
+      <Loader2
+        :size="20"
+        class="animate-spin"
+      />
       <span>{{ currentTask }}...</span>
     </div>
 
     <!-- 错误提示 -->
-    <div v-if="error" class="ai-error">
+    <div
+      v-if="error"
+      class="ai-error"
+    >
       <AlertCircle :size="14" />
       <span>{{ error }}</span>
     </div>
 
     <!-- AI 功能按钮 -->
-    <div class="ai-actions" :class="{ disabled: !isAvailable || loading }">
+    <div
+      class="ai-actions"
+      :class="{ disabled: !isAvailable || loading }"
+    >
       <h4>✨ AI 生成</h4>
       
       <div class="action-grid">
         <button 
           class="ai-btn"
-          @click="aiStore.generateArticleSummary()"
           :disabled="!isAvailable || loading"
+          @click="aiStore.generateArticleSummary()"
         >
           <Sparkles :size="16" />
           <span>生成摘要</span>
@@ -64,8 +97,8 @@ function recheckStatus() {
         
         <button 
           class="ai-btn"
-          @click="aiStore.generateArticleTitle()"
           :disabled="!isAvailable || loading"
+          @click="aiStore.generateArticleTitle()"
         >
           <FileText :size="16" />
           <span>生成标题</span>
@@ -73,8 +106,8 @@ function recheckStatus() {
         
         <button 
           class="ai-btn"
-          @click="aiStore.generateArticleTranscript()"
           :disabled="!isAvailable || loading"
+          @click="aiStore.generateArticleTranscript()"
         >
           <Mic :size="16" />
           <span>生成口播稿</span>
@@ -82,8 +115,8 @@ function recheckStatus() {
         
         <button 
           class="ai-btn"
-          @click="aiStore.polishCurrentArticle('专业')"
           :disabled="!isAvailable || loading"
+          @click="aiStore.polishCurrentArticle('专业')"
         >
           <Wand2 :size="16" />
           <span>润色文章</span>
@@ -91,8 +124,8 @@ function recheckStatus() {
         
         <button 
           class="ai-btn"
-          @click="aiStore.expandCurrentContent(500)"
           :disabled="!isAvailable || loading"
+          @click="aiStore.expandCurrentContent(500)"
         >
           <Expand :size="16" />
           <span>扩写内容</span>
@@ -100,8 +133,8 @@ function recheckStatus() {
         
         <button 
           class="ai-btn"
-          @click="aiStore.condenseCurrentContent(200)"
           :disabled="!isAvailable || loading"
+          @click="aiStore.condenseCurrentContent(200)"
         >
           <Minimize2 :size="16" />
           <span>精简内容</span>
@@ -110,10 +143,18 @@ function recheckStatus() {
     </div>
 
     <!-- 安装说明（未连接时显示） -->
-    <div v-if="!isAvailable" class="ai-help">
+    <div
+      v-if="!isAvailable"
+      class="ai-help"
+    >
       <h4>📖 如何使用本地 AI</h4>
       <ol>
-        <li>安装 <a href="https://ollama.ai" target="_blank">Ollama</a></li>
+        <li>
+          安装 <a
+            href="https://ollama.ai"
+            target="_blank"
+          >Ollama</a>
+        </li>
         <li>运行 <code>ollama pull qwen2.5:7b</code></li>
         <li>启动 Ollama 服务</li>
         <li>点击"刷新状态"按钮</li>
