@@ -1,27 +1,69 @@
 <!--
   EditorStatusBar.vue
-  编辑器底部状态栏 — 实时统计字数、段落、阅读时间、可读性评分
+  编辑器底部状态栏 -- 左|中|右 三栏布局
+  左: 字数 + 段落 + 阅读时间
+  中: 可读性评分 + 写作目标
+  右: 编辑模式 + 同步状态 + 保存状态 + 行列
 -->
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Editor } from '@tiptap/core'
+import { storeToRefs } from 'pinia'
+import { AlertTriangle, Check, LayoutPanelTop, X } from 'lucide-vue-next'
 import { useTextStats, type ReadabilityScore } from '@/composables/useTextStats'
+import { useSettingsStore } from '@/stores/settings'
+import { useSyncStore } from '@/stores/sync'
+
+interface ArticleMeta {
+    createdAt: Date
+    updatedAt: Date
+    versionCount: number
+    documentId?: string
+}
 
 const props = defineProps<{
     editor?: Editor
-    /** 预览渲染耗时 (ms)，由 usePreviewRenderer 提供 */
     lastRenderTime?: number
+    articleMeta?: ArticleMeta
+    editorMode?: 'typora' | 'source'
+    saveStatus?: string
 }>()
 
-// 使用 computed 包装 editor prop 为 Ref
+const emit = defineEmits<{
+    (e: 'toggle-mode'): void
+}>()
+
+const settingsStore = useSettingsStore()
+const syncStore = useSyncStore()
+const { status: syncStatus, pendingCount, lastSyncAt, statusText: syncStatusText, hasConflicts, lastError } = storeToRefs(syncStore)
 const editorRef = computed(() => props.editor)
-
 const { stats, readability, cursor } = useTextStats(editorRef)
-
-// 详细统计弹窗
 const showDetail = ref(false)
 
-// 可读性等级颜色映射
+const CHINESE_CHAR_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g
+const ENGLISH_WORD_RE = /[a-zA-Z]+(?:[''][a-zA-Z]+)*/g
+
+const selectionWordCount = computed(() => {
+    const editor = props.editor
+    if (!editor) {
+        return 0
+    }
+
+    const { from, to } = editor.state.selection
+    if (from === to) {
+        return 0
+    }
+
+    const selectionText = editor.state.doc.textBetween(from, to, '\n', '\n').trim()
+    if (!selectionText) {
+        return 0
+    }
+
+    const chineseCount = selectionText.match(CHINESE_CHAR_RE)?.length ?? 0
+    const englishCount = selectionText.match(ENGLISH_WORD_RE)?.length ?? 0
+    return chineseCount + englishCount
+})
+
 const gradeColor = computed(() => {
     const colors: Record<ReadabilityScore['grade'], string> = {
         A: '#4CAF50',
@@ -30,10 +72,92 @@ const gradeColor = computed(() => {
         D: '#FF5722',
         F: '#F44336',
     }
+
     return colors[readability.value.grade]
 })
 
-// 格式化阅读时间
+const writingGoalSettings = computed(() => settingsStore.settings.editor.writingGoal)
+const currentEditorMode = computed(() => props.editorMode ?? settingsStore.settings.editor.editorMode)
+const editorModeLabel = computed(() => currentEditorMode.value === 'source' ? '源码双栏' : 'Typora')
+const saveStatusLabel = computed(() => props.saveStatus ?? '已同步')
+const syncStatusLabel = computed(() => {
+    switch (syncStatus.value) {
+        case 'syncing':
+            return '同步中'
+        case 'conflict':
+            return '有冲突'
+        case 'error':
+            return '同步异常'
+        case 'offline':
+            return pendingCount.value > 0 ? `离线 ${pendingCount.value}` : '离线'
+        case 'idle':
+        default:
+            return pendingCount.value > 0 ? `待同步 ${pendingCount.value}` : '已同步'
+    }
+})
+const syncStatusTone = computed(() => {
+    switch (syncStatus.value) {
+        case 'syncing':
+            return 'sync-status--syncing'
+        case 'conflict':
+            return 'sync-status--conflict'
+        case 'error':
+            return 'sync-status--error'
+        case 'offline':
+            return 'sync-status--offline'
+        case 'idle':
+        default:
+            return pendingCount.value > 0 ? 'sync-status--pending' : 'sync-status--idle'
+    }
+})
+const syncStatusTitle = computed(() => {
+    const segments = [syncStatusText.value]
+
+    if (lastSyncAt.value) {
+        segments.push(`最后同步：${formatDateTime(lastSyncAt.value)}`)
+    }
+
+    if (hasConflicts.value) {
+        segments.push(`冲突数：${syncStore.conflictCount}`)
+    }
+
+    if (lastError.value) {
+        segments.push(`错误：${lastError.value}`)
+    }
+
+    return segments.join(' | ')
+})
+const writingGoalCompleted = computed(() => {
+    const targetWords = writingGoalSettings.value.targetWords
+    return targetWords > 0 && stats.value.wordCount >= targetWords
+})
+
+const detailRows = computed(() => {
+    const rows = [
+        { label: '中文字数', value: String(stats.value.chineseChars) },
+        { label: '英文单词', value: String(stats.value.englishWords) },
+        { label: '标点符号', value: String(stats.value.punctuationCount) },
+        { label: '句子数', value: String(stats.value.sentenceCount) },
+        { label: '段落数', value: String(stats.value.paragraphCount) },
+        { label: '标题数', value: String(stats.value.headingCount) },
+        { label: '链接数', value: String(stats.value.linkCount) },
+        { label: '图片数', value: String(stats.value.imageCount) },
+        { label: '阅读时间', value: formatReadingTime(stats.value.readingTime) },
+        { label: '选区字数', value: String(selectionWordCount.value) },
+        { label: '版本计数', value: String(props.articleMeta?.versionCount ?? 0) },
+    ]
+
+    if (props.articleMeta) {
+        rows.push(
+            { label: '创建时间', value: formatDateTime(props.articleMeta.createdAt) },
+            { label: '最后修改', value: formatDateTime(props.articleMeta.updatedAt) },
+            { label: '文档 ID', value: props.articleMeta.documentId ?? '未关联' },
+        )
+    }
+
+    return rows
+})
+
 function formatReadingTime(minutes: number): string {
     if (minutes === 0) return '< 1 分钟'
     if (minutes < 60) return `${minutes} 分钟`
@@ -41,238 +165,342 @@ function formatReadingTime(minutes: number): string {
     const mins = minutes % 60
     return mins > 0 ? `${hours} 小时 ${mins} 分钟` : `${hours} 小时`
 }
+
+function formatDateTime(value: Date): string {
+    return new Intl.DateTimeFormat('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(value))
+}
+
+function handleToggleMode(): void {
+    emit('toggle-mode')
+}
 </script>
 
 <template>
-    <div class="status-bar">
-        <!-- 左侧：核心统计 -->
-        <div class="status-left" @click="showDetail = !showDetail">
-            <span class="stat-item" title="字数（中文字符 + 英文单词）">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v16" />
-                </svg>
-                {{ stats.wordCount }} 字
-            </span>
+  <div class="editor-status-bar">
+    <!-- 左侧: 字数 + 段落 + 阅读时间 -->
+    <div
+      class="status-group"
+      title="点击查看详细统计"
+      @click="showDetail = !showDetail"
+    >
+      <span class="status-item">{{ stats.wordCount }} 字</span>
+      <span class="status-sep" />
+      <span class="status-item status-item--paragraphs">{{ stats.paragraphCount }} 段</span>
+      <span class="status-sep status-sep--reading" />
+      <span class="status-item status-item--reading">{{ formatReadingTime(stats.readingTime) }}</span>
 
-            <span class="stat-divider" />
-
-            <span class="stat-item" title="段落数">
-                {{ stats.paragraphCount }} 段
-            </span>
-
-            <span class="stat-divider" />
-
-            <span class="stat-item" title="预计阅读时间">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
-                </svg>
-                {{ formatReadingTime(stats.readingTime) }}
-            </span>
-
-            <span v-if="stats.imageCount > 0" class="stat-divider" />
-            <span v-if="stats.imageCount > 0" class="stat-item" title="图片数量">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
-                </svg>
-                {{ stats.imageCount }}
-            </span>
-        </div>
-
-        <!-- 中间：可读性评分 -->
-        <div class="status-center">
-            <span
-                class="readability-badge"
-                :style="{ borderColor: gradeColor, color: gradeColor }"
-                :title="`可读性评分: ${readability.score}/100`"
-            >
-                {{ readability.grade }}
-            </span>
-        </div>
-
-        <!-- 右侧：渲染耗时 + 光标位置 -->
-        <div class="status-right">
-            <span v-if="lastRenderTime && lastRenderTime > 0" class="stat-item render-time" title="预览渲染耗时">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
-                </svg>
-                渲染: {{ lastRenderTime }}ms
-            </span>
-            <span v-if="lastRenderTime && lastRenderTime > 0" class="stat-divider" />
-            <span class="stat-item cursor-pos">
-                行 {{ cursor.line }}:{{ cursor.column }}
-            </span>
-        </div>
-
-        <!-- 详细统计弹窗 -->
-        <Transition name="detail-fade">
-            <div v-if="showDetail" class="detail-panel" @click.stop>
-                <div class="detail-header">
-                    <h4>详细统计</h4>
-                    <button class="detail-close" @click="showDetail = false">&times;</button>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-row">
-                        <span class="detail-label">中文字数</span>
-                        <span class="detail-value">{{ stats.chineseChars }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">英文单词</span>
-                        <span class="detail-value">{{ stats.englishWords }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">标点符号</span>
-                        <span class="detail-value">{{ stats.punctuationCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">句子数</span>
-                        <span class="detail-value">{{ stats.sentenceCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">段落数</span>
-                        <span class="detail-value">{{ stats.paragraphCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">标题数</span>
-                        <span class="detail-value">{{ stats.headingCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">链接数</span>
-                        <span class="detail-value">{{ stats.linkCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">图片数</span>
-                        <span class="detail-value">{{ stats.imageCount }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">阅读时间</span>
-                        <span class="detail-value">{{ formatReadingTime(stats.readingTime) }}</span>
-                    </div>
-                </div>
-
-                <!-- 可读性详情 -->
-                <div class="readability-section">
-                    <div class="readability-header">
-                        <span>可读性评分</span>
-                        <span
-                            class="readability-score"
-                            :style="{ color: gradeColor }"
-                        >
-                            {{ readability.score }} / 100
-                        </span>
-                    </div>
-                    <div v-if="readability.suggestions.length > 0" class="readability-suggestions">
-                        <div
-                            v-for="(suggestion, i) in readability.suggestions"
-                            :key="i"
-                            class="suggestion-item"
-                        >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2">
-                                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg>
-                            {{ suggestion }}
-                        </div>
-                    </div>
-                    <div v-else class="suggestion-item suggestion-ok">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" />
-                        </svg>
-                        文章结构良好
-                    </div>
-                </div>
-            </div>
-        </Transition>
+      <template v-if="selectionWordCount > 0">
+        <span class="status-sep status-sep--selection" />
+        <span
+          class="status-item status-item--selection"
+          title="当前选区字数"
+        >
+          选区 {{ selectionWordCount }}
+        </span>
+      </template>
     </div>
+
+    <!-- 中部: 可读性评分 + 写作目标 -->
+    <div class="status-group status-group--center">
+      <span
+        class="status-item"
+        :style="{ color: gradeColor }"
+        :title="`可读性评分: ${readability.score}/100`"
+      >
+        可读性 {{ readability.score }}
+      </span>
+
+      <template v-if="writingGoalSettings.enabled && writingGoalSettings.targetWords > 0">
+        <span class="status-sep" />
+        <span
+          class="status-item status-item--goal"
+          :class="{ 'status-item--goal-done': writingGoalCompleted }"
+          :title="`写作目标: ${stats.wordCount} / ${writingGoalSettings.targetWords}`"
+        >
+          {{ stats.wordCount }} / {{ writingGoalSettings.targetWords }}
+        </span>
+      </template>
+    </div>
+
+    <!-- 右侧: 编辑模式 + 同步 + 保存 + 行列 -->
+    <div class="status-group">
+      <button
+        class="status-mode-btn"
+        type="button"
+        :title="`当前模式：${editorModeLabel}`"
+        @click="handleToggleMode"
+      >
+        <LayoutPanelTop :size="14" />
+        {{ editorModeLabel }}
+      </button>
+
+      <span class="status-sep status-sep--sync" />
+
+      <span
+        class="sync-badge"
+        :class="syncStatusTone"
+        :title="syncStatusTitle"
+      >
+        {{ syncStatusLabel }}
+      </span>
+
+      <span class="status-sep status-sep--save" />
+
+      <span
+        class="status-item status-item--save"
+        :title="`保存状态：${saveStatusLabel}`"
+      >
+        {{ saveStatusLabel }}
+      </span>
+
+      <span class="status-sep status-sep--cursor" />
+
+      <span class="status-item status-item--cursor">
+        行 {{ cursor.line }}:{{ cursor.column }}
+      </span>
+    </div>
+
+    <!-- 详细统计弹出面板 -->
+    <Transition name="detail-fade">
+      <div
+        v-if="showDetail"
+        class="detail-panel"
+        @click.stop
+      >
+        <div class="detail-header">
+          <h4>详细统计</h4>
+          <button
+            class="detail-close"
+            type="button"
+            title="关闭统计面板"
+            @click="showDetail = false"
+          >
+            <X :size="14" />
+          </button>
+        </div>
+
+        <div class="detail-grid">
+          <div
+            v-for="row in detailRows"
+            :key="row.label"
+            class="detail-row"
+          >
+            <span class="detail-label">{{ row.label }}</span>
+            <span
+              class="detail-value"
+              :title="row.value"
+            >{{ row.value }}</span>
+          </div>
+        </div>
+
+        <div class="readability-section">
+          <div class="readability-header">
+            <span>可读性评分</span>
+            <span
+              class="readability-score"
+              :style="{ color: gradeColor }"
+            >
+              {{ readability.score }} / 100
+            </span>
+          </div>
+
+          <div
+            v-if="readability.suggestions.length > 0"
+            class="readability-suggestions"
+          >
+            <div
+              v-for="(suggestion, index) in readability.suggestions"
+              :key="index"
+              class="suggestion-item"
+            >
+              <AlertTriangle
+                :size="12"
+                class="suggestion-icon warning"
+              />
+              {{ suggestion }}
+            </div>
+          </div>
+
+          <div
+            v-else
+            class="suggestion-item suggestion-ok"
+          >
+            <Check
+              :size="12"
+              class="suggestion-icon success"
+            />
+            文章结构良好
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </div>
 </template>
 
 <style scoped>
-.status-bar {
+/* ===== 状态栏主容器 ===== */
+.editor-status-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 28px;
+    height: 32px;
     padding: 0 12px;
-    background: var(--color-surface, #FAFBFC);
-    border-top: 1px solid var(--color-border, #E5E7EB);
+    border-top: 1px solid #e2e8f0;
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: #475569;
+    background: white;
     user-select: none;
     position: relative;
     flex-shrink: 0;
 }
 
-.status-left {
+/* ===== 状态组 ===== */
+.status-group {
     display: flex;
     align-items: center;
     gap: 8px;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: background 0.15s;
 }
 
-.status-left:hover {
-    background: rgba(0, 0, 0, 0.04);
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
-
-.stat-divider {
-    width: 1px;
-    height: 12px;
-    background: var(--color-border, #E5E7EB);
-}
-
-.status-center {
+.status-group--center {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.readability-badge {
+/* 左侧组可点击 */
+.status-group:first-child {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+}
+
+.status-group:first-child:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* ===== 状态项 ===== */
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    color: #64748b;
+}
+
+/* ===== 竖线分隔符 ===== */
+.status-sep {
+    width: 1px;
+    height: 14px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+}
+
+/* ===== 写作目标 (紧凑数字) ===== */
+.status-item--goal {
+    font-variant-numeric: tabular-nums;
+}
+
+.status-item--goal-done {
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+/* ===== 编辑模式按钮 ===== */
+.status-mode-btn {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
+    gap: 4px;
+    height: 22px;
+    padding: 4px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #64748b;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
     line-height: 1;
 }
 
-.status-right {
-    display: flex;
+.status-mode-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: #cbd5e1;
+}
+
+/* ===== 行列位置 ===== */
+.status-item--cursor {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* ===== 同步状态 badge ===== */
+.sync-badge {
+    display: inline-flex;
     align-items: center;
-}
-
-.cursor-pos {
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    border: 1px solid transparent;
     font-size: 11px;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.render-time {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 11px;
-    color: var(--color-text-quaternary, #B0B7C3);
+.sync-status--idle {
+    color: #2E7D32;
+    background: rgba(46, 125, 50, 0.08);
+    border-color: rgba(46, 125, 50, 0.16);
 }
 
-/* 详细统计弹窗 */
+.sync-status--pending {
+    color: #B26A00;
+    background: rgba(255, 152, 0, 0.08);
+    border-color: rgba(255, 152, 0, 0.18);
+}
+
+.sync-status--syncing {
+    color: #1565C0;
+    background: rgba(21, 101, 192, 0.08);
+    border-color: rgba(21, 101, 192, 0.18);
+}
+
+.sync-status--conflict,
+.sync-status--error {
+    color: #C62828;
+    background: rgba(198, 40, 40, 0.08);
+    border-color: rgba(198, 40, 40, 0.18);
+}
+
+.sync-status--offline {
+    color: #546E7A;
+    background: rgba(84, 110, 122, 0.08);
+    border-color: rgba(84, 110, 122, 0.18);
+}
+
+/* ===== 保存状态 ===== */
+.status-item--save {
+    color: #94a3b8;
+}
+
+/* ===== 详细统计弹出面板 ===== */
 .detail-panel {
     position: absolute;
-    bottom: 32px;
+    bottom: 36px;
     left: 12px;
-    width: 280px;
-    background: #FFFFFF;
-    border: 1px solid var(--color-border, #E5E7EB);
-    border-radius: 8px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     padding: 16px;
     z-index: 100;
@@ -289,21 +517,25 @@ function formatReadingTime(minutes: number): string {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-text-primary, #1F2937);
+    color: #1e293b;
 }
 
 .detail-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     border: none;
-    background: none;
-    font-size: 18px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    border-radius: 6px;
+    background: transparent;
+    color: #94a3b8;
     cursor: pointer;
-    padding: 0;
-    line-height: 1;
 }
 
 .detail-close:hover {
-    color: var(--color-text-primary, #1F2937);
+    background: rgba(0, 0, 0, 0.04);
+    color: #1e293b;
 }
 
 .detail-grid {
@@ -316,25 +548,31 @@ function formatReadingTime(minutes: number): string {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     padding: 3px 0;
 }
 
 .detail-label {
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: #94a3b8;
 }
 
 .detail-value {
+    max-width: 124px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-text-primary, #1F2937);
+    color: #1e293b;
     font-family: 'SF Mono', 'Fira Code', monospace;
+    text-align: right;
 }
 
 .readability-section {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid var(--color-border, #E5E7EB);
+    border-top: 1px solid #e2e8f0;
 }
 
 .readability-header {
@@ -343,7 +581,7 @@ function formatReadingTime(minutes: number): string {
     align-items: center;
     margin-bottom: 8px;
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: #94a3b8;
 }
 
 .readability-score {
@@ -362,20 +600,28 @@ function formatReadingTime(minutes: number): string {
     align-items: flex-start;
     gap: 6px;
     font-size: 11px;
-    color: var(--color-text-secondary, #6B7280);
+    color: #64748b;
     line-height: 1.5;
 }
 
-.suggestion-item svg {
+.suggestion-icon {
     flex-shrink: 0;
     margin-top: 2px;
+}
+
+.suggestion-icon.warning {
+    color: #FF9800;
+}
+
+.suggestion-icon.success {
+    color: #4CAF50;
 }
 
 .suggestion-ok {
     color: #4CAF50;
 }
 
-/* 过渡动画 */
+/* ===== 面板过渡动画 ===== */
 .detail-fade-enter-active,
 .detail-fade-leave-active {
     transition: all 0.2s ease;
@@ -385,5 +631,53 @@ function formatReadingTime(minutes: number): string {
 .detail-fade-leave-to {
     opacity: 0;
     transform: translateY(8px);
+}
+
+/* ===== 响应式: 1180px 以下隐藏行列 ===== */
+@media (max-width: 1180px) {
+    .status-item--cursor,
+    .status-sep--cursor {
+        display: none;
+    }
+}
+
+/* ===== 响应式: 900px 以下隐藏中部 + 选区 ===== */
+@media (max-width: 900px) {
+    .status-group--center,
+    .status-item--selection,
+    .status-sep--selection {
+        display: none;
+    }
+}
+
+/* ===== 响应式: 768px 以下极简模式 ===== */
+@media (max-width: 768px) {
+    .editor-status-bar {
+        padding: 0 8px;
+        gap: 8px;
+    }
+
+    .status-group {
+        min-width: 0;
+        gap: 6px;
+    }
+
+    .status-group:last-child {
+        margin-left: auto;
+    }
+
+    .status-mode-btn,
+    .status-item--save,
+    .status-sep--save,
+    .status-item--reading,
+    .status-sep--reading {
+        display: none;
+    }
+
+    .sync-badge {
+        max-width: 86px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 </style>

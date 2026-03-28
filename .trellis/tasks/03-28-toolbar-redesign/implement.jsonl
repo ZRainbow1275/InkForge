@@ -1,0 +1,5 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "prompts/0327/05-toolbar-complete-spec.md", "reason": "工具栏规格"}
+{"file": "prompts/0327/09-ui-polish-spec.md", "reason": "UI打磨规格"}
+{"file": "inkforge/src/components/editor/FloatingToolbar.vue", "reason": "主要修改文件"}

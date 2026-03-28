@@ -96,13 +96,18 @@ export class ConflictResolver {
      * @param version - 新的本地版本号
      * @param checksum - 内容校验和
      */
-    updateLocalVersion(documentId: string, version: number, checksum: string): void {
+    updateLocalVersion(
+        documentId: string,
+        version: number,
+        checksum: string,
+        lastKnownRemoteVersion?: number
+    ): void {
         const existing = this.versionVectors.get(documentId)
 
         this.versionVectors.set(documentId, {
             documentId,
             localVersion: version,
-            lastKnownRemoteVersion: existing?.lastKnownRemoteVersion ?? 0,
+            lastKnownRemoteVersion: lastKnownRemoteVersion ?? existing?.lastKnownRemoteVersion ?? 0,
             checksum,
         })
     }

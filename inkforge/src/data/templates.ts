@@ -11,7 +11,7 @@ export interface ArticleTemplate {
     name: string
     /** 模板描述 */
     description: string
-    /** 模板图标（SVG 路径或 emoji） */
+    /** 模板图标（Lucide 图标名称） */
     icon: string
     /** 模板分类 */
     category: 'content' | 'tech' | 'life' | 'work'
@@ -25,7 +25,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'tutorial',
         name: '教程类',
         description: '适合技术教程、操作指南、入门手册',
-        icon: '📖',
+        icon: 'BookOpenText',
         category: 'tech',
         body: `# 标题：如何实现 XXX
 
@@ -76,7 +76,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'review',
         name: '评测类',
         description: '适合产品评测、工具对比、体验报告',
-        icon: '⚖️',
+        icon: 'Scale',
         category: 'content',
         body: `# 标题：XXX 深度评测
 
@@ -123,14 +123,14 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
 
 总体评价，适合什么样的用户。
 
-**推荐指数：★★★★☆**
+**推荐指数：4/5**
 `,
     },
     {
         id: 'journal',
         name: '日记/周记',
         description: '适合日常记录、工作周报、个人感悟',
-        icon: '📔',
+        icon: 'NotebookPen',
         category: 'life',
         body: `# YYYY年MM月DD日
 
@@ -167,7 +167,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'tech-blog',
         name: '技术博客',
         description: '适合技术分享、架构设计、实践总结',
-        icon: '💻',
+        icon: 'Terminal',
         category: 'tech',
         body: `# 标题：XXX 技术实践
 
@@ -222,7 +222,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'news',
         name: '新闻稿',
         description: '适合产品发布、活动通告、公告',
-        icon: '📰',
+        icon: 'Newspaper',
         category: 'work',
         body: `# 标题：简洁有力的新闻标题
 
@@ -253,7 +253,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'reading-notes',
         name: '读书笔记',
         description: '适合书评、读后感、知识摘录',
-        icon: '📚',
+        icon: 'BookMarked',
         category: 'life',
         body: `# 《书名》读书笔记
 
@@ -293,7 +293,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
 
 ## 推荐度
 
-**推荐指数：★★★★☆**
+**推荐指数：4/5**
 
 适合人群：XXX
 `,
@@ -302,7 +302,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'comparison',
         name: '对比分析',
         description: '适合方案对比、技术选型、决策分析',
-        icon: '🔀',
+        icon: 'GitCompareArrows',
         category: 'work',
         body: `# 标题：A vs B vs C 对比分析
 
@@ -362,7 +362,7 @@ export const ARTICLE_TEMPLATES: readonly ArticleTemplate[] = [
         id: 'blank',
         name: '空白文档',
         description: '从零开始，自由创作',
-        icon: '📝',
+        icon: 'FileText',
         category: 'content',
         body: `# 标题
 

@@ -1,0 +1,53 @@
+[     247ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:10:52.096Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[     916ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:10:52.766Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1215871ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:31:07.720Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1221842ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:31:13.691Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1227977ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:31:19.826Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1249369ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:31:41.219Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1277182ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://localhost:3005/src/components/hub/InspirationCard.vue?t=1774711928936&vue&type=style&index=0&scoped=a2139718&lang.css:0
+[ 1277183ms] [ERROR] [vite] Failed to reload /src/components/hub/InspirationCard.vue?vue&type=style&index=0&scoped=a2139718&lang.css. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:3005/@vite/client:881
+[ 1279244ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1282300ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1285331ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1288397ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1291433ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1294482ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1297541ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1300589ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1303644ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1306682ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1309774ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1312932ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1316283ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1319856ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1323968ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1328942ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1335614ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1340230ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1344311ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1348812ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1356316ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1363899ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1371578ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1377463ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1385269ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1390792ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1397867ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1403814ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1410949ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1415668ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1423309ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1431244ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1438595ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1445742ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1452270ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1456622ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1464151ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1471765ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1478342ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1484950ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1490955ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1497076ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1502496ms] [ERROR] WebSocket connection to 'ws://localhost:3005/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3005/@vite/client:1034
+[ 1513125ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:04.974Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[ 1514267ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:06.116Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178

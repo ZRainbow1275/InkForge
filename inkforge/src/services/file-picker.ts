@@ -5,6 +5,7 @@
  * - Web: 使用 input[type=file] + FileReader
  */
 
+import { logger } from '@/services/error'
 import { isTauriEnv } from '@/utils/platform'
 
 /** 文件选择配置 */
@@ -147,7 +148,7 @@ async function pickFilesTauri(options: FilePickerOptions): Promise<PickedFile[]>
                 })
             } catch (err) {
                 // 单个文件读取失败不阻断其他文件
-                console.warn(`[FilePicker] 读取文件失败: ${filePath}`, err)
+                logger.warn(`[FilePicker] 读取文件失败: ${filePath}`, { err })
             }
         }
 
@@ -202,7 +203,7 @@ function pickFilesWeb(options: FilePickerOptions): Promise<PickedFile[]> {
                         size: file.size,
                     })
                 } catch (err) {
-                    console.warn(`[FilePicker] 读取文件失败: ${file.name}`, err)
+                    logger.warn(`[FilePicker] 读取文件失败: ${file.name}`, { err })
                 }
             }
 

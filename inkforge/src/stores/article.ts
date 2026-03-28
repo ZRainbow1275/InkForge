@@ -8,12 +8,15 @@ import {
     type UpdateArticleDTO
 } from '@/schemas/article'
 import { useCategoryStore } from './category'
+import { useSyncStore } from './sync'
 import { parseUrl, calculateScore } from '@/services/parser'
 import { articleRepository } from '@/services/repository'
 import { logger, ErrorCode, AppError } from '@/services/error'
 import { DEFAULTS, ARTICLE_TAGS, ARTICLE_STATUS } from '@/constants'
 import { generateId } from '@/utils/uuid'
 import { importFiles as importFilesService, type ImportSummary } from '@/services/file-import'
+import { db } from '@/utils/db'
+import { logDocumentDelete, logImport } from '@/utils/activity-logger'
 
 /** 文件导入结果（供 UI 展示） */
 export interface FileImportResult {
@@ -28,6 +31,7 @@ export interface FileImportResult {
  */
 export const useArticleStore = defineStore('article', () => {
     const categoryStore = useCategoryStore()
+    const syncStore = useSyncStore()
 
     // 状态
     const articles = ref<Article[]>([])
@@ -183,15 +187,30 @@ export const useArticleStore = defineStore('article', () => {
     // 删除资讯
     async function deleteArticle(id: string) {
         const article = articles.value.find(a => a.id === id)
-        await articleRepository.delete(id)
-        articles.value = articles.value.filter(a => a.id !== id)
+        try {
+            await db.transaction('rw', [db.articles, db.contents, db.documents, db.versions], async () => {
+                await db.contents.where('articleId').equals(id).delete()
+                await db.versions.where('documentId').equals(id).delete()
+                await db.documents.delete(id)
+                await db.articles.delete(id)
+            })
 
-        if (article?.categoryId) {
-            categoryStore.updateArticleCount(article.categoryId, -1)
-        }
+            await syncStore.markDirty(id, undefined, 'delete')
+            await logDocumentDelete(id, article?.title ?? '未命名文档')
 
-        if (selectedArticleId.value === id) {
-            selectedArticleId.value = null
+            articles.value = articles.value.filter(a => a.id !== id)
+
+            if (article?.categoryId) {
+                categoryStore.updateArticleCount(article.categoryId, -1)
+            }
+
+            if (selectedArticleId.value === id) {
+                selectedArticleId.value = null
+            }
+        } catch (err) {
+            const msg = err instanceof AppError ? err.toUserMessage() : '删除资讯失败'
+            logger.error('删除资讯失败', err, { id })
+            throw new AppError(ErrorCode.DB_WRITE_FAILED, msg, { id })
         }
     }
 
@@ -273,6 +292,7 @@ export const useArticleStore = defineStore('article', () => {
             result.errors.push(...summary.errors)
 
             if (result.success > 0) {
+                await logImport(result.success, 'local-files')
                 logger.info('文件导入完成', {
                     success: result.success,
                     failed: result.failed,

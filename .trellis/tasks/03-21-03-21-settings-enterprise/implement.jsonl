@@ -1,0 +1,7 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "docs/specs/03-settings-enterprise-spec.md", "reason": "Settings改造规格"}
+{"file": "docs/specs/00-master-plan.md", "reason": "总体规划约束"}
+{"file": "inkforge/src/views/SettingsView.vue", "reason": "现有Settings"}
+{"file": "inkforge/src/stores/settings.ts", "reason": "Settings Store"}

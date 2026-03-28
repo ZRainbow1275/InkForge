@@ -236,7 +236,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-fresh',
     name: '清新少女',
-    icon: '🌸',
+    icon: '花',
     primaryColor: '#FF2442',
     accentColor: '#FFE4E6',
     customCSS: ``
@@ -244,7 +244,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-simple',
     name: '极简高级',
-    icon: '✨',
+    icon: '简',
     primaryColor: '#1A1A1A',
     accentColor: '#F5F5F5',
     customCSS: `
@@ -256,7 +256,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-warm',
     name: '温暖治愈',
-    icon: '🧸',
+    icon: '暖',
     primaryColor: '#D4A574',
     accentColor: '#FDF6EC',
     customCSS: `
@@ -268,12 +268,12 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-tech',
     name: '科技数码',
-    icon: '🔮',
+    icon: '技',
     primaryColor: '#4F46E5',
     accentColor: '#818CF8',
     secondaryBg: '#f0f0ff',
-    listMarker: '🔹',
-    dividerText: '·  ·  · ⚡ ·  ·  ·',
+    listMarker: '▪',
+    dividerText: '·  ·  · 技 ·  ·  ·',
     customCSS: `
       #xhs-note strong { color: #4F46E5; }
       #xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
@@ -282,12 +282,12 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-nature',
     name: '自然清新',
-    icon: '🌿',
+    icon: '森',
     primaryColor: '#059669',
     accentColor: '#34D399',
     secondaryBg: '#ecfdf5',
-    listMarker: '🍃',
-    dividerText: '·  ·  · 🌿 ·  ·  ·',
+    listMarker: '·',
+    dividerText: '·  ·  · 森 ·  ·  ·',
     customCSS: `
       #xhs-note strong { color: #059669; }
       #xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; }
@@ -300,14 +300,14 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 /**
- * 标题 emoji 前缀表 — 按预设 ID 映射
+ * 标题前缀表 — 按预设 ID 映射
  */
 const HEADING_EMOJIS: Record<string, { h1: string; h2: string; h3: string }> = {
-  'xhs-fresh': { h1: '🌸', h2: '🌷', h3: '💐' },
+  'xhs-fresh': { h1: '花', h2: '柔', h3: '轻' },
   'xhs-simple': { h1: '◆', h2: '◇', h3: '▫' },
-  'xhs-warm': { h1: '🧡', h2: '💛', h3: '🤎' },
-  'xhs-tech': { h1: '⚡', h2: '💫', h3: '✦' },
-  'xhs-nature': { h1: '🌿', h2: '🍀', h3: '🌱' },
+  'xhs-warm': { h1: '暖', h2: '柔', h3: '醇' },
+  'xhs-tech': { h1: '技', h2: '数', h3: '序' },
+  'xhs-nature': { h1: '森', h2: '叶', h3: '青' },
 }
 
 /**
@@ -421,7 +421,7 @@ function postProcessForXiaohongshu(html: string, preset: XiaohongshuPreset): str
 
   // 6. 签名装饰块 — 添加到 #xhs-note 末尾
   const signatureBlock = `<section style="text-align:center;margin-top:32px;padding:16px 0;color:${primaryColor};font-size:13px;">` +
-    `✨ 感谢阅读 ✨` +
+    `感谢阅读` +
     `</section>`
   // 插入到最后一个 </section> 之前（即 #xhs-note 闭合标签前）
   const lastSectionClose = result.lastIndexOf('</section>')
@@ -498,7 +498,7 @@ export function convertToXiaohongshu(
   const tableEnhancedHtml = enhanceTableStyles(highlightedHtml, preset.primaryColor)
 
   // Step 5: 添加小红书特色分隔符（使用预设 dividerText）
-  const dividerText = preset.dividerText || '· · · ✦ · · ·'
+  const dividerText = preset.dividerText || '· · · 文 · · ·'
   let processedHtml = tableEnhancedHtml
     .replace(/<hr\s*\/?>/gi, `<div class="xhs-divider" style="text-align:center;margin:24px 0;color:${preset.primaryColor};font-size:14px;">${dividerText}</div>`)
 

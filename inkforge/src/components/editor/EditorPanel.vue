@@ -2,7 +2,7 @@
 /**
  * EditorPanel — 纸张风格编辑器
  *
- * ⚠️ 不使用 useEditor() + EditorContent 组合！
+ * 不使用 useEditor() + EditorContent 组合！
  * useEditor 在 onMounted 创建 Editor 时挂到临时离线 div，
  * 然后 EditorContent 的 watchEffect + nextTick 做元素交换
  * (editor.setOptions + editor.createNodeViews)，
@@ -41,22 +41,33 @@ import FloatingToolbar from './FloatingToolbar.vue'
 import type { EditedContent } from '@/types'
 import EditorEmptyState from './EditorEmptyState.vue'
 import { WeChatFormat } from '@/extensions/WeChatFormat'
+import { MarkdownHints } from '@/extensions/MarkdownHints'
 import { SmartPunctuation } from '@/extensions/SmartPunctuation'
 import { TypewriterMode } from '@/extensions/TypewriterMode'
+import { BracketMatching } from '@/extensions/BracketMatching'
 import { SlashCommands } from '@/extensions/SlashCommands'
+import { KeyboardShortcuts } from '@/extensions/KeyboardShortcuts'
+import { TyporaMode } from '@/extensions/TyporaMode'
+import { useFeatureFlag } from '@/composables/useFeatureFlag'
 import { useSettingsStore } from '@/stores/settings'
+import { useAssetStore } from '@/stores/asset'
 import SlashCommandMenu from './SlashCommandMenu.vue'
+import FindReplace from './FindReplace.vue'
+import EditorContextMenu from './EditorContextMenu.vue'
 
 // lowlight 实例 (代码高亮引擎)
 const lowlight = createLowlight(common)
 
 const editorStore = useEditorStore()
 const settingsStore = useSettingsStore()
+const assetStore = useAssetStore()
+const markdownHintsFeature = useFeatureFlag('markdown-hints')
 const { currentContent, status: editorStatus, error: editorError } = storeToRefs(editorStore)
 
 // 派生状态
 const isReady = computed(() => editorStatus.value === 'ready' || editorStatus.value === 'saving')
 const isLoading = computed(() => editorStatus.value === 'loading')
+const markdownHintsEnabled = computed(() => settingsStore.settings.editor.markdownHints && markdownHintsFeature.enabled.value)
 
 // 本地编辑状态
 const titleText = ref('')
@@ -74,11 +85,483 @@ const editorFontFamily = computed(() => {
 })
 const editorFontSize = computed(() => `${settingsStore.settings.appearance.fontSize}px`)
 const editorLineHeight = computed(() => String(settingsStore.settings.appearance.lineHeight))
+const editorPaperWidth = computed(() => {
+  const paperWidthMap = {
+    narrow: '560px',
+    medium: '680px',
+    wide: '860px',
+    full: 'calc(100% - 64px)',
+  } as const
+
+  return paperWidthMap[settingsStore.settings.editor.editorWidth] ?? paperWidthMap.medium
+})
+const editorPaperClasses = computed(() => ({
+  'show-line-numbers': settingsStore.settings.editor.showLineNumbers,
+  'editor-paper--narrow': settingsStore.settings.editor.editorWidth === 'narrow',
+  'editor-paper--wide': settingsStore.settings.editor.editorWidth === 'wide',
+  'editor-paper--full': settingsStore.settings.editor.editorWidth === 'full',
+}))
+const editorContentClasses = computed(() => ({
+  'is-no-wrap': !settingsStore.settings.editor.wordWrap,
+}))
 
 // ═══ 手动 Editor 管理 ═══
 // 直接操作 Editor 实例，不使用 useEditor/EditorContent
 const editorContainerRef = ref<HTMLElement | null>(null)
 const bodyEditor = shallowRef<Editor | null>(null)
+const hasPendingChanges = ref(false)
+const activeLineElement = shallowRef<HTMLElement | null>(null)
+const imageInputRef = ref<HTMLInputElement | null>(null)
+const isFindReplaceVisible = ref(false)
+const findReplaceMode = ref<'find' | 'replace'>('find')
+const findQuery = ref('')
+const replaceQuery = ref('')
+const findMatches = ref<Array<{ from: number; to: number }>>([])
+const activeFindMatchIndex = ref(-1)
+const contextMenuState = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+})
+
+let suppressEditorUpdate = false
+let autoSaveIntervalId: ReturnType<typeof setInterval> | null = null
+
+function recordSaveMetric(source: 'auto' | 'manual', duration: number): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const normalizedDuration = Math.max(0, Math.round(duration))
+
+  try {
+    window.sessionStorage.setItem('inkforge:last-editor-save-ms', String(normalizedDuration))
+    window.sessionStorage.setItem('inkforge:last-editor-save-source', source)
+    window.sessionStorage.setItem('inkforge:last-editor-save-at', new Date().toISOString())
+  } catch {
+    // ignore diagnostics cache write failures
+  }
+
+  window.dispatchEvent(new CustomEvent('inkforge:editor-save-metric', {
+    detail: {
+      source,
+      duration: normalizedDuration,
+      at: new Date().toISOString(),
+    },
+  }))
+}
+
+function getEditorDom(): HTMLElement | null {
+  return bodyEditor.value?.view.dom as HTMLElement | null
+}
+
+function updateExtensionOptions(): void {
+  if (!bodyEditor.value) {
+    return
+  }
+
+  const exts = bodyEditor.value.extensionManager.extensions
+  const editorSettings = settingsStore.settings.editor
+
+  const smartPunctuation = exts.find((extension) => extension.name === 'smartPunctuation')
+  if (smartPunctuation) smartPunctuation.options.enabled = editorSettings.smartPunctuation
+
+  const typewriterMode = exts.find((extension) => extension.name === 'typewriterMode')
+  if (typewriterMode) typewriterMode.options.enabled = editorSettings.typewriterMode
+
+  const markdownHints = exts.find((extension) => extension.name === 'markdownHints')
+  if (markdownHints) markdownHints.options.enabled = markdownHintsEnabled.value
+
+  const typoraMode = exts.find((extension) => extension.name === 'typoraMode')
+  if (typoraMode) typoraMode.options.enabled = editorSettings.editorMode === 'typora'
+
+  const bracketMatching = exts.find((extension) => extension.name === 'bracketMatching')
+  if (bracketMatching) bracketMatching.options.enabled = editorSettings.bracketMatching
+}
+
+function clearActiveLineDecoration(): void {
+  if (activeLineElement.value) {
+    activeLineElement.value.classList.remove('editor-active-line')
+    activeLineElement.value = null
+  }
+}
+
+function findTopLevelBlockElement(element: HTMLElement | null): HTMLElement | null {
+  const container = editorContainerRef.value
+  let current = element
+
+  while (current && current !== container) {
+    if (current.parentElement === container) {
+      return current
+    }
+
+    current = current.parentElement
+  }
+
+  return null
+}
+
+function updateActiveLineDecoration(): void {
+  clearActiveLineDecoration()
+
+  if (!settingsStore.settings.editor.highlightActiveLine || !bodyEditor.value) {
+    return
+  }
+
+  const { from } = bodyEditor.value.state.selection
+  const domAnchor = bodyEditor.value.view.domAtPos(from)
+  const anchorElement = domAnchor.node instanceof HTMLElement ? domAnchor.node : domAnchor.node.parentElement
+  const blockElement = findTopLevelBlockElement(anchorElement)
+
+  if (!blockElement) {
+    return
+  }
+
+  blockElement.classList.add('editor-active-line')
+  activeLineElement.value = blockElement
+}
+
+function applyEditorSurfaceSettings(): void {
+  const dom = getEditorDom()
+  if (!dom) {
+    return
+  }
+
+  const editorSettings = settingsStore.settings.editor
+  dom.setAttribute('spellcheck', String(editorSettings.spellCheck))
+  dom.style.whiteSpace = editorSettings.wordWrap ? 'pre-wrap' : 'pre'
+  dom.style.wordBreak = editorSettings.wordWrap ? 'break-word' : 'normal'
+  dom.style.setProperty('tab-size', String(editorSettings.tabSize))
+
+  updateActiveLineDecoration()
+}
+
+function restartAutoSaveTimer(): void {
+  if (autoSaveIntervalId) {
+    clearInterval(autoSaveIntervalId)
+    autoSaveIntervalId = null
+  }
+
+  if (!settingsStore.settings.editor.autoSave) {
+    return
+  }
+
+  autoSaveIntervalId = setInterval(() => {
+    if (!hasPendingChanges.value || !isReady.value) {
+      return
+    }
+
+    void saveContent(true, 'auto')
+  }, settingsStore.settings.editor.autoSaveInterval * 1000)
+}
+
+function collectTextMatches(query: string): Array<{ from: number; to: number }> {
+  if (!bodyEditor.value || !query.trim()) {
+    return []
+  }
+
+  const source = query.toLowerCase()
+  const matches: Array<{ from: number; to: number }> = []
+
+  bodyEditor.value.state.doc.descendants((node, pos) => {
+    if (!node.isText || !node.text) {
+      return
+    }
+
+    const haystack = node.text.toLowerCase()
+    let offset = 0
+
+    while (offset <= haystack.length) {
+      const foundAt = haystack.indexOf(source, offset)
+      if (foundAt === -1) {
+        break
+      }
+
+      matches.push({
+        from: pos + foundAt,
+        to: pos + foundAt + query.length,
+      })
+      offset = foundAt + Math.max(source.length, 1)
+    }
+  })
+
+  return matches
+}
+
+function activateFindMatch(index: number): void {
+  if (!bodyEditor.value || findMatches.value.length === 0) {
+    activeFindMatchIndex.value = -1
+    return
+  }
+
+  const normalizedIndex = (index + findMatches.value.length) % findMatches.value.length
+  const match = findMatches.value[normalizedIndex]
+  activeFindMatchIndex.value = normalizedIndex
+  bodyEditor.value.chain().focus().setTextSelection({ from: match.from, to: match.to }).scrollIntoView().run()
+}
+
+function refreshFindMatches(autoFocus = false): void {
+  findMatches.value = collectTextMatches(findQuery.value)
+
+  if (findMatches.value.length === 0) {
+    activeFindMatchIndex.value = -1
+    return
+  }
+
+  const nextIndex = autoFocus ? 0 : Math.min(activeFindMatchIndex.value, findMatches.value.length - 1)
+  activateFindMatch(nextIndex < 0 ? 0 : nextIndex)
+}
+
+function openFindReplace(mode: 'find' | 'replace'): void {
+  findReplaceMode.value = mode
+  isFindReplaceVisible.value = true
+  refreshFindMatches(true)
+}
+
+function closeFindReplace(): void {
+  isFindReplaceVisible.value = false
+  activeFindMatchIndex.value = -1
+}
+
+function handleFindNext(): void {
+  activateFindMatch(activeFindMatchIndex.value + 1)
+}
+
+function handleFindPrevious(): void {
+  activateFindMatch(activeFindMatchIndex.value - 1)
+}
+
+function handleReplaceCurrent(): void {
+  if (!bodyEditor.value || activeFindMatchIndex.value < 0 || !findMatches.value[activeFindMatchIndex.value]) {
+    return
+  }
+
+  const match = findMatches.value[activeFindMatchIndex.value]
+  bodyEditor.value.chain().focus().insertContentAt({ from: match.from, to: match.to }, replaceQuery.value).run()
+  refreshFindMatches()
+}
+
+function handleReplaceAll(): void {
+  if (!bodyEditor.value || findMatches.value.length === 0) {
+    return
+  }
+
+  const transaction = bodyEditor.value.state.tr
+  const orderedMatches = [...findMatches.value].sort((left, right) => right.from - left.from)
+  orderedMatches.forEach((match) => {
+    transaction.insertText(replaceQuery.value, match.from, match.to)
+  })
+  bodyEditor.value.view.dispatch(transaction)
+  refreshFindMatches()
+}
+
+const findMatchLabel = computed(() => {
+  if (!findQuery.value.trim()) {
+    return '输入关键词后开始查找'
+  }
+  if (findMatches.value.length === 0) {
+    return '没有匹配结果'
+  }
+  return `${activeFindMatchIndex.value + 1} / ${findMatches.value.length}`
+})
+
+watch(findQuery, () => {
+  if (isFindReplaceVisible.value) {
+    refreshFindMatches(true)
+  }
+})
+
+async function insertUploadedImage(file: File): Promise<void> {
+  const articleId = currentContent.value?.articleId
+  const asset = await assetStore.uploadAsset(file, articleId)
+  const src = assetStore.getAssetUrl(asset.id)
+
+  if (!src || !bodyEditor.value) {
+    return
+  }
+
+  bodyEditor.value.chain().focus().setImage({ src, alt: asset.name, title: asset.name }).run()
+}
+
+async function handleImageFiles(files: FileList | File[]): Promise<void> {
+  const imageFiles = Array.from(files).filter((file) => file.type.startsWith('image/'))
+  for (const file of imageFiles) {
+    await insertUploadedImage(file)
+  }
+}
+
+function handleImageInputChange(event: Event): void {
+  const input = event.target as HTMLInputElement
+  if (!input.files?.length) {
+    return
+  }
+
+  void handleImageFiles(input.files)
+  input.value = ''
+}
+
+function handleEditorDrop(event: DragEvent): void {
+  if (!event.dataTransfer?.files?.length) {
+    return
+  }
+
+  const hasImage = Array.from(event.dataTransfer.files).some((file) => file.type.startsWith('image/'))
+  if (!hasImage) {
+    return
+  }
+
+  event.preventDefault()
+  void handleImageFiles(event.dataTransfer.files)
+}
+
+function handleEditorPaste(event: ClipboardEvent): void {
+  const files = event.clipboardData?.files
+  if (!files?.length) {
+    return
+  }
+
+  const hasImage = Array.from(files).some((file) => file.type.startsWith('image/'))
+  if (!hasImage) {
+    return
+  }
+
+  event.preventDefault()
+  void handleImageFiles(files)
+}
+
+function hideContextMenu(): void {
+  contextMenuState.value.visible = false
+}
+
+function handleContextMenu(event: MouseEvent): void {
+  if (!bodyEditor.value || !isReady.value) {
+    return
+  }
+
+  event.preventDefault()
+  const containerRect = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect()
+  const rawX = containerRect ? event.clientX - containerRect.left : event.offsetX
+  const rawY = containerRect ? event.clientY - containerRect.top : event.offsetY
+  const menuWidth = 280
+  const menuHeight = 520
+  const maxX = containerRect ? Math.max(12, containerRect.width - menuWidth - 12) : rawX
+  const maxY = containerRect ? Math.max(12, containerRect.height - menuHeight - 12) : rawY
+  contextMenuState.value = {
+    visible: true,
+    x: Math.min(Math.max(12, rawX), maxX),
+    y: Math.min(Math.max(12, rawY), maxY),
+  }
+}
+
+async function handleContextMenuCommand(command: string): Promise<void> {
+  hideContextMenu()
+
+  switch (command) {
+    case 'copy':
+      document.execCommand('copy')
+      return
+    case 'cut':
+      document.execCommand('cut')
+      return
+    case 'paste': {
+      try {
+        const text = await navigator.clipboard.readText()
+        bodyEditor.value?.chain().focus().insertContent(text).run()
+      } catch {
+        document.execCommand('paste')
+      }
+      return
+    }
+    case 'selectAll':
+      bodyEditor.value?.chain().focus().selectAll().run()
+      return
+    case 'bold':
+      bodyEditor.value?.chain().focus().toggleBold().run()
+      return
+    case 'italic':
+      bodyEditor.value?.chain().focus().toggleItalic().run()
+      return
+    case 'underline':
+      bodyEditor.value?.chain().focus().toggleUnderline().run()
+      return
+    case 'strikethrough':
+      bodyEditor.value?.chain().focus().toggleStrike().run()
+      return
+    case 'inlineCode':
+      bodyEditor.value?.chain().focus().toggleCode().run()
+      return
+    case 'blockquote':
+      bodyEditor.value?.chain().focus().toggleBlockquote().run()
+      return
+    case 'bulletList':
+      bodyEditor.value?.chain().focus().toggleBulletList().run()
+      return
+    case 'orderedList':
+      bodyEditor.value?.chain().focus().toggleOrderedList().run()
+      return
+    case 'codeBlock':
+      bodyEditor.value?.chain().focus().toggleCodeBlock().run()
+      return
+    case 'table':
+      bodyEditor.value?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+      return
+    case 'horizontalRule':
+      bodyEditor.value?.chain().focus().setHorizontalRule().run()
+      return
+    case 'link':
+      window.dispatchEvent(new CustomEvent('inkforge:edit-link'))
+      return
+    case 'image':
+      imageInputRef.value?.click()
+      return
+    case 'findReplace':
+      openFindReplace('replace')
+      return
+    case 'clearFormat':
+      bodyEditor.value?.chain().focus().clearNodes().unsetAllMarks().run()
+      return
+    default:
+      return
+  }
+}
+
+function handleOpenImagePicker(): void {
+  imageInputRef.value?.click()
+}
+
+function handleEditorCustomEvent(event: Event): void {
+  if (!(event instanceof CustomEvent)) {
+    return
+  }
+
+  const action = event.detail?.action
+  if (action === 'switchEditorMode') {
+    settingsStore.settings.editor.editorMode =
+      settingsStore.settings.editor.editorMode === 'typora' ? 'source' : 'typora'
+    return
+  }
+
+  if (action === 'typewriterMode') {
+    settingsStore.settings.editor.typewriterMode = !settingsStore.settings.editor.typewriterMode
+    return
+  }
+
+  if (action === 'zoomIn') {
+    settingsStore.settings.appearance.fontSize = Math.min(24, settingsStore.settings.appearance.fontSize + 1)
+  }
+}
+
+function handleSaveEvent(): void {
+  void saveContent(true, 'manual')
+}
+
+function handleFindEvent(): void {
+  openFindReplace('find')
+}
+
+function handleReplaceEvent(): void {
+  openFindReplace('replace')
+}
 
 onMounted(() => {
   if (!editorContainerRef.value) return
@@ -106,11 +589,21 @@ onMounted(() => {
         },
       }),
       WeChatFormat,
+      MarkdownHints.configure({
+        enabled: markdownHintsEnabled.value,
+        cursorAware: true,
+      }),
+      TyporaMode.configure({
+        enabled: settingsStore.settings.editor.editorMode === 'typora',
+      }),
       SmartPunctuation.configure({
         enabled: settingsStore.settings.editor.smartPunctuation,
       }),
       TypewriterMode.configure({
         enabled: settingsStore.settings.editor.typewriterMode,
+      }),
+      BracketMatching.configure({
+        enabled: settingsStore.settings.editor.bracketMatching,
       }),
       ImageExtension.configure({
         inline: false,
@@ -131,25 +624,55 @@ onMounted(() => {
       Subscript,
       Superscript,
       Dropcursor.configure({ color: '#D32F2F', width: 2 }),
+      KeyboardShortcuts.configure({
+        getShortcuts: () => settingsStore.settings.shortcuts,
+      }),
       SlashCommands,
     ],
     content: '',
     onUpdate: () => {
-      autoSave()
-    }
+      if (suppressEditorUpdate) {
+        return
+      }
+
+      hasPendingChanges.value = true
+    },
+    onSelectionUpdate: () => {
+      updateActiveLineDecoration()
+    },
+    onFocus: () => {
+      updateActiveLineDecoration()
+    },
+    onBlur: () => {
+      clearActiveLineDecoration()
+    },
   })
+
+  editorContainerRef.value.addEventListener('drop', handleEditorDrop)
+  editorContainerRef.value.addEventListener('paste', handleEditorPaste)
+  editorContainerRef.value.addEventListener('contextmenu', handleContextMenu)
+  document.addEventListener('click', hideContextMenu, true)
+  window.addEventListener('inkforge:save', handleSaveEvent as EventListener)
+  window.addEventListener('inkforge:find', handleFindEvent as EventListener)
+  window.addEventListener('inkforge:replace', handleReplaceEvent as EventListener)
+  window.addEventListener('inkforge:open-image-picker', handleOpenImagePicker as EventListener)
+  window.addEventListener('inkforge:view-action', handleEditorCustomEvent as EventListener)
+
+  updateExtensionOptions()
+  applyEditorSurfaceSettings()
+  restartAutoSaveTimer()
 })
 
 // 设置 → 扩展实时同步
 watch(
   () => settingsStore.settings.editor,
-  (editorSettings) => {
+  () => {
     if (!bodyEditor.value) return
-    const exts = bodyEditor.value.extensionManager.extensions
-    const sp = exts.find(e => e.name === 'smartPunctuation')
-    if (sp) sp.options.enabled = editorSettings.smartPunctuation
-    const tw = exts.find(e => e.name === 'typewriterMode')
-    if (tw) tw.options.enabled = editorSettings.typewriterMode
+
+    updateExtensionOptions()
+    applyEditorSurfaceSettings()
+    restartAutoSaveTimer()
+    bodyEditor.value.view.dispatch(bodyEditor.value.state.tr)
   },
   { deep: true }
 )
@@ -164,7 +687,15 @@ watch(currentContent, (content: EditedContent | null) => {
       transcriptText.value = content.transcript
     }
     if (bodyEditor.value && bodyEditor.value.getHTML() !== content.body) {
+      suppressEditorUpdate = true
       bodyEditor.value.commands.setContent(content.body || '')
+      window.queueMicrotask(() => {
+        suppressEditorUpdate = false
+        hasPendingChanges.value = false
+        applyEditorSurfaceSettings()
+      })
+    } else {
+      hasPendingChanges.value = false
     }
   }
 }, { immediate: true })
@@ -174,47 +705,73 @@ watch(editorStatus, (newStatus) => {
   if (newStatus === 'loading' || newStatus === 'idle') {
     titleText.value = ''
     transcriptText.value = ''
+    suppressEditorUpdate = true
     bodyEditor.value?.commands.setContent('')
+    window.queueMicrotask(() => {
+      suppressEditorUpdate = false
+    })
+    hasPendingChanges.value = false
+    clearActiveLineDecoration()
   }
 })
 
-// ═══ Auto Save (防抖) ═══
-let saveTimeout: ReturnType<typeof setTimeout>
-function autoSave() {
-  if (!isReady.value) return
-  clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(saveContent, 2000)
-}
-
-async function saveContent() {
-  if (!isReady.value) return
+async function saveContent(force: boolean = false, source: 'auto' | 'manual' = 'manual') {
+  if (!isReady.value || (!force && !hasPendingChanges.value)) return
+  const startedAt = performance.now()
   await editorStore.updateContent({
     title: titleText.value,
     body: bodyEditor.value?.getHTML() || '',
     transcript: transcriptText.value
   })
+  hasPendingChanges.value = false
+  recordSaveMetric(source, performance.now() - startedAt)
 }
 
 // 暴露编辑器实例供外部组件（如 OutlinePanel）使用
-defineExpose({ bodyEditor })
+defineExpose({
+  bodyEditor,
+  saveImmediately: () => saveContent(true, 'manual'),
+})
 
 onBeforeUnmount(() => {
+  editorContainerRef.value?.removeEventListener('drop', handleEditorDrop)
+  editorContainerRef.value?.removeEventListener('paste', handleEditorPaste)
+  editorContainerRef.value?.removeEventListener('contextmenu', handleContextMenu)
+  document.removeEventListener('click', hideContextMenu, true)
+  window.removeEventListener('inkforge:save', handleSaveEvent as EventListener)
+  window.removeEventListener('inkforge:find', handleFindEvent as EventListener)
+  window.removeEventListener('inkforge:replace', handleReplaceEvent as EventListener)
+  window.removeEventListener('inkforge:open-image-picker', handleOpenImagePicker as EventListener)
+  window.removeEventListener('inkforge:view-action', handleEditorCustomEvent as EventListener)
   bodyEditor.value?.destroy()
   bodyEditor.value = null
-  clearTimeout(saveTimeout)
+  clearActiveLineDecoration()
+  if (autoSaveIntervalId) {
+    clearInterval(autoSaveIntervalId)
+    autoSaveIntervalId = null
+  }
 })
 </script>
 
 <template>
   <div class="editor-panel">
     <!-- 1. Loading -->
-    <div v-if="isLoading" class="state-container loading">
-      <Loader2 :size="32" class="animate-spin" />
+    <div
+      v-if="isLoading"
+      class="state-container loading"
+    >
+      <Loader2
+        :size="32"
+        class="animate-spin"
+      />
       <p>正在加载内容...</p>
     </div>
 
     <!-- 2. Error -->
-    <div v-else-if="editorStatus === 'error'" class="state-container error">
+    <div
+      v-else-if="editorStatus === 'error'"
+      class="state-container error"
+    >
       <AlertTriangle :size="32" />
       <h3>发生错误</h3>
       <p>{{ editorError }}</p>
@@ -228,19 +785,56 @@ onBeforeUnmount(() => {
       Editor 直接用 new Editor({ element }) 挂载到 editorContainerRef，
       不使用 EditorContent 的元素交换流程，彻底避免 localsInner 崩溃。
     -->
-    <div v-show="isReady" class="editor-scroll">
+    <div
+      v-show="isReady"
+      class="editor-scroll"
+    >
       <div
         class="editor-paper"
+        :class="editorPaperClasses"
         :style="{
           '--paper-font': editorFontFamily,
           '--paper-size': editorFontSize,
           '--paper-lh': editorLineHeight,
+          '--paper-width': editorPaperWidth,
         }"
       >
         <!-- 编辑器直接挂载点 — Editor 在 onMounted 时直接挂到这个 div -->
-        <div ref="editorContainerRef" class="tiptap-content" />
+        <div
+          ref="editorContainerRef"
+          class="tiptap-content"
+          :class="editorContentClasses"
+        />
+        <FindReplace
+          :visible="isFindReplaceVisible"
+          :mode="findReplaceMode"
+          :query="findQuery"
+          :replacement="replaceQuery"
+          :match-label="findMatchLabel"
+          @close="closeFindReplace"
+          @update:query="findQuery = $event"
+          @update:replacement="replaceQuery = $event"
+          @next="handleFindNext"
+          @previous="handleFindPrevious"
+          @replace="handleReplaceCurrent"
+          @replace-all="handleReplaceAll"
+        />
+        <EditorContextMenu
+          :visible="contextMenuState.visible"
+          :x="contextMenuState.x"
+          :y="contextMenuState.y"
+          @command="handleContextMenuCommand"
+        />
         <FloatingToolbar :editor="bodyEditor ?? undefined" />
         <SlashCommandMenu :editor="bodyEditor ?? undefined" />
+        <input
+          ref="imageInputRef"
+          type="file"
+          accept="image/*"
+          class="editor-image-input"
+          hidden
+          @change="handleImageInputChange"
+        >
       </div>
     </div>
   </div>
@@ -253,12 +847,19 @@ onBeforeUnmount(() => {
    ═══════════════════════════════════════════════════════════════════ */
 
 .editor-panel {
+  --editor-panel-bg: #FAFBFC;
+  --editor-paper-bg: #FFFFFF;
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #FAFBFC;
+  background: var(--editor-panel-bg);
   position: relative;
   overflow: hidden;
+}
+
+[data-theme='dark'] .editor-panel {
+  --editor-panel-bg: #FAFBFC;
+  --editor-paper-bg: #FFFFFF;
 }
 
 /* ─── 居中滚动容器 ─── */
@@ -268,16 +869,16 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   padding: 32px;
-  background: var(--bg-rice-paper, #FAFBFC);
+  background: var(--editor-panel-bg);
 }
 
 /* ─── 纸张 ─── */
 .editor-paper {
   width: 100%;
-  max-width: 680px;
+  max-width: var(--paper-width, 680px);
   min-height: 800px;
   margin: 0 auto;
-  background: var(--bg-surface, #FFFFFF);
+  background: var(--editor-paper-bg);
   border-radius: 2px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   padding: 64px 72px;
@@ -285,6 +886,10 @@ onBeforeUnmount(() => {
   transition: box-shadow 0.2s ease;
   align-self: flex-start;
   position: relative;
+}
+
+.editor-paper.show-line-numbers {
+  padding-left: 88px;
 }
 
 .editor-paper:focus-within {
@@ -301,6 +906,45 @@ onBeforeUnmount(() => {
   color: #37474F;
   letter-spacing: 0.01em;
   caret-color: #D32F2F;
+}
+
+.tiptap-content.is-no-wrap :deep(.ProseMirror) {
+  white-space: pre;
+  word-break: normal;
+  overflow-x: auto;
+}
+
+.editor-paper.show-line-numbers .tiptap-content :deep(.ProseMirror) {
+  counter-reset: block-line;
+}
+
+.editor-paper.show-line-numbers .tiptap-content :deep(.ProseMirror > *) {
+  position: relative;
+}
+
+.editor-paper.show-line-numbers .tiptap-content :deep(.ProseMirror > *::before) {
+  counter-increment: block-line;
+  content: counter(block-line);
+  position: absolute;
+  left: -52px;
+  top: 0;
+  width: 36px;
+  color: #B0BEC5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-align: right;
+}
+
+.tiptap-content :deep(.editor-active-line) {
+  background: linear-gradient(90deg, rgba(211, 47, 47, 0.08), rgba(211, 47, 47, 0));
+  border-radius: 6px;
+}
+
+.tiptap-content :deep(.matching-bracket) {
+  color: #D32F2F;
+  background: rgba(211, 47, 47, 0.12);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(211, 47, 47, 0.18);
 }
 
 /* ─── Selection 样式 ─── */
@@ -673,6 +1317,15 @@ onBeforeUnmount(() => {
 
 .tiptap-content :deep(.ProseMirror [style*="text-align: justify"]) {
   text-align: justify;
+}
+
+.tiptap-content :deep(.md-hint) {
+  color: #90A4AE;
+  opacity: 0.4;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  user-select: none;
+  pointer-events: none;
 }
 
 /* ─── H4 标题样式 ─── */

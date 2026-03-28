@@ -86,6 +86,7 @@ export class AppError extends Error {
  * 错误日志级别
  */
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+export type LoggerLevel = LogLevel | 'off'
 
 /**
  * 日志级别优先级映射
@@ -95,6 +96,29 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
     info: 1,
     warn: 2,
     error: 3,
+}
+
+let runtimeLogLevel: LoggerLevel | null = null
+
+export function setLogLevel(level: LoggerLevel): void {
+    runtimeLogLevel = level
+}
+
+export function getLogLevel(): LoggerLevel {
+    if (runtimeLogLevel) {
+        return runtimeLogLevel
+    }
+
+    const envLevel = import.meta.env.VITE_LOG_LEVEL as LoggerLevel | undefined
+    if (envLevel === 'off') {
+        return envLevel
+    }
+
+    if (envLevel && LOG_LEVEL_PRIORITY[envLevel] !== undefined) {
+        return envLevel
+    }
+
+    return import.meta.env.PROD ? 'warn' : 'debug'
 }
 
 /**
@@ -117,23 +141,13 @@ class Logger {
     private readonly prefix = '[InkForge]'
 
     /**
-     * 获取当前日志级别
-     * 生产环境默认 warn，开发环境默认 debug
-     */
-    private getLogLevel(): LogLevel {
-        const envLevel = import.meta.env.VITE_LOG_LEVEL as LogLevel | undefined
-        if (envLevel && LOG_LEVEL_PRIORITY[envLevel] !== undefined) {
-            return envLevel
-        }
-        // 生产环境默认 warn，开发环境默认 debug
-        return import.meta.env.PROD ? 'warn' : 'debug'
-    }
-
-    /**
      * 检查是否应该输出该级别的日志
      */
     private shouldLog(level: LogLevel): boolean {
-        const currentLevel = this.getLogLevel()
+        const currentLevel = getLogLevel()
+        if (currentLevel === 'off') {
+            return false
+        }
         return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[currentLevel]
     }
 

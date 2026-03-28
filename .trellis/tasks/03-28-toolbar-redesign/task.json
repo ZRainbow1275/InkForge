@@ -1,0 +1,45 @@
+{
+  "id": "toolbar-redesign",
+  "name": "toolbar-redesign",
+  "title": "FloatingToolbar 视觉重设计",
+  "description": "",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-03-28",
+  "completedAt": null,
+  "branch": "feature/toolbar-redesign",
+  "base_branch": "main",
+  "worktree_path": "D:\\Desktop\\trellis-worktrees\\feature\\toolbar-redesign",
+  "current_phase": 4,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": "9ac2fb4",
+  "pr_url": "https://github.com/ZRainbow1275/InkForge/pull/1",
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

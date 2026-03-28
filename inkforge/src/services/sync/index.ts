@@ -74,6 +74,8 @@ export type {
 // ===================================================================
 
 export { SyncEngine } from './engine'
+export { createSyncAdapter, isConfiguredSyncTarget } from './adapters'
+export { WebDAVSyncAdapter, S3SyncAdapter, RestSyncAdapter } from './adapters'
 
 export type {
     SyncStatus,
@@ -81,3 +83,13 @@ export type {
     SyncResult,
     SyncEngineConfig,
 } from './engine'
+
+export type {
+    ConfiguredSyncTarget,
+    RemoteManifest,
+    RemoteManifestEntry,
+    SyncAdapter,
+    SyncConnectionResult,
+    SyncDeletePayload,
+    SyncUploadPayload,
+} from './adapters'

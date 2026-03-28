@@ -7,7 +7,16 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src')
-        }
+        },
+        dedupe: [
+            '@codemirror/state',
+            '@codemirror/view',
+            '@codemirror/language',
+            '@codemirror/commands',
+            '@codemirror/autocomplete',
+            '@codemirror/lint',
+            '@codemirror/search',
+        ]
     },
     server: {
         port: 3005,

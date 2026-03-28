@@ -1,10 +1,41 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import {
+    AlertTriangle,
+    ArrowUpDown,
+    Check,
+    ChevronDown,
+    ChevronRight,
+    Cloud,
+    CloudAlert,
+    CloudUpload,
+    Copy,
+    ExternalLink,
+    FileText,
+    Folder,
+    FolderOpen,
+    HardDrive,
+    Image,
+    ImageOff,
+    PenLine,
+    Plus,
+    Search,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-vue-next'
 import { useArticleStore, type FileImportResult } from '@/stores/article'
 import { useCategoryStore } from '@/stores/category'
 import { useAssetStore } from '@/stores/asset'
+import { useSyncStore } from '@/stores/sync'
+import { ARTICLE_STATUS } from '@/constants'
 import type { Article, Category } from '@/types'
+import { getAllDocuments, type AssetRecord, type Document } from '@/utils/db'
+import { resolveIconComponent } from '@/utils/lucide-icons'
+import { formatRelativeTime } from '@/utils/format-relative-time'
+import DraftBox from './DraftBox.vue'
+import AssetPreview from './AssetPreview.vue'
 
 // ═══════════════════════════════════════════════════════════════════
 // Store 接入（真实数据，零 Mock）
@@ -13,10 +44,12 @@ import type { Article, Category } from '@/types'
 const articleStore = useArticleStore()
 const categoryStore = useCategoryStore()
 const assetStore = useAssetStore()
+const syncStore = useSyncStore()
 
 const { articles, selectedArticleId } = storeToRefs(articleStore)
 const { categories } = storeToRefs(categoryStore)
 const { assets } = storeToRefs(assetStore)
+const { trackedDocumentIds, lastSyncAt } = storeToRefs(syncStore)
 
 // ═══════════════════════════════════════════════════════════════════
 // 搜索
@@ -24,12 +57,91 @@ const { assets } = storeToRefs(assetStore)
 
 const searchQuery = ref('')
 
+type SortMode = 'updated' | 'created' | 'title' | 'status'
+
+interface SortConfig {
+    mode: SortMode
+    ascending: boolean
+}
+
+const sortOptions: Array<{ mode: SortMode; label: string; defaultAscending: boolean }> = [
+    { mode: 'updated', label: '最近更新', defaultAscending: false },
+    { mode: 'created', label: '创建时间', defaultAscending: false },
+    { mode: 'title', label: '标题', defaultAscending: true },
+    { mode: 'status', label: '状态', defaultAscending: true },
+]
+
+const sortConfig = ref<SortConfig>({
+    mode: 'updated',
+    ascending: false,
+})
+
+const showSortMenu = ref(false)
+const sortMenuRef = ref<HTMLElement | null>(null)
+
 const filteredArticlesMap = computed(() => {
     const q = searchQuery.value.toLowerCase().trim()
     const all = articles.value
     if (!q) return all
     return all.filter(a => a.title.toLowerCase().includes(q))
 })
+
+const sortedArticles = computed(() => {
+    const statusOrder = {
+        [ARTICLE_STATUS.NEW]: 0,
+        [ARTICLE_STATUS.READ]: 1,
+        [ARTICLE_STATUS.PROCESSED]: 2,
+    } as const
+
+    return [...filteredArticlesMap.value].sort((left, right) => {
+        let result: number
+
+        switch (sortConfig.value.mode) {
+            case 'created':
+                result = left.createdAt.getTime() - right.createdAt.getTime()
+                break
+            case 'title':
+                result = left.title.localeCompare(right.title, 'zh-Hans-CN')
+                break
+            case 'status':
+                result = statusOrder[left.status] - statusOrder[right.status]
+                break
+            case 'updated':
+            default:
+                result = left.updatedAt.getTime() - right.updatedAt.getTime()
+                break
+        }
+
+        if (result === 0) {
+            result = left.title.localeCompare(right.title, 'zh-Hans-CN')
+        }
+
+        return sortConfig.value.ascending ? result : -result
+    })
+})
+
+function toggleSortMenu(): void {
+    showSortMenu.value = !showSortMenu.value
+}
+
+function selectSortMode(mode: SortMode): void {
+    const option = sortOptions.find(item => item.mode === mode)
+    if (!option) return
+
+    if (sortConfig.value.mode === mode) {
+        sortConfig.value = {
+            ...sortConfig.value,
+            ascending: !sortConfig.value.ascending,
+        }
+    } else {
+        sortConfig.value = {
+            mode,
+            ascending: option.defaultAscending,
+        }
+    }
+
+    showSortMenu.value = false
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // 文件树：按分类分组
@@ -59,7 +171,7 @@ function toggleExpand(key: string): void {
 }
 
 const fileTree = computed<CategoryNode[]>(() => {
-    const filtered = filteredArticlesMap.value
+    const filtered = sortedArticles.value
     const catMap = new Map<string, Article[]>()
     const uncategorized: Article[] = []
 
@@ -107,9 +219,11 @@ const fileTree = computed<CategoryNode[]>(() => {
 // ═══════════════════════════════════════════════════════════════════
 
 const assetsExpanded = ref(true)
+const selectedAssetId = ref<string | null>(null)
 
 // 当选中文章变化时，加载对应素材
 watch(() => selectedArticleId.value, async (newId) => {
+    selectedAssetId.value = null
     if (newId) {
         await assetStore.loadAssets(newId)
     }
@@ -120,8 +234,125 @@ const currentAssets = computed(() => {
     return assets.value.filter(a => a.articleId === selectedArticleId.value)
 })
 
+type ArticleSyncDisplayStatus = 'synced' | 'pending' | 'conflict' | 'local-only'
+
+const documentStateMap = ref<Record<string, Document>>({})
+
+async function refreshDocumentStateMap(): Promise<void> {
+    try {
+        const documents = await getAllDocuments()
+        documentStateMap.value = documents.reduce<Record<string, Document>>((acc, document) => {
+            acc[document.id] = document
+            return acc
+        }, {})
+    } catch {
+        // 使用现有内存状态回退，避免因单次读取失败清空 UI
+    }
+}
+
+watch(
+    [
+        () => articles.value.length,
+        () => selectedArticleId.value,
+        () => trackedDocumentIds.value.join('|'),
+        () => lastSyncAt.value?.getTime() ?? 0,
+    ],
+    () => {
+        void refreshDocumentStateMap()
+    },
+    { immediate: true }
+)
+
+function getArticleSyncStatus(articleId: string): ArticleSyncDisplayStatus {
+    if (syncStore.getConflictForDocument(articleId)) {
+        return 'conflict'
+    }
+
+    if (trackedDocumentIds.value.includes(articleId)) {
+        return 'pending'
+    }
+
+    const document = documentStateMap.value[articleId]
+    if (!document) {
+        return 'local-only'
+    }
+
+    if (document.syncStatus === 'conflict') {
+        return 'conflict'
+    }
+
+    return document.syncStatus === 'synced' ? 'synced' : 'local-only'
+}
+
+function getArticleSyncIcon(articleId: string) {
+    switch (getArticleSyncStatus(articleId)) {
+        case 'synced':
+            return Cloud
+        case 'pending':
+            return CloudUpload
+        case 'conflict':
+            return CloudAlert
+        case 'local-only':
+        default:
+            return HardDrive
+    }
+}
+
+function getArticleSyncLabel(articleId: string): string {
+    switch (getArticleSyncStatus(articleId)) {
+        case 'synced':
+            return '已同步'
+        case 'pending':
+            return '待同步'
+        case 'conflict':
+            return '同步冲突'
+        case 'local-only':
+        default:
+            return '仅本地'
+    }
+}
+
+function getArticleSyncClass(articleId: string): string {
+    return `fm-sync-icon--${getArticleSyncStatus(articleId)}`
+}
+
 function getAssetThumbnail(assetId: string): string | null {
     return assetStore.getThumbnailUrl(assetId)
+}
+
+const visibleAssets = computed(() => currentAssets.value.slice(0, 8))
+
+const overflowAssetCount = computed(() => {
+    return Math.max(0, currentAssets.value.length - visibleAssets.value.length)
+})
+
+function handleAssetSelect(asset: AssetRecord): void {
+    selectedAssetId.value = asset.id
+}
+
+function handleAssetDragStart(event: DragEvent, asset: AssetRecord): void {
+    const dataTransfer = event.dataTransfer
+    const assetUrl = assetStore.getAssetUrl(asset.id)
+
+    if (!dataTransfer || !assetUrl) return
+
+    const safeName = asset.name.replace(/[[\]]/g, '').trim() || 'image'
+    const markdown = `![${safeName}](${assetUrl})`
+
+    dataTransfer.effectAllowed = 'copy'
+    dataTransfer.setData('text/plain', markdown)
+    dataTransfer.setData('text/uri-list', assetUrl)
+}
+
+async function handleAssetDelete(assetId: string): Promise<void> {
+    try {
+        await assetStore.deleteAsset(assetId)
+        if (selectedAssetId.value === assetId) {
+            selectedAssetId.value = null
+        }
+    } catch {
+        // 静默失败，store 内部已有错误处理
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -144,7 +375,7 @@ async function createBlankArticle(): Promise<void> {
             categoryId: categoryStore.selectedCategoryId ?? undefined,
         })
         articleStore.selectArticle(article.id)
-    } catch (err) {
+    } catch {
         // 静默失败，store 内部已有错误处理
     }
 }
@@ -213,7 +444,7 @@ async function confirmNewCategory(): Promise<void> {
     }
     try {
         await categoryStore.addCategory(name)
-    } catch (_err) {
+    } catch {
         // 静默失败
     }
     showNewCategoryInput.value = false
@@ -231,6 +462,77 @@ function cancelNewCategory(): void {
 
 function handleSelectArticle(id: string): void {
     articleStore.selectArticle(id)
+}
+
+async function handleDraftDelete(articleId: string): Promise<void> {
+    try {
+        await articleStore.deleteArticle(articleId)
+    } catch {
+        // 静默失败，store 内部已有错误处理
+    }
+}
+
+async function handleDraftPublish(articleId: string): Promise<void> {
+    try {
+        await articleStore.updateArticle(articleId, { status: ARTICLE_STATUS.PROCESSED })
+    } catch {
+        // 静默失败，store 内部已有错误处理
+    }
+}
+
+const draggingArticleId = ref<string | null>(null)
+const dragOverCategoryId = ref<string | null>(null)
+
+function getDropCategoryKey(categoryId: string | null): string {
+    return categoryId ?? '__uncategorized__'
+}
+
+function handleArticleDragStart(event: DragEvent, articleId: string): void {
+    const dataTransfer = event.dataTransfer
+    draggingArticleId.value = articleId
+
+    if (!dataTransfer) return
+
+    dataTransfer.effectAllowed = 'move'
+    dataTransfer.setData('application/x-inkforge-article-id', articleId)
+    dataTransfer.setData('text/plain', articleId)
+}
+
+function handleArticleDragEnd(): void {
+    draggingArticleId.value = null
+    dragOverCategoryId.value = null
+}
+
+function handleCategoryDragOver(event: DragEvent, categoryId: string | null): void {
+    if (!draggingArticleId.value) return
+    event.preventDefault()
+    dragOverCategoryId.value = getDropCategoryKey(categoryId)
+}
+
+function handleCategoryDragLeave(categoryId: string | null): void {
+    const targetKey = getDropCategoryKey(categoryId)
+    if (dragOverCategoryId.value === targetKey) {
+        dragOverCategoryId.value = null
+    }
+}
+
+async function handleCategoryDrop(event: DragEvent, categoryId: string | null): Promise<void> {
+    event.preventDefault()
+
+    const articleId = event.dataTransfer?.getData('application/x-inkforge-article-id') || draggingArticleId.value
+    dragOverCategoryId.value = null
+    draggingArticleId.value = null
+
+    if (!articleId) return
+
+    const article = articles.value.find(item => item.id === articleId)
+    if (!article || article.categoryId === categoryId) return
+
+    try {
+        await articleStore.moveToCategory(articleId, categoryId)
+    } catch {
+        // 静默失败，store 内部已有错误处理
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -294,7 +596,7 @@ function closeContextMenu(): void {
 // 右键菜单位置修正（避免超出视口）
 const adjustedMenuPosition = computed(() => {
     const menuWidth = 200
-    const menuHeight = 180
+    const menuHeight = contextMenu.value.type === 'article' ? 220 : 160
     let x = contextMenu.value.x
     let y = contextMenu.value.y
 
@@ -319,6 +621,10 @@ function handleGlobalClick(event: MouseEvent): void {
     // 关闭新建菜单
     if (showNewMenu.value && newMenuRef.value && !newMenuRef.value.contains(event.target as Node)) {
         showNewMenu.value = false
+    }
+    // 关闭排序菜单
+    if (showSortMenu.value && sortMenuRef.value && !sortMenuRef.value.contains(event.target as Node)) {
+        showSortMenu.value = false
     }
 }
 
@@ -365,7 +671,7 @@ async function confirmRenameArticle(): Promise<void> {
     if (newTitle) {
         try {
             await articleStore.updateArticle(id, { title: newTitle })
-        } catch (_err) {
+        } catch {
             // 静默
         }
     }
@@ -388,10 +694,41 @@ async function ctxMoveToCategory(categoryId: string | null): Promise<void> {
     if (!articleId) return
     try {
         await articleStore.moveToCategory(articleId, categoryId)
-    } catch (_err) {
+    } catch {
         // 静默
     }
     closeContextMenu()
+}
+
+async function ctxDuplicateArticle(): Promise<void> {
+    const articleId = contextMenu.value.targetId
+    if (!articleId) return
+
+    const original = articles.value.find(article => article.id === articleId)
+    if (!original) {
+        closeContextMenu()
+        return
+    }
+
+    closeContextMenu()
+
+    try {
+        const duplicated = await articleStore.addArticle({
+            title: `${original.title} (副本)`,
+            sourceUrl: original.sourceUrl,
+            sourceName: original.sourceName,
+            categoryId: original.categoryId ?? undefined,
+            description: original.description,
+            authors: [...original.authors],
+            rawContent: original.rawContent,
+            links: [...original.links],
+            images: [...original.images],
+            tags: [...original.tags],
+        })
+        articleStore.selectArticle(duplicated.id)
+    } catch {
+        // 静默
+    }
 }
 
 // ─── 右键菜单操作：删除文章（确认） ───
@@ -417,7 +754,7 @@ async function confirmDelete(): Promise<void> {
         } else if (pendingDeleteType.value === 'category') {
             await categoryStore.deleteCategory(pendingDeleteId.value)
         }
-    } catch (_err) {
+    } catch {
         // 静默
     }
     showDeleteConfirm.value = false
@@ -457,7 +794,7 @@ async function confirmRenameCategory(): Promise<void> {
     if (newName) {
         try {
             await categoryStore.updateCategory(id, { name: newName })
-        } catch (_err) {
+        } catch {
             // 静默
         }
     }
@@ -481,7 +818,7 @@ async function ctxNewArticleInCategory(): Promise<void> {
             categoryId: categoryId ?? undefined,
         })
         articleStore.selectArticle(article.id)
-    } catch (_err) {
+    } catch {
         // 静默
     }
 }
@@ -497,49 +834,6 @@ function ctxDeleteCategory(): void {
     pendingDeleteId.value = id
     showDeleteConfirm.value = true
     closeContextMenu()
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// 时间格式化
-// ═══════════════════════════════════════════════════════════════════
-
-function formatRelativeTime(date: Date | string | number): string {
-    const d = date instanceof Date ? date : new Date(date)
-    const now = new Date()
-    const diffMs = now.getTime() - d.getTime()
-
-    if (diffMs < 0) return formatDate(d)
-
-    const diffSeconds = Math.floor(diffMs / 1000)
-    const diffMinutes = Math.floor(diffSeconds / 60)
-    const diffHours = Math.floor(diffMinutes / 60)
-    const diffDays = Math.floor(diffHours / 24)
-
-    if (diffSeconds < 60) return '刚刚'
-    if (diffMinutes < 60) return `${diffMinutes}分钟前`
-    if (diffHours < 24) return `${diffHours}小时前`
-
-    // 检查是否是昨天
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
-    if (
-        d.getFullYear() === yesterday.getFullYear() &&
-        d.getMonth() === yesterday.getMonth() &&
-        d.getDate() === yesterday.getDate()
-    ) {
-        return '昨天'
-    }
-
-    if (diffDays < 30) return `${diffDays}天前`
-
-    return formatDate(d)
-}
-
-function formatDate(d: Date): string {
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${y}-${m}-${day}`
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -577,7 +871,7 @@ function getCategoryLabel(node: CategoryNode): string {
 }
 
 function getCategoryIcon(node: CategoryNode): string {
-    return node.category?.icon ?? '📄'
+    return node.category?.icon ?? 'FileText'
 }
 
 function getArticleCount(node: CategoryNode): number {
@@ -594,362 +888,530 @@ const deleteConfirmText = computed(() => {
 </script>
 
 <template>
-    <div class="fm-root">
-        <!-- 顶部工具栏 -->
-        <div class="fm-toolbar">
-            <div class="fm-search-wrap">
-                <!-- 搜索图标 SVG -->
-                <svg class="fm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input v-model="searchQuery" type="text" class="fm-search-input" placeholder="搜索文章..." />
-            </div>
-            <div ref="newMenuRef" class="fm-new-wrap">
-                <button class="fm-new-btn" @click.stop="toggleNewMenu" title="新建">
-                    <!-- Plus SVG -->
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    <!-- Chevron down SVG -->
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                </button>
-                <!-- 新建下拉菜单 -->
-                <Transition name="fm-fade">
-                    <div v-if="showNewMenu" class="fm-dropdown">
-                        <button class="fm-dropdown-item" @click.stop="createBlankArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="12" y1="18" x2="12" y2="12" />
-                                <line x1="9" y1="15" x2="15" y2="15" />
-                            </svg>
-                            <span>新建空白文章</span>
-                        </button>
-                        <button class="fm-dropdown-item" @click.stop="startNewCategory">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                                <line x1="12" y1="11" x2="12" y2="17" />
-                                <line x1="9" y1="14" x2="15" y2="14" />
-                            </svg>
-                            <span>新建分类</span>
-                        </button>
-                        <div class="fm-dropdown-separator" />
-                        <button class="fm-dropdown-item" :disabled="importing" @click.stop="handleImportFiles">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            <span>{{ importing ? '导入中...' : '导入文件' }}</span>
-                        </button>
-                    </div>
-                </Transition>
-            </div>
-        </div>
-
-        <!-- 导入结果通知 -->
-        <Transition name="fm-fade">
-            <div v-if="importResult" class="fm-import-result"
-                :class="importResult.failed > 0 ? 'fm-import-warning' : 'fm-import-success'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <template v-if="importResult.failed > 0">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </template>
-                    <template v-else>
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </template>
-                </svg>
-                <span class="fm-import-text">{{ importResult.success }} 成功<template v-if="importResult.failed > 0"> / {{ importResult.failed }} 失败</template></span>
-                <button class="fm-import-close" @click="dismissImportResult" title="关闭">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button>
-            </div>
-        </Transition>
-
-        <!-- 新建分类 inline 输入 -->
-        <div v-if="showNewCategoryInput" class="fm-inline-input">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-            </svg>
-            <input ref="newCategoryInputRef" v-model="newCategoryName" type="text" class="fm-rename-input"
-                placeholder="分类名称..." @keydown.enter="confirmNewCategory" @keydown.escape="cancelNewCategory"
-                @blur="confirmNewCategory" />
-        </div>
-
-        <!-- 文件树 -->
-        <div class="fm-tree">
-            <template v-if="fileTree.length === 0 && searchQuery.trim()">
-                <div class="fm-empty-search">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <p>未找到匹配的文章</p>
-                </div>
-            </template>
-
-            <template v-else-if="articles.length === 0 && !searchQuery.trim()">
-                <div class="fm-empty-state">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                    <p class="fm-empty-title">还没有任何文章</p>
-                    <p class="fm-empty-hint">点击上方 + 号新建文章或分类</p>
-                </div>
-            </template>
-
-            <template v-else>
-                <div v-for="node in fileTree" :key="getCategoryKey(node)" class="fm-category-node">
-                    <!-- 分类行 -->
-                    <div class="fm-category-row" :class="{ 'fm-expanded': expandedMap[getCategoryKey(node)] }"
-                        @click="toggleExpand(getCategoryKey(node))"
-                        @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)">
-
-                        <!-- 展开/折叠箭头 -->
-                        <svg class="fm-chevron" :class="{ 'fm-chevron-open': expandedMap[getCategoryKey(node)] }"
-                            width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-
-                        <!-- 分类图标 -->
-                        <span class="fm-cat-icon">{{ getCategoryIcon(node) }}</span>
-
-                        <!-- 重命名模式 -->
-                        <template v-if="renamingCategoryId === node.category?.id && node.category">
-                            <input ref="renameCategoryInputRef" v-model="renameCategoryValue" type="text"
-                                class="fm-rename-input fm-rename-inline" @keydown.enter="confirmRenameCategory"
-                                @keydown.escape="cancelRenameCategory" @blur="confirmRenameCategory"
-                                @click.stop />
-                        </template>
-                        <template v-else>
-                            <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
-                        </template>
-
-                        <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
-                    </div>
-
-                    <!-- 分类下的文章列表（展开/折叠动画） -->
-                    <div class="fm-articles-wrap"
-                        :class="{ 'fm-articles-expanded': expandedMap[getCategoryKey(node)] }">
-                        <div v-for="article in node.articles" :key="article.id" class="fm-article-row"
-                            :class="{
-                                'fm-article-active': selectedArticleId === article.id,
-                            }" @click="handleSelectArticle(article.id)"
-                            @contextmenu="openArticleContextMenu($event, article.id)">
-
-                            <!-- 文件图标 -->
-                            <svg class="fm-file-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                            </svg>
-
-                            <!-- 重命名模式 -->
-                            <template v-if="renamingArticleId === article.id">
-                                <input ref="renameInputRef" v-model="renameValue" type="text"
-                                    class="fm-rename-input fm-rename-inline" @keydown.enter="confirmRenameArticle"
-                                    @keydown.escape="cancelRenameArticle" @blur="confirmRenameArticle"
-                                    @click.stop />
-                            </template>
-                            <template v-else>
-                                <span class="fm-article-title">{{ article.title }}</span>
-                            </template>
-
-                            <!-- 状态标记 -->
-                            <span v-if="article.status === 'new'" class="fm-status"
-                                :class="getStatusClass(article.status)">
-                                {{ getStatusLabel(article.status) }}
-                            </span>
-
-                            <!-- 更新时间 -->
-                            <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </div>
-
-        <!-- 素材区域 -->
-        <div v-if="selectedArticleId && currentAssets.length > 0" class="fm-assets-section">
-            <div class="fm-assets-header" @click="assetsExpanded = !assetsExpanded">
-                <svg class="fm-chevron" :class="{ 'fm-chevron-open': assetsExpanded }" width="12" height="12"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                </svg>
-                <!-- 图片图标 -->
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                </svg>
-                <span class="fm-assets-label">素材 ({{ currentAssets.length }})</span>
-            </div>
-            <div class="fm-assets-grid" :class="{ 'fm-assets-grid-expanded': assetsExpanded }">
-                <div v-for="asset in currentAssets" :key="asset.id" class="fm-asset-item" :title="asset.name">
-                    <img v-if="getAssetThumbnail(asset.id)" :src="getAssetThumbnail(asset.id)!" :alt="asset.name"
-                        class="fm-asset-thumb" />
-                    <div v-else class="fm-asset-placeholder">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                    </div>
-                    <span class="fm-asset-name">{{ asset.name }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右键菜单（Teleport to body） -->
-        <Teleport to="body">
-            <Transition name="fm-fade">
-                <div v-if="contextMenu.visible" class="fm-context-menu"
-                    :style="{ left: adjustedMenuPosition.x + 'px', top: adjustedMenuPosition.y + 'px' }"
-                    @click.stop>
-
-                    <!-- 文章右键菜单 -->
-                    <template v-if="contextMenu.type === 'article'">
-                        <button class="fm-ctx-item" @click="ctxOpenArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            <span>打开</span>
-                        </button>
-                        <button class="fm-ctx-item" @click="ctxStartRenameArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            <span>重命名</span>
-                        </button>
-                        <div class="fm-ctx-separator" />
-                        <div class="fm-ctx-submenu-wrap">
-                            <button class="fm-ctx-item fm-ctx-has-submenu" @click.stop="ctxToggleMoveSubmenu">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                                </svg>
-                                <span>移动到分类</span>
-                                <svg class="fm-ctx-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </button>
-                            <!-- 子菜单 -->
-                            <Transition name="fm-fade">
-                                <div v-if="showMoveSubmenu" class="fm-ctx-submenu">
-                                    <button class="fm-ctx-item" @click="ctxMoveToCategory(null)">
-                                        <span>📄 未分类</span>
-                                    </button>
-                                    <button v-for="cat in categories" :key="cat.id" class="fm-ctx-item"
-                                        @click="ctxMoveToCategory(cat.id)">
-                                        <span>{{ cat.icon || '📁' }} {{ cat.name }}</span>
-                                    </button>
-                                </div>
-                            </Transition>
-                        </div>
-                        <div class="fm-ctx-separator" />
-                        <button class="fm-ctx-item fm-ctx-danger" @click="ctxDeleteArticle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6" />
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                            <span>删除</span>
-                        </button>
-                    </template>
-
-                    <!-- 分类右键菜单 -->
-                    <template v-if="contextMenu.type === 'category'">
-                        <!-- 仅对真实分类（非"未分类"）显示重命名和删除 -->
-                        <template v-if="contextMenu.targetCategoryId">
-                            <button class="fm-ctx-item" @click="ctxStartRenameCategory">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                </svg>
-                                <span>重命名</span>
-                            </button>
-                        </template>
-                        <button class="fm-ctx-item" @click="ctxNewArticleInCategory">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                                <line x1="12" y1="18" x2="12" y2="12" />
-                                <line x1="9" y1="15" x2="15" y2="15" />
-                            </svg>
-                            <span>在此分类新建文章</span>
-                        </button>
-                        <template v-if="contextMenu.targetCategoryId">
-                            <div class="fm-ctx-separator" />
-                            <button class="fm-ctx-item fm-ctx-danger" @click="ctxDeleteCategory">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6" />
-                                    <path
-                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                                <span>删除分类</span>
-                            </button>
-                        </template>
-                    </template>
-                </div>
-            </Transition>
-        </Teleport>
-
-        <!-- 删除确认模态框 -->
-        <Teleport to="body">
-            <Transition name="fm-fade">
-                <div v-if="showDeleteConfirm" class="fm-confirm-overlay" @click.self="cancelDelete">
-                    <div class="fm-confirm-modal">
-                        <h3 class="fm-confirm-title">确认删除</h3>
-                        <p class="fm-confirm-text">{{ deleteConfirmText }}</p>
-                        <div class="fm-confirm-actions">
-                            <button class="fm-btn fm-btn-cancel" @click="cancelDelete">取消</button>
-                            <button class="fm-btn fm-btn-danger" @click="confirmDelete">删除</button>
-                        </div>
-                    </div>
-                </div>
-            </Transition>
-        </Teleport>
+  <div class="fm-root">
+    <div class="panel-section-title">
+      <FolderOpen
+        class="section-icon"
+        :size="14"
+      />
+      <span>文件管理</span>
+      <span
+        v-if="articles.length > 0"
+        class="section-count"
+      >{{ articles.length }}</span>
     </div>
+
+    <!-- 顶部工具栏 -->
+    <div class="fm-toolbar">
+      <div class="fm-search-wrap">
+        <Search
+          class="fm-search-icon"
+          :size="14"
+        />
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="fm-search-input"
+          placeholder="搜索文章..."
+        >
+      </div>
+      <div
+        ref="newMenuRef"
+        class="fm-new-wrap"
+      >
+        <button
+          class="fm-new-btn"
+          title="新建"
+          @click.stop="toggleNewMenu"
+        >
+          <Plus :size="14" />
+          <ChevronDown :size="10" />
+        </button>
+        <!-- 新建下拉菜单 -->
+        <Transition name="fm-fade">
+          <div
+            v-if="showNewMenu"
+            class="fm-dropdown"
+          >
+            <button
+              class="fm-dropdown-item"
+              @click.stop="createBlankArticle"
+            >
+              <FileText :size="14" />
+              <span>新建空白文章</span>
+            </button>
+            <button
+              class="fm-dropdown-item"
+              @click.stop="startNewCategory"
+            >
+              <Folder :size="14" />
+              <span>新建分类</span>
+            </button>
+            <div class="fm-dropdown-separator" />
+            <button
+              class="fm-dropdown-item"
+              :disabled="importing"
+              @click.stop="handleImportFiles"
+            >
+              <Upload :size="14" />
+              <span>{{ importing ? '导入中...' : '导入文件' }}</span>
+            </button>
+          </div>
+        </Transition>
+      </div>
+
+      <div
+        ref="sortMenuRef"
+        class="fm-sort-wrap"
+      >
+        <button
+          class="fm-sort-btn"
+          :title="`排序：${sortOptions.find(option => option.mode === sortConfig.mode)?.label ?? '最近更新'}`"
+          @click.stop="toggleSortMenu"
+        >
+          <ArrowUpDown :size="14" />
+        </button>
+
+        <Transition name="fm-fade">
+          <div
+            v-if="showSortMenu"
+            class="fm-sort-menu"
+          >
+            <button
+              v-for="option in sortOptions"
+              :key="option.mode"
+              class="fm-sort-option"
+              :class="{ 'fm-sort-option-active': sortConfig.mode === option.mode }"
+              @click.stop="selectSortMode(option.mode)"
+            >
+              <span>{{ option.label }}</span>
+              <span class="fm-sort-direction">
+                {{
+                  sortConfig.mode === option.mode
+                    ? (sortConfig.ascending ? '升序' : '降序')
+                    : (option.defaultAscending ? '升序' : '降序')
+                }}
+              </span>
+            </button>
+          </div>
+        </Transition>
+      </div>
+    </div>
+
+    <!-- 导入结果通知 -->
+    <Transition name="fm-fade">
+      <div
+        v-if="importResult"
+        class="fm-import-result"
+        :class="importResult.failed > 0 ? 'fm-import-warning' : 'fm-import-success'"
+      >
+        <AlertTriangle
+          v-if="importResult.failed > 0"
+          :size="14"
+        />
+        <Check
+          v-else
+          :size="14"
+        />
+        <span class="fm-import-text">{{ importResult.success }} 成功<template v-if="importResult.failed > 0"> / {{ importResult.failed }} 失败</template></span>
+        <button
+          class="fm-import-close"
+          title="关闭"
+          @click="dismissImportResult"
+        >
+          <X :size="12" />
+        </button>
+      </div>
+    </Transition>
+
+    <!-- 新建分类 inline 输入 -->
+    <div
+      v-if="showNewCategoryInput"
+      class="fm-inline-input"
+    >
+      <Folder :size="14" />
+      <input
+        ref="newCategoryInputRef"
+        v-model="newCategoryName"
+        type="text"
+        class="fm-rename-input"
+        placeholder="分类名称..."
+        @keydown.enter="confirmNewCategory"
+        @keydown.escape="cancelNewCategory"
+        @blur="confirmNewCategory"
+      >
+    </div>
+
+    <DraftBox
+      :selected-article-id="selectedArticleId"
+      @select="handleSelectArticle"
+      @delete="handleDraftDelete"
+      @publish="handleDraftPublish"
+    />
+
+    <!-- 文件树 -->
+    <div class="fm-tree">
+      <template v-if="fileTree.length === 0 && searchQuery.trim()">
+        <div class="fm-empty-search">
+          <Search
+            :size="32"
+            color="#9CA3AF"
+          />
+          <p>未找到匹配的文章</p>
+        </div>
+      </template>
+
+      <template v-else-if="articles.length === 0 && !searchQuery.trim()">
+        <div class="fm-empty-state">
+          <FileText
+            :size="40"
+            color="#9CA3AF"
+          />
+          <p class="fm-empty-title">
+            还没有任何文章
+          </p>
+          <p class="fm-empty-hint">
+            点击上方 + 号新建文章或分类
+          </p>
+        </div>
+      </template>
+
+      <template v-else>
+        <div
+          v-for="node in fileTree"
+          :key="getCategoryKey(node)"
+          class="fm-category-node"
+        >
+          <!-- 分类行 -->
+          <div
+            class="fm-category-row"
+            :class="{
+              'fm-expanded': expandedMap[getCategoryKey(node)],
+              'fm-category-row--drag-over': dragOverCategoryId === getCategoryKey(node),
+            }"
+            @click="toggleExpand(getCategoryKey(node))"
+            @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
+            @dragover="handleCategoryDragOver($event, node.category?.id ?? null)"
+            @dragleave="handleCategoryDragLeave(node.category?.id ?? null)"
+            @drop="handleCategoryDrop($event, node.category?.id ?? null)"
+          >
+            <!-- 展开/折叠箭头 -->
+            <ChevronRight
+              class="fm-chevron"
+              :class="{ 'fm-chevron-open': expandedMap[getCategoryKey(node)] }"
+              :size="12"
+            />
+
+            <!-- 分类图标 -->
+            <span class="fm-cat-icon">
+              <component
+                :is="resolveIconComponent(getCategoryIcon(node), 'Folder')"
+                :size="14"
+              />
+            </span>
+
+            <!-- 重命名模式 -->
+            <template v-if="renamingCategoryId === node.category?.id && node.category">
+              <input
+                ref="renameCategoryInputRef"
+                v-model="renameCategoryValue"
+                type="text"
+                class="fm-rename-input fm-rename-inline"
+                @keydown.enter="confirmRenameCategory"
+                @keydown.escape="cancelRenameCategory"
+                @blur="confirmRenameCategory"
+                @click.stop
+              >
+            </template>
+            <template v-else>
+              <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
+            </template>
+
+            <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
+          </div>
+
+          <!-- 分类下的文章列表（展开/折叠动画） -->
+          <div
+            class="fm-articles-wrap"
+            :class="{ 'fm-articles-expanded': expandedMap[getCategoryKey(node)] }"
+          >
+            <div
+              v-for="article in node.articles"
+              :key="article.id"
+              class="fm-article-row"
+              :class="{
+                'fm-article-active': selectedArticleId === article.id,
+                'fm-article-row--dragging': draggingArticleId === article.id,
+              }"
+              draggable="true"
+              @click="handleSelectArticle(article.id)"
+              @contextmenu="openArticleContextMenu($event, article.id)"
+              @dragstart="handleArticleDragStart($event, article.id)"
+              @dragend="handleArticleDragEnd"
+            >
+              <!-- 文件图标 -->
+              <FileText
+                class="fm-file-icon"
+                :size="14"
+              />
+
+              <!-- 重命名模式 -->
+              <template v-if="renamingArticleId === article.id">
+                <input
+                  ref="renameInputRef"
+                  v-model="renameValue"
+                  type="text"
+                  class="fm-rename-input fm-rename-inline"
+                  @keydown.enter="confirmRenameArticle"
+                  @keydown.escape="cancelRenameArticle"
+                  @blur="confirmRenameArticle"
+                  @click.stop
+                >
+              </template>
+              <template v-else>
+                <span class="fm-article-title">{{ article.title }}</span>
+              </template>
+
+              <!-- 状态标记 -->
+              <span
+                v-if="article.status === 'new'"
+                class="fm-status"
+                :class="getStatusClass(article.status)"
+              >
+                {{ getStatusLabel(article.status) }}
+              </span>
+
+              <div class="fm-article-sync">
+                <component
+                  :is="getArticleSyncIcon(article.id)"
+                  class="fm-sync-icon"
+                  :class="getArticleSyncClass(article.id)"
+                  :size="12"
+                  :title="getArticleSyncLabel(article.id)"
+                />
+                <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- 素材区域 -->
+    <div
+      v-if="selectedArticleId"
+      class="fm-assets-section"
+    >
+      <div
+        class="fm-assets-header"
+        @click="assetsExpanded = !assetsExpanded"
+      >
+        <ChevronRight
+          class="fm-chevron"
+          :class="{ 'fm-chevron-open': assetsExpanded }"
+          :size="12"
+        />
+        <Image :size="14" />
+        <span class="fm-assets-label">素材库</span>
+        <span
+          v-if="currentAssets.length > 0"
+          class="section-count"
+        >{{ currentAssets.length }}</span>
+        <span
+          v-if="overflowAssetCount > 0"
+          class="fm-assets-overflow-badge"
+        >+{{ overflowAssetCount }}</span>
+      </div>
+      <div
+        class="fm-assets-grid"
+        :class="{ 'fm-assets-grid-expanded': assetsExpanded }"
+      >
+        <div
+          v-if="currentAssets.length === 0"
+          class="fm-assets-empty"
+        >
+          <ImageOff :size="16" />
+          <span>暂无素材</span>
+        </div>
+        <template v-else>
+          <AssetPreview
+            v-for="asset in visibleAssets"
+            :key="asset.id"
+            :asset="asset"
+            :thumbnail-url="getAssetThumbnail(asset.id)"
+            :selected="selectedAssetId === asset.id"
+            @click="handleAssetSelect"
+            @dragstart="handleAssetDragStart"
+            @delete="handleAssetDelete"
+          />
+          <div
+            v-if="overflowAssetCount > 0"
+            class="fm-assets-more"
+          >
+            +{{ overflowAssetCount }}
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- 右键菜单（Teleport to body） -->
+    <Teleport to="body">
+      <Transition name="fm-fade">
+        <div
+          v-if="contextMenu.visible"
+          class="fm-context-menu"
+          :style="{ left: adjustedMenuPosition.x + 'px', top: adjustedMenuPosition.y + 'px' }"
+          @click.stop
+        >
+          <!-- 文章右键菜单 -->
+          <template v-if="contextMenu.type === 'article'">
+            <button
+              class="fm-ctx-item"
+              @click="ctxOpenArticle"
+            >
+              <ExternalLink :size="14" />
+              <span>打开</span>
+            </button>
+            <button
+              class="fm-ctx-item"
+              @click="ctxStartRenameArticle"
+            >
+              <PenLine :size="14" />
+              <span>重命名</span>
+            </button>
+            <div class="fm-ctx-separator" />
+            <div class="fm-ctx-submenu-wrap">
+              <button
+                class="fm-ctx-item fm-ctx-has-submenu"
+                @click.stop="ctxToggleMoveSubmenu"
+              >
+                <Folder :size="14" />
+                <span>移动到分类</span>
+                <ChevronRight
+                  class="fm-ctx-arrow"
+                  :size="10"
+                />
+              </button>
+              <!-- 子菜单 -->
+              <Transition name="fm-fade">
+                <div
+                  v-if="showMoveSubmenu"
+                  class="fm-ctx-submenu"
+                >
+                  <button
+                    class="fm-ctx-item"
+                    @click="ctxMoveToCategory(null)"
+                  >
+                    <span class="fm-ctx-label">
+                      <component
+                        :is="resolveIconComponent('FileText', 'FileText')"
+                        :size="14"
+                      />
+                      <span>未分类</span>
+                    </span>
+                  </button>
+                  <button
+                    v-for="cat in categories"
+                    :key="cat.id"
+                    class="fm-ctx-item"
+                    @click="ctxMoveToCategory(cat.id)"
+                  >
+                    <span class="fm-ctx-label">
+                      <component
+                        :is="resolveIconComponent(cat.icon, 'Folder')"
+                        :size="14"
+                      />
+                      <span>{{ cat.name }}</span>
+                    </span>
+                  </button>
+                </div>
+              </Transition>
+            </div>
+            <button
+              class="fm-ctx-item"
+              @click="ctxDuplicateArticle"
+            >
+              <Copy :size="14" />
+              <span>复制文档</span>
+            </button>
+            <div class="fm-ctx-separator" />
+            <button
+              class="fm-ctx-item fm-ctx-danger"
+              @click="ctxDeleteArticle"
+            >
+              <Trash2 :size="14" />
+              <span>删除</span>
+            </button>
+          </template>
+
+          <!-- 分类右键菜单 -->
+          <template v-if="contextMenu.type === 'category'">
+            <!-- 仅对真实分类（非"未分类"）显示重命名和删除 -->
+            <template v-if="contextMenu.targetCategoryId">
+              <button
+                class="fm-ctx-item"
+                @click="ctxStartRenameCategory"
+              >
+                <PenLine :size="14" />
+                <span>重命名</span>
+              </button>
+            </template>
+            <button
+              class="fm-ctx-item"
+              @click="ctxNewArticleInCategory"
+            >
+              <FileText :size="14" />
+              <span>在此分类新建文章</span>
+            </button>
+            <template v-if="contextMenu.targetCategoryId">
+              <div class="fm-ctx-separator" />
+              <button
+                class="fm-ctx-item fm-ctx-danger"
+                @click="ctxDeleteCategory"
+              >
+                <Trash2 :size="14" />
+                <span>删除分类</span>
+              </button>
+            </template>
+          </template>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- 删除确认模态框 -->
+    <Teleport to="body">
+      <Transition name="fm-fade">
+        <div
+          v-if="showDeleteConfirm"
+          class="fm-confirm-overlay"
+          @click.self="cancelDelete"
+        >
+          <div class="fm-confirm-modal">
+            <h3 class="fm-confirm-title">
+              确认删除
+            </h3>
+            <p class="fm-confirm-text">
+              {{ deleteConfirmText }}
+            </p>
+            <div class="fm-confirm-actions">
+              <button
+                class="fm-btn fm-btn-cancel"
+                @click="cancelDelete"
+              >
+                取消
+              </button>
+              <button
+                class="fm-btn fm-btn-danger"
+                @click="confirmDelete"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
 </template>
 
 <style scoped>
@@ -1022,6 +1484,11 @@ const deleteConfirmText = computed(() => {
     flex-shrink: 0;
 }
 
+.fm-sort-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
 .fm-new-btn {
     display: flex;
     align-items: center;
@@ -1040,6 +1507,69 @@ const deleteConfirmText = computed(() => {
     border-color: #1565C0;
     color: #1565C0;
     background: #F0F7FF;
+}
+
+.fm-sort-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: #fff;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.fm-sort-btn:hover {
+    border-color: #1565C0;
+    color: #1565C0;
+    background: #F0F7FF;
+}
+
+.fm-sort-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 160px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 40;
+}
+
+.fm-sort-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 7px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #374151;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+
+.fm-sort-option:hover,
+.fm-sort-option-active {
+    background: #F3F4F6;
+}
+
+.fm-sort-option-active {
+    color: #1565C0;
+    font-weight: 600;
+}
+
+.fm-sort-direction {
+    font-size: 11px;
+    color: #90A4AE;
 }
 
 /* ─── 下拉菜单 ─── */
@@ -1203,6 +1733,11 @@ const deleteConfirmText = computed(() => {
     background: #F3F4F6;
 }
 
+.fm-category-row--drag-over {
+    background: rgba(211, 47, 47, 0.08);
+    box-shadow: inset 0 0 0 2px rgba(211, 47, 47, 0.32);
+}
+
 .fm-chevron {
     flex-shrink: 0;
     color: #9CA3AF;
@@ -1214,9 +1749,12 @@ const deleteConfirmText = computed(() => {
 }
 
 .fm-cat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    font-size: 14px;
     line-height: 1;
+    color: #607D8B;
 }
 
 .fm-cat-name {
@@ -1260,6 +1798,10 @@ const deleteConfirmText = computed(() => {
 
 .fm-article-row:hover {
     background: #F3F4F6;
+}
+
+.fm-article-row--dragging {
+    opacity: 0.52;
 }
 
 .fm-article-row.fm-article-active {
@@ -1321,6 +1863,34 @@ const deleteConfirmText = computed(() => {
     white-space: nowrap;
 }
 
+.fm-article-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    min-width: 0;
+}
+
+.fm-sync-icon {
+    flex-shrink: 0;
+}
+
+.fm-sync-icon--synced {
+    color: #2E7D32;
+}
+
+.fm-sync-icon--pending {
+    color: #F57C00;
+}
+
+.fm-sync-icon--conflict {
+    color: #C62828;
+}
+
+.fm-sync-icon--local-only {
+    color: #90A4AE;
+}
+
 /* ─── 重命名输入 ─── */
 
 .fm-rename-input {
@@ -1372,9 +1942,15 @@ const deleteConfirmText = computed(() => {
     flex: 1;
 }
 
+.fm-assets-overflow-badge {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #90A4AE;
+}
+
 .fm-assets-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
     gap: 6px;
     padding: 0 10px;
     max-height: 0;
@@ -1383,47 +1959,33 @@ const deleteConfirmText = computed(() => {
 }
 
 .fm-assets-grid-expanded {
-    max-height: 400px;
+    max-height: 180px;
     padding: 6px 10px 10px;
-    overflow-y: auto;
 }
 
-.fm-asset-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    cursor: default;
-}
-
-.fm-asset-thumb {
-    width: 56px;
-    height: 56px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid #E5E7EB;
-    background: #F9FAFB;
-}
-
-.fm-asset-placeholder {
-    width: 56px;
-    height: 56px;
+.fm-assets-empty {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    border: 1px solid #E5E7EB;
-    background: #F9FAFB;
+    gap: 6px;
+    min-height: 68px;
+    color: var(--text-muted, #90A4AE);
+    font-size: 12px;
 }
 
-.fm-asset-name {
-    font-size: 10px;
-    color: #6B7280;
-    max-width: 64px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: center;
+.fm-assets-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 6px;
+    border: 1px dashed #CFD8DC;
+    background: rgba(250, 251, 252, 0.88);
+    color: #607D8B;
+    font-size: 11px;
+    font-weight: 600;
 }
 
 /* ─── 空状态 ─── */
@@ -1492,6 +2054,13 @@ const deleteConfirmText = computed(() => {
 .fm-ctx-item svg {
     flex-shrink: 0;
     color: #6B7280;
+}
+
+.fm-ctx-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 }
 
 .fm-ctx-danger {

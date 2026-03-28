@@ -3,10 +3,11 @@ import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 import { useVersionManager, computeDiffSummary } from '@/composables/useVersionManager'
-import type { DiffLine, VersionMeta } from '@/composables/useVersionManager'
-import { Save, GitBranch, Clock, ChevronRight, Diff, RotateCcw, Zap, PenLine } from 'lucide-vue-next'
+import type { VersionMeta } from '@/composables/useVersionManager'
+import { Save, GitBranch, Clock, ChevronRight, Diff, RotateCcw, Zap, PenLine, GitCompareArrows, History } from 'lucide-vue-next'
 import VersionDiffModal from './VersionDiffModal.vue'
 import type { Version } from '@/schemas/article'
+import { formatRelativeTime } from '@/utils/format-relative-time'
 
 // ═══════════════════════════════════════════════════════════════════
 // Store & Composable
@@ -44,9 +45,8 @@ const selectedForDiff = ref<string[]>([])
 
 /** Diff Modal */
 const showDiffModal = ref(false)
-const diffModalOldVersion = ref<Version | null>(null)
-const diffModalNewVersion = ref<Version | null>(null)
-const diffModalLines = ref<DiffLine[]>([])
+const diffModalBaseVersion = ref<Version | null>(null)
+const diffModalCompareVersion = ref<Version | null>(null)
 
 // ═══════════════════════════════════════════════════════════════════
 // 计算属性
@@ -58,31 +58,17 @@ const hasContent = computed(() => currentContent.value !== null)
 /** 版本数量 */
 const versionCount = computed(() => versionList.value.length)
 
-// ═══════════════════════════════════════════════════════════════════
-// 时间格式化
-// ═══════════════════════════════════════════════════════════════════
+const canCompareWithPrevious = computed(() => {
+    if (!currentVersionId.value) return false
+    const currentIndex = versionList.value.findIndex((version) => version.id === currentVersionId.value)
+    return currentIndex >= 0 && currentIndex < versionList.value.length - 1
+})
 
-/**
- * 将日期格式化为相对时间
- */
-function formatRelativeTime(date: Date): string {
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffSeconds = Math.floor(diffMs / 1000)
-    const diffMinutes = Math.floor(diffSeconds / 60)
-    const diffHours = Math.floor(diffMinutes / 60)
-    const diffDays = Math.floor(diffHours / 24)
-
-    if (diffSeconds < 60) return '刚刚'
-    if (diffMinutes < 60) return `${diffMinutes}分钟前`
-    if (diffHours < 24) return `${diffHours}小时前`
-    if (diffDays === 1) return '昨天'
-
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-}
+const canCompareWithInitial = computed(() => {
+    if (!currentVersionId.value || versionList.value.length < 2) return false
+    const initialVersion = versionList.value[versionList.value.length - 1]
+    return initialVersion?.id !== currentVersionId.value
+})
 
 // ═══════════════════════════════════════════════════════════════════
 // 操作
@@ -192,51 +178,81 @@ function performDiff(): void {
 
     if (!oldVersion || !newVersion) return
 
-    // 确保按时间排序：旧在前，新在后
-    const oldTime = new Date(oldVersion.createdAt).getTime()
-    const newTime = new Date(newVersion.createdAt).getTime()
+    openDiffModal(oldVersion, newVersion)
+}
 
-    if (oldTime <= newTime) {
-        diffModalOldVersion.value = oldVersion
-        diffModalNewVersion.value = newVersion
+function compareWithPrevious(): void {
+    if (!currentVersionId.value) return
+
+    const currentIndex = versionList.value.findIndex((version) => version.id === currentVersionId.value)
+    if (currentIndex < 0 || currentIndex >= versionList.value.length - 1) return
+
+    const previousVersion = getVersionById(versionList.value[currentIndex + 1].id)
+    const currentVersion = getVersionById(currentVersionId.value)
+
+    if (!previousVersion || !currentVersion) return
+
+    openDiffModal(previousVersion, currentVersion)
+}
+
+function compareWithInitial(): void {
+    if (!currentVersionId.value || versionList.value.length < 2) return
+
+    const initialMeta = versionList.value[versionList.value.length - 1]
+    const initialVersion = getVersionById(initialMeta.id)
+    const currentVersion = getVersionById(currentVersionId.value)
+
+    if (!initialVersion || !currentVersion || initialVersion.id === currentVersion.id) return
+
+    openDiffModal(initialVersion, currentVersion)
+}
+
+function openDiffModal(firstVersion: Version, secondVersion: Version): void {
+    const firstTime = new Date(firstVersion.createdAt).getTime()
+    const secondTime = new Date(secondVersion.createdAt).getTime()
+
+    if (firstTime <= secondTime) {
+        diffModalBaseVersion.value = firstVersion
+        diffModalCompareVersion.value = secondVersion
     } else {
-        diffModalOldVersion.value = newVersion
-        diffModalNewVersion.value = oldVersion
+        diffModalBaseVersion.value = secondVersion
+        diffModalCompareVersion.value = firstVersion
     }
-
-    diffModalLines.value = computeDiff(
-        diffModalOldVersion.value.body,
-        diffModalNewVersion.value.body
-    )
 
     showDiffModal.value = true
 }
 
 function closeDiffModal(): void {
     showDiffModal.value = false
-    diffModalOldVersion.value = null
-    diffModalNewVersion.value = null
-    diffModalLines.value = []
+    diffModalBaseVersion.value = null
+    diffModalCompareVersion.value = null
 }
-
-// 导入 computeDiff 供 performDiff 使用
-import { computeDiff } from '@/composables/useVersionManager'
 </script>
 
 <template>
   <div class="version-panel">
     <!-- 头部 -->
-    <div class="panel-header">
-      <div class="header-title">
-        <GitBranch :size="14" />
-        <span>版本管理</span>
-        <span v-if="versionCount > 0" class="version-count">{{ versionCount }}</span>
-      </div>
+    <div class="panel-section-title">
+      <GitBranch
+        class="section-icon"
+        :size="14"
+      />
+      <span>版本管理</span>
+      <span
+        v-if="versionCount > 0"
+        class="section-count"
+      >{{ versionCount }}</span>
     </div>
 
     <!-- 无内容状态 -->
-    <div v-if="!hasContent" class="empty-state">
-      <GitBranch :size="28" class="empty-icon" />
+    <div
+      v-if="!hasContent"
+      class="empty-state"
+    >
+      <GitBranch
+        :size="28"
+        class="empty-icon"
+      />
       <span>选择文章后查看版本</span>
     </div>
 
@@ -251,7 +267,7 @@ import { computeDiff } from '@/composables/useVersionManager'
             placeholder="版本标签（可选）"
             maxlength="50"
             @keydown.enter="handleCreateVersion"
-          />
+          >
         </div>
         <div class="action-buttons">
           <button
@@ -265,19 +281,44 @@ import { computeDiff } from '@/composables/useVersionManager'
           <button
             class="diff-toggle-btn"
             :class="{ active: diffMode }"
-            @click="toggleDiffMode"
             title="对比模式"
+            @click="toggleDiffMode"
           >
             <Diff :size="13" />
           </button>
         </div>
 
+        <div class="quick-diff-row">
+          <button
+            class="quick-diff-btn"
+            :disabled="!canCompareWithPrevious"
+            @click="compareWithPrevious"
+          >
+            <GitCompareArrows :size="13" />
+            <span>与上一版本对比</span>
+          </button>
+          <button
+            class="quick-diff-btn"
+            :disabled="!canCompareWithInitial"
+            @click="compareWithInitial"
+          >
+            <History :size="13" />
+            <span>与初始版本对比</span>
+          </button>
+        </div>
+
         <!-- Diff 操作栏 -->
         <Transition name="slide-down">
-          <div v-if="diffMode" class="diff-action-bar">
+          <div
+            v-if="diffMode"
+            class="diff-action-bar"
+          >
             <span class="diff-hint">
               选择两个版本进行对比
-              <span v-if="selectedForDiff.length > 0" class="diff-selected-count">
+              <span
+                v-if="selectedForDiff.length > 0"
+                class="diff-selected-count"
+              >
                 ({{ selectedForDiff.length }}/2)
               </span>
             </span>
@@ -323,8 +364,14 @@ import { computeDiff } from '@/composables/useVersionManager'
                   class="version-type-badge"
                   :class="version.isAuto ? 'auto' : 'manual'"
                 >
-                  <Zap v-if="version.isAuto" :size="10" />
-                  <PenLine v-else :size="10" />
+                  <Zap
+                    v-if="version.isAuto"
+                    :size="10"
+                  />
+                  <PenLine
+                    v-else
+                    :size="10"
+                  />
                   {{ version.isAuto ? '自动' : '手动' }}
                 </span>
               </div>
@@ -338,7 +385,10 @@ import { computeDiff } from '@/composables/useVersionManager'
             </div>
 
             <!-- Diff 选中标记 -->
-            <div v-if="diffMode" class="diff-check">
+            <div
+              v-if="diffMode"
+              class="diff-check"
+            >
               <div
                 class="diff-checkbox"
                 :class="{ checked: selectedForDiff.includes(version.id) }"
@@ -352,24 +402,43 @@ import { computeDiff } from '@/composables/useVersionManager'
     <!-- 切换确认对话框 -->
     <Teleport to="body">
       <Transition name="modal-fade">
-        <div v-if="showSwitchConfirm" class="confirm-overlay" @click.self="cancelSwitch">
+        <div
+          v-if="showSwitchConfirm"
+          class="confirm-overlay"
+          @click.self="cancelSwitch"
+        >
           <div class="confirm-dialog">
             <div class="confirm-icon">
               <RotateCcw :size="20" />
             </div>
-            <h3 class="confirm-title">切换版本</h3>
+            <h3 class="confirm-title">
+              切换版本
+            </h3>
             <p class="confirm-desc">
               确定要切换到版本
               <strong>{{ pendingSwitchVersion?.label }}</strong>
               吗？当前未保存的更改将被覆盖。
             </p>
-            <div v-if="switchDiffSummary" class="confirm-diff-summary">
+            <div
+              v-if="switchDiffSummary"
+              class="confirm-diff-summary"
+            >
               <span class="diff-added">+{{ switchDiffSummary.addedCount }} 行</span>
               <span class="diff-removed">-{{ switchDiffSummary.removedCount }} 行</span>
             </div>
             <div class="confirm-actions">
-              <button class="confirm-cancel-btn" @click="cancelSwitch">取消</button>
-              <button class="confirm-ok-btn" @click="confirmSwitch">确认切换</button>
+              <button
+                class="confirm-cancel-btn"
+                @click="cancelSwitch"
+              >
+                取消
+              </button>
+              <button
+                class="confirm-ok-btn"
+                @click="confirmSwitch"
+              >
+                确认切换
+              </button>
             </div>
           </div>
         </div>
@@ -378,10 +447,10 @@ import { computeDiff } from '@/composables/useVersionManager'
 
     <!-- Diff 弹窗 -->
     <VersionDiffModal
-      v-if="showDiffModal && diffModalOldVersion && diffModalNewVersion"
-      :old-version="diffModalOldVersion"
-      :new-version="diffModalNewVersion"
-      :diff-lines="diffModalLines"
+      v-if="showDiffModal && diffModalBaseVersion && diffModalCompareVersion"
+      :base-version="diffModalBaseVersion"
+      :compare-version="diffModalCompareVersion"
+      initial-mode="unified"
       @close="closeDiffModal"
     />
   </div>
@@ -401,40 +470,6 @@ import { computeDiff } from '@/composables/useVersionManager'
   border-left: 1px solid var(--border, #E5E7EB);
   font-size: 12px;
   overflow: hidden;
-}
-
-/* ─── 头部 ─────────────────────────────────────────────── */
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border, #E5E7EB);
-  flex-shrink: 0;
-}
-
-.header-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-}
-
-.version-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: var(--accent-primary-light, #FFEBEE);
-  color: var(--accent-primary, #D32F2F);
-  font-size: 10px;
-  font-weight: 700;
 }
 
 /* ─── 空状态 ───────────────────────────────────────────── */
@@ -495,6 +530,11 @@ import { computeDiff } from '@/composables/useVersionManager'
   gap: 6px;
 }
 
+.quick-diff-row {
+  display: flex;
+  gap: 6px;
+}
+
 .save-btn {
   flex: 1;
   display: flex;
@@ -547,6 +587,34 @@ import { computeDiff } from '@/composables/useVersionManager'
   border-color: var(--accent-secondary, #1565C0);
   background: var(--accent-secondary, #1565C0);
   color: white;
+}
+
+.quick-diff-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 10px;
+  border: 1px solid var(--border, #E5E7EB);
+  border-radius: 6px;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--text-secondary, #607D8B);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.quick-diff-btn:hover:not(:disabled) {
+  border-color: var(--accent-secondary, #1565C0);
+  color: var(--accent-secondary, #1565C0);
+  background: var(--accent-secondary-light, #E3F2FD);
+}
+
+.quick-diff-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ─── Diff 操作栏 ──────────────────────────────────────── */

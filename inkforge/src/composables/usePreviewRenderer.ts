@@ -9,7 +9,7 @@
  * 使用 requestAnimationFrame 确保渲染不阻塞 UI 绘制帧
  */
 
-import { ref, watch, onUnmounted, type Ref } from 'vue'
+import { ref, watch, onMounted, onUnmounted, type Ref } from 'vue'
 import type { Platform } from '@/services/export'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -118,8 +118,26 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     } catch {
       previewHtml.value = '<p style="color:#C62828;">预览渲染失败</p>'
     } finally {
+      const duration = Math.round(performance.now() - startTime)
       previewLoading.value = false
-      lastRenderTime.value = Math.round(performance.now() - startTime)
+      lastRenderTime.value = duration
+
+      if (typeof window !== 'undefined') {
+        try {
+          window.sessionStorage.setItem('inkforge:last-preview-render-ms', String(duration))
+          window.sessionStorage.setItem('inkforge:last-preview-render-at', new Date().toISOString())
+        } catch {
+          // ignore diagnostics cache write failures
+        }
+
+        window.dispatchEvent(new CustomEvent('inkforge:preview-render-metric', {
+          detail: {
+            duration,
+            platform: options.platform.value,
+            at: new Date().toISOString(),
+          },
+        }))
+      }
     }
   }
 
@@ -139,6 +157,28 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     }, delay)
   }
 
+  /**
+   * 清理已缓存的预览结果
+   */
+  function clearPreviewCache(): void {
+    if (debounceTimer !== null) {
+      clearTimeout(debounceTimer)
+      debounceTimer = null
+    }
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
+
+    previewHtml.value = ''
+    previewLoading.value = false
+    lastRenderTime.value = 0
+
+    if (options.body.value) {
+      scheduleRender()
+    }
+  }
+
   // ─── Watch 触发源 ───
   // 将 getter 返回值序列化为稳定字符串 key，
   // 用简单字符串比较替代 deep: true 的递归遍历，避免无谓性能开销。
@@ -153,10 +193,15 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     { immediate: true },
   )
 
+  onMounted(() => {
+    window.addEventListener('inkforge:clear-preview-cache', clearPreviewCache as EventListener)
+  })
+
   // ─── 清理 ───
   onUnmounted(() => {
     if (debounceTimer !== null) clearTimeout(debounceTimer)
     if (rafId !== null) cancelAnimationFrame(rafId)
+    window.removeEventListener('inkforge:clear-preview-cache', clearPreviewCache as EventListener)
   })
 
   return { previewHtml, previewLoading, lastRenderTime }

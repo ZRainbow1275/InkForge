@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "prompts/0327/00-master-plan.md", "reason": "0327 master constraints and phase structure"}
+{"file": "prompts/0327/01-editor-ui-spec.md", "reason": "Typora/source mode and editor width requirements"}
+{"file": "prompts/0327/03-keyboard-shortcuts-spec.md", "reason": "33 shortcuts and editor/view shortcut contract"}
+{"file": "prompts/0327/04-rendering-engine-spec.md", "reason": "Editor rendering, context menu, find/replace and image pipeline requirements"}

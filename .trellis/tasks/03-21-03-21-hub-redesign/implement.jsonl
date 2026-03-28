@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "docs/specs/01-hub-redesign-spec.md", "reason": "Hub改造规格"}
+{"file": "docs/specs/00-master-plan.md", "reason": "总体规划约束"}
+{"file": "inkforge/src/views/HubView.vue", "reason": "现有Hub页面"}
+{"file": "prototype/inkforge_themes.html", "reason": "主题原型参照"}

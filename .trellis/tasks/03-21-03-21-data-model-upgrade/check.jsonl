@@ -1,0 +1,5 @@
+{"file": ".claude/commands/trellis/finish-work.md", "reason": "Finish work checklist"}
+{"file": ".claude/commands/trellis/check-frontend.md", "reason": "Frontend check spec"}
+{"file": "docs/specs/04-data-model-evolution.md", "reason": "数据模型验证"}
+{"file": "docs/specs/00-master-plan.md", "reason": "Global constraints validation for Phase 0"}
+{"file": "docs/specs/06-codex-tasks.md", "reason": "Phase 0 completion criteria"}

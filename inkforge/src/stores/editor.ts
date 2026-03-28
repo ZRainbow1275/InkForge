@@ -3,11 +3,14 @@ import { ref, computed, watch } from 'vue'
 import { EditedContentSchema, VersionSchema, type EditedContent, type Version } from '@/schemas/article'
 import { contentRepository } from '@/services/repository'
 import { useArticleStore } from './article'
+import { useSyncStore } from './sync'
 import { logger, AppError } from '@/services/error'
-import { EDITOR_CONFIG, VERSION } from '@/constants'
+import { ARTICLE_STATUS, DOCUMENT_STATUS, EDITOR_CONFIG, VERSION } from '@/constants'
 import { createEventSubscriptionManager } from '@/utils/events'
 import { VERSION_MANAGEMENT } from '@/config/security'
 import { generateId } from '@/utils/uuid'
+import { logDocumentCreate, logDocumentEdit, logVersionCreate } from '@/utils/activity-logger'
+import { syncArticleDocumentSnapshot } from '@/services/sync/article-document-bridge'
 
 export type EditorStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'error';
 
@@ -17,6 +20,7 @@ export type EditorStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'error';
  */
 export const useEditorStore = defineStore('editor', () => {
     const articleStore = useArticleStore()
+    const syncStore = useSyncStore()
 
     // 状态机核心
     const status = ref<EditorStatus>('idle')
@@ -25,6 +29,42 @@ export const useEditorStore = defineStore('editor', () => {
 
     // 保存请求 ID，用于防止竞态条件
     const saveRequestId = ref<number>(0)
+
+    function resolveDocumentStatus(articleStatus: string | undefined) {
+        return articleStatus === ARTICLE_STATUS.PROCESSED
+            ? DOCUMENT_STATUS.PUBLISHED
+            : DOCUMENT_STATUS.DRAFT
+    }
+
+    async function syncDocumentSnapshot(
+        content: EditedContent,
+        options: { markDirty?: boolean } = {}
+    ): Promise<void> {
+        const article = articleStore.articles.find((item) => item.id === content.articleId)
+        const currentVersionRecord = content.versions.find((item) => item.id === content.currentVersionId)
+
+        if (!article || !currentVersionRecord) {
+            return
+        }
+
+        await syncArticleDocumentSnapshot({
+            articleId: content.articleId,
+            title: content.title,
+            body: content.body,
+            categoryId: article.categoryId ?? null,
+            currentVersion: currentVersionRecord,
+            createdAt: content.createdAt,
+            updatedAt: content.updatedAt,
+            status: resolveDocumentStatus(article.status),
+        }, options)
+    }
+
+    async function markContentDirty(
+        content: EditedContent,
+        operation: 'create' | 'update' | 'delete' = 'update'
+    ): Promise<void> {
+        await syncStore.markDirty(content.articleId, content.body, operation)
+    }
 
     // 当前版本
     const currentVersion = computed(() => {
@@ -61,6 +101,7 @@ export const useEditorStore = defineStore('editor', () => {
                 // 运行时校验: 确保 DB 数据符合 Schema (防腐层)
                 try {
                     const parsed = EditedContentSchema.parse(existing);
+                    await syncDocumentSnapshot(parsed)
                     currentContent.value = parsed;
                     setStatus('ready')
                 } catch (validationError) {
@@ -117,7 +158,10 @@ export const useEditorStore = defineStore('editor', () => {
             const validatedContent = EditedContentSchema.parse(content);
 
             await contentRepository.create(validatedContent)
+            await syncDocumentSnapshot(validatedContent)
+            await markContentDirty(validatedContent, 'create')
             currentContent.value = validatedContent
+            await logDocumentCreate(validatedContent.articleId, validatedContent.title)
             setStatus('ready')
             return validatedContent
         } catch (e) {
@@ -132,6 +176,7 @@ export const useEditorStore = defineStore('editor', () => {
         if (status.value !== 'ready' && status.value !== 'saving') return
         if (!currentContent.value) return
 
+        const previousContent = currentContent.value
         // 生成新的请求 ID，用于防止竞态条件
         const currentRequestId = ++saveRequestId.value
         setStatus('saving')
@@ -150,7 +195,16 @@ export const useEditorStore = defineStore('editor', () => {
             // 竞态守卫: 仅当此请求仍为最新时才更新内存状态
             // 防止慢请求覆盖快请求的结果
             if (saveRequestId.value !== currentRequestId) return
+            await syncDocumentSnapshot(validated, { markDirty: true })
+            await markContentDirty(validated, 'update')
             currentContent.value = validated
+            if (
+                validated.title !== previousContent.title ||
+                validated.body !== previousContent.body ||
+                validated.transcript !== previousContent.transcript
+            ) {
+                await logDocumentEdit(validated.articleId, validated.title)
+            }
 
             // Delay to show saving state (UX)
             // 使用捕获的请求 ID 验证，防止竞态条件
@@ -238,9 +292,15 @@ export const useEditorStore = defineStore('editor', () => {
             currentVersionId: validatedVersion.id
         }
 
+        // 将响应式对象重新过一遍 schema，剥离 Vue proxy，避免 Dexie 写入数组字段时报 DataCloneError。
+        const persistedContent = EditedContentSchema.parse(updatedContent)
+
         // 先持久化，成功后再更新本地状态（避免不一致）
-        await contentRepository.update(updatedContent.id, updatedContent)
-        currentContent.value = updatedContent
+        await contentRepository.update(persistedContent.id, persistedContent)
+        await syncDocumentSnapshot(persistedContent, { markDirty: true })
+        await markContentDirty(persistedContent, 'update')
+        currentContent.value = persistedContent
+        await logVersionCreate(persistedContent.articleId, validatedVersion.label)
         return validatedVersion
     }
 
@@ -261,37 +321,45 @@ export const useEditorStore = defineStore('editor', () => {
             updatedAt: new Date()
         }
 
+        const persistedContent = EditedContentSchema.parse(updated)
+
         // 先持久化，成功后再更新本地状态（避免竞态条件）
-        await contentRepository.update(updated.id, updated)
-        currentContent.value = updated
+        await contentRepository.update(persistedContent.id, persistedContent)
+        await syncDocumentSnapshot(persistedContent, { markDirty: true })
+        await markContentDirty(persistedContent, 'update')
+        currentContent.value = persistedContent
     }
 
     // 更新选中的链接（不可变更新）
     async function updateSelectedLinks(links: string[]) {
         if (!currentContent.value) return
 
+        const updated = EditedContentSchema.parse({
+            ...currentContent.value,
+            selectedLinks: [...links],
+        })
+
         // 先持久化
-        await contentRepository.update(currentContent.value.id, { selectedLinks: links })
+        await contentRepository.update(updated.id, updated)
 
         // 成功后更新本地状态（不可变）
-        currentContent.value = {
-            ...currentContent.value,
-            selectedLinks: links
-        }
+        currentContent.value = updated
     }
 
     // 更新选中的图片（不可变更新）
     async function updateSelectedImages(images: string[]) {
         if (!currentContent.value) return
 
+        const updated = EditedContentSchema.parse({
+            ...currentContent.value,
+            selectedImages: [...images],
+        })
+
         // 先持久化
-        await contentRepository.update(currentContent.value.id, { selectedImages: images })
+        await contentRepository.update(updated.id, updated)
 
         // 成功后更新本地状态（不可变）
-        currentContent.value = {
-            ...currentContent.value,
-            selectedImages: images
-        }
+        currentContent.value = updated
     }
 
     // 页面关闭时如果正在保存，提示用户

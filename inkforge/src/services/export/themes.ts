@@ -263,7 +263,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'thesis',
     name: '论文翻译',
-    icon: '📜',
+    icon: 'ScrollText',
     description: '学术严谨，苏联红色调',
     theme: 'grace',
     fontFamily: 'serif',
@@ -282,7 +282,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'legal',
     name: '法学研讨',
-    icon: '⚖️',
+    icon: 'Scale',
     description: '常青藤学院风',
     theme: 'grace',
     fontFamily: 'serif',
@@ -301,7 +301,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'report',
     name: '行业研报',
-    icon: '📊',
+    icon: 'BarChart3',
     description: '华尔街日报风',
     theme: 'default',
     fontFamily: 'sans-serif',
@@ -320,7 +320,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'commentary',
     name: '时事点评',
-    icon: '💬',
+    icon: 'Newspaper',
     description: '观点清晰鲜明',
     theme: 'simple',
     fontFamily: 'sans-serif',
@@ -338,7 +338,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'aigc',
     name: 'AIGC',
-    icon: '🤖',
+    icon: 'Sparkles',
     description: '未来科技感',
     theme: 'default',
     fontFamily: 'sans-serif',
@@ -356,7 +356,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'code',
     name: '编程创造',
-    icon: '💻',
+    icon: 'Terminal',
     description: '程序员简练风',
     theme: 'default',
     fontFamily: 'monospace',
@@ -380,7 +380,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'notes',
     name: '学习笔记',
-    icon: '📚',
+    icon: 'BookOpen',
     description: '知识卡片风',
     theme: 'grace',
     fontFamily: 'sans-serif',
@@ -398,7 +398,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'news',
     name: '新闻',
-    icon: '📰',
+    icon: 'FileText',
     description: '极简新媒体',
     theme: 'simple',
     fontFamily: 'sans-serif',
@@ -416,7 +416,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'meme',
     name: '整活',
-    icon: '🎭',
+    icon: 'Palette',
     description: '年轻有趣',
     theme: 'default',
     fontFamily: 'sans-serif',
@@ -438,7 +438,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'life',
     name: '人生感悟',
-    icon: '💭',
+    icon: 'Feather',
     description: '极简Vlog风',
     theme: 'simple',
     fontFamily: 'serif',
@@ -459,7 +459,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'elegant',
     name: '优雅',
-    icon: '🪶',
+    icon: 'PenLine',
     description: '暗金衬线，书卷气息',
     theme: 'grace',
     fontFamily: 'serif',
@@ -477,7 +477,7 @@ export const themePresets: ExportPreset[] = [
   {
     id: 'tech',
     name: '科技',
-    icon: '🚀',
+    icon: 'Rocket',
     description: '靛蓝渐变，未来感',
     theme: 'default',
     fontFamily: 'sans-serif',

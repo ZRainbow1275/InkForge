@@ -18,7 +18,7 @@ function selectArticle(id: string) {
 
 function deleteArticle(id: string, event: Event) {
   event.stopPropagation()
-  if (confirm('确定要删除这条资讯吗？')) {
+  if (window.confirm('确定要删除这条资讯吗？')) {
     articleStore.deleteArticle(id)
   }
 }
@@ -46,13 +46,22 @@ function openAddModal() {
 <template>
   <div class="article-panel">
     <!-- 解析中状态 -->
-    <div v-if="parsing" class="parsing-status">
-      <Loader2 :size="16" class="animate-spin" />
+    <div
+      v-if="parsing"
+      class="parsing-status"
+    >
+      <Loader2
+        :size="16"
+        class="animate-spin"
+      />
       <span>正在解析网页...</span>
     </div>
 
     <!-- 解析错误 -->
-    <div v-if="parseError && !parsing" class="parse-error">
+    <div
+      v-if="parseError && !parsing"
+      class="parse-error"
+    >
       <AlertCircle :size="16" />
       <span>{{ parseError }}</span>
     </div>
@@ -69,20 +78,30 @@ function openAddModal() {
         <span class="source-name">{{ article.sourceName }}</span>
         <button 
           class="delete-btn"
-          @click="deleteArticle(article.id, $event)"
           title="删除资讯"
+          @click="deleteArticle(article.id, $event)"
         >
           <Trash2 :size="14" />
         </button>
       </div>
-      <h3 class="title">{{ article.title }}</h3>
-      <p class="description">{{ article.description }}</p>
+      <h3 class="title">
+        {{ article.title }}
+      </h3>
+      <p class="description">
+        {{ article.description }}
+      </p>
       <div class="meta">
-        <span class="score" v-if="article.score !== undefined">
+        <span
+          v-if="article.score !== undefined"
+          class="score"
+        >
           <Star :size="12" />
           {{ typeof article.score === 'number' ? article.score.toFixed(1) : '0.0' }}
         </span>
-        <span class="tags" v-if="article.tags">
+        <span
+          v-if="article.tags"
+          class="tags"
+        >
           <span 
             v-for="tag in article.tags.slice(0, 3)" 
             :key="tag" 
@@ -95,23 +114,45 @@ function openAddModal() {
     </div>
 
     <!-- 空状态 -->
-    <div v-if="filteredArticles.length === 0 && !parsing" class="empty-state">
+    <div
+      v-if="filteredArticles.length === 0 && !parsing"
+      class="empty-state"
+    >
       <p>暂无资讯</p>
-      <button class="add-btn" @click="openAddModal">
+      <button
+        class="add-btn"
+        @click="openAddModal"
+      >
         <Plus :size="16" />
         添加资讯
       </button>
     </div>
 
     <!-- 添加按钮（悬浮） -->
-    <button v-if="filteredArticles.length > 0" class="fab" @click="openAddModal" :disabled="parsing">
-      <Loader2 v-if="parsing" :size="20" class="animate-spin" />
-      <Plus v-else :size="20" />
+    <button
+      v-if="filteredArticles.length > 0"
+      class="fab"
+      :disabled="parsing"
+      @click="openAddModal"
+    >
+      <Loader2
+        v-if="parsing"
+        :size="20"
+        class="animate-spin"
+      />
+      <Plus
+        v-else
+        :size="20"
+      />
     </button>
 
     <!-- 添加资讯模态框 -->
     <Teleport to="body">
-      <div v-if="showAddModal" class="modal-overlay" @click.self="showAddModal = false">
+      <div
+        v-if="showAddModal"
+        class="modal-overlay"
+        @click.self="showAddModal = false"
+      >
         <div class="modal-container">
           <div class="modal-header">
             <h3>
@@ -128,25 +169,37 @@ function openAddModal() {
                 type="url" 
                 class="form-input"
                 placeholder="https://example.com/article"
-                @keydown.enter="handleAddArticle"
                 autofocus
-              />
+                @keydown.enter="handleAddArticle"
+              >
             </div>
             
-            <div v-if="addError" class="modal-error">
+            <div
+              v-if="addError"
+              class="modal-error"
+            >
               <AlertCircle :size="14" />
               <span>{{ addError }}</span>
             </div>
           </div>
           
           <div class="modal-footer">
-            <button class="btn cancel" @click="showAddModal = false">取消</button>
+            <button
+              class="btn cancel"
+              @click="showAddModal = false"
+            >
+              取消
+            </button>
             <button 
               class="btn confirm" 
-              @click="handleAddArticle"
               :disabled="!urlInput.trim() || parsing"
+              @click="handleAddArticle"
             >
-              <Loader2 v-if="parsing" :size="14" class="animate-spin" />
+              <Loader2
+                v-if="parsing"
+                :size="14"
+                class="animate-spin"
+              />
               <span>{{ parsing ? '解析中...' : '添加并解析' }}</span>
             </button>
           </div>

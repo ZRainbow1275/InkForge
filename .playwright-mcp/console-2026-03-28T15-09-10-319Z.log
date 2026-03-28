@@ -1,0 +1,1 @@
+[     290ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:09:10.608Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178

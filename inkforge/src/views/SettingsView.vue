@@ -1,2795 +1,5641 @@
 <script setup lang="ts">
-/**
- * SettingsView - 企业级 7 Tab 设置中心
- *
- * Tab 结构：
- *   1. 外观 (Appearance)
- *   2. 编辑器 (Editor)
- *   3. 导出 (Export)
- *   4. AI 服务 (AI)
- *   5. 数据 (Data)
- *   6. 快捷键 (Shortcuts)
- *   7. 关于 (About)
- *
- * 所有设置项实时绑定到 settingsStore.settings ref，
- * store 已配置 deep watch 自动持久化到 localStorage。
- */
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useSettingsStore } from '@/stores/settings'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  BookOpen,
+  CheckCircle,
+  Cloud,
+  Command,
+  Copy,
+  Database,
+  Download,
+  Eye,
+  EyeOff,
+  FileText,
+  Image,
+  Info,
+  Loader2,
+  Palette,
+  RefreshCw,
+  Save,
+  Search,
+  Settings2,
+  Shield,
+  Sparkles,
+  Trash2,
+  Upload,
+  UserPlus,
+  Users,
+} from 'lucide-vue-next'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+  type Component,
+} from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { z } from 'zod'
+import { useFeatureFlag } from '@/composables/useFeatureFlag'
+import { assertPasswordValid, PASSWORD_POLICY } from '@/config/security'
+import { themePresets } from '@/services/export/themes'
+import { logger, getLogLevel, setLogLevel, type LoggerLevel } from '@/services/error'
+import { describeProxyConfig, getProxyRuntimeConfig } from '@/services/http-proxy'
+import { useAccountStore } from '@/stores/account'
 import { useAIStore } from '@/stores/ai'
 import { useArticleStore } from '@/stores/article'
-import { useAssetStore } from '@/stores/asset'
+import { useCategoryStore } from '@/stores/category'
+import { useEditorStore } from '@/stores/editor'
+import { DEFAULT_SHORTCUTS, getDefaultSettings, useSettingsStore, type Settings, type SyncTarget } from '@/stores/settings'
+import { useSyncStore } from '@/stores/sync'
+import {
+  exportMasterKey,
+  getMasterKey,
+  importMasterKey,
+  unlockWithPassword,
+} from '@/utils/crypto/key-management'
+import type { ExportedKeyBundle } from '@/utils/crypto/types'
+import {
+  db,
+  deleteSettingsProfile,
+  getDatabaseSize,
+  getSettingsProfiles,
+  getSyncLogs,
+  saveSettingsProfile,
+  type DatabaseSizeResult,
+  type SettingsProfile,
+  type SyncLog,
+} from '@/utils/db'
 
-// ═══════════════════════════════════════
-//  Store & Router
-// ═══════════════════════════════════════
+type TabId =
+  | 'account'
+  | 'appearance'
+  | 'editor'
+  | 'export'
+  | 'ai'
+  | 'data'
+  | 'sync'
+  | 'shortcuts'
+  | 'advanced'
+  | 'about'
 
+type NoticeTone = 'success' | 'error' | 'info'
+type SyncTargetType = Settings['sync']['target']['type']
+type MasterKeyDialogMode = 'unlock' | 'export' | 'import'
+
+interface TabDefinition {
+  id: TabId
+  label: string
+  description: string
+  icon: Component
+}
+
+interface TabResetDefinition {
+  category: keyof Settings | 'all'
+  label: string
+  successMessage: string
+}
+
+interface SearchableSettingItem {
+  tabId: TabId
+  sectionTitle: string
+  label: string
+  description: string
+  anchorId: string
+  keywords: string[]
+}
+
+interface OllamaTagsResponse {
+  models?: Array<{
+    name?: string
+  }>
+}
+
+interface ImportSummaryState {
+  success: number
+  failed: number
+  errors: string[]
+}
+
+interface NoticeState {
+  tone: NoticeTone
+  text: string
+}
+
+interface SerializedDate {
+  __type: 'date'
+  value: string
+}
+
+interface SerializedBlob {
+  __type: 'blob'
+  mimeType: string
+  data: string
+}
+
+interface DatabaseSnapshot {
+  version: number
+  exportedAt: string
+  tables: Record<string, Array<Record<string, unknown>>>
+}
+
+const APP_VERSION = '0.1.0'
+const DESIGN_LANGUAGE = 'Ethereal Constructivism'
+const TECH_STACK = [
+  'Vue 3',
+  'Pinia',
+  'TipTap',
+  'Dexie',
+  'Tailwind CSS',
+  'Tauri',
+  'TypeScript',
+  'Zod',
+]
+const DATABASE_TABLES = [
+  'categories',
+  'articles',
+  'contents',
+  'documents',
+  'versions',
+  'assets',
+  'accounts',
+  'pending_changes',
+  'sync_logs',
+  'settings_profiles',
+  'activity_logs',
+] as const
+const SYNC_INTERVAL_MAP: Record<Settings['sync']['interval'], number> = {
+  '5m': 5 * 60 * 1000,
+  '15m': 15 * 60 * 1000,
+  '30m': 30 * 60 * 1000,
+  '1h': 60 * 60 * 1000,
+  manual: 0,
+}
+const ProfileNameSchema = z.string().trim().min(1).max(100)
+const MasterKeyPasswordSchema = z.string().trim().superRefine((value, context) => {
+  try {
+    assertPasswordValid(value)
+  } catch (error) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: error instanceof Error ? error.message : '密码不符合安全策略',
+    })
+  }
+})
+const RecoveryBundleTextSchema = z.string().trim().min(1, '恢复密钥包不能为空')
+const ExportedKeyBundleSchema = z.object({
+  version: z.number().int().min(1),
+  encryptedKey: z.string().min(1),
+  iv: z.string().min(1),
+  salt: z.string().min(1),
+  createdAt: z.string().min(1),
+  checksum: z.string().min(1),
+})
+const DatabaseSnapshotSchema = z.object({
+  version: z.number().optional(),
+  exportedAt: z.string().optional(),
+  tables: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))),
+})
+
+const route = useRoute()
 const router = useRouter()
 const settingsStore = useSettingsStore()
+const accountStore = useAccountStore()
 const aiStore = useAIStore()
 const articleStore = useArticleStore()
-const assetStore = useAssetStore()
+const categoryStore = useCategoryStore()
+const editorStore = useEditorStore()
+const syncStore = useSyncStore()
+const performanceFlag = useFeatureFlag('performance-metrics')
 
-const { settings } = storeToRefs(settingsStore)
-
-// ═══════════════════════════════════════
-//  Tab 系统
-// ═══════════════════════════════════════
-
-type TabId = 'appearance' | 'editor' | 'export' | 'ai' | 'data' | 'shortcuts' | 'about'
-
-const currentTab = ref<TabId>('appearance')
-
-interface TabDef {
-  id: TabId
-  name: string
-}
-
-const tabs: TabDef[] = [
-  { id: 'appearance', name: '外观' },
-  { id: 'editor', name: '编辑器' },
-  { id: 'export', name: '导出' },
-  { id: 'ai', name: 'AI 服务' },
-  { id: 'data', name: '数据' },
-  { id: 'shortcuts', name: '快捷键' },
-  { id: 'about', name: '关于' },
+const tabs: TabDefinition[] = [
+  { id: 'account', label: '账户', description: '本地资料与数据归属', icon: Shield },
+  { id: 'appearance', label: '外观', description: '主题、字体与界面节奏', icon: Palette },
+  { id: 'editor', label: '编辑器', description: '写作体验与辅助能力', icon: BookOpen },
+  { id: 'export', label: '导出', description: '默认平台与主题预设', icon: Download },
+  { id: 'ai', label: 'AI 服务', description: 'Provider、模型与连接测试', icon: Sparkles },
+  { id: 'data', label: '数据', description: '导入导出、备份与清理', icon: Database },
+  { id: 'sync', label: '同步', description: '同步目标、冲突与历史', icon: Cloud },
+  { id: 'shortcuts', label: '快捷键', description: '工作台热键映射', icon: Command },
+  { id: 'advanced', label: '高级', description: '实验特性、代理与档案', icon: Settings2 },
+  { id: 'about', label: '关于', description: '版本、架构与运行概览', icon: Info },
 ]
 
-// ═══════════════════════════════════════
-//  Tab 1: 外观
-// ═══════════════════════════════════════
-
-interface ThemeOption {
-  value: 'light' | 'dark' | 'system'
-  label: string
-  desc: string
+const tabResetDefinitions: Record<TabId, TabResetDefinition> = {
+  account: { category: 'account', label: '重置账户设置', successMessage: '账户设置已恢复默认值' },
+  appearance: { category: 'appearance', label: '重置外观设置', successMessage: '外观设置已恢复默认值' },
+  editor: { category: 'editor', label: '重置编辑器设置', successMessage: '编辑器设置已恢复默认值' },
+  export: { category: 'export', label: '重置导出设置', successMessage: '导出设置已恢复默认值' },
+  ai: { category: 'ai', label: '重置 AI 设置', successMessage: 'AI 设置已恢复默认值' },
+  data: { category: 'data', label: '重置数据设置', successMessage: '数据设置已恢复默认值' },
+  sync: { category: 'sync', label: '重置同步设置', successMessage: '同步设置已恢复默认值' },
+  shortcuts: { category: 'shortcuts', label: '重置快捷键设置', successMessage: '快捷键设置已恢复默认值' },
+  advanced: { category: 'advanced', label: '重置高级设置', successMessage: '高级设置已恢复默认值' },
+  about: { category: 'all', label: '重置全部设置', successMessage: '全部设置已恢复默认值' },
 }
 
-const themeOptions: ThemeOption[] = [
-  { value: 'light', label: '浅色', desc: '明亮的工作环境' },
-  { value: 'dark', label: '深色', desc: '降低眼部疲劳' },
-  { value: 'system', label: '跟随系统', desc: '自动适应系统设置' },
+function isTabId(value: unknown): value is TabId {
+  return typeof value === 'string' && tabs.some((tab) => tab.id === value)
+}
+
+const searchableItems: SearchableSettingItem[] = [
+  {
+    tabId: 'account',
+    sectionTitle: '账户资料',
+    label: '资料编辑',
+    description: '修改本地账户名称、邮箱、简介与头像',
+    anchorId: 'account-profile',
+    keywords: ['account', 'profile', 'avatar', 'bio', 'email'],
+  },
+  {
+    tabId: 'account',
+    sectionTitle: '账户归档',
+    label: '账户数据导出',
+    description: '导出当前账户与关联数据',
+    anchorId: 'account-export',
+    keywords: ['export', 'gdpr', 'account data'],
+  },
+  {
+    tabId: 'account',
+    sectionTitle: '账户安全',
+    label: '本地安全提示',
+    description: '查看密码策略与同步主密钥入口',
+    anchorId: 'account-security',
+    keywords: ['security', 'password', 'master key', 'account security'],
+  },
+  {
+    tabId: 'account',
+    sectionTitle: '账户切换',
+    label: '切换与创建本地账户',
+    description: '在多个本地身份之间切换并创建新账户',
+    anchorId: 'account-switching',
+    keywords: ['account switch', 'profiles', 'create account', 'local account'],
+  },
+  {
+    tabId: 'appearance',
+    sectionTitle: '界面主题',
+    label: '主题与主色',
+    description: '切换 light、dark、system 与品牌主色',
+    anchorId: 'appearance-theme',
+    keywords: ['theme', 'accent', 'color'],
+  },
+  {
+    tabId: 'appearance',
+    sectionTitle: '排版',
+    label: '字体与边栏宽度',
+    description: '控制全局字体、字号、行高和侧栏宽度',
+    anchorId: 'appearance-typography',
+    keywords: ['font', 'sidebar', 'line height', 'typography'],
+  },
+  {
+    tabId: 'editor',
+    sectionTitle: '写作体验',
+    label: '自动保存与拼写检查',
+    description: '控制自动保存、拼写检查、换行与制表宽度',
+    anchorId: 'editor-writing',
+    keywords: ['autosave', 'spellcheck', 'wrap', 'tab'],
+  },
+  {
+    tabId: 'editor',
+    sectionTitle: '增强能力',
+    label: 'Markdown 提示与写作目标',
+    description: '控制 hints、括号匹配和写作目标进度条',
+    anchorId: 'editor-enhancement',
+    keywords: ['markdown hints', 'writing goal', 'bracket'],
+  },
+  {
+    tabId: 'export',
+    sectionTitle: '导出平台',
+    label: '默认平台',
+    description: '为发布与导出选择默认平台',
+    anchorId: 'export-platform',
+    keywords: ['wechat', 'zhihu', 'xiaohongshu'],
+  },
+  {
+    tabId: 'export',
+    sectionTitle: '主题市场',
+    label: '导出主题模板',
+    description: '选择默认的主题预设',
+    anchorId: 'export-presets',
+    keywords: ['preset', 'theme market'],
+  },
+  {
+    tabId: 'ai',
+    sectionTitle: 'Provider',
+    label: 'AI 连接配置',
+    description: '设置 provider、baseUrl、model 和 temperature',
+    anchorId: 'ai-provider',
+    keywords: ['provider', 'model', 'api key', 'temperature'],
+  },
+  {
+    tabId: 'ai',
+    sectionTitle: '连接检测',
+    label: '连接测试与 Ollama',
+    description: '测试连接并读取本地 Ollama 模型',
+    anchorId: 'ai-connection',
+    keywords: ['ollama', 'test connection'],
+  },
+  {
+    tabId: 'data',
+    sectionTitle: '存储',
+    label: '存储占用与数据库统计',
+    description: '查看浏览器配额、表记录数和总体规模',
+    anchorId: 'data-storage',
+    keywords: ['storage', 'database', 'quota'],
+  },
+  {
+    tabId: 'data',
+    sectionTitle: '迁移',
+    label: 'Markdown 文件导入',
+    description: '从本地文件批量导入 Markdown、HTML、TXT',
+    anchorId: 'data-import',
+    keywords: ['import', 'markdown', 'html', 'txt'],
+  },
+  {
+    tabId: 'data',
+    sectionTitle: '备份',
+    label: '设置导入导出与数据库快照',
+    description: '导出 JSON 设置、完整 IndexedDB 快照并执行恢复',
+    anchorId: 'data-backup',
+    keywords: ['backup', 'snapshot', 'restore', 'settings json'],
+  },
+  {
+    tabId: 'data',
+    sectionTitle: '危险操作',
+    label: '清空文章与素材',
+    description: '清空文章相关表、清理素材并重置设置',
+    anchorId: 'data-danger',
+    keywords: ['danger', 'reset', 'clear assets'],
+  },
+  {
+    tabId: 'sync',
+    sectionTitle: '同步目标',
+    label: '同步目标表单',
+    description: '配置 WebDAV、S3 或 REST 目标',
+    anchorId: 'sync-target',
+    keywords: ['webdav', 's3', 'rest api'],
+  },
+  {
+    tabId: 'sync',
+    sectionTitle: '同步策略',
+    label: '自动同步与冲突策略',
+    description: '设置间隔、冲突处理和分类过滤',
+    anchorId: 'sync-policy',
+    keywords: ['interval', 'conflict', 'categories'],
+  },
+  {
+    tabId: 'sync',
+    sectionTitle: '同步加密',
+    label: '主密钥与恢复密钥',
+    description: '初始化或解锁主密钥，并管理恢复密钥导出导入',
+    anchorId: 'sync-security',
+    keywords: ['encryption', 'master key', 'recovery key', 'unlock'],
+  },
+  {
+    tabId: 'sync',
+    sectionTitle: '同步状态',
+    label: '同步状态与日志',
+    description: '查看实时状态、冲突列表和同步历史',
+    anchorId: 'sync-runtime',
+    keywords: ['status', 'history', 'logs', 'conflicts'],
+  },
+  {
+    tabId: 'shortcuts',
+    sectionTitle: '快捷键',
+    label: '快捷键录制',
+    description: '为保存、加粗、斜体、撤销等动作绑定组合键',
+    anchorId: 'shortcuts-map',
+    keywords: ['keyboard', 'shortcut', 'hotkey'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '运行级别',
+    label: '日志与性能指标',
+    description: '控制日志级别与性能指标面板开关',
+    anchorId: 'advanced-runtime',
+    keywords: ['log level', 'performance'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '实验功能',
+    label: 'Feature Flags',
+    description: '启用或关闭实验性功能',
+    anchorId: 'advanced-flags',
+    keywords: ['feature flag', 'experimental'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '网络',
+    label: '代理设置',
+    description: '配置 HTTP、HTTPS 或 SOCKS5 代理',
+    anchorId: 'advanced-proxy',
+    keywords: ['proxy', 'socks5', 'http'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '档案',
+    label: '设置 Profile',
+    description: '保存、切换、重命名和删除设置档案',
+    anchorId: 'advanced-profiles',
+    keywords: ['profile', 'settings profile'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '缓存',
+    label: '缓存管理',
+    description: '查看浏览器缓存、预览缓存和 Service Worker 状态',
+    anchorId: 'advanced-cache',
+    keywords: ['cache', 'preview cache', 'service worker'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '开发者工具',
+    label: '运行时调试信息',
+    description: '导出运行时信息、数据库状态和编辑器内部状态',
+    anchorId: 'advanced-devtools',
+    keywords: ['debug', 'diagnostics', 'dexie', 'editor state'],
+  },
+  {
+    tabId: 'advanced',
+    sectionTitle: '性能监控',
+    label: '性能指标面板',
+    description: '查看渲染 FPS、自动保存延迟和 IndexedDB 延迟',
+    anchorId: 'advanced-performance',
+    keywords: ['performance', 'fps', 'latency', 'memory'],
+  },
+  {
+    tabId: 'about',
+    sectionTitle: '关于',
+    label: '版本与技术栈',
+    description: '查看当前版本、设计语言与技术栈',
+    anchorId: 'about-meta',
+    keywords: ['version', 'stack', 'design'],
+  },
 ]
 
-interface FontOption {
-  value: 'serif' | 'sans' | 'kai' | 'mono'
-  label: string
-  sample: string
-}
+const shortcutDefinitions = [
+  { id: 'save', label: '保存', description: '在工作台立即保存当前内容' },
+  { id: 'bold', label: '加粗', description: '切换当前选区的加粗状态' },
+  { id: 'italic', label: '斜体', description: '切换当前选区的斜体状态' },
+  { id: 'undo', label: '撤销', description: '回退上一步编辑操作' },
+  { id: 'redo', label: '重做', description: '恢复刚刚撤销的编辑操作' },
+  { id: 'outline', label: '大纲', description: '切换工作台大纲视图' },
+  { id: 'focusMode', label: '专注模式', description: '切换工作台专注模式' },
+] as const
 
-const fontOptions: FontOption[] = [
-  { value: 'serif', label: '宋体', sample: '思源宋体 Noto Serif' },
-  { value: 'sans', label: '黑体', sample: '思源黑体 Noto Sans' },
-  { value: 'kai', label: '楷体', sample: '楷体 KaiTi' },
-  { value: 'mono', label: '等宽', sample: 'JetBrains Mono' },
-]
+void shortcutDefinitions
 
-interface AccentOption {
-  value: string
-  label: string
-}
+const shortcutDefinitionsFull = [
+  { id: 'bold', group: 'formatting', label: '加粗', description: '切换当前选区的加粗状态' },
+  { id: 'italic', group: 'formatting', label: '斜体', description: '切换当前选区的斜体状态' },
+  { id: 'underline', group: 'formatting', label: '下划线', description: '切换当前选区的下划线样式' },
+  { id: 'strikethrough', group: 'formatting', label: '删除线', description: '切换当前选区的删除线样式' },
+  { id: 'inlineCode', group: 'formatting', label: '行内代码', description: '将当前选区转为行内代码' },
+  { id: 'link', group: 'formatting', label: '编辑链接', description: '为当前选区创建或编辑链接' },
+  { id: 'clearFormat', group: 'formatting', label: '清除格式', description: '清除选区格式，或在空选区时切换编辑模式' },
+  { id: 'highlight', group: 'formatting', label: '高亮', description: '为当前选区应用高亮颜色' },
+  { id: 'heading1', group: 'headings', label: '一级标题', description: '切换为 H1 标题' },
+  { id: 'heading2', group: 'headings', label: '二级标题', description: '切换为 H2 标题' },
+  { id: 'heading3', group: 'headings', label: '三级标题', description: '切换为 H3 标题' },
+  { id: 'heading4', group: 'headings', label: '四级标题', description: '切换为 H4 标题' },
+  { id: 'paragraph', group: 'headings', label: '正文段落', description: '恢复为正文段落' },
+  { id: 'blockquote', group: 'blocks', label: '引用块', description: '切换为引用块' },
+  { id: 'codeBlock', group: 'blocks', label: '代码块', description: '切换为代码块' },
+  { id: 'orderedList', group: 'blocks', label: '有序列表', description: '切换为有序列表' },
+  { id: 'bulletList', group: 'blocks', label: '无序列表', description: '切换为无序列表' },
+  { id: 'taskList', group: 'blocks', label: '任务列表', description: '切换为任务列表' },
+  { id: 'table', group: 'blocks', label: '插入表格', description: '插入 3x3 带表头表格' },
+  { id: 'horizontalRule', group: 'blocks', label: '分割线', description: '插入水平分割线' },
+  { id: 'save', group: 'editing', label: '保存', description: '立即保存当前文稿' },
+  { id: 'undo', group: 'editing', label: '撤销', description: '撤销上一步编辑' },
+  { id: 'redo', group: 'editing', label: '重做', description: '恢复刚刚撤销的编辑' },
+  { id: 'findReplace', group: 'editing', label: '查找替换', description: '打开查找替换面板' },
+  { id: 'find', group: 'editing', label: '查找', description: '打开查找面板' },
+  { id: 'selectAll', group: 'editing', label: '全选', description: '选中当前文稿全部内容' },
+  { id: 'toggleSidebar', group: 'view', label: '切换管理栏', description: '折叠或展开左侧管理栏' },
+  { id: 'togglePreview', group: 'view', label: '切换预览栏', description: '折叠或展开预览栏' },
+  { id: 'toggleOutline', group: 'view', label: '打开大纲', description: '切换到大纲面板' },
+  { id: 'focusMode', group: 'view', label: '专注模式', description: '切换工作台专注模式' },
+  { id: 'typewriterMode', group: 'view', label: '打字机模式', description: '切换打字机跟随光标模式' },
+  { id: 'switchEditorMode', group: 'view', label: '切换编辑模式', description: '切换 Typora 与源码双栏模式' },
+  { id: 'zoomIn', group: 'view', label: '放大字号', description: '提升当前工作台的阅读字号' },
+] as const
 
-const accentColors: AccentOption[] = [
-  { value: '#D32F2F', label: '构成红' },
-  { value: '#1565C0', label: '瑞士蓝' },
-  { value: '#2E7D32', label: '翠绿' },
-  { value: '#7B1FA2', label: '典雅紫' },
-  { value: '#E65100', label: '活力橙' },
-]
+const shortcutGroups = [
+  { id: 'formatting', label: '格式化', description: '文本样式、链接与高亮' },
+  { id: 'headings', label: '标题层级', description: '正文与标题切换' },
+  { id: 'blocks', label: '块级结构', description: '列表、引用、代码块与表格' },
+  { id: 'editing', label: '编辑操作', description: '保存、撤销、查找与全选' },
+  { id: 'view', label: '视图控制', description: '工作台面板与模式切换' },
+] as const
 
-const isCustomAccent = computed(() => {
-  return !accentColors.some(c => c.value === settings.value.appearance.accentColor)
-})
+const shortcutSections = computed(() => shortcutGroups.map((group) => ({
+  ...group,
+  items: shortcutDefinitionsFull.filter((shortcut) => shortcut.group === group.id),
+})))
 
-function getFontStack(value: string): string {
-  switch (value) {
-    case 'serif': return "'Noto Serif SC', 'Source Han Serif SC', serif"
-    case 'sans': return "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    case 'kai': return "'KaiTi', 'STKaiti', serif"
-    case 'mono': return "'JetBrains Mono', 'SF Mono', 'Consolas', monospace"
-    default: return 'inherit'
-  }
-}
+void shortcutSections
 
-// ═══════════════════════════════════════
-//  Tab 3: 导出
-// ═══════════════════════════════════════
-
-interface PlatformOption {
-  value: 'wechat' | 'xiaohongshu' | 'zhihu'
-  label: string
-  desc: string
-}
-
-const platformOptions: PlatformOption[] = [
-  { value: 'wechat', label: '微信公众号', desc: '适配公众号排版规则' },
-  { value: 'xiaohongshu', label: '小红书', desc: '适配小红书图文风格' },
-  { value: 'zhihu', label: '知乎', desc: '适配知乎专栏样式' },
-]
-
-interface PresetOption {
-  value: string
-  label: string
-}
-
-const presetOptions: PresetOption[] = [
-  { value: 'thesis', label: '论文翻译' },
-  { value: 'legal', label: '法学研讨' },
-  { value: 'report', label: '行业研报' },
-  { value: 'commentary', label: '时事点评' },
-  { value: 'aigc', label: 'AIGC创意' },
-  { value: 'code', label: '编程创造' },
-  { value: 'notes', label: '学习笔记' },
-  { value: 'news', label: '新闻' },
-  { value: 'meme', label: '整活' },
-  { value: 'life', label: '人生感悟' },
-]
-
-interface CodeThemeOption {
-  value: string
-  label: string
-}
-
-const codeThemeOptions: CodeThemeOption[] = [
-  { value: 'atom-one-dark', label: 'Atom One Dark' },
-  { value: 'atom-one-light', label: 'Atom One Light' },
-  { value: 'github', label: 'GitHub' },
-  { value: 'monokai', label: 'Monokai' },
-  { value: 'dracula', label: 'Dracula' },
-  { value: 'vs2015', label: 'VS 2015' },
-]
-
-// ═══════════════════════════════════════
-//  Tab 4: AI 服务
-// ═══════════════════════════════════════
-
-interface ProviderOption {
-  value: 'openai' | 'anthropic' | 'deepseek' | 'ollama' | 'none'
-  label: string
-  desc: string
-}
-
-const providerOptions: ProviderOption[] = [
-  { value: 'openai', label: 'OpenAI / 兼容', desc: 'GPT-4o / 硅基流动 / 兼容接口' },
-  { value: 'anthropic', label: 'Anthropic', desc: 'Claude Opus / Sonnet' },
-  { value: 'deepseek', label: 'DeepSeek', desc: '国产高性价比模型' },
-  { value: 'ollama', label: 'Ollama', desc: '本地运行，完全离线' },
-  { value: 'none', label: '禁用', desc: '不使用 AI 功能' },
-]
-
-const aiTestStatus = ref<'idle' | 'testing' | 'success' | 'error'>('idle')
-const aiTestMessage = ref('')
-const showApiKey = ref(false)
+const currentTab = ref<TabId>(isTabId(route.query.tab) ? route.query.tab : 'account')
+const searchQuery = ref('')
+const highlightedAnchor = ref<string | null>(null)
+const editingShortcut = ref<string | null>(null)
+const shortcutConflict = ref<string | null>(null)
+const revealApiKey = ref(false)
+const revealSyncSecret = ref(false)
+const revealProxyPassword = ref(false)
+const notice = ref<NoticeState | null>(null)
+const aiConnectionMessage = ref('')
 const ollamaModels = ref<string[]>([])
+const settingsProfiles = ref<SettingsProfile[]>([])
+const syncLogs = ref<SyncLog[]>([])
+const databaseSize = ref<DatabaseSizeResult | null>(null)
+const importSummary = ref<ImportSummaryState | null>(null)
+const currentTabTitle = computed(() => tabs.find((tab) => tab.id === currentTab.value) ?? tabs[0])
 
-/** 判断是否为硅基流动 */
-const isSiliconFlow = computed(() =>
-  settings.value.ai.provider === 'openai' &&
-  (settings.value.ai.baseUrl || '').includes('siliconflow')
+watch(
+  () => route.query.tab,
+  (value) => {
+    if (isTabId(value)) {
+      currentTab.value = value
+    }
+  },
+  { immediate: true }
 )
 
-const modelOptions = computed<string[]>(() => {
-  switch (settings.value.ai.provider) {
-    case 'openai':
-      // 硅基流动兼容 OpenAI 接口，显示专属模型列表
-      if (isSiliconFlow.value) {
-        return [
-          'Qwen/Qwen3-8B',
-          'Qwen/Qwen3-30B-A3B',
-          'Qwen/Qwen2.5-72B-Instruct',
-          'deepseek-ai/DeepSeek-V3',
-          'deepseek-ai/DeepSeek-R1',
-          'THUDM/GLM-4-9B-0414',
-          'meta-llama/Llama-3.3-70B-Instruct',
-          'Pro/Qwen/Qwen2.5-7B-Instruct',
-        ]
-      }
-      return ['gpt-4o', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo']
-    case 'anthropic':
-      return ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5']
-    case 'deepseek':
-      return ['deepseek-chat', 'deepseek-reasoner']
-    case 'ollama':
-      return ollamaModels.value.length > 0
-        ? ollamaModels.value
-        : ['qwen2.5:7b', 'llama3.2:latest', 'mistral:latest']
+watch(
+  currentTab,
+  (value) => {
+    if (route.query.tab === value) {
+      return
+    }
+
+    void router.replace({
+      query: {
+        ...route.query,
+        tab: value,
+      },
+    })
+  }
+)
+
+const avatarInputRef = ref<HTMLInputElement | null>(null)
+const settingsImportInputRef = ref<HTMLInputElement | null>(null)
+const snapshotImportInputRef = ref<HTMLInputElement | null>(null)
+
+const accountSaving = ref(false)
+const avatarUploading = ref(false)
+const aiTesting = ref(false)
+const ollamaLoading = ref(false)
+const syncBusy = ref(false)
+const syncTesting = ref(false)
+const snapshotBusy = ref(false)
+const profileBusy = ref(false)
+const dataBusy = ref(false)
+const syncLogLoading = ref(false)
+const masterKeyBusy = ref(false)
+const masterKeyUnlocked = ref(false)
+const masterKeyDialogMode = ref<MasterKeyDialogMode | null>(null)
+const masterKeyDialogError = ref<string | null>(null)
+const masterKeyDialogPrimaryInputRef = ref<HTMLInputElement | null>(null)
+const lastExportedRecoveryBundle = ref('')
+const lastExportedRecoveryBundleAt = ref<string | null>(null)
+
+const storageEstimate = reactive({
+  usage: 0,
+  quota: 0,
+})
+
+const createAccountDraft = reactive({
+  name: '',
+  email: '',
+  bio: '',
+})
+
+const accountForm = reactive({
+  name: '',
+  email: '',
+  bio: '',
+})
+
+const accountSwitchingId = ref<string | null>(null)
+const accountCreating = ref(false)
+const cacheSize = ref('计算中...')
+const previewCacheActive = ref(false)
+const swRegistered = ref(false)
+const editorNodeCount = ref(0)
+const editorRuntimeStatus = ref('idle')
+const renderFPS = ref(60)
+const autoSaveLatency = ref(0)
+const idbLatency = ref(0)
+const memoryUsage = ref('--')
+const runtimeLogLevel = ref<LoggerLevel>(getLogLevel())
+const lastPreviewRenderMetric = ref<{ duration: number; platform?: string; at: string } | null>(null)
+const lastSaveMetric = ref<{ duration: number; source?: string; at: string } | null>(null)
+
+const syncTargetDraft = reactive({
+  type: 'none' as SyncTargetType,
+  url: '',
+  username: '',
+  password: '',
+  endpoint: '',
+  accessKeyId: '',
+  secretAccessKey: '',
+  bucket: '',
+  region: 'auto',
+  restUrl: '',
+  token: '',
+})
+const masterKeyDialogForm = reactive({
+  password: '',
+  exportPassword: '',
+  newPassword: '',
+  bundleText: '',
+})
+const revealMasterKeySecrets = reactive({
+  password: false,
+  exportPassword: false,
+  newPassword: false,
+})
+
+let highlightTimer: number | null = null
+let performanceFrameId: number | null = null
+let performanceSnapshotTimerId: ReturnType<typeof setInterval> | null = null
+let lastFrameSampleAt = 0
+let frameCount = 0
+
+const searchResults = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (!keyword) {
+    return []
+  }
+
+  return searchableItems
+    .map((item) => {
+      let score = 0
+      if (item.label.toLowerCase().includes(keyword)) score += 3
+      if (item.sectionTitle.toLowerCase().includes(keyword)) score += 1
+      if (item.description.toLowerCase().includes(keyword)) score += 1
+      if (item.keywords.some((entry) => entry.toLowerCase().includes(keyword))) score += 2
+      return { item, score }
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 8)
+    .map((entry) => entry.item)
+})
+
+const storageUsageLabel = computed(() => formatBytes(storageEstimate.usage))
+const storageQuotaLabel = computed(() => formatBytes(storageEstimate.quota))
+const passwordPolicyHint = computed(() => {
+  const rules = [
+    `至少 ${PASSWORD_POLICY.MIN_LENGTH} 个字符`,
+    '包含大写字母',
+    '包含小写字母',
+    '包含数字',
+  ]
+  if (PASSWORD_POLICY.REQUIRE_SPECIAL) {
+    rules.push('包含特殊字符')
+  }
+  return rules.join('，')
+})
+const storageRatio = computed(() => {
+  if (!storageEstimate.quota) {
+    return 0
+  }
+  return Math.min(100, Math.round((storageEstimate.usage / storageEstimate.quota) * 100))
+})
+const performanceMetricsVisible = computed(() => {
+  return performanceFlag.enabled.value && settingsStore.settings.advanced.showPerformanceMetrics
+})
+const dexieVersion = computed(() => db.verno)
+const proxyRuntimeConfig = computed(() => getProxyRuntimeConfig(settingsStore.settings.advanced))
+const proxyRuntimeDescription = computed(() => describeProxyConfig(settingsStore.settings.advanced))
+const currentTabResetMeta = computed(() => tabResetDefinitions[currentTab.value])
+const currentTabResetLabel = computed(() => currentTabResetMeta.value.label)
+
+const selectedThemePreset = computed(() => {
+  return themePresets.find((preset) => preset.id === settingsStore.settings.export.defaultPresetId) ?? themePresets[0]
+})
+
+const syncStatusTone = computed<NoticeTone>(() => {
+  switch (syncStore.status) {
+    case 'error':
+    case 'conflict':
+      return 'error'
+    case 'syncing':
+      return 'info'
     default:
-      return []
+      return 'success'
   }
 })
 
-async function fetchOllamaModels(): Promise<void> {
-  try {
-    const response = await fetch(settings.value.ai.ollamaUrl + '/api/tags', {
-      signal: AbortSignal.timeout(5000),
-    })
-    if (response.ok) {
-      const data = await response.json()
-      ollamaModels.value = (data.models || []).map((m: { name: string }) => m.name)
+const syncSummaryText = computed(() => {
+  if (syncStore.status === 'conflict') {
+    return `${syncStore.conflicts.length} 个冲突待处理`
+  }
+  if (syncStore.status === 'syncing') {
+    return '同步引擎正在处理变更'
+  }
+  if (syncStore.status === 'error') {
+    return syncStore.lastError ?? '同步执行失败'
+  }
+  return syncStore.statusText
+})
+const masterKeyStatusTone = computed<NoticeTone>(() => (masterKeyUnlocked.value ? 'success' : 'info'))
+const masterKeyStatusLabel = computed(() => (masterKeyUnlocked.value ? '已解锁' : '未初始化或未解锁'))
+const masterKeyStatusDescription = computed(() => {
+  if (masterKeyUnlocked.value) {
+    return '同步运行时可直接复用当前主密钥。'
+  }
+  return '同步加密需要先在此初始化或解锁主密钥。'
+})
+const recoveryBundleSummary = computed(() => {
+  if (!lastExportedRecoveryBundleAt.value) {
+    return '尚未生成恢复密钥包。'
+  }
+  return `最近一次导出：${formatDateTime(lastExportedRecoveryBundleAt.value)}`
+})
+const masterKeyDialogTitle = computed(() => {
+  switch (masterKeyDialogMode.value) {
+    case 'unlock':
+      return '初始化或解锁主密钥'
+    case 'export':
+      return '导出恢复密钥'
+    case 'import':
+      return '导入恢复密钥'
+    default:
+      return ''
+  }
+})
+const masterKeyDialogDescription = computed(() => {
+  switch (masterKeyDialogMode.value) {
+    case 'unlock':
+      return '输入主密码后，InkForge 会初始化新的主密钥或解锁已有主密钥。'
+    case 'export':
+      return '导出恢复密钥包前需要单独的导出密码，用于保护离线备份。'
+    case 'import':
+      return '导入恢复密钥包会用新的主密码重新包装主密钥，并立即用于当前会话。'
+    default:
+      return ''
+  }
+})
+const masterKeyDialogSubmitLabel = computed(() => {
+  switch (masterKeyDialogMode.value) {
+    case 'unlock':
+      return masterKeyBusy.value ? '处理中...' : '初始化 / 解锁'
+    case 'export':
+      return masterKeyBusy.value ? '导出中...' : '生成恢复密钥'
+    case 'import':
+      return masterKeyBusy.value ? '导入中...' : '导入恢复密钥'
+    default:
+      return '提交'
+  }
+})
+const hasCachedRecoveryBundle = computed(() => lastExportedRecoveryBundle.value.trim().length > 0)
+
+watch(
+  () => accountStore.currentAccount,
+  (account) => {
+    accountForm.name = account?.name ?? ''
+    accountForm.email = account?.email ?? ''
+    accountForm.bio = account?.bio ?? ''
+  },
+  { immediate: true },
+)
+
+watch(
+  () => settingsStore.settings.sync.target,
+  () => {
+    syncDraftFromSettings()
+  },
+  { deep: true, immediate: true },
+)
+
+watch(
+  () => [settingsStore.settings.sync.enabled, settingsStore.settings.sync.interval] as const,
+  ([enabled, interval]) => {
+    if (!enabled || interval === 'manual') {
+      syncStore.stopAutoSync()
+      return
     }
-  } catch {
-    ollamaModels.value = []
+
+    syncStore.startAutoSync(SYNC_INTERVAL_MAP[interval])
+  },
+  { immediate: true },
+)
+
+watch(
+  () => settingsStore.settings.ai.provider,
+  (provider) => {
+    aiConnectionMessage.value = ''
+    if (provider === 'ollama') {
+      void loadOllamaModels()
+    } else {
+      ollamaModels.value = []
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => settingsStore.settings.advanced.logLevel,
+  (level) => {
+    setLogLevel(level)
+    runtimeLogLevel.value = getLogLevel()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => settingsStore.settings.account.profileId,
+  (profileId) => {
+    if (!profileId || accountStore.currentAccount?.id === profileId) {
+      return
+    }
+
+    void accountStore.loadAccount(profileId)
+  },
+  { immediate: true },
+)
+
+watch(
+  performanceMetricsVisible,
+  (enabled) => {
+    if (enabled) {
+      startPerformanceMonitor()
+      return
+    }
+
+    stopPerformanceMonitor()
+  },
+  { immediate: true },
+)
+
+onMounted(async () => {
+  window.addEventListener('inkforge:editor-save-metric', handleEditorSaveMetric as EventListener)
+  window.addEventListener('inkforge:preview-render-metric', handlePreviewRenderMetric as EventListener)
+
+  await Promise.all([
+    accountStore.loadAccount(settingsStore.settings.account.profileId),
+    accountStore.listAccounts(),
+    refreshStorageEstimate(),
+    refreshDatabaseStats(),
+    refreshSettingsProfilesList(),
+    refreshSyncLogsList(),
+    refreshMasterKeyRuntimeState(),
+    refreshCacheStats(),
+    refreshPerformanceSnapshot(),
+  ])
+})
+
+onUnmounted(() => {
+  if (highlightTimer !== null) {
+    window.clearTimeout(highlightTimer)
+    highlightTimer = null
+  }
+  window.removeEventListener('keydown', handleShortcutRecording)
+  window.removeEventListener('keydown', handleMasterKeyDialogKeydown)
+  window.removeEventListener('inkforge:editor-save-metric', handleEditorSaveMetric as EventListener)
+  window.removeEventListener('inkforge:preview-render-metric', handlePreviewRenderMetric as EventListener)
+  stopPerformanceMonitor()
+})
+
+window.addEventListener('keydown', handleShortcutRecording)
+window.addEventListener('keydown', handleMasterKeyDialogKeydown)
+
+function goBack(): void {
+  void router.push('/')
+}
+
+function setNotice(tone: NoticeTone, text: string): void {
+  notice.value = { tone, text }
+}
+
+function clearNotice(): void {
+  notice.value = null
+}
+
+function syncDraftFromSettings(): void {
+  const target = settingsStore.settings.sync.target
+  syncTargetDraft.type = target.type
+  syncTargetDraft.url = target.type === 'webdav' ? target.url : ''
+  syncTargetDraft.username = target.type === 'webdav' ? target.username : ''
+  syncTargetDraft.password = target.type === 'webdav' ? target.password : ''
+  syncTargetDraft.endpoint = target.type === 's3' ? target.endpoint : ''
+  syncTargetDraft.accessKeyId = target.type === 's3' ? target.accessKeyId : ''
+  syncTargetDraft.secretAccessKey = target.type === 's3' ? target.secretAccessKey : ''
+  syncTargetDraft.bucket = target.type === 's3' ? target.bucket : ''
+  syncTargetDraft.region = target.type === 's3' ? target.region : 'auto'
+  syncTargetDraft.restUrl = target.type === 'rest' ? target.url : ''
+  syncTargetDraft.token = target.type === 'rest' ? target.token : ''
+}
+
+function isHighlighted(anchorId: string): boolean {
+  return highlightedAnchor.value === anchorId
+}
+
+async function jumpToSetting(item: SearchableSettingItem): Promise<void> {
+  currentTab.value = item.tabId
+  searchQuery.value = ''
+  await nextTick()
+
+  const anchorElement = document.getElementById(item.anchorId)
+  if (anchorElement instanceof HTMLElement) {
+    anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    highlightedAnchor.value = item.anchorId
+
+    if (highlightTimer !== null) {
+      window.clearTimeout(highlightTimer)
+    }
+
+    highlightTimer = window.setTimeout(() => {
+      highlightedAnchor.value = null
+      highlightTimer = null
+    }, 1800)
+  }
+}
+
+function jumpToSyncSecurity(): void {
+  void jumpToSetting({
+    tabId: 'sync',
+    sectionTitle: '同步加密',
+    label: '主密钥与恢复密钥',
+    description: '跳转到同步安全与主密钥管理区块',
+    anchorId: 'sync-security',
+    keywords: ['sync', 'security', 'master key'],
+  })
+}
+
+function syncMetricsFromSession(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const savedLatency = Number(window.sessionStorage.getItem('inkforge:last-editor-save-ms') ?? '0')
+  const savedAt = window.sessionStorage.getItem('inkforge:last-editor-save-at')
+  const savedSource = window.sessionStorage.getItem('inkforge:last-editor-save-source') ?? undefined
+  if (Number.isFinite(savedLatency) && savedLatency >= 0) {
+    autoSaveLatency.value = Math.round(savedLatency)
+  }
+  if (savedAt) {
+    lastSaveMetric.value = {
+      duration: autoSaveLatency.value,
+      source: savedSource,
+      at: savedAt,
+    }
+  }
+
+  const previewLatency = Number(window.sessionStorage.getItem('inkforge:last-preview-render-ms') ?? '0')
+  const previewAt = window.sessionStorage.getItem('inkforge:last-preview-render-at')
+  if (Number.isFinite(previewLatency) && previewLatency >= 0 && previewAt) {
+    lastPreviewRenderMetric.value = {
+      duration: Math.round(previewLatency),
+      at: previewAt,
+    }
+    previewCacheActive.value = true
+  } else {
+    previewCacheActive.value = false
+  }
+}
+
+function refreshEditorDevInfo(): void {
+  const editorElement = document.querySelector('.ProseMirror')
+  if (!(editorElement instanceof HTMLElement)) {
+    editorNodeCount.value = 0
+    editorRuntimeStatus.value = 'idle'
+    return
+  }
+
+  editorNodeCount.value = editorElement.querySelectorAll('*').length
+  editorRuntimeStatus.value = editorStore.status === 'idle'
+    ? 'idle'
+    : editorStore.status === 'error'
+      ? 'error'
+      : 'active'
+}
+
+function handleEditorSaveMetric(event: Event): void {
+  const detail = (event as CustomEvent<{ duration?: number; source?: string; at?: string }>).detail
+  autoSaveLatency.value = Math.max(0, Math.round(detail?.duration ?? 0))
+  lastSaveMetric.value = {
+    duration: autoSaveLatency.value,
+    source: detail?.source,
+    at: detail?.at ?? new Date().toISOString(),
+  }
+}
+
+function handlePreviewRenderMetric(event: Event): void {
+  const detail = (event as CustomEvent<{ duration?: number; platform?: string; at?: string }>).detail
+  lastPreviewRenderMetric.value = {
+    duration: Math.max(0, Math.round(detail?.duration ?? 0)),
+    platform: detail?.platform,
+    at: detail?.at ?? new Date().toISOString(),
+  }
+  previewCacheActive.value = true
+}
+
+async function refreshStorageEstimate(): Promise<void> {
+  if (!('storage' in navigator) || typeof navigator.storage.estimate !== 'function') {
+    storageEstimate.usage = 0
+    storageEstimate.quota = 0
+    return
+  }
+
+  try {
+    const estimate = await navigator.storage.estimate()
+    storageEstimate.usage = estimate.usage ?? 0
+    storageEstimate.quota = estimate.quota ?? 0
+  } catch (error) {
+    logger.warn('读取浏览器存储配额失败', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+  }
+}
+
+async function refreshCacheStats(): Promise<void> {
+  if (typeof window === 'undefined') {
+    cacheSize.value = '不可用'
+    previewCacheActive.value = false
+    swRegistered.value = false
+    return
+  }
+
+  syncMetricsFromSession()
+
+  if ('caches' in window) {
+    try {
+      const keys = await caches.keys()
+      let totalBytes = 0
+
+      for (const key of keys) {
+        const cache = await caches.open(key)
+        const requests = await cache.keys()
+
+        for (const request of requests) {
+          const response = await cache.match(request)
+          if (!response) {
+            continue
+          }
+
+          totalBytes += (await response.blob()).size
+        }
+      }
+
+      cacheSize.value = formatBytes(totalBytes)
+    } catch (error) {
+      logger.warn('读取渲染缓存失败', {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      cacheSize.value = '不可用'
+    }
+  } else {
+    cacheSize.value = '不可用'
+  }
+
+  if ('serviceWorker' in navigator) {
+    try {
+      swRegistered.value = Boolean(await navigator.serviceWorker.getRegistration())
+    } catch (error) {
+      logger.warn('读取 Service Worker 状态失败', {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      swRegistered.value = false
+    }
+  } else {
+    swRegistered.value = false
+  }
+}
+
+async function refreshDatabaseStats(): Promise<void> {
+  try {
+    databaseSize.value = await getDatabaseSize()
+  } catch (error) {
+    logger.error('读取数据库统计失败', error)
+    setNotice('error', '读取数据库统计失败')
+  }
+}
+
+async function refreshPerformanceSnapshot(): Promise<void> {
+  syncMetricsFromSession()
+  refreshEditorDevInfo()
+
+  const startedAt = performance.now()
+  try {
+    await db.articles.limit(1).toArray()
+    idbLatency.value = Math.max(0, Math.round(performance.now() - startedAt))
+  } catch (error) {
+    logger.warn('采集 IndexedDB 延迟失败', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    idbLatency.value = 0
+  }
+
+  const performanceWithMemory = performance as Performance & {
+    memory?: {
+      usedJSHeapSize?: number
+    }
+  }
+
+  const usedHeap = performanceWithMemory.memory?.usedJSHeapSize
+  memoryUsage.value = typeof usedHeap === 'number' ? formatBytes(usedHeap) : '不可用'
+}
+
+function startPerformanceMonitor(): void {
+  stopPerformanceMonitor()
+  lastFrameSampleAt = performance.now()
+  frameCount = 0
+
+  const tick = (now: number): void => {
+    frameCount += 1
+
+    if (now - lastFrameSampleAt >= 1000) {
+      renderFPS.value = Math.max(1, Math.round((frameCount * 1000) / (now - lastFrameSampleAt)))
+      frameCount = 0
+      lastFrameSampleAt = now
+    }
+
+    performanceFrameId = window.requestAnimationFrame(tick)
+  }
+
+  performanceFrameId = window.requestAnimationFrame(tick)
+  void refreshPerformanceSnapshot()
+  performanceSnapshotTimerId = window.setInterval(() => {
+    void refreshPerformanceSnapshot()
+  }, 2500)
+}
+
+function stopPerformanceMonitor(): void {
+  if (performanceFrameId !== null) {
+    window.cancelAnimationFrame(performanceFrameId)
+    performanceFrameId = null
+  }
+
+  if (performanceSnapshotTimerId !== null) {
+    window.clearInterval(performanceSnapshotTimerId)
+    performanceSnapshotTimerId = null
+  }
+}
+
+async function clearRenderCache(): Promise<void> {
+  if ('caches' in window) {
+    const keys = await caches.keys()
+    await Promise.all(keys.map((key) => caches.delete(key)))
+  }
+
+  await refreshCacheStats()
+  setNotice('success', '渲染缓存已清除')
+}
+
+function clearPreviewCache(): void {
+  if (typeof window !== 'undefined') {
+    window.sessionStorage.removeItem('inkforge:last-preview-render-ms')
+    window.sessionStorage.removeItem('inkforge:last-preview-render-at')
+    window.dispatchEvent(new CustomEvent('inkforge:clear-preview-cache'))
+  }
+
+  previewCacheActive.value = false
+  lastPreviewRenderMetric.value = null
+  setNotice('success', '预览缓存已清除')
+}
+
+function exportDebugInfo(): void {
+  refreshEditorDevInfo()
+
+  const payload = {
+    version: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    platform: navigator.platform,
+    runtimeLogLevel: runtimeLogLevel.value,
+    settings: settingsStore.exportSettings(),
+    proxy: proxyRuntimeConfig.value,
+    databaseVersion: dexieVersion.value,
+    databaseSize: databaseSize.value,
+    indexedDbTables: DATABASE_TABLES.length,
+    storageUsage: {
+      usage: storageEstimate.usage,
+      quota: storageEstimate.quota,
+    },
+    account: {
+      currentId: settingsStore.settings.account.profileId,
+      total: accountStore.accounts.length,
+    },
+    sync: {
+      status: syncStore.status,
+      lastSyncAt: syncStore.lastSyncAt,
+      pendingChanges: syncStore.pendingCount,
+    },
+    editor: {
+      storeStatus: editorStore.status,
+      runtimeStatus: editorRuntimeStatus.value,
+      nodeCount: editorNodeCount.value,
+      renderFPS: renderFPS.value,
+      previewMetric: lastPreviewRenderMetric.value,
+      saveMetric: lastSaveMetric.value,
+      autoSaveLatency: autoSaveLatency.value,
+      indexedDbLatency: idbLatency.value,
+      memoryUsage: memoryUsage.value,
+    },
+    featureFlags: settingsStore.settings.advanced.featureFlags.map((flag) => ({
+      id: flag.id,
+      enabled: flag.enabled,
+      experimental: flag.experimental,
+    })),
+  }
+
+  downloadTextFile(`inkforge-debug-${Date.now()}.json`, JSON.stringify(payload, null, 2))
+  setNotice('success', '调试信息已导出')
+}
+
+async function refreshSettingsProfilesList(): Promise<void> {
+  try {
+    settingsProfiles.value = await getSettingsProfiles()
+  } catch (error) {
+    logger.error('读取设置档案失败', error)
+    setNotice('error', '读取设置档案失败')
+  }
+}
+
+async function refreshSyncLogsList(): Promise<void> {
+  syncLogLoading.value = true
+  try {
+    syncLogs.value = await getSyncLogs()
+  } catch (error) {
+    logger.error('读取同步日志失败', error)
+    setNotice('error', '读取同步日志失败')
+  } finally {
+    syncLogLoading.value = false
+  }
+}
+
+function openAvatarPicker(): void {
+  avatarInputRef.value?.click()
+}
+
+function openSettingsImport(): void {
+  settingsImportInputRef.value?.click()
+}
+
+function openSnapshotImport(): void {
+  snapshotImportInputRef.value?.click()
+}
+
+async function saveAccountProfile(): Promise<void> {
+  accountSaving.value = true
+  clearNotice()
+
+  try {
+    await accountStore.updateAccount({
+      name: accountForm.name,
+      email: accountForm.email,
+      bio: accountForm.bio,
+    })
+    setNotice('success', '账户资料已保存')
+  } catch (error) {
+    logger.error('保存账户资料失败', error)
+    setNotice('error', error instanceof Error ? error.message : '保存账户资料失败')
+  } finally {
+    accountSaving.value = false
+  }
+}
+
+async function handleAvatarSelected(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) {
+    return
+  }
+
+  avatarUploading.value = true
+  clearNotice()
+
+  try {
+    await accountStore.updateAvatar(file)
+    setNotice('success', '头像已更新')
+  } catch (error) {
+    logger.error('更新头像失败', error)
+    setNotice('error', error instanceof Error ? error.message : '更新头像失败')
+  } finally {
+    input.value = ''
+    avatarUploading.value = false
+  }
+}
+
+async function exportAccountDataFile(): Promise<void> {
+  try {
+    const payload = await accountStore.exportAccountData()
+    downloadTextFile(`inkforge-account-${Date.now()}.json`, payload)
+    setNotice('success', '账户数据已导出')
+  } catch (error) {
+    logger.error('导出账户数据失败', error)
+    setNotice('error', '导出账户数据失败')
+  }
+}
+
+async function resetCurrentAccount(): Promise<void> {
+  const confirmed = window.confirm('这会重置当前本地账户资料，是否继续？')
+  if (!confirmed) {
+    return
+  }
+
+  try {
+    await accountStore.deleteCurrentAccount()
+    setNotice('success', '本地账户已重置')
+  } catch (error) {
+    logger.error('重置账户失败', error)
+    setNotice('error', '重置账户失败')
+  }
+}
+
+async function switchAccountFromSettings(accountId: string): Promise<void> {
+  if (!accountId || accountId === accountStore.currentAccount?.id) {
+    return
+  }
+
+  accountSwitchingId.value = accountId
+  clearNotice()
+
+  try {
+    const switched = await accountStore.switchAccount(accountId)
+    if (!switched) {
+      throw new Error(accountStore.error ?? '账户切换失败')
+    }
+
+    await accountStore.listAccounts()
+    setNotice('success', `已切换到账户「${switched.name}」`)
+  } catch (error) {
+    logger.error('切换本地账户失败', error)
+    setNotice('error', error instanceof Error ? error.message : '切换本地账户失败')
+  } finally {
+    accountSwitchingId.value = null
+  }
+}
+
+async function createLocalAccountFromSettings(): Promise<void> {
+  if (!createAccountDraft.name.trim()) {
+    setNotice('error', '请输入账户名称')
+    return
+  }
+
+  accountCreating.value = true
+  clearNotice()
+
+  try {
+    const created = await accountStore.createNewAccount({
+      name: createAccountDraft.name.trim(),
+      email: createAccountDraft.email.trim(),
+      bio: createAccountDraft.bio.trim(),
+    })
+    if (!created) {
+      throw new Error(accountStore.error ?? '创建本地账户失败')
+    }
+
+    await accountStore.listAccounts()
+    createAccountDraft.name = ''
+    createAccountDraft.email = ''
+    createAccountDraft.bio = ''
+    setNotice('success', `本地账户「${created.name}」已创建并切换`)
+  } catch (error) {
+    logger.error('创建本地账户失败', error)
+    setNotice('error', error instanceof Error ? error.message : '创建本地账户失败')
+  } finally {
+    accountCreating.value = false
   }
 }
 
 async function testAIConnection(): Promise<void> {
-  aiTestStatus.value = 'testing'
-  aiTestMessage.value = '正在测试连接...'
+  aiTesting.value = true
+  clearNotice()
 
   try {
     const result = await aiStore.testConnection()
-    aiTestStatus.value = result.success ? 'success' : 'error'
-    aiTestMessage.value = result.message
-  } catch (e) {
-    aiTestStatus.value = 'error'
-    aiTestMessage.value = `连接失败: ${e instanceof Error ? e.message : '未知错误'}`
+    aiConnectionMessage.value = result.message
+    setNotice(result.success ? 'success' : 'error', result.message)
+  } catch (error) {
+    logger.error('AI 连接测试失败', error)
+    setNotice('error', 'AI 连接测试失败')
+  } finally {
+    aiTesting.value = false
   }
 }
 
-function handleProviderChange(): void {
-  if (settings.value.ai.provider === 'ollama') {
-    fetchOllamaModels()
-  }
-  // 重置测试状态
-  aiTestStatus.value = 'idle'
-  aiTestMessage.value = ''
-}
-
-// ═══════════════════════════════════════
-//  Tab 5: 数据管理
-// ═══════════════════════════════════════
-
-const dataStats = computed(() => ({
-  articleCount: articleStore.articles.length,
-  assetCount: assetStore.assets.length,
-  totalSize: assetStore.totalSize,
-}))
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
-}
-
-function handleExportSettings(): void {
-  const json = settingsStore.exportSettings()
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `inkforge-settings-${new Date().toISOString().slice(0, 10)}.json`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-function handleImportSettings(): void {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json'
-  input.onchange = async (e: Event) => {
-    const file = (e.target as HTMLInputElement).files?.[0]
-    if (!file) return
-    try {
-      const text = await file.text()
-      const success = settingsStore.importSettings(text)
-      if (success) {
-        importFeedback.value = { type: 'success', text: '设置导入成功' }
-      } else {
-        importFeedback.value = { type: 'error', text: '设置文件格式不正确' }
-      }
-      clearFeedbackTimer()
-    } catch {
-      importFeedback.value = { type: 'error', text: '读取文件失败' }
-      clearFeedbackTimer()
-    }
-  }
-  input.click()
-}
-
-const importFeedback = ref<{ type: 'success' | 'error'; text: string } | null>(null)
-let feedbackTimer: ReturnType<typeof setTimeout> | null = null
-
-function clearFeedbackTimer(): void {
-  if (feedbackTimer) clearTimeout(feedbackTimer)
-  feedbackTimer = setTimeout(() => {
-    importFeedback.value = null
-  }, 3000)
-}
-
-// 确认弹窗状态
-interface ConfirmDialog {
-  visible: boolean
-  title: string
-  message: string
-  action: (() => void) | null
-}
-
-const confirmDialog = ref<ConfirmDialog>({
-  visible: false,
-  title: '',
-  message: '',
-  action: null,
-})
-
-function showConfirm(title: string, message: string, action: () => void): void {
-  confirmDialog.value = { visible: true, title, message, action }
-}
-
-function confirmAction(): void {
-  confirmDialog.value.action?.()
-  confirmDialog.value.visible = false
-}
-
-function cancelConfirm(): void {
-  confirmDialog.value.visible = false
-}
-
-function handleClearArticles(): void {
-  showConfirm(
-    '清除所有文章',
-    '此操作将永久删除所有文章数据，不可恢复。确定要继续吗？',
-    async () => {
-      const ids = articleStore.articles.map(a => a.id)
-      for (const id of ids) {
-        await articleStore.deleteArticle(id)
-      }
-    }
-  )
-}
-
-function handleClearAssets(): void {
-  showConfirm(
-    '清除所有素材',
-    '此操作将永久删除所有素材文件，不可恢复。确定要继续吗？',
-    async () => {
-      const ids = assetStore.assets.map(a => a.id)
-      for (const id of ids) {
-        await assetStore.deleteAsset(id)
-      }
-    }
-  )
-}
-
-function handleResetSettings(): void {
-  showConfirm(
-    '重置所有设置',
-    '此操作将把所有设置恢复为默认值，不可撤销。确定要继续吗？',
-    () => {
-      settingsStore.reset()
-    }
-  )
-}
-
-// ═══════════════════════════════════════
-//  Tab 6: 快捷键
-// ═══════════════════════════════════════
-
-const editingShortcut = ref<string | null>(null)
-const shortcutConflict = ref<string | null>(null)
-
-const shortcutLabels: Record<string, string> = {
-  save: '保存',
-  bold: '加粗',
-  italic: '斜体',
-  undo: '撤销',
-  redo: '重做',
-  outline: '大纲面板',
-  focusMode: '专注模式',
-}
-
-function startEditShortcut(key: string): void {
-  editingShortcut.value = key
-  shortcutConflict.value = null
-}
-
-function handleShortcutKeydown(e: KeyboardEvent, key: string): void {
-  e.preventDefault()
-  e.stopPropagation()
-
-  const parts: string[] = []
-  if (e.ctrlKey || e.metaKey) parts.push('Ctrl')
-  if (e.shiftKey) parts.push('Shift')
-  if (e.altKey) parts.push('Alt')
-
-  if (
-    e.key !== 'Control' &&
-    e.key !== 'Shift' &&
-    e.key !== 'Alt' &&
-    e.key !== 'Meta'
-  ) {
-    parts.push(e.key.length === 1 ? e.key.toUpperCase() : e.key)
-  }
-
-  // Escape 取消编辑
-  if (e.key === 'Escape') {
-    editingShortcut.value = null
-    shortcutConflict.value = null
+async function loadOllamaModels(): Promise<void> {
+  if (settingsStore.settings.ai.provider !== 'ollama') {
     return
   }
 
-  if (parts.length > 1 || (parts.length === 1 && parts[0].length > 1)) {
-    const combo = parts.join('+')
+  ollamaLoading.value = true
 
-    // 冲突检测
-    const conflictKey = Object.entries(settings.value.shortcuts).find(
-      ([k, v]) => k !== key && v === combo
-    )
-
-    if (conflictKey) {
-      shortcutConflict.value = `与"${shortcutLabels[conflictKey[0]] || conflictKey[0]}"冲突`
-      return
+  try {
+    const response = await fetch(`${settingsStore.settings.ai.ollamaUrl.replace(/\/+$/, '')}/api/tags`)
+    if (!response.ok) {
+      throw new Error(`Ollama 请求失败 (${response.status})`)
     }
 
-    settings.value.shortcuts[key] = combo
-    editingShortcut.value = null
-    shortcutConflict.value = null
+    const payload = await response.json() as OllamaTagsResponse
+    ollamaModels.value = (payload.models ?? [])
+      .map((model) => model.name ?? '')
+      .filter((name): name is string => Boolean(name))
+  } catch (error) {
+    logger.warn('加载 Ollama 模型失败', {
+      error: error instanceof Error ? error.message : String(error),
+    })
+    ollamaModels.value = []
+    aiConnectionMessage.value = error instanceof Error ? error.message : '读取 Ollama 模型失败'
+  } finally {
+    ollamaLoading.value = false
   }
 }
 
-function handleShortcutBlur(): void {
+async function handleSettingsImport(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) {
+    return
+  }
+
+  try {
+    const text = await file.text()
+    const imported = settingsStore.importSettings(text)
+    if (!imported) {
+      throw new Error('设置文件校验失败')
+    }
+
+    syncDraftFromSettings()
+    setNotice('success', '设置文件已导入')
+  } catch (error) {
+    logger.error('导入设置失败', error)
+    setNotice('error', error instanceof Error ? error.message : '导入设置失败')
+  } finally {
+    input.value = ''
+  }
+}
+
+function exportSettingsFile(): void {
+  downloadTextFile(`inkforge-settings-${Date.now()}.json`, settingsStore.exportSettings())
+  setNotice('success', '设置 JSON 已导出')
+}
+
+async function importMarkdownFiles(): Promise<void> {
+  dataBusy.value = true
+  clearNotice()
+
+  try {
+    importSummary.value = await articleStore.importFromFiles()
+    await Promise.all([
+      refreshDatabaseStats(),
+      refreshStorageEstimate(),
+      categoryStore.loadCategories(),
+    ])
+    setNotice('success', `导入完成：成功 ${importSummary.value.success}，失败 ${importSummary.value.failed}`)
+  } catch (error) {
+    logger.error('导入 Markdown 文件失败', error)
+    setNotice('error', '导入 Markdown 文件失败')
+  } finally {
+    dataBusy.value = false
+  }
+}
+
+async function clearArticlesData(): Promise<void> {
+  const confirmed = window.confirm('将清空文章、内容、文档与版本数据，是否继续？')
+  if (!confirmed) {
+    return
+  }
+
+  dataBusy.value = true
+
+  try {
+      await db.transaction(
+        'rw',
+        [db.articles, db.contents, db.documents, db.versions, db.pendingChanges, db.syncLogs, db.categories],
+        async () => {
+          await db.articles.clear()
+          await db.contents.clear()
+          await db.documents.clear()
+          await db.versions.clear()
+          await db.pendingChanges.clear()
+          await db.syncLogs.clear()
+          await db.categories.toCollection().modify({ articleCount: 0 })
+        },
+    )
+
+    await Promise.all([
+      articleStore.loadArticles(),
+      categoryStore.loadCategories(),
+      refreshDatabaseStats(),
+      refreshStorageEstimate(),
+      refreshSyncLogsList(),
+      syncStore.reloadPendingChanges(),
+    ])
+    setNotice('success', '文章相关数据已清空')
+  } catch (error) {
+    logger.error('清空文章数据失败', error)
+    setNotice('error', '清空文章数据失败')
+  } finally {
+    dataBusy.value = false
+  }
+}
+
+async function clearAssetsData(): Promise<void> {
+  const confirmed = window.confirm('将清理素材库（保留当前头像素材），是否继续？')
+  if (!confirmed) {
+    return
+  }
+
+  dataBusy.value = true
+
+  try {
+    const preservedIds = new Set<string>()
+    if (accountStore.currentAccount?.avatarBlobId) {
+      preservedIds.add(accountStore.currentAccount.avatarBlobId)
+    }
+
+    const assetIdsToDelete = (await db.assets.toArray())
+      .filter((asset) => !preservedIds.has(asset.id))
+      .map((asset) => asset.id)
+
+    if (assetIdsToDelete.length > 0) {
+      await db.assets.bulkDelete(assetIdsToDelete)
+    }
+
+    await Promise.all([
+      refreshDatabaseStats(),
+      refreshStorageEstimate(),
+      accountStore.loadAccount(settingsStore.settings.account.profileId),
+    ])
+    setNotice('success', '素材库已清理')
+  } catch (error) {
+    logger.error('清理素材库失败', error)
+    setNotice('error', '清理素材库失败')
+  } finally {
+    dataBusy.value = false
+  }
+}
+
+function resetSettingsToDefault(): void {
+  const confirmed = window.confirm('将恢复所有设置到默认值，是否继续？')
+  if (!confirmed) {
+    return
+  }
+
+  settingsStore.reset()
+  syncDraftFromSettings()
+  setNotice('success', '设置已恢复默认值')
+}
+
+function buildSyncTargetFromDraft(): SyncTarget {
+  switch (syncTargetDraft.type) {
+    case 'none':
+      return { type: 'none' }
+    case 'webdav':
+      assertValidUrl(syncTargetDraft.url, 'WebDAV URL')
+      assertRequired(syncTargetDraft.username, 'WebDAV 用户名')
+      assertRequired(syncTargetDraft.password, 'WebDAV 密码')
+      return {
+        type: 'webdav',
+        url: syncTargetDraft.url,
+        username: syncTargetDraft.username,
+        password: syncTargetDraft.password,
+      }
+    case 's3':
+      assertValidUrl(syncTargetDraft.endpoint, 'S3 Endpoint')
+      assertRequired(syncTargetDraft.accessKeyId, 'Access Key')
+      assertRequired(syncTargetDraft.secretAccessKey, 'Secret Key')
+      assertRequired(syncTargetDraft.bucket, 'Bucket')
+      assertRequired(syncTargetDraft.region, 'Region')
+      return {
+        type: 's3',
+        endpoint: syncTargetDraft.endpoint,
+        accessKeyId: syncTargetDraft.accessKeyId,
+        secretAccessKey: syncTargetDraft.secretAccessKey,
+        bucket: syncTargetDraft.bucket,
+        region: syncTargetDraft.region,
+      }
+    case 'rest':
+      assertValidUrl(syncTargetDraft.restUrl, 'REST API URL')
+      assertRequired(syncTargetDraft.token, 'Bearer Token')
+      return {
+        type: 'rest',
+        url: syncTargetDraft.restUrl,
+        token: syncTargetDraft.token,
+      }
+  }
+
+  throw new Error('未知同步目标类型')
+}
+
+function applySyncTarget(): void {
+  try {
+    settingsStore.settings.sync.target = buildSyncTargetFromDraft()
+    setNotice('success', '同步目标已保存')
+  } catch (error) {
+    setNotice('error', error instanceof Error ? error.message : '同步目标校验失败')
+  }
+}
+
+async function testSyncConnection(): Promise<void> {
+  syncTesting.value = true
+  clearNotice()
+
+  try {
+    const target = buildSyncTargetFromDraft()
+    const result = await syncStore.testConnection(target)
+    setNotice(result.success ? 'success' : 'error', result.message)
+  } catch (error) {
+    logger.error('同步目标连接测试失败', error)
+    setNotice('error', error instanceof Error ? error.message : '同步目标连接测试失败')
+  } finally {
+    syncTesting.value = false
+  }
+}
+
+function toggleSyncCategory(categoryId: string): void {
+  const selected = settingsStore.settings.sync.selectedCategoryIds
+  const index = selected.indexOf(categoryId)
+
+  if (index >= 0) {
+    selected.splice(index, 1)
+    return
+  }
+
+  selected.push(categoryId)
+}
+
+async function runManualSync(): Promise<void> {
+  syncBusy.value = true
+  clearNotice()
+
+  try {
+    const result = await syncStore.sync()
+    await refreshSyncLogsList()
+    if (result.success) {
+      setNotice('success', `同步完成：上传 ${result.uploaded}，下载 ${result.downloaded}`)
+    } else {
+      setNotice('error', result.error ?? '同步失败')
+    }
+  } catch (error) {
+    logger.error('立即同步失败', error)
+    setNotice('error', '立即同步失败')
+  } finally {
+    syncBusy.value = false
+  }
+}
+
+async function resolveSyncConflict(documentId: string, strategy: 'local-wins' | 'remote-wins' | 'manual'): Promise<void> {
+  await syncStore.resolveConflict(documentId, strategy)
+  await refreshSyncLogsList()
+  setNotice('success', '冲突策略已提交')
+}
+
+async function refreshMasterKeyRuntimeState(): Promise<void> {
+  try {
+    await getMasterKey()
+    masterKeyUnlocked.value = true
+  } catch {
+    masterKeyUnlocked.value = false
+  }
+}
+
+function openMasterKeyDialog(mode: MasterKeyDialogMode): void {
+  masterKeyDialogMode.value = mode
+  masterKeyDialogError.value = null
+  masterKeyDialogForm.password = ''
+  masterKeyDialogForm.exportPassword = ''
+  masterKeyDialogForm.newPassword = ''
+  masterKeyDialogForm.bundleText = mode === 'import' ? lastExportedRecoveryBundle.value : ''
+  revealMasterKeySecrets.password = false
+  revealMasterKeySecrets.exportPassword = false
+  revealMasterKeySecrets.newPassword = false
+
+  void nextTick(() => {
+    masterKeyDialogPrimaryInputRef.value?.focus()
+  })
+}
+
+function closeMasterKeyDialog(): void {
+  masterKeyDialogMode.value = null
+  masterKeyDialogError.value = null
+  masterKeyDialogForm.password = ''
+  masterKeyDialogForm.exportPassword = ''
+  masterKeyDialogForm.newPassword = ''
+  masterKeyDialogForm.bundleText = ''
+  revealMasterKeySecrets.password = false
+  revealMasterKeySecrets.exportPassword = false
+  revealMasterKeySecrets.newPassword = false
+}
+
+function handleMasterKeyDialogKeydown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape' || !masterKeyDialogMode.value) {
+    return
+  }
+
+  event.preventDefault()
+  closeMasterKeyDialog()
+}
+
+function parseProtectedPassword(rawValue: string, label: string): string {
+  const result = MasterKeyPasswordSchema.safeParse(rawValue)
+  if (result.success) {
+    return result.data
+  }
+
+  throw new Error(`${label}：${result.error.issues[0]?.message ?? '输入无效'}`)
+}
+
+function parseRecoveryBundle(rawValue: string): ExportedKeyBundle {
+  const textResult = RecoveryBundleTextSchema.safeParse(rawValue)
+  if (!textResult.success) {
+    throw new Error(textResult.error.issues[0]?.message ?? '恢复密钥包不能为空')
+  }
+
+  let parsedBundle: unknown
+  try {
+    parsedBundle = JSON.parse(textResult.data)
+  } catch {
+    throw new Error('恢复密钥包必须是合法的 JSON')
+  }
+
+  const bundleResult = ExportedKeyBundleSchema.safeParse(parsedBundle)
+  if (!bundleResult.success) {
+    throw new Error('恢复密钥包字段不完整')
+  }
+
+  return bundleResult.data
+}
+
+async function submitMasterKeyDialog(): Promise<void> {
+  if (!masterKeyDialogMode.value) {
+    return
+  }
+
+  masterKeyBusy.value = true
+  masterKeyDialogError.value = null
+
+  try {
+    if (masterKeyDialogMode.value === 'unlock') {
+      const password = parseProtectedPassword(masterKeyDialogForm.password, '主密码')
+      const unlocked = await unlockWithPassword(password)
+      if (!unlocked) {
+        throw new Error('主密码不正确，无法解锁现有主密钥')
+      }
+
+      await refreshMasterKeyRuntimeState()
+      closeMasterKeyDialog()
+      setNotice('success', '主密钥已可用于同步')
+      return
+    }
+
+    if (masterKeyDialogMode.value === 'export') {
+      const exportPassword = parseProtectedPassword(masterKeyDialogForm.exportPassword, '导出密码')
+      const bundle = await exportMasterKey(exportPassword)
+      lastExportedRecoveryBundle.value = JSON.stringify(bundle, null, 2)
+      lastExportedRecoveryBundleAt.value = bundle.createdAt
+      setNotice('success', '恢复密钥已生成，请立即复制或下载')
+      return
+    }
+
+    const bundle = parseRecoveryBundle(masterKeyDialogForm.bundleText)
+    const exportPassword = parseProtectedPassword(masterKeyDialogForm.exportPassword, '导出密码')
+    const newPassword = parseProtectedPassword(masterKeyDialogForm.newPassword, '新主密码')
+    const imported = await importMasterKey(bundle, exportPassword, newPassword)
+
+    if (!imported) {
+      throw new Error('恢复密钥导入失败')
+    }
+
+    await refreshMasterKeyRuntimeState()
+    lastExportedRecoveryBundleAt.value = bundle.createdAt
+    closeMasterKeyDialog()
+    setNotice('success', '恢复密钥导入成功，主密钥已重新解锁')
+  } catch (error) {
+    logger.error('主密钥管理操作失败', error)
+    masterKeyDialogError.value = error instanceof Error ? error.message : '主密钥管理操作失败'
+  } finally {
+    masterKeyBusy.value = false
+  }
+}
+
+async function copyRecoveryBundle(): Promise<void> {
+  if (!hasCachedRecoveryBundle.value) {
+    setNotice('error', '当前没有可复制的恢复密钥包')
+    return
+  }
+
+  const fallbackCopy = (): boolean => {
+    const textarea = document.createElement('textarea')
+    textarea.value = lastExportedRecoveryBundle.value
+    textarea.setAttribute('readonly', 'true')
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    textarea.style.pointerEvents = 'none'
+    textarea.style.left = '-9999px'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    textarea.setSelectionRange(0, textarea.value.length)
+
+    try {
+      return document.execCommand('copy')
+    } finally {
+      document.body.removeChild(textarea)
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(lastExportedRecoveryBundle.value)
+    setNotice('success', '恢复密钥包已复制到剪贴板')
+  } catch (error) {
+    logger.warn('系统剪贴板写入失败，尝试回退复制', {
+      errorName: error instanceof Error ? error.name : typeof error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    })
+
+    if (fallbackCopy()) {
+      setNotice('success', '恢复密钥包已复制到剪贴板')
+      return
+    }
+
+    logger.error('复制恢复密钥包失败', error)
+    setNotice('error', '复制恢复密钥包失败')
+  }
+}
+
+function downloadRecoveryBundle(): void {
+  if (!hasCachedRecoveryBundle.value) {
+    setNotice('error', '当前没有可下载的恢复密钥包')
+    return
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const blob = new Blob([lastExportedRecoveryBundle.value], { type: 'application/json;charset=utf-8' })
+  const downloadUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = `inkforge-master-key-${timestamp}.json`
+  link.click()
+  URL.revokeObjectURL(downloadUrl)
+  setNotice('success', '恢复密钥包已下载')
+}
+
+function startShortcutRecording(actionId: string): void {
+  editingShortcut.value = actionId
+  shortcutConflict.value = null
+}
+
+function cancelShortcutRecording(): void {
   editingShortcut.value = null
   shortcutConflict.value = null
 }
 
-function resetShortcuts(): void {
-  settings.value.shortcuts = {
-    save: 'Ctrl+S',
-    bold: 'Ctrl+B',
-    italic: 'Ctrl+I',
-    undo: 'Ctrl+Z',
-    redo: 'Ctrl+Shift+Z',
-    outline: 'Ctrl+Shift+O',
-    focusMode: 'F11',
+function resetShortcut(actionId: string): void {
+  settingsStore.settings.shortcuts[actionId] = DEFAULT_SHORTCUTS[actionId] ?? ''
+}
+
+function handleShortcutRecording(event: KeyboardEvent): void {
+  if (!editingShortcut.value) {
+    return
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  if (event.key === 'Escape') {
+    cancelShortcutRecording()
+    return
+  }
+
+  const combo = buildShortcutFromEvent(event)
+  if (!combo) {
+    return
+  }
+
+  const conflictEntry = Object.entries(settingsStore.settings.shortcuts).find(
+    ([action, binding]) => action !== editingShortcut.value && binding === combo,
+  )
+
+  if (conflictEntry) {
+    shortcutConflict.value = `已与“${resolveShortcutLabel(conflictEntry[0])}”冲突`
+    return
+  }
+
+  settingsStore.settings.shortcuts[editingShortcut.value] = combo
+  shortcutConflict.value = null
+  setNotice('success', `${resolveShortcutLabel(editingShortcut.value)} 已绑定为 ${combo}`)
+  editingShortcut.value = null
+}
+
+async function saveCurrentProfile(): Promise<void> {
+  const rawName = window.prompt('输入新的设置 Profile 名称')
+  if (rawName === null) {
+    return
+  }
+
+  profileBusy.value = true
+  clearNotice()
+
+  try {
+    const name = ProfileNameSchema.parse(rawName)
+    await saveSettingsProfile({
+      name,
+      settings: settingsStore.exportSettings(),
+    })
+    await refreshSettingsProfilesList()
+    setNotice('success', `Profile「${name}」已保存`)
+  } catch (error) {
+    logger.error('保存设置 Profile 失败', error)
+    setNotice('error', error instanceof Error ? error.message : '保存设置 Profile 失败')
+  } finally {
+    profileBusy.value = false
   }
 }
 
-// ═══════════════════════════════════════
-//  导航
-// ═══════════════════════════════════════
+function applyProfile(profile: SettingsProfile): void {
+  const imported = settingsStore.importSettings(profile.settings)
+  if (!imported) {
+    setNotice('error', `Profile「${profile.name}」内容无效`)
+    return
+  }
 
-function goBack(): void {
-  router.back()
+  syncDraftFromSettings()
+  setNotice('success', `已应用 Profile「${profile.name}」`)
 }
 
-// ═══════════════════════════════════════
-//  生命周期
-// ═══════════════════════════════════════
-
-// 监听 provider 切换，自动拉取 Ollama 模型列表
-watch(() => settings.value.ai.provider, (newProvider) => {
-  if (newProvider === 'ollama') {
-    fetchOllamaModels()
+async function renameProfile(profile: SettingsProfile): Promise<void> {
+  const rawName = window.prompt('输入新的 Profile 名称', profile.name)
+  if (rawName === null) {
+    return
   }
-})
 
-onMounted(() => {
-  if (settings.value.ai.provider === 'ollama') {
-    fetchOllamaModels()
+  profileBusy.value = true
+
+  try {
+    const name = ProfileNameSchema.parse(rawName)
+    await saveSettingsProfile({
+      id: profile.id,
+      name,
+      settings: profile.settings,
+      isDefault: profile.isDefault,
+    })
+    await refreshSettingsProfilesList()
+    setNotice('success', `Profile 已重命名为「${name}」`)
+  } catch (error) {
+    logger.error('重命名设置 Profile 失败', error)
+    setNotice('error', error instanceof Error ? error.message : '重命名设置 Profile 失败')
+  } finally {
+    profileBusy.value = false
   }
-  // 初始化 asset store 数据
-  assetStore.loadAssets()
-})
+}
 
-onUnmounted(() => {
-  if (feedbackTimer) clearTimeout(feedbackTimer)
-})
+async function removeProfile(profileId: string): Promise<void> {
+  const confirmed = window.confirm('删除该设置 Profile 后不可恢复，是否继续？')
+  if (!confirmed) {
+    return
+  }
+
+  profileBusy.value = true
+
+  try {
+    await deleteSettingsProfile(profileId)
+    await refreshSettingsProfilesList()
+    setNotice('success', '设置 Profile 已删除')
+  } catch (error) {
+    logger.error('删除设置 Profile 失败', error)
+    setNotice('error', '删除设置 Profile 失败')
+  } finally {
+    profileBusy.value = false
+  }
+}
+
+function resetCategory(category: keyof Settings): void {
+  const defaults = getDefaultSettings()
+  const nextValue = defaults[category] as Settings[typeof category]
+  const settingsRecord = settingsStore.settings as unknown as Record<keyof Settings, Settings[keyof Settings]>
+  settingsRecord[category] = nextValue as Settings[keyof Settings]
+  settingsStore.save()
+}
+
+async function syncRuntimeAfterReset(category: keyof Settings | 'all'): Promise<void> {
+  runtimeLogLevel.value = getLogLevel()
+  syncDraftFromSettings()
+  syncMetricsFromSession()
+
+  if (category === 'account' || category === 'all') {
+    await accountStore.loadAccount(settingsStore.settings.account.profileId)
+    await accountStore.listAccounts()
+  }
+
+  if (category === 'data' || category === 'advanced' || category === 'all') {
+    await Promise.all([
+      refreshStorageEstimate(),
+      refreshDatabaseStats(),
+      refreshCacheStats(),
+    ])
+  }
+
+  if (category === 'advanced' || category === 'all') {
+    await refreshPerformanceSnapshot()
+  }
+
+  if (category === 'sync' || category === 'all') {
+    await Promise.all([
+      refreshSyncLogsList(),
+      refreshMasterKeyRuntimeState(),
+    ])
+  }
+
+  if (category === 'shortcuts' || category === 'all') {
+    editingShortcut.value = null
+    shortcutConflict.value = null
+  }
+}
+
+async function handleResetCurrentTab(): Promise<void> {
+  const config = currentTabResetMeta.value
+  const confirmed = window.confirm(`确定要执行“${config.label}”吗？`)
+  if (!confirmed) {
+    return
+  }
+
+  clearNotice()
+
+  if (config.category === 'all') {
+    settingsStore.reset()
+  } else {
+    resetCategory(config.category)
+  }
+
+  await syncRuntimeAfterReset(config.category)
+  setNotice('success', config.successMessage)
+}
+
+function formatBytes(value: number): string {
+  if (!value) {
+    return '0 B'
+  }
+
+  const units = ['B', 'KB', 'MB', 'GB']
+  let current = value
+  let unitIndex = 0
+
+  while (current >= 1024 && unitIndex < units.length - 1) {
+    current /= 1024
+    unitIndex += 1
+  }
+
+  return `${current.toFixed(current >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+}
+
+function formatDateTime(value: Date | string | null | undefined): string {
+  if (!value) {
+    return '尚无记录'
+  }
+
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return '尚无记录'
+  }
+
+  return date.toLocaleString('zh-CN', { hour12: false })
+}
+
+function formatSyncAction(entry: SyncLog): string {
+  switch (entry.action) {
+    case 'push':
+      return '上传'
+    case 'pull':
+      return '拉取'
+    case 'conflict':
+      return '冲突'
+    case 'resolve':
+      return '解决'
+    case 'error':
+      return '错误'
+    default:
+      return entry.action
+  }
+}
+
+function formatSyncStatus(entry: SyncLog): string {
+  switch (entry.status) {
+    case 'success':
+      return '成功'
+    case 'pending':
+      return '处理中'
+    case 'error':
+    default:
+      return '失败'
+  }
+}
+
+function downloadTextFile(filename: string, content: string): void {
+  const blob = new Blob([content], { type: 'application/json;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+function buildShortcutFromEvent(event: KeyboardEvent): string | null {
+  const parts: string[] = []
+
+  if (event.ctrlKey || event.metaKey) parts.push('Ctrl')
+  if (event.shiftKey) parts.push('Shift')
+  if (event.altKey) parts.push('Alt')
+
+  const ignoredKeys = new Set(['Control', 'Shift', 'Alt', 'Meta'])
+  if (!ignoredKeys.has(event.key)) {
+    const key = event.key.length === 1 ? event.key.toUpperCase() : event.key
+    parts.push(key)
+  }
+
+  return parts.length > 0 ? parts.join('+') : null
+}
+
+function resolveShortcutLabel(actionId: string): string {
+  return shortcutDefinitionsFull.find((item) => item.id === actionId)?.label ?? actionId
+}
+
+function resolveShortcutGroupLabel(groupId: string): string {
+  return shortcutGroups.find((item) => item.id === groupId)?.label ?? groupId
+}
+
+void resolveShortcutGroupLabel
+
+function assertRequired(value: string, label: string): void {
+  if (!value.trim()) {
+    throw new Error(`${label}不能为空`)
+  }
+}
+
+function assertValidUrl(value: string, label: string): void {
+  try {
+    const url = new URL(value)
+    if (!url.protocol.startsWith('http')) {
+      throw new Error()
+    }
+  } catch {
+    throw new Error(`${label}格式无效`)
+  }
+}
+
+async function exportDatabaseSnapshot(): Promise<void> {
+  snapshotBusy.value = true
+  clearNotice()
+
+  try {
+    const snapshot = await buildDatabaseSnapshot()
+    downloadTextFile(`inkforge-db-snapshot-${Date.now()}.json`, JSON.stringify(snapshot, null, 2))
+    setNotice('success', '数据库快照已导出')
+  } catch (error) {
+    logger.error('导出数据库快照失败', error)
+    setNotice('error', '导出数据库快照失败')
+  } finally {
+    snapshotBusy.value = false
+  }
+}
+
+async function handleSnapshotImport(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  if (!file) {
+    return
+  }
+
+  const confirmed = window.confirm('恢复快照会覆盖当前 IndexedDB 数据，是否继续？')
+  if (!confirmed) {
+    input.value = ''
+    return
+  }
+
+  snapshotBusy.value = true
+
+  try {
+    const text = await file.text()
+    const raw = JSON.parse(text)
+    const snapshot = DatabaseSnapshotSchema.parse(raw)
+    await restoreDatabaseSnapshot({
+      version: snapshot.version ?? 5,
+      exportedAt: snapshot.exportedAt ?? new Date().toISOString(),
+      tables: snapshot.tables,
+    })
+
+    await Promise.all([
+      articleStore.loadArticles(),
+      categoryStore.loadCategories(),
+      accountStore.loadAccount(settingsStore.settings.account.profileId),
+      refreshDatabaseStats(),
+      refreshStorageEstimate(),
+      refreshSyncLogsList(),
+      refreshSettingsProfilesList(),
+      syncStore.reloadPendingChanges(),
+    ])
+
+    setNotice('success', '数据库快照已恢复')
+  } catch (error) {
+    logger.error('恢复数据库快照失败', error)
+    setNotice('error', error instanceof Error ? error.message : '恢复数据库快照失败')
+  } finally {
+    input.value = ''
+    snapshotBusy.value = false
+  }
+}
+
+async function buildDatabaseSnapshot(): Promise<DatabaseSnapshot> {
+  const tables: DatabaseSnapshot['tables'] = {}
+
+  for (const tableName of DATABASE_TABLES) {
+    const rows = await db.table(tableName).toArray()
+    tables[tableName] = await Promise.all(
+      rows.map(async (row) => {
+        return await serializeSnapshotRecord(row as Record<string, unknown>)
+      }),
+    )
+  }
+
+  return {
+    version: 5,
+    exportedAt: new Date().toISOString(),
+    tables,
+  }
+}
+
+async function restoreDatabaseSnapshot(snapshot: DatabaseSnapshot): Promise<void> {
+  const tables = [
+    db.categories,
+    db.articles,
+    db.contents,
+    db.documents,
+    db.versions,
+    db.assets,
+    db.accounts,
+    db.pendingChanges,
+    db.syncLogs,
+    db.settingsProfiles,
+    db.activityLogs,
+  ]
+
+  await db.transaction('rw', tables, async () => {
+    for (const tableName of DATABASE_TABLES) {
+      await db.table(tableName).clear()
+    }
+
+    for (const tableName of DATABASE_TABLES) {
+      const rows = (snapshot.tables[tableName] ?? []).map((row) => deserializeSnapshotValue(row) as Record<string, unknown>)
+      if (rows.length > 0) {
+        await db.table(tableName).bulkPut(rows)
+      }
+    }
+  })
+}
+
+async function serializeSnapshotRecord(record: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return await serializeSnapshotValue(record) as Record<string, unknown>
+}
+
+async function serializeSnapshotValue(value: unknown): Promise<unknown> {
+  if (value instanceof Date) {
+    const payload: SerializedDate = {
+      __type: 'date',
+      value: value.toISOString(),
+    }
+    return payload
+  }
+
+  if (value instanceof Blob) {
+    const payload: SerializedBlob = {
+      __type: 'blob',
+      mimeType: value.type,
+      data: arrayBufferToBase64(await value.arrayBuffer()),
+    }
+    return payload
+  }
+
+  if (Array.isArray(value)) {
+    return await Promise.all(value.map((entry) => serializeSnapshotValue(entry)))
+  }
+
+  if (isPlainObject(value)) {
+    const nextEntries = await Promise.all(
+      Object.entries(value).map(async ([key, entryValue]) => {
+        return [key, await serializeSnapshotValue(entryValue)] as const
+      }),
+    )
+    return Object.fromEntries(nextEntries)
+  }
+
+  return value
+}
+
+function deserializeSnapshotValue(value: unknown): unknown {
+  if (isSerializedDate(value)) {
+    return new Date(value.value)
+  }
+
+  if (isSerializedBlob(value)) {
+    return base64ToBlob(value.data, value.mimeType)
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => deserializeSnapshotValue(entry))
+  }
+
+  if (isPlainObject(value)) {
+    const nextEntries = Object.entries(value).map(([key, entryValue]) => {
+      return [key, deserializeSnapshotValue(entryValue)] as const
+    })
+    return Object.fromEntries(nextEntries)
+  }
+
+  return value
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isSerializedDate(value: unknown): value is SerializedDate {
+  return isPlainObject(value) && value.__type === 'date' && typeof value.value === 'string'
+}
+
+function isSerializedBlob(value: unknown): value is SerializedBlob {
+  return (
+    isPlainObject(value)
+    && value.__type === 'blob'
+    && typeof value.mimeType === 'string'
+    && typeof value.data === 'string'
+  )
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  const chunkSize = 0x8000
+  let binary = ''
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize)
+    binary += String.fromCharCode(...chunk)
+  }
+
+  return window.btoa(binary)
+}
+
+function base64ToBlob(base64: string, mimeType: string): Blob {
+  const binary = window.atob(base64)
+  const bytes = new Uint8Array(binary.length)
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+
+  return new Blob([bytes], { type: mimeType })
+}
 </script>
 
 <template>
   <div class="settings-view">
-    <!-- Header -->
-    <header class="sv-header">
-      <button class="sv-back-btn" @click="goBack" title="返回上一页">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        <span>返回</span>
-      </button>
-      <h1 class="sv-header-title">设置</h1>
-      <div class="sv-header-spacer" />
+    <input
+      ref="avatarInputRef"
+      class="visually-hidden"
+      type="file"
+      accept="image/*"
+      @change="handleAvatarSelected"
+    >
+    <input
+      ref="settingsImportInputRef"
+      class="visually-hidden"
+      type="file"
+      accept="application/json,.json"
+      @change="handleSettingsImport"
+    >
+    <input
+      ref="snapshotImportInputRef"
+      class="visually-hidden"
+      type="file"
+      accept="application/json,.json"
+      @change="handleSnapshotImport"
+    >
+
+    <header class="settings-header">
+      <div class="header-main">
+        <button
+          class="ghost-btn"
+          type="button"
+          title="返回首页"
+          @click="goBack"
+        >
+          <ArrowLeft :size="16" />
+        </button>
+        <div>
+          <p class="eyebrow">
+            InkForge v2.1 / Enterprise Settings
+          </p>
+          <h1 class="page-title">
+            设置中心
+          </h1>
+          <p class="page-subtitle">
+            当前分区：{{ currentTabTitle.label }}，所有数据均来自 Pinia + Dexie 真实存储。
+          </p>
+        </div>
+      </div>
+
+      <div class="header-search">
+        <Search :size="15" />
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="搜索设置项、动作或同步能力"
+        >
+        <div
+          v-if="searchQuery.trim()"
+          class="search-results"
+        >
+          <button
+            v-for="item in searchResults"
+            :key="item.anchorId"
+            class="search-result"
+            type="button"
+            @click="jumpToSetting(item)"
+          >
+            <span class="search-result__title">{{ item.label }}</span>
+            <span class="search-result__meta">{{ item.sectionTitle }} / {{ tabs.find((tab) => tab.id === item.tabId)?.label }}</span>
+          </button>
+          <p
+            v-if="searchResults.length === 0"
+            class="search-empty"
+          >
+            没有匹配项
+          </p>
+        </div>
+      </div>
     </header>
 
-    <!-- Body: Sidebar + Content -->
-    <div class="sv-body">
-      <!-- Sidebar Navigation -->
-      <aside class="sv-sidebar">
-        <nav class="sv-nav">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            class="sv-nav-item"
-            :class="{ active: currentTab === tab.id }"
-            @click="currentTab = tab.id"
-          >
-            <!-- Palette / Appearance -->
-            <svg v-if="tab.id === 'appearance'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" />
-            </svg>
-            <!-- Edit / Editor -->
-            <svg v-else-if="tab.id === 'editor'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-            <!-- Share / Export -->
-            <svg v-else-if="tab.id === 'export'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
-            <!-- Sparkles / AI -->
-            <svg v-else-if="tab.id === 'ai'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-              <path d="M5 3v4" /><path d="M3 5h4" />
-              <path d="M19 17v4" /><path d="M17 19h4" />
-            </svg>
-            <!-- Database / Data -->
-            <svg v-else-if="tab.id === 'data'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3" />
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-            </svg>
-            <!-- Keyboard / Shortcuts -->
-            <svg v-else-if="tab.id === 'shortcuts'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
-              <path d="M6 8h.001" /><path d="M10 8h.001" />
-              <path d="M14 8h.001" /><path d="M18 8h.001" />
-              <path d="M8 12h.001" /><path d="M12 12h.001" />
-              <path d="M16 12h.001" /><path d="M7 16h10" />
-            </svg>
-            <!-- Info / About -->
-            <svg v-else-if="tab.id === 'about'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
-            <span>{{ tab.name }}</span>
-          </button>
-        </nav>
+    <div
+      v-if="notice"
+      class="notice"
+      :class="`notice--${notice.tone}`"
+    >
+      <CheckCircle
+        v-if="notice.tone === 'success'"
+        :size="16"
+      />
+      <AlertTriangle
+        v-else-if="notice.tone === 'error'"
+        :size="16"
+      />
+      <Info
+        v-else
+        :size="16"
+      />
+      <span>{{ notice.text }}</span>
+      <button
+        class="notice-close"
+        type="button"
+        title="关闭提示"
+        @click="clearNotice"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="settings-layout">
+      <aside class="settings-sidebar">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          class="tab-link"
+          :class="{ 'tab-link--active': currentTab === tab.id }"
+          type="button"
+          :title="tab.description"
+          @click="currentTab = tab.id"
+        >
+          <component
+            :is="tab.icon"
+            :size="16"
+          />
+          <span class="tab-link__copy">
+            <span class="tab-link__title">{{ tab.label }}</span>
+            <span class="tab-link__desc">{{ tab.description }}</span>
+          </span>
+        </button>
       </aside>
 
-      <!-- Content Area -->
-      <main class="sv-content">
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 1: 外观                         -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'appearance'" class="sv-tab">
-          <h2 class="sv-tab-title">外观</h2>
-          <p class="sv-tab-desc">自定义界面外观和视觉风格</p>
-
-          <!-- 主题模式 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">主题模式</h3>
-            <div class="sv-card-group">
-              <label
-                v-for="opt in themeOptions"
-                :key="opt.value"
-                class="sv-theme-card"
-                :class="{ selected: settings.appearance.theme === opt.value }"
+      <main class="settings-content">
+        <section
+          v-if="currentTab === 'account'"
+          class="settings-section-stack"
+        >
+          <section
+            id="account-profile"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('account-profile') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  账户资料
+                </h2>
+                <p class="card-subtitle">
+                  当前 Profile：{{ accountStore.currentAccount?.id ?? 'local-default' }}
+                </p>
+              </div>
+              <button
+                class="action-btn"
+                type="button"
+                :disabled="accountSaving"
+                title="保存账户资料"
+                @click="saveAccountProfile"
               >
-                <input
-                  type="radio"
-                  :value="opt.value"
-                  v-model="settings.appearance.theme"
-                  class="sv-hidden-radio"
+                <Save :size="14" />
+                <span>{{ accountSaving ? '保存中...' : '保存资料' }}</span>
+              </button>
+            </header>
+
+            <div class="account-grid">
+              <div class="account-avatar-panel">
+                <div class="avatar-shell">
+                  <img
+                    v-if="accountStore.avatarUrl"
+                    :src="accountStore.avatarUrl"
+                    alt="当前头像"
+                  >
+                  <span v-else>{{ accountStore.avatarInitial }}</span>
+                </div>
+                <button
+                  class="secondary-btn"
+                  type="button"
+                  :disabled="avatarUploading"
+                  title="上传头像"
+                  @click="openAvatarPicker"
                 >
-                <div class="sv-theme-card-preview" :data-theme="opt.value">
-                  <div class="sv-theme-preview-bar" />
-                  <div class="sv-theme-preview-body">
-                    <div class="sv-theme-preview-line" />
-                    <div class="sv-theme-preview-line short" />
+                  <Upload :size="14" />
+                  <span>{{ avatarUploading ? '处理中...' : '上传头像' }}</span>
+                </button>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>显示名称</span>
+                  <input
+                    v-model="accountForm.name"
+                    type="text"
+                    maxlength="50"
+                    placeholder="输入本地账户名称"
+                  >
+                </label>
+                <label class="field">
+                  <span>邮箱</span>
+                  <input
+                    v-model="accountForm.email"
+                    type="email"
+                    placeholder="name@example.com"
+                  >
+                </label>
+                <label class="field field--full">
+                  <span>个人简介</span>
+                  <textarea
+                    v-model="accountForm.bio"
+                    rows="4"
+                    maxlength="200"
+                    placeholder="写一点关于你的写作偏好"
+                  />
+                  <small>{{ accountForm.bio.length }}/200</small>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="account-export"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('account-export') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  数据归属
+                </h2>
+                <p class="card-subtitle">
+                  导出当前账户数据或重置本地账户。
+                </p>
+              </div>
+            </header>
+
+            <div class="button-row">
+              <button
+                class="action-btn"
+                type="button"
+                title="导出账户数据"
+                @click="exportAccountDataFile"
+              >
+                <Download :size="14" />
+                <span>导出账户数据</span>
+              </button>
+              <button
+                class="danger-btn"
+                type="button"
+                title="重置本地账户"
+                @click="resetCurrentAccount"
+              >
+                <Trash2 :size="14" />
+                <span>重置本地账户</span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            id="account-security"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('account-security') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  安全（即将推出）
+                </h2>
+                <p class="card-subtitle">
+                  本地密码改造将跟随后续认证体系上线；当前主密钥管理仍放在同步分区中维护。
+                </p>
+              </div>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">当前账户</span>
+                <strong>{{ accountStore.currentAccount?.name ?? '未加载' }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">密码策略</span>
+                <strong>{{ passwordPolicyHint }}</strong>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button
+                class="secondary-btn"
+                type="button"
+                title="跳转到同步分区的主密钥管理"
+                @click="jumpToSyncSecurity"
+              >
+                <Shield :size="14" />
+                <span>前往主密钥管理</span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            id="account-switching"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('account-switching') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  账户切换
+                </h2>
+                <p class="card-subtitle">
+                  当前所有身份均来自 IndexedDB，本地创建后会立即同步回 Settings 与 Account Center。
+                </p>
+              </div>
+              <span class="status-pill status-pill--info">
+                {{ accountStore.accounts.length }} 个账户
+              </span>
+            </header>
+
+            <div
+              v-if="accountStore.accounts.length > 0"
+              class="account-switch-list"
+            >
+              <article
+                v-for="account in accountStore.accounts"
+                :key="account.id"
+                class="account-switch-item"
+              >
+                <div class="account-switch-item__meta">
+                  <strong>{{ account.name }}</strong>
+                  <p>{{ account.email || '未设置邮箱' }}</p>
+                </div>
+                <div class="button-row">
+                  <span
+                    v-if="account.id === accountStore.currentAccount?.id"
+                    class="status-pill status-pill--success"
+                  >
+                    当前
+                  </span>
+                  <button
+                    v-else
+                    class="secondary-btn"
+                    type="button"
+                    :disabled="accountSwitchingId === account.id"
+                    :title="`切换到账户 ${account.name}`"
+                    @click="switchAccountFromSettings(account.id)"
+                  >
+                    <Loader2
+                      v-if="accountSwitchingId === account.id"
+                      :size="14"
+                      class="spin"
+                    />
+                    <Users
+                      v-else
+                      :size="14"
+                    />
+                    <span>{{ accountSwitchingId === account.id ? '切换中...' : '切换到账户' }}</span>
+                  </button>
+                </div>
+              </article>
+            </div>
+            <div
+              v-else
+              class="empty-box"
+            >
+              当前还没有可切换的本地账户。
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>新账户名称</span>
+                <input
+                  v-model="createAccountDraft.name"
+                  type="text"
+                  maxlength="50"
+                  placeholder="例如：写作团队"
+                >
+              </label>
+              <label class="field">
+                <span>邮箱</span>
+                <input
+                  v-model="createAccountDraft.email"
+                  type="email"
+                  maxlength="100"
+                  placeholder="可选邮箱"
+                >
+              </label>
+              <label class="field field--full">
+                <span>简介</span>
+                <textarea
+                  v-model="createAccountDraft.bio"
+                  rows="3"
+                  maxlength="200"
+                  placeholder="描述这个本地账户的写作用途"
+                />
+              </label>
+            </div>
+
+            <div class="button-row">
+              <button
+                class="action-btn"
+                type="button"
+                :disabled="accountCreating || !createAccountDraft.name.trim()"
+                title="创建新的本地账户并立即切换"
+                @click="createLocalAccountFromSettings"
+              >
+                <Loader2
+                  v-if="accountCreating"
+                  :size="14"
+                  class="spin"
+                />
+                <UserPlus
+                  v-else
+                  :size="14"
+                />
+                <span>{{ accountCreating ? '创建中...' : '创建并切换本地账户' }}</span>
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'appearance'"
+          class="settings-section-stack"
+        >
+          <section
+            id="appearance-theme"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('appearance-theme') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  主题与主色
+                </h2>
+                <p class="card-subtitle">
+                  这些值会实时同步到全局 CSS 变量。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>主题</span>
+                <select v-model="settingsStore.settings.appearance.theme">
+                  <option value="light">
+                    Light
+                  </option>
+                  <option value="dark">
+                    Dark
+                  </option>
+                  <option value="system">
+                    System
+                  </option>
+                </select>
+              </label>
+              <label class="field">
+                <span>主色</span>
+                <div class="color-field">
+                  <input
+                    v-model="settingsStore.settings.appearance.accentColor"
+                    type="color"
+                  >
+                  <input
+                    v-model="settingsStore.settings.appearance.accentColor"
+                    type="text"
+                    placeholder="#D32F2F"
+                  >
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="appearance-typography"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('appearance-typography') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  排版与侧栏宽度
+                </h2>
+                <p class="card-subtitle">
+                  所有变更会直接影响 Hub、Workstation 和编辑器视图。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>字体家族</span>
+                <select v-model="settingsStore.settings.appearance.fontFamily">
+                  <option value="serif">
+                    Serif
+                  </option>
+                  <option value="sans">
+                    Sans
+                  </option>
+                  <option value="kai">
+                    Kai
+                  </option>
+                  <option value="mono">
+                    Mono
+                  </option>
+                </select>
+              </label>
+              <label class="field">
+                <span>减少动效</span>
+                <input
+                  v-model="settingsStore.settings.appearance.reducedMotion"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field field--full">
+                <span>字号 {{ settingsStore.settings.appearance.fontSize }}px</span>
+                <input
+                  v-model.number="settingsStore.settings.appearance.fontSize"
+                  type="range"
+                  min="12"
+                  max="24"
+                >
+              </label>
+              <label class="field field--full">
+                <span>行高 {{ settingsStore.settings.appearance.lineHeight.toFixed(1) }}</span>
+                <input
+                  v-model.number="settingsStore.settings.appearance.lineHeight"
+                  type="range"
+                  min="1.4"
+                  max="2.4"
+                  step="0.1"
+                >
+              </label>
+              <label class="field field--full">
+                <span>侧栏宽度 {{ settingsStore.settings.appearance.sidebarWidth }}px</span>
+                <input
+                  v-model.number="settingsStore.settings.appearance.sidebarWidth"
+                  type="range"
+                  min="180"
+                  max="400"
+                >
+              </label>
+            </div>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'editor'"
+          class="settings-section-stack"
+        >
+          <section
+            id="editor-writing"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('editor-writing') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  写作体验
+                </h2>
+                <p class="card-subtitle">
+                  已接入 EditorPanel 的自动保存、换行、行号与高亮开关。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>自动保存</span>
+                <input
+                  v-model="settingsStore.settings.editor.autoSave"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>自动保存间隔（秒）</span>
+                <input
+                  v-model.number="settingsStore.settings.editor.autoSaveInterval"
+                  type="number"
+                  min="10"
+                  max="300"
+                >
+              </label>
+              <label class="field">
+                <span>拼写检查</span>
+                <input
+                  v-model="settingsStore.settings.editor.spellCheck"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>编辑模式</span>
+                <select v-model="settingsStore.settings.editor.editorMode">
+                  <option value="typora">Typora 即时渲染</option>
+                  <option value="source">源码双栏</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>纸张宽度</span>
+                <select v-model="settingsStore.settings.editor.editorWidth">
+                  <option value="narrow">窄栏</option>
+                  <option value="medium">中等</option>
+                  <option value="wide">宽栏</option>
+                  <option value="full">全宽</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>自动换行</span>
+                <input
+                  v-model="settingsStore.settings.editor.wordWrap"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>Tab 宽度</span>
+                <input
+                  v-model.number="settingsStore.settings.editor.tabSize"
+                  type="number"
+                  min="2"
+                  max="8"
+                >
+              </label>
+              <label class="field">
+                <span>显示行号</span>
+                <input
+                  v-model="settingsStore.settings.editor.showLineNumbers"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>高亮当前行</span>
+                <input
+                  v-model="settingsStore.settings.editor.highlightActiveLine"
+                  type="checkbox"
+                >
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="editor-enhancement"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('editor-enhancement') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  增强能力
+                </h2>
+                <p class="card-subtitle">
+                  MarkdownHints、智能标点、括号匹配与写作目标。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Markdown 提示</span>
+                <input
+                  v-model="settingsStore.settings.editor.markdownHints"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>智能标点</span>
+                <input
+                  v-model="settingsStore.settings.editor.smartPunctuation"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>打字机模式</span>
+                <input
+                  v-model="settingsStore.settings.editor.typewriterMode"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>括号匹配</span>
+                <input
+                  v-model="settingsStore.settings.editor.bracketMatching"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>启用写作目标</span>
+                <input
+                  v-model="settingsStore.settings.editor.writingGoal.enabled"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>显示进度条</span>
+                <input
+                  v-model="settingsStore.settings.editor.writingGoal.showProgress"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field field--full">
+                <span>目标字数 {{ settingsStore.settings.editor.writingGoal.targetWords }}</span>
+                <input
+                  v-model.number="settingsStore.settings.editor.writingGoal.targetWords"
+                  type="range"
+                  min="100"
+                  max="50000"
+                  step="100"
+                >
+              </label>
+            </div>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'export'"
+          class="settings-section-stack"
+        >
+          <section
+            id="export-platform"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('export-platform') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  默认平台
+                </h2>
+                <p class="card-subtitle">
+                  发布视图与导出链路会读取这里的默认平台。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>默认平台</span>
+                <select v-model="settingsStore.settings.export.defaultPlatform">
+                  <option value="wechat">
+                    微信公众号
+                  </option>
+                  <option value="xiaohongshu">
+                    小红书
+                  </option>
+                  <option value="zhihu">
+                    知乎
+                  </option>
+                </select>
+              </label>
+              <label class="field">
+                <span>代码主题</span>
+                <input
+                  v-model="settingsStore.settings.export.codeTheme"
+                  type="text"
+                  placeholder="atom-one-dark"
+                >
+              </label>
+              <label class="field">
+                <span>代码块 mac 风格</span>
+                <input
+                  v-model="settingsStore.settings.export.macCodeBlock"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>显示行号</span>
+                <input
+                  v-model="settingsStore.settings.export.lineNumbers"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>转换脚注</span>
+                <input
+                  v-model="settingsStore.settings.export.convertFootnotes"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>首行缩进</span>
+                <input
+                  v-model="settingsStore.settings.export.textIndent"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field field--full">
+                <span>图片最大宽度 {{ settingsStore.settings.export.imageMaxWidth }}px</span>
+                <input
+                  v-model.number="settingsStore.settings.export.imageMaxWidth"
+                  type="range"
+                  min="320"
+                  max="1080"
+                  step="20"
+                >
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="export-presets"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('export-presets') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  默认主题预设
+                </h2>
+                <p class="card-subtitle">
+                  当前选择：{{ selectedThemePreset.name }}
+                </p>
+              </div>
+            </header>
+
+            <div class="preset-grid">
+              <button
+                v-for="preset in themePresets"
+                :key="preset.id"
+                class="preset-card"
+                :class="{ 'preset-card--active': settingsStore.settings.export.defaultPresetId === preset.id }"
+                type="button"
+                :title="preset.description"
+                @click="settingsStore.settings.export.defaultPresetId = preset.id"
+              >
+                <span class="preset-card__name">{{ preset.name }}</span>
+                <span class="preset-card__description">{{ preset.description }}</span>
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'ai'"
+          class="settings-section-stack"
+        >
+          <section
+            id="ai-provider"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('ai-provider') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  Provider 与模型
+                </h2>
+                <p class="card-subtitle">
+                  这些参数会直接驱动 AI store 的 provider computed。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Provider</span>
+                <select v-model="settingsStore.settings.ai.provider">
+                  <option value="openai">
+                    OpenAI
+                  </option>
+                  <option value="anthropic">
+                    Anthropic
+                  </option>
+                  <option value="deepseek">
+                    DeepSeek
+                  </option>
+                  <option value="ollama">
+                    Ollama
+                  </option>
+                  <option value="none">
+                    禁用
+                  </option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Base URL</span>
+                <input
+                  v-model="settingsStore.settings.ai.baseUrl"
+                  type="text"
+                  placeholder="https://api.example.com/v1"
+                >
+              </label>
+              <label class="field field--full">
+                <span>API Key</span>
+                <div class="secret-field">
+                  <input
+                    v-model="settingsStore.settings.ai.apiKey"
+                    :type="revealApiKey ? 'text' : 'password'"
+                    placeholder="输入 Provider API Key"
+                  >
+                  <button
+                    class="ghost-btn"
+                    type="button"
+                    :title="revealApiKey ? '隐藏 API Key' : '显示 API Key'"
+                    @click="revealApiKey = !revealApiKey"
+                  >
+                    <Eye
+                      v-if="!revealApiKey"
+                      :size="14"
+                    />
+                    <EyeOff
+                      v-else
+                      :size="14"
+                    />
+                  </button>
+                </div>
+              </label>
+              <label class="field">
+                <span>模型</span>
+                <input
+                  v-model="settingsStore.settings.ai.model"
+                  type="text"
+                  placeholder="Qwen/Qwen3-8B"
+                >
+              </label>
+              <label class="field">
+                <span>最大 Tokens</span>
+                <input
+                  v-model.number="settingsStore.settings.ai.maxTokens"
+                  type="number"
+                  min="100"
+                  max="8000"
+                >
+              </label>
+              <label class="field field--full">
+                <span>Temperature {{ settingsStore.settings.ai.temperature.toFixed(1) }}</span>
+                <input
+                  v-model.number="settingsStore.settings.ai.temperature"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
+                >
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="ai-connection"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('ai-connection') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  连接测试
+                </h2>
+                <p class="card-subtitle">
+                  Ollama 模型列表会直接从 {{ settingsStore.settings.ai.ollamaUrl }} 读取。
+                </p>
+              </div>
+              <div class="button-row">
+                <button
+                  class="action-btn"
+                  type="button"
+                  :disabled="aiTesting"
+                  title="测试 AI 连接"
+                  @click="testAIConnection"
+                >
+                  <RefreshCw
+                    v-if="aiTesting"
+                    :size="14"
+                    class="spin"
+                  />
+                  <Sparkles
+                    v-else
+                    :size="14"
+                  />
+                  <span>{{ aiTesting ? '测试中...' : '测试连接' }}</span>
+                </button>
+                <button
+                  v-if="settingsStore.settings.ai.provider === 'ollama'"
+                  class="secondary-btn"
+                  type="button"
+                  :disabled="ollamaLoading"
+                  title="刷新 Ollama 模型"
+                  @click="loadOllamaModels"
+                >
+                  <Loader2
+                    v-if="ollamaLoading"
+                    :size="14"
+                    class="spin"
+                  />
+                  <RefreshCw
+                    v-else
+                    :size="14"
+                  />
+                  <span>{{ ollamaLoading ? '读取中...' : '刷新模型' }}</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field field--full">
+                <span>Ollama URL</span>
+                <input
+                  v-model="settingsStore.settings.ai.ollamaUrl"
+                  type="text"
+                  placeholder="http://localhost:11434"
+                >
+              </label>
+              <label
+                v-if="ollamaModels.length > 0"
+                class="field field--full"
+              >
+                <span>本地模型</span>
+                <select v-model="settingsStore.settings.ai.model">
+                  <option
+                    v-for="model in ollamaModels"
+                    :key="model"
+                    :value="model"
+                  >
+                    {{ model }}
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <p
+              v-if="aiConnectionMessage"
+              class="helper-text"
+            >
+              {{ aiConnectionMessage }}
+            </p>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'data'"
+          class="settings-section-stack"
+        >
+          <section
+            id="data-storage"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('data-storage') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  存储与数据库统计
+                </h2>
+                <p class="card-subtitle">
+                  浏览器配额 {{ storageUsageLabel }} / {{ storageQuotaLabel }}
+                </p>
+              </div>
+              <span
+                class="status-pill"
+                :class="`status-pill--${storageRatio > 80 ? 'error' : 'success'}`"
+              >
+                {{ storageRatio }}%
+              </span>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">文章数量</span>
+                <strong>{{ databaseSize?.tables.articles ?? 0 }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">文档数量</span>
+                <strong>{{ databaseSize?.tables.documents ?? 0 }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">版本数量</span>
+                <strong>{{ databaseSize?.tables.versions ?? 0 }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">素材数量</span>
+                <strong>{{ databaseSize?.tables.assets ?? 0 }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="data-import"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('data-import') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  Markdown 文件迁移
+                </h2>
+                <p class="card-subtitle">
+                  通过真实文件选择器导入 Markdown / HTML / TXT。
+                </p>
+              </div>
+              <button
+                class="action-btn"
+                type="button"
+                :disabled="dataBusy"
+                title="导入文件"
+                @click="importMarkdownFiles"
+              >
+                <FileText :size="14" />
+                <span>{{ dataBusy ? '处理中...' : '导入文件' }}</span>
+              </button>
+            </header>
+
+            <div
+              v-if="importSummary"
+              class="result-box"
+            >
+              <p>成功 {{ importSummary.success }}，失败 {{ importSummary.failed }}</p>
+              <p
+                v-for="error in importSummary.errors"
+                :key="error"
+                class="helper-text helper-text--error"
+              >
+                {{ error }}
+              </p>
+            </div>
+          </section>
+
+          <section
+            id="data-backup"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('data-backup') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  设置与数据库快照
+                </h2>
+                <p class="card-subtitle">
+                  设置保存在 localStorage，快照覆盖完整 IndexedDB。
+                </p>
+              </div>
+            </header>
+
+            <div class="button-row">
+              <button
+                class="action-btn"
+                type="button"
+                title="导出设置 JSON"
+                @click="exportSettingsFile"
+              >
+                <Download :size="14" />
+                <span>导出设置</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="导入设置 JSON"
+                @click="openSettingsImport"
+              >
+                <Upload :size="14" />
+                <span>导入设置</span>
+              </button>
+              <button
+                class="action-btn"
+                type="button"
+                :disabled="snapshotBusy"
+                title="导出 IndexedDB 快照"
+                @click="exportDatabaseSnapshot"
+              >
+                <Database :size="14" />
+                <span>{{ snapshotBusy ? '处理中...' : '导出快照' }}</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                :disabled="snapshotBusy"
+                title="恢复 IndexedDB 快照"
+                @click="openSnapshotImport"
+              >
+                <Upload :size="14" />
+                <span>恢复快照</span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            id="data-danger"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('data-danger') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  危险操作
+                </h2>
+                <p class="card-subtitle">
+                  不做 mock，不做空壳，所有操作都直接落到真实 Dexie 表。
+                </p>
+              </div>
+            </header>
+
+            <div class="button-row">
+              <button
+                class="danger-btn"
+                type="button"
+                title="清空文章相关表"
+                @click="clearArticlesData"
+              >
+                <Trash2 :size="14" />
+                <span>清空文章</span>
+              </button>
+              <button
+                class="danger-btn"
+                type="button"
+                title="清理素材库"
+                @click="clearAssetsData"
+              >
+                <Image :size="14" />
+                <span>清理素材</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="重置设置"
+                @click="resetSettingsToDefault"
+              >
+                <RefreshCw :size="14" />
+                <span>重置设置</span>
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'sync'"
+          class="settings-section-stack"
+        >
+          <section
+            id="sync-target"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('sync-target') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  同步目标
+                </h2>
+                <p class="card-subtitle">
+                  使用草稿表单规避无效 URL 直接写入 settings 的问题。
+                </p>
+              </div>
+              <div class="button-row">
+                <button
+                  class="secondary-btn"
+                  type="button"
+                  :disabled="syncTesting"
+                  title="测试同步目标连接"
+                  @click="testSyncConnection"
+                >
+                  <RefreshCw
+                    v-if="syncTesting"
+                    :size="14"
+                    class="spin"
+                  />
+                  <Cloud
+                    v-else
+                    :size="14"
+                  />
+                  <span>{{ syncTesting ? '测试中...' : '连接测试' }}</span>
+                </button>
+                <button
+                  class="action-btn"
+                  type="button"
+                  title="保存同步目标"
+                  @click="applySyncTarget"
+                >
+                  <Save :size="14" />
+                  <span>保存目标</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field field--full">
+                <span>目标类型</span>
+                <select v-model="syncTargetDraft.type">
+                  <option value="none">
+                    未配置
+                  </option>
+                  <option value="webdav">
+                    WebDAV
+                  </option>
+                  <option value="s3">
+                    S3
+                  </option>
+                  <option value="rest">
+                    REST API
+                  </option>
+                </select>
+              </label>
+
+              <template v-if="syncTargetDraft.type === 'webdav'">
+                <label class="field field--full">
+                  <span>WebDAV URL</span>
+                  <input
+                    v-model="syncTargetDraft.url"
+                    type="text"
+                    placeholder="https://example.com/webdav"
+                  >
+                </label>
+                <label class="field">
+                  <span>用户名</span>
+                  <input
+                    v-model="syncTargetDraft.username"
+                    type="text"
+                  >
+                </label>
+                <label class="field">
+                  <span>密码</span>
+                  <div class="secret-field">
+                    <input
+                      v-model="syncTargetDraft.password"
+                      :type="revealSyncSecret ? 'text' : 'password'"
+                    >
+                    <button
+                      class="ghost-btn"
+                      type="button"
+                      @click="revealSyncSecret = !revealSyncSecret"
+                    >
+                      <Eye
+                        v-if="!revealSyncSecret"
+                        :size="14"
+                      />
+                      <EyeOff
+                        v-else
+                        :size="14"
+                      />
+                    </button>
                   </div>
-                </div>
-                <div class="sv-theme-card-info">
-                  <span class="sv-theme-card-label">{{ opt.label }}</span>
-                  <span class="sv-theme-card-desc">{{ opt.desc }}</span>
-                </div>
-              </label>
+                </label>
+              </template>
+
+              <template v-else-if="syncTargetDraft.type === 's3'">
+                <label class="field field--full">
+                  <span>Endpoint</span>
+                  <input
+                    v-model="syncTargetDraft.endpoint"
+                    type="text"
+                    placeholder="https://s3.example.com"
+                  >
+                </label>
+                <label class="field">
+                  <span>Access Key</span>
+                  <input
+                    v-model="syncTargetDraft.accessKeyId"
+                    type="text"
+                  >
+                </label>
+                <label class="field">
+                  <span>Secret Key</span>
+                  <input
+                    v-model="syncTargetDraft.secretAccessKey"
+                    type="password"
+                  >
+                </label>
+                <label class="field">
+                  <span>Bucket</span>
+                  <input
+                    v-model="syncTargetDraft.bucket"
+                    type="text"
+                  >
+                </label>
+                <label class="field">
+                  <span>Region</span>
+                  <input
+                    v-model="syncTargetDraft.region"
+                    type="text"
+                  >
+                </label>
+              </template>
+
+              <template v-else-if="syncTargetDraft.type === 'rest'">
+                <label class="field field--full">
+                  <span>REST URL</span>
+                  <input
+                    v-model="syncTargetDraft.restUrl"
+                    type="text"
+                    placeholder="https://api.example.com/sync"
+                  >
+                </label>
+                <label class="field field--full">
+                  <span>Bearer Token</span>
+                  <input
+                    v-model="syncTargetDraft.token"
+                    type="password"
+                  >
+                </label>
+              </template>
             </div>
-          </div>
+          </section>
 
-          <div class="sv-divider" />
+          <section
+            id="sync-policy"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('sync-policy') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  同步策略
+                </h2>
+                <p class="card-subtitle">
+                  自动同步状态会直接驱动 sync store。
+                </p>
+              </div>
+            </header>
 
-          <!-- 字体选择 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">预览字体</h3>
-            <div class="sv-font-group">
-              <label
-                v-for="font in fontOptions"
-                :key="font.value"
-                class="sv-font-card"
-                :class="{ selected: settings.appearance.fontFamily === font.value }"
-              >
+            <div class="field-grid">
+              <label class="field">
+                <span>启用同步</span>
                 <input
-                  type="radio"
-                  :value="font.value"
-                  v-model="settings.appearance.fontFamily"
-                  class="sv-hidden-radio"
+                  v-model="settingsStore.settings.sync.enabled"
+                  type="checkbox"
                 >
-                <span class="sv-font-card-label">{{ font.label }}</span>
-                <span class="sv-font-card-sample" :style="{ fontFamily: getFontStack(font.value) }">
-                  {{ font.sample }}
-                </span>
+              </label>
+              <label class="field">
+                <span>自动同步间隔</span>
+                <select v-model="settingsStore.settings.sync.interval">
+                  <option value="5m">5 分钟</option>
+                  <option value="15m">15 分钟</option>
+                  <option value="30m">30 分钟</option>
+                  <option value="1h">1 小时</option>
+                  <option value="manual">手动</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>冲突策略</span>
+                <select v-model="settingsStore.settings.sync.conflictStrategy">
+                  <option value="local-wins">本地优先</option>
+                  <option value="remote-wins">远端优先</option>
+                  <option value="manual">手动合并</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>端对端加密</span>
+                <input
+                  v-model="settingsStore.settings.sync.encryptionEnabled"
+                  type="checkbox"
+                >
               </label>
             </div>
-          </div>
 
-          <div class="sv-divider" />
-
-          <!-- 字体大小 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">字体大小</span>
-              <span class="sv-row-desc">编辑器与预览的基础字号</span>
-            </div>
-            <div class="sv-range-control">
-              <input
-                type="range"
-                v-model.number="settings.appearance.fontSize"
-                min="12" max="24" step="1"
-                class="sv-range"
-              >
-              <span class="sv-range-value">{{ settings.appearance.fontSize }}px</span>
-            </div>
-          </div>
-
-          <!-- 行高 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">行高</span>
-              <span class="sv-row-desc">正文内容的行距倍数</span>
-            </div>
-            <div class="sv-range-control">
-              <input
-                type="range"
-                v-model.number="settings.appearance.lineHeight"
-                min="1.4" max="2.4" step="0.1"
-                class="sv-range"
-              >
-              <span class="sv-range-value">{{ settings.appearance.lineHeight.toFixed(1) }}</span>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 主题色 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">主题色</h3>
-            <div class="sv-accent-row">
+            <div class="category-chip-group">
               <button
-                v-for="color in accentColors"
-                :key="color.value"
-                class="sv-accent-swatch"
-                :class="{ selected: settings.appearance.accentColor === color.value }"
-                :style="{ '--swatch-color': color.value }"
-                :title="color.label"
-                @click="settings.appearance.accentColor = color.value"
+                v-for="category in categoryStore.categories"
+                :key="category.id"
+                class="chip-btn"
+                :class="{ 'chip-btn--active': settingsStore.settings.sync.selectedCategoryIds.includes(category.id) }"
+                type="button"
+                @click="toggleSyncCategory(category.id)"
               >
-                <svg v-if="settings.appearance.accentColor === color.value" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                {{ category.name }}
               </button>
-              <div class="sv-accent-custom" :class="{ active: isCustomAccent }">
-                <input
-                  type="color"
-                  v-model="settings.appearance.accentColor"
-                  class="sv-color-input"
-                  title="自定义颜色"
-                >
-                <span class="sv-accent-custom-label">自定义</span>
+              <p
+                v-if="categoryStore.categories.length === 0"
+                class="helper-text"
+              >
+                暂无分类，当前为全量同步。
+              </p>
+            </div>
+          </section>
+
+          <section
+            id="sync-security"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('sync-security') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  同步加密与主密钥
+                </h2>
+                <p class="card-subtitle">
+                  当前同步运行时依赖主密钥解锁；恢复密钥包用于离线备份与迁移。
+                </p>
+              </div>
+              <span
+                class="status-pill"
+                :class="`status-pill--${masterKeyStatusTone}`"
+              >
+                {{ masterKeyStatusLabel }}
+              </span>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">端对端加密</span>
+                <strong>{{ settingsStore.settings.sync.encryptionEnabled ? '已启用' : '已关闭' }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">主密钥运行时</span>
+                <strong>{{ masterKeyStatusLabel }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">恢复密钥</span>
+                <strong>{{ recoveryBundleSummary }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">密码策略</span>
+                <strong>{{ passwordPolicyHint }}</strong>
               </div>
             </div>
-          </div>
 
-          <div class="sv-divider" />
+            <p class="helper-text">
+              {{ masterKeyStatusDescription }}
+            </p>
+            <p class="helper-text">
+              同步导出或远端上传时会临时申请可导出主密钥；日常缓存仍保持不可导出，避免长期暴露原始密钥字节。
+            </p>
 
-          <!-- 侧边栏宽度 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">侧边栏宽度</span>
-              <span class="sv-row-desc">工作站左侧面板宽度</span>
-            </div>
-            <div class="sv-range-control">
-              <input
-                type="range"
-                v-model.number="settings.appearance.sidebarWidth"
-                min="180" max="400" step="10"
-                class="sv-range"
-              >
-              <span class="sv-range-value">{{ settings.appearance.sidebarWidth }}px</span>
-            </div>
-          </div>
-
-          <!-- 减弱动效 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">减弱动效</span>
-              <span class="sv-toggle-desc">减少界面动画和过渡效果</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.appearance.reducedMotion">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-        </section>
-
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 2: 编辑器                       -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'editor'" class="sv-tab">
-          <h2 class="sv-tab-title">编辑器</h2>
-          <p class="sv-tab-desc">编辑器行为和功能设置</p>
-
-          <!-- 自动保存 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">自动保存</span>
-              <span class="sv-toggle-desc">定时自动保存编辑内容</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.autoSave">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 保存间隔（仅自动保存开启时显示） -->
-          <div v-if="settings.editor.autoSave" class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">保存间隔</span>
-              <span class="sv-row-desc">自动保存的时间间隔</span>
-            </div>
-            <div class="sv-range-control">
-              <input
-                type="range"
-                v-model.number="settings.editor.autoSaveInterval"
-                min="10" max="300" step="10"
-                class="sv-range"
-              >
-              <span class="sv-range-value">{{ settings.editor.autoSaveInterval }}s</span>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 拼写检查 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">拼写检查</span>
-              <span class="sv-toggle-desc">启用浏览器原生拼写检查</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.spellCheck">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 打字机模式 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">打字机模式</span>
-              <span class="sv-toggle-desc">输入时保持光标始终在屏幕中央区域</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.typewriterMode">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 智能标点 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">智能标点</span>
-              <span class="sv-toggle-desc">自动转换中英文标点符号</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.smartPunctuation">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 自动换行 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">自动换行</span>
-              <span class="sv-toggle-desc">长文本自动换行显示</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.wordWrap">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- Tab 大小 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">Tab 宽度</span>
-              <span class="sv-row-desc">缩进使用的空格数</span>
-            </div>
-            <div class="sv-tab-size-group">
+            <div class="button-row">
               <button
-                v-for="size in [2, 4, 8]"
-                :key="size"
-                class="sv-tab-size-btn"
-                :class="{ selected: settings.editor.tabSize === size }"
-                @click="settings.editor.tabSize = size"
+                class="action-btn"
+                type="button"
+                title="初始化或解锁主密钥"
+                :disabled="masterKeyBusy"
+                @click="openMasterKeyDialog('unlock')"
               >
-                {{ size }}
+                <Shield :size="14" />
+                <span>{{ masterKeyUnlocked ? '重新解锁主密钥' : '初始化 / 解锁主密钥' }}</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="导出恢复密钥"
+                :disabled="masterKeyBusy || !masterKeyUnlocked"
+                @click="openMasterKeyDialog('export')"
+              >
+                <Download :size="14" />
+                <span>导出恢复密钥</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="导入恢复密钥"
+                :disabled="masterKeyBusy"
+                @click="openMasterKeyDialog('import')"
+              >
+                <Upload :size="14" />
+                <span>导入恢复密钥</span>
+              </button>
+              <button
+                class="ghost-btn"
+                type="button"
+                title="刷新主密钥状态"
+                :disabled="masterKeyBusy"
+                @click="refreshMasterKeyRuntimeState"
+              >
+                <RefreshCw :size="14" />
+                <span>刷新状态</span>
               </button>
             </div>
-          </div>
 
-          <div class="sv-divider" />
-
-          <!-- 显示行号 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">显示行号</span>
-              <span class="sv-toggle-desc">在编辑器左侧显示行号</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.showLineNumbers">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 高亮当前行 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">高亮当前行</span>
-              <span class="sv-toggle-desc">高亮显示光标所在行</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.highlightActiveLine">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <!-- 括号匹配 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">括号匹配</span>
-              <span class="sv-toggle-desc">自动高亮匹配的括号对</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.editor.bracketMatching">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-        </section>
-
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 3: 导出                         -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'export'" class="sv-tab">
-          <h2 class="sv-tab-title">导出</h2>
-          <p class="sv-tab-desc">导出和发布相关的默认设置</p>
-
-          <!-- 默认平台 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">默认导出平台</h3>
-            <div class="sv-platform-group">
-              <label
-                v-for="p in platformOptions"
-                :key="p.value"
-                class="sv-platform-card"
-                :class="{ selected: settings.export.defaultPlatform === p.value }"
-              >
-                <input
-                  type="radio"
-                  :value="p.value"
-                  v-model="settings.export.defaultPlatform"
-                  class="sv-hidden-radio"
+            <div
+              v-if="hasCachedRecoveryBundle"
+              class="result-box"
+            >
+              <p>最近一次恢复密钥已缓存在当前会话，关闭页面后需要重新导出。</p>
+              <div class="button-row">
+                <button
+                  class="secondary-btn"
+                  type="button"
+                  title="复制恢复密钥包"
+                  @click="copyRecoveryBundle"
                 >
-                <span class="sv-platform-label">{{ p.label }}</span>
-                <span class="sv-platform-desc">{{ p.desc }}</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 默认预设 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">默认主题预设</span>
-              <span class="sv-row-desc">新建导出时使用的预设方案</span>
-            </div>
-            <select v-model="settings.export.defaultPresetId" class="sv-select">
-              <option v-for="opt in presetOptions" :key="opt.value" :value="opt.value">
-                {{ opt.label }}
-              </option>
-            </select>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 代码块样式 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">Mac 风格代码块</span>
-              <span class="sv-toggle-desc">为代码块添加红黄绿圆点装饰</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.macCodeBlock">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">代码行号</span>
-              <span class="sv-toggle-desc">在代码块中显示行号</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.lineNumbers">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 排版选项 -->
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">外链转脚注</span>
-              <span class="sv-toggle-desc">将外部链接转换为底部脚注引用</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.convertFootnotes">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info">
-              <span class="sv-toggle-label">首行缩进</span>
-              <span class="sv-toggle-desc">段落自动首行缩进两格</span>
-            </div>
-            <label class="sv-switch">
-              <input type="checkbox" v-model="settings.export.textIndent">
-              <span class="sv-switch-track">
-                <span class="sv-switch-thumb" />
-              </span>
-            </label>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 图片最大宽度 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">图片最大宽度</span>
-              <span class="sv-row-desc">导出时图片的最大显示宽度</span>
-            </div>
-            <div class="sv-range-control">
-              <input
-                type="range"
-                v-model.number="settings.export.imageMaxWidth"
-                min="320" max="1080" step="20"
-                class="sv-range"
-              >
-              <span class="sv-range-value">{{ settings.export.imageMaxWidth }}px</span>
-            </div>
-          </div>
-
-          <!-- 代码高亮主题 -->
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <span class="sv-row-label">代码高亮主题</span>
-              <span class="sv-row-desc">代码块的语法高亮配色方案</span>
-            </div>
-            <select v-model="settings.export.codeTheme" class="sv-select">
-              <option v-for="opt in codeThemeOptions" :key="opt.value" :value="opt.value">
-                {{ opt.label }}
-              </option>
-            </select>
-          </div>
-        </section>
-
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 4: AI 服务                      -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'ai'" class="sv-tab">
-          <h2 class="sv-tab-title">AI 服务</h2>
-          <p class="sv-tab-desc">配置 AI 辅助写作功能</p>
-
-          <!-- Provider 选择 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">服务提供商</h3>
-            <div class="sv-provider-grid">
-              <label
-                v-for="prov in providerOptions"
-                :key="prov.value"
-                class="sv-provider-card"
-                :class="{ selected: settings.ai.provider === prov.value, disabled: prov.value === 'none' }"
-              >
-                <input
-                  type="radio"
-                  :value="prov.value"
-                  v-model="settings.ai.provider"
-                  class="sv-hidden-radio"
-                  @change="handleProviderChange"
+                  <Copy :size="14" />
+                  <span>复制恢复密钥</span>
+                </button>
+                <button
+                  class="secondary-btn"
+                  type="button"
+                  title="下载恢复密钥包"
+                  @click="downloadRecoveryBundle"
                 >
-                <div class="sv-provider-icon">
-                  <!-- OpenAI -->
-                  <svg v-if="prov.value === 'openai'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.677l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
-                  </svg>
-                  <!-- Anthropic -->
-                  <svg v-else-if="prov.value === 'anthropic'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M13.827 3.52h3.603L24 20.48h-3.603l-6.57-16.96zm-7.258 0h3.604L16.742 20.48h-3.603L6.569 3.52zM0 20.48h3.604L7.173 9.42l-1.8-4.648L0 20.48z" />
-                  </svg>
-                  <!-- DeepSeek -->
-                  <svg v-else-if="prov.value === 'deepseek'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15.5v-3.07c-2.02-.46-3.39-1.56-3.97-2.67-.19-.36-.03-.79.35-.94.35-.13.73.03.89.36.44.92 1.58 1.73 2.73 2.05V9.88c-2.47-.55-4-1.82-4-3.88 0-2.19 1.78-3.64 4-4v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c1.63.26 2.93 1.12 3.54 2.26.17.33.02.73-.33.87-.33.14-.71 0-.87-.31-.44-.81-1.38-1.42-2.34-1.68v3.13c2.59.58 4 1.88 4 3.95 0 2.28-1.71 3.74-4 4.06v.72c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-.69zM11 5.17c-1.33.31-2 1.15-2 2.01 0 .94.64 1.72 2 2.19V5.17zm2 8.7v4.01c1.39-.29 2-1.17 2-2.09 0-1-.63-1.56-2-1.92z" />
-                  </svg>
-                  <!-- Ollama -->
-                  <svg v-else-if="prov.value === 'ollama'" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7zm-2 15v-1h4v1h-4zm3.5-5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-3 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM12 20a2 2 0 0 0 1.93-1.5h-3.86A2 2 0 0 0 12 20z" />
-                  </svg>
-                  <!-- None -->
-                  <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                  </svg>
-                </div>
-                <span class="sv-provider-name">{{ prov.label }}</span>
-                <span class="sv-provider-desc">{{ prov.desc }}</span>
-              </label>
-            </div>
-          </div>
-
-          <template v-if="settings.ai.provider !== 'none'">
-            <div class="sv-divider" />
-
-            <!-- Ollama URL -->
-            <div v-if="settings.ai.provider === 'ollama'" class="sv-row sv-row-vertical">
-              <div class="sv-row-info">
-                <span class="sv-row-label">Ollama 服务地址</span>
-                <span class="sv-row-desc">本地 Ollama 服务的 API 地址</span>
-              </div>
-              <input
-                type="text"
-                v-model="settings.ai.ollamaUrl"
-                class="sv-input"
-                placeholder="http://localhost:11434"
-              >
-            </div>
-
-            <!-- API Key（非 Ollama） -->
-            <div v-if="settings.ai.provider !== 'ollama'" class="sv-row sv-row-vertical">
-              <div class="sv-row-info">
-                <span class="sv-row-label">API Key</span>
-                <span class="sv-row-desc">您的密钥仅存储在本地设备，不会上传到任何服务器</span>
-              </div>
-              <div class="sv-input-group">
-                <input
-                  :type="showApiKey ? 'text' : 'password'"
-                  v-model="settings.ai.apiKey"
-                  class="sv-input sv-input-with-btn"
-                  placeholder="sk-..."
-                >
-                <button class="sv-input-addon" @click="showApiKey = !showApiKey" :title="showApiKey ? '隐藏' : '显示'">
-                  <!-- Eye -->
-                  <svg v-if="!showApiKey" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  <!-- Eye Off -->
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
+                  <Download :size="14" />
+                  <span>下载恢复密钥</span>
                 </button>
               </div>
             </div>
+          </section>
 
-            <!-- Base URL（非 Ollama） -->
-            <div v-if="settings.ai.provider !== 'ollama'" class="sv-row sv-row-vertical">
-              <div class="sv-row-info">
-                <span class="sv-row-label">自定义 Base URL</span>
-                <span class="sv-row-desc">
-                  {{ isSiliconFlow ? '当前已配置硅基流动 SiliconFlow API' : '留空使用官方默认地址，适合使用代理或自托管服务' }}
+          <section
+            id="sync-runtime"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('sync-runtime') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  同步状态与历史
+                </h2>
+                <p class="card-subtitle">
+                  {{ syncSummaryText }}
+                </p>
+              </div>
+              <div class="button-row">
+                <span
+                  class="status-pill"
+                  :class="`status-pill--${syncStatusTone}`"
+                >
+                  {{ syncStore.status }}
                 </span>
-              </div>
-              <input
-                type="text"
-                v-model="settings.ai.baseUrl"
-                class="sv-input"
-                :placeholder="settings.ai.provider === 'openai' ? 'https://api.siliconflow.cn/v1' : '留空使用默认'"
-              >
-            </div>
-
-            <div class="sv-divider" />
-
-            <!-- 模型选择 -->
-            <div class="sv-row">
-              <div class="sv-row-info">
-                <span class="sv-row-label">模型</span>
-                <span class="sv-row-desc">选择使用的 AI 模型</span>
-              </div>
-              <select v-model="settings.ai.model" class="sv-select">
-                <option v-for="model in modelOptions" :key="model" :value="model">
-                  {{ model }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Max Tokens -->
-            <div class="sv-row">
-              <div class="sv-row-info">
-                <span class="sv-row-label">最大 Token 数</span>
-                <span class="sv-row-desc">单次生成的最大 Token 数量</span>
-              </div>
-              <div class="sv-range-control">
-                <input
-                  type="range"
-                  v-model.number="settings.ai.maxTokens"
-                  min="100" max="8000" step="100"
-                  class="sv-range"
+                <button
+                  class="action-btn"
+                  type="button"
+                  :disabled="syncBusy"
+                  title="立即同步"
+                  @click="runManualSync"
                 >
-                <span class="sv-range-value">{{ settings.ai.maxTokens }}</span>
+                  <RefreshCw
+                    v-if="syncBusy"
+                    :size="14"
+                    class="spin"
+                  />
+                  <Cloud
+                    v-else
+                    :size="14"
+                  />
+                  <span>{{ syncBusy ? '同步中...' : '立即同步' }}</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">最后同步</span>
+                <strong>{{ formatDateTime(syncStore.lastSyncAt) }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">待同步变更</span>
+                <strong>{{ syncStore.pendingCount }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">冲突数量</span>
+                <strong>{{ syncStore.conflictCount }}</strong>
               </div>
             </div>
 
-            <!-- Temperature -->
-            <div class="sv-row">
-              <div class="sv-row-info">
-                <span class="sv-row-label">Temperature</span>
-                <span class="sv-row-desc">值越高生成内容越随机，越低越确定</span>
-              </div>
-              <div class="sv-range-control">
-                <input
-                  type="range"
-                  v-model.number="settings.ai.temperature"
-                  min="0" max="2" step="0.1"
-                  class="sv-range"
-                >
-                <span class="sv-range-value">{{ settings.ai.temperature.toFixed(1) }}</span>
-              </div>
-            </div>
-
-            <div class="sv-divider" />
-
-            <!-- 连接测试 -->
-            <div class="sv-section">
-              <button
-                class="sv-test-btn"
-                :class="{ testing: aiTestStatus === 'testing' }"
-                :disabled="aiTestStatus === 'testing'"
-                @click="testAIConnection"
+            <div
+              v-if="syncStore.conflicts.length > 0"
+              class="conflict-list"
+            >
+              <article
+                v-for="conflict in syncStore.conflicts"
+                :key="conflict.id"
+                class="conflict-card"
               >
-                <svg v-if="aiTestStatus === 'testing'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sv-spin">
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
-                {{ aiTestStatus === 'testing' ? '测试中...' : '测试连接' }}
-              </button>
-              <div
-                v-if="aiTestMessage"
-                class="sv-test-result"
-                :class="aiTestStatus"
-              >
-                {{ aiTestMessage }}
-              </div>
+                <div>
+                  <h3>文档 {{ conflict.documentId.slice(0, 8) }}</h3>
+                  <p>本地 v{{ conflict.localVersion }} / 远端 v{{ conflict.remoteVersion }}</p>
+                </div>
+                <div class="button-row">
+                  <button
+                    class="secondary-btn"
+                    type="button"
+                    @click="resolveSyncConflict(conflict.documentId, 'local-wins')"
+                  >
+                    保留本地
+                  </button>
+                  <button
+                    class="secondary-btn"
+                    type="button"
+                    @click="resolveSyncConflict(conflict.documentId, 'remote-wins')"
+                  >
+                    采用远端
+                  </button>
+                  <button
+                    class="secondary-btn"
+                    type="button"
+                    @click="resolveSyncConflict(conflict.documentId, 'manual')"
+                  >
+                    手动处理
+                  </button>
+                </div>
+              </article>
             </div>
-          </template>
-        </section>
 
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 5: 数据                         -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'data'" class="sv-tab">
-          <h2 class="sv-tab-title">数据管理</h2>
-          <p class="sv-tab-desc">管理应用数据、备份和重置</p>
-
-          <!-- 设置导入导出 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">设置数据</h3>
-            <div class="sv-btn-group">
-              <button class="sv-action-btn" @click="handleExportSettings">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                导出设置
-              </button>
-              <button class="sv-action-btn" @click="handleImportSettings">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                导入设置
-              </button>
+            <div
+              v-if="syncLogLoading"
+              class="empty-box"
+            >
+              同步日志加载中...
             </div>
             <div
-              v-if="importFeedback"
-              class="sv-feedback"
-              :class="importFeedback.type"
+              v-else-if="syncLogs.length === 0"
+              class="empty-box"
             >
-              {{ importFeedback.text }}
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 数据统计 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">数据统计</h3>
-            <div class="sv-stats-grid">
-              <div class="sv-stat-card">
-                <span class="sv-stat-value">{{ dataStats.articleCount }}</span>
-                <span class="sv-stat-label">文章</span>
-              </div>
-              <div class="sv-stat-card">
-                <span class="sv-stat-value">{{ dataStats.assetCount }}</span>
-                <span class="sv-stat-label">素材</span>
-              </div>
-              <div class="sv-stat-card">
-                <span class="sv-stat-value">{{ formatBytes(dataStats.totalSize) }}</span>
-                <span class="sv-stat-label">存储空间</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 危险操作 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title sv-danger-title">危险区域</h3>
-            <p class="sv-danger-desc">以下操作不可恢复，请谨慎操作</p>
-            <div class="sv-danger-actions">
-              <div class="sv-danger-row">
-                <div class="sv-danger-row-info">
-                  <span class="sv-danger-row-label">清除所有文章</span>
-                  <span class="sv-danger-row-desc">永久删除所有文章及其编辑内容</span>
-                </div>
-                <button class="sv-danger-btn" @click="handleClearArticles">清除</button>
-              </div>
-              <div class="sv-danger-row">
-                <div class="sv-danger-row-info">
-                  <span class="sv-danger-row-label">清除所有素材</span>
-                  <span class="sv-danger-row-desc">永久删除所有上传的图片和文件</span>
-                </div>
-                <button class="sv-danger-btn" @click="handleClearAssets">清除</button>
-              </div>
-              <div class="sv-danger-row">
-                <div class="sv-danger-row-info">
-                  <span class="sv-danger-row-label">重置所有设置</span>
-                  <span class="sv-danger-row-desc">将所有设置恢复为默认值</span>
-                </div>
-                <button class="sv-danger-btn" @click="handleResetSettings">重置</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 6: 快捷键                       -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'shortcuts'" class="sv-tab">
-          <h2 class="sv-tab-title">快捷键</h2>
-          <p class="sv-tab-desc">自定义键盘快捷键映射</p>
-
-          <div class="sv-shortcuts-table">
-            <div class="sv-shortcuts-header">
-              <span class="sv-shortcuts-col-name">操作</span>
-              <span class="sv-shortcuts-col-key">快捷键</span>
-              <span class="sv-shortcuts-col-action">编辑</span>
+              还没有同步日志。
             </div>
             <div
-              v-for="(value, key) in settings.shortcuts"
-              :key="key"
-              class="sv-shortcut-row"
-              :class="{ editing: editingShortcut === key }"
+              v-else
+              class="log-list"
             >
-              <span class="sv-shortcuts-col-name">{{ shortcutLabels[key as string] || key }}</span>
-              <div
-                class="sv-shortcut-key"
-                :class="{ recording: editingShortcut === key }"
-                tabindex="0"
-                @keydown="editingShortcut === key && handleShortcutKeydown($event, key as string)"
-                @blur="handleShortcutBlur"
+              <article
+                v-for="log in syncLogs.slice(0, 12)"
+                :key="log.id"
+                class="log-item"
               >
-                <template v-if="editingShortcut === key">
-                  <span class="sv-shortcut-recording-text">按下新的快捷键...</span>
-                </template>
-                <template v-else>
-                  <kbd v-for="(part, i) in (value as string).split('+')" :key="i" class="sv-kbd">{{ part }}</kbd>
-                </template>
-              </div>
-              <button
-                class="sv-shortcut-edit-btn"
-                :class="{ active: editingShortcut === key }"
-                @click="editingShortcut === key ? (editingShortcut = null) : startEditShortcut(key as string)"
-              >
-                <svg v-if="editingShortcut !== key" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+                <div>
+                  <strong>{{ formatSyncAction(log) }}</strong>
+                  <p>{{ log.details }}</p>
+                </div>
+                <div class="log-meta">
+                  <span>{{ formatSyncStatus(log) }}</span>
+                  <span>{{ formatDateTime(log.timestamp) }}</span>
+                </div>
+              </article>
             </div>
-          </div>
-
-          <!-- 冲突提示 -->
-          <div v-if="shortcutConflict" class="sv-shortcut-conflict">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            {{ shortcutConflict }}
-          </div>
-
-          <div class="sv-shortcuts-footer">
-            <button class="sv-action-btn sv-action-btn-sm" @click="resetShortcuts">
-              恢复默认快捷键
-            </button>
-          </div>
+          </section>
         </section>
 
-        <!-- ═════════════════════════════════════ -->
-        <!--  Tab 7: 关于                         -->
-        <!-- ═════════════════════════════════════ -->
-        <section v-show="currentTab === 'about'" class="sv-tab">
-          <h2 class="sv-tab-title">关于</h2>
-          <p class="sv-tab-desc">应用信息与致谢</p>
-
-          <!-- Logo Card -->
-          <div class="sv-about-hero">
-            <div class="sv-about-logo">
-              <span class="sv-about-logo-text">IF</span>
-            </div>
-            <div class="sv-about-hero-info">
-              <h3 class="sv-about-name">InkForge Studio</h3>
-              <span class="sv-about-version">v0.1.0-alpha</span>
-              <p class="sv-about-slogan">专为内容创作者打造的下一代写作工作站</p>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 技术栈 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">技术栈</h3>
-            <div class="sv-tech-grid">
-              <span class="sv-tech-badge">Vue 3</span>
-              <span class="sv-tech-badge">TypeScript</span>
-              <span class="sv-tech-badge">TipTap</span>
-              <span class="sv-tech-badge">Pinia</span>
-              <span class="sv-tech-badge">Dexie.js</span>
-              <span class="sv-tech-badge">Tauri</span>
-            </div>
-          </div>
-
-          <div class="sv-divider" />
-
-          <!-- 致谢 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">致谢</h3>
-            <div class="sv-credits">
-              <div class="sv-credit-item">
-                <span class="sv-credit-name">doocs/md</span>
-                <span class="sv-credit-desc">Markdown 编辑器灵感来源</span>
+        <section
+          v-else-if="currentTab === 'shortcuts'"
+          class="settings-section-stack"
+        >
+          <section
+            id="shortcuts-map"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('shortcuts-map') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  快捷键映射
+                </h2>
+                <p class="card-subtitle">
+                  Workstation 已接入 save / bold / italic / undo / redo / outline / focusMode。
+                </p>
               </div>
-              <div class="sv-credit-item">
-                <span class="sv-credit-name">TipTap</span>
-                <span class="sv-credit-desc">富文本编辑框架</span>
+            </header>
+
+            <div class="shortcut-section-list">
+              <section
+                v-for="group in shortcutSections"
+                :key="group.id"
+                class="shortcut-section"
+              >
+                <header class="shortcut-section__header">
+                  <div>
+                    <p class="shortcut-section__eyebrow">{{ group.label }}</p>
+                    <h3>{{ group.label }}</h3>
+                  </div>
+                  <span class="shortcut-section__count">{{ group.items.length }} 项</span>
+                </header>
+                <p class="shortcut-section__description">
+                  {{ group.description }}
+                </p>
+                <div class="shortcut-list">
+              <article
+                v-for="shortcut in group.items"
+                :key="shortcut.id"
+                class="shortcut-item"
+              >
+                <div>
+                  <span class="shortcut-item__group">{{ group.label }}</span>
+                  <h3>{{ shortcut.label }}</h3>
+                  <p>{{ shortcut.description }}</p>
+                </div>
+                <div class="shortcut-actions">
+                  <code>{{ settingsStore.settings.shortcuts[shortcut.id] || '未设置' }}</code>
+                  <button
+                    class="secondary-btn"
+                    type="button"
+                    @click="startShortcutRecording(shortcut.id)"
+                  >
+                    {{ editingShortcut === shortcut.id ? '按下组合键' : '录制' }}
+                  </button>
+                  <button
+                    class="ghost-btn"
+                    type="button"
+                    @click="resetShortcut(shortcut.id)"
+                  >
+                    默认
+                  </button>
+                </div>
+              </article>
+                </div>
+              </section>
+            </div>
+
+            <p
+              v-if="shortcutConflict"
+              class="helper-text helper-text--error"
+            >
+              {{ shortcutConflict }}
+            </p>
+          </section>
+        </section>
+
+        <section
+          v-else-if="currentTab === 'advanced'"
+          class="settings-section-stack"
+        >
+          <section
+            id="advanced-runtime"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-runtime') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  运行级别
+                </h2>
+                <p class="card-subtitle">
+                  控制日志级别与性能指标面板。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>日志级别</span>
+                <select v-model="settingsStore.settings.advanced.logLevel">
+                  <option value="off">关闭</option>
+                  <option value="error">Error</option>
+                  <option value="warn">Warn</option>
+                  <option value="info">Info</option>
+                  <option value="debug">Debug</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>性能指标</span>
+                <input
+                  v-model="settingsStore.settings.advanced.showPerformanceMetrics"
+                  type="checkbox"
+                >
+              </label>
+              <div class="stat-card">
+                <span class="stat-card__label">运行时日志</span>
+                <strong>{{ runtimeLogLevel }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">性能面板 Flag</span>
+                <strong>{{ performanceFlag.enabled.value ? '已启用' : '已关闭' }}</strong>
+              </div>
+              <div class="stat-card field--full">
+                <span class="stat-card__label">数据库总记录数</span>
+                <strong>{{ databaseSize?.total ?? 0 }}</strong>
               </div>
             </div>
-          </div>
+            <p class="helper-text">
+              当前网络出站：{{ proxyRuntimeDescription }}
+            </p>
+          </section>
 
-          <div class="sv-divider" />
+          <section
+            id="advanced-flags"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-flags') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  实验功能
+                </h2>
+                <p class="card-subtitle">
+                  开启或关闭 feature flags，修改会直接写入 settings store。
+                </p>
+              </div>
+            </header>
 
-          <!-- 开源协议 -->
-          <div class="sv-section">
-            <h3 class="sv-section-title">开源协议</h3>
-            <p class="sv-license-text">MIT License</p>
-            <p class="sv-license-desc">
-              本项目基于 MIT 协议开源，允许自由使用、修改和分发。
+            <div class="flag-list">
+              <label
+                v-for="flag in settingsStore.settings.advanced.featureFlags"
+                :key="flag.id"
+                class="flag-item"
+              >
+                <div>
+                  <strong>{{ flag.name }}</strong>
+                  <p>{{ flag.description }}</p>
+                </div>
+                <input
+                  v-model="flag.enabled"
+                  type="checkbox"
+                >
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="advanced-proxy"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-proxy') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  代理设置
+                </h2>
+                <p class="card-subtitle">
+                  网络层参数会持久化到 settings.advanced.proxy。
+                </p>
+              </div>
+            </header>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>启用代理</span>
+                <input
+                  v-model="settingsStore.settings.advanced.proxy.enabled"
+                  type="checkbox"
+                >
+              </label>
+              <label class="field">
+                <span>协议</span>
+                <select v-model="settingsStore.settings.advanced.proxy.protocol">
+                  <option value="http">HTTP</option>
+                  <option value="https">HTTPS</option>
+                  <option value="socks5">SOCKS5</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>主机</span>
+                <input
+                  v-model="settingsStore.settings.advanced.proxy.host"
+                  type="text"
+                  placeholder="127.0.0.1"
+                >
+              </label>
+              <label class="field">
+                <span>端口</span>
+                <input
+                  v-model.number="settingsStore.settings.advanced.proxy.port"
+                  type="number"
+                  min="1"
+                  max="65535"
+                >
+              </label>
+              <label class="field">
+                <span>用户名</span>
+                <input
+                  v-model="settingsStore.settings.advanced.proxy.username"
+                  type="text"
+                >
+              </label>
+              <label class="field">
+                <span>密码</span>
+                <div class="secret-field">
+                  <input
+                    v-model="settingsStore.settings.advanced.proxy.password"
+                    :type="revealProxyPassword ? 'text' : 'password'"
+                  >
+                  <button
+                    class="ghost-btn"
+                    type="button"
+                    @click="revealProxyPassword = !revealProxyPassword"
+                  >
+                    <Eye
+                      v-if="!revealProxyPassword"
+                      :size="14"
+                    />
+                    <EyeOff
+                      v-else
+                      :size="14"
+                    />
+                  </button>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <section
+            id="advanced-profiles"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-profiles') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  设置 Profiles
+                </h2>
+                <p class="card-subtitle">
+                  将当前 settings 快照保存为可切换档案。
+                </p>
+              </div>
+              <button
+                class="action-btn"
+                type="button"
+                :disabled="profileBusy"
+                @click="saveCurrentProfile"
+              >
+                <Save :size="14" />
+                <span>{{ profileBusy ? '处理中...' : '保存为新 Profile' }}</span>
+              </button>
+            </header>
+
+            <div
+              v-if="settingsProfiles.length === 0"
+              class="empty-box"
+            >
+              还没有保存任何设置 Profile。
+            </div>
+            <div
+              v-else
+              class="profile-list"
+            >
+              <article
+                v-for="profile in settingsProfiles"
+                :key="profile.id"
+                class="profile-item"
+              >
+                <div>
+                  <h3>{{ profile.name }}</h3>
+                  <p>{{ formatDateTime(profile.updatedAt) }}</p>
+                </div>
+                <div class="button-row">
+                  <button
+                    class="secondary-btn"
+                    type="button"
+                    @click="applyProfile(profile)"
+                  >
+                    应用
+                  </button>
+                  <button
+                    class="ghost-btn"
+                    type="button"
+                    @click="renameProfile(profile)"
+                  >
+                    重命名
+                  </button>
+                  <button
+                    class="danger-btn"
+                    type="button"
+                    @click="removeProfile(profile.id)"
+                  >
+                    删除
+                  </button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section
+            id="advanced-cache"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-cache') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  缓存管理
+                </h2>
+                <p class="card-subtitle">
+                  管理浏览器 Cache API 存储和内存中的预览缓存。
+                </p>
+              </div>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">浏览器缓存</span>
+                <strong>{{ cacheSize }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">预览缓存</span>
+                <strong>{{ previewCacheActive ? '活跃' : '空闲' }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">Service Worker</span>
+                <strong>{{ swRegistered ? '已注册' : '未注册' }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">代理状态</span>
+                <strong>{{ proxyRuntimeConfig.enabled ? '已生效' : '未启用' }}</strong>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button
+                class="secondary-btn"
+                type="button"
+                title="清除浏览器中的渲染缓存"
+                @click="clearRenderCache"
+              >
+                <Trash2 :size="14" />
+                <span>清除渲染缓存</span>
+              </button>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="清除内存中的预览缓存"
+                @click="clearPreviewCache"
+              >
+                <Trash2 :size="14" />
+                <span>清除预览缓存</span>
+              </button>
+            </div>
+          </section>
+
+          <section
+            id="advanced-devtools"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-devtools') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  开发者工具
+                </h2>
+                <p class="card-subtitle">
+                  查看运行时环境、数据库状态和编辑器内部状态。
+                </p>
+              </div>
+              <button
+                class="secondary-btn"
+                type="button"
+                title="导出当前调试信息"
+                @click="exportDebugInfo"
+              >
+                <Download :size="14" />
+                <span>导出调试信息</span>
+              </button>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">Dexie 版本</span>
+                <strong>v{{ dexieVersion }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">数据库总记录</span>
+                <strong>{{ databaseSize?.total ?? 0 }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">TipTap 状态</span>
+                <strong>{{ editorRuntimeStatus }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">编辑器节点数</span>
+                <strong>{{ editorNodeCount }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">IndexedDB 表</span>
+                <strong>{{ DATABASE_TABLES.length }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">浏览器存储</span>
+                <strong>{{ storageUsageLabel }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section
+            v-if="performanceFlag.enabled.value"
+            id="advanced-performance"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('advanced-performance') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  性能监控
+                </h2>
+                <p class="card-subtitle">
+                  实时监控编辑器渲染性能和数据库 I/O 延迟。
+                </p>
+              </div>
+            </header>
+
+            <div
+              v-if="performanceMetricsVisible"
+              class="stats-grid"
+            >
+              <div class="stat-card">
+                <span class="stat-card__label">编辑器渲染 FPS</span>
+                <strong>{{ renderFPS }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">自动保存延迟</span>
+                <strong>{{ autoSaveLatency }}ms</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">IndexedDB 延迟</span>
+                <strong>{{ idbLatency }}ms</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">内存使用</span>
+                <strong>{{ memoryUsage }}</strong>
+              </div>
+            </div>
+            <div
+              v-else
+              class="empty-box"
+            >
+              运行时性能采样已关闭，请先在“运行级别”中打开性能指标开关。
+            </div>
+
+            <p class="helper-text">
+              最近预览渲染：{{ lastPreviewRenderMetric ? `${lastPreviewRenderMetric.duration}ms` : '暂无记录' }}
+              ，最近保存：{{ lastSaveMetric ? `${lastSaveMetric.duration}ms` : '暂无记录' }}。
+            </p>
+          </section>
+        </section>
+
+        <section
+          v-else
+          class="settings-section-stack"
+        >
+          <section
+            id="about-meta"
+            class="setting-card"
+            :class="{ 'setting-card--highlight': isHighlighted('about-meta') }"
+          >
+            <header class="card-header">
+              <div>
+                <h2 class="card-title">
+                  关于 InkForge
+                </h2>
+                <p class="card-subtitle">
+                  当前运行信息与设计基线。
+                </p>
+              </div>
+            </header>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-card__label">版本</span>
+                <strong>{{ APP_VERSION }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">设计语言</span>
+                <strong>{{ DESIGN_LANGUAGE }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">同步状态</span>
+                <strong>{{ syncStore.status }}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">账户</span>
+                <strong>{{ accountStore.displayName }}</strong>
+              </div>
+            </div>
+
+            <div class="stack-list">
+              <span
+                v-for="item in TECH_STACK"
+                :key="item"
+                class="stack-pill"
+              >
+                {{ item }}
+              </span>
+            </div>
+          </section>
+        </section>
+
+        <footer class="settings-footer">
+          <div class="settings-footer__copy">
+            <strong>{{ currentTabTitle.label }}</strong>
+            <p>
+              {{ currentTab === 'about' ? '此操作会恢复全部设置并重新同步当前运行态。' : '仅恢复当前分类，不影响其他分区的真实数据。' }}
             </p>
           </div>
-        </section>
+          <button
+            class="secondary-btn settings-footer__button"
+            type="button"
+            :title="currentTabResetLabel"
+            @click="handleResetCurrentTab"
+          >
+            <RefreshCw :size="14" />
+            <span>{{ currentTabResetLabel }}</span>
+          </button>
+        </footer>
       </main>
     </div>
 
-    <!-- 确认弹窗 -->
-    <Teleport to="body">
-      <div v-if="confirmDialog.visible" class="sv-overlay" @click.self="cancelConfirm">
-        <div class="sv-confirm-dialog">
-          <h3 class="sv-confirm-title">{{ confirmDialog.title }}</h3>
-          <p class="sv-confirm-message">{{ confirmDialog.message }}</p>
-          <div class="sv-confirm-actions">
-            <button class="sv-confirm-cancel" @click="cancelConfirm">取消</button>
-            <button class="sv-confirm-ok" @click="confirmAction">确认</button>
+    <div
+      v-if="masterKeyDialogMode"
+      class="settings-dialog-overlay"
+      @click.self="closeMasterKeyDialog"
+    >
+      <form
+        class="settings-dialog"
+        @submit.prevent="submitMasterKeyDialog"
+      >
+        <header class="settings-dialog__header">
+          <div>
+            <h2 class="card-title">
+              {{ masterKeyDialogTitle }}
+            </h2>
+            <p class="card-subtitle">
+              {{ masterKeyDialogDescription }}
+            </p>
           </div>
+          <button
+            class="ghost-btn"
+            type="button"
+            title="关闭主密钥对话框"
+            @click="closeMasterKeyDialog"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="settings-dialog__body">
+          <template v-if="masterKeyDialogMode === 'unlock'">
+            <label class="field field--full">
+              <span>主密码</span>
+              <div class="secret-field">
+                <input
+                  ref="masterKeyDialogPrimaryInputRef"
+                  v-model="masterKeyDialogForm.password"
+                  :type="revealMasterKeySecrets.password ? 'text' : 'password'"
+                  placeholder="输入主密码以初始化或解锁主密钥"
+                >
+                <button
+                  class="ghost-btn"
+                  type="button"
+                  title="切换主密码显示状态"
+                  @click="revealMasterKeySecrets.password = !revealMasterKeySecrets.password"
+                >
+                  <Eye
+                    v-if="!revealMasterKeySecrets.password"
+                    :size="14"
+                  />
+                  <EyeOff
+                    v-else
+                    :size="14"
+                  />
+                </button>
+              </div>
+            </label>
+          </template>
+
+          <template v-else-if="masterKeyDialogMode === 'export'">
+            <label class="field field--full">
+              <span>导出密码</span>
+              <div class="secret-field">
+                <input
+                  ref="masterKeyDialogPrimaryInputRef"
+                  v-model="masterKeyDialogForm.exportPassword"
+                  :type="revealMasterKeySecrets.exportPassword ? 'text' : 'password'"
+                  placeholder="输入用于保护恢复密钥包的导出密码"
+                >
+                <button
+                  class="ghost-btn"
+                  type="button"
+                  title="切换导出密码显示状态"
+                  @click="revealMasterKeySecrets.exportPassword = !revealMasterKeySecrets.exportPassword"
+                >
+                  <Eye
+                    v-if="!revealMasterKeySecrets.exportPassword"
+                    :size="14"
+                  />
+                  <EyeOff
+                    v-else
+                    :size="14"
+                  />
+                </button>
+              </div>
+            </label>
+
+            <div
+              v-if="hasCachedRecoveryBundle"
+              class="field field--full"
+            >
+              <span>恢复密钥包</span>
+              <textarea
+                v-model="lastExportedRecoveryBundle"
+                class="settings-dialog__textarea"
+                rows="10"
+                readonly
+              />
+            </div>
+          </template>
+
+          <template v-else>
+            <label class="field field--full">
+              <span>恢复密钥包</span>
+              <textarea
+                ref="masterKeyDialogPrimaryInputRef"
+                v-model="masterKeyDialogForm.bundleText"
+                class="settings-dialog__textarea"
+                rows="10"
+                placeholder="粘贴恢复密钥包 JSON"
+              />
+            </label>
+            <label class="field field--full">
+              <span>导出密码</span>
+              <div class="secret-field">
+                <input
+                  v-model="masterKeyDialogForm.exportPassword"
+                  :type="revealMasterKeySecrets.exportPassword ? 'text' : 'password'"
+                  placeholder="输入导出恢复密钥时设置的密码"
+                >
+                <button
+                  class="ghost-btn"
+                  type="button"
+                  title="切换导出密码显示状态"
+                  @click="revealMasterKeySecrets.exportPassword = !revealMasterKeySecrets.exportPassword"
+                >
+                  <Eye
+                    v-if="!revealMasterKeySecrets.exportPassword"
+                    :size="14"
+                  />
+                  <EyeOff
+                    v-else
+                    :size="14"
+                  />
+                </button>
+              </div>
+            </label>
+            <label class="field field--full">
+              <span>新主密码</span>
+              <div class="secret-field">
+                <input
+                  v-model="masterKeyDialogForm.newPassword"
+                  :type="revealMasterKeySecrets.newPassword ? 'text' : 'password'"
+                  placeholder="输入新的主密码以重新包装主密钥"
+                >
+                <button
+                  class="ghost-btn"
+                  type="button"
+                  title="切换新主密码显示状态"
+                  @click="revealMasterKeySecrets.newPassword = !revealMasterKeySecrets.newPassword"
+                >
+                  <Eye
+                    v-if="!revealMasterKeySecrets.newPassword"
+                    :size="14"
+                  />
+                  <EyeOff
+                    v-else
+                    :size="14"
+                  />
+                </button>
+              </div>
+            </label>
+          </template>
+
+          <p class="helper-text">
+            当前密码策略：{{ passwordPolicyHint }}
+          </p>
+          <p
+            v-if="masterKeyDialogError"
+            class="helper-text helper-text--error"
+          >
+            {{ masterKeyDialogError }}
+          </p>
         </div>
-      </div>
-    </Teleport>
+
+        <footer class="settings-dialog__footer">
+          <button
+            class="ghost-btn"
+            type="button"
+            title="取消主密钥操作"
+            :disabled="masterKeyBusy"
+            @click="closeMasterKeyDialog"
+          >
+            取消
+          </button>
+          <button
+            class="action-btn"
+            type="submit"
+            :disabled="masterKeyBusy"
+            :title="masterKeyDialogSubmitLabel"
+          >
+            <Loader2
+              v-if="masterKeyBusy"
+              :size="14"
+              class="spin"
+            />
+            <span>{{ masterKeyDialogSubmitLabel }}</span>
+          </button>
+        </footer>
+      </form>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* ═══════════════════════════════════════════════════════
-   Settings View - Ethereal Constructivism Design
-   ═══════════════════════════════════════════════════════ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
 
 .settings-view {
-  height: 100vh;
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(211, 47, 47, 0.08), transparent 28%),
+    linear-gradient(180deg, #f6f5f2 0%, #eef1f4 100%);
+  color: #263238;
+}
+
+.settings-header {
   display: flex;
-  flex-direction: column;
-  background: var(--bg-rice-paper);
-}
-
-/* ─── Header ─── */
-.sv-header {
-  height: 56px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  gap: 16px;
-  flex-shrink: 0;
-}
-
-.sv-back-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.sv-back-btn span {
-  display: none;
-}
-
-.sv-back-btn:hover {
-  background: var(--accent-primary-light, #FFEBEE);
-  border-color: var(--accent-primary, #D32F2F);
-  color: var(--accent-primary, #D32F2F);
-}
-
-.sv-header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sv-header-spacer {
-  display: none;
-}
-
-/* ─── Body Layout ─── */
-.sv-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  max-width: 1000px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 32px;
-  gap: 32px;
-}
-
-/* ─── Sidebar ─── */
-.sv-sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 32px;
-  align-self: flex-start;
-}
-
-.sv-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: var(--bg-surface, #FFFFFF);
-  border-radius: 12px;
-  padding: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.sv-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-radius: 6px;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary, #607D8B);
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-}
-
-.sv-nav-item:hover {
-  background: #F5F5F5;
-  color: var(--text-primary, #263238);
-}
-
-.sv-nav-item.active {
-  background: var(--accent-primary-light, #FFEBEE);
-  color: var(--accent-primary, #D32F2F);
-  border-left-color: var(--accent-primary, #D32F2F);
-}
-
-/* ─── Content ─── */
-.sv-content {
-  flex: 1;
-  overflow-y: auto;
-  min-width: 0;
-}
-
-.sv-tab {
-  max-width: 100%;
-  background: var(--bg-surface, #FFFFFF);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.sv-tab-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-  margin-bottom: 4px;
-}
-
-.sv-tab-desc {
-  font-size: 12px;
-  color: var(--text-secondary, #607D8B);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
   margin-bottom: 20px;
 }
 
-/* ─── Section ─── */
-.sv-section {
-  margin-bottom: 16px;
-}
-
-.sv-section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-  margin-bottom: 16px;
-}
-
-.sv-divider {
-  height: 1px;
-  background: #F5F5F5;
-  margin: 20px 0;
-}
-
-/* ─── Row (label+control) ─── */
-.sv-row {
+.header-main {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid #F5F5F5;
 }
 
-.sv-row:last-child {
-  border-bottom: none;
-}
-
-.sv-row-vertical {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.sv-row-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.sv-row-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-}
-
-.sv-row-desc {
-  font-size: 12px;
-  color: var(--text-muted, #90A4AE);
-}
-
-/* ─── Toggle Row ─── */
-.sv-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #F5F5F5;
-  background: transparent;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  border-radius: 0;
-  margin-bottom: 0;
-}
-
-.sv-toggle-row:last-child,
-.sv-toggle-row:last-of-type {
-  border-bottom: none;
-}
-
-.sv-toggle-row:hover {
-  /* no border change in flat row style */
-}
-
-.sv-toggle-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sv-toggle-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-}
-
-.sv-toggle-desc {
-  font-size: 12px;
-  color: var(--text-muted, #90A4AE);
-}
-
-/* ─── Switch ─── */
-.sv-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.sv-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-}
-
-.sv-switch-track {
-  position: absolute;
-  inset: 0;
-  background: #E0E0E0;
-  border-radius: 10px;
-  transition: background 0.2s;
-}
-
-.sv-switch-thumb {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.sv-switch input:checked + .sv-switch-track {
-  background: var(--accent-primary, #D32F2F);
-}
-
-.sv-switch input:checked + .sv-switch-track .sv-switch-thumb {
-  transform: translateX(20px);
-}
-
-/* ─── Range ─── */
-.sv-range-control {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 200px;
-}
-
-.sv-range {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: #F5F5F5;
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-}
-
-.sv-range::-webkit-slider-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent-primary, #D32F2F);
-  border: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  box-shadow: 0 1px 4px rgba(211, 47, 47, 0.3);
-  transition: transform 0.15s;
-}
-
-.sv-range::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-.sv-range-value {
-  min-width: 40px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-  text-align: right;
-  font-family: var(--font-mono);
-}
-
-/* ─── Select ─── */
-.sv-select {
-  min-width: 180px;
-  height: 36px;
-  padding: 0 12px;
-  background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--text-primary, #263238);
-  cursor: pointer;
-  transition: border-color 0.15s;
-  outline: none;
-}
-
-.sv-select:focus {
-  border-color: var(--accent-primary, #D32F2F);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
-}
-
-/* ─── Input ─── */
-.sv-input {
-  width: 100%;
-  height: 36px;
-  padding: 0 12px;
-  background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--text-primary, #263238);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.sv-input:focus {
-  border-color: var(--accent-primary, #D32F2F);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
-}
-
-.sv-input-group {
-  position: relative;
-  display: flex;
-}
-
-.sv-input-with-btn {
-  padding-right: 40px;
-}
-
-.sv-input-addon {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-small);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--duration-fast);
-}
-
-.sv-input-addon:hover {
-  background: var(--bg-rice-paper);
-  color: var(--text-secondary);
-}
-
-.sv-hidden-radio {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
-
-/* ═══ Tab 1: Appearance Specifics ═══ */
-
-/* Theme Cards */
-.sv-card-group {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.sv-theme-card {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #ECEFF1;
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  padding: 20px;
-  text-align: center;
-  transition: all 0.15s;
-}
-
-.sv-theme-card:hover {
-  border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.sv-theme-card.selected {
-  border-color: var(--accent-primary, #D32F2F);
-  background: var(--accent-primary-light, #FFEBEE);
-}
-
-.sv-theme-card-preview {
-  height: 64px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sv-theme-card-preview[data-theme="light"] {
-  background: #FAFBFC;
-}
-
-.sv-theme-card-preview[data-theme="dark"] {
-  background: #1E1E2E;
-}
-
-.sv-theme-card-preview[data-theme="system"] {
-  background: linear-gradient(135deg, #FAFBFC 50%, #1E1E2E 50%);
-}
-
-.sv-theme-preview-bar {
-  height: 6px;
-  width: 60%;
-  border-radius: 3px;
-}
-
-.sv-theme-card-preview[data-theme="light"] .sv-theme-preview-bar {
-  background: #E0E0E0;
-}
-
-.sv-theme-card-preview[data-theme="dark"] .sv-theme-preview-bar {
-  background: #3A3A4A;
-}
-
-.sv-theme-card-preview[data-theme="system"] .sv-theme-preview-bar {
-  background: linear-gradient(90deg, #E0E0E0 50%, #3A3A4A 50%);
-}
-
-.sv-theme-preview-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  justify-content: center;
-}
-
-.sv-theme-preview-line {
-  height: 4px;
-  width: 80%;
-  border-radius: 2px;
-}
-
-.sv-theme-preview-line.short {
-  width: 50%;
-}
-
-.sv-theme-card-preview[data-theme="light"] .sv-theme-preview-line {
-  background: #E8E8E8;
-}
-
-.sv-theme-card-preview[data-theme="dark"] .sv-theme-preview-line {
-  background: #2C2C3C;
-}
-
-.sv-theme-card-preview[data-theme="system"] .sv-theme-preview-line {
-  background: linear-gradient(90deg, #E8E8E8 50%, #2C2C3C 50%);
-}
-
-.sv-theme-card-info {
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sv-theme-card-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sv-theme-card-desc {
+.eyebrow {
+  margin: 0 0 6px;
   font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* Font Cards */
-.sv-font-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-small);
-}
-
-.sv-font-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-medium);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-smooth);
-}
-
-.sv-font-card:hover {
-  border-color: var(--text-muted);
-}
-
-.sv-font-card.selected {
-  border-color: var(--accent-primary);
-  background: var(--accent-primary-light);
-}
-
-.sv-font-card-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sv-font-card-sample {
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Accent Color */
-.sv-accent-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.sv-accent-swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background: var(--swatch-color);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  padding: 0;
-}
-
-.sv-accent-swatch:hover {
-  transform: scale(1.15);
-}
-
-.sv-accent-swatch.selected {
-  box-shadow: 0 0 0 3px var(--swatch-color);
-}
-
-.sv-accent-custom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px 4px 4px;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-round);
-  transition: border-color var(--duration-fast);
-}
-
-.sv-accent-custom.active {
-  border-color: var(--accent-primary);
-}
-
-.sv-color-input {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  padding: 0;
-  background: transparent;
-}
-
-.sv-color-input::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.sv-color-input::-webkit-color-swatch {
-  border: none;
-  border-radius: 50%;
-}
-
-.sv-accent-custom-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-/* ═══ Tab 3: Export - Platform Cards ═══ */
-
-.sv-platform-group {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.sv-platform-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 20px 12px;
-  border: 2px solid #ECEFF1;
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
-}
-
-.sv-platform-card:hover {
-  border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.sv-platform-card.selected {
-  border-color: var(--accent-primary, #D32F2F);
-  background: var(--accent-primary-light, #FFEBEE);
-}
-
-.sv-platform-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sv-platform-desc {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* ═══ Tab 4: AI - Provider Grid ═══ */
-
-.sv-provider-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-}
-
-.sv-provider-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px 8px 12px;
-  border: 2px solid #ECEFF1;
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
-}
-
-.sv-provider-card:hover {
-  border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.sv-provider-card.selected {
-  border-color: var(--accent-primary, #D32F2F);
-  background: var(--accent-primary-light, #FFEBEE);
-}
-
-.sv-provider-card.disabled.selected {
-  border-color: var(--text-muted, #90A4AE);
-  background: #F5F5F5;
-}
-
-.sv-provider-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-}
-
-.sv-provider-card.selected .sv-provider-icon {
-  color: var(--accent-primary);
-}
-
-.sv-provider-card.disabled.selected .sv-provider-icon {
-  color: var(--text-muted);
-}
-
-.sv-provider-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.sv-provider-desc {
-  font-size: 10px;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
-
-/* AI Test */
-.sv-test-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--accent-primary, #D32F2F);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.sv-test-btn:hover:not(:disabled) {
-  background: var(--accent-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.25);
-}
-
-.sv-test-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.sv-spin {
-  animation: sv-spin 1s linear infinite;
-}
-
-@keyframes sv-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.sv-test-result {
-  margin-top: var(--space-small);
-  padding: 10px 14px;
-  border-radius: var(--radius-medium);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.sv-test-result.success {
-  background: var(--success-light);
-  color: var(--success);
-}
-
-.sv-test-result.error {
-  background: var(--error-light);
-  color: var(--error);
-}
-
-.sv-test-result.testing {
-  background: var(--warning-light);
-  color: var(--warning);
-}
-
-/* ═══ Tab 5: Data ═══ */
-
-.sv-btn-group {
-  display: flex;
-  gap: 10px;
-}
-
-.sv-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: white;
-  border: 1px solid #ECEFF1;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #37474F;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.sv-action-btn:hover {
-  background: #FAFBFC;
-  border-color: var(--accent-primary, #D32F2F);
-  color: var(--accent-primary, #D32F2F);
-}
-
-.sv-action-btn-sm {
-  padding: 8px 16px;
-  font-size: 12px;
-}
-
-.sv-feedback {
-  margin-top: 8px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.sv-feedback.success {
-  background: var(--success-light);
-  color: var(--success);
-}
-
-.sv-feedback.error {
-  background: var(--error-light);
-  color: var(--error);
-}
-
-/* Stats */
-.sv-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.sv-stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 16px;
-  background: #FAFBFC;
-  border: 1px solid #ECEFF1;
-  border-radius: 12px;
-}
-
-.sv-stat-value {
-  font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary, #263238);
-  font-family: var(--font-mono);
-}
-
-.sv-stat-label {
-  font-size: 12px;
-  color: var(--text-muted, #90A4AE);
-  font-weight: 500;
-}
-
-/* Danger Zone */
-.sv-danger-title {
-  color: var(--accent-primary, #D32F2F);
-}
-
-.sv-danger-desc {
-  font-size: 12px;
-  color: var(--text-muted, #90A4AE);
-  margin-bottom: 16px;
-}
-
-.sv-danger-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sv-danger-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: white;
-  border: 1px solid #FFCDD2;
-  border-radius: 6px;
-}
-
-.sv-danger-row-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sv-danger-row-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary, #263238);
-}
-
-.sv-danger-row-desc {
-  font-size: 11px;
-  color: var(--text-muted, #90A4AE);
-}
-
-.sv-danger-btn {
-  padding: 8px 20px;
-  background: transparent;
-  border: 1px solid var(--accent-primary, #D32F2F);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent-primary, #D32F2F);
-  cursor: pointer;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.sv-danger-btn:hover {
-  background: var(--accent-primary, #D32F2F);
-  color: white;
-}
-
-/* ═══ Tab 6: Shortcuts ═══ */
-
-.sv-shortcuts-table {
-  width: 100%;
-  border: 1px solid #ECEFF1;
-  border-radius: 12px;
-  overflow: hidden;
-  border-collapse: collapse;
-}
-
-.sv-shortcuts-header {
-  display: grid;
-  grid-template-columns: 1fr 200px 60px;
-  padding: 8px 16px;
-  background: #FAFBFC;
-  border-bottom: 1px solid #ECEFF1;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted, #90A4AE);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  color: #d32f2f;
 }
 
-.sv-shortcut-row {
-  display: grid;
-  grid-template-columns: 1fr 200px 60px;
-  padding: 12px 16px;
-  align-items: center;
-  border-bottom: 1px solid #F5F5F5;
-  transition: background 0.15s;
-}
-
-.sv-shortcut-row:last-child {
-  border-bottom: none;
-}
-
-.sv-shortcut-row:hover {
-  background: #FAFBFC;
-}
-
-.sv-shortcut-row.editing {
-  background: var(--accent-primary-light, #FFEBEE);
-}
-
-.sv-shortcuts-col-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.sv-shortcut-key {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  outline: none;
-  padding: 4px 0;
-  cursor: pointer;
-  border-radius: var(--radius-small);
-}
-
-.sv-shortcut-key.recording {
-  padding: 4px 8px;
-  background: var(--accent-primary-light);
-  border-radius: var(--radius-medium);
-  animation: sv-pulse-border 1s infinite;
-}
-
-@keyframes sv-pulse-border {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
-  50% { box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1); }
-}
-
-.sv-shortcut-recording-text {
-  font-size: 12px;
-  color: var(--accent-primary);
-  font-weight: 500;
-}
-
-.sv-kbd {
-  display: inline-block;
-  padding: 3px 8px;
-  background: #F5F5F5;
-  border: 1px solid #ECEFF1;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary, #607D8B);
-  line-height: 1.6;
-  box-shadow: 0 1px 0 #ECEFF1;
-}
-
-.sv-shortcut-edit-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-medium);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--duration-fast);
-  justify-self: center;
-}
-
-.sv-shortcut-edit-btn:hover {
-  background: var(--bg-rice-paper);
-  color: var(--text-secondary);
-}
-
-.sv-shortcut-edit-btn.active {
-  background: var(--accent-primary-light);
-  color: var(--accent-primary);
-}
-
-.sv-shortcut-conflict {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: var(--space-medium);
-  padding: 10px 14px;
-  background: var(--warning-light);
-  color: var(--warning);
-  border-radius: var(--radius-medium);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.sv-shortcuts-footer {
-  margin-top: var(--space-medium);
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* ═══ Tab 2: Editor - Tab Size ═══ */
-
-.sv-tab-size-group {
-  display: flex;
-  gap: 4px;
-  background: var(--bg-rice-paper);
-  border-radius: var(--radius-medium);
-  padding: 3px;
-}
-
-.sv-tab-size-btn {
-  padding: 6px 16px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-smooth);
-}
-
-.sv-tab-size-btn:hover {
-  color: var(--text-primary);
-}
-
-.sv-tab-size-btn.selected {
-  background: var(--bg-surface);
-  color: var(--accent-primary);
-  box-shadow: var(--shadow-soft);
-}
-
-/* ═══ Tab 7: About ═══ */
-
-.sv-about-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.sv-about-logo {
-  width: 48px;
-  height: 48px;
-  background: var(--accent-primary, #D32F2F);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sv-about-logo-text {
-  color: white;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -1px;
-}
-
-.sv-about-hero-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.sv-about-name {
-  font-size: 20px;
+.page-title {
+  margin: 0;
+  font-size: 32px;
   font-weight: 700;
-  color: var(--text-primary, #263238);
+  letter-spacing: -0.03em;
 }
 
-.sv-about-version {
-  display: inline-block;
-  padding: 2px 10px;
-  background: #F5F5F5;
-  border-radius: 20px;
-  font-family: monospace;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted, #90A4AE);
-  width: fit-content;
+.page-subtitle {
+  margin: 8px 0 0;
+  color: #607d8b;
+  max-width: 640px;
 }
 
-.sv-about-slogan {
-  font-size: 13px;
-  color: var(--text-secondary, #607D8B);
-  margin-top: 4px;
-}
-
-.sv-tech-grid {
+.header-search {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
+  min-width: 320px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(96, 125, 139, 0.16);
+  border-radius: 16px;
+  min-height: 48px;
+  box-shadow: 0 10px 30px rgba(38, 50, 56, 0.05);
 }
 
-.sv-tech-badge {
-  padding: 6px 14px;
-  background: #FAFBFC;
-  border: 1px solid #ECEFF1;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary, #607D8B);
-  transition: all 0.15s;
+.header-search input,
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(96, 125, 139, 0.18);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #263238;
+  font: inherit;
 }
 
-.sv-tech-badge:hover {
-  border-color: var(--accent-primary, #D32F2F);
-  color: var(--accent-primary, #D32F2F);
-  background: var(--accent-primary-light, #FFEBEE);
+.header-search input {
+  border: none;
+  background: transparent;
+  padding-left: 0;
 }
 
-.sv-credits {
+.header-search input:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: rgba(211, 47, 47, 0.45);
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(96, 125, 139, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20px 40px rgba(38, 50, 56, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.search-result,
+.tab-link,
+.ghost-btn,
+.action-btn,
+.secondary-btn,
+.danger-btn,
+.chip-btn,
+.preset-card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.search-result {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
-.sv-credit-item {
+.search-result:hover {
+  transform: translateY(-1px);
+  background: rgba(211, 47, 47, 0.06);
+}
+
+.search-result__title {
+  font-weight: 600;
+}
+
+.search-result__meta,
+.search-empty,
+.card-subtitle,
+.helper-text,
+.log-item p,
+.shortcut-item p,
+.profile-item p,
+.flag-item p,
+.tab-link__desc,
+.stat-card__label,
+.page-subtitle {
+  font-size: 13px;
+  color: #607d8b;
+}
+
+.notice {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  background: #FAFBFC;
-  border: 1px solid #ECEFF1;
-  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.88);
 }
 
-.sv-credit-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1565C0;
+.notice--success {
+  border-color: rgba(46, 125, 50, 0.2);
+  color: #2e7d32;
 }
 
-.sv-credit-desc {
-  font-size: 12px;
-  color: var(--text-muted, #90A4AE);
+.notice--error {
+  border-color: rgba(198, 40, 40, 0.2);
+  color: #c62828;
 }
 
-.sv-license-text {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
+.notice--info {
+  border-color: rgba(21, 101, 192, 0.2);
+  color: #1565c0;
 }
 
-.sv-license-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
+.notice-close {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: currentColor;
+  font-size: 18px;
+  cursor: pointer;
 }
 
-/* ═══ Confirm Dialog ═══ */
-
-.sv-overlay {
+.settings-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  z-index: 80;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  animation: sv-fade-in 0.15s ease;
+  padding: 24px;
+  background: rgba(38, 50, 56, 0.28);
+  backdrop-filter: blur(12px);
 }
 
-@keyframes sv-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.settings-dialog {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 22px;
+  border-radius: 28px;
+  border: 1px solid rgba(96, 125, 139, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.96));
+  box-shadow: 0 28px 80px rgba(38, 50, 56, 0.18);
 }
 
-.sv-confirm-dialog {
-  width: 400px;
-  max-width: 90vw;
-  background: var(--bg-surface);
-  border-radius: var(--radius-xlarge);
-  padding: var(--space-large);
-  box-shadow: var(--shadow-elevated);
-  animation: sv-scale-in 0.2s var(--ease-bounce);
-}
-
-@keyframes sv-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.sv-confirm-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--error);
-  margin-bottom: var(--space-small);
-}
-
-.sv-confirm-message {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--space-large);
-}
-
-.sv-confirm-actions {
+.settings-dialog__header,
+.settings-dialog__footer {
   display: flex;
-  gap: var(--space-small);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.settings-dialog__footer {
+  align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
-.sv-confirm-cancel {
-  padding: 8px 20px;
-  background: var(--bg-rice-paper);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-medium);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
+.settings-dialog__textarea {
+  min-height: 220px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  line-height: 1.5;
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  min-height: calc(100vh - 170px);
+}
+
+.settings-sidebar,
+.settings-content {
+  border: 1px solid rgba(96, 125, 139, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(38, 50, 56, 0.06);
+}
+
+.settings-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 24px;
+}
+
+.tab-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  text-align: left;
   cursor: pointer;
-  transition: all var(--duration-fast);
 }
 
-.sv-confirm-cancel:hover {
-  background: var(--bg-surface);
-  color: var(--text-primary);
+.tab-link:hover,
+.ghost-btn:hover,
+.action-btn:hover,
+.secondary-btn:hover,
+.danger-btn:hover,
+.preset-card:hover,
+.chip-btn:hover {
+  transform: translateY(-1px);
 }
 
-.sv-confirm-ok {
-  padding: 8px 20px;
-  background: var(--error);
-  border: none;
-  border-radius: var(--radius-medium);
+.tab-link--active {
+  border-color: rgba(211, 47, 47, 0.18);
+  background: linear-gradient(135deg, rgba(211, 47, 47, 0.12), rgba(211, 47, 47, 0.04));
+  color: #b71c1c;
+}
+
+.tab-link__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tab-link__title,
+.card-title {
   font-size: 13px;
   font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: all var(--duration-fast);
+  color: #607d8b;
 }
 
-.sv-confirm-ok:hover {
-  background: var(--accent-primary-dark);
-  transform: translateY(-1px);
+.settings-content {
+  padding: 18px;
+  border-radius: 28px;
+  overflow: auto;
+}
+
+.settings-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px dashed rgba(96, 125, 139, 0.18);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.settings-footer__copy {
+  min-width: 0;
+}
+
+.settings-footer__copy strong {
+  display: block;
+  color: #263238;
+}
+
+.settings-footer__copy p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #607d8b;
+}
+
+.settings-footer__button {
+  flex-shrink: 0;
+}
+
+.settings-section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-card {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(96, 125, 139, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.setting-card--highlight {
+  border-color: rgba(211, 47, 47, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+.card-header,
+.button-row,
+.shortcut-actions,
+.log-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-header {
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  color: #263238;
+}
+
+.card-subtitle {
+  margin: 6px 0 0;
+}
+
+.ghost-btn,
+.action-btn,
+.secondary-btn,
+.danger-btn,
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ghost-btn {
+  border: 1px solid rgba(96, 125, 139, 0.16);
+  background: transparent;
+  color: #607d8b;
+}
+
+.action-btn {
+  border: 1px solid rgba(211, 47, 47, 0.2);
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  color: #fff;
+}
+
+.secondary-btn,
+.chip-btn {
+  border: 1px solid rgba(96, 125, 139, 0.18);
+  background: rgba(255, 255, 255, 0.88);
+  color: #455a64;
+}
+
+.danger-btn {
+  border: 1px solid rgba(198, 40, 40, 0.2);
+  background: rgba(198, 40, 40, 0.08);
+  color: #b71c1c;
+}
+
+.field-grid,
+.stats-grid,
+.preset-grid,
+.flag-list,
+.profile-list,
+.shortcut-list,
+.log-list,
+.conflict-list {
+  display: grid;
+  gap: 14px;
+}
+
+.field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #455a64;
+}
+
+.field small {
+  color: #78909c;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.color-field,
+.secret-field {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.color-field input[type='color'] {
+  width: 48px;
+  padding: 4px;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.account-switch-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.account-switch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(96, 125, 139, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.account-switch-item__meta {
+  min-width: 0;
+}
+
+.account-switch-item__meta strong {
+  display: block;
+  color: #263238;
+}
+
+.account-switch-item__meta p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #607d8b;
+}
+
+.account-avatar-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-shell {
+  width: 108px;
+  height: 108px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(211, 47, 47, 0.16), rgba(211, 47, 47, 0.04));
+  border: 1px solid rgba(211, 47, 47, 0.18);
+  font-size: 32px;
+  font-weight: 700;
+  color: #b71c1c;
+  overflow: hidden;
+}
+
+.avatar-shell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preset-grid,
+.stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preset-card,
+.stat-card,
+.result-box,
+.empty-box,
+.conflict-card,
+.shortcut-item,
+.flag-item,
+.profile-item,
+.log-item {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(96, 125, 139, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.preset-card--active,
+.chip-btn--active {
+  border-color: rgba(211, 47, 47, 0.25);
+  background: rgba(211, 47, 47, 0.08);
+  color: #b71c1c;
+}
+
+.preset-card__name,
+.stat-card strong,
+.conflict-card h3,
+.shortcut-item h3,
+.profile-item h3 {
+  font-weight: 700;
+}
+
+.category-chip-group,
+.stack-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-pill,
+.stack-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill--success {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+.status-pill--error {
+  background: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}
+
+.status-pill--info {
+  background: rgba(21, 101, 192, 0.12);
+  color: #1565c0;
+}
+
+.stack-pill {
+  background: rgba(96, 125, 139, 0.1);
+  color: #455a64;
+}
+
+.helper-text--error {
+  color: #c62828;
+}
+
+.shortcut-actions,
+.profile-item .button-row {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.shortcut-actions code {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(38, 50, 56, 0.06);
+  color: #263238;
+}
+
+.shortcut-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.shortcut-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shortcut-section__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shortcut-section__header h3 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  color: #263238;
+}
+
+.shortcut-section__eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d32f2f;
+}
+
+.shortcut-section__description {
+  margin: 0;
+  color: #607d8b;
+}
+
+.shortcut-section__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(211, 47, 47, 0.08);
+  color: #b71c1c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.log-item,
+.profile-item,
+.shortcut-item,
+.flag-item,
+.conflict-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.spin {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .tab-link {
+    width: auto;
+    flex: 1 1 220px;
+  }
+}
+
+@media (max-width: 860px) {
+  .settings-view {
+    padding: 18px;
+  }
+
+  .settings-header,
+  .card-header,
+  .account-grid,
+  .settings-footer,
+  .account-switch-item,
+  .log-item,
+  .profile-item,
+  .shortcut-item,
+  .flag-item,
+  .conflict-card {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-search,
+  .field-grid,
+  .stats-grid,
+  .preset-grid {
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .button-row,
+  .shortcut-actions {
+    flex-wrap: wrap;
+  }
 }
 </style>

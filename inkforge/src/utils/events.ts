@@ -4,6 +4,7 @@
  */
 
 import { onMounted, onUnmounted } from 'vue'
+import { logger } from '@/services/error'
 
 /**
  * 清理函数类型
@@ -234,7 +235,7 @@ export class EventSubscriptionManager {
         options?: boolean | AddEventListenerOptions
     ): this {
         if (this.isDisposed) {
-            console.warn('[EventSubscriptionManager] 尝试在已销毁的管理器上添加监听器')
+            logger.warn('[EventSubscriptionManager] 尝试在已销毁的管理器上添加监听器')
             return this
         }
 
@@ -262,7 +263,7 @@ export class EventSubscriptionManager {
             try {
                 fn()
             } catch (e) {
-                console.error('[EventSubscriptionManager] 清理时发生错误:', e)
+                logger.error('[EventSubscriptionManager] 清理时发生错误:', e)
             }
         })
 

@@ -1,0 +1,5 @@
+[     310ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:23.849Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[     575ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:24.114Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[    6963ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:30.502Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[    7015ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:30.554Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178
+[    8874ms] [ERROR] [InkForge] [ERROR] 2026-03-28T15:36:32.414Z | 加载账户列表失败 | {"errorName":"SchemaError","errorMessage":"KeyPath updatedAt on object store accounts is not indexed"} @ http://localhost:3005/src/services/error.ts:178

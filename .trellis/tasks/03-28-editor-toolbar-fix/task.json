@@ -1,0 +1,45 @@
+{
+  "id": "editor-toolbar-fix",
+  "name": "editor-toolbar-fix",
+  "title": "编辑器 FloatingToolbar 位置修复 + Typora 模式选中工具栏",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": "frontend",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-03-28",
+  "completedAt": null,
+  "branch": "feature/editor-toolbar-fix",
+  "base_branch": "main",
+  "worktree_path": "D:\\Desktop\\trellis-worktrees\\feature\\editor-toolbar-fix",
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

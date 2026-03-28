@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable vue/no-v-html */
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -20,7 +21,7 @@ const { generatedCSS, baseTheme } = storeToRefs(themeStore)
 const renderedHtml = ref('')
 
 // 安全的动态样式元素引用
-const styleElement = ref<HTMLStyleElement | null>(null)
+const styleElement = ref<HTMLElement | null>(null)
 const previewContainer = ref<HTMLElement | null>(null)
 
 // Configure marked
@@ -94,9 +95,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="previewContainer" class="markdown-preview" :class="[`theme-${baseTheme}`]">
+  <div
+    ref="previewContainer"
+    class="markdown-preview"
+    :class="[`theme-${baseTheme}`]"
+  >
     <!-- 动态样式通过 JavaScript 安全注入，不使用 v-html -->
-    <div class="preview-content" v-html="renderedHtml"></div>
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <div
+      class="preview-content"
+      v-html="renderedHtml"
+    />
   </div>
 </template>
 

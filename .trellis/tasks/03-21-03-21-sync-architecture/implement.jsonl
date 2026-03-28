@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": "docs/specs/05-sync-architecture.md", "reason": "同步架构规格"}
+{"file": "docs/specs/00-master-plan.md", "reason": "总体规划约束"}
+{"file": "inkforge/src/stores/sync.ts", "reason": "现有Sync Store"}

@@ -94,35 +94,35 @@ export const CODE_THEME_REGISTRY: Record<CodeTheme, CodeThemeColors> = {
  */
 export const ALERT_THEME_REGISTRY: Record<AlertType, AlertTheme> = {
   note: {
-    icon: 'ℹ️',
+    icon: '注',
     title: '注意',
     color: '#0969da',
     backgroundColor: '#ddf4ff',
     borderColor: '#54aeff',
   },
   tip: {
-    icon: '💡',
+    icon: '提',
     title: '提示',
     color: '#1a7f37',
     backgroundColor: '#dafbe1',
     borderColor: '#4ac26b',
   },
   important: {
-    icon: '❗',
+    icon: '重',
     title: '重要',
     color: '#8250df',
     backgroundColor: '#fbefff',
     borderColor: '#c297ff',
   },
   warning: {
-    icon: '⚠️',
+    icon: '警',
     title: '警告',
     color: '#9a6700',
     backgroundColor: '#fff8c5',
     borderColor: '#d4a72c',
   },
   caution: {
-    icon: '🔴',
+    icon: '危',
     title: '危险',
     color: '#cf222e',
     backgroundColor: '#ffebe9',
@@ -150,17 +150,17 @@ export function convertTaskListCheckboxes(html: string, primaryColor: string = '
   // 匹配 checked checkbox（属性顺序可能不同）
   result = result.replace(
     /<input\s+[^>]*(?:checked)[^>]*type=["']checkbox["'][^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:16px;vertical-align:middle;line-height:1;">☑</span>`
+    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:14px;vertical-align:middle;line-height:1;">已</span>`
   )
   result = result.replace(
     /<input\s+[^>]*type=["']checkbox["'][^>]*(?:checked)[^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:16px;vertical-align:middle;line-height:1;">☑</span>`
+    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:14px;vertical-align:middle;line-height:1;">已</span>`
   )
 
   // 匹配 unchecked checkbox（没有 checked 属性）
   result = result.replace(
     /<input\s+[^>]*type=["']checkbox["'][^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:#ccc;font-size:16px;vertical-align:middle;line-height:1;">☐</span>`
+    `<span style="display:inline-block;margin-right:6px;color:#666;font-size:14px;vertical-align:middle;line-height:1;">待</span>`
   )
 
   return result
@@ -593,7 +593,7 @@ export function buildFootnoteSection(footnotes: Footnote[]): string {
 
   let section = `
 <section style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;">
-  <h4 style="font-size:14px;font-weight:600;color:#666;margin-bottom:12px;">🔗 引用链接</h4>
+  <h4 style="font-size:14px;font-weight:600;color:#666;margin-bottom:12px;">引用链接</h4>
   <div style="font-size:13px;color:#666;line-height:1.8;">`
 
   footnotes.forEach((fn, index) => {
@@ -660,18 +660,18 @@ export function calculateStats(html: string, readingSpeed: number): ExportStats 
  */
 export function buildReadingTimeHeader(stats: ExportStats): string {
   const badges: string[] = [
-    `<span style="margin-right:16px;">📖 阅读约 <strong>${stats.readingTime}</strong> 分钟</span>`,
-    `<span style="margin-right:16px;">📝 全文 <strong>${stats.wordCount}</strong> 字</span>`,
+    `<span style="margin-right:16px;">阅读约 <strong>${stats.readingTime}</strong> 分钟</span>`,
+    `<span style="margin-right:16px;">全文 <strong>${stats.wordCount}</strong> 字</span>`,
   ]
 
   if (stats.codeBlockCount > 0) {
-    badges.push(`<span style="margin-right:16px;">💻 ${stats.codeBlockCount} 个代码块</span>`)
+    badges.push(`<span style="margin-right:16px;">代码 ${stats.codeBlockCount} 个代码块</span>`)
   }
   if (stats.imageCount > 0) {
-    badges.push(`<span style="margin-right:16px;">🖼️ ${stats.imageCount} 张图片</span>`)
+    badges.push(`<span style="margin-right:16px;">图片 ${stats.imageCount} 张图片</span>`)
   }
   if (stats.tableCount > 0) {
-    badges.push(`<span style="margin-right:16px;">📊 ${stats.tableCount} 个表格</span>`)
+    badges.push(`<span style="margin-right:16px;">表格 ${stats.tableCount} 个表格</span>`)
   }
 
   return `
@@ -701,7 +701,7 @@ export async function copyToClipboard(html: string): Promise<boolean> {
       })
     ])
     return true
-  } catch (_primaryError) {
+  } catch {
     // 降级方案：使用传统 execCommand（兼容旧浏览器）
     try {
       const textarea = document.createElement('textarea')
@@ -712,7 +712,7 @@ export async function copyToClipboard(html: string): Promise<boolean> {
       const success = document.execCommand('copy')
       document.body.removeChild(textarea)
       return success
-    } catch (_fallbackError) {
+    } catch {
       return false
     }
   }

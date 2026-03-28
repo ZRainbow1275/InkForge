@@ -11,6 +11,7 @@
  */
 
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
+import { markdownToXiaohongshuText } from './xiaohongshu-text'
 
 // ═══════════════════════════════════════════════════════════════════
 // 统一入口
@@ -184,7 +185,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
         id: 'xhs-title-length',
         severity: 'warning',
         message: `标题 ${titleLength} 字，超过小红书 20 字限制`,
-        suggestion: '缩短标题至 10-15 字，带关键词 + emoji',
+        suggestion: '缩短标题至 10-15 字，保留关键词并适量加入短标记',
       })
     }
   }
@@ -204,22 +205,27 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 4. Emoji 密度检测
-  const emojiCount = countEmojis(plainText)
-  const emojiDensity = charCount > 0 ? emojiCount / charCount * 100 : 0
-  if (emojiDensity < 0.5 && charCount > 100) {
+  // 4. 装饰标记密度检测
+  const { emojiCount: decorationCount } = markdownToXiaohongshuText(markdown, {
+    injectEmojis: true,
+    addSignature: false,
+    generateTags: false,
+    autoSplitParagraphs: false,
+  })
+  const decorationDensity = charCount > 0 ? decorationCount / charCount * 100 : 0
+  if (decorationDensity < 0.5 && charCount > 100) {
     addIssue(issues, {
       id: 'xhs-emoji-sparse',
       severity: 'suggestion',
-      message: `Emoji 密度偏低（${emojiCount} 个 / ${charCount} 字）`,
-      suggestion: '建议每 100 字使用 1-2 个 emoji，导出时会自动注入',
+      message: `装饰标记密度偏低（${decorationCount} 处 / ${charCount} 字）`,
+      suggestion: '建议每 100 字保留 1-2 处装饰标记，导出时会自动补齐',
     })
-  } else if (emojiDensity > 3) {
+  } else if (decorationDensity > 3) {
     addIssue(issues, {
       id: 'xhs-emoji-dense',
       severity: 'suggestion',
-      message: `Emoji 密度偏高（${emojiCount} 个 / ${charCount} 字）`,
-      suggestion: '每 100 字不超过 3 个 emoji，避免视觉混乱',
+      message: `装饰标记密度偏高（${decorationCount} 处 / ${charCount} 字）`,
+      suggestion: '每 100 字不超过 3 处装饰标记，避免视觉混乱',
     })
   }
 
@@ -325,7 +331,7 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
       id: 'zhihu-task-list',
       severity: 'suggestion',
       message: `发现 ${taskLists.length} 个任务列表项，知乎不支持复选框`,
-      suggestion: '导出时会自动转为 emoji 替代（✅ / ☐）',
+      suggestion: '导出时会自动转为文本标记（已完成 / 待办）',
     })
   }
 
@@ -492,13 +498,6 @@ function stripMarkdownSyntax(markdown: string): string {
   text = text.replace(/\n{2,}/g, '\n')
 
   return text.trim()
-}
-
-/** 统计 emoji 数量 */
-function countEmojis(text: string): number {
-  const emojiPattern = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|[0-9]\uFE0F?\u20E3/gu
-  const matches = text.match(emojiPattern)
-  return matches ? matches.length : 0
 }
 
 // ═══════════════════════════════════════════════════════════════════
