@@ -5,7 +5,7 @@
  *
  * v6: 重构为 Bento Grid + Waterfall 布局
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useArticleStore } from '@/stores/article'
@@ -14,6 +14,7 @@ import { useAIStore } from '@/stores/ai'
 import { useAssetStore } from '@/stores/asset'
 import { getDailyQuote, formatNumber } from '@/data/quotes'
 import type { Article } from '@/types'
+import { Activity } from 'lucide-vue-next'
 import AddCategoryModal from '@/components/category/AddCategoryModal.vue'
 
 const router = useRouter()
@@ -360,15 +361,28 @@ function handleAvatarError(e: Event): void {
   img.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%23D32F2F%22 width=%2240%22 height=%2240%22 rx=%228%22/%3E%3Ctext x=%2220%22 y=%2226%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2216%22 font-weight=%22bold%22%3EIF%3C/text%3E%3C/svg%3E'
 }
 
+// ─── Ctrl+N 快捷键 ───
+function handleKeydown(e: KeyboardEvent): void {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault()
+    startNewProject()
+  }
+}
+
 // ─── 初始化 ───
 onMounted(async () => {
   updateDateTime()
+  window.addEventListener('keydown', handleKeydown)
   await Promise.all([
     categoryStore.loadCategories(),
     articleStore.loadArticles(),
     assetStore.loadAssets(),
   ])
   pageLoading.value = false
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -392,6 +406,12 @@ onMounted(async () => {
       </div>
 
       <div class="header-actions">
+        <button class="header-new-btn" @click="startNewProject" title="新建文章 (Ctrl+N)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          新建
+        </button>
         <div class="sync-badge">
           <div class="sync-dot"></div>
           <span>{{ stats.totalArticles }} 篇文章</span>
@@ -419,6 +439,7 @@ onMounted(async () => {
       <!-- 1. Hero 创作流 (2col x 2row) -->
       <div class="bento-card card-hero">
         <div class="hero-decor"></div>
+        <Activity class="hero-activity-icon" :size="48" :stroke-width="1.5" />
         <div class="hero-content">
           <div class="hero-text">
             <h2 class="hero-title">创作流</h2>
@@ -490,19 +511,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 3. 新建项目 (1col x 1row) -->
-      <div class="bento-card card-new" @click="startNewProject">
-        <div class="new-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </div>
-        <h3 class="new-title">开始新项目</h3>
-        <p class="new-desc">从模板或空白开始</p>
-      </div>
-
-      <!-- 4. 分类卡片 (2col x 1row) — 原型顺序：Categories 在 Recent 之前 -->
+      <!-- 3. 分类卡片 (2col x 1row) — 原型顺序：Categories 在 Recent 之前 -->
       <div class="bento-card card-categories">
         <div class="categories-header">
           <h3 class="categories-title">我的分类</h3>
@@ -551,78 +560,94 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- 5. 最近文件 (1col x 1row) -->
-      <div class="bento-card card-recent" @click="latestArticle && openArticle(latestArticle.id)">
-        <div class="recent-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-          </svg>
-          最近编辑
-        </div>
-        <template v-if="latestArticle">
-          <h3 class="recent-title">{{ latestArticle.title }}</h3>
-          <p class="recent-excerpt">{{ getExcerpt(latestArticle) }}</p>
-          <div class="recent-footer">
-            <span class="recent-status" :class="statusClass(latestArticle.status)">
-              {{ getStatusLabel(latestArticle.status) }}
-            </span>
-            <div class="recent-open-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </div>
+      <!-- 4. 最近文件 (1col x 1row) -->
+      <div class="bento-card card-recent">
+        <div class="recent-main" @click="latestArticle && openArticle(latestArticle.id)">
+          <div class="recent-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+            </svg>
+            最近编辑
           </div>
-        </template>
-        <p v-else class="recent-empty">暂无文章</p>
+          <template v-if="latestArticle">
+            <h3 class="recent-title">{{ latestArticle.title }}</h3>
+            <p class="recent-excerpt">{{ getExcerpt(latestArticle) }}</p>
+            <div class="recent-footer">
+              <span class="recent-status" :class="statusClass(latestArticle.status)">
+                {{ getStatusLabel(latestArticle.status) }}
+              </span>
+              <div class="recent-open-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
+            </div>
+          </template>
+          <p v-else class="recent-empty">暂无文章</p>
+        </div>
+        <div class="recent-create-actions">
+          <button class="recent-action-btn" @click.stop="startNewProject">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            空白草稿
+          </button>
+          <button class="recent-action-btn" @click.stop="startNewProject">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="9" y1="21" x2="9" y2="9" />
+            </svg>
+            从模板创建
+          </button>
+        </div>
       </div>
 
-      <!-- 6. 灵感卡片 (1col x 1row) -->
+      <!-- 5. 灵感卡片 (1col x 1row) -->
       <div class="bento-card card-inspiration">
-        <div class="inspiration-texture"></div>
-        <div class="inspiration-content">
-          <div class="inspiration-top">
-            <div class="inspiration-header">
-              <svg class="inspiration-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              <span class="inspiration-label">每日灵感</span>
-            </div>
-            <!-- AI 可用：刷新按钮 -->
-            <button
-              v-if="aiStore.isAvailable"
-              class="inspiration-refresh"
-              :class="{ spinning: aiInspirationLoading }"
-              :disabled="aiInspirationLoading"
-              @click.stop="generateAIInspiration"
-              title="AI 生成新灵感">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-              </svg>
-            </button>
-            <!-- AI 未配置：引导去设置 -->
-            <button
-              v-else
-              class="inspiration-setup"
-              @click.stop="goToSettings"
-              title="配置 AI 后可生成灵感">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </button>
+        <div class="inspiration-top">
+          <div class="inspiration-header">
+            <svg class="inspiration-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <span class="inspiration-label">每日灵感</span>
           </div>
-          <div class="inspiration-body">
-            <p v-if="aiInspirationLoading" class="inspiration-loading">AI 正在为你创作灵感...</p>
-            <template v-else>
-              <p class="inspiration-quote">"{{ displayQuote.text }}"</p>
-              <p class="inspiration-author">-- {{ displayQuote.author }}</p>
-            </template>
-          </div>
-          <div class="inspiration-source" :class="aiInspiration ? 'source-ai' : 'source-local'">
-            {{ aiInspiration ? 'AI 创作' : '本地名言' }}
-          </div>
+          <!-- AI 可用：刷新按钮 -->
+          <button
+            v-if="aiStore.isAvailable"
+            class="inspiration-refresh"
+            :class="{ spinning: aiInspirationLoading }"
+            :disabled="aiInspirationLoading"
+            @click.stop="generateAIInspiration"
+            title="AI 生成新灵感">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
+          <!-- AI 未配置：引导去设置 -->
+          <button
+            v-else
+            class="inspiration-setup"
+            @click.stop="goToSettings"
+            title="配置 AI 后可生成灵感">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+        </div>
+        <div class="inspiration-body">
+          <p v-if="aiInspirationLoading" class="inspiration-loading">AI 正在为你创作灵感...</p>
+          <template v-else>
+            <p class="inspiration-quote">"{{ displayQuote.text }}"</p>
+            <p class="inspiration-author">-- {{ displayQuote.author }}</p>
+          </template>
+        </div>
+        <div class="inspiration-source" :class="aiInspiration ? 'source-ai' : 'source-local'">
+          {{ aiInspiration ? 'AI 创作' : '本地名言' }}
         </div>
       </div>
 
@@ -704,7 +729,7 @@ onMounted(async () => {
           <polyline points="14 2 14 8 20 8" />
         </svg>
         <h3>开始你的第一篇创作</h3>
-        <p>点击上方"开始新项目"卡片，开始创作之旅</p>
+        <p>点击右下角按钮或使用 Ctrl+N 开始创作之旅</p>
         <button class="empty-create-btn" @click="startNewProject">新建文章</button>
       </template>
       <template v-else>
@@ -717,6 +742,13 @@ onMounted(async () => {
         <button class="empty-create-btn" @click="setFilterMode('all'); searchQuery = ''">清除筛选</button>
       </template>
     </div>
+
+    <!-- QuickActionFab 右下角浮动按钮 -->
+    <button class="quick-action-fab" @click="startNewProject" title="新建文章 (Ctrl+N)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
 
     <!-- 分类创建 Modal -->
     <AddCategoryModal
@@ -904,6 +936,28 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+.header-new-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #D32F2F;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+}
+
+.header-new-btn:hover {
+  background: #B71C1C;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(211, 47, 47, 0.4);
+}
+
 .avatar {
   width: 40px;
   height: 40px;
@@ -918,7 +972,11 @@ onMounted(async () => {
 .bento-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr 0.8fr;
+  grid-template-areas:
+    "hero hero stats recent"
+    "hero hero stats inspiration"
+    "categories categories categories categories";
   gap: 20px;
   height: calc(100vh - 140px);
   max-width: 1400px;
@@ -972,7 +1030,7 @@ onMounted(async () => {
 }
 
 /* 通用 hover 效果（Hero/Inspiration 除外） */
-.bento-card:not(.card-hero):not(.card-inspiration):not(.card-new):hover {
+.bento-card:not(.card-hero):not(.card-inspiration):hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   border-color: rgba(211, 47, 47, 0.2);
@@ -983,12 +1041,10 @@ onMounted(async () => {
 .bento-card:nth-child(3) { animation-delay: 0.15s; }
 .bento-card:nth-child(4) { animation-delay: 0.20s; }
 .bento-card:nth-child(5) { animation-delay: 0.25s; }
-.bento-card:nth-child(6) { animation-delay: 0.30s; }
 
 /* === 1. HERO CARD (创作流) === */
 .card-hero {
-  grid-column: span 2;
-  grid-row: span 2;
+  grid-area: hero;
   background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
   border: none;
   color: white;
@@ -1007,6 +1063,15 @@ onMounted(async () => {
   border-radius: 50%;
 }
 
+.hero-activity-icon {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .hero-content {
   position: relative;
   z-index: 1;
@@ -1021,7 +1086,7 @@ onMounted(async () => {
 
 .hero-title {
   font-family: 'Noto Serif SC', serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0 0 6px;
   line-height: 1.3;
@@ -1184,7 +1249,7 @@ onMounted(async () => {
 
 /* === 2. STATS CARD === */
 .card-stats {
-  grid-row: span 2;
+  grid-area: stats;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -1249,68 +1314,50 @@ onMounted(async () => {
   background: #ECEFF1;
 }
 
-/* === 3. NEW PROJECT CARD === */
-.card-new {
-  border: 2px dashed #ECEFF1;
-  background: transparent;
-  backdrop-filter: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-new:hover {
-  border-color: #D32F2F;
-  background: #FFEBEE;
-}
-
-.card-new:hover .new-icon {
-  transform: scale(1.1) rotate(90deg);
-  color: #D32F2F;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.card-new:hover .new-title {
-  color: #D32F2F;
-}
-
-.new-icon {
-  width: 56px;
-  height: 56px;
-  background: #FFFFFF;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #90A4AE;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.new-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #607D8B;
-  margin: 0;
-  transition: color 0.2s ease;
-}
-
-.new-desc {
-  font-size: 12px;
-  color: #90A4AE;
-  margin: 0;
-}
-
-/* === 4. RECENT FILE CARD === */
+/* === 3. RECENT FILE CARD === */
 .card-recent {
+  grid-area: recent;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.recent-main {
+  flex: 1;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.recent-create-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+  margin-top: auto;
+  border-top: 1px solid #ECEFF1;
+}
+
+.recent-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid #ECEFF1;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #607D8B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.recent-action-btn:hover {
+  border-color: #D32F2F;
+  color: #D32F2F;
+  background: #FFEBEE;
 }
 
 .recent-label {
@@ -1392,7 +1439,7 @@ onMounted(async () => {
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.card-recent:hover .recent-open-btn {
+.recent-main:hover .recent-open-btn {
   transform: scale(1.1);
   background: #D32F2F;
 }
@@ -1404,9 +1451,9 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* === 5. CATEGORIES CARD === */
+/* === 4. CATEGORIES CARD === */
 .card-categories {
-  grid-column: span 2;
+  grid-area: categories;
   display: flex;
   flex-direction: column;
 }
@@ -1460,7 +1507,7 @@ onMounted(async () => {
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   flex: 1;
 }
@@ -1500,7 +1547,7 @@ onMounted(async () => {
 }
 
 .categories-empty {
-  grid-column: span 3;
+  grid-column: span 4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1520,29 +1567,17 @@ onMounted(async () => {
   color: #607D8B;
 }
 
-/* === 6. INSPIRATION CARD === */
+/* === 5. INSPIRATION CARD (极简左边框风格) === */
 .card-inspiration {
-  background: #263238;
-  border: none;
-  color: #ECEFF1;
+  grid-area: inspiration;
+  background: #FFFFFF;
+  border: 1px solid #ECEFF1;
+  border-left: 3px solid #D32F2F;
+  border-radius: 20px;
+  backdrop-filter: none;
+  color: #1e293b;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-.inspiration-texture {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-.inspiration-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
   justify-content: space-between;
 }
 
@@ -1559,7 +1594,7 @@ onMounted(async () => {
 }
 
 .inspiration-icon {
-  color: #FFC107;
+  color: #D32F2F;
 }
 
 .inspiration-label {
@@ -1574,7 +1609,7 @@ onMounted(async () => {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: #F5F5F5;
   border: none;
   color: #90A4AE;
   cursor: pointer;
@@ -1586,8 +1621,8 @@ onMounted(async () => {
 }
 
 .inspiration-refresh:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
-  color: #FFC107;
+  background: #FFEBEE;
+  color: #D32F2F;
 }
 
 .inspiration-refresh:disabled {
@@ -1608,50 +1643,51 @@ onMounted(async () => {
 
 .inspiration-quote {
   font-family: 'Noto Serif SC', serif;
-  font-size: 14px;
-  font-style: italic;
-  color: #ECEFF1;
-  line-height: 1.7;
+  font-size: 20px;
+  font-style: normal;
+  color: #1e293b;
+  line-height: 1.6;
   margin: 0 0 8px;
-  opacity: 0.85;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .inspiration-author {
-  font-size: 11px;
-  color: #78909C;
+  font-size: 14px;
+  color: #64748b;
   margin: 0;
   text-align: right;
 }
 
 .inspiration-source {
-  position: absolute;
-  bottom: 12px;
-  left: 24px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 2px 6px;
   border-radius: 4px;
+  align-self: flex-start;
   transition: all 0.3s ease;
 }
 
 .inspiration-source.source-ai {
-  color: #FFC107;
-  background: rgba(255, 193, 7, 0.15);
+  color: #D32F2F;
+  background: #FFEBEE;
 }
 
 .inspiration-source.source-local {
   color: #78909C;
-  background: rgba(120, 144, 156, 0.15);
+  background: #F5F5F5;
 }
 
 .inspiration-setup {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-  color: #607D8B;
+  background: #F5F5F5;
+  border: 1px dashed #ECEFF1;
+  color: #90A4AE;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1661,9 +1697,9 @@ onMounted(async () => {
 }
 
 .inspiration-setup:hover {
-  background: rgba(255, 193, 7, 0.15);
-  border-color: rgba(255, 193, 7, 0.4);
-  color: #FFC107;
+  background: #FFEBEE;
+  border-color: #D32F2F;
+  color: #D32F2F;
 }
 
 .inspiration-loading {
@@ -1955,6 +1991,38 @@ onMounted(async () => {
 }
 
 /* =================================================================
+   QUICK ACTION FAB
+================================================================= */
+.quick-action-fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  background: #D32F2F;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(211, 47, 47, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 50;
+}
+
+.quick-action-fab:hover {
+  transform: scale(1.1);
+  background: #B71C1C;
+  box-shadow: 0 6px 24px rgba(211, 47, 47, 0.5), 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-fab:active {
+  transform: scale(0.95);
+}
+
+/* =================================================================
    EMPTY STATE
 ================================================================= */
 .empty-state {
@@ -2055,17 +2123,19 @@ onMounted(async () => {
   .bento-container {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
+    grid-template-areas:
+      "hero hero"
+      "stats recent"
+      "inspiration inspiration"
+      "categories categories";
     height: auto;
   }
 
   .card-hero {
-    grid-column: span 2;
-    grid-row: span 1;
     min-height: 280px;
   }
 
   .card-stats {
-    grid-row: span 1;
     flex-direction: row;
     justify-content: space-around;
   }
@@ -2075,8 +2145,8 @@ onMounted(async () => {
     height: 40px;
   }
 
-  .card-categories {
-    grid-column: span 2;
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .waterfall-grid {
@@ -2104,17 +2174,21 @@ onMounted(async () => {
   .bento-container {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    grid-template-areas:
+      "hero"
+      "stats"
+      "recent"
+      "inspiration"
+      "categories";
     height: auto;
     gap: 16px;
   }
 
   .card-hero {
-    grid-column: span 1;
     min-height: 260px;
   }
 
   .card-stats {
-    grid-row: span 1;
     flex-direction: row;
     justify-content: space-around;
     padding: 20px;
@@ -2123,10 +2197,6 @@ onMounted(async () => {
   .stat-divider {
     width: 1px;
     height: 40px;
-  }
-
-  .card-categories {
-    grid-column: span 1;
   }
 
   .categories-grid {
@@ -2163,6 +2233,14 @@ onMounted(async () => {
 
   .bento-card {
     padding: 20px;
+  }
+
+  .quick-action-fab {
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
   }
 }
 </style>
