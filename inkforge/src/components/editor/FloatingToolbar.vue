@@ -31,6 +31,7 @@ const props = defineProps<{
 const visible = ref(false)
 const toolbarStyle = ref({ top: '0px', left: '0px' })
 const toolbarEl = ref<HTMLElement | null>(null)
+const isFlipped = ref(false)
 
 function isActive(type: string | Record<string, unknown>, options?: Record<string, unknown>): boolean {
   if (typeof type === 'string') {
@@ -39,8 +40,19 @@ function isActive(type: string | Record<string, unknown>, options?: Record<strin
   return props.editor?.isActive(type) ?? false
 }
 
+/** toolbar 与选区之间的间距 (px) */
+const TOOLBAR_GAP = 12
+/** 容器内边缘最小安全距离 (px) */
+const EDGE_PADDING = 8
+
 /**
  * 根据当前选区更新工具栏位置和可见性
+ *
+ * 定位策略：
+ * 1. 使用原生 window.getSelection() 获取选区的精确 DOM rect
+ * 2. 基于 .editor-paper 容器计算相对坐标（absolute 定位）
+ * 3. 当上方空间不足时自动翻转到选区下方
+ * 4. 水平居中于选区，并做左右边界夹紧
  */
 function updateToolbar(): void {
   const editor = props.editor
@@ -49,9 +61,9 @@ function updateToolbar(): void {
     return
   }
 
-  const { state, view } = editor
+  const { state } = editor
   const { selection } = state
-  const { from, to, empty } = selection
+  const { empty } = selection
 
   // 空选区 → 隐藏
   if (empty) {
@@ -59,17 +71,57 @@ function updateToolbar(): void {
     return
   }
 
-  // 获取选区的 DOM 范围
+  // 使用原生 Selection API 获取精确选区矩形
   try {
-    const start = view.coordsAtPos(from)
-    const end = view.coordsAtPos(to)
+    const domSelection = window.getSelection()
+    if (!domSelection || domSelection.rangeCount === 0) {
+      visible.value = false
+      return
+    }
 
-    // 计算中心位置（相对于编辑器容器）
-    const editorRect = view.dom.closest('.editor-paper')?.getBoundingClientRect()
-      ?? view.dom.getBoundingClientRect()
+    const selectionRect = domSelection.getRangeAt(0).getBoundingClientRect()
 
-    const centerX = (start.left + end.right) / 2 - editorRect.left
-    const topY = start.top - editorRect.top - 50 // 工具栏在选区上方
+    // 不可见选区防护（零宽高选区）
+    if (selectionRect.width === 0 && selectionRect.height === 0) {
+      visible.value = false
+      return
+    }
+
+    // 获取定位参照容器 (.editor-paper)
+    const paperEl = toolbarEl.value?.closest('.editor-paper')
+      ?? editor.view.dom.closest('.editor-paper')
+      ?? editor.view.dom.parentElement
+
+    if (!paperEl) {
+      visible.value = false
+      return
+    }
+
+    const paperRect = paperEl.getBoundingClientRect()
+    const toolbarHeight = toolbarEl.value?.offsetHeight ?? 44
+
+    // ---- 垂直定位 ----
+    let topY = selectionRect.top - paperRect.top - toolbarHeight - TOOLBAR_GAP
+
+    // 上下翻转：当上方空间不够时翻转到选区下方
+    const needFlip = topY < EDGE_PADDING
+    if (needFlip) {
+      topY = selectionRect.bottom - paperRect.top + TOOLBAR_GAP
+    }
+    isFlipped.value = needFlip
+
+    // ---- 水平定位 ----
+    // CSS 中 .floating-toolbar 使用 transform: translateX(-50%) 居中
+    const toolbarWidth = toolbarEl.value?.offsetWidth ?? 400
+    const halfWidth = toolbarWidth / 2
+    let centerX = selectionRect.left - paperRect.left + selectionRect.width / 2
+
+    // 左右边界夹紧：确保 toolbar 不超出容器
+    const minLeft = halfWidth + EDGE_PADDING
+    const maxLeft = paperRect.width - halfWidth - EDGE_PADDING
+    if (minLeft < maxLeft) {
+      centerX = Math.max(minLeft, Math.min(maxLeft, centerX))
+    }
 
     toolbarStyle.value = {
       top: `${Math.max(4, topY)}px`,
@@ -77,7 +129,7 @@ function updateToolbar(): void {
     }
     visible.value = true
   } catch {
-    // coordsAtPos 可能在 docView 未就绪时抛异常，静默忽略
+    // Selection API 异常时静默忽略
     visible.value = false
   }
 }
@@ -269,6 +321,7 @@ onBeforeUnmount(() => {
       v-if="visible && editor"
       ref="toolbarEl"
       class="floating-toolbar"
+      :class="{ flipped: isFlipped }"
       :style="toolbarStyle"
       @mousedown.prevent
     >
@@ -549,10 +602,14 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 2px;
   padding: 6px 8px;
-  background: rgba(38, 50, 56, 0.95);
-  backdrop-filter: blur(12px);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04);
   pointer-events: auto;
   white-space: nowrap;
 }
@@ -567,25 +624,26 @@ onBeforeUnmount(() => {
   background: transparent;
   border-radius: 6px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.55);
   transition: all 0.1s ease;
 }
 
 .ft-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.85);
 }
 
 .ft-btn.active {
-  background: rgba(211, 47, 47, 0.85);
+  background: var(--accent-color, #D32F2F);
   color: white;
 }
 
 .ft-divider {
   width: 1px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.15);
+  height: 16px;
+  background: rgba(0, 0, 0, 0.08);
   margin: 0 4px;
+  flex-shrink: 0;
 }
 
 /* ---- 按钮容器 (用于包含弹出面板的按钮) ---- */
@@ -718,10 +776,30 @@ onBeforeUnmount(() => {
   animation: ftAppear 0.1s ease reverse;
 }
 
+/* 翻转到选区下方时，动画方向反转 */
+.floating-toolbar.flipped.ft-fade-enter-active {
+  animation: ftAppearFlipped 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.floating-toolbar.flipped.ft-fade-leave-active {
+  animation: ftAppearFlipped 0.1s ease reverse;
+}
+
 @keyframes ftAppear {
   from {
     opacity: 0;
     transform: translateX(-50%) scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+@keyframes ftAppearFlipped {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95) translateY(-4px);
   }
   to {
     opacity: 1;
