@@ -368,9 +368,29 @@ def main() -> int:
     # Build CLI command using adapter
     # Note: Use explicit prompt to avoid confusion with CI/CD pipelines
     # Also remind the model to follow its agent definition for better cross-model compatibility
+    # Read prd.md to include requirements directly in the prompt
+    prd_path = Path(worktree_path) / task_dir_relative / "prd.md"
+    prd_content = ""
+    if prd_path.is_file():
+        prd_content = prd_path.read_text(encoding="utf-8")
+
+    implement_prompt = f"""You are the Implement Agent. Read the requirements below and implement ALL changes described.
+
+== REQUIREMENTS (prd.md) ==
+{prd_content}
+== END REQUIREMENTS ==
+
+Instructions:
+1. Read each file mentioned in the requirements
+2. Make ALL the changes described
+3. Run `cd inkforge && npx vue-tsc --noEmit` to verify TypeScript
+4. Report what you changed
+
+IMPORTANT: You MUST edit files. Do not just read and report - actually make the code changes."""
+
     cli_cmd = adapter.build_run_command(
-        agent="dispatch",
-        prompt="Follow your agent instructions to execute the task workflow. Start by reading .trellis/.current-task to get the task directory, then execute each action in task.json next_action array in order.",
+        agent="implement",
+        prompt=implement_prompt,
         session_id=session_id if adapter.supports_session_id_on_create else None,
         skip_permissions=True,
         verbose=True,
@@ -388,6 +408,9 @@ def main() -> int:
         }
         if sys.platform == "win32":
             popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            resolved = shutil.which(cli_cmd[0])
+            if resolved:
+                cli_cmd[0] = resolved
         else:
             popen_kwargs["start_new_session"] = True
 

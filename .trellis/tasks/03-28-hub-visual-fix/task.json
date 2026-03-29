@@ -1,0 +1,45 @@
+{
+  "id": "hub-visual-fix",
+  "name": "hub-visual-fix",
+  "title": "Hub 首页视觉修正 - Hero/Inspiration/入口精简",
+  "description": "",
+  "status": "review",
+  "dev_type": "frontend",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-03-28",
+  "completedAt": null,
+  "branch": "feature/hub-visual-fix",
+  "base_branch": "main",
+  "worktree_path": "D:\\Desktop\\trellis-worktrees\\feature\\hub-visual-fix",
+  "current_phase": 4,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": "https://github.com/ZRainbow1275/InkForge/pull/3",
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
