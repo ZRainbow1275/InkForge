@@ -5,7 +5,7 @@
  *
  * v6: 重构为 Bento Grid + Waterfall 布局
  */
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useArticleStore } from '@/stores/article'
@@ -264,6 +264,13 @@ const latestArticle = computed(() => {
   )[0]
 })
 
+/** 最近文章列表（跳过第一篇，用于 card-recent 底部） */
+const recentArticlesForCard = computed(() => {
+  return [...articles.value]
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+    .slice(1, 4)
+})
+
 /** 分类展示（最多3个，带颜色方案） */
 const displayCategories = computed(() => {
   const colorSchemes = [
@@ -354,6 +361,20 @@ function goToSettings(): void {
   router.push('/settings')
 }
 
+/** Header 搜索快捷键：滚动到筛选栏并聚焦搜索框 */
+function handleSearchShortcut(): void {
+  const filterBar = document.querySelector('.filter-bar')
+  if (filterBar) {
+    filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    void nextTick(() => {
+      setTimeout(() => {
+        const input = filterBar.querySelector('.search-input') as HTMLInputElement | null
+        input?.focus()
+      }, 400)
+    })
+  }
+}
+
 /** Avatar 加载失败时的回退处理 */
 function handleAvatarError(e: Event): void {
   const img = e.target as HTMLImageElement
@@ -392,10 +413,29 @@ onMounted(async () => {
       </div>
 
       <div class="header-actions">
+        <!-- 快捷键按钮组 -->
+        <button type="button" class="shortcut-btn" @click="startNewProject" title="新建文章">
+          <kbd>Ctrl/Cmd+N</kbd>
+          <span>新建</span>
+        </button>
+        <button type="button" class="shortcut-btn" @click="handleSearchShortcut" title="搜索文章">
+          <kbd>Ctrl/Cmd+F</kbd>
+          <span>搜索</span>
+        </button>
+
         <div class="sync-badge">
           <div class="sync-dot"></div>
           <span>{{ stats.totalArticles }} 篇文章</span>
         </div>
+
+        <!-- Ghost 新建按钮 -->
+        <button type="button" class="new-btn-ghost" @click="startNewProject">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>新建</span>
+        </button>
+
         <button class="icon-btn" @click="goToSettings" title="设置">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3" />
@@ -552,29 +592,46 @@ onMounted(async () => {
       </div>
 
       <!-- 5. 最近文件 (1col x 1row) -->
-      <div class="bento-card card-recent" @click="latestArticle && openArticle(latestArticle.id)">
-        <div class="recent-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-          </svg>
-          最近编辑
-        </div>
-        <template v-if="latestArticle">
-          <h3 class="recent-title">{{ latestArticle.title }}</h3>
-          <p class="recent-excerpt">{{ getExcerpt(latestArticle) }}</p>
-          <div class="recent-footer">
-            <span class="recent-status" :class="statusClass(latestArticle.status)">
-              {{ getStatusLabel(latestArticle.status) }}
-            </span>
-            <div class="recent-open-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </div>
+      <div class="bento-card card-recent">
+        <div class="recent-main" @click="latestArticle && openArticle(latestArticle.id)">
+          <div class="recent-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+            </svg>
+            最近编辑
           </div>
-        </template>
-        <p v-else class="recent-empty">暂无文章</p>
+          <template v-if="latestArticle">
+            <h3 class="recent-title">{{ latestArticle.title }}</h3>
+            <p class="recent-excerpt">{{ getExcerpt(latestArticle) }}</p>
+            <div class="recent-footer">
+              <span class="recent-status" :class="statusClass(latestArticle.status)">
+                {{ getStatusLabel(latestArticle.status) }}
+              </span>
+              <div class="recent-open-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
+            </div>
+          </template>
+          <p v-else class="recent-empty">暂无文章</p>
+        </div>
+        <!-- 最近编辑文章列表 -->
+        <div v-if="articles.length > 1" class="recent-articles-list">
+          <p class="recent-articles-heading">Recent</p>
+          <div class="recent-articles-items">
+            <button
+              v-for="article in recentArticlesForCard"
+              :key="article.id"
+              type="button"
+              class="recent-article-row"
+              @click.stop="openArticle(article.id)"
+            >
+              <span class="recent-article-row-title">{{ article.title || '未命名文稿' }}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 6. 灵感卡片 (1col x 1row) -->
@@ -717,6 +774,13 @@ onMounted(async () => {
         <button class="empty-create-btn" @click="setFilterMode('all'); searchQuery = ''">清除筛选</button>
       </template>
     </div>
+
+    <!-- 右下角浮动新建按钮 -->
+    <button type="button" class="quick-action-fab" @click="startNewProject" title="新建文章">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
 
     <!-- 分类创建 Modal -->
     <AddCategoryModal
@@ -912,15 +976,95 @@ onMounted(async () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
+/* === Shortcut Buttons === */
+.shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: #607D8B;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.shortcut-btn:hover {
+  background: #F5F5F5;
+  color: #263238;
+}
+
+.shortcut-btn kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-weight: 600;
+  color: #90A4AE;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+/* === Ghost 新建按钮 === */
+.new-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #D32F2F;
+  border-radius: 8px;
+  color: #D32F2F;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.new-btn-ghost:hover {
+  background: rgba(211, 47, 47, 0.08);
+}
+
+/* === QuickActionFab === */
+.quick-action-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #D32F2F;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(211, 47, 47, 0.35);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 50;
+}
+
+.quick-action-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(211, 47, 47, 0.45);
+}
+
 /* =================================================================
    BENTO GRID -- 4col x 3row
 ================================================================= */
 .bento-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: auto auto auto;
   gap: 20px;
-  height: calc(100vh - 140px);
+  min-height: calc(100vh - 160px);
+  height: auto;
   max-width: 1400px;
   margin: 0 auto 48px;
 }
@@ -1309,8 +1453,14 @@ onMounted(async () => {
 .card-recent {
   display: flex;
   flex-direction: column;
-  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.recent-main {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  flex: 1;
 }
 
 .recent-label {
@@ -1392,7 +1542,7 @@ onMounted(async () => {
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.card-recent:hover .recent-open-btn {
+.recent-main:hover .recent-open-btn {
   transform: scale(1.1);
   background: #D32F2F;
 }
@@ -1402,6 +1552,54 @@ onMounted(async () => {
   color: #90A4AE;
   margin: auto 0;
   text-align: center;
+}
+
+/* Recent articles list at bottom of card-recent */
+.recent-articles-list {
+  margin-top: 12px;
+  border-top: 1px solid #ECEFF1;
+  padding-top: 12px;
+}
+
+.recent-articles-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #B0BEC5;
+  margin: 0 0 8px;
+}
+
+.recent-articles-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-article-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: #607D8B;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.recent-article-row:hover {
+  background: #F5F5F5;
+}
+
+.recent-article-row-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* === 5. CATEGORIES CARD === */

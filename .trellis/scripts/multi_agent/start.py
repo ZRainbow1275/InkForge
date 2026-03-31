@@ -365,12 +365,26 @@ def main() -> int:
     # Set non-interactive env var based on platform
     env.update(adapter.get_non_interactive_env())
 
-    # Build CLI command using adapter
-    # Note: Use explicit prompt to avoid confusion with CI/CD pipelines
-    # Also remind the model to follow its agent definition for better cross-model compatibility
+    # Build CLI command — directly launch implement agent (skip dispatch nesting)
+    prd_path = Path(worktree_path) / task_dir_relative / "prd.md"
+    prd_content = ""
+    if prd_path.is_file():
+        prd_content = prd_path.read_text(encoding="utf-8")
+
+    implement_prompt = (
+        "You are the Implement Agent. Read the requirements below and implement ALL changes.\n\n"
+        f"== REQUIREMENTS ==\n{prd_content}\n== END ==\n\n"
+        "Instructions:\n"
+        "1. Read each file mentioned in the requirements\n"
+        "2. Make ALL the code changes described\n"
+        "3. Run typecheck: cd inkforge && npx vue-tsc --noEmit\n"
+        "4. Report what you changed\n"
+        "IMPORTANT: You MUST edit files. Do not just read — actually make code changes."
+    )
+
     cli_cmd = adapter.build_run_command(
-        agent="dispatch",
-        prompt="Follow your agent instructions to execute the task workflow. Start by reading .trellis/.current-task to get the task directory, then execute each action in task.json next_action array in order.",
+        agent="implement",
+        prompt=implement_prompt,
         session_id=session_id if adapter.supports_session_id_on_create else None,
         skip_permissions=True,
         verbose=True,
@@ -388,6 +402,9 @@ def main() -> int:
         }
         if sys.platform == "win32":
             popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            _resolved = shutil.which(cli_cmd[0])
+            if _resolved:
+                cli_cmd[0] = _resolved
         else:
             popen_kwargs["start_new_session"] = True
 

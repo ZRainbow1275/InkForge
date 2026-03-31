@@ -663,10 +663,14 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: rgba(38, 50, 56, 0.95);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04);
   white-space: nowrap;
   z-index: 110;
 }
@@ -674,7 +678,7 @@ onBeforeUnmount(() => {
 .ft-color-swatch {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -682,7 +686,7 @@ onBeforeUnmount(() => {
 }
 
 .ft-color-swatch:hover {
-  border-color: white;
+  border-color: rgba(0, 0, 0, 0.4);
   transform: scale(1.15);
 }
 
@@ -690,10 +694,10 @@ onBeforeUnmount(() => {
   height: 20px;
   padding: 0 6px;
   margin-left: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 11px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -701,9 +705,9 @@ onBeforeUnmount(() => {
 }
 
 .ft-color-reset:hover {
-  color: white;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.08);
+  color: rgba(0, 0, 0, 0.75);
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 /* ---- 链接输入浮层 ---- */
@@ -713,28 +717,29 @@ onBeforeUnmount(() => {
   gap: 4px;
   padding: 4px 6px;
   margin-left: 4px;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .ft-link-field {
   width: 180px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.85);
   font-size: 12px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .ft-link-field::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .ft-link-field:focus {
-  border-color: rgba(211, 47, 47, 0.6);
+  border-color: var(--accent-color, #D32F2F);
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
 }
 
 .ft-link-confirm,
@@ -749,22 +754,22 @@ onBeforeUnmount(() => {
 }
 
 .ft-link-confirm {
-  background: rgba(211, 47, 47, 0.85);
+  background: var(--accent-color, #D32F2F);
   color: white;
 }
 
 .ft-link-confirm:hover {
-  background: rgba(211, 47, 47, 1);
+  filter: brightness(1.1);
 }
 
 .ft-link-cancel {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .ft-link-cancel:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
+  color: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 /* ---- Transition ---- */
