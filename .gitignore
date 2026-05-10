@@ -10,6 +10,10 @@ node_modules/
 .claude/worktrees/
 .claude/settings.local.json
 
+# Python cache
+__pycache__/
+*.py[cod]
+
 # Throwaway screenshots at repo root
 hub-*.png
 drafts-*.png

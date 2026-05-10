@@ -82,9 +82,27 @@ def _find_trellis_dir() -> Path | None:
     return None
 
 
-def _get_current_task(trellis_dir: Path) -> dict | None:
+def _resolve_active_task_ref(trellis_dir: Path, input_data: dict) -> str:
+    """Resolve active task through Trellis runtime, with legacy fallback."""
+    scripts_dir = trellis_dir / "scripts"
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    try:
+        from common.active_task import resolve_active_task  # type: ignore[import-not-found]
+
+        active = resolve_active_task(trellis_dir.parent, input_data, platform="claude")
+        if active.task_path:
+            return active.task_path
+    except Exception:
+        pass
+
+    return _read_text(trellis_dir / ".current-task")
+
+
+def _get_current_task(trellis_dir: Path, input_data: dict) -> dict | None:
     """Load current task info. Returns dict with title/status/priority or None."""
-    task_ref = _normalize_task_ref(_read_text(trellis_dir / ".current-task"))
+    task_ref = _normalize_task_ref(_resolve_active_task_ref(trellis_dir, input_data))
     if not task_ref:
         return None
 
@@ -162,7 +180,7 @@ def main() -> None:
     SEP = " \033[90m·\033[0m "
 
     # --- Trellis data ---
-    task = _get_current_task(trellis_dir) if trellis_dir else None
+    task = _get_current_task(trellis_dir, cc_data) if trellis_dir else None
     dev = _get_developer(trellis_dir) if trellis_dir else ""
     task_count = _count_active_tasks(trellis_dir) if trellis_dir else 0
 
