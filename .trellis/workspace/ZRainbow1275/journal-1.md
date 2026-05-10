@@ -121,3 +121,36 @@ Audited and repaired export service real capabilities for WeChat, Xiaohongshu, a
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: Bootstrap project guideline specs
+
+**Date**: 2026-05-11
+**Task**: Bootstrap project guideline specs
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Filled Inkforge backend and frontend Trellis guideline specs from real project structure: nested Vue app, service-layer backend-like contracts, Dexie/Zod patterns, Pinia state, composables, component conventions, logging, error handling, and quality gates.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2959fe6` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
