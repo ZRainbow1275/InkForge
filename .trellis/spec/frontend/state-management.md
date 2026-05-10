@@ -6,49 +6,64 @@
 
 ## Overview
 
-<!--
-Document your project's state management conventions here.
-
-Questions to answer:
-- What state management solution do you use?
-- How is local vs global state decided?
-- How do you handle server state?
-- What are the patterns for derived state?
--->
-
-(To be filled by the team)
+Inkforge uses Pinia setup stores for global app state and Vue refs/computed for
+component-local UI state. Stores coordinate services, repositories, audit logs,
+sync dirty tracking, and route-level state. They should not duplicate durable
+validation rules owned by services or Zod schemas.
 
 ---
 
 ## State Categories
 
-<!-- Local state, global state, server state, URL state -->
-
-(To be filled by the team)
+- Local component state: transient input text, open/closed UI controls, hover
+  and modal state.
+- Composable state: reusable reactive view logic such as preview rendering,
+  scroll sync, outline calculation, and text statistics.
+- Global store state: articles, account/profile, workstation tabs, sync status,
+  layout persistence, search, tags, settings, and diagnostics.
+- Persistent local-first state: Dexie tables managed through repositories and
+  stores.
+- Route state: `vue-router` route records and redirects in `src/router/index.ts`.
 
 ---
 
 ## When to Use Global State
 
-<!-- Criteria for promoting state to global -->
+Use a Pinia store when:
 
-(To be filled by the team)
+- multiple views/components need the same state;
+- state must survive navigation or be persisted;
+- an action coordinates repositories, audit, sync, and derived store updates;
+- UI needs a canonical selected entity such as `selectedArticleId`;
+- the feature already has durable service/repository semantics.
+
+Keep state local when it only affects one component instance and has no durable
+meaning.
 
 ---
 
 ## Server State
 
-<!-- How server data is cached and synchronized -->
+The app is local-first. There is no normal server-state cache layer. Remote sync
+is represented by the sync service and provider contracts:
 
-(To be filled by the team)
+- local writes happen first;
+- sync outbox/log/conflict rows preserve remote intent and failures;
+- missing providers and offline states are real paused/error states;
+- manual sync UI must call `syncStore.sync()` and render the returned result.
 
 ---
 
 ## Common Mistakes
 
-<!-- State management mistakes your team has made -->
-
-(To be filled by the team)
+- Do not show UI-only success for sync/export/storage actions that did not call
+  the real service boundary.
+- Do not mutate store arrays in ways that skip existing immutable update
+  patterns unless the store already owns that mutation style.
+- Do not treat compatibility mirrors as the source of truth, e.g. `Article.tags`
+  mirrors tag relations but `docTags` is authoritative.
+- Do not persist unvalidated session/localStorage payloads into durable layout
+  or store state.
 
 ---
 

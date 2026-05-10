@@ -6,49 +6,68 @@
 
 ## Overview
 
-<!--
-Document your project's database conventions here.
-
-Questions to answer:
-- What ORM/query library do you use?
-- How are migrations managed?
-- What are the naming conventions for tables/columns?
-- How do you handle transactions?
--->
-
-(To be filled by the team)
+Inkforge uses Dexie over IndexedDB as the local-first persistence layer. The
+database authority is `inkforge/src/utils/db.ts`, where `InkForgeDB` declares
+typed `Table<T>` members and every schema version. Services define feature
+record types and repositories, but they must not create a second database
+authority.
 
 ---
 
 ## Query Patterns
 
-<!-- How should queries be written? Batch operations? -->
-
-(To be filled by the team)
+- Use repository/service methods for feature operations instead of querying
+  Dexie tables directly from Vue components.
+- Validate user or cross-layer inputs with Zod before writing records. Examples:
+  `CreateArticleDTOSchema.parse(...)` in `stores/article.ts` and
+  `CreateTagParamsSchema.parse(...)` in `services/tag-system/repository.ts`.
+- Use Dexie transactions when multiple tables or mirrored fields must stay in
+  sync. Example: `TagRepository.transaction()` updates `tags`, `docTags`, and
+  `articles` together.
+- Keep compatibility mirrors repaired through service helpers. Example:
+  `Article.tags` is a compatibility mirror; `docTags` is the relation authority.
+- Prefer explicit fallback states over pretending persistence succeeded.
+  `ActivityLogger.flush()` writes fallback localStorage records if
+  `db.activityLogs.bulkAdd(...)` fails.
 
 ---
 
 ## Migrations
 
-<!-- How to create and run migrations -->
-
-(To be filled by the team)
+- Add schema changes by appending a new `this.version(n).stores({...})` block in
+  `src/utils/db.ts`; do not mutate old version declarations retroactively unless
+  repairing a local unreleased branch.
+- Existing table declarations are repeated in each new version block. Preserve
+  existing indexes while adding the new table/indexes.
+- Keep migrations additive where possible. Many existing comments explicitly say
+  new baselines add tables without touching content/account/recovery data.
+- When introducing a new table, define the record type in the owning service
+  module and import it into `db.ts` as a typed Dexie table.
 
 ---
 
 ## Naming Conventions
 
-<!-- Table names, column names, index names -->
-
-(To be filled by the team)
+- Table names are camelCase plural nouns: `syncOutbox`, `auditLogs`,
+  `layoutStates`, `docTags`.
+- Record ids are strings and usually generated with `generateId()`.
+- Compound Dexie indexes use `[fieldA+fieldB]` syntax and should be declared
+  only once. Do not repeat a single-field index after it is already implied or
+  declared.
+- Record fields use camelCase. Indexed fields should match actual query needs,
+  such as `profileId`, `providerId`, `createdAt`, `updatedAt`, `status`.
 
 ---
 
 ## Common Mistakes
 
-<!-- Database-related mistakes your team has made -->
-
-(To be filled by the team)
+- Do not duplicate Dexie index names inside a store declaration. The tag-system
+  spec already calls this out for `docTags`.
+- Do not bypass repository validation by writing raw table rows from components.
+- Do not store raw secrets in IndexedDB sync tables. Credentials must be handled
+  through the crypto/sensitive storage boundary.
+- Do not report missing providers, offline state, or partial remote failure as
+  successful sync.
 
 ---
 

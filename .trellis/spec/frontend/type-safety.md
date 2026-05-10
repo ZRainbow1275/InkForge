@@ -6,49 +6,59 @@
 
 ## Overview
 
-<!--
-Document your project's type safety conventions here.
-
-Questions to answer:
-- What type system do you use?
-- How are types organized?
-- What validation library do you use?
-- How do you handle type inference?
--->
-
-(To be filled by the team)
+Inkforge is TypeScript-first and uses Zod for runtime validation at important
+boundaries. Types should be explicit at service/store/component edges and
+inferred from Zod schemas when the schema is the source of truth.
 
 ---
 
 ## Type Organization
 
-<!-- Where types are defined, shared types vs local types -->
-
-(To be filled by the team)
+- Core article/category schemas and DTO types live in `src/schemas/article.ts`.
+- Shared re-exports live in `src/types/index.ts`.
+- Feature service types live beside the feature, usually in
+  `src/services/<feature>/types.ts`.
+- Store-specific state types may live in the store file when they are not shared.
+- Component prop and emit types should be declared in `<script setup>` or a
+  nearby interface when reused.
 
 ---
 
 ## Validation
 
-<!-- Runtime validation patterns (Zod, Yup, io-ts, etc.) -->
-
-(To be filled by the team)
+- Use Zod schemas for runtime input validation before writing records or
+  accepting cross-layer payloads.
+- Parse DTOs at store/service boundaries, e.g. `CreateArticleDTOSchema.parse`
+  and `CreateTagParamsSchema.parse`.
+- Zod-inferred types are preferred for schema-owned data:
+  `z.infer<typeof ArticleSchema>`, `z.input<typeof CreateTagParamsSchema>`.
+- Invalid data should fail closed with a typed error or Zod error; do not repair
+  unknown payloads by guessing missing fields.
 
 ---
 
 ## Common Patterns
 
-<!-- Type utilities, generics, type guards -->
-
-(To be filled by the team)
+- Use `as const` for finite status/option maps and derive union types from
+  schemas or constants.
+- Use typed Dexie tables: `Table<RecordType, string>` for keyed records.
+- Use explicit provider/service interfaces for remote boundaries, e.g.
+  `SyncProvider`.
+- Use discriminated or narrow unions for UI state when the states are finite.
+- Use type guards and `instanceof Error` checks before reading error fields.
 
 ---
 
 ## Forbidden Patterns
 
-<!-- any, type assertions, etc. -->
-
-(To be filled by the team)
+- Do not introduce `any` for service payloads, ProseMirror events, Dexie rows, or
+  component props.
+- Do not use broad type assertions to silence `vue-tsc`; fix the returned shape
+  or declare the exact union.
+- Do not duplicate a Zod schema locally in a component when a service schema
+  already exists.
+- Do not pass untyped records into components that expect exported service/store
+  types.
 
 ## Workstation TabBar Types
 

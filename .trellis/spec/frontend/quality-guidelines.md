@@ -6,49 +6,66 @@
 
 ## Overview
 
-<!--
-Document your project's quality standards here.
-
-Questions to answer:
-- What patterns are forbidden?
-- What linting rules do you enforce?
-- What are your testing requirements?
-- What code review standards apply?
--->
-
-(To be filled by the team)
+Frontend quality is measured by real app behavior plus non-mutating checks.
+The app uses Vue 3, Pinia, TypeScript, Vitest, `vue-tsc`, ESLint, and Vite.
+Package script `pnpm -C inkforge lint` runs ESLint with `--fix`; use explicit
+`pnpm -C inkforge exec eslint ... --quiet` when you need a non-mutating gate.
 
 ---
 
 ## Forbidden Patterns
 
-<!-- Patterns that should never be used and why -->
-
-(To be filled by the team)
+- Fake UI success without calling the real service/store boundary.
+- Mock localStorage/IndexedDB injection as proof of user workflows.
+- Emoji icons in product UI; use `lucide-vue-next` or the established icon
+  library path.
+- New unused imports, refs, computed values, or functions.
+- Any-shaped component props, emits, store payloads, or service records.
+- Component-only business rules that bypass Zod/service validation.
 
 ---
 
 ## Required Patterns
 
-<!-- Patterns that must always be used -->
-
-(To be filled by the team)
+- Keep Vue components typed with `<script setup lang="ts">`.
+- Use Pinia stores for shared/durable UI state and services for business logic.
+- Use real browser/UI smoke evidence for user-visible workflows when the task is
+  interactive or layout-sensitive.
+- Preserve existing keyboard/accessibility affordances when changing controls.
+- Match import paths to actual file name casing; Windows may hide casing bugs
+  that fail on Linux.
+- Record known scope blockers instead of claiming full-green gates when
+  unrelated frontend files already fail.
 
 ---
 
 ## Testing Requirements
 
-<!-- What level of testing is expected -->
+Default command set:
 
-(To be filled by the team)
+```bash
+pnpm -C inkforge exec vitest run --reporter=default
+pnpm -C inkforge exec vue-tsc --noEmit
+pnpm -C inkforge exec eslint src --ext .ts,.tsx,.vue --quiet
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+```
+
+Use narrower tests first when changing a focused module, then broaden based on
+risk. If repo-wide checks are blocked by unrelated files, document exact paths
+and still run the narrow checks for the touched scope.
 
 ---
 
 ## Code Review Checklist
 
-<!-- What reviewers should check -->
-
-(To be filled by the team)
+- Does the UI call the real store/service path?
+- Are component props and emits typed?
+- Are no new unused symbols introduced?
+- Does the workflow use real local data and not injected mock rows?
+- Are storage, sync, export, or editor side effects verified at their durable
+  boundary?
+- Were non-mutating lint/typecheck/test commands run or were blockers recorded
+  with exact file paths?
 
 ## Workstation TabBar Quality Gate
 

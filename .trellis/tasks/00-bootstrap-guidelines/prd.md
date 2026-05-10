@@ -76,9 +76,9 @@ The AI will read your code and help you document it.
 
 ## Completion Checklist
 
-- [ ] Guidelines filled for your project type
-- [ ] At least 2-3 real code examples in each guideline
-- [ ] Anti-patterns documented
+- [x] Guidelines filled for your project type
+- [x] At least 2-3 real code examples in each guideline
+- [x] Anti-patterns documented
 
 When done:
 

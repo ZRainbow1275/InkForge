@@ -6,46 +6,62 @@
 
 ## Overview
 
-<!--
-Document your project's logging conventions here.
+Inkforge has two logging layers:
 
-Questions to answer:
-- What logging library do you use?
-- What are the log levels and when to use each?
-- What should be logged?
-- What should NOT be logged (PII, secrets)?
--->
+- `src/services/error.ts` exposes the central runtime `logger` used by stores,
+  router guards, and services for debug/info/warn/error messages.
+- `src/services/activity-logger/` persists diagnostic activity/export logs to
+  IndexedDB with localStorage fallback for critical records.
 
-(To be filled by the team)
+Use the runtime logger for immediate diagnostics and the activity/audit services
+when evidence must survive reloads or support later investigation.
 
 ---
 
 ## Log Levels
 
-<!-- When to use each level: debug, info, warn, error -->
-
-(To be filled by the team)
+- `debug`: verbose development diagnostics; default log level includes this only
+  outside production.
+- `info`: successful meaningful service events.
+- `warn`: recoverable failures where primary user data remains safe, such as
+  sync dirty tracking or wiki-link repair failing after a local write.
+- `error`: failed user-facing operations or service failures.
+- `critical`: activity logger level for records that should be persisted and
+  mirrored to localStorage fallback.
 
 ---
 
 ## Structured Logging
 
-<!-- Log format, required fields -->
-
-(To be filled by the team)
+- Prefer structured context objects over string concatenation.
+- Include stable ids and operation names: `articleId`, `operation`,
+  `providerId`, `profileId`, `docId`, or `correlationId`.
+- Normalize unknown errors with `error instanceof Error ? error.message :
+  String(error)`.
+- The central logger sanitizes sensitive fields and truncates long strings.
+- Activity logger records are Zod-validated before persistence.
 
 ---
 
 ## What to Log
 
-<!-- Important events to log -->
-
-(To be filled by the team)
+- Service boundary failures, especially database, provider, export, parser, and
+  sync operations.
+- Recoverable background side-effect failures that should not abort the primary
+  write.
+- Export outcomes and diagnostics through `recordExportLog` when the result is
+  part of a user-facing export flow.
+- Audit-worthy document/security actions through the audit service rather than
+  generic console logging.
 
 ---
 
 ## What NOT to Log
 
-<!-- Sensitive data, PII, secrets -->
-
-(To be filled by the team)
+- Raw passwords, access tokens, refresh tokens, API keys, SSH passphrases, or
+  provider credentials.
+- Full article bodies, private drafts, or large raw HTML/Markdown payloads unless
+  a redactor explicitly reduces them.
+- Unredacted diagnostic objects from external providers.
+- Repeated duplicate errors when one visible error and one structured record are
+  enough.
