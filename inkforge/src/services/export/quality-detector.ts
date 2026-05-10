@@ -108,7 +108,7 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
           id: 'wechat-image-width',
           severity: 'suggestion',
           message: `检测到图片宽度 ${widthMatch[1]}px > 640px`,
-          suggestion: '微信公众号建议图片宽度 ≤ 640px',
+          suggestion: '微信公众号建议图片宽度 ≤ 640px，导出时会自动降级到 640px 并保持自适应高度',
         })
         break // 只报告一次
       }
@@ -147,6 +147,17 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
       severity: 'suggestion',
       message: `发现 ${mermaidBlocks.length} 个 Mermaid 图表`,
       suggestion: 'Mermaid 图表会被转为 SVG 嵌入，但可能存在兼容性问题，建议检查渲染效果',
+    })
+  }
+
+  // 8. 检测 LaTeX 公式。WeChat 不保留 KaTeX class/CSS，导出会降级为自包含可读公式文本。
+  const latexBlocks = markdown.match(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g)
+  if (latexBlocks) {
+    addIssue(issues, {
+      id: 'wechat-latex-degrade',
+      severity: 'suggestion',
+      message: `发现 ${latexBlocks.length} 个 LaTeX 公式，微信粘贴链不可靠保留 KaTeX 样式`,
+      suggestion: '导出时会降级为自包含公式文本；如需公式图片，请接入真实素材上传链路',
     })
   }
 }

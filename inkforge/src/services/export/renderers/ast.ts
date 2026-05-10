@@ -89,10 +89,16 @@ export interface ASTVisitor {
 // LaTeX 源预处理：保护代码区段，提取 $$...$$ 与 $...$ 为占位符
 // ═══════════════════════════════════════════════════════════════════
 
-const LATEX_BLOCK_TOKEN = (i: number) => `\u0000IFAST_LATEX_B_${i}\u0000`
-const LATEX_INLINE_TOKEN = (i: number) => `\u0000IFAST_LATEX_I_${i}\u0000`
-const FENCE_PROTECT_TOKEN = (i: number) => `\u0000IFAST_FENCE_${i}\u0000`
-const INLINECODE_PROTECT_TOKEN = (i: number) => `\u0000IFAST_INLINE_${i}\u0000`
+const AST_TOKEN_BOUNDARY = String.fromCharCode(0)
+const LATEX_BLOCK_TOKEN = (i: number) => `${AST_TOKEN_BOUNDARY}IFAST_LATEX_B_${i}${AST_TOKEN_BOUNDARY}`
+const LATEX_INLINE_TOKEN = (i: number) => `${AST_TOKEN_BOUNDARY}IFAST_LATEX_I_${i}${AST_TOKEN_BOUNDARY}`
+const FENCE_PROTECT_TOKEN = (i: number) => `${AST_TOKEN_BOUNDARY}IFAST_FENCE_${i}${AST_TOKEN_BOUNDARY}`
+const INLINECODE_PROTECT_TOKEN = (i: number) => `${AST_TOKEN_BOUNDARY}IFAST_INLINE_${i}${AST_TOKEN_BOUNDARY}`
+const LATEX_BLOCK_TOKEN_RE = new RegExp(`${AST_TOKEN_BOUNDARY}IFAST_LATEX_B_(\\d+)${AST_TOKEN_BOUNDARY}`, 'g')
+const LATEX_INLINE_TOKEN_RE = new RegExp(`${AST_TOKEN_BOUNDARY}IFAST_LATEX_I_(\\d+)${AST_TOKEN_BOUNDARY}`, 'g')
+const FENCE_PROTECT_TOKEN_RE = new RegExp(`${AST_TOKEN_BOUNDARY}IFAST_FENCE_(\\d+)${AST_TOKEN_BOUNDARY}`, 'g')
+const INLINECODE_PROTECT_TOKEN_RE = new RegExp(`${AST_TOKEN_BOUNDARY}IFAST_INLINE_(\\d+)${AST_TOKEN_BOUNDARY}`, 'g')
+const LATEX_ANY_TOKEN_RE = new RegExp(`${AST_TOKEN_BOUNDARY}IFAST_LATEX_(B|I)_(\\d+)${AST_TOKEN_BOUNDARY}`, 'g')
 
 interface LatexExtraction {
   md: string
@@ -136,10 +142,10 @@ function extractLatex(md: string): LatexExtraction {
   )
 
   // 5) 还原代码段
-  s = s.replace(/\u0000IFAST_INLINE_(\d+)\u0000/g, (_m, idx: string) => {
+  s = s.replace(INLINECODE_PROTECT_TOKEN_RE, (_m, idx: string) => {
     return inlineCodes[parseInt(idx, 10)] ?? ''
   })
-  s = s.replace(/\u0000IFAST_FENCE_(\d+)\u0000/g, (_m, idx: string) => {
+  s = s.replace(FENCE_PROTECT_TOKEN_RE, (_m, idx: string) => {
     return fences[parseInt(idx, 10)] ?? ''
   })
 
@@ -166,8 +172,8 @@ function detectAlertKind(blockquote: Tokens.Blockquote): AlertKind | null {
 // 占位符 → 节点
 // ═══════════════════════════════════════════════════════════════════
 
-const LATEX_BLOCK_RE = /\u0000IFAST_LATEX_B_(\d+)\u0000/g
-const LATEX_INLINE_RE = /\u0000IFAST_LATEX_I_(\d+)\u0000/g
+const LATEX_BLOCK_RE = LATEX_BLOCK_TOKEN_RE
+const LATEX_INLINE_RE = LATEX_INLINE_TOKEN_RE
 
 function makeText(value: string): InkforgeNode {
   return { type: 'text', value }
@@ -178,7 +184,8 @@ function expandLatexInText(text: string, ctx: BuildContext): InkforgeNode[] {
   const out: InkforgeNode[] = []
   let cursor = 0
   // 使用统一正则同时匹配 block 与 inline
-  const combined = /\u0000IFAST_LATEX_(B|I)_(\d+)\u0000/g
+  const combined = LATEX_ANY_TOKEN_RE
+  combined.lastIndex = 0
   let m: RegExpExecArray | null
   while ((m = combined.exec(text)) !== null) {
     if (m.index > cursor) {

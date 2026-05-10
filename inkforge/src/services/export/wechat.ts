@@ -112,6 +112,117 @@ function fixMermaidSvg(html: string): string {
  * - 添加输入长度检查
  * - 使用更精确的属性匹配
  */
+const WECHAT_MAX_IMAGE_WIDTH = 640
+
+function escapeWechatText(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function decodeWechatText(text: string): string {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
+function clampWechatImageWidth(width: number): number {
+  return width > WECHAT_MAX_IMAGE_WIDTH ? WECHAT_MAX_IMAGE_WIDTH : width
+}
+
+function clampWechatImageWidthInStyle(style: string): { style: string; clamped: boolean } {
+  let clamped = false
+  const nextStyle = style.replace(/(^|;)\s*width\s*:\s*(\d+)px\s*;?/gi, (_match, prefix: string, rawWidth: string) => {
+    const width = parseInt(rawWidth, 10)
+    if (!Number.isFinite(width)) {
+      return _match
+    }
+
+    const safeWidth = clampWechatImageWidth(width)
+    if (safeWidth !== width) {
+      clamped = true
+    }
+
+    return `${prefix}width:${safeWidth}px;`
+  })
+
+  return { style: nextStyle, clamped }
+}
+
+function clampWechatImageTagWidth(tag: string): string {
+  return tag.replace(/style=(["'])(.*?)\1/i, (_match, quote: string, style: string) => {
+    const result = clampWechatImageWidthInStyle(style)
+    const heightAuto = result.clamped && !/height\s*:\s*auto/i.test(result.style)
+      ? `${result.style.endsWith(';') ? result.style : `${result.style};`}height:auto;`
+      : result.style
+    return `style=${quote}${heightAuto}${quote}`
+  })
+}
+
+function buildWechatLatexFallback(source: string, displayMode: boolean, primaryColor?: string): string {
+  const formula = source.replace(/\s+/g, ' ').trim() || '公式'
+  const color = primaryColor || '#0066cc'
+  if (displayMode) {
+    return `<section data-inkforge-latex="degraded" style="margin:12px 0;padding:10px 12px;border-left:3px solid ${color};background:#f7f9fb;color:#333;font-size:14px;line-height:1.7;word-break:break-all;">公式：${escapeWechatText(formula)}</section>`
+  }
+
+  return `<span data-inkforge-latex="degraded" style="color:${color};font-family:Menlo,Monaco,Consolas,monospace;font-size:0.95em;word-break:break-all;">公式：${escapeWechatText(formula)}</span>`
+}
+
+function extractLatexSourceFromNode(node: Element): string {
+  const rawAnnotation = node.innerHTML.match(/<annotation\b[^>]*encoding=["']application\/x-tex["'][^>]*>([\s\S]*?)<\/annotation>/i)
+  if (rawAnnotation?.[1]?.trim()) {
+    return decodeWechatText(rawAnnotation[1].trim())
+  }
+
+  const annotation = node.querySelector('annotation[encoding="application/x-tex"]')
+  if (annotation?.textContent?.trim()) {
+    return annotation.textContent
+  }
+
+  const code = node.querySelector('code')
+  if (code?.textContent?.trim()) {
+    return code.textContent
+  }
+
+  return node.textContent ?? ''
+}
+
+function degradeWechatLatexHtml(html: string, primaryColor?: string): string {
+  if (!/(class=["'][^"']*(?:katex|math-fallback)|<annotation\s+encoding=["']application\/x-tex["'])/i.test(html)) {
+    return html
+  }
+
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html')
+    const nodes = Array.from(doc.body.querySelectorAll<HTMLElement>('.katex-display, .katex, .math-fallback'))
+
+    for (const node of nodes) {
+      if (!node.isConnected || !node.parentNode) continue
+      const source = extractLatexSourceFromNode(node)
+      const displayMode = node.classList.contains('katex-display') || node.tagName.toLowerCase() === 'div'
+      const template = doc.createElement('template')
+      template.innerHTML = buildWechatLatexFallback(source, displayMode, primaryColor)
+      const fallback = template.content.firstElementChild
+      if (fallback) {
+        node.replaceWith(fallback)
+      }
+    }
+
+    return doc.body.innerHTML
+  }
+
+  return html
+    .replace(/<span\s+class=["']math-fallback["']>\s*<code>([\s\S]*?)<\/code>\s*<\/span>/gi, (_match, source: string) => buildWechatLatexFallback(source, false, primaryColor))
+    .replace(/<div\s+class=["']math-fallback["']>\s*<code>([\s\S]*?)<\/code>\s*<\/div>/gi, (_match, source: string) => buildWechatLatexFallback(source, true, primaryColor))
+}
+
 function normalizeImageAttributes(html: string): string {
   // 输入长度检查
   if (!checkInputLength(html, 'normalizeImageAttributes')) {
@@ -123,11 +234,18 @@ function normalizeImageAttributes(html: string): string {
   // 使用迭代方式处理图片标签，避免复杂正则
   result = processImageTags(result, (imgTag) => {
     let processed = imgTag
+    let widthWasClamped = false
+
+    // 先压缩已有 style width，避免后续追加 width 后留下更大的旧值。
+    processed = clampWechatImageTagWidth(processed)
 
     // 提取 width 属性值
     const widthMatch = processed.match(/\swidth=["'](\d+)["']/i)
     if (widthMatch) {
-      const widthStyle = `width:${widthMatch[1]}px;`
+      const rawWidth = parseInt(widthMatch[1], 10)
+      const safeWidth = clampWechatImageWidth(rawWidth)
+      widthWasClamped = safeWidth !== rawWidth
+      const widthStyle = `width:${safeWidth}px;`
       processed = processed.replace(widthMatch[0], '')
       processed = addStyleToTag(processed, widthStyle)
     }
@@ -135,7 +253,7 @@ function normalizeImageAttributes(html: string): string {
     // 提取 height 属性值
     const heightMatch = processed.match(/\sheight=["'](\d+)["']/i)
     if (heightMatch) {
-      const heightStyle = `height:${heightMatch[1]}px;`
+      const heightStyle = widthWasClamped ? 'height:auto;' : `height:${heightMatch[1]}px;`
       processed = processed.replace(heightMatch[0], '')
       processed = addStyleToTag(processed, heightStyle)
     }
@@ -597,6 +715,9 @@ export function postProcessForWechat(html: string, primaryColor?: string): strin
   // 3. Mermaid SVG 文本修复
   result = fixMermaidSvg(result)
 
+  // 3.5 WeChat 不保留 KaTeX class/CSS，公式必须先降级成自包含可读内容。
+  result = degradeWechatLatexHtml(result, primaryColor)
+
   // 4. margin: auto 不支持
   result = result.replace(/margin:\s*(\d+)px\s+auto/g, 'margin: $1px 0')
   result = result.replace(/margin:\s*auto/g, 'margin: 0')
@@ -797,6 +918,8 @@ export function convertToWechatWithStats(
 
   // Step 1: Task List Checkbox 转换（必须在 DOMPurify 之前，因为 input 标签会被删除）
   const checkboxProcessedHtml = convertTaskListCheckboxes(html, preset.primaryColor)
+  // Step 1.5: KaTeX MathML annotation 会被 DOMPurify 白名单移除，WeChat 公式降级必须抢先保留 TeX 源。
+  const latexDegradedHtml = degradeWechatLatexHtml(checkboxProcessedHtml, preset.primaryColor)
 
   // Step 2: DOMPurify XSS防护 (增强配置)
   // 使用独立实例避免并发时全局状态污染
@@ -829,7 +952,7 @@ export function convertToWechatWithStats(
 
   let sanitizedHtml: string
   try {
-    sanitizedHtml = purify.sanitize(checkboxProcessedHtml, {
+    sanitizedHtml = purify.sanitize(latexDegradedHtml, {
       ALLOWED_TAGS: [
         'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'strong', 'em', 'u', 's', 'del', 'ins',

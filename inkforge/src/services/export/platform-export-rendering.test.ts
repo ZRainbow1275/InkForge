@@ -10,6 +10,7 @@ import {
   getDefaultPreset,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
+  postProcessForWechat,
 } from './index'
 
 const REAL_EXPORT_MARKDOWN = [
@@ -66,6 +67,55 @@ describe('platform native export rendering rules', () => {
     expect(result.html).toContain('max-width:100%')
     expect(result.html).toContain('border:1px solid #ddd')
     expect(result.html).toContain('https://vite.dev')
+  })
+
+  it('strips WeChat-unsupported CSS even when style values contain normal whitespace', () => {
+    const html = postProcessForWechat(
+      [
+        '<section style="display: flex; gap: 8px; position: sticky; color:var(--md-primary-color);">',
+        '<span style="background-clip: text; -webkit-text-fill-color: transparent;">文本</span>',
+        '<div style="display: grid; grid-template-columns:1fr 1fr;">网格</div>',
+        '</section>',
+      ].join(''),
+      '#123456'
+    )
+
+    expect(html).not.toMatch(/display:\s*(?:flex|grid)|gap:\s*8px|position:\s*sticky/i)
+    expect(html).not.toMatch(/background-clip:\s*text|-webkit-text-fill-color:\s*transparent/i)
+    expect(html).not.toMatch(/grid-template|var\(--md-primary-color\)/i)
+    expect(html).toContain('color:#123456')
+  })
+
+  it('enforces WeChat image width policy during export, not only in quality warnings', () => {
+    const result = convertToWechatWithStats(
+      [
+        '<section id="nice">',
+        '<p><img src="https://example.com/a.png" width="1200" height="900" alt="大图"></p>',
+        '<p><img src="https://example.com/b.png" style="width:1280px;height:720px" alt="样式大图"></p>',
+        '</section>',
+      ].join(''),
+      getDefaultPreset(),
+      { enableReadingTime: false }
+    )
+
+    expect(result.html).not.toMatch(/\swidth=["']1200["']|\sheight=["']900["']/i)
+    expect(result.html).not.toMatch(/width:\s*1200px|width:\s*1280px/i)
+    expect(result.html.match(/width:640px/g)?.length).toBe(2)
+    expect(result.html).toContain('max-width:100%')
+    expect(result.html).toContain('height:auto')
+  })
+
+  it('degrades WeChat LaTeX output to self-contained readable formula text', async () => {
+    const markdown = ['# 公式验证', '行内公式 $E=mc^2$。', '', '$$a+b=c$$'].join('\n')
+    const result = await convertToNativeFormat(markdown, 'wechat', {
+      includeQualityReport: true,
+      exportOptions: { enableReadingTime: false },
+    })
+
+    expect(result.content).toContain('公式：E=mc^2')
+    expect(result.content).toContain('公式：a+b=c')
+    expect(result.content).not.toMatch(/katex|MathML|<math\b|<annotation\b|\sclass=/i)
+    expect(result.qualityReport?.issues.some(issue => issue.id === 'wechat-latex-degrade')).toBe(true)
   })
 
   // ─── P2-T6 WeChat platform-rules 接入 ─────────────────────────────

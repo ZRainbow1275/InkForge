@@ -70,8 +70,11 @@ interface ProtectedSegments {
   inlineCodes: string[]
 }
 
-const FENCE_TOKEN = (i: number) => `\u0000ZHRULE_FENCE_${i}\u0000`
-const INLINE_CODE_TOKEN = (i: number) => `\u0000ZHRULE_INLINE_${i}\u0000`
+const ZHIHU_RULE_TOKEN_BOUNDARY = String.fromCharCode(0)
+const FENCE_TOKEN = (i: number) => `${ZHIHU_RULE_TOKEN_BOUNDARY}ZHRULE_FENCE_${i}${ZHIHU_RULE_TOKEN_BOUNDARY}`
+const INLINE_CODE_TOKEN = (i: number) => `${ZHIHU_RULE_TOKEN_BOUNDARY}ZHRULE_INLINE_${i}${ZHIHU_RULE_TOKEN_BOUNDARY}`
+const FENCE_TOKEN_RE = new RegExp(`${ZHIHU_RULE_TOKEN_BOUNDARY}ZHRULE_FENCE_(\\d+)${ZHIHU_RULE_TOKEN_BOUNDARY}`, 'g')
+const INLINE_CODE_TOKEN_RE = new RegExp(`${ZHIHU_RULE_TOKEN_BOUNDARY}ZHRULE_INLINE_(\\d+)${ZHIHU_RULE_TOKEN_BOUNDARY}`, 'g')
 
 function protectFences(md: string): { text: string; fences: string[] } {
   const fences: string[] = []
@@ -85,7 +88,7 @@ function protectFences(md: string): { text: string; fences: string[] } {
 }
 
 function restoreFences(md: string, fences: string[]): string {
-  return md.replace(/\u0000ZHRULE_FENCE_(\d+)\u0000/g, (_m, idx: string) => {
+  return md.replace(FENCE_TOKEN_RE, (_m, idx: string) => {
     return fences[parseInt(idx, 10)] ?? ''
   })
 }
@@ -102,7 +105,7 @@ function protectInlineCodes(md: string): { text: string; inlineCodes: string[] }
 }
 
 function restoreInlineCodes(md: string, inlineCodes: string[]): string {
-  return md.replace(/\u0000ZHRULE_INLINE_(\d+)\u0000/g, (_m, idx: string) => {
+  return md.replace(INLINE_CODE_TOKEN_RE, (_m, idx: string) => {
     return inlineCodes[parseInt(idx, 10)] ?? ''
   })
 }
