@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 1
-- **Last Active**: 2026-04-11
+- **Total Sessions**: 2
+- **Last Active**: 2026-05-11
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~87 | Active |
+| `journal-1.md` | ~123 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -27,8 +27,9 @@
 ## Session History
 
 <!-- @@@auto:session-history -->
-| # | Date | Title | Commits |
-|---|------|-------|---------|
+| # | Date | Title | Commits | Branch |
+|---|------|-------|---------|--------|
+| 2 | 2026-05-11 | Export rendering real-capability audit | `f1cc7e6`, `92c714c` | `dev/visual-fixes` |
 | 1 | 2026-04-11 | 0408问卷双层重构与全组深挖补充交接 | - |
 <!-- @@@/auto:session-history -->
 

@@ -87,3 +87,37 @@
 
 - 由下一轮继续使用该问卷进行填写、收敛冲突项，并据此编制正式 PRD / Spec
 - 不应将本条记录理解为“最终文档定稿”或“开发完成”
+
+
+## Session 2: Export rendering real-capability audit
+
+**Date**: 2026-05-11
+**Task**: Export rendering real-capability audit
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Audited and repaired export service real capabilities for WeChat, Xiaohongshu, and Zhihu; added research artifacts, service-layer regression tests, backend quality spec guidance, and documented remaining uploader stubs and frontend-scope gate blockers.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f1cc7e6` | (see git log) |
+| `92c714c` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
