@@ -154,3 +154,37 @@ Filled Inkforge backend and frontend Trellis guideline specs from real project s
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: Trellis tooling dirty-tree audit
+
+**Date**: 2026-05-11
+**Task**: Trellis tooling dirty-tree audit
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Audited and committed Trellis 0.5.12 tooling migration, fixed SessionStart in_progress phase drift, refreshed GitNexus, and archived the audit task.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `669ce5d` | (see git log) |
+| `0184e36` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
