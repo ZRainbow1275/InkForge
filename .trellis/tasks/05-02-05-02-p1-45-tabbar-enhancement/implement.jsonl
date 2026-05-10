@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/45-tabbar-enhancement-spec.md","reason":"Primary source for Workstation TabBar behavior, pinning, keyboard, drag reorder, and status affordances."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Article lifecycle state remains the real document source for tab ids and titles."}
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"Workstation split-view shell must remain compatible with document tab switching."}
+{"file":"prompts/0420/specs/48-session-restore-spec.md","reason":"Baseline uses sessionStorage only and must not claim full durable restore."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Documents the real Pinia + sessionStorage TabBar state contract."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Documents strict TabBar tab/session type boundaries."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Documents no-mock verification gates for Workstation TabBar changes."}

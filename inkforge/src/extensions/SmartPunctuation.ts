@@ -1,225 +1,310 @@
 import { Extension } from '@tiptap/core'
-import { Plugin, PluginKey } from '@tiptap/pm/state'
+import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state'
+import type { ResolvedPos } from '@tiptap/pm/model'
+import type { EditorView } from '@tiptap/pm/view'
+import {
+  getDefaultSmartPunctuationRuleSettings,
+  normalizeSmartPunctuationRuleSettings,
+  type SmartPunctuationRuleId,
+  type SmartPunctuationRuleSettings,
+} from '@/services/smart-punctuation'
 
-// ═══════════════════════════════════════════════════════════════════
-// 智能标点转换 TipTap 扩展
-// 将常见的 ASCII 标点序列自动替换为排版标点
-// ═══════════════════════════════════════════════════════════════════
+export const SMART_PUNCTUATION_META = 'inkforgeSmartPunctuation'
+export const SMART_PUNCTUATION_UNDO_GROUP = 'smart-punct'
 
-/** 标点替换规则 */
-interface PunctuationRule {
-    /** 触发序列（正则模式） */
-    pattern: RegExp
-    /** 替换结果 */
-    replacement: string
-    /** 触发字符（用于快速判断是否需要检查） */
-    trigger: string
-}
+export const smartPunctuationPluginKey = new PluginKey('smartPunctuation')
 
-/** 扩展配置 */
+type OptionGetter<T> = T | (() => T)
+
 export interface SmartPunctuationOptions {
-    /** 启用状态（响应式，可动态切换） */
-    enabled: boolean
-    /** 启用破折号转换 (-- → ——) */
-    dash: boolean
-    /** 启用省略号转换 (... → ……) */
-    ellipsis: boolean
-    /** 启用中文引号转换 ("" → \u201C\u201D) */
-    quotes: boolean
-    /** 启用中英文间距自动插入 */
-    autoSpacing: boolean
+  enabled: OptionGetter<boolean>
+  rules: OptionGetter<SmartPunctuationRuleSettings>
 }
 
-/** 默认配置 */
+export interface SmartPunctuationRuntimeOptions {
+  enabled: boolean
+  rules: SmartPunctuationRuleSettings
+}
+
+export interface SmartPunctuationInputContext {
+  state: EditorState
+  from: number
+  to: number
+  text: string
+  composing: boolean
+  options: SmartPunctuationOptions
+}
+
+export interface SmartPunctuationDispatchContext extends SmartPunctuationInputContext {
+  dispatch: (transaction: Transaction) => void
+}
+
+interface SmartPunctuationReplacement {
+  ruleId: SmartPunctuationRuleId
+  from: number
+  to: number
+  text: string
+}
+
 const DEFAULT_OPTIONS: SmartPunctuationOptions = {
-    enabled: true,
-    dash: true,
-    ellipsis: true,
-    quotes: true,
-    autoSpacing: true,
+  enabled: true,
+  rules: getDefaultSmartPunctuationRuleSettings(),
 }
 
-/**
- * 中文字符正则
- * 覆盖范围:
- * - CJK 统一汉字基本区 (U+4E00–U+9FFF)
- * - CJK 统一汉字扩展 A (U+3400–U+4DBF)
- * - CJK 兼容汉字 (U+F900–U+FAFF)
- * - CJK 统一汉字扩展 B (U+20000–U+2A6DF) — 生僻字
- * - CJK 统一汉字扩展 C/D/E/F (U+2A700–U+2CEAF)
- * - CJK 标点符号 (U+3000–U+303F)
- * - 全角字符 (U+FF00–U+FFEF)
- */
+const MAX_LOOKBEHIND = 32
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]|\ud840[\udc00-\udfff]|\ud841[\udc00-\udfff]|\ud842[\udc00-\udfff]|\ud843[\udc00-\udfff]|\ud844[\udc00-\udfff]|\ud845[\udc00-\udfff]|\ud846[\udc00-\udfff]|\ud847[\udc00-\udfff]|\ud848[\udc00-\udfff]|\ud849[\udc00-\udfff]/
-
-/** ASCII 字母/数字正则 */
 const ASCII_ALNUM_RE = /[a-zA-Z0-9]/
+const SUPPRESSED_NODE_NAMES = new Set(['codeBlock', 'mathBlock', 'mathInline', 'frontmatter'])
+const SUPPRESSED_MARK_NAMES = new Set(['code', 'link'])
 
-/** 标点替换规则集 */
-function buildRules(options: SmartPunctuationOptions): PunctuationRule[] {
-    const rules: PunctuationRule[] = []
-
-    if (options.dash) {
-        // -- → ——（中文破折号）
-        rules.push({
-            pattern: /--$/,
-            replacement: '——',
-            trigger: '-',
-        })
-    }
-
-    if (options.ellipsis) {
-        // ... → ……（中文省略号）
-        rules.push({
-            pattern: /\.\.\.$/,
-            replacement: '……',
-            trigger: '.',
-        })
-    }
-
-    if (options.quotes) {
-        // "内容" → \u201C内容\u201D（中文双引号）
-        // 当用户输入闭合的 " 时，回溯查找配对的开头 "，整体替换
-        //
-        // 已知限制: 引号配对仅在同一 ProseMirror 父节点内生效。
-        // 如果开引号 " 和闭引号 " 跨越了行内格式节点边界
-        // (如 "部分**加粗**内容")，则不会触发自动转换。
-        // 这是 ProseMirror 文本节点模型的固有约束，
-        // 用户可通过手动输入中文引号或在同一格式块内完成引号配对来规避。
-        rules.push({
-            pattern: /"([^"]*)"$/,
-            replacement: '\u201C$1\u201D',
-            trigger: '"',
-        })
-    }
-
-    return rules
+function resolveOption<T>(option: OptionGetter<T>): T {
+  return typeof option === 'function' ? (option as () => T)() : option
 }
 
-/**
- * 引号替换需要特殊处理：正则捕获组替换
- * 普通规则的 replacement 直接替换匹配文本
- * 引号规则的 replacement 包含 $1 占位符，需要展开
- */
-function expandReplacement(replacement: string, match: RegExpMatchArray): string {
-    let result = replacement
-    for (let i = 1; i < match.length; i++) {
-        result = result.replace(`$${i}`, match[i] ?? '')
-    }
-    return result
+export function resolveSmartPunctuationRuntimeOptions(options: SmartPunctuationOptions): SmartPunctuationRuntimeOptions {
+  return {
+    enabled: resolveOption(options.enabled),
+    rules: normalizeSmartPunctuationRuleSettings(resolveOption(options.rules)),
+  }
 }
 
-/**
- * 检查是否需要在中英文之间插入空格
- * @param textBefore - 光标前的文本
- * @param insertedChar - 即将输入的字符
- * @returns 是否需要在前面插入空格
- */
-function needsAutoSpacing(textBefore: string, insertedChar: string): boolean {
-    if (textBefore.length === 0) return false
+function isRuleEnabled(options: SmartPunctuationRuntimeOptions, ruleId: SmartPunctuationRuleId): boolean {
+  return options.rules[ruleId]
+}
 
-    const lastChar = textBefore[textBefore.length - 1]
+function hasCjk(value: string): boolean {
+  return CJK_RE.test(value)
+}
 
-    // 中文后输入英文/数字 → 插入空格
-    if (CJK_RE.test(lastChar) && ASCII_ALNUM_RE.test(insertedChar)) {
-        return true
-    }
+function hasAsciiAlnum(value: string): boolean {
+  return ASCII_ALNUM_RE.test(value)
+}
 
-    // 英文/数字后输入中文 → 插入空格
-    if (ASCII_ALNUM_RE.test(lastChar) && CJK_RE.test(insertedChar)) {
-        return true
-    }
-
+export function needsPanguSpacing(textBefore: string, insertedText: string): boolean {
+  if (insertedText.length !== 1 || !textBefore) {
     return false
+  }
+
+  const previous = textBefore[textBefore.length - 1]
+  if (!previous || /\s/.test(previous) || /\s/.test(insertedText)) {
+    return false
+  }
+
+  return (hasCjk(previous) && hasAsciiAlnum(insertedText))
+    || (hasAsciiAlnum(previous) && hasCjk(insertedText))
 }
 
-/** ProseMirror 插件 Key */
-const smartPunctuationPluginKey = new PluginKey('smartPunctuation')
+function textBeforeCursor($from: ResolvedPos): string {
+  const start = Math.max(0, $from.parentOffset - MAX_LOOKBEHIND)
+  return $from.parent.textBetween(start, $from.parentOffset, undefined, '\ufffc')
+}
 
-/**
- * SmartPunctuation TipTap Extension
- *
- * 功能：
- * 1. 破折号转换: -- → ——
- * 2. 省略号转换: ... → ……
- * 3. 中文引号转换: "" → \u201C\u201D
- * 4. 中英文自动加空格
- */
+function isSuppressedContext(state: EditorState, $from: ResolvedPos): boolean {
+  const parentType = $from.parent.type
+  if (parentType.spec.code || SUPPRESSED_NODE_NAMES.has(parentType.name)) {
+    return true
+  }
+
+  const activeMarks = state.storedMarks ?? $from.marks()
+  return activeMarks.some(mark => mark.type.spec.code || SUPPRESSED_MARK_NAMES.has(mark.type.name))
+}
+
+export function isLikelyUrlContext(textBefore: string, insertedText: string): boolean {
+  const candidate = textBefore + insertedText
+  const token = candidate.match(/(?:^|\s)(\S+)$/)?.[1] ?? ''
+
+  return /(?:https?:\/\/|mailto:|www\.)/i.test(token)
+    || /\]\([^\s)]*$/u.test(candidate)
+}
+
+function isOpeningQuote(textBefore: string): boolean {
+  if (!textBefore) {
+    return true
+  }
+
+  const previous = textBefore[textBefore.length - 1]
+  return /[\s([{<"'“‘]/u.test(previous)
+}
+
+function makeReplacement(
+  context: SmartPunctuationInputContext,
+  ruleId: SmartPunctuationRuleId,
+  matchedLength: number,
+  replacementText: string,
+): SmartPunctuationReplacement | null {
+  const replaceFrom = context.from - (matchedLength - context.text.length)
+  const parentStart = context.from - context.state.doc.resolve(context.from).parentOffset
+
+  if (replaceFrom < parentStart) {
+    return null
+  }
+
+  return {
+    ruleId,
+    from: replaceFrom,
+    to: context.to,
+    text: replacementText,
+  }
+}
+
+function matchPatternReplacement(
+  context: SmartPunctuationInputContext,
+  ruleId: SmartPunctuationRuleId,
+  pattern: RegExp,
+  replacement: string | ((match: RegExpMatchArray) => string),
+): SmartPunctuationReplacement | null {
+  const candidate = textBeforeCursor(context.state.doc.resolve(context.from)) + context.text
+  const match = candidate.match(pattern)
+  if (!match) {
+    return null
+  }
+
+  return makeReplacement(
+    context,
+    ruleId,
+    match[0].length,
+    typeof replacement === 'function' ? replacement(match) : replacement,
+  )
+}
+
+function findRuleReplacement(
+  context: SmartPunctuationInputContext,
+  runtimeOptions: SmartPunctuationRuntimeOptions,
+): SmartPunctuationReplacement | null {
+  const textBefore = textBeforeCursor(context.state.doc.resolve(context.from))
+
+  if (isLikelyUrlContext(textBefore, context.text)) {
+    return null
+  }
+
+  if (isRuleEnabled(runtimeOptions, 'curlyQuotes')) {
+    if (context.text === '"') {
+      return makeReplacement(context, 'curlyQuotes', 1, isOpeningQuote(textBefore) ? '“' : '”')
+    }
+    if (context.text === "'") {
+      return makeReplacement(context, 'curlyQuotes', 1, isOpeningQuote(textBefore) ? '‘' : '’')
+    }
+  }
+
+  if (context.text === '-' && isRuleEnabled(runtimeOptions, 'spacedDash')) {
+    const match = matchPatternReplacement(context, 'spacedDash', /- -$/, '—')
+    if (match) return match
+  }
+
+  if (context.text === '-' && isRuleEnabled(runtimeOptions, 'emDash')) {
+    const match = matchPatternReplacement(context, 'emDash', /--$/, '—')
+    if (match) return match
+  }
+
+  if (context.text === '.' && isRuleEnabled(runtimeOptions, 'ellipsis')) {
+    const match = matchPatternReplacement(context, 'ellipsis', /\.\.\.$/, '…')
+    if (match) return match
+  }
+
+  if ((context.text === '>' || context.text === '-') && isRuleEnabled(runtimeOptions, 'arrows')) {
+    const match = matchPatternReplacement(context, 'arrows', /(->|<-|=>)$/, value => {
+      if (value[1] === '->') return '→'
+      if (value[1] === '<-') return '←'
+      return '⇒'
+    })
+    if (match) return match
+  }
+
+  if ((context.text === '2' || context.text === '4') && isRuleEnabled(runtimeOptions, 'fractions')) {
+    const match = matchPatternReplacement(context, 'fractions', /(1\/2|1\/4|3\/4)$/, value => {
+      if (value[1] === '1/2') return '½'
+      if (value[1] === '1/4') return '¼'
+      return '¾'
+    })
+    if (match) return match
+  }
+
+  if (/\d/.test(context.text) && isRuleEnabled(runtimeOptions, 'multiplication')) {
+    const match = matchPatternReplacement(context, 'multiplication', /(\d+)x(\d+)$/i, value => `${value[1]}×${value[2]}`)
+    if (match) return match
+  }
+
+  if (context.text === ')' && isRuleEnabled(runtimeOptions, 'copyrightSymbols')) {
+    const match = matchPatternReplacement(context, 'copyrightSymbols', /(\(c\)|\(r\)|\(tm\))$/i, value => {
+      const normalized = value[1].toLowerCase()
+      if (normalized === '(c)') return '©'
+      if (normalized === '(r)') return '®'
+      return '™'
+    })
+    if (match) return match
+  }
+
+  if ((context.text === 'g' || context.text === 'G') && isRuleEnabled(runtimeOptions, 'degree')) {
+    const match = matchPatternReplacement(context, 'degree', /(\d+)\sdeg$/i, value => `${value[1]}°`)
+    if (match) return match
+  }
+
+  if (isRuleEnabled(runtimeOptions, 'panguSpacing') && needsPanguSpacing(textBefore, context.text)) {
+    return makeReplacement(context, 'panguSpacing', context.text.length, ` ${context.text}`)
+  }
+
+  return null
+}
+
+export function createSmartPunctuationTransaction(context: SmartPunctuationInputContext): Transaction | null {
+  const runtimeOptions = resolveSmartPunctuationRuntimeOptions(context.options)
+  if (!runtimeOptions.enabled || context.composing || context.text.length !== 1) {
+    return null
+  }
+
+  const $from = context.state.doc.resolve(context.from)
+  if (isSuppressedContext(context.state, $from)) {
+    return null
+  }
+
+  const replacement = findRuleReplacement(context, runtimeOptions)
+  if (!replacement) {
+    return null
+  }
+
+  const tr = context.state.tr.insertText(replacement.text, replacement.from, replacement.to)
+  tr.setMeta(SMART_PUNCTUATION_META, replacement.ruleId)
+  tr.setMeta('undoGroup', SMART_PUNCTUATION_UNDO_GROUP)
+  return tr
+}
+
+export function handleSmartPunctuationTextInput(context: SmartPunctuationDispatchContext): boolean {
+  const tr = createSmartPunctuationTransaction(context)
+  if (!tr) {
+    return false
+  }
+
+  context.dispatch(tr)
+  return true
+}
+
 export const SmartPunctuation = Extension.create<SmartPunctuationOptions>({
-    name: 'smartPunctuation',
+  name: 'smartPunctuation',
 
-    addOptions() {
-        return { ...DEFAULT_OPTIONS }
-    },
+  addOptions() {
+    return { ...DEFAULT_OPTIONS }
+  },
 
-    addProseMirrorPlugins() {
-        const extensionOptions = this.options
+  addProseMirrorPlugins() {
+    const extensionOptions = this.options
 
-        return [
-            new Plugin({
-                key: smartPunctuationPluginKey,
-
-                props: {
-                    handleTextInput(view, from, to, text) {
-                        if (!extensionOptions.enabled) return false
-
-                        // IME 组合阶段（如拼音/日文输入）跳过处理，
-                        // 避免在用户未确认候选词时触发标点替换或自动加空格
-                        if (view.composing) return false
-
-                        const { state } = view
-                        const $from = state.doc.resolve(from)
-
-                        // 获取当前文本节点中光标前的文本
-                        const textBefore = $from.parent.textBetween(
-                            0,
-                            $from.parentOffset,
-                            undefined,
-                            '\ufffc'
-                        )
-
-                        // 1. 检查标点替换规则
-                        const rules = buildRules(extensionOptions)
-                        const candidateText = textBefore + text
-
-                        for (const rule of rules) {
-                            if (text !== rule.trigger) continue
-
-                            const match = candidateText.match(rule.pattern)
-                            if (match) {
-                                const matchLength = match[0].length
-                                const replaceFrom = from - (matchLength - text.length)
-
-                                // 安全校验: 替换起始位置不得越过当前父节点的起始边界
-                                // 防止跨节点替换破坏文档结构 (如引号跨越加粗/斜体边界)
-                                const parentStart = from - $from.parentOffset
-                                if (replaceFrom < parentStart) continue
-
-                                // 执行替换（支持捕获组展开，如引号规则的 $1）
-                                const finalText = expandReplacement(rule.replacement, match)
-                                const tr = state.tr.replaceWith(
-                                    replaceFrom,
-                                    to,
-                                    state.schema.text(finalText)
-                                )
-                                view.dispatch(tr)
-                                return true
-                            }
-                        }
-
-                        // 2. 中英文自动加空格
-                        if (extensionOptions.autoSpacing && text.length === 1) {
-                            if (needsAutoSpacing(textBefore, text)) {
-                                const tr = state.tr.insertText(' ' + text, from, to)
-                                view.dispatch(tr)
-                                return true
-                            }
-                        }
-
-                        return false
-                    },
-                },
-            }),
-        ]
-    },
+    return [
+      new Plugin({
+        key: smartPunctuationPluginKey,
+        props: {
+          handleTextInput(view: EditorView, from: number, to: number, text: string) {
+            return handleSmartPunctuationTextInput({
+              state: view.state,
+              from,
+              to,
+              text,
+              composing: view.composing,
+              options: extensionOptions,
+              dispatch: tr => view.dispatch(tr),
+            })
+          },
+        },
+      }),
+    ]
+  },
 })

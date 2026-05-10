@@ -7,6 +7,8 @@ import type {
     ChatMessage,
 } from '@/services/ai/types'
 import { useSettingsStore } from '@/stores/settings'
+import { useArticleStore } from '@/stores/article'
+import { useEditorStore } from '@/stores/editor'
 import { AppError, ErrorCode, logger } from '@/services/error'
 import { REQUEST_LIMITS } from '@/config/security'
 
@@ -404,7 +406,6 @@ export const useAIStore = defineStore('ai', () => {
      * 生成文章摘要（兼容旧 API，操作 article/editor store）
      */
     async function generateArticleSummary(): Promise<string | undefined> {
-        const { useArticleStore } = await import('./article')
         const articleStore = useArticleStore()
         const article = articleStore.selectedArticle
         if (!article) return undefined
@@ -420,7 +421,6 @@ export const useAIStore = defineStore('ai', () => {
      * 生成文章标题（兼容旧 API，操作 editor store）
      */
     async function generateArticleTitle(): Promise<string | undefined> {
-        const { useEditorStore } = await import('./editor')
         const editorStore = useEditorStore()
         const content = editorStore.currentContent
         if (!content) return undefined
@@ -438,7 +438,6 @@ export const useAIStore = defineStore('ai', () => {
      * 生成口播稿（兼容旧 API，操作 editor store）
      */
     async function generateArticleTranscript(): Promise<string | undefined> {
-        const { useEditorStore } = await import('./editor')
         const editorStore = useEditorStore()
         const content = editorStore.currentContent
         if (!content) return undefined
@@ -452,7 +451,6 @@ export const useAIStore = defineStore('ai', () => {
      * 润色当前文章（兼容旧 API，操作 editor store）
      */
     async function polishCurrentArticle(style: string = '专业'): Promise<string | undefined> {
-        const { useEditorStore } = await import('./editor')
         const editorStore = useEditorStore()
         const content = editorStore.currentContent
         if (!content) return undefined
@@ -466,7 +464,6 @@ export const useAIStore = defineStore('ai', () => {
      * 扩写当前内容（兼容旧 API，操作 editor store）
      */
     async function expandCurrentContent(targetLength: number = 500): Promise<string | undefined> {
-        const { useEditorStore } = await import('./editor')
         const editorStore = useEditorStore()
         const content = editorStore.currentContent
         if (!content) return undefined
@@ -489,7 +486,6 @@ export const useAIStore = defineStore('ai', () => {
      * 精简当前内容（兼容旧 API，操作 editor store）
      */
     async function condenseCurrentContent(targetLength: number = 200): Promise<string | undefined> {
-        const { useEditorStore } = await import('./editor')
         const editorStore = useEditorStore()
         const content = editorStore.currentContent
         if (!content) return undefined

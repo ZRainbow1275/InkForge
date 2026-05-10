@@ -12,14 +12,17 @@ import { logger } from '@/services/error'
 declare module 'vue-router' {
     interface RouteMeta {
         title?: string
+        transition?: 'page-fade' | 'page-slide-left' | 'page-slide-right'
     }
 }
 
 // 懒加载视图组件
 const HubView = () => import('@/views/HubView.vue')
+const DraftsView = () => import('@/views/DraftsView.vue')
 const WorkstationView = () => import('@/views/WorkstationView.vue')
 const PublishView = () => import('@/views/PublishView.vue')
 const SettingsView = () => import('@/views/SettingsView.vue')
+const AccountWelcome = () => import('@/views/AccountWelcome.vue')
 const ThemesView = () => import('@/views/ThemesView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
 
@@ -28,31 +31,43 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         name: 'Hub',
         component: HubView,
-        meta: { title: 'InkForge - 首页' }
+        meta: { title: 'InkForge - 首页', transition: 'page-slide-right' }
     },
     {
         path: '/workstation',
         name: 'Workstation',
         component: WorkstationView,
-        meta: { title: 'InkForge - 工作站' }
+        meta: { title: 'InkForge - 工作站', transition: 'page-slide-left' }
+    },
+    {
+        path: '/drafts',
+        name: 'Drafts',
+        component: DraftsView,
+        meta: { title: 'InkForge - 草稿箱', transition: 'page-slide-left' }
     },
     {
         path: '/publish',
         name: 'Publish',
         component: PublishView,
-        meta: { title: 'InkForge - 发布' }
+        meta: { title: 'InkForge - 发布', transition: 'page-slide-left' }
     },
     {
         path: '/settings',
         name: 'Settings',
         component: SettingsView,
-        meta: { title: 'InkForge - 设置' }
+        meta: { title: 'InkForge - 设置', transition: 'page-slide-left' }
+    },
+    {
+        path: '/account',
+        name: 'Account',
+        component: AccountWelcome,
+        meta: { title: 'InkForge - 本地账户', transition: 'page-slide-left' }
     },
     {
         path: '/themes',
         name: 'Themes',
         component: ThemesView,
-        meta: { title: 'InkForge - 主题' }
+        meta: { title: 'InkForge - 主题', transition: 'page-slide-left' }
     },
     // 兼容性重定向
     {
@@ -80,7 +95,7 @@ const routes: RouteRecordRaw[] = [
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: NotFoundView,
-        meta: { title: 'InkForge - 页面不存在' }
+        meta: { title: 'InkForge - 页面不存在', transition: 'page-fade' }
     }
 ]
 

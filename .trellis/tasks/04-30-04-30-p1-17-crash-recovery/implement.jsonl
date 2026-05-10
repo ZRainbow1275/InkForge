@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/17-crash-recovery-spec.md", "reason": "Primary Spec 17 contract"}
+{"file": "prompts/0420/specs/10-markdown-authority-spec.md", "reason": "Authority source and autosave constraints"}
+{"file": "prompts/0420/acceptance-matrix.md", "reason": "Global baseline completion ledger"}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"implement","summary":"Implemented Spec 17 compatible L1 crash recovery baseline: typed emergency payload service, profile/window localStorage keys, precomputed SHA-256 emergency snapshots, Dexie v5 recoveryPoints table, autosave failure recovery point fallback, startup crash-recovery Pinia store, Workstation recovery banner, and browser lifecycle wiring for beforeunload/visibilitychange/pagehide."}

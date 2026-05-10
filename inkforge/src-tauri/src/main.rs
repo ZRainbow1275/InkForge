@@ -12,11 +12,17 @@
 
 mod commands;
 
-use commands::ollama;
+use commands::{desktop, ollama, window};
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            desktop::get_desktop_runtime_info,
+            desktop::reveal_in_explorer,
+            window::list_open_windows,
+            window::focus_window,
+            window::close_window,
+            window::create_new_window,
             ollama::check_ollama_status,
             ollama::ollama_generate,
             ollama::ollama_generate_stream,

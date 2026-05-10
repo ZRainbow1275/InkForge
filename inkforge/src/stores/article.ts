@@ -8,17 +8,26 @@ import {
     type UpdateArticleDTO
 } from '@/schemas/article'
 import { useCategoryStore } from './category'
+import { DEFAULT_ACCOUNT_ID, useAccountStore } from './account'
+import { useSyncStore } from './sync'
 import { parseUrl, calculateScore } from '@/services/parser'
 import { articleRepository } from '@/services/repository'
+import { onCategoryDeleted } from '@/services/category-events'
+import { trashRepository } from '@/services/trash'
+import { wikiLinkService } from '@/services/wiki-link'
 import { logger, ErrorCode, AppError } from '@/services/error'
+import { auditLog, type AuditAction, type AuditSeverity } from '@/services/audit'
 import { DEFAULTS, ARTICLE_TAGS, ARTICLE_STATUS } from '@/constants'
 import { generateId } from '@/utils/uuid'
 import { importFiles as importFilesService, type ImportSummary } from '@/services/file-import'
+import { buildArticleAuthorityFields, ensureArticleAuthorityFields, pickArticleAuthorityMirror } from '@/core/authority'
+import { getArticleStatusAfterContentChange } from '@/core/lifecycle'
 
 /** 文件导入结果（供 UI 展示） */
 export interface FileImportResult {
     success: number
     failed: number
+    skippedOversize: number
     errors: string[]
 }
 
@@ -36,6 +45,85 @@ export const useArticleStore = defineStore('article', () => {
     const parsing = ref(false)
     const parseError = ref<string | null>(null)
     const loadError = ref<string | null>(null)
+
+    onCategoryDeleted((categoryId) => {
+        articles.value = articles.value.map(article =>
+            article.categoryId === categoryId
+                ? { ...article, categoryId: null }
+                : article
+        )
+    })
+
+    async function trackSyncDirty(
+        articleId: string,
+        content: string | undefined,
+        operation: 'create' | 'update' | 'delete'
+    ): Promise<void> {
+        try {
+            await useSyncStore().markDirty(articleId, content, operation)
+        } catch (err) {
+            logger.warn('同步变更追踪失败，本地写入已保留', {
+                articleId,
+                operation,
+                error: err instanceof Error ? err.message : String(err),
+            })
+        }
+    }
+
+    async function trackArticleAudit(
+        action: AuditAction,
+        article: Pick<Article, 'id' | 'title' | 'status' | 'categoryId' | 'sourceUrl' | 'sourceName'>,
+        severity: AuditSeverity,
+        payload: Record<string, unknown> = {},
+    ): Promise<void> {
+        const accountStore = useAccountStore()
+        const profileId = accountStore.currentAccount?.id ?? DEFAULT_ACCOUNT_ID
+        await auditLog(action, {
+            actorId: profileId,
+            profileId,
+            docId: article.id,
+            resourceId: article.id,
+            resourceKind: 'document',
+            severity,
+            outcome: 'success',
+            payload: {
+                title: article.title,
+                status: article.status,
+                categoryId: article.categoryId,
+                sourceName: article.sourceName,
+                sourceUrl: article.sourceUrl,
+                ...payload,
+            },
+            source: 'useArticleStore',
+        })
+    }
+
+    async function refreshWikiLinksAfterArticleSaved(articleId: string, rebuildAll = false): Promise<void> {
+        try {
+            if (rebuildAll) {
+                await wikiLinkService.rebuildAllBacklinks()
+                return
+            }
+            await wikiLinkService.rebuildArticleBacklinks(articleId)
+        } catch (error) {
+            logger.warn('WikiLink backlink index update failed', {
+                articleId,
+                rebuildAll,
+                error: error instanceof Error ? error.message : String(error),
+            })
+        }
+    }
+
+    async function cleanupWikiLinksForArticle(articleId: string): Promise<void> {
+        try {
+            await wikiLinkService.deleteArticleBacklinks(articleId)
+        } catch (error) {
+            logger.warn('WikiLink backlink cleanup failed', {
+                articleId,
+                error: error instanceof Error ? error.message : String(error),
+            })
+        }
+    }
 
     // 计算属性：根据分类过滤
     const filteredArticles = computed(() => {
@@ -55,7 +143,15 @@ export const useArticleStore = defineStore('article', () => {
         loading.value = true
         loadError.value = null
         try {
-            articles.value = await articleRepository.findAllOrderedByDate()
+            const loadedArticles = await articleRepository.findAllOrderedByDate()
+            const repairedArticles = await Promise.all(loadedArticles.map(async (article) => {
+                const repair = await ensureArticleAuthorityFields(article)
+                if (repair.repaired) {
+                    await articleRepository.update(article.id, repair.updates)
+                }
+                return repair.article
+            }))
+            articles.value = repairedArticles
         } catch (err) {
             const msg = err instanceof AppError ? err.toUserMessage() : '加载失败'
             loadError.value = msg
@@ -92,6 +188,18 @@ export const useArticleStore = defineStore('article', () => {
             if (parseResult.images.length > 0) tags.push(ARTICLE_TAGS.HAS_IMAGES)
             if (parseResult.rawContent.length > DEFAULTS.LONG_ARTICLE_THRESHOLD) tags.push(ARTICLE_TAGS.LONG_ARTICLE)
 
+            const now = new Date()
+            const authority = await buildArticleAuthorityFields(parseResult.rawContent, {
+                title: parseResult.title,
+                summary: parseResult.description,
+                status: ARTICLE_STATUS.NEW,
+                tags,
+                categoryId: categoryStore.selectedCategoryId,
+                createdAt: now,
+                updatedAt: now,
+                publishedAt: parseResult.publishedAt ?? null,
+            })
+
             const article: Article = {
                 id: generateId(),
                 categoryId: categoryStore.selectedCategoryId,
@@ -102,16 +210,25 @@ export const useArticleStore = defineStore('article', () => {
                 authors: parseResult.authors,
                 publishedAt: parseResult.publishedAt,
                 rawContent: parseResult.rawContent,
+                ...authority,
                 links: parseResult.links,
                 images: parseResult.images,
                 score,
                 tags,
                 status: ARTICLE_STATUS.NEW,
-                createdAt: new Date(),
-                updatedAt: new Date()
+                createdAt: now,
+                updatedAt: now
             }
 
             await articleRepository.create(article)
+            await refreshWikiLinksAfterArticleSaved(article.id, true)
+            await trackArticleAudit('document.import', article, 'info', {
+                importKind: 'url',
+                linkCount: article.links.length,
+                imageCount: article.images.length,
+                score: article.score,
+            })
+            await trackSyncDirty(article.id, article.rawContent, 'create')
             // 不可变更新：创建新数组而非 unshift
             articles.value = [article, ...articles.value]
 
@@ -134,6 +251,21 @@ export const useArticleStore = defineStore('article', () => {
         // 运行时校验：确保输入数据符合 Schema
         const validated = CreateArticleDTOSchema.parse(data)
 
+        const now = new Date()
+        const rawContent = validated.rawContent ?? ''
+        const tags = validated.tags ?? []
+        const status = validated.status ?? ARTICLE_STATUS.NEW
+        const authority = await buildArticleAuthorityFields(rawContent, {
+            title: validated.title,
+            summary: validated.description ?? '',
+            status,
+            tags,
+            categoryId: validated.categoryId ?? null,
+            createdAt: now,
+            updatedAt: now,
+            publishedAt: null,
+        })
+
         const article: Article = {
             id: generateId(),
             categoryId: validated.categoryId ?? null,
@@ -142,17 +274,25 @@ export const useArticleStore = defineStore('article', () => {
             title: validated.title,
             description: validated.description ?? '',
             authors: validated.authors ?? [],
-            rawContent: validated.rawContent ?? '',
+            rawContent,
+            ...authority,
             links: validated.links ?? [],
             images: validated.images ?? [],
             score: DEFAULTS.MANUAL_ARTICLE_SCORE,
-            tags: validated.tags ?? [],
-            status: ARTICLE_STATUS.NEW,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            tags,
+            status,
+            createdAt: now,
+            updatedAt: now
         }
 
         await articleRepository.create(article)
+        await refreshWikiLinksAfterArticleSaved(article.id, true)
+        await trackArticleAudit('document.create', article, 'info', {
+            tagCount: article.tags.length,
+            imageCount: article.images.length,
+            manual: true,
+        })
+        await trackSyncDirty(article.id, article.rawContent, 'create')
         // 不可变更新：创建新数组而非 unshift
         articles.value = [article, ...articles.value]
 
@@ -167,14 +307,50 @@ export const useArticleStore = defineStore('article', () => {
     async function updateArticle(id: string, updates: UpdateArticleDTO) {
         // 运行时校验：确保更新数据符合 Schema
         const validated = UpdateArticleDTOSchema.parse(updates)
+        const updatedAt = new Date()
+        const current = articles.value.find(a => a.id === id) ?? await articleRepository.findById(id)
+        const authorityRelevantUpdate = (
+            validated.rawContent !== undefined ||
+            validated.title !== undefined ||
+            validated.description !== undefined ||
+            validated.status !== undefined ||
+            validated.tags !== undefined
+        )
+        const nextStatus = current && authorityRelevantUpdate
+            ? getArticleStatusAfterContentChange(
+                current.status,
+                validated.rawContent ?? current.rawContent ?? '',
+                validated.status,
+            )
+            : validated.status
+        const lifecycleUpdates = nextStatus ? { ...validated, status: nextStatus } : validated
+        const authority = current && authorityRelevantUpdate
+            ? await buildArticleAuthorityFields(
+                lifecycleUpdates.rawContent ?? current.rawContent ?? '',
+                pickArticleAuthorityMirror({ ...current, ...lifecycleUpdates, updatedAt }),
+                current.markdownSource,
+            )
+            : {}
+        const persistedUpdates: Partial<Article> = { ...lifecycleUpdates, ...authority, updatedAt }
+        const shouldRebuildAllWikiLinks = Boolean(
+            current && persistedUpdates.title && persistedUpdates.title !== current.title,
+        )
 
-        await articleRepository.update(id, { ...validated, updatedAt: new Date() })
+        await articleRepository.update(id, persistedUpdates)
+        if (current) {
+            await trackArticleAudit('document.update', { ...current, ...persistedUpdates }, 'info', {
+                changedFields: Object.keys(persistedUpdates),
+                authorityRebuilt: authorityRelevantUpdate,
+            })
+        }
+        await trackSyncDirty(id, persistedUpdates.rawContent ?? current?.rawContent ?? '', 'update')
+        await refreshWikiLinksAfterArticleSaved(id, shouldRebuildAllWikiLinks)
         const index = articles.value.findIndex(a => a.id === id)
         if (index !== -1) {
             // 不可变更新
             articles.value = [
                 ...articles.value.slice(0, index),
-                { ...articles.value[index], ...validated },
+                { ...articles.value[index], ...persistedUpdates },
                 ...articles.value.slice(index + 1)
             ]
         }
@@ -182,8 +358,21 @@ export const useArticleStore = defineStore('article', () => {
 
     // 删除资讯
     async function deleteArticle(id: string) {
-        const article = articles.value.find(a => a.id === id)
-        await articleRepository.delete(id)
+        const article = articles.value.find(a => a.id === id) ?? await articleRepository.findById(id)
+        const accountStore = useAccountStore()
+        const actorId = accountStore.currentAccount?.id ?? DEFAULT_ACCOUNT_ID
+        const trashedArticle = await trashRepository.moveToTrash(id, { actorId })
+        await cleanupWikiLinksForArticle(id)
+        if (article) {
+            await trackArticleAudit('document.delete', { ...article, ...trashedArticle }, 'warning', {
+                softDelete: true,
+                hadCategory: Boolean(article.categoryId),
+                deletedAt: trashedArticle.deletedAt?.toISOString?.() ?? trashedArticle.deletedAt ?? null,
+                expiresAt: trashedArticle.expiresAt?.toISOString?.() ?? trashedArticle.expiresAt ?? null,
+                evidenceSource: articles.value.some(item => item.id === id) ? 'loaded-state' : 'repository-lookup',
+            })
+        }
+        await trackSyncDirty(id, undefined, 'delete')
         articles.value = articles.value.filter(a => a.id !== id)
 
         if (article?.categoryId) {
@@ -197,13 +386,14 @@ export const useArticleStore = defineStore('article', () => {
 
     // 从文件系统导入文件（支持 .md / .html / .txt）
     async function importFromFiles(): Promise<FileImportResult> {
-        const result: FileImportResult = { success: 0, failed: 0, errors: [] }
+        const result: FileImportResult = { success: 0, failed: 0, skippedOversize: 0, errors: [] }
 
         try {
             const summary: ImportSummary = await importFilesService()
+            result.skippedOversize = summary.skippedOversize
 
             // 用户取消选择，返回空结果
-            if (summary.results.length === 0 && summary.failed === 0) {
+            if (summary.results.length === 0 && summary.failed === 0 && summary.skippedOversize === 0 && summary.errors.length === 0) {
                 return result
             }
 
@@ -277,6 +467,20 @@ export const useArticleStore = defineStore('article', () => {
                     success: result.success,
                     failed: result.failed,
                 })
+                await auditLog('document.import', {
+                    actorId: DEFAULT_ACCOUNT_ID,
+                    profileId: DEFAULT_ACCOUNT_ID,
+                    severity: result.failed > 0 ? 'warning' : 'info',
+                    outcome: result.failed > 0 ? 'partial' : 'success',
+                    payload: {
+                        source: 'file-picker',
+                        success: result.success,
+                        failed: result.failed,
+                        skippedOversize: result.skippedOversize,
+                        errorCount: result.errors.length,
+                    },
+                    source: 'useArticleStore.importFromFiles',
+                })
             }
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err)
@@ -295,14 +499,27 @@ export const useArticleStore = defineStore('article', () => {
 
         const article = articles.value[index]
         const oldCategoryId = article.categoryId
+        const updatedAt = new Date()
+
+        const authority = await buildArticleAuthorityFields(
+            article.rawContent ?? '',
+            pickArticleAuthorityMirror({ ...article, categoryId, updatedAt }),
+            article.markdownSource,
+        )
+        const updates: Partial<Article> = { categoryId, updatedAt, ...authority }
 
         // 使用 Repository 更新
-        await articleRepository.update(articleId, { categoryId, updatedAt: new Date() })
+        await articleRepository.update(articleId, updates)
+        await trackArticleAudit('document.update', { ...article, ...updates }, 'info', {
+            changedFields: ['categoryId'],
+            oldCategoryId,
+            newCategoryId: categoryId,
+        })
 
         // 不可变更新本地状态
         articles.value = [
             ...articles.value.slice(0, index),
-            { ...article, categoryId },
+            { ...article, ...updates },
             ...articles.value.slice(index + 1)
         ]
 

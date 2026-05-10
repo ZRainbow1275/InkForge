@@ -1,0 +1,4 @@
+{"file":"prompts/0420/specs/21-focus-writing-assist-spec.md","reason":"Verify delivered baseline against Spec 21 focus writing requirements and pending full-spec boundaries."}
+{"file":"prompts/0420/acceptance-matrix.md","reason":"Append and verify compatible-baseline acceptance evidence without marking full matrix pass prematurely."}
+{"file":".trellis/tasks/04-30-04-30-p1-21-focus-writing-assist/prd.md","reason":"Task-specific acceptance criteria and verification plan."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend quality guardrails for lint/type-check/no shell UI."}

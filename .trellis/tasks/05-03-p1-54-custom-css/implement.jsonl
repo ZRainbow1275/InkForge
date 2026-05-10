@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/54-custom-css-spec.md","reason":"Primary CustomCSS requirements: Settings Advanced UI, sandbox rules, runtime style injection, error rollback, import/export."}
+{"file":"prompts/0420/specs/20-theme-font-typography-spec.md","reason":"ThemeEngine priority, frozen token policy, editor-content/paper scope, typography variable integration."}
+{"file":"prompts/0420/specs/17-crash-recovery-spec.md","reason":"SafeMode and crash recovery boundaries used by CustomCSS self-protection without rewriting startup flow."}
+{"file":"prompts/0420/specs/41-settings-migration-spec.md","reason":"Settings schema migration and Zod-backed persistence conventions for adding advanced.customCss."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Existing frontend quality gates and required validation style for 0420 implementations."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict type boundary expectations for new settings, services, and editor integrations."}
+

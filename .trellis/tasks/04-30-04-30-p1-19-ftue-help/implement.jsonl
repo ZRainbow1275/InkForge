@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/19-ftue-help-spec.md","reason":"Primary FTUE/help product spec for WelcomeModal, help center, shortcuts, reset, persistence, and no sample document constraints."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Frontend component conventions and accessibility checklist placeholder for modal/help components."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia/global-state guidance for FTUE store integration."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict TypeScript and runtime contract guidance for FTUE types."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie schema versioning and persistence layer considerations for the ftue table."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"FTUE spans IndexedDB service, Pinia store, App shell, and Settings UI."}

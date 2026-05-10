@@ -1,0 +1,3 @@
+{"file": "prompts/0420/specs/10-markdown-authority-spec.md", "reason": "Primary authority model implementation contract for markdownSource/htmlCache/sourceHash/frontmatter invariants"}
+{"file": "prompts/0420/specs/00-wave1-current-truth.md", "reason": "Current runtime truth for editor body and article rawContent compatibility boundaries"}
+{"file": "prompts/0420/acceptance-matrix.md", "reason": "Global v2.1 acceptance status and pending authority gates"}

@@ -1,0 +1,3 @@
+# Completion checklist
+
+Before marking a Trellis task complete: validate the task metadata, run targeted tests for touched services/extensions, run `vue-tsc`, eslint quiet, full Vitest, and production build. For UI/editor/export work, add real browser smoke evidence where feasible. Update the relevant `prompts/0420/specs/*` and `.trellis/spec/*` docs with the current implementation truth instead of leaving spec drift.

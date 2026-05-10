@@ -5,86 +5,241 @@
  * 包含全局错误边界，捕获未处理的组件异常
  * + 全局 CSS Variables 从 Settings Store 同步
  */
-import { ref, computed, watch, onMounted, onErrorCaptured } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, onErrorCaptured, defineAsyncComponent } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { logger, ErrorCode, AppError } from './services/error'
 import { useSettingsStore } from './stores/settings'
+import WelcomeModal from '@/components/help/WelcomeModal.vue'
+import HelpCenter from '@/components/help/HelpCenter.vue'
+import CommandPalette from '@/components/command-palette/CommandPalette.vue'
+import UpdateToast from '@/components/settings/UpdateToast.vue'
+import UpdateDetailsModal from '@/components/settings/UpdateDetailsModal.vue'
+import { buildVisualSystemTokens, syncVisualSystemRoot } from '@/services/visual-system'
+import { useFTUEStore } from '@/stores/ftue'
+import { useArticleStore } from '@/stores/article'
+import { useCommandPaletteStore } from '@/stores/command-palette'
+import { useDevPanelStore } from '@/stores/devPanel'
+import { useUpdaterStore } from '@/stores/updater'
+import { createBuiltinCommands } from '@/services/command/builtin'
+import { CommandContextTag } from '@/types/command-palette'
+import { DevPanelKeyChordActivator, isDevPanelKeyboardShortcut, shouldIgnoreDevPanelShortcut } from '@/services/dev-tools'
+import {
+  appendCustomCssErrorLog,
+  applyCustomCssRuntime,
+  shouldSuspendForCustomCssErrors,
+} from '@/services/custom-css'
 
 /**
  * Settings → 全局 CSS Variables 同步
  */
+const router = useRouter()
+const route = useRoute()
 const settingsStore = useSettingsStore()
+const ftueStore = useFTUEStore()
+const articleStore = useArticleStore()
+const commandPaletteStore = useCommandPaletteStore()
+const devPanelStore = useDevPanelStore()
+const updaterStore = useUpdaterStore()
+const devPanelActivator = new DevPanelKeyChordActivator()
+let lastCustomCssRuntimeRejectionKey: string | null = null
+const DevPanel = defineAsyncComponent(() => import('@/views/dev/DevPanel.vue'))
+const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
 /** 将 settings 中的外观配置同步到 :root CSS 变量 */
 function syncCSSVariables(): void {
   const root = document.documentElement
-  const { accentColor, theme, fontFamily, fontSize, lineHeight, reducedMotion } = settingsStore.settings.appearance
+  const visualSystem = buildVisualSystemTokens(
+    settingsStore.settings.appearance,
+    colorSchemeQuery.matches,
+  )
 
-  // 主题色
-  root.style.setProperty('--accent-primary', accentColor)
-  // 计算较浅的主题色（用于 hover/bg）
-  root.style.setProperty('--accent-primary-light', accentColor + '1A') // 10% opacity hex
-  root.style.setProperty('--accent-primary-dark', adjustColor(accentColor, -20))
+  syncVisualSystemRoot(root, visualSystem)
+  applyTheme(visualSystem.resolvedTheme)
 
-  // 字体
-  const fontMap: Record<string, string> = {
-    serif: "'Noto Serif SC', Georgia, 'Times New Roman', serif",
-    sans: "'Noto Sans SC', -apple-system, system-ui, sans-serif",
-    kai: "'KaiTi', 'STKaiti', serif",
-    mono: "'JetBrains Mono', 'Fira Code', monospace",
-  }
-  root.style.setProperty('--font-body', fontMap[fontFamily] || fontMap.serif)
-  root.style.setProperty('--font-size-body', `${fontSize}px`)
-  root.style.setProperty('--line-height-body', String(lineHeight))
+  root.setAttribute('data-theme-chrome', visualSystem.resolvedTheme)
+  root.setAttribute('data-theme-paper', visualSystem.resolvedTheme)
+  root.setAttribute('data-typography-preset', visualSystem.diagnostics.typographyPresetId)
+  root.setAttribute('data-typography-heading-style', settingsStore.settings.appearance.typography.headingStyle)
+  root.setAttribute('data-typography-blockquote-style', settingsStore.settings.appearance.typography.blockquoteStyle)
 
-  // 主题 (light/dark/system)
-  applyTheme(theme)
-
-  // 减少动画
-  if (reducedMotion) {
-    root.classList.add('reduce-motion')
-  } else {
-    root.classList.remove('reduce-motion')
-  }
+  // 减少动画：同时写入 class 与 data attribute，供全局 CSS 和测试稳定识别。
+  root.classList.toggle('reduce-motion', settingsStore.settings.appearance.reducedMotion)
+  root.setAttribute('data-reduced-motion', settingsStore.settings.appearance.reducedMotion ? 'true' : 'false')
 }
 
-/** 应用主题 class */
-function applyTheme(theme: 'light' | 'dark' | 'system'): void {
+/** 应用主题 class + data-theme，保持 CSS 变量与自动化检查一致 */
+function applyTheme(theme: 'light' | 'dark'): void {
   const root = document.documentElement
   root.classList.remove('theme-light', 'theme-dark')
+  root.classList.add(`theme-${theme}`)
+  root.setAttribute('data-theme', theme)
+}
 
-  if (theme === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    root.classList.add(prefersDark ? 'theme-dark' : 'theme-light')
-  } else {
-    root.classList.add(`theme-${theme}`)
+function handleColorSchemeChange(): void {
+  if (settingsStore.settings.appearance.theme === 'system') {
+    syncCSSVariables()
   }
 }
 
-/** 简单的颜色明度调整 */
-function adjustColor(hex: string, amount: number): string {
-  const num = parseInt(hex.replace('#', ''), 16)
-  const r = Math.min(255, Math.max(0, (num >> 16) + amount))
-  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount))
-  const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount))
-  return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`
+function syncCustomCssRuntime(): void {
+  const customCss = settingsStore.settings.advanced.customCss
+  const result = applyCustomCssRuntime(customCss)
+
+  if (result.status === 'suspended' && customCss.enabled) {
+    customCss.enabled = false
+    customCss.suspendedReason = 'safe-mode'
+    customCss.errorLog = appendCustomCssErrorLog(customCss.errorLog, {
+      type: 'safe-mode',
+      message: result.message,
+    })
+    settingsStore.save()
+    logger.warn(result.message)
+    return
+  }
+
+  if (result.status !== 'rejected') {
+    lastCustomCssRuntimeRejectionKey = null
+    return
+  }
+
+  const rejectionKey = `${customCss.published}::${result.message}`
+  if (lastCustomCssRuntimeRejectionKey === rejectionKey) {
+    return
+  }
+  lastCustomCssRuntimeRejectionKey = rejectionKey
+
+  customCss.errorLog = appendCustomCssErrorLog(customCss.errorLog, {
+    type: 'runtime',
+    message: result.message,
+    snippet: result.sandboxResult?.sourceCss.slice(0, 500),
+  })
+
+  if (shouldSuspendForCustomCssErrors(customCss.errorLog)) {
+    customCss.enabled = false
+    customCss.suspendedReason = 'sandbox-error-limit'
+    applyCustomCssRuntime(customCss)
+  }
+
+  settingsStore.save()
+  logger.warn('CustomCSS runtime rejected persisted CSS', {
+    reason: result.message,
+  })
 }
 
-// 初次加载 + 响应式监听
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+
+  const nativeEditable = ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+  const ariaEditable = target.getAttribute('role') === 'textbox' || Boolean(target.closest('[role="textbox"]'))
+  const contentEditable = target.isContentEditable || Boolean(target.closest('[contenteditable="true"]'))
+
+  return nativeEditable || ariaEditable || contentEditable
+}
+
+function handleGlobalHelpShortcut(event: KeyboardEvent): void {
+  if ((event.ctrlKey || event.metaKey) && event.key === '/' && !isEditableTarget(event.target)) {
+    event.preventDefault()
+    ftueStore.openHelpCenter('markdown')
+  }
+}
+
+function syncCommandPaletteContext(): void {
+  commandPaletteStore.setAppContext({
+    routePath: route.fullPath,
+    routeName: typeof route.name === 'string' ? route.name : null,
+    activeDocumentId: articleStore.selectedArticleId,
+  })
+}
+
+function handleGlobalDevPanelShortcut(event: KeyboardEvent): void {
+  if (!isDevPanelKeyboardShortcut(event) || shouldIgnoreDevPanelShortcut(event)) {
+    return
+  }
+
+  if (devPanelStore.developerModeEnabled) {
+    event.preventDefault()
+    devPanelStore.togglePanel('keyboard')
+    return
+  }
+
+  if (devPanelActivator.record(event)) {
+    event.preventDefault()
+    devPanelStore.enableSessionDeveloperMode('triple-shortcut')
+    devPanelStore.openPanel('triple-shortcut')
+  }
+}
+function handleGlobalCommandShortcut(event: KeyboardEvent): void {
+  if (event.isComposing || event.key.toLowerCase() !== 'k' || (!event.ctrlKey && !event.metaKey)) {
+    return
+  }
+
+  if (isEditableTarget(event.target)) {
+    return
+  }
+
+  if (event.shiftKey) {
+    event.preventDefault()
+    commandPaletteStore.open({
+      contextFilter: [CommandContextTag.Document, CommandContextTag.Editor],
+      triggerSource: 'keyboard',
+    })
+    return
+  }
+
+  event.preventDefault()
+  commandPaletteStore.open({ triggerSource: 'keyboard' })
+}
+
+// Initial load plus global listeners.
 onMounted(() => {
   syncCSSVariables()
-
-  // 监听系统主题变化
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (settingsStore.settings.appearance.theme === 'system') {
-      applyTheme('system')
-    }
+  syncCustomCssRuntime()
+  void ftueStore.initialize()
+  devPanelStore.initializeFromStartup()
+  commandPaletteStore.registerCommands(createBuiltinCommands({
+    router,
+    articleStore,
+    getWorkstationBridge: () => commandPaletteStore.workstationBridge,
+    toggleDevPanel: () => devPanelStore.togglePanel('command-palette'),
+    checkForUpdates: async () => updaterStore.checkNow(),
+  }))
+  syncCommandPaletteContext()
+  void updaterStore.initialize().then(() => {
+    updaterStore.scheduleStartupCheck()
+    updaterStore.startIntervalChecks()
   })
+  colorSchemeQuery.addEventListener('change', handleColorSchemeChange)
+  window.addEventListener('keydown', handleGlobalHelpShortcut)
+  window.addEventListener('keydown', handleGlobalCommandShortcut)
+  window.addEventListener('keydown', handleGlobalDevPanelShortcut)
+})
+
+onUnmounted(() => {
+  colorSchemeQuery.removeEventListener('change', handleColorSchemeChange)
+  window.removeEventListener('keydown', handleGlobalHelpShortcut)
+  window.removeEventListener('keydown', handleGlobalCommandShortcut)
+  window.removeEventListener('keydown', handleGlobalDevPanelShortcut)
+  updaterStore.stopScheduledChecks()
 })
 
 watch(
   () => settingsStore.settings.appearance,
   () => syncCSSVariables(),
   { deep: true }
+)
+
+watch(
+  () => settingsStore.settings.advanced.customCss,
+  () => syncCustomCssRuntime(),
+  { deep: true },
+)
+
+watch(
+  () => [route.fullPath, route.name, articleStore.selectedArticleId] as const,
+  () => syncCommandPaletteContext(),
+  { immediate: true },
 )
 
 /**
@@ -150,33 +305,93 @@ function handleDismiss(): void {
 
 <template>
   <!-- 错误回退 UI -->
-  <div v-if="hasError" class="error-boundary">
+  <div
+    v-if="hasError"
+    class="error-boundary"
+  >
     <div class="error-boundary__content">
       <div class="error-boundary__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <line
+            x1="12"
+            y1="8"
+            x2="12"
+            y2="12"
+          />
+          <line
+            x1="12"
+            y1="16"
+            x2="12.01"
+            y2="16"
+          />
         </svg>
       </div>
-      <h1 class="error-boundary__title">页面出现问题</h1>
-      <p class="error-boundary__message">{{ errorMessage }}</p>
-      <p v-if="showTechnicalDetails" class="error-boundary__details">
+      <h1 class="error-boundary__title">
+        页面出现问题
+      </h1>
+      <p class="error-boundary__message">
+        {{ errorMessage }}
+      </p>
+      <p
+        v-if="showTechnicalDetails"
+        class="error-boundary__details"
+      >
         错误位置: {{ errorDetails }}
       </p>
       <div class="error-boundary__actions">
-        <button class="error-boundary__btn error-boundary__btn--primary" @click="handleRetry">
+        <button
+          class="error-boundary__btn error-boundary__btn--primary"
+          @click="handleRetry"
+        >
           刷新页面
         </button>
-        <button class="error-boundary__btn error-boundary__btn--secondary" @click="handleDismiss">
+        <button
+          class="error-boundary__btn error-boundary__btn--secondary"
+          @click="handleDismiss"
+        >
           尝试恢复
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 正常内容 -->
-  <router-view v-else />
+  <!-- Normal content -->
+  <template v-else>
+    <router-view v-slot="{ Component, route }">
+      <Transition
+        :name="route.meta.transition || 'page-fade'"
+        mode="out-in"
+      >
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          class="app-route-shell"
+        />
+      </Transition>
+    </router-view>
+
+    <WelcomeModal />
+    <HelpCenter />
+    <CommandPalette />
+    <UpdateToast />
+    <UpdateDetailsModal />
+    <DevPanel v-if="devPanelStore.shouldRenderPanel" />
+  </template>
 </template>
 
 <style>
@@ -185,13 +400,56 @@ function handleDismiss(): void {
   height: 100vh;
 }
 
+.app-route-shell {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .app-route-shell {
+    padding-bottom: 72px;
+    box-sizing: border-box;
+  }
+}
+
+.page-fade-enter-active,
+.page-fade-leave-active,
+.page-slide-left-enter-active,
+.page-slide-left-leave-active,
+.page-slide-right-enter-active,
+.page-slide-right-leave-active {
+  transition: opacity var(--duration-normal, 250ms) var(--ease-smooth, ease),
+    transform var(--duration-normal, 250ms) var(--ease-smooth, ease);
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+
+.page-slide-left-enter-from,
+.page-slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-slide-right-enter-from,
+.page-slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
 /* 全局减少动画 */
 .reduce-motion *,
 .reduce-motion *::before,
-.reduce-motion *::after {
+.reduce-motion *::after,
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* 错误边界样式 */

@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/37-snippet-system-spec.md","reason":"Primary Snippet System requirements and acceptance matrix."}
+{"file":"prompts/0420/specs/22-command-palette-spec.md","reason":"Command palette integration boundaries and command model."}
+{"file":"prompts/0420/specs/03-keyboard-shortcuts-spec.md","reason":"Tab/keyboard shortcut conflict constraints."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie additive migration and local-first persistence contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia state contracts and no-placeholder UI rules."}
+{"file":"inkforge/src/utils/db.ts","reason":"Additive snippets schema table and typed Dexie table."}
+{"file":"inkforge/src/components/editor/EditorPanel.vue","reason":"Existing TipTap extension registration and editor integration point."}
+{"file":"inkforge/src/extensions/SlashCommands.ts","reason":"Existing slash-command behavior that must not be broken."}
+{"file":".trellis/tasks/05-02-05-02-p1-37-snippet-system/research/snippet-research.md","reason":"Current external, library, and local research notes."}

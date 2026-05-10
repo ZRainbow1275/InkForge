@@ -12,6 +12,38 @@
 import { ref, watch, onUnmounted, type Ref } from 'vue'
 import type { Platform } from '@/services/export'
 
+// ─── P3-T11 — preview metadata ──────────────────────────────────────
+/**
+ * 平台无关的元信息容器，UI 可在手机框下方展示「字数 / 超限 / 公式数 / 表格数」等。
+ * 字段全部 optional —— 不同平台只填自己关心的部分。
+ */
+export interface PreviewMeta {
+  /** 当前预览代表的平台 */
+  platform?: Platform
+  /** 总字数 / 字符数 */
+  charCount?: number
+  /** 是否超出该平台字数限制（小红书 1000） */
+  overLimit?: boolean
+  /** 段落数 */
+  paragraphCount?: number
+  /** 标题（小红书 titleSplit 抽出） */
+  title?: string
+  /** 注入正文 footer 的 hashtags（小红书） */
+  hashtags?: string[]
+  /** 文本引擎建议的话题标签（小红书） */
+  suggestedTags?: string[]
+  /** 块级 LaTeX 数（知乎） */
+  latexBlocks?: number
+  /** 行内 LaTeX 数（知乎） */
+  latexInlines?: number
+  /** Mermaid 块数（知乎） */
+  mermaidCount?: number
+  /** 任务列表数（知乎） */
+  taskListCount?: number
+  /** 表格降级数（知乎） */
+  tablesConverted?: number
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 类型定义
 // ═══════════════════════════════════════════════════════════════════
@@ -34,6 +66,8 @@ export interface PreviewRendererReturn {
   previewLoading: Ref<boolean>
   /** 上次渲染耗时 (ms) */
   lastRenderTime: Ref<number>
+  /** P3-T11：native artifact 元信息（字数 / 公式数 等）。失败或未渲染时为 null */
+  previewMeta: Ref<PreviewMeta | null>
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -60,6 +94,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
   const previewHtml = ref('')
   const previewLoading = ref(false)
   const lastRenderTime = ref(0)
+  const previewMeta = ref<PreviewMeta | null>(null)
 
   let rafId: number | null = null
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -75,12 +110,18 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
   }
 
   /**
-   * 执行预览渲染
+   * 执行预览渲染。
+   *
+   * P3-T11：按平台分流到正确的 native artifact + fidelity 包装：
+   *   - wechat → convertToPlatform (HTML 引擎) — unchanged
+   *   - xiaohongshu → markdownToXiaohongshuText → renderXhsMockHtml
+   *   - zhihu → markdownToZhihuClean → renderZhihuMockHtml
    */
   async function renderPreview(): Promise<void> {
     const body = options.body.value
     if (!body) {
       previewHtml.value = ''
+      previewMeta.value = null
       return
     }
 
@@ -88,39 +129,124 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     const startTime = performance.now()
 
     try {
-      const { convertToPlatform } = await import('@/services/export')
       const exportSettings = options.getExportSettings()
       const appearance = options.getAppearance()
+      const platform = options.platform.value
+      const presetId = exportSettings.defaultPresetId as string | undefined
+      const primaryColor = appearance.accentColor
 
-      const result = await convertToPlatform(body, options.platform.value, {
-        presetId: exportSettings.defaultPresetId as string | undefined,
-        exportOptions: {
-          enableMacCodeBlock: exportSettings.macCodeBlock as boolean | undefined,
-          enableLineNumbers: exportSettings.lineNumbers as boolean | undefined,
-          enableCiteStatus: exportSettings.convertFootnotes as boolean | undefined,
-          enableTextIndent: exportSettings.textIndent as boolean | undefined,
-          codeTheme: exportSettings.codeTheme as
-            | 'atom-one-dark'
-            | 'atom-one-light'
-            | 'github-dark'
-            | 'github-light'
-            | 'monokai'
-            | 'vs2015'
-            | 'dracula'
-            | undefined,
-        },
-        overrides: {
-          primaryColor: appearance.accentColor,
-          fontFamily: appearance.fontFamily,
-        },
-      })
-      previewHtml.value = result
+      if (platform === 'xiaohongshu') {
+        const { markdownToXiaohongshuText } = await import('@/services/export')
+        const { renderXhsMockHtml } = await import(
+          '@/services/export/preview-fidelity/xiaohongshu-mock'
+        )
+        const textResult = markdownToXiaohongshuText(body)
+        previewHtml.value = renderXhsMockHtml(
+          {
+            text: textResult.text,
+            title: textResult.title,
+            body: textResult.body,
+            hashtags: textResult.hashtags,
+            suggestedTags: textResult.suggestedTags,
+            charCount: textResult.charCount,
+            overLimit: textResult.overLimit,
+          },
+          {
+            presetId: stripXhsPresetPrefix(presetId),
+            primaryColor,
+          }
+        )
+        previewMeta.value = {
+          platform: 'xiaohongshu',
+          charCount: textResult.charCount,
+          overLimit: textResult.overLimit,
+          paragraphCount: textResult.paragraphCount,
+          title: textResult.title,
+          hashtags: textResult.hashtags,
+          suggestedTags: textResult.suggestedTags,
+        }
+      } else if (platform === 'zhihu') {
+        const { markdownToZhihuClean } = await import('@/services/export')
+        const { renderZhihuMockHtml } = await import(
+          '@/services/export/preview-fidelity/zhihu-mock'
+        )
+        const mdResult = markdownToZhihuClean(body)
+        previewHtml.value = renderZhihuMockHtml(
+          {
+            markdown: mdResult.markdown,
+            latexBlocks: mdResult.latexBlocksConverted,
+            latexInlines: mdResult.latexInlinesConverted,
+            mermaidCount: mdResult.mermaidCount,
+            taskListCount: mdResult.taskListCount,
+          },
+          {
+            presetId: stripZhihuPresetPrefix(presetId),
+            primaryColor,
+          }
+        )
+        previewMeta.value = {
+          platform: 'zhihu',
+          latexBlocks: mdResult.latexBlocksConverted,
+          latexInlines: mdResult.latexInlinesConverted,
+          mermaidCount: mdResult.mermaidCount,
+          taskListCount: mdResult.taskListCount,
+          tablesConverted: mdResult.tablesConverted,
+        }
+      } else {
+        const { convertToPlatform } = await import('@/services/export')
+        const result = await convertToPlatform(body, platform, {
+          presetId,
+          exportOptions: {
+            enableMacCodeBlock: exportSettings.macCodeBlock as boolean | undefined,
+            enableLineNumbers: exportSettings.lineNumbers as boolean | undefined,
+            enableCiteStatus: exportSettings.convertFootnotes as boolean | undefined,
+            enableTextIndent: exportSettings.textIndent as boolean | undefined,
+            codeTheme: exportSettings.codeTheme as
+              | 'atom-one-dark'
+              | 'atom-one-light'
+              | 'github-dark'
+              | 'github-light'
+              | 'monokai'
+              | 'vs2015'
+              | 'dracula'
+              | undefined,
+          },
+          overrides: {
+            primaryColor,
+            fontFamily: appearance.fontFamily,
+          },
+        })
+        previewHtml.value = result
+        previewMeta.value = { platform: 'wechat' }
+      }
     } catch {
       previewHtml.value = '<p style="color:#C62828;">预览渲染失败</p>'
+      previewMeta.value = null
     } finally {
       previewLoading.value = false
       lastRenderTime.value = Math.round(performance.now() - startTime)
     }
+  }
+
+  /**
+   * 把 ExportSettings 里的 preset id（'xhs-fresh' / 'xhs-warm' …）转成
+   * fidelity 模块期望的短键（'fresh' / 'warm' …）。
+   * 未识别时返回 undefined，由 fidelity 模块用默认值兜底。
+   */
+  function stripXhsPresetPrefix(
+    presetId: string | undefined
+  ): 'fresh' | 'simple' | 'warm' | 'tech' | 'nature' | undefined {
+    if (!presetId) return undefined
+    const m = presetId.match(/^xhs-(fresh|simple|warm|tech|nature)$/)
+    return m ? (m[1] as 'fresh' | 'simple' | 'warm' | 'tech' | 'nature') : undefined
+  }
+
+  function stripZhihuPresetPrefix(
+    presetId: string | undefined
+  ): 'academic' | 'tech' | 'insight' | undefined {
+    if (!presetId) return undefined
+    const m = presetId.match(/^zhihu-(academic|tech|insight)$/)
+    return m ? (m[1] as 'academic' | 'tech' | 'insight') : undefined
   }
 
   /**
@@ -159,5 +285,5 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     if (rafId !== null) cancelAnimationFrame(rafId)
   })
 
-  return { previewHtml, previewLoading, lastRenderTime }
+  return { previewHtml, previewLoading, lastRenderTime, previewMeta }
 }

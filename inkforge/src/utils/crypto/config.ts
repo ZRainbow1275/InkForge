@@ -5,9 +5,11 @@
 /**
  * 是否启用加密
  * - 生产环境 + Tauri 桌面应用：启用（通过系统密钥链管理主密钥）
- * - 开发环境：关闭（避免未初始化密钥阻塞开发流程）
+ * - Web 预览/开发环境：关闭（当前 Web 端尚未接入密码解锁 UI，避免未初始化密钥阻塞真实文档写入）
  */
-export const ENABLE_ENCRYPTION = !import.meta.env.DEV
+const HAS_TAURI_RUNTIME = typeof window !== 'undefined' && ('__TAURI__' in window || '__TAURI_INTERNALS__' in window)
+
+export const ENABLE_ENCRYPTION = import.meta.env.PROD && HAS_TAURI_RUNTIME
 
 /** 加密算法配置 */
 export const CRYPTO_CONFIG = {

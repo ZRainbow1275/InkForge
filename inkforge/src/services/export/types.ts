@@ -266,6 +266,24 @@ export interface ZhihuExportOptions {
   colorOverrides?: ColorOverrides
 }
 
+/**
+ * 微信公众号导出选项
+ * 在通用 ExportOptions 之上叠加 platform-rules/wechat 的合规化开关。
+ * 默认行为：CJK/Latin 间距开启、677px 内容宽度 clamp 开启、dark-mode 元数据关闭。
+ */
+export interface WechatExportOptions extends ExportOptions {
+  /** 启用 CJK/Latin thin-space 间距（默认 true） */
+  enableCjkSpacing?: boolean
+  /** 内容列宽度上限 px；传 null 关闭 clamp（默认 677） */
+  maxContentWidth?: number | null
+  /** 启用微信 dark-mode 元数据注入（默认 false，opt-in） */
+  enableDarkMode?: boolean
+  /** dark-mode 文本色（形如 '#FFFFFF|'） */
+  darkModeText?: string
+  /** dark-mode 背景色（形如 '#1F1F1F|'） */
+  darkModeBg?: string
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 平台原生格式导出类型
 // ═══════════════════════════════════════════════════════════════════
@@ -284,6 +302,15 @@ export interface XiaohongshuTextResult {
   emojiCount: number
   /** 生成的话题标签建议 */
   suggestedTags: string[]
+  // ─── P2-T7 新增字段（来自 platform-rules/xiaohongshu）── 可选，旧调用方无感知 ───
+  /** 标题切分结果（titleSplit=true 时填充，≤20 字） */
+  title?: string
+  /** 标题切分后的正文（titleSplit=true 时填充） */
+  body?: string
+  /** 最终注入正文 footer 的 hashtags（hashtagInBody=true 时填充） */
+  hashtags?: string[]
+  /** 图占位提示行（每张图一条） */
+  imageHints?: string[]
 }
 
 /** 小红书纯文本导出选项 */
@@ -292,7 +319,7 @@ export interface XiaohongshuTextOptions {
   emojiStyle?: 'fresh' | 'simple' | 'warm' | 'tech' | 'nature'
   /** 是否自动分段 (默认 true) */
   autoSplitParagraphs?: boolean
-  /** 每段最大行数 (默认 5) */
+  /** 每段最大行数 (P2-T7 起默认 3，之前为 5) */
   maxLinesPerParagraph?: number
   /** 是否注入 emoji (默认 true) */
   injectEmojis?: boolean
@@ -302,6 +329,17 @@ export interface XiaohongshuTextOptions {
   addSignature?: boolean
   /** 自定义签名文本 */
   signatureText?: string
+  // ─── P2-T7 新增字段 ───
+  /** 是否将 hashtags 注入正文 footer (默认 true) */
+  hashtagInBody?: boolean
+  /** 是否启用首行标题切分 (默认 true) */
+  titleSplit?: boolean
+  /** 候选 hashtag（带 popularity 评分），优先于 suggestedTags */
+  tagCandidates?: { tag: string; popularity: number }[]
+  /** hashtag 混合配比 — popularity ≥0.7 取数 (默认 2) */
+  hotTags?: number
+  /** hashtag 混合配比 — popularity <0.3 取数 (默认 2) */
+  nicheTags?: number
 }
 
 /** 知乎 Markdown 导出结果 */
@@ -314,13 +352,26 @@ export interface ZhihuMarkdownResult {
   taskListCount: number
   /** 清理掉的 HTML 标签列表 */
   cleanedHtmlTags: string[]
-  /** LaTeX 公式数量（已保留） */
+  /** LaTeX 公式数量（保护阶段计数；与 *Converted 字段独立） */
   latexCount: number
+  /** 经 platform-rules 实际转换为 equation img 的块级 LaTeX 数量 */
+  latexBlocksConverted: number
+  /** 经 platform-rules 实际转换为 equation img 的行内 LaTeX 数量 */
+  latexInlinesConverted: number
+  /** 经 platform-rules 转换为 HTML <table> 的 GFM 表格数量 */
+  tablesConverted: number
+  /** 经 platform-rules 补默认语言的代码围栏数量 */
+  codeLangsFixed: number
 }
 
 /** 知乎 Markdown 导出选项 */
 export interface ZhihuMarkdownOptions {
-  /** 是否保留 LaTeX 公式 (默认 true) */
+  /**
+   * 是否保留 LaTeX 公式（旧字段，向后兼容）。
+   * - 显式 `convertLatexToImg` 优先级更高。
+   * - 仅当 `convertLatexToImg` 未传入且此字段为 `false` 时等同于禁用 LaTeX 转换。
+   * @deprecated 请使用 `convertLatexToImg`
+   */
   preserveLatex?: boolean
   /** 是否转换任务列表为 emoji (默认 true) */
   convertTaskLists?: boolean
@@ -328,6 +379,19 @@ export interface ZhihuMarkdownOptions {
   mermaidHandling?: 'prompt' | 'remove'
   /** 是否清理 GFM 扩展语法 (默认 true) */
   cleanGfmExtensions?: boolean
+  /** 是否将 LaTeX 公式转为知乎 equation 图片 (默认 true) */
+  convertLatexToImg?: boolean
+  /**
+   * 表格处理方式 (默认 'html'):
+   * - 'preserve': 保留 GFM Markdown 表格
+   * - 'html':     转为 HTML `<table>` （知乎原生支持，2026 工业标准）
+   * - 'fallback': 兼容别名，等价于 'html'
+   */
+  tableHandling?: 'preserve' | 'html' | 'fallback'
+  /** 是否对无语言标识的 fenced code 强制补充默认语言 (默认 true) */
+  codeLangCoerce?: boolean
+  /** 代码语言强制时使用的默认语言 (默认 'text') */
+  defaultLang?: string
 }
 
 // ═══════════════════════════════════════════════════════════════════

@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/25-extension-plugin-spec.md", "reason": "Spec compliance checks"}
+{"file": "prompts/0420/specs/24-permission-audit-spec.md", "reason": "Audit compliance checks"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Database quality checks"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Frontend store quality checks"}
+{"file": ".trellis/tasks/05-01-05-01-p1-25-extension-plugin/research/extension-plugin-practices.md", "reason": "External practice checklist"}

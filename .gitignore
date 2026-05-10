@@ -1,2 +1,19 @@
 .ace-tool/
 .mcp.json
+.gitnexus
+
+# Runtime / tooling artifacts
+node_modules/
+.playwright-mcp/
+.codex/
+.agents/
+.claude/worktrees/
+.claude/settings.local.json
+
+# Throwaway screenshots at repo root
+hub-*.png
+drafts-*.png
+
+# OS / editor
+.DS_Store
+Thumbs.db

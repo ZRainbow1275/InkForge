@@ -58,8 +58,15 @@ const emit = defineEmits<{
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #CFD8DC;
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  background-color: #CFD8DC;
+  /* 预占与 active 同形的 4px halo spread — 仅 alpha 在两端不同。
+     这样切换时浏览器只插值 alpha，避免 spread 0→4 引发的"halo 弹出"感
+     与旧的 `none ↔ 4px shadow` 退化路径导致的红点残留闪烁。 */
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0);
+  will-change: transform, background-color, box-shadow;
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section-dot-label {
@@ -91,7 +98,7 @@ const emit = defineEmits<{
 }
 
 .section-dot:hover .section-dot-bullet {
-  background: #90A4AE;
+  background-color: #90A4AE;
 }
 
 .section-dot:hover .section-dot-label {
@@ -104,7 +111,7 @@ const emit = defineEmits<{
 }
 
 .section-dot--active .section-dot-bullet {
-  background: #D32F2F;
+  background-color: #D32F2F;
   transform: scale(1.25);
   box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.16);
 }
@@ -134,15 +141,17 @@ const emit = defineEmits<{
 
 html.theme-dark .section-dot-bullet,
 html[data-theme="dark"] .section-dot-bullet {
-  background: rgba(255, 255, 255, 0.18);
+  background-color: rgba(255, 255, 255, 0.18);
+  /* 同步 light mode 策略：预占 4px halo，过渡仅插值 alpha */
+  box-shadow: 0 0 0 4px rgba(239, 83, 80, 0);
 }
 html.theme-dark .section-dot:hover .section-dot-bullet,
 html[data-theme="dark"] .section-dot:hover .section-dot-bullet {
-  background: rgba(255, 255, 255, 0.42);
+  background-color: rgba(255, 255, 255, 0.42);
 }
 html.theme-dark .section-dot--active .section-dot-bullet,
 html[data-theme="dark"] .section-dot--active .section-dot-bullet {
-  background: #EF5350;
+  background-color: #EF5350;
   box-shadow: 0 0 0 4px rgba(239, 83, 80, 0.20);
 }
 

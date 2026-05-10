@@ -1,0 +1,41 @@
+{
+  "id": "hub-polish-v2",
+  "name": "hub-polish-v2",
+  "title": "Hub布局精修",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": "feature/hub-polish-v2",
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": "D:\\Desktop\\trellis-worktrees\\feature\\hub-polish-v2",
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "relatedFiles": [],
+  "notes": ""
+}

@@ -1,0 +1,10 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/49-editor-keymap-spec.md", "reason": "Primary Spec 49 editor keymap requirements"}
+{"file": "prompts/0420/specs/01-spec-editor-typora.md", "reason": "Typora editor architecture dependency"}
+{"file": "prompts/0420/specs/03-spec-keybindings.md", "reason": "Keyboard shortcut registry dependency"}
+{"file": "prompts/0420/specs/22-command-palette-spec.md", "reason": "Command palette shortcut conflict dependency"}
+{"file": ".trellis/tasks/05-03-05-02-p1-49-editor-keymap/prd.md", "reason": "Task PRD and acceptance criteria"}
+{"file": ".trellis/tasks/05-03-05-02-p1-49-editor-keymap/research/external-references.md", "reason": "External Tiptap ProseMirror research notes"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Frontend strict typing contracts"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend quality gates"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer implementation guidance"}

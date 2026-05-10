@@ -13,22 +13,51 @@ body {
     /* Match Client View bg */
 }
 
-/* Scrollbar Styling for Dark Theme */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+/* ═══ 全局滚动条统一样式（Ethereal Constructivism） ═══
+ * 用 *::-webkit-scrollbar 作为基线兜底，确保任何未单独定制的容器
+ * 也呈现轻盈、半透明、与主题协调的滚动条；具体容器（.editor-scroll、
+ * .hub-page、.stage-body 等）的更具体选择器会在级联中胜出。
+ */
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-::-webkit-scrollbar-track {
-    background: #252526;
+*::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #424242;
-    border-radius: 5px;
-    border: 2px solid #252526;
+*::-webkit-scrollbar-thumb {
+    background: rgba(120, 144, 156, 0.32);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #4f4f4f;
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(211, 47, 47, 0.42);
+    background-clip: padding-box;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(120, 144, 156, 0.32) transparent;
+}
+
+/* 暗色主题适配 */
+html.theme-dark *,
+html[data-theme="dark"] * {
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+html.theme-dark *::-webkit-scrollbar-thumb,
+html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    background-clip: padding-box;
+}
+
+html.theme-dark *::-webkit-scrollbar-thumb:hover,
+html[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 83, 80, 0.42);
+    background-clip: padding-box;
 }

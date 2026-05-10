@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts\\0420\\specs\\53-image-extension-v2-spec.md", "reason": "acceptance criteria and test matrix"}
+{"file": ".trellis\\spec\\frontend\\quality-guidelines.md", "reason": "frontend quality gates"}
+{"file": ".trellis\\spec\\frontend\\type-safety.md", "reason": "strict frontend type safety"}
+{"file": "prompts\\0420\\specs\\28-asset-pipeline-spec.md", "reason": "real asset pipeline verification"}
+{"file": ".trellis\\tasks\\05-03-p1-53-image-extension-v2\\research\\external-references.md", "reason": "external API validation facts"}

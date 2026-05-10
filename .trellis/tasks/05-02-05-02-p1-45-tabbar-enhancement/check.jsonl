@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/45-tabbar-enhancement-spec.md","reason":"Check TabBar acceptance criteria for real tabs, pinning, keyboard, drag reorder, status, and restore."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Check tab ids and titles are derived from real article lifecycle state."}
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"Check Workstation split-view/editor shell remains intact after TabBar insertion."}
+{"file":"prompts/0420/specs/48-session-restore-spec.md","reason":"Check sessionStorage baseline stays within non-goals and avoids schema changes."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check Pinia state contract and no mock tab data."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check strict WorkstationTab and save-state typing."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check required tests, typecheck, lint, build, and browser smoke."}

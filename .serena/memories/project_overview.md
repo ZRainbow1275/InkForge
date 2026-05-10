@@ -1,0 +1,3 @@
+# Inkforge project overview
+
+Inkforge is a Vue 3 + Tiptap + Pinia + Dexie desktop/web writing app. The nested frontend app lives in `inkforge/`; Trellis planning/spec files live at repo root under `.trellis/` and `prompts/0420/`. Current development is spec-driven and must preserve the Markdown-authority philosophy: Markdown is the expression truth, HTML is a derived runtime/export cache. No mock data, no fake endpoint behavior, and no emoji icons are allowed for user-facing features.

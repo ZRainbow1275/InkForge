@@ -1,0 +1,8 @@
+{"file":"prompts/0420/specs/56-citation-spec.md","reason":"Primary product contract for footnotes, academic citations, BibTeX, CSL-style formatting, bibliography, and export integration."}
+{"file":"prompts/0420/specs/01-spec-editor-typora.md","reason":"Editor mode contract for Typora/source/preview round-trip and cursor-aware rendering."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Markdown authority and non-reverse-pollution contract for parser, serializer, cache, and exporter boundaries."}
+{"file":"prompts/0420/specs/15-export-publish-spec.md","reason":"Exporter contract for platform degradation, sanitizer policy, and Markdown-only upstream inputs."}
+{"file":"prompts/0420/specs/16-markdown-extensions-spec.md","reason":"Extension registry, footnote syntax, citation-source extension, and round-trip requirements."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Existing quality gates and validation expectations for frontend/editor/export changes."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict typed-boundary requirements for settings, services, editor extensions, and export payloads."}
+

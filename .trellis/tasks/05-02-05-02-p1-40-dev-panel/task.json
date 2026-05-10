@@ -1,0 +1,55 @@
+{
+    "id":  "05-02-p1-40-dev-panel",
+    "name":  "05-02-p1-40-dev-panel",
+    "title":  "P1 Dev Panel Baseline",
+    "description":  "",
+    "status":  "completed",
+    "dev_type":  null,
+    "scope":  "DevPanel baseline: hidden activation, lazy drawer, real TipTap/PM/Pinia/ActivityLogger/Performance/IndexedDB/Network diagnostics, settings and command integration",
+    "package":  null,
+    "priority":  "P2",
+    "creator":  "ZRainbow1275",
+    "assignee":  "ZRainbow1275",
+    "createdAt":  "2026-05-02",
+    "completedAt":  "2026-05-02",
+    "branch":  null,
+    "base_branch":  "dev/visual-fixes",
+    "worktree_path":  null,
+    "commit":  null,
+    "pr_url":  null,
+    "subtasks":  [
+
+                 ],
+    "children":  [
+
+                 ],
+    "parent":  null,
+    "relatedFiles":  [
+                         "inkforge/src/services/dev-tools/types.ts",
+                         "inkforge/src/services/dev-tools/events-bus.ts",
+                         "inkforge/src/services/dev-tools/activation.ts",
+                         "inkforge/src/services/dev-tools/sanitizer.ts",
+                         "inkforge/src/services/dev-tools/editor-bridge.ts",
+                         "inkforge/src/services/dev-tools/store-inspector.ts",
+                         "inkforge/src/services/dev-tools/idb-inspector.ts",
+                         "inkforge/src/services/dev-tools/net-inspector.ts",
+                         "inkforge/src/services/dev-tools/performance-inspector.ts",
+                         "inkforge/src/services/dev-tools/dev-tools.test.ts",
+                         "inkforge/src/stores/devPanel.ts",
+                         "inkforge/src/views/dev/DevPanel.vue",
+                         "inkforge/src/App.vue",
+                         "inkforge/src/views/SettingsView.vue",
+                         "inkforge/src/components/editor/EditorPanel.vue",
+                         "inkforge/src/services/activity-logger/logger.ts",
+                         "inkforge/src/services/activity-logger/types.ts",
+                         "inkforge/src/services/command/builtin.ts",
+                         "inkforge/src/utils/platform.ts",
+                         "prompts/0420/specs/40-dev-panel-spec.md",
+                         "prompts/0420/acceptance-matrix.md",
+                         ".trellis/spec/frontend/state-management.md"
+                     ],
+    "notes":  "Baseline verified with targeted DevPanel Vitest, vue-tsc, full ESLint, full Vitest, production build, Chromium smoke, and docs/spec updates. GitNexus/Serena MCP impact tooling unavailable during implementation due Transport closed.",
+    "meta":  {
+
+             }
+}

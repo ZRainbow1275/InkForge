@@ -1,4 +1,11 @@
 {
+  "env": {
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python .claude/hooks/statusline.py"
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -6,7 +13,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python D:/Desktop/Inkforge/.claude/hooks/session-start.py",
+            "command": "python .claude/hooks/session-start.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/session-start.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/session-start.py",
             "timeout": 10
           }
         ]
@@ -18,20 +45,29 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python D:/Desktop/Inkforge/.claude/hooks/inject-subagent-context.py",
+            "command": "python .claude/hooks/inject-subagent-context.py",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/inject-subagent-context.py",
             "timeout": 30
           }
         ]
       }
     ],
-    "SubagentStop": [
+    "UserPromptSubmit": [
       {
-        "matcher": "check",
         "hooks": [
           {
             "type": "command",
-            "command": "python D:/Desktop/Inkforge/.claude/hooks/ralph-loop.py",
-            "timeout": 10
+            "command": "python .claude/hooks/inject-workflow-state.py",
+            "timeout": 5
           }
         ]
       }

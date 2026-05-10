@@ -74,6 +74,9 @@ export const useSyncStore = defineStore('sync', () => {
     /** 是否启用自动同步 */
     const autoSyncEnabled = computed(() => state.value.autoSyncEnabled)
 
+    /** 当前 Provider */
+    const providerId = computed(() => state.value.providerId)
+
     /** 最后错误信息 */
     const lastError = computed(() => state.value.lastError)
 
@@ -81,6 +84,11 @@ export const useSyncStore = defineStore('sync', () => {
     const statusText = computed(() => {
         switch (state.value.status) {
             case 'idle':
+                if (!state.value.providerId) {
+                    return state.value.pendingChanges > 0
+                        ? '同步未配置，' + state.value.pendingChanges + ' 项待同步'
+                        : '同步未配置'
+                }
                 return state.value.pendingChanges > 0
                     ? `${state.value.pendingChanges} 项待同步`
                     : '已同步'
@@ -92,6 +100,10 @@ export const useSyncStore = defineStore('sync', () => {
                 return `同步错误: ${state.value.lastError ?? '未知错误'}`
             case 'offline':
                 return '离线模式'
+            case 'paused':
+                return state.value.pendingChanges > 0
+                    ? '同步未配置，' + state.value.pendingChanges + ' 项待同步'
+                    : '同步未配置'
             default:
                 return '未知状态'
         }
@@ -181,6 +193,13 @@ export const useSyncStore = defineStore('sync', () => {
     }
 
     /**
+     * 获取当前 provider id
+     */
+    function getProviderId(): string | null {
+        return syncEngine.getProvider()?.id ?? null
+    }
+
+    /**
      * 清理 Store 资源
      */
     function cleanup(): void {
@@ -214,6 +233,7 @@ export const useSyncStore = defineStore('sync', () => {
         conflictCount,
         lastSyncAt,
         autoSyncEnabled,
+        providerId,
         lastError,
         statusText,
 
@@ -224,6 +244,7 @@ export const useSyncStore = defineStore('sync', () => {
         startAutoSync,
         stopAutoSync,
         getConflictForDocument,
+        getProviderId,
 
         // 生命周期
         cleanup,

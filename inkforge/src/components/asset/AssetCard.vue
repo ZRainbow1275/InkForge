@@ -90,23 +90,57 @@ function handleContextMenu(event: MouseEvent) {
         :alt="asset.name"
         class="thumbnail"
         loading="lazy"
-      />
-      <div v-else class="thumbnail-placeholder">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
+      >
+      <div
+        v-else
+        class="thumbnail-placeholder"
+      >
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect
+            x="3"
+            y="3"
+            width="18"
+            height="18"
+            rx="2"
+            ry="2"
+          />
+          <circle
+            cx="8.5"
+            cy="8.5"
+            r="1.5"
+          />
+          <polyline points="21 15 16 10 5 21" />
         </svg>
       </div>
       <span class="type-badge">{{ typeLabel }}</span>
-      <div v-if="selected" class="selected-indicator">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      <div
+        v-if="selected"
+        class="selected-indicator"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
         </svg>
       </div>
     </div>
     <div class="card-info">
-      <span class="file-name" :title="asset.name">{{ asset.name }}</span>
+      <span
+        class="file-name"
+        :title="asset.name"
+      >{{ asset.name }}</span>
       <span class="file-meta">{{ formattedSize }}</span>
     </div>
   </div>
@@ -127,17 +161,43 @@ function handleContextMenu(event: MouseEvent) {
         :alt="asset.name"
         class="list-thumbnail"
         loading="lazy"
-      />
-      <div v-else class="list-thumbnail-placeholder">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
+      >
+      <div
+        v-else
+        class="list-thumbnail-placeholder"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect
+            x="3"
+            y="3"
+            width="18"
+            height="18"
+            rx="2"
+            ry="2"
+          />
+          <circle
+            cx="8.5"
+            cy="8.5"
+            r="1.5"
+          />
+          <polyline points="21 15 16 10 5 21" />
         </svg>
       </div>
     </div>
     <div class="list-info">
-      <span class="file-name" :title="asset.name">{{ asset.name }}</span>
+      <span
+        class="file-name"
+        :title="asset.name"
+      >{{ asset.name }}</span>
       <div class="list-meta">
         <span class="type-tag">{{ typeLabel }}</span>
         <span class="meta-separator">-</span>
@@ -146,12 +206,23 @@ function handleContextMenu(event: MouseEvent) {
         <span>{{ formattedDate }}</span>
       </div>
     </div>
-    <div v-if="asset.width && asset.height" class="list-dimensions">
+    <div
+      v-if="asset.width && asset.height"
+      class="list-dimensions"
+    >
       {{ asset.width }} x {{ asset.height }}
     </div>
-    <div v-if="selected" class="list-selected-indicator">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+    <div
+      v-if="selected"
+      class="list-selected-indicator"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
       </svg>
     </div>
   </div>

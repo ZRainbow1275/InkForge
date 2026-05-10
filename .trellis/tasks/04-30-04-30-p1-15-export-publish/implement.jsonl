@@ -1,0 +1,4 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts\\0420\\specs\\15-export-publish-spec.md", "reason": "Primary_export_publish_specification"}
+{"file": "prompts\\0420\\specs\\10-markdown-authority-spec.md", "reason": "Markdown_authority_dependency"}
+{"file": "prompts\\0420\\acceptance-matrix.md", "reason": "0420_acceptance_tracking"}

@@ -1,0 +1,8 @@
+{"file": "prompts/0420/specs/33-diagnostic-logging-spec.md", "reason": "Primary Diagnostic Logging requirements and acceptance criteria."}
+{"file": "prompts/0420/specs/17-crash-recovery-spec.md", "reason": "Diagnostic package relationship and crash evidence boundaries."}
+{"file": "prompts/0420/specs/24-permission-audit-spec.md", "reason": "Audit separation and retention boundary."}
+{"file": "prompts/0420/specs/27-performance-slo-spec.md", "reason": "Performance sampling and retention budget constraints."}
+{"file": "prompts/0420/specs/40-dev-panel-spec.md", "reason": "Future DevPanel event-stream consumer boundary."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Dexie persistence and no fake storage contracts."}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia service-backed state contracts."}
+{"file": ".trellis/tasks/05-02-05-02-p1-33-diagnostic-logging/research/diagnostic-logging-research.md", "reason": "Local/external research for Diagnostic Logging implementation decisions."}

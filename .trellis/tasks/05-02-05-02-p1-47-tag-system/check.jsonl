@@ -1,0 +1,8 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/47-tag-system-spec.md", "reason": "Spec compliance checklist"}
+{"file": ".trellis/tasks/05-02-05-02-p1-47-tag-system/prd.md", "reason": "Acceptance criteria"}
+{"file": ".trellis/tasks/05-02-05-02-p1-47-tag-system/research/external-references.md", "reason": "Research and MCP fallback facts"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "State management contracts"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Type validation contracts"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Quality gate"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer review checklist"}

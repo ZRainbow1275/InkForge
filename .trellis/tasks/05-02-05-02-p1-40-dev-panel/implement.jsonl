@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/40-dev-panel-spec.md", "reason": "Primary Spec 40 DevPanel requirements"}
+{"file": "prompts/0420/specs/27-performance-slo-spec.md", "reason": "Performance SLO upstream collector and repository contract"}
+{"file": "prompts/0420/specs/33-diagnostic-logging-spec.md", "reason": "ActivityLogger and diagnostic package upstream contract"}
+{"file": ".trellis/tasks/05-02-05-02-p1-40-dev-panel/research/dev-panel-research.md", "reason": "Session research and local design decisions"}

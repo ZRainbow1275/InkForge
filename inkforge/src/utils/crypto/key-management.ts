@@ -557,7 +557,9 @@ export async function importMasterKey(
         return false
     } catch (error) {
         logger.error('密钥导入失败', error)
-        throw new Error('密钥导入失败，请检查导出密码是否正确')
+        const importError = new Error('密钥导入失败，请检查导出密码是否正确') as Error & { cause: unknown }
+        importError.cause = error
+        throw importError
     }
 }
 

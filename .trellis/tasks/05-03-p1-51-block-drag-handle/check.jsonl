@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts\\0420\\specs\\51-block-drag-handle-spec.md", "reason": "acceptance criteria and test matrix"}
+{"file": ".trellis\\spec\\frontend\\quality-guidelines.md", "reason": "frontend quality gates and BlockDragHandle checklist"}
+{"file": ".trellis\\spec\\frontend\\type-safety.md", "reason": "frontend strict typing conventions"}
+{"file": "prompts\\0420\\specs\\01-spec-editor-typora.md", "reason": "mode compatibility checks"}
+{"file": ".trellis\\tasks\\05-03-p1-51-block-drag-handle\\research\\external-references.md", "reason": "external API validation facts"}

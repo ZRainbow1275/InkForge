@@ -1,32 +1,70 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { EditedContentSchema, VersionSchema, type EditedContent, type Version } from '@/schemas/article'
+import { EditedContentSchema, type EditedContent, type Version, type VersionTrigger } from '@/schemas/article'
 import { contentRepository } from '@/services/repository'
 import { useArticleStore } from './article'
 import { logger, AppError } from '@/services/error'
-import { EDITOR_CONFIG, VERSION } from '@/constants'
+import { ARTICLE_STATUS, EDITOR_CONFIG, VERSION } from '@/constants'
 import { createEventSubscriptionManager } from '@/utils/events'
+import { buildVersionSnapshot } from '@/services/version-bundle'
 import { VERSION_MANAGEMENT } from '@/config/security'
 import { generateId } from '@/utils/uuid'
+import { isLikelyHtmlContent, serializeHtmlToMarkdown } from '@/extensions/TyporaMode'
+import {
+    createRecoveryPoint,
+    getCurrentProfileId,
+    getOrCreateWindowId,
+    updateCachedEmergencySnapshot,
+    writeEmergencyPayloadSync,
+} from '@/services/crash-recovery'
 
 export type EditorStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'error';
 
+function normalizeMarkdownBody(body: string): string {
+    return isLikelyHtmlContent(body) ? serializeHtmlToMarkdown(body) : body
+}
+
+function normalizeVersion(version: Version): Version {
+    const normalizedBody = normalizeMarkdownBody(version.body)
+    return normalizedBody === version.body
+        ? version
+        : { ...version, body: normalizedBody }
+}
+
+function normalizeEditedContent(content: EditedContent): EditedContent {
+    const normalizedBody = normalizeMarkdownBody(content.body)
+    const normalizedVersions = content.versions.map(normalizeVersion)
+
+    if (
+        normalizedBody === content.body &&
+        normalizedVersions.every((version, index) => version === content.versions[index])
+    ) {
+        return content
+    }
+
+    return {
+        ...content,
+        body: normalizedBody,
+        versions: normalizedVersions,
+    }
+}
+
 /**
- * 编辑器 Store (FSM Refactored)
- * 状态驱动开发，严格校验输入输出
+ * 缂栬緫鍣?Store (FSM Refactored)
+ * 鐘舵€侀┍鍔ㄥ紑鍙戯紝涓ユ牸鏍￠獙杈撳叆杈撳嚭
  */
 export const useEditorStore = defineStore('editor', () => {
     const articleStore = useArticleStore()
 
-    // 状态机核心
+    // 鐘舵€佹満鏍稿績
     const status = ref<EditorStatus>('idle')
     const currentContent = ref<EditedContent | null>(null)
     const error = ref<string | null>(null)
 
-    // 保存请求 ID，用于防止竞态条件
+    // 淇濆瓨璇锋眰 ID锛岀敤浜庨槻姝㈢珵鎬佹潯浠?
     const saveRequestId = ref<number>(0)
 
-    // 当前版本
+    // 褰撳墠鐗堟湰
     const currentVersion = computed(() => {
         if (!currentContent.value) return null
         return currentContent.value.versions.find(
@@ -34,7 +72,7 @@ export const useEditorStore = defineStore('editor', () => {
         ) || null
     })
 
-    // 状态机转换
+    // 鐘舵€佹満杞崲
     function setStatus(newStatus: EditorStatus, errorMsg?: string) {
         status.value = newStatus
         if (errorMsg) {
@@ -44,7 +82,35 @@ export const useEditorStore = defineStore('editor', () => {
         }
     }
 
-    // 监听选中的资讯，加载或创建编辑内容
+    async function syncArticleSnapshot(articleId: string, snapshot: Pick<EditedContent, 'title' | 'body'>) {
+        const targetArticle = articleStore.articles.find(article => article.id === articleId)
+        if (!targetArticle) return
+
+        const articleUpdates: { title?: string; rawContent?: string; status?: typeof ARTICLE_STATUS[keyof typeof ARTICLE_STATUS] } = {}
+
+        if (snapshot.title && snapshot.title !== targetArticle.title) {
+            articleUpdates.title = snapshot.title
+        }
+
+        if (snapshot.body !== targetArticle.rawContent) {
+            articleUpdates.rawContent = snapshot.body
+        }
+
+        if (
+            Object.keys(articleUpdates).length > 0 &&
+            (targetArticle.status === ARTICLE_STATUS.NEW || targetArticle.status === ARTICLE_STATUS.READ)
+        ) {
+            articleUpdates.status = ARTICLE_STATUS.DRAFT
+        }
+
+        if (Object.keys(articleUpdates).length === 0) {
+            return
+        }
+
+        await articleStore.updateArticle(articleId, articleUpdates)
+    }
+
+    // 鐩戝惉閫変腑鐨勮祫璁紝鍔犺浇鎴栧垱寤虹紪杈戝唴瀹?
     watch(() => articleStore.selectedArticleId, async (articleId: string | null) => {
         if (!articleId) {
             setStatus('idle')
@@ -54,61 +120,74 @@ export const useEditorStore = defineStore('editor', () => {
 
         setStatus('loading')
         try {
-            // 尝试加载已有内容
+            // 灏濊瘯鍔犺浇宸叉湁鍐呭
             const existing = await contentRepository.findByArticleId(articleId)
 
             if (existing) {
-                // 运行时校验: 确保 DB 数据符合 Schema (防腐层)
+                // 杩愯鏃舵牎楠? 纭繚 DB 鏁版嵁绗﹀悎 Schema (闃茶厫灞?
                 try {
                     const parsed = EditedContentSchema.parse(existing);
-                    currentContent.value = parsed;
+                    const normalized = normalizeEditedContent(parsed);
+
+                    if (normalized !== parsed) {
+                        await contentRepository.update(normalized.id, normalized)
+                    }
+
+                    currentContent.value = normalized;
+                    await syncArticleSnapshot(articleId, normalized)
                     setStatus('ready')
                 } catch (validationError) {
-                    logger.error("数据完整性错误", validationError);
-                    setStatus('error', "数据校验失败: 数据库内容已损坏");
-                    return; // 校验失败后必须返回，避免继续执行
+                    logger.error('Content integrity validation failed', validationError);
+                    setStatus('error', 'Unable to initialize editor state');
+                    return; // 鏍￠獙澶辫触鍚庡繀椤昏繑鍥烇紝閬垮厤缁х画鎵ц
                 }
             } else {
-                // 创建新的编辑内容
+                // 鍒涘缓鏂扮殑缂栬緫鍐呭
                 const article = articleStore.selectedArticle
                 if (article) {
-                    await createContent(article.id, article.title, article.description)
+                    await createContent(
+                        article.id,
+                        article.title,
+                        article.rawContent || article.description,
+                    )
                 } else {
-                    setStatus('error', "无法找到对应的文章元数据")
+                    setStatus('error', "鏃犳硶鎵惧埌瀵瑰簲鐨勬枃绔犲厓鏁版嵁")
                 }
             }
         } catch (err) {
-            const msg = err instanceof AppError ? err.toUserMessage() : '加载内容失败'
-            logger.error('加载编辑内容失败', err, { articleId })
+            const msg = err instanceof AppError ? err.toUserMessage() : '鍔犺浇鍐呭澶辫触'
+            logger.error('鍔犺浇缂栬緫鍐呭澶辫触', err, { articleId })
             setStatus('error', msg)
         }
     }, { immediate: true })
 
-    // 创建新的编辑内容
+    // 鍒涘缓鏂扮殑缂栬緫鍐呭
     async function createContent(articleId: string, title: string, body: string) {
         try {
-            const versionId = generateId();
             const now = new Date();
-
-            const version = {
-                id: versionId,
-                label: VERSION.INITIAL_LABEL,
-                title,
-                body,
-                transcript: '',
-                createdAt: now
-            };
+            const normalizedBody = normalizeMarkdownBody(body)
+            const version = buildVersionSnapshot(
+                { title, body: normalizedBody, transcript: '' },
+                {
+                    label: VERSION.INITIAL_LABEL,
+                    trigger: 'manual_save',
+                    authorId: getCurrentProfileId(),
+                    now,
+                    force: true,
+                },
+                null,
+            );
 
             const content = {
                 id: generateId(),
                 articleId,
                 title,
-                body,
+                body: normalizedBody,
                 transcript: '',
                 selectedLinks: [],
                 selectedImages: [],
                 versions: [version],
-                currentVersionId: versionId,
+                currentVersionId: version.id,
                 createdAt: now,
                 updatedAt: now
             };
@@ -118,16 +197,17 @@ export const useEditorStore = defineStore('editor', () => {
 
             await contentRepository.create(validatedContent)
             currentContent.value = validatedContent
+            await syncArticleSnapshot(articleId, validatedContent)
             setStatus('ready')
             return validatedContent
         } catch (e) {
-            logger.error('创建内容失败', e);
-            setStatus('error', '无法初始化编辑器状态');
+            logger.error('鍒涘缓鍐呭澶辫触', e);
+            setStatus('error', 'Unable to initialize editor state');
             throw e;
         }
     }
 
-    // 更新内容
+    // 鏇存柊鍐呭
     async function updateContent(updates: { title?: string; body?: string; transcript?: string }) {
         if (status.value !== 'ready' && status.value !== 'saving') return
         if (!currentContent.value) return
@@ -135,13 +215,22 @@ export const useEditorStore = defineStore('editor', () => {
         // 生成新的请求 ID，用于防止竞态条件
         const currentRequestId = ++saveRequestId.value
         setStatus('saving')
+        let recoveryCandidate: EditedContent | null = null
 
         try {
+            const normalizedUpdates = updates.body === undefined
+                ? updates
+                : {
+                    ...updates,
+                    body: normalizeMarkdownBody(updates.body),
+                }
+
             const updated = {
                 ...currentContent.value,
-                ...updates,
+                ...normalizedUpdates,
                 updatedAt: new Date()
             }
+            recoveryCandidate = updated
 
             // Validate before saving
             const validated = EditedContentSchema.parse(updated);
@@ -151,6 +240,15 @@ export const useEditorStore = defineStore('editor', () => {
             // 防止慢请求覆盖快请求的结果
             if (saveRequestId.value !== currentRequestId) return
             currentContent.value = validated
+            await syncArticleSnapshot(validated.articleId, validated)
+            await updateCachedEmergencySnapshot({
+                profileId: getCurrentProfileId(),
+                windowId: getOrCreateWindowId(),
+                articleId: validated.articleId,
+                title: validated.title,
+                content: validated.body,
+                dirty: false,
+            })
 
             // Delay to show saving state (UX)
             // 使用捕获的请求 ID 验证，防止竞态条件
@@ -165,35 +263,63 @@ export const useEditorStore = defineStore('editor', () => {
         } catch (err) {
             const msg = err instanceof AppError ? err.toUserMessage() : '保存失败'
             logger.error('保存编辑内容失败', err)
+
+            if (recoveryCandidate) {
+                try {
+                    const profileId = getCurrentProfileId()
+                    const windowId = getOrCreateWindowId()
+                    await createRecoveryPoint({
+                        articleId: recoveryCandidate.articleId,
+                        title: recoveryCandidate.title,
+                        content: recoveryCandidate.body,
+                        trigger: 'autosave-failure',
+                        profileId,
+                        windowId,
+                        reason: msg,
+                    })
+                    const payload = await updateCachedEmergencySnapshot({
+                        profileId,
+                        windowId,
+                        articleId: recoveryCandidate.articleId,
+                        title: recoveryCandidate.title,
+                        content: recoveryCandidate.body,
+                        dirty: true,
+                    })
+                    writeEmergencyPayloadSync(payload)
+                } catch (recoveryError) {
+                    logger.error('Crash recovery fallback failed after editor save error', recoveryError)
+                }
+            }
+
             setStatus('error', '保存失败: ' + msg)
             // Revert status manually if needed, but error state is safer
         }
     }
 
     // 创建新版本（带版本数量上限检查）
-    async function createVersion(): Promise<Version | null> {
+    async function createVersion(trigger: VersionTrigger = 'manual_save', label?: string): Promise<Version | null> {
         if (!currentContent.value) return null
 
         const currentVersionCount = currentContent.value.versions.length
         const maxVersions = VERSION_MANAGEMENT.MAX_VERSIONS_PER_DOCUMENT
         const warningThreshold = VERSION_MANAGEMENT.VERSION_WARNING_THRESHOLD
 
-        // 检查是否达到版本数量上限
+        // 妫€鏌ユ槸鍚﹁揪鍒扮増鏈暟閲忎笂闄?
         if (currentVersionCount >= maxVersions) {
-            // 查找最旧的非当前版本进行删除
+            // 鏌ユ壘鏈€鏃х殑闈炲綋鍓嶇増鏈繘琛屽垹闄?
             const oldestNonCurrentIndex = currentContent.value.versions.findIndex(
                 v => v.id !== currentContent.value!.currentVersionId
             )
 
             if (oldestNonCurrentIndex !== -1) {
                 const deletedVersion = currentContent.value.versions[oldestNonCurrentIndex]
-                logger.warn('版本数量已达上限，自动删除最旧的非当前版本', {
+                logger.warn('Version limit reached; deleting oldest non-current version', {
                     currentCount: currentVersionCount,
                     maxVersions,
                     deletedVersionId: deletedVersion.id,
                     deletedVersionLabel: deletedVersion.label
                 })
-                // 不可变删除：创建新数组排除被删除的版本
+                // 涓嶅彲鍙樺垹闄わ細鍒涘缓鏂版暟缁勬帓闄よ鍒犻櫎鐨勭増鏈?
                 currentContent.value = {
                     ...currentContent.value,
                     versions: [
@@ -202,16 +328,16 @@ export const useEditorStore = defineStore('editor', () => {
                     ]
                 }
             } else {
-                // 所有版本都是当前版本（理论上不可能，但防御性处理）
-                logger.error('版本管理异常：所有版本都是当前版本，无法删除', {
+                // 鎵€鏈夌増鏈兘鏄綋鍓嶇増鏈紙鐞嗚涓婁笉鍙兘锛屼絾闃插尽鎬у鐞嗭級
+                logger.error('鐗堟湰绠＄悊寮傚父锛氭墍鏈夌増鏈兘鏄綋鍓嶇増鏈紝鏃犳硶鍒犻櫎', {
                     currentCount: currentVersionCount,
                     maxVersions
                 })
-                throw new Error('版本数量已达上限且无法自动清理，请手动删除旧版本')
+                throw new Error('鐗堟湰鏁伴噺宸茶揪涓婇檺涓旀棤娉曡嚜鍔ㄦ竻鐞嗭紝璇锋墜鍔ㄥ垹闄ゆ棫鐗堟湰')
             }
         } else if (currentVersionCount >= maxVersions * warningThreshold) {
-            // 接近上限时发出警告
-            logger.info('版本数量接近上限', {
+            // 鎺ヨ繎涓婇檺鏃跺彂鍑鸿鍛?
+            logger.info('鐗堟湰鏁伴噺鎺ヨ繎涓婇檺', {
                 currentCount: currentVersionCount,
                 maxVersions,
                 warningThreshold: `${warningThreshold * 100}%`
@@ -219,107 +345,118 @@ export const useEditorStore = defineStore('editor', () => {
         }
 
         const versionNumber = currentContent.value.versions.length + 1
-        const version = {
-            id: generateId(),
-            label: VERSION.generateLabel(versionNumber),
-            title: currentContent.value.title,
-            body: currentContent.value.body,
-            transcript: currentContent.value.transcript,
-            createdAt: new Date()
-        }
+        const now = new Date()
+        const previousVersion = currentContent.value.versions.find(
+            version => version.id === currentContent.value!.currentVersionId
+        ) ?? null
+        const validatedVersion = buildVersionSnapshot(
+            {
+                title: currentContent.value.title,
+                body: normalizeMarkdownBody(currentContent.value.body),
+                transcript: currentContent.value.transcript,
+                versions: currentContent.value.versions,
+                currentVersionId: currentContent.value.currentVersionId,
+            },
+            {
+                label: label ?? VERSION.generateLabel(versionNumber),
+                trigger,
+                authorId: getCurrentProfileId(),
+                now,
+            },
+            previousVersion,
+        )
 
-        // Zod check
-        const validatedVersion = VersionSchema.parse(version);
-
-        // 不可变更新：创建新对象用于持久化
+        // 涓嶅彲鍙樻洿鏂帮細鍒涘缓鏂板璞＄敤浜庢寔涔呭寲
         const updatedContent = {
             ...currentContent.value,
             versions: [...currentContent.value.versions, validatedVersion],
-            currentVersionId: validatedVersion.id
+            currentVersionId: validatedVersion.id,
+            updatedAt: validatedVersion.createdAt
         }
 
-        // 先持久化，成功后再更新本地状态（避免不一致）
+        // 鍏堟寔涔呭寲锛屾垚鍔熷悗鍐嶆洿鏂版湰鍦扮姸鎬侊紙閬垮厤涓嶄竴鑷达級
         await contentRepository.update(updatedContent.id, updatedContent)
         currentContent.value = updatedContent
         return validatedVersion
     }
 
-    // 切换版本（不可变更新）
+    // 鍒囨崲鐗堟湰锛堜笉鍙彉鏇存柊锛?
     async function switchVersion(versionId: string) {
         if (!currentContent.value) return
 
         const version = currentContent.value.versions.find((v: Version) => v.id === versionId)
         if (!version) return
 
-        // 使用不可变更新模式
+        // 浣跨敤涓嶅彲鍙樻洿鏂版ā寮?
         const updated = {
             ...currentContent.value,
-            currentVersionId: versionId,
+            currentVersionId: version.id,
             title: version.title,
-            body: version.body,
+            body: normalizeMarkdownBody(version.body),
             transcript: version.transcript,
             updatedAt: new Date()
         }
 
-        // 先持久化，成功后再更新本地状态（避免竞态条件）
+        // 鍏堟寔涔呭寲锛屾垚鍔熷悗鍐嶆洿鏂版湰鍦扮姸鎬侊紙閬垮厤绔炴€佹潯浠讹級
         await contentRepository.update(updated.id, updated)
         currentContent.value = updated
+        await syncArticleSnapshot(updated.articleId, updated)
     }
 
-    // 更新选中的链接（不可变更新）
+    // 鏇存柊閫変腑鐨勯摼鎺ワ紙涓嶅彲鍙樻洿鏂帮級
     async function updateSelectedLinks(links: string[]) {
         if (!currentContent.value) return
 
-        // 先持久化
+        // 鍏堟寔涔呭寲
         await contentRepository.update(currentContent.value.id, { selectedLinks: links })
 
-        // 成功后更新本地状态（不可变）
+        // 鎴愬姛鍚庢洿鏂版湰鍦扮姸鎬侊紙涓嶅彲鍙橈級
         currentContent.value = {
             ...currentContent.value,
             selectedLinks: links
         }
     }
 
-    // 更新选中的图片（不可变更新）
+    // 鏇存柊閫変腑鐨勫浘鐗囷紙涓嶅彲鍙樻洿鏂帮級
     async function updateSelectedImages(images: string[]) {
         if (!currentContent.value) return
 
-        // 先持久化
+        // 鍏堟寔涔呭寲
         await contentRepository.update(currentContent.value.id, { selectedImages: images })
 
-        // 成功后更新本地状态（不可变）
+        // 鎴愬姛鍚庢洿鏂版湰鍦扮姸鎬侊紙涓嶅彲鍙橈級
         currentContent.value = {
             ...currentContent.value,
             selectedImages: images
         }
     }
 
-    // 页面关闭时如果正在保存，提示用户
-    // 使用命名函数以便清理
+    // 椤甸潰鍏抽棴鏃跺鏋滄鍦ㄤ繚瀛橈紝鎻愮ず鐢ㄦ埛
+    // 浣跨敤鍛藉悕鍑芥暟浠ヤ究娓呯悊
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
         if (status.value === 'saving') {
             e.preventDefault()
-            e.returnValue = '正在保存中，确定要离开吗？'
+            e.returnValue = '姝ｅ湪淇濆瓨涓紝纭畾瑕佺寮€鍚楋紵'
             return e.returnValue
         }
     }
 
-    // 事件订阅管理器
+    // 浜嬩欢璁㈤槄绠＄悊鍣?
     const eventManager = createEventSubscriptionManager()
 
-    // 注册 beforeunload 监听器
+    // 娉ㄥ唽 beforeunload 鐩戝惉鍣?
     if (typeof window !== 'undefined') {
         eventManager.addEventListener(window, 'beforeunload', handleBeforeUnload)
     }
 
     /**
-     * 显式清理 Store 资源
-     * 由于 Pinia Store 是单例，onScopeDispose 可能永远不会触发
-     * 组件应在适当时机调用此方法（如应用卸载时）
+     * 鏄惧紡娓呯悊 Store 璧勬簮
+     * 鐢变簬 Pinia Store 鏄崟渚嬶紝onScopeDispose 鍙兘姘歌繙涓嶄細瑙﹀彂
+     * 缁勪欢搴斿湪閫傚綋鏃舵満璋冪敤姝ゆ柟娉曪紙濡傚簲鐢ㄥ嵏杞芥椂锛?
      */
     function cleanup() {
         eventManager.dispose()
-        logger.info('Editor store 事件监听器已清理')
+        logger.info('Editor store 浜嬩欢鐩戝惉鍣ㄥ凡娓呯悊')
     }
 
     return {

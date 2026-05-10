@@ -17,6 +17,13 @@ import { z } from 'zod';
 
 /** 文章状态枚举 - 核心定义 */
 export const ARTICLE_STATUS = {
+    DRAFT: 'draft',
+    WRITING: 'writing',
+    UNDER_REVIEW: 'under_review',
+    READY_TO_PUBLISH: 'ready_to_publish',
+    PUBLISHED: 'published',
+    ARCHIVED: 'archived',
+    TRASHED: 'trashed',
     NEW: 'new',
     READ: 'read',
     PROCESSED: 'processed'
@@ -37,12 +44,29 @@ export const UUIDSchema = z.string().uuid();
 // ═══════════════════════════════════════════════════════════════════
 
 export const ArticleStatusSchema = z.enum([
+    ARTICLE_STATUS.DRAFT,
+    ARTICLE_STATUS.WRITING,
+    ARTICLE_STATUS.UNDER_REVIEW,
+    ARTICLE_STATUS.READY_TO_PUBLISH,
+    ARTICLE_STATUS.PUBLISHED,
+    ARTICLE_STATUS.ARCHIVED,
+    ARTICLE_STATUS.TRASHED,
     ARTICLE_STATUS.NEW,
     ARTICLE_STATUS.READ,
     ARTICLE_STATUS.PROCESSED
 ]);
 
 export type ArticleStatus = z.infer<typeof ArticleStatusSchema>;
+
+export const VersionTriggerSchema = z.enum([
+    'manual_save',
+    'interval',
+    'before_close',
+    'mode_switch',
+    'crash_recovery'
+]);
+
+export type VersionTrigger = z.infer<typeof VersionTriggerSchema>;
 
 // ═══════════════════════════════════════════════════════════════════
 // Version Schema
@@ -54,7 +78,13 @@ export const VersionSchema = z.object({
     title: z.string(),
     body: z.string(), // TipTap HTML
     transcript: z.string(),
-    createdAt: TimestampSchema
+    createdAt: TimestampSchema,
+    deltaChars: z.number().int().optional(),
+    wordCount: z.number().int().nonnegative().optional(),
+    isMilestone: z.boolean().optional(),
+    trigger: VersionTriggerSchema.optional(),
+    authorId: z.string().min(1).optional(),
+    updatedAt: TimestampSchema.optional()
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -114,6 +144,14 @@ export const ArticleSchema = z.object({
 
     // 解析内容
     rawContent: z.string(),
+
+    // Markdown 权威模型（0420/10 baseline）
+    markdownSource: z.string().default(''),
+    htmlCache: z.string().nullable().default(null),
+    sourceHash: z.string().default(''),
+    cacheVersion: z.number().int().nonnegative().default(0),
+    cacheGeneratedAt: TimestampSchema.nullable().default(null),
+
     links: z.array(z.string()),
     images: z.array(z.string()),
 
@@ -124,6 +162,10 @@ export const ArticleSchema = z.object({
     score: z.number(),
     tags: z.array(z.string()),
     status: ArticleStatusSchema,
+    deletedAt: TimestampSchema.nullable().optional(),
+    expiresAt: TimestampSchema.nullable().optional(),
+    deletedBy: z.string().nullable().optional(),
+    preTrashStatus: ArticleStatusSchema.nullable().optional(),
 
     createdAt: TimestampSchema,
     updatedAt: TimestampSchema,
@@ -159,6 +201,7 @@ export const CreateArticleDTOSchema = z.object({
     /** 图片引用列表（支持 URL 和本地路径） */
     images: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
+    status: ArticleStatusSchema.optional(),
 });
 
 /**
@@ -171,6 +214,7 @@ export const UpdateArticleDTOSchema = z.object({
     status: ArticleStatusSchema.optional(),
     tags: z.array(z.string()).optional(),
     aiSummary: z.string().optional(),
+    rawContent: z.string().optional(),
 });
 
 /**

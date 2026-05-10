@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/42-templates-spec.md","reason":"Primary source for template variable rendering, built-in templates, picker behavior, repository/store, and acceptance requirements."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Document creation must remain compatible with existing article/draft lifecycle behavior."}
+{"file":"prompts/0420/specs/22-command-palette-spec.md","reason":"Future command integration constraints for template entry points."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Store/UI state contracts and no-mock requirements for template-driven document creation."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict typing and validation requirements for unknown template syntax."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend quality and verification checklist."}

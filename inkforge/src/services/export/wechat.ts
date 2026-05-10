@@ -8,12 +8,18 @@
 
 import juice from 'juice'
 import { marked } from 'marked'
+import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
 import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性（防止直接调用 markdownToWechat 时配置缺失）
 marked.use({ breaks: true, gfm: true })
 import type { ExportPreset } from '@/types'
-import type { ExportOptions, ExportResult } from './types'
+import type { ExportResult, ExportStats, WechatExportOptions } from './types'
+import { parseToAST, type InkforgeMeta } from './renderers/ast'
+import {
+  wechatComplianceTransform,
+  type WechatRuleOptions,
+} from './platform-rules/wechat'
 import { generateThemeCSS, codeThemeCSS, applyHeadingDecorations } from './themes'
 import {
   highlightCodeBlocks,
@@ -410,11 +416,171 @@ function findDirectNestedList(
  * 微信兼容性后处理
  * 参考 doocs/md 的处理逻辑
  */
+/** 移除微信不接受的成对交互/脚本标签，使用字符串扫描避免正则逃逸差异。 */
+function stripForbiddenPairedTag(html: string, tagName: string): string {
+  let result = ''
+  let cursor = 0
+  let lower = html.toLowerCase()
+  const openNeedle = `<${tagName}`
+  const closeNeedle = `</${tagName}>`
+
+  while (cursor < html.length) {
+    const start = lower.indexOf(openNeedle, cursor)
+    if (start === -1) {
+      result += html.slice(cursor)
+      break
+    }
+
+    result += html.slice(cursor, start)
+    const openEnd = html.indexOf('>', start)
+    if (openEnd === -1) {
+      break
+    }
+
+    const closeStart = lower.indexOf(closeNeedle, openEnd + 1)
+    if (closeStart === -1) {
+      cursor = openEnd + 1
+    } else {
+      cursor = closeStart + closeNeedle.length
+    }
+    lower = html.toLowerCase()
+  }
+
+  return result
+}
+
+/** 移除微信不接受的单标签或残留起始标签。 */
+function stripForbiddenStartTags(html: string, tagName: string): string {
+  let result = ''
+  let cursor = 0
+  const lower = html.toLowerCase()
+  const openNeedle = `<${tagName}`
+
+  while (cursor < html.length) {
+    const start = lower.indexOf(openNeedle, cursor)
+    if (start === -1) {
+      result += html.slice(cursor)
+      break
+    }
+
+    result += html.slice(cursor, start)
+    const end = html.indexOf('>', start)
+    if (end === -1) {
+      break
+    }
+    cursor = end + 1
+  }
+
+  return result
+}
+
+function isWhitespaceChar(char: string): boolean {
+  return char === ' ' || char === '\n' || char === '\r' || char === '\t'
+}
+
+function isAttributeNameChar(char: string): boolean {
+  const code = char.charCodeAt(0)
+  return (
+    (code >= 48 && code <= 57) ||
+    (code >= 65 && code <= 90) ||
+    (code >= 97 && code <= 122) ||
+    char === '-' ||
+    char === ':'
+  )
+}
+
+/** 清理事件属性和 javascript: 链接属性，作为 DOMPurify 之后的最后安全网。 */
+function stripUnsafeAttributesFromTag(tag: string): string {
+  let result = ''
+  let cursor = 0
+
+  while (cursor < tag.length) {
+    if (!isWhitespaceChar(tag[cursor])) {
+      result += tag[cursor]
+      cursor++
+      continue
+    }
+
+    const attrStart = cursor
+    while (cursor < tag.length && isWhitespaceChar(tag[cursor])) cursor++
+    const nameStart = cursor
+    while (cursor < tag.length && isAttributeNameChar(tag[cursor])) cursor++
+
+    if (nameStart === cursor) {
+      result += tag.slice(attrStart, cursor)
+      continue
+    }
+
+    const attrName = tag.slice(nameStart, cursor).toLowerCase()
+    while (cursor < tag.length && isWhitespaceChar(tag[cursor])) cursor++
+
+    let attrValue = ''
+    if (tag[cursor] === '=') {
+      cursor++
+      while (cursor < tag.length && isWhitespaceChar(tag[cursor])) cursor++
+      const quote = tag[cursor]
+      if (quote === '"' || quote === "'") {
+        cursor++
+        const valueStart = cursor
+        while (cursor < tag.length && tag[cursor] !== quote) cursor++
+        attrValue = tag.slice(valueStart, cursor)
+        if (tag[cursor] === quote) cursor++
+      } else {
+        const valueStart = cursor
+        while (cursor < tag.length && !isWhitespaceChar(tag[cursor]) && tag[cursor] !== '>') cursor++
+        attrValue = tag.slice(valueStart, cursor)
+      }
+    }
+
+    const unsafeEvent = attrName.startsWith('on')
+    const unsafeUrl = (attrName === 'href' || attrName === 'src') && attrValue.trim().toLowerCase().startsWith('javascript:')
+    if (!unsafeEvent && !unsafeUrl) {
+      result += tag.slice(attrStart, cursor)
+    }
+  }
+
+  return result
+}
+
+function stripUnsafeAttributes(html: string): string {
+  let result = ''
+  let cursor = 0
+
+  while (cursor < html.length) {
+    const tagStart = html.indexOf('<', cursor)
+    if (tagStart === -1) {
+      result += html.slice(cursor)
+      break
+    }
+
+    const tagEnd = html.indexOf('>', tagStart)
+    if (tagEnd === -1) {
+      result += html.slice(cursor)
+      break
+    }
+
+    result += html.slice(cursor, tagStart)
+    result += stripUnsafeAttributesFromTag(html.slice(tagStart, tagEnd + 1))
+    cursor = tagEnd + 1
+  }
+
+  return result
+}
+
 export function postProcessForWechat(html: string, primaryColor?: string): string {
   let result = html
 
   // 0. CSS 变量替换（必须在其他处理之前）
   result = replaceCssVariables(result, primaryColor)
+
+  // 0.25 安全兜底：微信草稿会移除 JS/交互标签，导出侧也必须先清理，避免失败的 DOM 实现放行危险节点。
+  for (const tagName of ['script', 'style', 'iframe', 'object', 'embed', 'form', 'button']) {
+    result = stripForbiddenPairedTag(result, tagName)
+  }
+  for (const tagName of ['input', 'object', 'embed', 'form', 'button']) {
+    result = stripForbiddenStartTags(result, tagName)
+  }
+  result = stripUnsafeAttributes(result)
 
   // 0.5 首元素 margin-top 清零（doocs/md 最佳实践：防止微信顶部多余空白）
   result = result.replace(
@@ -487,6 +653,9 @@ export function postProcessForWechat(html: string, primaryColor?: string): strin
   result = result.replace(/style=";\s*/gi, 'style="')
   result = result.replace(/;\s*;+/g, ';')
   result = result.replace(/;"/g, '"')
+
+  // 7.5 微信编辑器不保留 class；所有 class 依赖必须在此之前转成内联样式。
+  result = result.replace(/\sclass=(?:"[^"]*"|'[^']*')/gi, '')
 
   // 8. SVG兼容性 - 添加空p标签包裹 (doocs/md做法)
   // 在section前后添加零高度p标签提升复制兼容性
@@ -589,7 +758,7 @@ export function postProcessForWechat(html: string, primaryColor?: string): strin
 export function convertToWechat(
   html: string,
   preset: ExportPreset,
-  options: ExportOptions = {}
+  options: WechatExportOptions = {}
 ): string {
   const result = convertToWechatWithStats(html, preset, options)
   return result.html
@@ -601,7 +770,7 @@ export function convertToWechat(
 export function convertToWechatWithStats(
   html: string,
   preset: ExportPreset,
-  options: ExportOptions = {}
+  options: WechatExportOptions = {}
 ): ExportResult {
   const {
     enableCiteStatus = true,
@@ -614,7 +783,13 @@ export function convertToWechatWithStats(
     codeTheme = 'atom-one-dark',
     enableAlertBlocks = true,
     enableEnhancedTable = true,
-    enableCodeLanguageLabel = true
+    enableCodeLanguageLabel = true,
+    // ─── P2-T6 platform-rules/wechat 合规化开关 ──────────────────────
+    enableCjkSpacing = true,
+    maxContentWidth = 677,
+    enableDarkMode = false,
+    darkModeText,
+    darkModeBg,
   } = options
 
   // 计算统计信息
@@ -765,7 +940,19 @@ export function convertToWechatWithStats(
   const wechatProcessedHtml = postProcessForWechat(tableEnhancedHtml, preset.primaryColor)
 
   // 最终安全网: 平台 CSS 合规化（确保无遗漏的不支持属性）
-  const finalHtml = enforcePlatformCSS(wechatProcessedHtml, 'wechat')
+  const cssCompliantHtml = enforcePlatformCSS(wechatProcessedHtml, 'wechat')
+
+  // ─── P2-T6: 平台合规化 — CJK/Latin 间距 + 677 clamp + dark-mode ─────
+  // 必须在 enforcePlatformCSS 之后：clamp 包裹的 div 不能再被 CSS 验证器剥离，
+  // dark-mode 写入的 data-* 属性也不该再被属性过滤打扰。
+  const complianceOpts: WechatRuleOptions = {
+    enableCjkSpacing,
+    maxContentWidth,
+    enableDarkMode,
+    darkModeText,
+    darkModeBg,
+  }
+  const finalHtml = wechatComplianceTransform(cssCompliantHtml, complianceOpts)
 
   return {
     html: finalHtml,
@@ -774,12 +961,60 @@ export function convertToWechatWithStats(
 }
 
 /**
+ * 将 InkforgeAST meta 合并进 calculateStats 返回的 ExportStats，
+ * 用 AST 的精确计数覆盖正则估算的字段，但保留 readingTime（由速度推导）。
+ *
+ * 仅在持有原始 markdown 时调用 —— `convertToWechat[WithStats]` 入参是
+ * 已渲染过的 HTML，无法走这条路径，因此此处不强行二次解析（成本高、收益低）。
+ */
+function mergeAstMetaIntoStats(stats: ExportStats, meta: InkforgeMeta): ExportStats {
+  return {
+    ...stats,
+    wordCount: meta.wordCount > 0 ? meta.wordCount : stats.wordCount,
+    codeBlockCount: meta.codeBlocks.length,
+    imageCount: meta.images.length,
+    headingCount: meta.headings.length,
+  }
+}
+
+/**
  * Markdown转微信格式
  */
-export async function markdownToWechat(markdown: string, preset: ExportPreset): Promise<string> {
+export async function markdownToWechat(
+  markdown: string,
+  preset: ExportPreset,
+  options: WechatExportOptions = {}
+): Promise<string> {
   // Markdown → HTML
-  const html = await marked.parse(markdown)
+  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
 
   // HTML → 微信格式
-  return convertToWechat(html, preset)
+  return convertToWechat(html, preset, options)
+}
+
+/**
+ * Markdown转微信格式（带 AST 增强的 stats）
+ *
+ * 与 `convertToWechatWithStats` 不同的是，这里能拿到原始 markdown，因此跑一次
+ * `parseToAST` 把 InkforgeMeta 的精确计数覆盖到 stats 里（headings / images /
+ * codeBlocks / wordCount）。HTML 渲染管线本身不走 AST —— 避免引入回归。
+ */
+export async function markdownToWechatWithStats(
+  markdown: string,
+  preset: ExportPreset,
+  options: WechatExportOptions = {}
+): Promise<ExportResult> {
+  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
+  const result = convertToWechatWithStats(html, preset, options)
+
+  // AST 仅用于 stats 增强：旧 marked 渲染管线保持不变，规避回归。
+  let mergedStats = result.stats
+  try {
+    const { meta } = parseToAST(markdown)
+    mergedStats = mergeAstMetaIntoStats(result.stats, meta)
+  } catch {
+    // AST 解析失败时降级，stats 沿用原值。
+  }
+
+  return { html: result.html, stats: mergedStats }
 }

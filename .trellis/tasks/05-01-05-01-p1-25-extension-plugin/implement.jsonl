@@ -1,0 +1,7 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/25-extension-plugin-spec.md", "reason": "Spec 25 primary requirements"}
+{"file": "prompts/0420/specs/22-command-palette-spec.md", "reason": "Command contribution integration contract"}
+{"file": "prompts/0420/specs/24-permission-audit-spec.md", "reason": "Audit and permission boundary dependency"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Dexie schema and persistence conventions"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia and Settings state conventions"}
+{"file": ".trellis/tasks/05-01-05-01-p1-25-extension-plugin/research/extension-plugin-practices.md", "reason": "External sandbox and manifest practice notes"}

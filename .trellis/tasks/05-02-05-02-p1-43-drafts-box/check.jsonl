@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/43-drafts-box-spec.md","reason":"Check Drafts Box baseline against Spec 43 view, peek, batch, and validation requirements."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Check status updates stay compatible with lifecycle semantics."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"Check draft filtering remains consistent with document/file management."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check real-state/no-mock integration and batch undo behavior."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check typed DraftsView state and article status updates."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check lint/type/test/build quality gates."}

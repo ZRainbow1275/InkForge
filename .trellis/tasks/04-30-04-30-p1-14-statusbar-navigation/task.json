@@ -1,0 +1,57 @@
+{
+  "id": "04-30-p1-14-statusbar-navigation",
+  "name": "04-30-p1-14-statusbar-navigation",
+  "title": "P1 StatusBar Navigation Baseline",
+  "description": "Implement prompts/0420 spec 14 compatible status bar baseline: lifecycle-aware status badge display and existing flush-before-navigation contract validation.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "statusbar-navigation-baseline",
+  "package": null,
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-30",
+  "completedAt": "2026-04-30",
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "lifecycle_badge_helpers_reused",
+    "legacy_and_target_statuses_covered",
+    "flush_before_navigation_contract_preserved",
+    "real_browser_lifecycle_badge_validation_completed",
+    "typecheck_lint_build_completed",
+    "spec_and_acceptance_matrix_updated"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/components/editor/EditorStatusBar.vue",
+    "inkforge/src/views/WorkstationView.vue",
+    "prompts/0420/specs/14-statusbar-navigation-spec.md",
+    "prompts/0420/acceptance-matrix.md",
+    ".trellis/tasks/04-30-04-30-p1-14-statusbar-navigation/prd.md",
+    ".trellis/tasks/04-30-04-30-p1-14-statusbar-navigation/implement.jsonl",
+    ".trellis/tasks/04-30-04-30-p1-14-statusbar-navigation/check.jsonl"
+  ],
+  "notes": "Baseline_only;full_Spec_14_items_remain_pending_without_false_completion.",
+  "meta": {
+    "order": 14,
+    "baselineOnly": true,
+    "baselineCompleted": true
+  },
+  "fullSpecRemaining": [
+    "status_transition_menu",
+    "independent_DocumentStatusBadge",
+    "notification_bell",
+    "Sonner_toast_stack",
+    "undo_framework",
+    "independent_ZoomControl",
+    "TabBar_drag_pin_hover_preview_middle_click_close",
+    "dirty_indicator",
+    "close_confirmation",
+    "complete_E2E"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+    "id":  "05-02-p1-33-diagnostic-logging",
+    "name":  "05-02-p1-33-diagnostic-logging",
+    "title":  "P1 Diagnostic Logging Baseline",
+    "description":  "Implement prompts/0420 Spec 33 compatible diagnostic logging baseline with real persisted diagnostics, log levels, export, retention, store, validation, docs, and no mock logs.",
+    "status":  "completed",
+    "dev_type":  "frontend-local-first",
+    "scope":  "diagnostic-logging-baseline",
+    "package":  null,
+    "priority":  "P2",
+    "creator":  "ZRainbow1275",
+    "assignee":  "ZRainbow1275",
+    "createdAt":  "2026-05-02",
+    "completedAt":  "2026-05-02",
+    "branch":  null,
+    "base_branch":  "dev/visual-fixes",
+    "worktree_path":  null,
+    "commit":  null,
+    "pr_url":  null,
+    "subtasks":  [
+
+                 ],
+    "children":  [
+
+                 ],
+    "parent":  null,
+    "relatedFiles":  [
+                         "inkforge/src/utils/db.ts",
+                         "inkforge/src/services/activity-logger/types.ts",
+                         "inkforge/src/services/activity-logger/redactor.ts",
+                         "inkforge/src/services/activity-logger/classifier.ts",
+                         "inkforge/src/services/activity-logger/logger.ts",
+                         "inkforge/src/services/activity-logger/index.ts",
+                         "inkforge/src/services/activity-logger/activity-logger.test.ts",
+                         "inkforge/src/stores/diagnostics.ts",
+                         "prompts/0420/specs/33-diagnostic-logging-spec.md",
+                         "prompts/0420/acceptance-matrix.md",
+                         ".trellis/spec/backend/database-guidelines.md",
+                         ".trellis/spec/frontend/state-management.md"
+                     ],
+    "notes":  "Completed real local-first Diagnostic Logging baseline: Dexie v15 activityLogs/exportLogs, ActivityLogger schemas/redaction/classification/batching/critical fallback/replay/retention/JSONL/export logs, diagnostics Pinia store, targeted tests, full type/lint/test/build, and Playwright real IndexedDB smoke. Pending full-spec UI/Toast/DevPanel/DiagnosticPackage/benchmark items are documented.",
+    "meta":  {
+
+             }
+}

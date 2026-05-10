@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { X, FolderPlus } from 'lucide-vue-next'
+import { CATEGORY_ICON_OPTIONS } from '@/utils/iconography'
 
 const props = defineProps<{
   visible: boolean
@@ -12,10 +13,9 @@ const emit = defineEmits<{
 }>()
 
 const categoryName = ref('')
-const selectedIcon = ref('📁')
+const selectedIcon = ref('folder')
 
-// 可选图标列表
-const iconOptions = ['📁', '🤖', '📜', '📊', '💡', '📰', '💻', '🎯', '📌', '⭐', '🔥', '💬']
+const iconOptions = CATEGORY_ICON_OPTIONS
 
 function handleConfirm() {
   if (!categoryName.value.trim()) return
@@ -33,7 +33,7 @@ function handleClose() {
 
 function resetForm() {
   categoryName.value = ''
-  selectedIcon.value = '📁'
+  selectedIcon.value = 'folder'
 }
 
 // ESC 关闭
@@ -56,14 +56,21 @@ watch(() => props.visible, (visible) => {
 
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="modal-overlay" @click.self="handleClose">
+    <div
+      v-if="visible"
+      class="modal-overlay"
+      @click.self="handleClose"
+    >
       <div class="modal-container">
         <div class="modal-header">
           <h3>
             <FolderPlus :size="18" />
             添加分类
           </h3>
-          <button class="close-btn" @click="handleClose">
+          <button
+            class="close-btn"
+            @click="handleClose"
+          >
             <X :size="18" />
           </button>
         </div>
@@ -73,14 +80,19 @@ watch(() => props.visible, (visible) => {
           <div class="form-group">
             <label>选择图标</label>
             <div class="icon-grid">
-              <button 
-                v-for="icon in iconOptions" 
-                :key="icon"
+              <button
+                v-for="option in iconOptions"
+                :key="option.key"
                 class="icon-btn"
-                :class="{ active: selectedIcon === icon }"
-                @click="selectedIcon = icon"
+                :class="{ active: selectedIcon === option.key }"
+                :title="option.label"
+                @click="selectedIcon = option.key"
               >
-                {{ icon }}
+                <component
+                  :is="option.component"
+                  :size="18"
+                  :stroke-width="2"
+                />
               </button>
             </div>
           </div>
@@ -94,16 +106,21 @@ watch(() => props.visible, (visible) => {
               class="form-input"
               placeholder="输入分类名称..."
               autofocus
-            />
+            >
           </div>
         </div>
         
         <div class="modal-footer">
-          <button class="btn cancel" @click="handleClose">取消</button>
+          <button
+            class="btn cancel"
+            @click="handleClose"
+          >
+            取消
+          </button>
           <button 
             class="btn confirm" 
-            @click="handleConfirm"
             :disabled="!categoryName.trim()"
+            @click="handleConfirm"
           >
             确认添加
           </button>
@@ -201,8 +218,12 @@ watch(() => props.visible, (visible) => {
   border-radius: 8px;
   background: var(--color-bg);
   cursor: pointer;
-  font-size: 20px;
   transition: all 0.15s ease;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .icon-btn:hover {

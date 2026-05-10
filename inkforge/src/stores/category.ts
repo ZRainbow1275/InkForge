@@ -7,6 +7,7 @@ import {
     type UpdateCategoryDTO
 } from '@/schemas/article'
 import { categoryRepository } from '@/services/repository'
+import { notifyCategoryDeleted } from '@/services/category-events'
 import { logger, ErrorCode, AppError } from '@/services/error'
 import { db } from '@/utils/db'
 import { generateId } from '@/utils/uuid'
@@ -60,7 +61,7 @@ export const useCategoryStore = defineStore('category', () => {
         const category: Category = {
             id: generateId(),
             name: validated.name,
-            icon: validated.icon || '📁',
+            icon: validated.icon || 'folder',
             articleCount: 0,
             createdAt: new Date(),
             updatedAt: new Date()
@@ -107,16 +108,8 @@ export const useCategoryStore = defineStore('category', () => {
                 selectedCategoryId.value = null
             }
 
-            // 同步更新 articleStore 中受影响文章的 categoryId
-            // 动态导入避免循环依赖（article.ts 已导入 category.ts）
-            const { useArticleStore } = await import('./article')
-            const articleStore = useArticleStore()
-            // 不可变更新：将该分类下的文章 categoryId 设为 null
-            articleStore.articles = articleStore.articles.map(article =>
-                article.categoryId === id
-                    ? { ...article, categoryId: null }
-                    : article
-            )
+            // 通知文章 store 同步已加载文章状态，避免 category/article store 互相导入。
+            notifyCategoryDeleted(id)
 
             logger.info('分类删除成功', { id })
         } catch (err) {

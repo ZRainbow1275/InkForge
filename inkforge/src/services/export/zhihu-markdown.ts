@@ -9,6 +9,7 @@
  */
 
 import type { ZhihuMarkdownResult, ZhihuMarkdownOptions } from './types'
+import { zhihuMarkdownRulesTransform } from './platform-rules/zhihu'
 
 // ═══════════════════════════════════════════════════════════════════
 // Markdown → 知乎 Markdown 转换
@@ -23,10 +24,25 @@ export function markdownToZhihuClean(
   markdown: string,
   options?: ZhihuMarkdownOptions
 ): ZhihuMarkdownResult {
-  const preserveLatex = options?.preserveLatex ?? true
+  // 向后兼容：显式 convertLatexToImg 优先；否则若旧字段 preserveLatex 显式给出，
+  // 则反向映射；否则启用新默认 true。
+  const explicitConvert = options?.convertLatexToImg
+  const explicitPreserve = options?.preserveLatex
+  const convertLatexToImg =
+    explicitConvert !== undefined
+      ? explicitConvert
+      : explicitPreserve !== undefined
+        ? !explicitPreserve
+        : true
+  // 在保护阶段，无论是否最终转换，都需保护 LaTeX 不被 HTML/GFM 步骤误伤；
+  // 因此 protectLatex 始终为 true。
+  const protectLatex = true
   const convertTasks = options?.convertTaskLists ?? true
   const mermaidHandling = options?.mermaidHandling ?? 'prompt'
   const cleanGfm = options?.cleanGfmExtensions ?? true
+  const tableHandling: 'preserve' | 'html' | 'fallback' = options?.tableHandling ?? 'html'
+  const codeLangCoerce = options?.codeLangCoerce ?? true
+  const defaultLang = options?.defaultLang ?? 'text'
 
   let result = markdown.trim()
   let mermaidCount = 0
@@ -36,7 +52,7 @@ export function markdownToZhihuClean(
 
   // Step 1: 保护 LaTeX 公式（避免后续处理破坏公式）
   const latexBlocks: string[] = []
-  if (preserveLatex) {
+  if (protectLatex) {
     // 保护块级公式 $$...$$
     result = result.replace(/\$\$([\s\S]*?)\$\$/g, (match) => {
       latexBlocks.push(match)
@@ -58,7 +74,7 @@ export function markdownToZhihuClean(
     if (match.startsWith('```mermaid')) {
       mermaidCount++
       if (mermaidHandling === 'prompt') {
-        codeBlocks.push('> ⚠️ 此处原为 Mermaid 图表，知乎不支持 Mermaid 渲染，建议截图后上传。')
+        codeBlocks.push('> 此处原为 Mermaid 图表，知乎不支持 Mermaid 渲染，建议截图后上传。')
       } else {
         codeBlocks.push('') // remove 模式
       }
@@ -91,11 +107,11 @@ export function markdownToZhihuClean(
   if (convertTasks) {
     result = result.replace(/^(\s*)- \[x\]\s*/gm, (_match, indent: string) => {
       taskListCount++
-      return `${indent}- ✅ `
+      return `${indent}- 已完成：`
     })
     result = result.replace(/^(\s*)- \[ \]\s*/gm, (_match, indent: string) => {
       taskListCount++
-      return `${indent}- ☐ `
+      return `${indent}- 待处理：`
     })
   }
 
@@ -111,14 +127,24 @@ export function markdownToZhihuClean(
   result = result.replace(/%%CODE_BLOCK_(\d+)%%/g, (_match, idx: string) => {
     return codeBlocks[parseInt(idx)] ?? ''
   })
-  // 恢复 LaTeX
-  if (preserveLatex) {
+  // 恢复 LaTeX（始终恢复，否则 %%LATEX_*%% 占位会泄漏到输出）
+  if (protectLatex) {
     result = result.replace(/%%LATEX_(?:BLOCK|INLINE)_(\d+)%%/g, (_match, idx: string) => {
       return latexBlocks[parseInt(idx)] ?? ''
     })
   }
 
-  // Step 10: 最终清理
+  // Step 10: 应用 platform-rules 转换（LaTeX → equation img、表格降级、代码语言强制）
+  // 顺序在 finalCleanup 之前，保证规则可见到完整恢复后的 markdown。
+  const rulesResult = zhihuMarkdownRulesTransform(result, {
+    convertLatexToImg,
+    tableHandling,
+    codeLangCoerce,
+    defaultLang,
+  })
+  result = rulesResult.md
+
+  // Step 11: 最终清理
   result = finalCleanup(result)
 
   return {
@@ -127,6 +153,10 @@ export function markdownToZhihuClean(
     taskListCount,
     cleanedHtmlTags: [...new Set(cleanedHtmlTags)],
     latexCount,
+    latexBlocksConverted: rulesResult.stats.latexBlocks,
+    latexInlinesConverted: rulesResult.stats.latexInlines,
+    tablesConverted: rulesResult.stats.tablesFallback,
+    codeLangsFixed: rulesResult.stats.codeLangFixed,
   }
 }
 
@@ -200,7 +230,7 @@ function cleanPlatformSpecific(text: string): string {
   text = text.replace(/<!--[\s\S]*?-->/g, '')
 
   // 移除零宽字符
-  text = text.replace(/[\u200B\u200C\u200D\uFEFF]/g, '')
+  text = text.replace(/(?:\u200B|\u200C|\u200D|\uFEFF)/g, '')
 
   return text
 }

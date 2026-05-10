@@ -3,13 +3,15 @@
  * 提供数据访问的统一接口，解耦 Store 与具体存储实现
  *
  * 安全特性：
- * - 自动加密敏感字段（rawContent, aiSummary, body, transcript）
+ * - 自动加密敏感字段（rawContent, markdownSource, htmlCache, aiSummary, body, transcript）
  * - 读取时自动解密
  * - 可通过 ENABLE_ENCRYPTION 配置开关
  */
 
+import { isProxy, toRaw } from 'vue'
 import { db } from '@/utils/db'
 import type { Category, Article, EditedContent } from '@/types'
+import { ARTICLE_STATUS } from '@/constants'
 import { logger, ErrorCode, AppError } from './error'
 import {
     ENABLE_ENCRYPTION,
@@ -46,6 +48,54 @@ export interface IRepository<T, ID = string> {
     create(entity: T): Promise<void>
     update(id: ID, updates: Partial<T>): Promise<void>
     delete(id: ID): Promise<void>
+}
+
+type IndexedDbSerializableRecord = Record<string, unknown>
+
+function unwrapReactiveForStorage<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+    const rawValue = isProxy(value) ? toRaw(value) : value
+
+    if (rawValue === null || typeof rawValue !== 'object') {
+        return rawValue
+    }
+
+    if (rawValue instanceof Date) {
+        return new Date(rawValue.getTime()) as T
+    }
+
+    if (rawValue instanceof ArrayBuffer || ArrayBuffer.isView(rawValue)) {
+        return rawValue
+    }
+
+    if (typeof Blob !== 'undefined' && rawValue instanceof Blob) {
+        return rawValue
+    }
+
+    const objectValue = rawValue as object
+    const cached = seen.get(objectValue)
+    if (cached) {
+        return cached as T
+    }
+
+    if (Array.isArray(rawValue)) {
+        const arrayValue: unknown[] = []
+        seen.set(objectValue, arrayValue)
+        for (const item of rawValue) {
+            arrayValue.push(unwrapReactiveForStorage(item, seen))
+        }
+        return arrayValue as T
+    }
+
+    const recordValue: IndexedDbSerializableRecord = {}
+    seen.set(objectValue, recordValue)
+
+    for (const [key, entryValue] of Object.entries(rawValue as IndexedDbSerializableRecord)) {
+        if (entryValue !== undefined) {
+            recordValue[key] = unwrapReactiveForStorage(entryValue, seen)
+        }
+    }
+
+    return recordValue as T
 }
 
 /**
@@ -89,10 +139,12 @@ abstract class BaseRepository<T extends Record<string, unknown>> implements IRep
 
     async create(entity: T): Promise<void> {
         try {
+            const normalizedEntity = unwrapReactiveForStorage(entity)
+
             // 加密敏感字段
             const toStore = this.hasSensitiveFields && ENABLE_ENCRYPTION
-                ? await encryptSensitiveFields(entity)
-                : entity
+                ? await encryptSensitiveFields(normalizedEntity)
+                : normalizedEntity
             await this.table.add(toStore)
         } catch (error) {
             logger.error(`${this.tableName} create failed`, error)
@@ -106,7 +158,7 @@ abstract class BaseRepository<T extends Record<string, unknown>> implements IRep
             const entries = Object.entries(updates).filter(
                 (entry): entry is [string, NonNullable<typeof entry[1]>] => entry[1] !== undefined
             )
-            const cleanUpdates: Record<string, unknown> = Object.fromEntries(entries)
+            const cleanUpdates = unwrapReactiveForStorage(Object.fromEntries(entries))
 
             // 加密敏感字段
             const toStore = this.hasSensitiveFields && ENABLE_ENCRYPTION
@@ -152,21 +204,28 @@ class CategoryRepositoryImpl extends BaseRepository<Category> {
 
 /**
  * 资讯 Repository
- * 包含敏感字段：rawContent, aiSummary
+ * 包含敏感字段：rawContent, markdownSource, htmlCache, aiSummary
  */
 class ArticleRepositoryImpl extends BaseRepository<Article> {
     protected readonly tableName = 'articles'
     protected readonly hasSensitiveFields = true
     protected get table() { return db.articles }
 
+    private visibleArticles(items: Article[]): Article[] {
+        return items.filter(item => item.status !== ARTICLE_STATUS.TRASHED)
+    }
+
+    private async decryptArticles(items: Article[]): Promise<Article[]> {
+        if (this.hasSensitiveFields && ENABLE_ENCRYPTION) {
+            return await decryptSensitiveFieldsBatch(items)
+        }
+        return items
+    }
+
     async findAllOrderedByDate(): Promise<Article[]> {
         try {
             const items = await db.articles.orderBy('createdAt').reverse().toArray()
-            // 解密敏感字段
-            if (this.hasSensitiveFields && ENABLE_ENCRYPTION) {
-                return await decryptSensitiveFieldsBatch(items)
-            }
-            return items
+            return await this.decryptArticles(this.visibleArticles(items))
         } catch (error) {
             logger.error('资讯按日期查询失败', error)
             throw new AppError(ErrorCode.DB_READ_FAILED, '读取资讯失败')
@@ -181,18 +240,10 @@ class ArticleRepositoryImpl extends BaseRepository<Article> {
             const { page, pageSize } = options
             const offset = (page - 1) * pageSize
 
-            const total = await db.articles.count()
-            const items = await db.articles
-                .orderBy('createdAt')
-                .reverse()
-                .offset(offset)
-                .limit(pageSize)
-                .toArray()
-
-            // 解密敏感字段
-            const decryptedItems = this.hasSensitiveFields && ENABLE_ENCRYPTION
-                ? await decryptSensitiveFieldsBatch(items)
-                : items
+            const visible = this.visibleArticles(await db.articles.orderBy('createdAt').reverse().toArray())
+            const total = visible.length
+            const items = visible.slice(offset, offset + pageSize)
+            const decryptedItems = await this.decryptArticles(items)
 
             return {
                 items: decryptedItems,
@@ -209,7 +260,8 @@ class ArticleRepositoryImpl extends BaseRepository<Article> {
 
     async findByCategoryId(categoryId: string): Promise<Article[]> {
         try {
-            return await db.articles.where('categoryId').equals(categoryId).toArray()
+            const items = await db.articles.where('categoryId').equals(categoryId).toArray()
+            return await this.decryptArticles(this.visibleArticles(items))
         } catch (error) {
             logger.error('按分类查询资讯失败', error, { categoryId })
             throw new AppError(ErrorCode.DB_READ_FAILED, '读取分类资讯失败', { categoryId })
@@ -224,7 +276,7 @@ class ArticleRepositoryImpl extends BaseRepository<Article> {
             const q = query.toLowerCase().trim()
             if (!q) return this.findAllOrderedByDate()
 
-            const items = await db.articles.toArray()
+            const items = this.visibleArticles(await db.articles.toArray())
             const filtered = items.filter(a =>
                 a.title.toLowerCase().includes(q) ||
                 a.description.toLowerCase().includes(q) ||
@@ -234,10 +286,7 @@ class ArticleRepositoryImpl extends BaseRepository<Article> {
             // 按创建时间倒序
             filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-            if (this.hasSensitiveFields && ENABLE_ENCRYPTION) {
-                return await decryptSensitiveFieldsBatch(filtered)
-            }
-            return filtered
+            return await this.decryptArticles(filtered)
         } catch (error) {
             logger.error('搜索资讯失败', error, { query })
             throw new AppError(ErrorCode.DB_READ_FAILED, '搜索资讯失败')
@@ -253,16 +302,33 @@ class ArticleRepositoryImpl extends BaseRepository<Article> {
             const items = await db.articles
                 .orderBy('createdAt')
                 .reverse()
-                .limit(limit)
                 .toArray()
 
-            if (this.hasSensitiveFields && ENABLE_ENCRYPTION) {
-                return await decryptSensitiveFieldsBatch(items)
-            }
-            return items
+            return await this.decryptArticles(this.visibleArticles(items).slice(0, limit))
         } catch (error) {
             logger.error('获取最近资讯失败', error, { limit })
             throw new AppError(ErrorCode.DB_READ_FAILED, '获取最近资讯失败')
+        }
+    }
+
+    async findTrashedOrderedByDeletedAt(): Promise<Article[]> {
+        try {
+            const items = await db.articles.where('status').equals(ARTICLE_STATUS.TRASHED).toArray()
+            items.sort((a, b) => new Date(b.deletedAt ?? b.updatedAt).getTime() - new Date(a.deletedAt ?? a.updatedAt).getTime())
+            return await this.decryptArticles(items)
+        } catch (error) {
+            logger.error('Trash article query failed', error)
+            throw new AppError(ErrorCode.DB_READ_FAILED, '读取回收站失败')
+        }
+    }
+
+    async findAllIncludingTrashedOrderedByDate(): Promise<Article[]> {
+        try {
+            const items = await db.articles.orderBy('createdAt').reverse().toArray()
+            return await this.decryptArticles(items)
+        } catch (error) {
+            logger.error('All article query including trash failed', error)
+            throw new AppError(ErrorCode.DB_READ_FAILED, '读取全部资讯失败')
         }
     }
 

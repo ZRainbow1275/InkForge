@@ -1,3 +1,5 @@
-//! Tauri IPC 命令模块
+//! Tauri IPC command modules.
 
+pub mod desktop;
 pub mod ollama;
+pub mod window;

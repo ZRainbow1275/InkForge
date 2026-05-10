@@ -1,51 +1,115 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, markRaw, ref, shallowRef, watch } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { css } from '@codemirror/lang-css'
 import { oneDark } from '@codemirror/theme-one-dark'
+import type { Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { storeToRefs } from 'pinia'
 import { useThemeStore } from '@/stores/theme'
 
-// Theme store
-const themeStore = useThemeStore()
-const { customCSS } = storeToRefs(themeStore)
-
-// Local state
-const code = ref(customCSS.value || '')
-
-// Sync to store
-watch(code, (newVal) => {
-  customCSS.value = newVal
+const props = withDefaults(defineProps<{
+  modelValue?: string
+  title?: string
+  placeholder?: string
+  minHeight?: string
+  dark?: boolean
+  disabled?: boolean
+}>(), {
+  modelValue: undefined,
+  title: '自定义 CSS',
+  placeholder: '/* 在此输入自定义 CSS */',
+  minHeight: '240px',
+  dark: true,
+  disabled: false,
 })
 
-// Sync from store
-watch(customCSS, (newVal) => {
-  if (newVal !== code.value) {
-    code.value = newVal
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
+const themeStore = useThemeStore()
+const { customCSS } = storeToRefs(themeStore)
+const usesExternalModel = computed(() => props.modelValue !== undefined)
+const code = ref(usesExternalModel.value ? props.modelValue ?? '' : customCSS.value || '')
+
+watch(
+  () => props.modelValue,
+  value => {
+    if (usesExternalModel.value && value !== undefined && value !== code.value) {
+      code.value = value
+    }
+  },
+)
+
+watch(customCSS, value => {
+  if (!usesExternalModel.value && value !== code.value) {
+    code.value = value
   }
 })
 
-// Extensions
-const extensions = [
-  css(),
-  oneDark,
-  EditorView.lineWrapping
-]
+watch(code, value => {
+  if (usesExternalModel.value) {
+    emit('update:modelValue', value)
+    return
+  }
+
+  customCSS.value = value
+})
+
+const lightTheme = markRaw(EditorView.theme({
+  '&': {
+    backgroundColor: '#FFFFFF',
+    color: '#263238',
+  },
+  '.cm-content': {
+    caretColor: '#D32F2F',
+  },
+  '.cm-gutters': {
+    backgroundColor: '#FAFBFC',
+    color: '#78909C',
+    borderRightColor: '#ECEFF1',
+  },
+  '&.cm-focused': {
+    outline: 'none',
+  },
+}))
+
+const extensions = shallowRef<Extension[]>([])
+
+watch(
+  () => props.dark,
+  dark => {
+    extensions.value = markRaw([
+      markRaw(css()),
+      markRaw(EditorView.lineWrapping),
+      dark ? markRaw(oneDark) : lightTheme,
+    ])
+  },
+  { immediate: true },
+)
+
+const editorStyle = computed(() => ({ minHeight: props.minHeight }))
 </script>
 
 <template>
-  <div class="css-editor">
+  <div
+    class="css-editor"
+    :class="{ 'css-editor--light': !dark, 'css-editor--disabled': disabled }"
+    :style="editorStyle"
+  >
     <div class="editor-header">
-      <span>自定义 CSS</span>
+      <span>{{ title }}</span>
+      <span class="editor-header__meta">CSS / .editor-content</span>
     </div>
     <Codemirror
       v-model="code"
       :extensions="extensions"
       :autofocus="false"
+      :disabled="disabled"
       :indent-with-tab="true"
       :tab-size="2"
-      placeholder="/* 在此输入自定义 CSS，会实时应用到预览 */"
+      :placeholder="placeholder"
     />
   </div>
 </template>
@@ -54,27 +118,57 @@ const extensions = [
 .css-editor {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background: #1a1a1a;
+  min-height: 240px;
+  background: #1A1A1A;
+  border: 1px solid rgba(38, 50, 56, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.css-editor--light {
+  background: #FFFFFF;
+}
+
+.css-editor--disabled {
+  opacity: 0.72;
 }
 
 .editor-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 14px;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #999;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.css-editor--light .editor-header {
+  color: #607D8B;
+  border-bottom-color: #ECEFF1;
+}
+
+.editor-header__meta {
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.72;
 }
 
 .css-editor :deep(.cm-editor) {
   flex: 1;
-  font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  font-size: 13px;
+  min-height: inherit;
+  font-family: var(--font-code-family, 'JetBrains Mono', 'Consolas', monospace);
+  font-size: var(--typography-code-size, 13px);
 }
 
 .css-editor :deep(.cm-scroller) {
   padding: 12px;
+}
+
+.css-editor :deep(.cm-content) {
+  min-height: 220px;
 }
 </style>

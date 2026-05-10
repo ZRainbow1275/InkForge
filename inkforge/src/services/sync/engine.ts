@@ -1,122 +1,62 @@
-/**
- * 同步引擎
- *
- * 本地优先架构:
- * - 所有操作先写本地 IndexedDB，后台异步同步到远端
- * - 离线时正常工作，联网后自动同步
- * - 端到端加密: 服务器仅存储密文
- *
- * 同步策略:
- * 1. 增量同步 -- 仅上传变更的文章
- * 2. 冲突检测 -- 基于版本向量 + checksum 比对
- * 3. 离线支持 -- 本地队列 + 联网后批量上传
- * 4. 端到端加密 -- 使用 .inkforge 格式
- *
- * 生命周期:
- *   构造 -> startAutoSync() -> sync() [周期触发] -> stopAutoSync() -> dispose()
- */
-
+import { db } from '@/utils/db'
+import { generateId } from '@/utils/uuid'
 import { logger } from '@/services/error'
+import { auditLog } from '@/services/audit'
 import { ChangeTracker, type ChangeRecord } from './change-tracker'
 import { ConflictResolver, type SyncConflict, type ConflictStrategy } from './conflict-resolver'
+import { syncRepository } from './repository'
+import { SyncProviderError, type SyncPayload, type SyncProvider } from './provider'
 
-// ===================================================================
-// 类型定义
-// ===================================================================
+export type SyncStatus = 'idle' | 'syncing' | 'conflict' | 'error' | 'offline' | 'paused'
 
-/** 同步状态枚举 */
-export type SyncStatus = 'idle' | 'syncing' | 'conflict' | 'error' | 'offline'
-
-/** 同步状态 */
 export interface SyncState {
-    /** 当前同步状态 */
     status: SyncStatus
-    /** 最后一次成功同步的时间 */
     lastSyncAt: Date | null
-    /** 待同步的变更数量 */
     pendingChanges: number
-    /** 活跃冲突列表 */
     conflicts: SyncConflict[]
-    /** 最后一次错误信息 */
     lastError: string | null
-    /** 是否正在自动同步 */
     autoSyncEnabled: boolean
+    providerId: string | null
 }
 
-/** 同步结果 */
 export interface SyncResult {
-    /** 是否成功 */
     success: boolean
-    /** 上传的变更数量 */
     uploaded: number
-    /** 下载的变更数量 */
     downloaded: number
-    /** 新发现的冲突数量 */
     newConflicts: number
-    /** 错误信息 (如果失败) */
     error?: string
 }
 
-/** 同步引擎配置 */
 export interface SyncEngineConfig {
-    /** 自动同步间隔 (毫秒, 默认 30 秒) */
     autoSyncIntervalMs: number
-    /** 最大重试次数 */
     maxRetries: number
-    /** 变更去重窗口 (毫秒) */
     dedupeWindowMs: number
+    profileId: string
 }
 
-/** 默认配置 */
 const DEFAULT_CONFIG: SyncEngineConfig = {
     autoSyncIntervalMs: 30_000,
     maxRetries: 3,
     dedupeWindowMs: 2_000,
+    profileId: 'local-default',
 }
 
-// ===================================================================
-// 同步引擎
-// ===================================================================
-
-/**
- * 同步引擎
- *
- * 管理本地变更追踪、冲突检测和远端同步。
- * 目前为本地模式 (无远端服务器)，所有操作在本地完成。
- * 预留了远端同步接口，待服务器端实现后接入。
- */
 export class SyncEngine {
-    /** 当前同步状态 */
     private state: SyncState
-
-    /** 配置 */
     private readonly config: SyncEngineConfig
-
-    /** 变更追踪器 */
     private readonly changeTracker: ChangeTracker
-
-    /** 冲突解决器 */
     private readonly conflictResolver: ConflictResolver
-
-    /** 自动同步定时器 */
+    private provider: SyncProvider | null = null
     private autoSyncInterval: ReturnType<typeof setInterval> | null = null
-
-    /** 状态变化监听器 */
     private stateListeners: Array<(state: SyncState) => void> = []
-
-    /** 是否正在执行同步 (防止并发) */
-    private isSyncLock: boolean = false
-
-    /** 网络状态监听器引用 (用于清理) */
+    private isSyncLock = false
     private onlineHandler: (() => void) | null = null
     private offlineHandler: (() => void) | null = null
 
     constructor(config: Partial<SyncEngineConfig> = {}) {
         this.config = { ...DEFAULT_CONFIG, ...config }
-
         this.changeTracker = new ChangeTracker(this.config.dedupeWindowMs)
         this.conflictResolver = new ConflictResolver()
-
         this.state = {
             status: 'idle',
             lastSyncAt: null,
@@ -124,14 +64,13 @@ export class SyncEngine {
             conflicts: [],
             lastError: null,
             autoSyncEnabled: false,
+            providerId: null,
         }
 
-        // 监听变更追踪器状态
         this.changeTracker.onStateChange((trackerState) => {
             this.updateState({ pendingChanges: trackerState.pendingCount })
         })
 
-        // 监听冲突变化
         this.conflictResolver.onConflictsChange((conflicts) => {
             this.updateState({
                 conflicts,
@@ -139,77 +78,60 @@ export class SyncEngine {
             })
         })
 
-        // 监听网络状态
         this.setupNetworkListeners()
     }
 
-    // ---------------------------------------------------------------
-    // 公共 API
-    // ---------------------------------------------------------------
-
-    /**
-     * 获取当前同步状态 (只读)
-     */
     getState(): Readonly<SyncState> {
         return { ...this.state }
     }
 
-    /**
-     * 标记文档已修改 (加入待同步队列)
-     *
-     * @param documentId - 文档 ID
-     * @param content - 文档内容 (用于校验和计算)
-     * @param operation - 操作类型 (默认 'update')
-     */
-    async markDirty(
-        documentId: string,
-        content?: string,
-        operation: 'create' | 'update' | 'delete' = 'update'
-    ): Promise<void> {
-        await this.changeTracker.trackChange(documentId, operation, content)
+    setProvider(provider: SyncProvider | null): void {
+        this.provider = provider
+        this.updateState({
+            providerId: provider?.id ?? null,
+            status: provider ? 'idle' : 'paused',
+            lastError: provider ? null : this.state.lastError,
+        })
     }
 
-    /**
-     * 执行同步
-     *
-     * @description
-     * 当前为本地模式实现:
-     * - 检查网络状态
-     * - 处理待同步队列
-     * - 记录同步结果
-     *
-     * 当远端服务器就绪后，此方法将:
-     * 1. 拉取远端变更列表 (仅 checksum)
-     * 2. 比对本地版本向量
-     * 3. 检测冲突
-     * 4. 下载新内容 (加密态)
-     * 5. 上传本地变更 (加密态)
-     * 6. 更新同步状态
-     */
+    getProvider(): SyncProvider | null {
+        return this.provider
+    }
+
+    async markDirty(documentId: string, content?: string, operation: 'create' | 'update' | 'delete' = 'update'): Promise<void> {
+        const record = await this.changeTracker.trackChange(documentId, operation, content)
+        await syncRepository.enqueueOutbox({
+            id: record.id,
+            articleId: record.articleId,
+            operation: record.operation,
+            checksum: record.checksum,
+            profileId: this.config.profileId,
+            providerId: this.provider?.id ?? 'unconfigured',
+        })
+    }
+
     async sync(): Promise<SyncResult> {
-        // 防止并发同步
         if (this.isSyncLock) {
             logger.debug('[SyncEngine] 同步已在进行中，跳过')
             return { success: true, uploaded: 0, downloaded: 0, newConflicts: 0 }
         }
 
         this.isSyncLock = true
+        const startedAt = Date.now()
         this.updateState({ status: 'syncing', lastError: null })
 
         try {
-            // 检查网络状态
             if (!this.isOnline()) {
                 this.updateState({ status: 'offline' })
-                return {
-                    success: false,
-                    uploaded: 0,
-                    downloaded: 0,
-                    newConflicts: 0,
-                    error: '当前处于离线状态',
-                }
+                return await this.failSync(startedAt, '当前处于离线状态')
             }
 
             const pendingChanges = this.changeTracker.getPendingChanges()
+            if (!this.provider) {
+                this.updateState({ status: 'paused' })
+                const suffix = pendingChanges.length > 0 ? '，已保留待同步队列' : ''
+                return await this.failSync(startedAt, `同步提供者未配置${suffix}`)
+            }
 
             if (pendingChanges.length === 0) {
                 this.updateState({
@@ -219,219 +141,268 @@ export class SyncEngine {
                 return { success: true, uploaded: 0, downloaded: 0, newConflicts: 0 }
             }
 
-            // 本地模式: 处理变更队列
-            // 远端模式时此处将替换为实际的网络请求
-            const result = await this.processLocalSync(pendingChanges)
+            const payloads = await this.buildPayloads(pendingChanges)
+            const pushResult = await this.provider.push(payloads)
+            const succeededChangeIds = pendingChanges
+                .filter(change => pushResult.succeeded.includes(change.articleId))
+                .map(change => change.id)
+
+            this.changeTracker.markSyncedBatch(succeededChangeIds)
+            await syncRepository.markOutboxSynced(succeededChangeIds)
+
+            if (pushResult.failed.length > 0) {
+                const failedChangeIds = pendingChanges
+                    .filter(change => pushResult.failed.includes(change.articleId))
+                    .map(change => change.id)
+                await syncRepository.markOutboxFailed(failedChangeIds, 'Provider push failed for the document')
+            }
+
+            const pullResult = await this.provider.pull(this.state.lastSyncAt?.getTime() ?? 0)
+            for (const conflict of pullResult.conflicts) {
+                await syncRepository.upsertConflict({
+                    ...conflict,
+                    profileId: this.config.profileId,
+                    providerId: this.provider.id,
+                    createdAt: new Date(conflict.detectedAt),
+                    updatedAt: new Date(),
+                })
+            }
+
+            const result: SyncResult = {
+                success: pushResult.failed.length === 0,
+                uploaded: pushResult.succeeded.length,
+                downloaded: pullResult.updated.length,
+                newConflicts: pullResult.conflicts.length,
+                error: pushResult.failed.length > 0 ? '部分文档同步失败' : undefined,
+            }
+
+            await syncRepository.addLog({
+                id: generateId(),
+                providerId: this.provider.id,
+                profileId: this.config.profileId,
+                operation: 'push',
+                status: result.success ? 'success' : 'partial',
+                docCount: pendingChanges.length,
+                errorMessage: result.error,
+                startedAt,
+                finishedAt: Date.now(),
+                durationMs: Date.now() - startedAt,
+            })
+            await auditLog('sync.push', {
+                actorId: this.config.profileId,
+                profileId: this.config.profileId,
+                severity: result.success ? 'info' : 'warning',
+                outcome: result.success ? 'success' : 'partial',
+                reason: result.error,
+                payload: {
+                    providerId: this.provider.id,
+                    pendingChanges: pendingChanges.length,
+                    uploaded: result.uploaded,
+                    failed: pushResult.failed.length,
+                    downloaded: result.downloaded,
+                    newConflicts: result.newConflicts,
+                },
+                source: 'SyncEngine.sync',
+            })
+            await auditLog('sync.pull', {
+                actorId: this.config.profileId,
+                profileId: this.config.profileId,
+                severity: pullResult.conflicts.length > 0 ? 'warning' : 'info',
+                outcome: pullResult.conflicts.length > 0 ? 'partial' : 'success',
+                payload: {
+                    providerId: this.provider.id,
+                    updated: pullResult.updated.length,
+                    deleted: pullResult.deleted.length,
+                    conflicts: pullResult.conflicts.length,
+                },
+                source: 'SyncEngine.sync',
+            })
 
             this.updateState({
-                status: result.newConflicts > 0 ? 'conflict' : 'idle',
-                lastSyncAt: new Date(),
+                status: result.newConflicts > 0 ? 'conflict' : result.success ? 'idle' : 'error',
+                lastSyncAt: result.success ? new Date() : this.state.lastSyncAt,
+                lastError: result.error ?? null,
             })
 
             return result
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err)
             logger.error('[SyncEngine] 同步失败', err)
-
-            this.updateState({
-                status: 'error',
-                lastError: errorMsg,
+            await syncRepository.addLog({
+                id: generateId(),
+                providerId: this.provider?.id ?? 'unconfigured',
+                profileId: this.config.profileId,
+                operation: 'push',
+                status: 'failure',
+                errorCode: err instanceof SyncProviderError ? err.code : undefined,
+                errorMessage: errorMsg,
+                startedAt,
+                finishedAt: Date.now(),
+                durationMs: Date.now() - startedAt,
             })
-
-            return {
-                success: false,
-                uploaded: 0,
-                downloaded: 0,
-                newConflicts: 0,
-                error: errorMsg,
-            }
+            await auditLog('sync.push', {
+                actorId: this.config.profileId,
+                profileId: this.config.profileId,
+                severity: 'error',
+                outcome: 'failure',
+                reason: errorMsg,
+                payload: {
+                    providerId: this.provider?.id ?? 'unconfigured',
+                    errorCode: err instanceof SyncProviderError ? err.code : undefined,
+                },
+                source: 'SyncEngine.sync',
+            })
+            this.updateState({ status: 'error', lastError: errorMsg })
+            return { success: false, uploaded: 0, downloaded: 0, newConflicts: 0, error: errorMsg }
         } finally {
             this.isSyncLock = false
         }
     }
 
-    /**
-     * 解决冲突
-     *
-     * @param documentId - 文档 ID
-     * @param strategy - 解决策略
-     */
-    async resolveConflict(
-        documentId: string,
-        strategy: ConflictStrategy
-    ): Promise<void> {
-        const resolution = this.conflictResolver.resolveConflictByDocumentId(
-            documentId,
-            strategy
-        )
-
+    async resolveConflict(documentId: string, strategy: ConflictStrategy): Promise<void> {
+        const resolution = this.conflictResolver.resolveConflictByDocumentId(documentId, strategy)
         if (!resolution) {
             logger.warn('[SyncEngine] 未找到文档的冲突记录', { documentId })
             return
         }
-
-        // 解决后检查是否还有活跃冲突
         const remaining = this.conflictResolver.getActiveConflicts()
-        this.updateState({
-            conflicts: remaining,
-            status: remaining.length > 0 ? 'conflict' : 'idle',
+        this.updateState({ conflicts: remaining, status: remaining.length > 0 ? 'conflict' : 'idle' })
+        await auditLog('sync.conflict.resolve', {
+            actorId: this.config.profileId,
+            profileId: this.config.profileId,
+            docId: documentId,
+            resourceId: documentId,
+            resourceKind: 'document',
+            severity: 'warning',
+            outcome: 'success',
+            payload: { strategy, remainingConflicts: remaining.length },
+            source: 'SyncEngine.resolveConflict',
         })
-
-        logger.info('[SyncEngine] 冲突已解决', {
-            documentId,
-            strategy,
-            remainingConflicts: remaining.length,
-        })
+        logger.info('[SyncEngine] 冲突已解决', { documentId, strategy, remainingConflicts: remaining.length })
     }
 
-    /**
-     * 启动自动同步
-     *
-     * @param intervalMs - 同步间隔 (毫秒, 默认使用配置值)
-     */
     startAutoSync(intervalMs?: number): void {
-        if (this.autoSyncInterval) {
-            this.stopAutoSync()
-        }
-
+        if (this.autoSyncInterval) this.stopAutoSync()
         const interval = intervalMs ?? this.config.autoSyncIntervalMs
-
         this.autoSyncInterval = setInterval(() => {
             void this.sync()
         }, interval)
-
         this.updateState({ autoSyncEnabled: true })
-
         logger.info('[SyncEngine] 自动同步已启动', { intervalMs: interval })
     }
 
-    /**
-     * 停止自动同步
-     */
     stopAutoSync(): void {
         if (this.autoSyncInterval) {
             clearInterval(this.autoSyncInterval)
             this.autoSyncInterval = null
         }
-
         this.updateState({ autoSyncEnabled: false })
-
         logger.info('[SyncEngine] 自动同步已停止')
     }
 
-    /**
-     * 注册状态变化监听器
-     *
-     * @returns 取消注册的函数
-     */
     onStateChange(callback: (state: SyncState) => void): () => void {
         this.stateListeners.push(callback)
         return () => {
             const index = this.stateListeners.indexOf(callback)
-            if (index !== -1) {
-                this.stateListeners.splice(index, 1)
-            }
+            if (index !== -1) this.stateListeners.splice(index, 1)
         }
     }
 
-    /**
-     * 获取变更追踪器 (供外部高级用途)
-     */
     getChangeTracker(): ChangeTracker {
         return this.changeTracker
     }
 
-    /**
-     * 获取冲突解决器 (供外部高级用途)
-     */
     getConflictResolver(): ConflictResolver {
         return this.conflictResolver
     }
 
-    /**
-     * 销毁引擎，释放所有资源
-     */
     dispose(): void {
         this.stopAutoSync()
         this.teardownNetworkListeners()
         this.stateListeners = []
         this.changeTracker.clear()
-
         logger.info('[SyncEngine] 引擎已销毁')
     }
 
-    // ---------------------------------------------------------------
-    // 私有方法
-    // ---------------------------------------------------------------
+    private async failSync(startedAt: number, errorMessage: string): Promise<SyncResult> {
+        await syncRepository.addLog({
+            id: generateId(),
+            providerId: this.provider?.id ?? 'unconfigured',
+            profileId: this.config.profileId,
+            operation: 'push',
+            status: 'failure',
+            errorCode: 'PROVIDER_UNCONFIGURED',
+            errorMessage,
+            startedAt,
+            finishedAt: Date.now(),
+            durationMs: Date.now() - startedAt,
+        })
+        await auditLog('sync.push', {
+            actorId: this.config.profileId,
+            profileId: this.config.profileId,
+            severity: 'warning',
+            outcome: 'failure',
+            reason: errorMessage,
+            payload: {
+                providerId: this.provider?.id ?? 'unconfigured',
+                errorCode: 'PROVIDER_UNCONFIGURED',
+            },
+            source: 'SyncEngine.failSync',
+        })
+        this.updateState({ lastError: errorMessage })
+        return { success: false, uploaded: 0, downloaded: 0, newConflicts: 0, error: errorMessage }
+    }
 
-    /**
-     * 本地模式的同步处理
-     * 在没有远端服务器的情况下，直接标记变更为已同步
-     */
-    private async processLocalSync(
-        pendingChanges: ChangeRecord[]
-    ): Promise<SyncResult> {
-        // 过滤超过最大重试次数的变更
-        const validChanges = pendingChanges.filter(
-            (c) => c.retryCount < this.config.maxRetries
-        )
-
-        // 标记所有有效变更为已同步 (本地模式)
-        const syncedIds = validChanges.map((c) => c.id)
-        this.changeTracker.markSyncedBatch(syncedIds)
-
-        // 对超过重试次数的变更记录警告
-        const failedChanges = pendingChanges.filter(
-            (c) => c.retryCount >= this.config.maxRetries
-        )
-        if (failedChanges.length > 0) {
-            logger.warn('[SyncEngine] 以下变更已超过最大重试次数', {
-                count: failedChanges.length,
-                documentIds: failedChanges.map((c) => c.articleId),
+    private async buildPayloads(changes: ChangeRecord[]): Promise<SyncPayload[]> {
+        const payloads: SyncPayload[] = []
+        for (const change of changes) {
+            const article = await db.articles.get(change.articleId)
+            if (!article && change.operation !== 'delete') continue
+            const updatedAt = article?.updatedAt instanceof Date ? article.updatedAt.getTime() : Date.now()
+            payloads.push({
+                docId: change.articleId,
+                title: article?.title ?? change.articleId,
+                content: change.operation === 'delete' ? '' : article?.rawContent ?? '',
+                contentHash: change.checksum,
+                updatedAt,
+                vectorClock: { [this.config.profileId]: Math.max(1, Math.floor(updatedAt / 1000)) },
+                attachmentIds: article?.images ?? [],
+                metaSnapshot: {
+                    operation: change.operation,
+                    status: article?.status ?? 'deleted',
+                    categoryId: article?.categoryId ?? null,
+                    sourceUrl: article?.sourceUrl ?? null,
+                    tags: article?.tags ?? [],
+                },
             })
         }
-
-        return {
-            success: true,
-            uploaded: validChanges.length,
-            downloaded: 0,
-            newConflicts: 0,
-        }
+        return payloads
     }
 
-    /** 检查网络状态 */
     private isOnline(): boolean {
-        if (typeof navigator !== 'undefined' && 'onLine' in navigator) {
-            return navigator.onLine
-        }
-        return true // 默认假设在线
+        if (typeof navigator !== 'undefined' && 'onLine' in navigator) return navigator.onLine
+        return true
     }
 
-    /** 设置网络状态监听器 */
     private setupNetworkListeners(): void {
         if (typeof window === 'undefined') return
-
         this.onlineHandler = () => {
             logger.info('[SyncEngine] 网络已恢复，尝试同步')
             if (this.state.status === 'offline') {
-                this.updateState({ status: 'idle' })
+                this.updateState({ status: this.provider ? 'idle' : 'paused' })
                 void this.sync()
             }
         }
-
         this.offlineHandler = () => {
             logger.info('[SyncEngine] 网络已断开')
             this.updateState({ status: 'offline' })
         }
-
         window.addEventListener('online', this.onlineHandler)
         window.addEventListener('offline', this.offlineHandler)
     }
 
-    /** 清理网络状态监听器 */
     private teardownNetworkListeners(): void {
         if (typeof window === 'undefined') return
-
         if (this.onlineHandler) {
             window.removeEventListener('online', this.onlineHandler)
             this.onlineHandler = null
@@ -442,10 +413,8 @@ export class SyncEngine {
         }
     }
 
-    /** 更新状态并通知监听器 */
     private updateState(partial: Partial<SyncState>): void {
         this.state = { ...this.state, ...partial }
-
         for (const listener of this.stateListeners) {
             try {
                 listener(this.getState())

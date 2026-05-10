@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/29-search-engine-spec.md","reason":"Primary SearchEngine requirements, DSL, store, repository, and test matrix."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Article status and lifecycle fields used by search filters."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"FileManager search and document navigation integration boundary."}
+{"file":"prompts/0420/specs/22-command-palette-spec.md","reason":"CommandPalette reuse boundary for future document search commands."}
+{"file":"prompts/0420/specs/27-performance-slo-spec.md","reason":"SLO and non-blocking baseline constraints."}
+{"file":"prompts/0420/specs/47-tag-system-spec.md","reason":"Tag query and future SmartFolder/tag filtering integration."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Local-first repository and no fake persistence contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia store state must be derived from real data and expose honest errors."}
+{"file":".trellis/tasks/05-02-05-02-p1-29-search-engine/research/search-engine-research.md","reason":"MiniSearch API and baseline implementation decisions."}

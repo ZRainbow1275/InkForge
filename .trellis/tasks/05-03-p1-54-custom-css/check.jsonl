@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/54-custom-css-spec.md","reason":"Check all CustomCSS acceptance items against runtime behavior, sandbox enforcement, Settings UI, and import/export."}
+{"file":"prompts/0420/specs/20-theme-font-typography-spec.md","reason":"Verify CustomCSS remains last priority while preserving ThemeEngine and frozen token warning semantics."}
+{"file":"prompts/0420/specs/17-crash-recovery-spec.md","reason":"Verify safe-mode/suspension behavior is additive and does not rewrite broader crash recovery."}
+{"file":"prompts/0420/specs/41-settings-migration-spec.md","reason":"Verify new settings branch is schema-valid, migrated by defaults, and export/import-safe."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Apply frontend quality-gate expectations and document CustomCSS-specific gate after validation."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check typed contracts and no any-shaped CustomCSS data across settings/runtime/UI."}
+

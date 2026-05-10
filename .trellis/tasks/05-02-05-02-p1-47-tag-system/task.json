@@ -1,0 +1,34 @@
+{
+    "id":  "05-02-p1-47-tag-system",
+    "name":  "05-02-p1-47-tag-system",
+    "title":  "P1 Tag System Baseline",
+    "description":  "Implement prompts/0420 Spec 47 tag system baseline without mock data.",
+    "status":  "completed",
+    "dev_type":  null,
+    "scope":  null,
+    "package":  null,
+    "priority":  "P2",
+    "creator":  "ZRainbow1275",
+    "assignee":  "ZRainbow1275",
+    "createdAt":  "2026-05-02",
+    "completedAt":  "2026-05-02",
+    "branch":  null,
+    "base_branch":  "dev/visual-fixes",
+    "worktree_path":  null,
+    "commit":  null,
+    "pr_url":  null,
+    "subtasks":  [
+
+                 ],
+    "children":  [
+
+                 ],
+    "parent":  null,
+    "relatedFiles":  [
+
+                     ],
+    "notes":  "Spec 47 Tag System completed with real Dexie tags/docTags persistence, repository/store contracts, Workstation UI, Hub TagCloud, manager operations, real browser smoke, and full quality gates. GitNexus/Serena remained Transport closed and were compensated with narrow edits plus test/build/browser evidence.",
+    "meta":  {
+
+             }
+}

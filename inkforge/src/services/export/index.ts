@@ -16,6 +16,7 @@
  */
 
 import { marked } from 'marked'
+import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
 
 // 统一配置 marked 选项（与 MarkdownPreview.vue 保持一致）
 // 确保预览效果和导出结果完全匹配
@@ -78,7 +79,9 @@ export {
   buildFootnoteSection,
   calculateStats,
   buildReadingTimeHeader,
-  copyToClipboard
+  copyTextToClipboard,
+  copyToClipboard,
+  isClipboardWriteAvailable
 } from './utils'
 
 // 微信导出
@@ -220,7 +223,7 @@ export async function convertToPlatform(
     return ''
   }
 
-  const html = await marked.parse(markdown)
+  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
 
   switch (platform) {
     case 'wechat': {

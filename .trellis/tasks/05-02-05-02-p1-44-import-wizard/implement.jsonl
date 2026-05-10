@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/44-import-wizard-spec.md","reason":"Primary source for Import Wizard format detection, unsupported handling, import result reporting, and acceptance requirements."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Imported Markdown must preserve source-authority semantics."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"Imported documents must remain visible through existing document/file management semantics."}
+{"file":"prompts/0420/specs/28-asset-pipeline-spec.md","reason":"Image extraction and future asset handling must stay compatible with asset pipeline expectations."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Store/UI state contracts and no-mock requirements for import result state."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict typing requirements for detection metadata and import results."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend quality and verification checklist."}

@@ -64,34 +64,34 @@ const themes = computed(() => ARTICLE_PRESETS.map(preset => ({
 
 function getPreviewTitle(id: string): string {
   const titles: Record<string, string> = {
-    thesis: '论深度学习在自然语言理解中的应用',
-    legal: '论数字时代的知识产权保护边界',
-    report: '2024 年新能源汽车市场深度分析',
-    commentary: '深度解读：全球科技竞争新格局',
-    aigc: 'Prompt 工程：与 AI 对话的艺术',
-    code: '从零构建一个现代前端工程化体系',
-    notes: '《设计心理学》读书笔记精华摘录',
-    news: '财经观察：市场波动中的投资策略',
-    meme: '我用 AI 画了一百张猫咪表情包',
-    life: '放下执念，方能轻装前行',
+    thesis: '学术论文排版样张',
+    legal: '法学论述排版样张',
+    report: '行业研报排版样张',
+    commentary: '观点评论排版样张',
+    aigc: '创意写作排版样张',
+    code: '技术文档排版样张',
+    notes: '学习笔记排版样张',
+    news: '新闻稿件排版样张',
+    meme: '轻量短文排版样张',
+    life: '随笔散文排版样张',
   }
-  return titles[id] || '主题预览'
+  return titles[id] || '主题排版样张'
 }
 
 function getPreviewText(id: string): string {
   const texts: Record<string, string> = {
-    thesis: '本文基于对 2024 年最新研究成果的深入分析，探讨了人工智能在自然语言处理领域的前沿进展...',
-    legal: '根据《中华人民共和国民法典》第一百四十三条规定，具备下列条件的民事法律行为有效...',
-    report: '2024 年 Q1 季度，全球智能手机市场出货量达 2.89 亿台，同比增长 7.8%。其中，中国市场...',
-    commentary: '当我们审视这一决策背后的深层逻辑，会发现一个耐人寻味的现象。政策制定者们似乎正在...',
-    aigc: '想象一下，当 AI 能够理解你的创意意图，并在几秒钟内将其转化为精美的视觉作品...',
-    code: 'function quickSort(arr) { if (arr.length <= 1) return arr; const pivot = arr[0]; ...',
-    notes: '今天学习了 React Hooks 的核心概念，useState 和 useEffect 是最常用的两个 Hook...',
-    news: '独家深度调查：揭开某行业不为人知的秘密。经过三个月的卧底采访，记者发现...',
-    meme: '家人们谁懂啊！这个功能也太好用了吧！！！用了之后效率直接提升 200%，不用真的会后悔...',
-    life: '生活不是等待风暴过去，而是学会在雨中跳舞。每一个平凡的日子里，都藏着值得珍惜的小确幸...',
+    thesis: '用于观察论文标题、摘要正文、脚注引用与长段落节奏，不包含任何真实研究结论。',
+    legal: '用于观察法条引用、论证层级与庄重语气的视觉节奏，不替代真实法律文本。',
+    report: '用于观察数据表述、结论段落与摘要结构的排版密度，不含任何市场数字。',
+    commentary: '用于观察观点开头、短段落推进与醒目标题的呈现效果，不对应真实事件。',
+    aigc: '用于观察创意标题、概念段落与行动句式的版面张力，不宣称真实功能结果。',
+    code: 'const layoutToken = "inkforge"; // 用于观察等宽字体、代码块和行内代码效果',
+    notes: '用于观察学习笔记中的小标题、条目、摘录与复盘段落，不引用真实书籍内容。',
+    news: '用于观察新闻稿导语、事实段落与结尾提示的层级关系，不冒充新闻事实。',
+    meme: '用于观察轻量短文的密集语气、短句节奏与强调样式，不包含真实推广承诺。',
+    life: '用于观察随笔段落、柔和标题与引用块之间的留白关系，不代表真实个人经历。',
   }
-  return texts[id] || '示例文本内容...'
+  return texts[id] || '用于观察主题排版结构的样张文本，不包含真实业务数据。'
 }
 
 // 选中主题的完整数据
@@ -99,20 +99,20 @@ const selectedThemeData = computed(() => {
   return themes.value.find(t => t.id === selectedPreset.value) || themes.value[0]
 })
 
-// 预览区 HTML（示例 Markdown 渲染）
+// 预览区 HTML（排版样张渲染，不冒充真实业务数据）
 const previewHtml = computed(() => {
   const t = selectedThemeData.value
   const accentColor = t.primaryColor
   return `<h2 style="color: ${accentColor}; border-bottom: 2px solid ${accentColor}; padding-bottom: 8px; margin-bottom: 16px; font-size: 18px; font-weight: 700;">排版效果预览</h2>
-<p style="margin-bottom: 14px; line-height: 1.8; color: #37474F;">这是一段正文示例，展示 <strong style="font-weight: 700;">加粗</strong> 和 <em>斜体</em> 效果。行内代码 <code style="background: ${accentColor}18; color: ${accentColor}; padding: 2px 6px; border-radius: 4px; font-size: 0.9em;">console.log()</code> 也会按主题渲染。</p>
-<blockquote style="border-left: 4px solid ${accentColor}; background: ${accentColor}0a; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; color: #37474F; font-style: italic;">引用块展示主题的引用样式。好的设计是尽可能少的设计。</blockquote>
-<h3 style="color: ${accentColor}; margin: 20px 0 12px; font-size: 15px; font-weight: 600;">代码高亮</h3>
-<pre style="background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin-bottom: 16px;"><code><span style="color: #569CD6;">const</span> <span style="color: #9CDCFE;">theme</span> = <span style="color: #CE9178;">"elegant"</span>;
-<span style="color: #9CDCFE;">console</span>.<span style="color: #DCDCAA;">log</span>(<span style="color: #9CDCFE;">theme</span>);</code></pre>
+<p style="margin-bottom: 14px; line-height: 1.8; color: #37474F;">这是一段排版样张正文，仅用于观察 <strong style="font-weight: 700;">加粗</strong>、<em>斜体</em>、行内代码 <code style="background: ${accentColor}18; color: ${accentColor}; padding: 2px 6px; border-radius: 4px; font-size: 0.9em;">layoutToken</code> 与段落留白效果，不代表真实业务数据。</p>
+<blockquote style="border-left: 4px solid ${accentColor}; background: ${accentColor}0a; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; color: #37474F; font-style: italic;">引用块用于检验主题的引用层级、边线与背景透明度，不冒充真实摘录。</blockquote>
+<h3 style="color: ${accentColor}; margin: 20px 0 12px; font-size: 15px; font-weight: 600;">代码排版</h3>
+<pre style="background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin-bottom: 16px;"><code><span style="color: #569CD6;">const</span> <span style="color: #9CDCFE;">layoutToken</span> = <span style="color: #CE9178;">"inkforge"</span>;
+<span style="color: #9CDCFE;">renderThemePreview</span>(<span style="color: #9CDCFE;">layoutToken</span>);</code></pre>
 <ul style="margin: 12px 0; padding-left: 20px; color: #37474F; line-height: 2;">
-  <li>列表项一</li>
-  <li>列表项二</li>
-  <li>列表项三</li>
+  <li>标题层级样张</li>
+  <li>段落节奏样张</li>
+  <li>引用与代码样张</li>
 </ul>`
 })
 
@@ -138,14 +138,31 @@ function cancel() {
     <!-- Header -->
     <header class="themes-header">
       <div class="header-left">
-        <button class="back-btn" @click="cancel">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
+        <button
+          class="back-btn"
+          @click="cancel"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 class="header-title">主题中心</h1>
+        <h1 class="header-title">
+          主题中心
+        </h1>
       </div>
-      <button class="header-apply-btn" @click="applyPreset">应用</button>
+      <button
+        class="header-apply-btn"
+        @click="applyPreset"
+      >
+        应用
+      </button>
     </header>
 
     <!-- Main: Left Grid + Right Preview -->
@@ -161,19 +178,29 @@ function cancel() {
             @click="selectPreset(theme.id)"
           >
             <!-- Color Bar -->
-            <div class="theme-color-bar" :style="{ backgroundColor: theme.primaryColor }"></div>
+            <div
+              class="theme-color-bar"
+              :style="{ backgroundColor: theme.primaryColor }"
+            />
 
             <!-- Current Badge -->
-            <span v-if="currentPresetId === theme.id" class="current-badge">当前</span>
+            <span
+              v-if="currentPresetId === theme.id"
+              class="current-badge"
+            >当前</span>
 
             <!-- Card Content -->
             <div class="theme-card-content">
-              <div class="theme-card-name">{{ theme.name }}</div>
+              <div class="theme-card-name">
+                {{ theme.name }}
+              </div>
               <div class="theme-card-tags">
                 <span class="tag-pill">{{ theme.baseThemeLabel }}</span>
                 <span class="tag-pill">{{ theme.fontLabel }}</span>
               </div>
-              <p class="theme-card-preview">{{ theme.previewText }}</p>
+              <p class="theme-card-preview">
+                {{ theme.previewText }}
+              </p>
             </div>
           </div>
         </div>
@@ -182,17 +209,34 @@ function cancel() {
       <!-- Right: Preview Panel -->
       <aside class="preview-panel">
         <div class="preview-panel-header">
-          <h2 class="preview-panel-title">{{ selectedThemeData.name }}</h2>
-          <p class="preview-panel-desc">{{ selectedThemeData.description }}</p>
+          <h2 class="preview-panel-title">
+            {{ selectedThemeData.name }}
+          </h2>
+          <p class="preview-panel-desc">
+            {{ selectedThemeData.description }}
+          </p>
         </div>
 
         <div class="preview-render-area">
-          <div class="preview-render-content" v-html="previewHtml"></div>
+          <div
+            class="preview-render-content"
+            v-html="previewHtml"
+          />
         </div>
 
         <div class="preview-panel-actions">
-          <button class="btn-apply" @click="applyPreset">应用此主题</button>
-          <button class="btn-cancel" @click="cancel">取消</button>
+          <button
+            class="btn-apply"
+            @click="applyPreset"
+          >
+            应用此主题
+          </button>
+          <button
+            class="btn-cancel"
+            @click="cancel"
+          >
+            取消
+          </button>
         </div>
       </aside>
     </div>

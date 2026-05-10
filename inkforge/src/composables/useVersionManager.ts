@@ -9,8 +9,9 @@
  */
 
 import { ref, computed, watch, onUnmounted, type Ref } from 'vue'
-import type { Version } from '@/schemas/article'
+import type { Version, VersionTrigger } from '@/schemas/article'
 import { logger } from '@/services/error'
+import { contentRepository } from '@/services/repository'
 
 // ═══════════════════════════════════════════════════════════════════
 // 类型定义
@@ -45,18 +46,21 @@ export interface AutoSnapshotConfig {
     intervalMs: number
     /** 是否启用自动快照 */
     enabled: boolean
+    /** 自动快照保留数量上限 */
+    maxBackups: number
 }
 
 /** Editor Store 接口（仅声明本 composable 所需的最小契约） */
 interface EditorStoreContract {
     currentContent: {
+        id: string
         body: string
         title: string
         versions: Version[]
         currentVersionId: string
     } | null
     currentVersion: Version | null
-    createVersion: () => Promise<Version | null>
+    createVersion: (trigger?: VersionTrigger, label?: string) => Promise<Version | null>
     switchVersion: (versionId: string) => Promise<void>
 }
 
@@ -197,6 +201,24 @@ export function isAutoVersion(label: string): boolean {
 
 /** 默认自动快照间隔：5 分钟 */
 const DEFAULT_AUTO_SNAPSHOT_INTERVAL_MS = 5 * 60 * 1000
+const MIN_AUTO_SNAPSHOT_INTERVAL_MS = 1000
+const DEFAULT_MAX_AUTO_BACKUPS = 5
+
+function normalizeAutoSnapshotIntervalMs(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+        return DEFAULT_AUTO_SNAPSHOT_INTERVAL_MS
+    }
+
+    return Math.max(MIN_AUTO_SNAPSHOT_INTERVAL_MS, Math.trunc(value))
+}
+
+function normalizeAutoSnapshotMaxBackups(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+        return DEFAULT_MAX_AUTO_BACKUPS
+    }
+
+    return Math.max(1, Math.trunc(value))
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // Composable
@@ -219,8 +241,9 @@ export function useVersionManager(
 
     // ─── 自动快照配置 ─────────────────────────────────────────
     const autoSnapshotConfig = ref<AutoSnapshotConfig>({
-        intervalMs: config?.intervalMs ?? DEFAULT_AUTO_SNAPSHOT_INTERVAL_MS,
+        intervalMs: normalizeAutoSnapshotIntervalMs(config?.intervalMs),
         enabled: config?.enabled ?? true,
+        maxBackups: normalizeAutoSnapshotMaxBackups(config?.maxBackups),
     })
 
     let autoSnapshotTimer: ReturnType<typeof setInterval> | null = null
@@ -245,8 +268,32 @@ export function useVersionManager(
         }
 
         try {
-            const version = await store.createVersion()
+            const autoLabel = generateAutoLabel()
+            const version = await store.createVersion('interval', autoLabel)
             if (version) {
+                const currentContent = store.currentContent
+                if (currentContent) {
+                    version.label = autoLabel
+                    const labeledVersions = currentContent.versions.map((item) =>
+                        item.id === version.id
+                            ? { ...item, label: autoLabel }
+                            : item
+                    )
+
+                    const autoVersions = labeledVersions
+                        .filter(item => isAutoVersion(item.label))
+                        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+
+                    const overflowCount = Math.max(0, autoVersions.length - autoSnapshotConfig.value.maxBackups)
+                    const overflowIds = new Set(autoVersions.slice(0, overflowCount).map(item => item.id))
+                    const prunedVersions = labeledVersions.filter(item => !overflowIds.has(item.id))
+
+                    currentContent.versions = prunedVersions
+                    await contentRepository.update(currentContent.id, {
+                        versions: prunedVersions,
+                    })
+                }
+
                 lastSnapshotBody = currentBody
                 logger.info('自动快照创建成功', {
                     versionId: version.id,
@@ -300,10 +347,13 @@ export function useVersionManager(
         const wasEnabled = autoSnapshotConfig.value.enabled
 
         if (newConfig.intervalMs !== undefined) {
-            autoSnapshotConfig.value.intervalMs = newConfig.intervalMs
+            autoSnapshotConfig.value.intervalMs = normalizeAutoSnapshotIntervalMs(newConfig.intervalMs)
         }
         if (newConfig.enabled !== undefined) {
             autoSnapshotConfig.value.enabled = newConfig.enabled
+        }
+        if (newConfig.maxBackups !== undefined) {
+            autoSnapshotConfig.value.maxBackups = normalizeAutoSnapshotMaxBackups(newConfig.maxBackups)
         }
 
         // 如果配置发生变化，重新启动定时器
@@ -390,7 +440,8 @@ export function useVersionManager(
      */
     async function createManualVersion(customLabel?: string): Promise<Version | null> {
         const store = getStore()
-        const version = await store.createVersion()
+        const autoLabel = generateAutoLabel()
+            const version = await store.createVersion('interval', autoLabel)
 
         if (version && customLabel && customLabel.trim().length > 0) {
             // 通过不可变方式更新版本标签
@@ -398,10 +449,11 @@ export function useVersionManager(
                 const updatedVersions = store.currentContent.versions.map((v) =>
                     v.id === version.id ? { ...v, label: customLabel.trim() } : v
                 )
-                // 直接修改 reactive 对象的 versions 属性
-                // 这是安全的，因为 store 的 currentContent 是 ref
                 store.currentContent.versions = updatedVersions
                 version.label = customLabel.trim()
+                await contentRepository.update(store.currentContent.id, {
+                    versions: updatedVersions,
+                })
             }
         }
 

@@ -1,0 +1,5 @@
+{"file":"prompts/0420/specs/42-templates-spec.md","reason":"Check template baseline against Spec 42 variable and UI requirements."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Check that template creation remains a real draft/article creation path."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check real-state/no-mock integration."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check typed template variable engine and validation."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check lint/type/test/build quality gates."}

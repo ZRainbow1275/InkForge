@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/31-version-bundle-spec.md","reason":"Primary VersionBundle requirements and acceptance criteria."}
+{"file":"prompts/0420/specs/17-crash-recovery-spec.md","reason":"Crash recovery checkpoint integration and force snapshot trigger."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Document/version scope and active embedded content model constraints."}
+{"file":"prompts/0420/specs/30-trash-recycle-spec.md","reason":"Trash purge boundary for content rows and embedded versions."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie persistence and no fake storage contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia service-backed state and no UI-only rows contracts."}
+{"file":".trellis/tasks/05-02-05-02-p1-31-version-bundle/research/version-bundle-research.md","reason":"Local/external research for VersionBundle implementation decisions."}

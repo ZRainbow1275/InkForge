@@ -1,0 +1,44 @@
+{
+  "id": "04-30-p1-20-theme-font-typography",
+  "name": "04-30-p1-20-theme-font-typography",
+  "title": "P1-Theme-Font-Typography-Baseline",
+  "description": "Compatible baseline for prompts/0420 Spec 20: visual tokens, font stack diagnostics, typography presets, and .inkforge-theme hooks without mock theme/font flows.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "frontend-visual-system-baseline",
+  "package": "inkforge",
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-30",
+  "completedAt": "2026-04-30",
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/services/visual-system/types.ts",
+    "inkforge/src/services/visual-system/index.ts",
+    "inkforge/src/App.vue",
+    "inkforge/src/views/SettingsView.vue",
+    "inkforge/src/stores/settings.ts",
+    "inkforge/src/styles/design-system.css",
+    "prompts/0420/specs/20-theme-font-typography-spec.md",
+    "prompts/0420/acceptance-matrix.md",
+    ".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/prd.md",
+    ".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/research/visual-system-current-practice.md"
+  ],
+  "notes": "Compatible baseline completed. Full Spec 20 remains pending for .inkforge-theme package import/export, user font file import/license detection, full token editor, built-in theme library, WritingAmbience, and full visual/accessibility/performance matrix.",
+  "meta": {
+    "validation": [
+      "pnpm exec vue-tsc --noEmit",
+      "pnpm exec eslint src --ext .ts,.tsx,.vue --quiet",
+      "pnpm build",
+      "Chromium smoke test on http://127.0.0.1:5178/settings?tab=appearance"
+    ]
+  }
+}

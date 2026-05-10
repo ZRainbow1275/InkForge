@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/28-asset-pipeline-spec.md","reason":"Primary asset pipeline requirements and acceptance matrix."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"Existing FileManager constraints, no emoji icon rule, and asset store integration context."}
+{"file":"prompts/0420/specs/15-export-publish-spec.md","reason":"Export asset snapshot and inline-base64 downstream contract."}
+{"file":"prompts/0420/specs/53-image-extension-v2-spec.md","reason":"Editor image node and AssetPipeline integration boundary."}
+{"file":"prompts/0420/specs/27-performance-slo-spec.md","reason":"Performance and evidence honesty constraints from the preceding slice."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie schema, audit-safe persistence, and no fake evidence contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia store must read real repository state and avoid UI-only rows."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Asset pipeline spans ingest, storage, store, editor, and export layers."}
+{"file":".trellis/tasks/05-02-05-02-p1-28-asset-pipeline/research/asset-pipeline-research.md","reason":"Verified Web Crypto, Dexie, and Blob URL implementation research."}

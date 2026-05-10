@@ -5,15 +5,17 @@
  * 通过轮询 editor.storage.slashCommands 获取状态，
  * 渲染命令列表并支持点击选择。
  */
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import type { Editor } from '@tiptap/core'
 import {
-  Heading1, Heading2, Heading3,
-  Quote, Code2, Minus,
+  AlignCenter, AlignRight, ChevronDown,
+  Heading1, Heading2, Heading3, Heading4,
+  Highlighter, ImagePlus, Link,
   List, ListOrdered, CheckSquare,
-  Table, ImagePlus,
+  MessageSquare, Minus, Palette, Pilcrow,
+  Quote, Code2, RemoveFormatting, Table,
 } from 'lucide-vue-next'
-import type { SlashCommandItem } from '@/extensions/SlashCommands'
+import type { SlashCommandCategory, SlashCommandItem } from '@/extensions/SlashCommands'
 
 const props = defineProps<{
   editor: Editor | undefined
@@ -21,10 +23,28 @@ const props = defineProps<{
 
 /** Lucide 图标名 → 组件映射 */
 const iconMap: Record<string, ReturnType<typeof Heading1>> = {
-  Heading1, Heading2, Heading3,
-  Quote, Code2, Minus,
+  AlignCenter, AlignRight, ChevronDown,
+  Heading1, Heading2, Heading3, Heading4,
+  Highlighter, ImagePlus, Link,
   List, ListOrdered, CheckSquare,
-  Table, ImagePlus,
+  MessageSquare, Minus, Palette, Pilcrow,
+  Quote, Code2, RemoveFormatting, Table,
+}
+
+const categoryLabels: Record<SlashCommandCategory, string> = {
+  heading: '标题',
+  block: '块级',
+  list: '列表',
+  insert: '插入',
+  advanced: '高级',
+}
+
+const categoryOrder: SlashCommandCategory[] = ['heading', 'block', 'list', 'insert', 'advanced']
+
+type GroupedSlashCommand = {
+  category: SlashCommandCategory
+  label: string
+  items: Array<{ command: SlashCommandItem; index: number }>
 }
 
 // ═══ 响应式状态（从 storage 同步） ═══
@@ -33,6 +53,18 @@ const query = ref('')
 const selectedIndex = ref(0)
 const filteredCommands = ref<SlashCommandItem[]>([])
 const menuPosition = ref({ top: 0, left: 0 })
+
+const groupedCommands = computed<GroupedSlashCommand[]>(() =>
+  categoryOrder
+    .map((category) => ({
+      category,
+      label: categoryLabels[category],
+      items: filteredCommands.value
+        .map((command, index) => ({ command, index }))
+        .filter((item) => item.command.category === category),
+    }))
+    .filter((group) => group.items.length > 0)
+)
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
@@ -57,6 +89,14 @@ function startPolling() {
 /**
  * 点击命令项：删除 /query 文本 → 执行命令 → 关闭菜单
  */
+function setHoveredIndex(index: number): void {
+  selectedIndex.value = index
+  const editor = props.editor
+  if (editor?.storage.slashCommands) {
+    editor.storage.slashCommands.selectedIndex = index
+  }
+}
+
 function selectCommand(cmd: SlashCommandItem) {
   if (!props.editor) return
   const storage = props.editor.storage.slashCommands
@@ -68,7 +108,7 @@ function selectCommand(cmd: SlashCommandItem) {
   props.editor.view.dispatch(tr)
 
   // 执行命令
-  cmd.action(props.editor)
+  cmd.action(props.editor, storage.actionContext)
   storage.active = false
 }
 
@@ -95,25 +135,41 @@ onBeforeUnmount(() => {
     >
       <div class="slash-menu-header">
         <span class="slash-menu-label">命令</span>
-        <span v-if="query" class="slash-menu-query">{{ query }}</span>
+        <span
+          v-if="query"
+          class="slash-menu-query"
+        >{{ query }}</span>
       </div>
       <div class="slash-menu-list">
-        <button
-          v-for="(cmd, index) in filteredCommands"
-          :key="cmd.id"
-          class="slash-menu-item"
-          :class="{ selected: index === selectedIndex }"
-          @click="selectCommand(cmd)"
-          @mouseenter="selectedIndex = index"
+        <section
+          v-for="group in groupedCommands"
+          :key="group.category"
+          class="slash-menu-group"
         >
-          <span class="slash-item-icon">
-            <component :is="iconMap[cmd.icon]" :size="16" v-if="iconMap[cmd.icon]" />
-          </span>
-          <span class="slash-item-content">
-            <span class="slash-item-label">{{ cmd.label }}</span>
-            <span class="slash-item-desc">{{ cmd.description }}</span>
-          </span>
-        </button>
+          <div class="slash-menu-group-label">
+            {{ group.label }}
+          </div>
+          <button
+            v-for="item in group.items"
+            :key="item.command.id"
+            class="slash-menu-item"
+            :class="{ selected: item.index === selectedIndex }"
+            @click="selectCommand(item.command)"
+            @mouseenter="setHoveredIndex(item.index)"
+          >
+            <span class="slash-item-icon">
+              <component
+                :is="iconMap[item.command.icon]"
+                v-if="iconMap[item.command.icon]"
+                :size="16"
+              />
+            </span>
+            <span class="slash-item-content">
+              <span class="slash-item-label">{{ item.command.label }}</span>
+              <span class="slash-item-desc">{{ item.command.description }}</span>
+            </span>
+          </button>
+        </section>
       </div>
     </div>
   </Transition>
@@ -160,7 +216,27 @@ onBeforeUnmount(() => {
 .slash-menu-list {
   display: flex;
   flex-direction: column;
+  gap: 3px;
+}
+
+.slash-menu-group {
+  display: flex;
+  flex-direction: column;
   gap: 1px;
+}
+
+.slash-menu-group + .slash-menu-group {
+  border-top: 1px solid #F5F5F5;
+  padding-top: 4px;
+}
+
+.slash-menu-group-label {
+  padding: 5px 8px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #90A4AE;
+  text-transform: uppercase;
 }
 
 .slash-menu-item {

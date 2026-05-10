@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/30-trash-recycle-spec.md","reason":"Primary trash/recycle requirements and acceptance criteria."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Document status state machine and draft restore boundary."}
+{"file":"prompts/0420/specs/24-permission-audit-spec.md","reason":"Deletion and purge audit semantics."}
+{"file":"prompts/0420/specs/27-performance-slo-spec.md","reason":"Cleanup and list filtering must stay local-first and responsive."}
+{"file":"prompts/0420/specs/29-search-engine-spec.md","reason":"Trashed documents must be excluded from default search flows."}
+{"file":"prompts/0420/specs/31-version-bundle-spec.md","reason":"Purge boundary for content/version payloads."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie schema and no fake persistence contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia store state and no UI-only rows contracts."}
+{"file":".trellis/tasks/05-02-05-02-p1-30-trash-recycle/research/trash-recycle-research.md","reason":"Local trash implementation decisions."}

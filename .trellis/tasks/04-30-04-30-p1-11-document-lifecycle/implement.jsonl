@@ -1,0 +1,4 @@
+{"file": "prompts/0420/specs/11-document-lifecycle-spec.md", "reason": "Primary lifecycle FSM and scope/frontmatter/db contract"}
+{"file": "prompts/0420/specs/10-markdown-authority-spec.md", "reason": "Authority/frontmatter/hash contract that lifecycle status updates must preserve"}
+{"file": "prompts/0420/specs/00-wave1-current-truth.md", "reason": "Current runtime truth for four-state compatibility and draft routes"}
+{"file": "prompts/0420/acceptance-matrix.md", "reason": "Global lifecycle acceptance state and remaining gates"}

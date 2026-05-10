@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/39-sync-scroll-spec.md","reason":"primary SyncScroll specification"}
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"SplitView persistence and UI constraints"}
+{"file":"prompts/0420/specs/38-toc-system-spec.md","reason":"TOC heading anchor contract"}
+{"file":".trellis/tasks/05-02-05-02-p1-39-sync-scroll/prd.md","reason":"current baseline requirements"}
+{"file":".trellis/tasks/05-02-05-02-p1-39-sync-scroll/research/toc-sync-scroll-research.md","reason":"local and external research summary"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"frontend store/composable contracts and no mock rules"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"component integration conventions"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"strict typing expectations"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"reuse existing TOC/SplitView contracts instead of duplicating parsers"}

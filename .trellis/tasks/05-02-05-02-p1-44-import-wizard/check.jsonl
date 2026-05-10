@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/44-import-wizard-spec.md","reason":"Check Import Wizard baseline against format detection and reporting requirements."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Check Markdown import remains source-preserving."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"Check imported article state remains compatible with file manager lifecycle."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check real import result state and no-mock UI reporting."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check typed detection metadata and import return values."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check lint/type/test/build quality gates."}

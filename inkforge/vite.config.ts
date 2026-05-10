@@ -2,6 +2,176 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
+const BROWSER_NODE_COMPAT_SHIM = resolve(__dirname, 'src/shims/browser-node-compat.ts')
+
+const CODEMIRROR_LANGUAGE_DATA_PACKAGE = '@codemirror/language-data'
+
+const CODEMIRROR_DEDUPED_DEPS = [
+    'codemirror',
+    'vue-codemirror',
+    '@codemirror/state',
+    '@codemirror/view',
+    '@codemirror/language',
+    '@codemirror/commands',
+    '@codemirror/lang-markdown',
+    '@codemirror/lang-css',
+    '@codemirror/theme-one-dark',
+    CODEMIRROR_LANGUAGE_DATA_PACKAGE,
+]
+
+const HIGHLIGHT_LANGUAGE_CHUNKS: Record<string, string> = {
+    arduino: 'syntax-highlight-systems',
+    bash: 'syntax-highlight-systems',
+    c: 'syntax-highlight-systems',
+    cpp: 'syntax-highlight-systems',
+    csharp: 'syntax-highlight-systems',
+    diff: 'syntax-highlight-systems',
+    go: 'syntax-highlight-systems',
+    ini: 'syntax-highlight-systems',
+    java: 'syntax-highlight-systems',
+    makefile: 'syntax-highlight-systems',
+    objectivec: 'syntax-highlight-systems',
+    perl: 'syntax-highlight-systems',
+    rust: 'syntax-highlight-systems',
+    shell: 'syntax-highlight-systems',
+    sql: 'syntax-highlight-systems',
+    swift: 'syntax-highlight-systems',
+    vbnet: 'syntax-highlight-systems',
+    wasm: 'syntax-highlight-systems',
+
+    css: 'syntax-highlight-web',
+    graphql: 'syntax-highlight-web',
+    html: 'syntax-highlight-web',
+    javascript: 'syntax-highlight-web',
+    json: 'syntax-highlight-web',
+    less: 'syntax-highlight-web',
+    markdown: 'syntax-highlight-web',
+    php: 'syntax-highlight-web',
+    'php-template': 'syntax-highlight-web',
+    scss: 'syntax-highlight-web',
+    typescript: 'syntax-highlight-web',
+    xml: 'syntax-highlight-web',
+    yaml: 'syntax-highlight-web',
+
+    dart: 'syntax-highlight-product-languages',
+    kotlin: 'syntax-highlight-product-languages',
+    lua: 'syntax-highlight-product-languages',
+    plaintext: 'syntax-highlight-product-languages',
+    python: 'syntax-highlight-product-languages',
+    'python-repl': 'syntax-highlight-product-languages',
+    r: 'syntax-highlight-product-languages',
+    ruby: 'syntax-highlight-product-languages',
+    scala: 'syntax-highlight-product-languages',
+}
+
+function normalizeModuleId(id: string): string {
+    return id.replace(/\\/g, '/')
+}
+
+function isNodeModule(id: string, packageName: string): boolean {
+    return id.includes(`/node_modules/${packageName}/`)
+}
+
+function getHighlightLanguageChunk(id: string): string | undefined {
+    const marker = '/node_modules/highlight.js/lib/languages/'
+    const markerIndex = id.indexOf(marker)
+    if (markerIndex === -1) {
+        return undefined
+    }
+
+    const languageFile = id.slice(markerIndex + marker.length).split('?')[0]
+    const languageName = languageFile.replace(/\.js$/, '')
+    return HIGHLIGHT_LANGUAGE_CHUNKS[languageName] ?? 'syntax-highlight-misc'
+}
+
+function manualChunks(id: string): string | undefined {
+    const normalized = normalizeModuleId(id)
+    if (!normalized.includes('/node_modules/')) {
+        return undefined
+    }
+
+    if (
+        isNodeModule(normalized, 'vue') ||
+        isNodeModule(normalized, '@vue') ||
+        isNodeModule(normalized, 'vue-router') ||
+        isNodeModule(normalized, 'pinia')
+    ) {
+        return 'vendor-vue-runtime'
+    }
+
+    if (
+        isNodeModule(normalized, '@tiptap') ||
+        normalized.includes('/node_modules/prosemirror-')
+    ) {
+        return 'editor-prosemirror'
+    }
+
+    if (isNodeModule(normalized, CODEMIRROR_LANGUAGE_DATA_PACKAGE)) {
+        return 'editor-codemirror-languages'
+    }
+
+    if (CODEMIRROR_DEDUPED_DEPS.some((packageName) => isNodeModule(normalized, packageName))) {
+        return 'editor-codemirror-core'
+    }
+
+    if (
+        isNodeModule(normalized, 'marked') ||
+        isNodeModule(normalized, 'dompurify') ||
+        isNodeModule(normalized, 'juice') ||
+        isNodeModule(normalized, 'entities') ||
+        isNodeModule(normalized, 'htmlparser2') ||
+        isNodeModule(normalized, 'parse5') ||
+        isNodeModule(normalized, 'css-select') ||
+        isNodeModule(normalized, 'css-what') ||
+        isNodeModule(normalized, 'domhandler') ||
+        isNodeModule(normalized, 'domutils')
+    ) {
+        return 'markdown-rendering'
+    }
+
+    const highlightLanguageChunk = getHighlightLanguageChunk(normalized)
+    if (highlightLanguageChunk) {
+        return highlightLanguageChunk
+    }
+
+    if (
+        isNodeModule(normalized, 'lowlight') ||
+        isNodeModule(normalized, 'highlight.js') ||
+        isNodeModule(normalized, 'hast-util-to-html') ||
+        isNodeModule(normalized, 'hast-util-to-jsx-runtime') ||
+        isNodeModule(normalized, 'unist-util')
+    ) {
+        return 'syntax-lowlight-core'
+    }
+
+    if (isNodeModule(normalized, 'katex')) {
+        return 'math-katex'
+    }
+
+    if (
+        isNodeModule(normalized, 'dexie') ||
+        isNodeModule(normalized, 'minisearch') ||
+        isNodeModule(normalized, 'zod')
+    ) {
+        return 'data-runtime'
+    }
+
+    if (isNodeModule(normalized, 'lucide-vue-next')) {
+        return 'ui-icons'
+    }
+
+    if (
+        isNodeModule(normalized, 'cytoscape') ||
+        isNodeModule(normalized, 'cytoscape-cose-bilkent') ||
+        isNodeModule(normalized, 'dagre') ||
+        isNodeModule(normalized, 'elkjs')
+    ) {
+        return 'diagram-layout-engines'
+    }
+
+    return undefined
+}
+
 /**
  * 开发环境 CORS 代理插件
  * 将 /api/cors-proxy?url=<encoded_url> 的请求转发到目标 URL
@@ -108,7 +278,12 @@ export default defineConfig({
     plugins: [vue(), devCorsProxy()],
     resolve: {
         alias: {
-            '@': resolve(__dirname, 'src')
+            '@': resolve(__dirname, 'src'),
+            fs: BROWSER_NODE_COMPAT_SHIM,
+            juice: resolve(__dirname, 'node_modules/juice/client.js'),
+            path: BROWSER_NODE_COMPAT_SHIM,
+            'source-map-js': BROWSER_NODE_COMPAT_SHIM,
+            url: BROWSER_NODE_COMPAT_SHIM
         },
         dedupe: [
             'prosemirror-state',
@@ -124,7 +299,11 @@ export default defineConfig({
             'prosemirror-history',
             '@tiptap/core',
             '@tiptap/pm',
+            ...CODEMIRROR_DEDUPED_DEPS,
         ],
+    },
+    optimizeDeps: {
+        include: CODEMIRROR_DEDUPED_DEPS,
     },
     server: {
         port: 3005,
@@ -145,6 +324,12 @@ export default defineConfig({
     },
     build: {
         minify: 'terser',
+        chunkSizeWarningLimit: 650,
+        rollupOptions: {
+            output: {
+                manualChunks,
+            },
+        },
         terserOptions: {
             compress: {
                 drop_console: true,

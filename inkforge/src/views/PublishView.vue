@@ -20,6 +20,7 @@ import {
   xiaohongshuPresets
 } from '@/services/export'
 import { logger } from '@/services/error'
+import { isLikelyHtmlContent, serializeHtmlToMarkdown } from '@/extensions/TyporaMode'
 
 const router = useRouter()
 const editorStore = useEditorStore()
@@ -89,43 +90,60 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const copySuccess = ref(false)
 
-// 示例内容
-const sampleContent = `# 2024 年终总结：技术与人文的十字路口
-
-站在 2024 的尾巴上回望，这一年我们见证了太多变革。从 AI 的狂飙突进到设计语言的范式转移，每一次技术浪潮都在重塑我们对"创作"的理解。
-
-> 设计不仅仅是外表和感觉。设计是关于它如何工作的。—— 史蒂夫·乔布斯
-
-## 第一章：构成主义的回归
-
-当我们审视 2024 年的设计趋势，会发现一个有趣的现象：源自 1920 年代苏联的\`构成主义\`正以全新的姿态回归。不对称的布局、几何化的形态、以及那抹标志性的红色，正在重新定义数字界面的视觉语言。
-
-这种回归并非简单的复古，而是一种对"功能主义"的重新诠释。
-
-## 第二章：AI 与创作的共生
-
-人工智能不再是工具，而是创作伙伴。这一年，我们学会了与 AI 对话、协作、共同创造。
-
-### 代码示例
-
-\`\`\`javascript
-function createWithAI(prompt) {
-  const idea = ai.brainstorm(prompt);
-  const draft = ai.compose(idea);
-  return human.refine(draft);
+const EMPTY_STATS: LocalStats = {
+  wordCount: 0,
+  readingTime: 0,
+  codeBlockCount: 0,
+  linkCount: 0,
 }
-\`\`\`
 
-更多内容请访问 [InkForge 官网](https://example.com) 和 [文档中心](https://docs.example.com)。
-`
+function normalizePublishSource(content: string): string {
+  return isLikelyHtmlContent(content) ? serializeHtmlToMarkdown(content) : content
+}
+
+async function renderMarkdownToHtml(content: string): Promise<string> {
+  const rendered = await marked(content)
+  return DOMPurify.sanitize(rendered)
+}
+
+const publishSourceMarkdown = computed(() => {
+  const source = currentContent.value?.body
+  if (source === undefined || source === null) return ''
+
+  const normalized = normalizePublishSource(source)
+  return normalized.trim().length > 0 ? normalized : ''
+})
+
+const hasPublishSource = computed(() => publishSourceMarkdown.value.length > 0)
+
+const publishTitle = computed(() => {
+  const title = currentContent.value?.title?.trim()
+  return title && title.length > 0 ? title : '未选择文章'
+})
+
+const emptyPublishMessage = computed(() => {
+  if (currentContent.value) {
+    return '当前文章还没有可发布正文。请先在工作台写入正文，保存后再进行平台发布。'
+  }
+
+  return '尚未选择可发布文章。请从工作台打开真实草稿，或先创建并保存一篇文章。'
+})
 
 // 根据平台生成 HTML
 async function generateHtml() {
   isGenerating.value = true
-  const content = currentContent.value?.body || sampleContent
+
+  if (!hasPublishSource.value) {
+    generatedHtml.value = ''
+    stats.value = { ...EMPTY_STATS }
+    isGenerating.value = false
+    return
+  }
+
+  const content = publishSourceMarkdown.value
 
   try {
-    const rawHtml = await marked(content)
+    const rawHtml = await renderMarkdownToHtml(content)
 
     switch (platform.value) {
       case 'wechat': {
@@ -157,7 +175,7 @@ async function generateHtml() {
       }
     }
   } catch (e) {
-    const rawHtml = await marked(content)
+    const rawHtml = await renderMarkdownToHtml(content)
     generatedHtml.value = rawHtml
     logger.error('生成 HTML 失败', e)
   } finally {
@@ -166,10 +184,15 @@ async function generateHtml() {
 }
 
 // 监听变化自动生成
-watch([selectedPreset, exportOptions, platform, xhsPreset], generateHtml, { deep: true, immediate: true })
+watch([publishSourceMarkdown, selectedPreset, exportOptions, platform, xhsPreset], generateHtml, { deep: true, immediate: true })
 
 // 复制富文本
 async function copyRichText() {
+  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
+    showToastMessage(emptyPublishMessage.value)
+    return
+  }
+
   const info = platformInfo[platform.value]
   try {
     const blob = new Blob([generatedHtml.value], { type: 'text/html' })
@@ -212,6 +235,11 @@ async function copyRichText() {
 
 // 复制 HTML 代码
 async function copyHtmlCode() {
+  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
+    showToastMessage(emptyPublishMessage.value)
+    return
+  }
+
   try {
     await navigator.clipboard.writeText(generatedHtml.value)
     showToastMessage('HTML 代码已复制到剪贴板')
@@ -219,6 +247,39 @@ async function copyHtmlCode() {
     logger.error('复制失败')
     showToastMessage('复制失败，请手动复制')
   }
+}
+
+function buildDownloadFileName(title: string): string {
+  const invalidFileNameChars = /[<>:"/\\|?*]/g
+  const withoutControlChars = Array.from(title.trim())
+    .map(char => (char.charCodeAt(0) < 32 ? '-' : char))
+    .join('')
+
+  const safeTitle = withoutControlChars
+    .replace(invalidFileNameChars, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80)
+
+  return `${safeTitle || 'inkforge-article'}-${platform.value}.html`
+}
+
+function downloadHtmlFile() {
+  if (!hasPublishSource.value || generatedHtml.value.trim().length === 0) {
+    showToastMessage(emptyPublishMessage.value)
+    return
+  }
+
+  const blob = new Blob([generatedHtml.value], { type: 'text/html;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = buildDownloadFileName(publishTitle.value)
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  URL.revokeObjectURL(url)
+  showToastMessage('HTML 文件已生成并下载')
 }
 
 function showToastMessage(message: string) {
@@ -249,21 +310,40 @@ onMounted(() => {
     <!-- Header -->
     <header class="publish-header">
       <div class="header-left">
-        <button class="back-btn" @click="goBack">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
+        <button
+          class="back-btn"
+          @click="goBack"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 class="header-title">发布中心</h1>
-        <span class="header-article-title">{{ currentContent?.title || '未命名文章' }}</span>
+        <h1 class="header-title">
+          发布中心
+        </h1>
+        <span class="header-article-title">{{ publishTitle }}</span>
       </div>
       <div class="header-right">
         <div class="header-status">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2E7D32"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
-          <span>CSS 已内联</span>
+          <span>{{ hasPublishSource ? 'CSS 已内联' : '等待正文' }}</span>
         </div>
       </div>
     </header>
@@ -274,7 +354,9 @@ onMounted(() => {
       <aside class="publish-sidebar">
         <!-- Platform Select -->
         <section class="sidebar-section">
-          <h3 class="section-title">目标平台</h3>
+          <h3 class="section-title">
+            目标平台
+          </h3>
           <div class="platform-list">
             <button
               class="platform-card"
@@ -282,8 +364,13 @@ onMounted(() => {
               @click="platform = 'wechat'"
             >
               <div class="platform-icon-circle wechat">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z" />
                 </svg>
               </div>
               <div class="platform-info">
@@ -297,7 +384,22 @@ onMounted(() => {
               @click="platform = 'xiaohongshu'"
             >
               <div class="platform-icon-circle xiaohongshu">
-                <span class="platform-emoji">📕</span>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 4.5A2.5 2.5 0 0 1 9.5 2H20v16.5A1.5 1.5 0 0 0 18.5 17H7.75A2.75 2.75 0 0 1 5 14.25V7a2.5 2.5 0 0 1 2-2.45Z" />
+                  <path d="M9 6h8" />
+                  <path d="M9 10h6" />
+                  <path d="M9 14h5" />
+                </svg>
               </div>
               <div class="platform-info">
                 <span class="platform-name">小红书</span>
@@ -321,8 +423,13 @@ onMounted(() => {
         </section>
 
         <!-- Theme Preset (wechat) -->
-        <section v-if="platform === 'wechat'" class="sidebar-section">
-          <h3 class="section-title">排版预设</h3>
+        <section
+          v-if="platform === 'wechat'"
+          class="sidebar-section"
+        >
+          <h3 class="section-title">
+            排版预设
+          </h3>
           <div class="preset-grid">
             <button
               v-for="preset in quickPresets"
@@ -331,24 +438,59 @@ onMounted(() => {
               :class="{ active: selectedPreset === preset.id }"
               @click="selectedPreset = preset.id"
             >
-              <div class="preset-color-bar" :style="{ backgroundColor: preset.primaryColor }"></div>
-              <div class="preset-color-dot" :style="{ backgroundColor: preset.primaryColor }"></div>
+              <div
+                class="preset-color-bar"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <div
+                class="preset-color-dot"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
               <span class="preset-name">{{ preset.name }}</span>
             </button>
           </div>
-          <button class="more-themes-btn" @click="goToThemes">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
+          <button
+            class="more-themes-btn"
+            @click="goToThemes"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                y1="8"
+                x2="12"
+                y2="16"
+              />
+              <line
+                x1="8"
+                y1="12"
+                x2="16"
+                y2="12"
+              />
             </svg>
             查看全部主题
           </button>
         </section>
 
         <!-- XHS Preset (xiaohongshu) -->
-        <section v-if="platform === 'xiaohongshu'" class="sidebar-section">
-          <h3 class="section-title">笔记风格</h3>
+        <section
+          v-if="platform === 'xiaohongshu'"
+          class="sidebar-section"
+        >
+          <h3 class="section-title">
+            笔记风格
+          </h3>
           <div class="preset-grid">
             <button
               v-for="preset in xhsPresets"
@@ -357,51 +499,94 @@ onMounted(() => {
               :class="{ active: xhsPreset === preset.id }"
               @click="xhsPreset = preset.id"
             >
-              <div class="preset-color-bar" :style="{ backgroundColor: preset.primaryColor }"></div>
-              <div class="preset-color-dot" :style="{ backgroundColor: preset.primaryColor }"></div>
-              <span class="preset-name">{{ preset.icon }} {{ preset.name }}</span>
+              <div
+                class="preset-color-bar"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <div
+                class="preset-color-dot"
+                :style="{ backgroundColor: preset.primaryColor }"
+              />
+              <span class="preset-name">{{ preset.name }}</span>
             </button>
           </div>
         </section>
 
         <!-- Export Options -->
         <section class="sidebar-section">
-          <h3 class="section-title">导出选项</h3>
+          <h3 class="section-title">
+            导出选项
+          </h3>
           <div class="options-list">
             <div class="toggle-row">
               <div class="toggle-info">
-                <div class="toggle-title">Mac 风格代码块</div>
-                <div class="toggle-desc">添加三色圆点标题栏</div>
+                <div class="toggle-title">
+                  Mac 风格代码块
+                </div>
+                <div class="toggle-desc">
+                  添加三色圆点标题栏
+                </div>
               </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.macCodeBlock }" @click="exportOptions.macCodeBlock = !exportOptions.macCodeBlock">
-                <div class="toggle-knob"></div>
-              </div>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <div class="toggle-title">代码行号</div>
-                <div class="toggle-desc">显示代码块行号</div>
-              </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.lineNumbers }" @click="exportOptions.lineNumbers = !exportOptions.lineNumbers">
-                <div class="toggle-knob"></div>
-              </div>
-            </div>
-            <div v-if="platform === 'wechat'" class="toggle-row">
-              <div class="toggle-info">
-                <div class="toggle-title">外链转脚注</div>
-                <div class="toggle-desc">将外部链接转为底部引用</div>
-              </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.convertFootnotes }" @click="exportOptions.convertFootnotes = !exportOptions.convertFootnotes">
-                <div class="toggle-knob"></div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.macCodeBlock }"
+                @click="exportOptions.macCodeBlock = !exportOptions.macCodeBlock"
+              >
+                <div class="toggle-knob" />
               </div>
             </div>
             <div class="toggle-row">
               <div class="toggle-info">
-                <div class="toggle-title">首行缩进</div>
-                <div class="toggle-desc">段落首行缩进 2 字符</div>
+                <div class="toggle-title">
+                  代码行号
+                </div>
+                <div class="toggle-desc">
+                  显示代码块行号
+                </div>
               </div>
-              <div class="toggle-switch" :class="{ on: exportOptions.textIndent }" @click="exportOptions.textIndent = !exportOptions.textIndent">
-                <div class="toggle-knob"></div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.lineNumbers }"
+                @click="exportOptions.lineNumbers = !exportOptions.lineNumbers"
+              >
+                <div class="toggle-knob" />
+              </div>
+            </div>
+            <div
+              v-if="platform === 'wechat'"
+              class="toggle-row"
+            >
+              <div class="toggle-info">
+                <div class="toggle-title">
+                  外链转脚注
+                </div>
+                <div class="toggle-desc">
+                  将外部链接转为底部引用
+                </div>
+              </div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.convertFootnotes }"
+                @click="exportOptions.convertFootnotes = !exportOptions.convertFootnotes"
+              >
+                <div class="toggle-knob" />
+              </div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">
+                  首行缩进
+                </div>
+                <div class="toggle-desc">
+                  段落首行缩进 2 字符
+                </div>
+              </div>
+              <div
+                class="toggle-switch"
+                :class="{ on: exportOptions.textIndent }"
+                @click="exportOptions.textIndent = !exportOptions.textIndent"
+              >
+                <div class="toggle-knob" />
               </div>
             </div>
           </div>
@@ -409,7 +594,9 @@ onMounted(() => {
 
         <!-- Stats -->
         <section class="sidebar-section">
-          <h3 class="section-title">输出统计</h3>
+          <h3 class="section-title">
+            输出统计
+          </h3>
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-value">{{ stats.wordCount }}</span>
@@ -435,30 +622,80 @@ onMounted(() => {
           <button
             class="btn-copy-primary"
             :class="{ success: copySuccess }"
+            :disabled="!hasPublishSource || isGenerating"
             @click="copyRichText"
           >
-            <svg v-if="!copySuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            <svg
+              v-if="!copySuccess"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                ry="2"
+              />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
+            <svg
+              v-else
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="20 6 9 17 4 12" />
             </svg>
-            {{ copySuccess ? '已复制!' : '复制到剪贴板' }}
+            {{ copySuccess ? '已复制!' : hasPublishSource ? '复制到剪贴板' : '等待正文' }}
           </button>
           <div class="btn-row">
-            <button class="btn-secondary" @click="viewMode = 'code'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
+            <button
+              class="btn-secondary"
+              @click="viewMode = 'code'"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
               </svg>
               查看源码
             </button>
-            <button class="btn-secondary" @click="copyHtmlCode">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
+            <button
+              class="btn-secondary"
+              :disabled="!hasPublishSource || isGenerating"
+              @click="downloadHtmlFile"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line
+                  x1="12"
+                  y1="15"
+                  x2="12"
+                  y2="3"
+                />
               </svg>
               下载HTML
             </button>
@@ -476,9 +713,20 @@ onMounted(() => {
               :class="{ active: viewMode === 'preview' }"
               @click="viewMode = 'preview'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                />
               </svg>
               预览
             </button>
@@ -487,69 +735,178 @@ onMounted(() => {
               :class="{ active: viewMode === 'code' }"
               @click="viewMode = 'code'"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
               </svg>
               源码
             </button>
           </div>
-          <div class="view-toggle-spacer"></div>
-          <div v-if="isGenerating" class="generating-indicator">
-            <div class="generating-spinner"></div>
+          <div class="view-toggle-spacer" />
+          <div
+            v-if="isGenerating"
+            class="generating-indicator"
+          >
+            <div class="generating-spinner" />
             渲染中...
           </div>
         </div>
 
         <!-- Preview Mode - iPhone Device Frame -->
-        <div v-show="viewMode === 'preview'" class="preview-container">
+        <div
+          v-show="viewMode === 'preview'"
+          class="preview-container"
+        >
           <div class="device-frame">
-            <div class="device-notch"></div>
+            <div class="device-notch" />
             <div class="device-screen">
               <!-- Status Bar -->
               <div class="device-status-bar">
                 <span class="device-time">9:41</span>
-                <div class="device-notch-spacer"></div>
+                <div class="device-notch-spacer" />
                 <div class="device-status-icons">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  ><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" /></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  ><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z" /></svg>
                 </div>
               </div>
               <!-- Platform App Bar -->
-              <div class="device-app-bar" :class="platform">
+              <div
+                class="device-app-bar"
+                :class="platform"
+              >
                 <span class="device-app-title">{{ platformInfo[platform].name }}</span>
               </div>
               <!-- Rendered Content -->
-              <div class="device-content" v-html="generatedHtml"></div>
+              <div
+                v-if="hasPublishSource"
+                class="device-content"
+                v-html="generatedHtml"
+              />
+              <div
+                v-else
+                class="device-content publish-empty-state"
+              >
+                <svg
+                  width="38"
+                  height="38"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line
+                    x1="9"
+                    y1="15"
+                    x2="15"
+                    y2="15"
+                  />
+                  <line
+                    x1="9"
+                    y1="18"
+                    x2="13"
+                    y2="18"
+                  />
+                </svg>
+                <h2>暂无可发布正文</h2>
+                <p>{{ emptyPublishMessage }}</p>
+                <button
+                  type="button"
+                  class="empty-state-action"
+                  @click="goBack"
+                >
+                  回到工作台
+                </button>
+              </div>
             </div>
-            <div class="device-home-indicator"></div>
+            <div class="device-home-indicator" />
           </div>
         </div>
 
         <!-- Code Mode -->
-        <div v-show="viewMode === 'code'" class="code-view-container">
+        <div
+          v-show="viewMode === 'code'"
+          class="code-view-container"
+        >
           <div class="code-panel">
             <div class="code-panel-header">
-              <span class="code-lang-badge">HTML (带内联样式)</span>
-              <button class="code-copy-btn" @click="copyHtmlCode">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              <span class="code-lang-badge">{{ hasPublishSource ? 'HTML (带内联样式)' : '等待真实正文' }}</span>
+              <button
+                class="code-copy-btn"
+                :disabled="!hasPublishSource || isGenerating"
+                @click="copyHtmlCode"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="9"
+                    y="9"
+                    width="13"
+                    height="13"
+                    rx="2"
+                    ry="2"
+                  />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 复制代码
               </button>
             </div>
-            <pre class="code-content"><code>{{ generatedHtml }}</code></pre>
+            <pre
+              v-if="hasPublishSource"
+              class="code-content"
+            ><code>{{ generatedHtml }}</code></pre>
+            <div
+              v-else
+              class="code-empty-state"
+            >
+              {{ emptyPublishMessage }}
+            </div>
           </div>
         </div>
       </div>
     </main>
 
     <!-- Toast -->
-    <div class="toast" :class="{ visible: showToast }">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    <div
+      class="toast"
+      :class="{ visible: showToast }"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
       </svg>
       {{ toastMessage }}
     </div>
@@ -717,16 +1074,12 @@ onMounted(() => {
 
 .platform-icon-circle.xiaohongshu {
   background: #FE2C55;
+  color: white;
 }
 
 .platform-icon-circle.zhihu {
   background: #0084FF;
   color: white;
-}
-
-.platform-emoji {
-  font-size: 18px;
-  line-height: 1;
 }
 
 .platform-text-icon {
@@ -954,6 +1307,30 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(211, 47, 47, 0.35);
 }
 
+.btn-copy-primary:disabled,
+.btn-secondary:disabled,
+.code-copy-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-copy-primary:disabled:hover {
+  background: #D32F2F;
+}
+
+.btn-secondary:disabled:hover {
+  background: #FFFFFF;
+  border-color: #ECEFF1;
+  color: #607D8B;
+}
+
+.code-copy-btn:disabled:hover {
+  background: #37474F;
+  color: #B0BEC5;
+}
+
 .btn-copy-primary.success {
   background: #2E7D32;
   box-shadow: 0 2px 8px rgba(46, 125, 50, 0.25);
@@ -1167,6 +1544,53 @@ onMounted(() => {
   line-height: 1.8;
 }
 
+.publish-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 420px;
+  text-align: center;
+  color: #78909C;
+}
+
+.publish-empty-state svg {
+  color: #B0BEC5;
+}
+
+.publish-empty-state h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #263238;
+}
+
+.publish-empty-state p {
+  max-width: 260px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.empty-state-action {
+  margin-top: 4px;
+  padding: 8px 14px;
+  border: 1px solid #D32F2F;
+  border-radius: 999px;
+  background: #FFF5F5;
+  color: #B71C1C;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.empty-state-action:hover {
+  background: #FFE8E8;
+  transform: translateY(-1px);
+}
+
 .device-home-indicator {
   width: 134px;
   height: 5px;
@@ -1269,6 +1693,18 @@ onMounted(() => {
   word-break: break-all;
   margin: 0;
   max-height: 600px;
+}
+
+.code-empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #90A4AE;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
 }
 
 /* ═══ Toast ═══ */

@@ -63,14 +63,20 @@ export interface PlatformCSSSupport {
 // =====================================================================
 
 /**
- * 微信公众号 CSS 支持 -- 最严格
+ * 微信公众号 CSS 支持 -- 严格但非全禁
  *
- * 核心限制:
- * - 不支持 Flex/Grid 布局, 仅支持 block/inline/table 系列
- * - 不支持 CSS 变量、渐变、滤镜、动画
- * - 不支持 position: absolute/fixed/sticky
- * - 所有样式必须内联; <style> 标签不可靠
- * - 代码块布局需使用 display: table-cell 替代 flex
+ * 实证依据（2026-05 重审）:
+ *   - mdnice/markdown-nice issue #264: `box-shadow` 在公众号实际生效（Mac 风格代码块三色圆点）
+ *   - 简书《微信公众号排版背后的技术解析》: 编辑器原生支持
+ *     border-radius / box-shadow / linear-gradient / opacity / 边框样式
+ *   - doocs/md / md.doocs.org 模板长期使用 box-shadow + linear-gradient 落地公众号文章
+ *
+ * 仍然受限的能力:
+ *   - Flex/Grid: 公众号编辑器会剥离 `display:flex`，需用 `-webkit-box` 古早语法兜底；
+ *     主流工具（doocs/md、mdnice）均规避，故标 false 让 css-validator 降级
+ *   - CSS 变量、滤镜、动画、calc/clamp: 编辑器仍会过滤
+ *   - position: absolute/fixed/sticky: 微信 Webview 渲染不稳，仅保 static/relative
+ *   - <style> 标签不可靠，所有样式必须内联（juice 处理）
  */
 export const WECHAT_SUPPORT: PlatformCSSSupport = {
   display: ['block', 'inline', 'inline-block', 'none', 'table', 'table-row', 'table-cell'],
@@ -78,9 +84,9 @@ export const WECHAT_SUPPORT: PlatformCSSSupport = {
   grid: false,
   position: ['static', 'relative'],
   maxWidth: true,
-  boxShadow: false,
+  boxShadow: true,
   borderRadius: true,
-  gradient: false,
+  gradient: true,
   transform: false,
   transition: false,
   opacity: true,

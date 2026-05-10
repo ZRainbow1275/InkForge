@@ -81,3 +81,59 @@ export type {
     SyncResult,
     SyncEngineConfig,
 } from './engine'
+
+// ===================================================================
+// Provider baseline
+// ===================================================================
+
+export {
+    SyncProviderError,
+    assertValidSyncConfig,
+    buildAuthHeaders,
+    createEmptyPullResult,
+    normalizeEndpoint,
+    validateSyncConfig,
+} from './provider'
+
+export type {
+    ConflictRecord,
+    ConflictStatus,
+    ProviderSyncState,
+    ProviderSyncStatus,
+    ResolveStrategy,
+    SyncConfig,
+    SyncConfigValidationResult,
+    SyncCredentials,
+    SyncLog,
+    SyncLogOperation,
+    SyncLogStatus,
+    SyncPayload,
+    SyncProvider,
+    SyncProviderErrorCode,
+    SyncProviderId,
+    SyncPullResult,
+} from './provider'
+
+export {
+    compareClocks,
+    incrementClock,
+    mergeClock,
+} from './vector-clock'
+
+export type {
+    ClockRelation,
+    VectorClock,
+} from './vector-clock'
+
+export { syncRepository, SyncRepository } from './repository'
+
+export type {
+    EnqueueOutboxInput,
+    SyncConflictRecord,
+    SyncLogRecord,
+    SyncOutboxRecord,
+} from './repository'
+
+export { WebDAVProvider } from './providers/webdav'
+export { GitProvider } from './providers/git'
+export { SelfHostedProvider } from './providers/self-hosted'

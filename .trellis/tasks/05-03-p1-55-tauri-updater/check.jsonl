@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/55-updater-spec.md","reason":"Check all updater acceptance points: check-only, skip, disabled policy, UI status, no auto install, audit/activity logging."}
+{"file":"prompts/0420/specs/24-permission-audit-spec.md","reason":"Verify audit action additions and log payloads remain typed and queryable."}
+{"file":"prompts/0420/specs/33-diagnostic-logging-spec.md","reason":"Verify background errors are silent and ActivityLog events carry the right levels/modules."}
+{"file":"prompts/0420/specs/40-dev-panel-spec.md","reason":"Verify About diagnostics remain intact and updater status does not break developer/runtime panels."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Run required project gates and update updater-specific quality guidance."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Review strict typed contracts and no any-shaped updater state or adapter payloads."}

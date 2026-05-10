@@ -1,0 +1,7 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts\\0420\\specs\\53-image-extension-v2-spec.md", "reason": "source spec for Image Extension v2"}
+{"file": "prompts\\0420\\specs\\28-asset-pipeline-spec.md", "reason": "asset ingestion and local asset constraints"}
+{"file": "prompts\\0420\\specs\\01-spec-editor-typora.md", "reason": "editor mode and TipTap integration constraints"}
+{"file": "prompts\\0420\\specs\\10-markdown-authority-spec.md", "reason": "Markdown authority and round-trip constraints"}
+{"file": "prompts\\0420\\specs\\05-toolbar-complete-spec.md", "reason": "toolbar and command entry constraints"}
+{"file": ".trellis\\tasks\\05-03-p1-53-image-extension-v2\\research\\external-references.md", "reason": "current Tiptap Image and NodeView references"}

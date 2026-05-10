@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { markRaw, nextTick, ref, shallowRef, watch } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import type { Events } from 'vue-codemirror'
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown'
@@ -30,16 +30,32 @@ const emit = defineEmits<{
 
 // Local state
 const code = ref(props.modelValue)
+const editorKey = ref(0)
+const lastEmittedValue = ref<string | null>(null)
 
-// Watch external changes
+// Reset the editor when the parent swaps in a different document so undo
+// history starts from the loaded markdown, not from the placeholder shell.
 watch(() => props.modelValue, (newVal) => {
-  if (newVal !== code.value) {
-    code.value = newVal
+  if (newVal === code.value) {
+    if (lastEmittedValue.value === newVal) {
+      lastEmittedValue.value = null
+    }
+    return
   }
+
+  code.value = newVal
+
+  if (lastEmittedValue.value === newVal) {
+    lastEmittedValue.value = null
+    return
+  }
+
+  editorKey.value += 1
 })
 
 // Sync changes back
 function handleChange(value: string) {
+  lastEmittedValue.value = value
   code.value = value
   emit('update:modelValue', value)
 }
@@ -47,22 +63,27 @@ function handleChange(value: string) {
 // Editor ready — vue-codemirror 传入 { view, state, container }
 function handleReady(payload: ReadyPayload) {
   emit('ready', payload)
+  void nextTick(() => {
+    payload.view.requestMeasure()
+  })
 }
 
 // Extensions
-const extensions = [
-  markdown({
+const baseExtensions = markRaw([
+  markRaw(markdown({
     base: markdownLanguage,
-    codeLanguages: languages
-  }),
-  oneDark,
-  EditorView.lineWrapping
-]
+    codeLanguages: languages,
+  })),
+  markRaw(oneDark),
+  markRaw(EditorView.lineWrapping),
+])
+const extensions = shallowRef(baseExtensions)
 </script>
 
 <template>
   <div class="markdown-editor">
     <Codemirror
+      :key="editorKey"
       v-model="code"
       :placeholder="placeholder"
       :extensions="extensions"

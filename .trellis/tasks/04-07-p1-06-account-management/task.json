@@ -1,0 +1,64 @@
+{
+  "id": "p1-06-account-management",
+  "name": "p1-06-account-management",
+  "title": "本地账户管理 + Hub 头像入口",
+  "description": "纯 Local-First 账户管理: AccountWelcome.vue 页面，多账户切换，HubHeader 头像入口按钮，Account Store 增强",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "account",
+  "package": null,
+  "priority": "P1",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-07",
+  "completedAt": "2026-04-29",
+  "branch": "feature/v21-account-management",
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    "AccountWelcome.vue: /account 路由 + 居中卡片布局 + 账户信息展示",
+    "创建本地账户表单 (内联模态框 + Zod 验证: 名称/邮箱/简介)",
+    "多账户列表 + 切换功能 UI",
+    "Account Store 增强: listAccounts() / switchAccount() / createNewAccount()",
+    "HubHeader 头像入口按钮 (36x36 圆角 + 首字母回退)",
+    "Settings Account Tab 底部: 安全(即将推出) + 账户切换卡片",
+    "路由注册 /account"
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "inkforge/src/views/AccountWelcome.vue",
+    "inkforge/src/stores/account.ts",
+    "inkforge/src/utils/db.ts",
+    "inkforge/src/views/HubView.vue",
+    "inkforge/src/views/SettingsView.vue",
+    "inkforge/src/router/index.ts"
+  ],
+  "notes": "规范文档: prompts/0327/06-account-auth-spec.md | 纯本地无远程认证 | 依赖: 07 (Settings account Tab) | 2026-04-29 verified: P1-06 local-first account slice complete; Hub account entry lives in HubView topbar because no standalone HubHeader component exists in current app.",
+  "meta": {
+    "spec": "prompts/0327/06-account-auth-spec.md",
+    "phase": "P1",
+    "order": 6
+  }
+}

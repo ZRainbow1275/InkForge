@@ -1,0 +1,13 @@
+{"file": "prompts/0420/specs/26-multi-account-profile-spec.md", "reason": "Primary Spec 26 Profile system product contract."}
+{"file": "prompts/0420/specs/06-account-auth-spec.md", "reason": "Existing account baseline that Profile registry must extend without deletion."}
+{"file": "prompts/0420/specs/23-sync-provider-spec.md", "reason": "Profile/provider scoped sync semantics and local-first failure behavior."}
+{"file": "prompts/0420/specs/24-permission-audit-spec.md", "reason": "Audit and permission ledger requirements for profile lifecycle operations."}
+{"file": "prompts/0420/acceptance-matrix.md", "reason": "Cross-spec acceptance ledger that must be updated after implementation."}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend/database guideline index."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Dexie schema and audit/plugin persistence contracts."}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend guideline index."}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia store UI state contracts."}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Type safety and validation guideline surface."}
+{"file": ".trellis/spec/guides/index.md", "reason": "Shared thinking guide index."}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer data-flow checklist for registry/service/store/UI changes."}
+{"file": ".trellis/tasks/05-01-05-01-p1-26-multi-account-profile/research/profile-isolation-research.md", "reason": "Current Dexie/Tauri research for profile isolation boundaries."}

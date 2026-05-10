@@ -1,0 +1,10 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/50-smart-punctuation-spec.md", "reason": "Primary Spec 50 smart punctuation requirements"}
+{"file": "prompts/0420/specs/07-settings-full-spec.md", "reason": "Settings Editor Tab and persistence dependency"}
+{"file": "prompts/0420/specs/49-editor-keymap-spec.md", "reason": "Editor keymap and undo metadata dependency"}
+{"file": ".trellis/tasks/05-03-05-03-p1-50-smart-punctuation/prd.md", "reason": "Task PRD and acceptance criteria"}
+{"file": "prompts/0420/specs/01-spec-editor-typora.md", "reason": "Typora editor architecture dependency"}
+{"file": ".trellis/tasks/05-03-05-03-p1-50-smart-punctuation/research/external-references.md", "reason": "External Tiptap and ProseMirror research notes"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Frontend strict type contracts"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend quality gates"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer implementation guidance"}

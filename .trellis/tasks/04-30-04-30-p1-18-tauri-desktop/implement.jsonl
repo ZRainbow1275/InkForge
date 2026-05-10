@@ -1,0 +1,3 @@
+{"file":"prompts/0420/specs/18-tauri-desktop-spec.md","reason":"Primary Spec 18 contract and full-scope boundary"}
+{"file":"prompts/0420/acceptance-matrix.md","reason":"Global acceptance ledger; keep full Spec 18 pending while recording compatible baseline evidence"}
+{"file":".trellis/tasks/04-30-04-30-p1-18-tauri-desktop/prd.md","reason":"P1-18 scoped PRD for Tauri v1 compatible baseline"}

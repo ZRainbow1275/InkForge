@@ -1,0 +1,9 @@
+{"file":"prompts/0420/specs/38-toc-system-spec.md","reason":"Primary TOC System requirements and acceptance matrix."}
+{"file":"prompts/0420/specs/16-markdown-extensions-spec.md","reason":"Existing [toc] markdown macro boundaries."}
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"Workstation split/outline coexistence constraints."}
+{"file":"prompts/0420/specs/39-sync-scroll-spec.md","reason":"Future scroll-sync boundaries and active-heading risks."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia state contracts and no-placeholder UI rules."}
+{"file":"inkforge/src/composables/useOutline.ts","reason":"Existing sidebar outline composable to preserve/refactor."}
+{"file":"inkforge/src/components/outline/OutlinePanel.vue","reason":"Existing outline tab component integration point."}
+{"file":"inkforge/src/services/markdown-ext/render.ts","reason":"Existing [toc] renderer and heading slug behavior."}
+{"file":".trellis/tasks/05-02-05-02-p1-38-toc-system/research/toc-research.md","reason":"Current external, library, and local research notes."}

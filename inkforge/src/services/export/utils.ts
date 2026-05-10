@@ -4,7 +4,8 @@
  * 提供代码高亮（多主题）、Alert 块渲染、脚注转换、统计信息等公共工具
  */
 
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core'
+import { INKFORGE_CODE_LANGUAGE_GRAMMARS } from '@/extensions/codeLanguageGrammars'
 import type { Footnote, ExportStats, CodeTheme, CodeThemeColors, AlertType, AlertTheme } from './types'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -16,6 +17,20 @@ export const EDITOR_LINE_HEIGHT = 27
 
 /** 斜杠命令最大搜索距离 */
 export const SLASH_COMMAND_MAX_DISTANCE = 20
+
+let exportCodeLanguagesRegistered = false
+
+function ensureExportCodeLanguagesRegistered(): void {
+  if (exportCodeLanguagesRegistered) return
+
+  for (const [language, grammar] of Object.entries(INKFORGE_CODE_LANGUAGE_GRAMMARS)) {
+    if (!hljs.getLanguage(language)) {
+      hljs.registerLanguage(language, grammar)
+    }
+  }
+
+  exportCodeLanguagesRegistered = true
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // 代码高亮主题注册表
@@ -94,35 +109,35 @@ export const CODE_THEME_REGISTRY: Record<CodeTheme, CodeThemeColors> = {
  */
 export const ALERT_THEME_REGISTRY: Record<AlertType, AlertTheme> = {
   note: {
-    icon: 'ℹ️',
+    icon: '注',
     title: '注意',
     color: '#0969da',
     backgroundColor: '#ddf4ff',
     borderColor: '#54aeff',
   },
   tip: {
-    icon: '💡',
+    icon: '提',
     title: '提示',
     color: '#1a7f37',
     backgroundColor: '#dafbe1',
     borderColor: '#4ac26b',
   },
   important: {
-    icon: '❗',
+    icon: '重',
     title: '重要',
     color: '#8250df',
     backgroundColor: '#fbefff',
     borderColor: '#c297ff',
   },
   warning: {
-    icon: '⚠️',
+    icon: '警',
     title: '警告',
     color: '#9a6700',
     backgroundColor: '#fff8c5',
     borderColor: '#d4a72c',
   },
   caution: {
-    icon: '🔴',
+    icon: '危',
     title: '危险',
     color: '#cf222e',
     backgroundColor: '#ffebe9',
@@ -145,22 +160,36 @@ export const ALERT_THEME_REGISTRY: Record<AlertType, AlertTheme> = {
  * @param primaryColor - 选中状态的主色调
  */
 export function convertTaskListCheckboxes(html: string, primaryColor: string = '#0066cc'): string {
+  const checkboxBaseStyle = [
+    'display:inline-block',
+    'width:0.85em',
+    'height:0.85em',
+    'margin-right:6px',
+    'vertical-align:middle',
+    'line-height:1',
+    'border:1px solid',
+    'border-radius:3px',
+    'box-sizing:border-box',
+  ].join(';')
+  const checkedBox = '<span aria-hidden="true" style="' + checkboxBaseStyle + ';border-color:' + primaryColor + ';background:' + primaryColor + ';box-shadow:inset 0 0 0 3px #fff;"></span>'
+  const uncheckedBox = '<span aria-hidden="true" style="' + checkboxBaseStyle + ';border-color:#ccc;background:transparent;"></span>'
+
   let result = html
 
   // 匹配 checked checkbox（属性顺序可能不同）
   result = result.replace(
     /<input\s+[^>]*(?:checked)[^>]*type=["']checkbox["'][^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:16px;vertical-align:middle;line-height:1;">☑</span>`
+    checkedBox
   )
   result = result.replace(
     /<input\s+[^>]*type=["']checkbox["'][^>]*(?:checked)[^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:${primaryColor};font-size:16px;vertical-align:middle;line-height:1;">☑</span>`
+    checkedBox
   )
 
   // 匹配 unchecked checkbox（没有 checked 属性）
   result = result.replace(
     /<input\s+[^>]*type=["']checkbox["'][^>]*>/gi,
-    `<span style="display:inline-block;margin-right:6px;color:#ccc;font-size:16px;vertical-align:middle;line-height:1;">☐</span>`
+    uncheckedBox
   )
 
   return result
@@ -386,6 +415,8 @@ export function highlightCodeBlocks(
   themeId: CodeTheme = 'atom-one-dark',
   enableLanguageLabel: boolean = false
 ): string {
+  ensureExportCodeLanguagesRegistered()
+
   const theme = CODE_THEME_REGISTRY[themeId]
 
   return html.replace(
@@ -593,7 +624,7 @@ export function buildFootnoteSection(footnotes: Footnote[]): string {
 
   let section = `
 <section style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;">
-  <h4 style="font-size:14px;font-weight:600;color:#666;margin-bottom:12px;">🔗 引用链接</h4>
+  <h4 style="font-size:14px;font-weight:600;color:#666;margin-bottom:12px;">引用链接</h4>
   <div style="font-size:13px;color:#666;line-height:1.8;">`
 
   footnotes.forEach((fn, index) => {
@@ -660,18 +691,18 @@ export function calculateStats(html: string, readingSpeed: number): ExportStats 
  */
 export function buildReadingTimeHeader(stats: ExportStats): string {
   const badges: string[] = [
-    `<span style="margin-right:16px;">📖 阅读约 <strong>${stats.readingTime}</strong> 分钟</span>`,
-    `<span style="margin-right:16px;">📝 全文 <strong>${stats.wordCount}</strong> 字</span>`,
+    `<span style="margin-right:16px;">阅读约 <strong>${stats.readingTime}</strong> 分钟</span>`,
+    `<span style="margin-right:16px;">全文 <strong>${stats.wordCount}</strong> 字</span>`,
   ]
 
   if (stats.codeBlockCount > 0) {
-    badges.push(`<span style="margin-right:16px;">💻 ${stats.codeBlockCount} 个代码块</span>`)
+    badges.push(`<span style="margin-right:16px;">${stats.codeBlockCount} 个代码块</span>`)
   }
   if (stats.imageCount > 0) {
-    badges.push(`<span style="margin-right:16px;">🖼️ ${stats.imageCount} 张图片</span>`)
+    badges.push(`<span style="margin-right:16px;">${stats.imageCount} 张图片</span>`)
   }
   if (stats.tableCount > 0) {
-    badges.push(`<span style="margin-right:16px;">📊 ${stats.tableCount} 个表格</span>`)
+    badges.push(`<span style="margin-right:16px;">${stats.tableCount} 个表格</span>`)
   }
 
   return `
@@ -685,6 +716,70 @@ export function buildReadingTimeHeader(stats: ExportStats): string {
 // 剪贴板操作
 // ═══════════════════════════════════════════════════════════════════
 
+const CLIPBOARD_WRITE_TIMEOUT_MS = 1200
+
+async function attemptClipboardWrite(operation: Promise<void>): Promise<boolean> {
+  try {
+    await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        window.setTimeout(() => reject(new Error('Clipboard write timeout')), CLIPBOARD_WRITE_TIMEOUT_MS)
+      }),
+    ])
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 当前浏览器是否具备可尝试的剪贴板写入能力。
+ * 注意：最终是否成功仍取决于安全上下文、用户手势和浏览器权限。
+ */
+export function isClipboardWriteAvailable(): boolean {
+  if (typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') {
+    return true
+  }
+
+  return (
+    typeof document !== 'undefined' &&
+    typeof document.queryCommandSupported === 'function' &&
+    document.queryCommandSupported('copy')
+  )
+}
+
+/**
+ * 复制纯文本到剪贴板。
+ * @param text - 要复制的纯文本内容
+ * @returns 复制是否成功
+ */
+export async function copyTextToClipboard(text: string): Promise<boolean> {
+  if (!text) return false
+
+  if (typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') {
+    const written = await attemptClipboardWrite(navigator.clipboard.writeText(text))
+    if (written) {
+      return true
+    }
+  }
+
+  try {
+    if (typeof document === 'undefined') return false
+
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    const success = document.execCommand('copy')
+    document.body.removeChild(textarea)
+    return success
+  } catch {
+    return false
+  }
+}
+
 /**
  * 复制到剪贴板（HTML格式）
  * @param html - 要复制的 HTML 内容
@@ -693,27 +788,18 @@ export function buildReadingTimeHeader(stats: ExportStats): string {
  */
 export async function copyToClipboard(html: string): Promise<boolean> {
   // 优先使用现代 Clipboard API
-  try {
-    await navigator.clipboard.write([
+  if (typeof navigator !== 'undefined' && typeof navigator.clipboard?.write === 'function') {
+    const written = await attemptClipboardWrite(navigator.clipboard.write([
       new ClipboardItem({
         'text/html': new Blob([html], { type: 'text/html' }),
         'text/plain': new Blob([html], { type: 'text/plain' })
       })
-    ])
-    return true
-  } catch (_primaryError) {
-    // 降级方案：使用传统 execCommand（兼容旧浏览器）
-    try {
-      const textarea = document.createElement('textarea')
-      textarea.value = html
-      textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;'
-      document.body.appendChild(textarea)
-      textarea.select()
-      const success = document.execCommand('copy')
-      document.body.removeChild(textarea)
-      return success
-    } catch (_fallbackError) {
-      return false
+    ]))
+    if (written) {
+      return true
     }
   }
+
+  // 降级方案：使用传统 execCommand（兼容旧浏览器）
+  return copyTextToClipboard(html)
 }

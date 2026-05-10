@@ -1,0 +1,13 @@
+{"file":"prompts/0420/specs/46-draggable-ordering-spec.md","reason":"Primary draggable ordering requirements and FileManager phase boundary."}
+{"file":"prompts/0420/specs/51-block-drag-handle-spec.md","reason":"Detailed editor BlockDragHandle architecture, lifecycle, keyboard, and tests."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Reordered content must preserve Markdown authority and persistence semantics."}
+{"file":"prompts/0420/specs/38-toc-system-spec.md","reason":"Heading moves must remain compatible with TOC reparsing expectations."}
+{"file":"prompts/0420/specs/39-sync-scroll-spec.md","reason":"Editor structural changes must not break split/sync scroll assumptions."}
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"Drag behavior must stay scoped to the main editor column."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Frontend component and accessibility conventions."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Real state only; no mock tabs/documents/content."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict typed payloads and no any-shaped drag state."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Required quality gates for frontend changes."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Search and reuse existing editor extension patterns."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Map editor DOM -> ProseMirror -> Markdown persistence boundaries."}
+{"file":".trellis/tasks/05-02-05-02-p1-46-draggable-ordering/research/external-references.md","reason":"Current external API references and MCP limitation notes."}

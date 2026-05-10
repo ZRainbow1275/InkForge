@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts\\0420\\specs\\51-block-drag-handle-spec.md", "reason": "source spec for BlockDragHandle requirements"}
+{"file": "prompts\\0420\\specs\\01-spec-editor-typora.md", "reason": "editor mode and TipTap integration constraints"}
+{"file": "prompts\\0420\\specs\\10-markdown-authority-spec.md", "reason": "Markdown authority and persistence constraints"}
+{"file": "prompts\\0420\\specs\\46-draggable-ordering-spec.md", "reason": "prior draggable ordering context"}
+{"file": ".trellis\\tasks\\05-03-p1-51-block-drag-handle\\research\\external-references.md", "reason": "current ProseMirror and Tiptap references"}

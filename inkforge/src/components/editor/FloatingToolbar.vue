@@ -2,7 +2,7 @@
 /**
  * FloatingToolbar — 手动实现的浮动格式工具栏
  *
- * ⚠️ 不使用 @tiptap/vue-3 的 <BubbleMenu> 组件！
+ * Warning: 不使用 @tiptap/vue-3 的 <BubbleMenu> 组件。
  * BubbleMenu 在 onMounted 中调用 editor.registerPlugin() → view.updateState()，
  * 而 EditorContent 的元素交换用了 nextTick 延迟，存在不可避免的竞态条件，
  * 导致 view.docView.localsInner 崩溃。
@@ -196,6 +196,19 @@ function handleLinkClick(): void {
   showLinkInput.value = true
 }
 
+function openLinkEditor(): void {
+  if (!props.editor) return
+
+  const existingHref = props.editor.getAttributes('link').href as string | undefined
+  linkUrl.value = existingHref ?? ''
+  showHighlightPanel.value = false
+  showTextColorPanel.value = false
+  showLinkInput.value = true
+  visible.value = true
+  props.editor.chain().focus().run()
+  nextTick(updateToolbar)
+}
+
 /** 验证 URL 协议安全性，仅允许 http/https/mailto */
 function isValidLinkUrl(url: string): boolean {
   const trimmed = url.trim().toLowerCase()
@@ -313,6 +326,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside, true)
 })
+
+defineExpose({ openLinkEditor })
 </script>
 
 <template>
@@ -329,54 +344,60 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('bold') }"
-        @click="editor?.chain().focus().toggleBold().run()"
         title="加粗 (Ctrl+B)"
+        @click="editor?.chain().focus().toggleBold().run()"
       >
         <Bold :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('italic') }"
-        @click="editor?.chain().focus().toggleItalic().run()"
         title="斜体 (Ctrl+I)"
+        @click="editor?.chain().focus().toggleItalic().run()"
       >
         <Italic :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('underline') }"
-        @click="editor?.chain().focus().toggleUnderline().run()"
         title="下划线 (Ctrl+U)"
+        @click="editor?.chain().focus().toggleUnderline().run()"
       >
         <Underline :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('strike') }"
+        title="删除线 (Ctrl+Shift+S)"
         @click="editor?.chain().focus().toggleStrike().run()"
-        title="删除线 (Ctrl+Shift+X)"
       >
         <Strikethrough :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('code') }"
+        title="行内代码 (Ctrl+Shift+`)"
         @click="editor?.chain().focus().toggleCode().run()"
-        title="行内代码 (Ctrl+E)"
       >
         <Code :size="15" />
       </button>
       <!-- 高亮 (带颜色面板) -->
-      <div class="ft-btn-wrapper" ref="highlightPanelEl">
+      <div
+        ref="highlightPanelEl"
+        class="ft-btn-wrapper"
+      >
         <button
           class="ft-btn"
           :class="{ active: isActive('highlight') }"
+          title="高亮标记 (Ctrl+Shift+H)"
           @click="toggleHighlightPanel"
-          title="高亮标记"
         >
           <Highlighter :size="15" />
         </button>
-        <div v-if="showHighlightPanel" class="ft-color-panel">
+        <div
+          v-if="showHighlightPanel"
+          class="ft-color-panel"
+        >
           <button
             v-for="hc in highlightColors"
             :key="hc.color"
@@ -395,16 +416,22 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <!-- 文字颜色 (带颜色面板) -->
-      <div class="ft-btn-wrapper" ref="textColorPanelEl">
+      <div
+        ref="textColorPanelEl"
+        class="ft-btn-wrapper"
+      >
         <button
           class="ft-btn"
           :class="{ active: isActive('textStyle') }"
-          @click="toggleTextColorPanel"
           title="文字颜色"
+          @click="toggleTextColorPanel"
         >
           <Palette :size="15" />
         </button>
-        <div v-if="showTextColorPanel" class="ft-color-panel">
+        <div
+          v-if="showTextColorPanel"
+          class="ft-color-panel"
+        >
           <button
             v-for="tc in textColors"
             :key="tc.color"
@@ -426,16 +453,16 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('superscript') }"
-        @click="editor?.chain().focus().toggleSuperscript().run()"
         title="上标"
+        @click="editor?.chain().focus().toggleSuperscript().run()"
       >
         <Superscript :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('subscript') }"
-        @click="editor?.chain().focus().toggleSubscript().run()"
         title="下标"
+        @click="editor?.chain().focus().toggleSubscript().run()"
       >
         <Subscript :size="15" />
       </button>
@@ -446,24 +473,24 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('heading', { level: 1 }) }"
+        title="一级标题 (Ctrl+1)"
         @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
-        title="一级标题"
       >
         <Heading1 :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('heading', { level: 2 }) }"
+        title="二级标题 (Ctrl+2)"
         @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-        title="二级标题"
       >
         <Heading2 :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('heading', { level: 3 }) }"
+        title="三级标题 (Ctrl+3)"
         @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-        title="三级标题"
       >
         <Heading3 :size="15" />
       </button>
@@ -474,24 +501,24 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('blockquote') }"
+        title="引用 (Ctrl+Shift+Q)"
         @click="editor?.chain().focus().toggleBlockquote().run()"
-        title="引用 (Ctrl+Shift+B)"
       >
         <Quote :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('bulletList') }"
+        title="无序列表 (Ctrl+Shift+])"
         @click="editor?.chain().focus().toggleBulletList().run()"
-        title="无序列表"
       >
         <List :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('orderedList') }"
+        title="有序列表 (Ctrl+Shift+[)"
         @click="editor?.chain().focus().toggleOrderedList().run()"
-        title="有序列表"
       >
         <ListOrdered :size="15" />
       </button>
@@ -499,8 +526,8 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('taskList') }"
+        title="任务列表 (Ctrl+Shift+X)"
         @click="editor?.chain().focus().toggleTaskList().run()"
-        title="任务列表"
       >
         <CheckSquare :size="15" />
       </button>
@@ -511,32 +538,32 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive({ textAlign: 'left' }) }"
-        @click="editor?.chain().focus().setTextAlign('left').run()"
         title="左对齐"
+        @click="editor?.chain().focus().setTextAlign('left').run()"
       >
         <AlignLeft :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive({ textAlign: 'center' }) }"
-        @click="editor?.chain().focus().setTextAlign('center').run()"
         title="居中对齐"
+        @click="editor?.chain().focus().setTextAlign('center').run()"
       >
         <AlignCenter :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive({ textAlign: 'right' }) }"
-        @click="editor?.chain().focus().setTextAlign('right').run()"
         title="右对齐"
+        @click="editor?.chain().focus().setTextAlign('right').run()"
       >
         <AlignRight :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive({ textAlign: 'justify' }) }"
-        @click="editor?.chain().focus().setTextAlign('justify').run()"
         title="两端对齐"
+        @click="editor?.chain().focus().setTextAlign('justify').run()"
       >
         <AlignJustify :size="15" />
       </button>
@@ -547,37 +574,40 @@ onBeforeUnmount(() => {
       <button
         class="ft-btn"
         :class="{ active: isActive('link') }"
-        @click="handleLinkClick"
         title="链接 (Ctrl+K)"
+        @click="handleLinkClick"
       >
         <Link :size="15" />
       </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('codeBlock') }"
+        title="代码块 (Ctrl+Shift+K)"
         @click="editor?.chain().focus().toggleCodeBlock().run()"
-        title="代码块"
       >
         <Code2 :size="15" />
       </button>
       <button
         class="ft-btn"
+        title="分割线 (Ctrl+Enter)"
         @click="editor?.chain().focus().setHorizontalRule().run()"
-        title="分割线"
       >
         <Minus :size="15" />
       </button>
       <!-- 插入表格 -->
       <button
         class="ft-btn"
+        title="插入表格 (Ctrl+Alt+Shift+T)"
         @click="editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
-        title="插入表格"
       >
         <Table :size="15" />
       </button>
 
       <!-- 链接输入浮层 -->
-      <div v-if="showLinkInput" class="ft-link-input">
+      <div
+        v-if="showLinkInput"
+        class="ft-link-input"
+      >
         <input
           v-model="linkUrl"
           type="url"
@@ -585,9 +615,19 @@ onBeforeUnmount(() => {
           class="ft-link-field"
           @keydown.enter.prevent="confirmLink"
           @keydown.escape.prevent="cancelLink"
-        />
-        <button class="ft-link-confirm" @click="confirmLink">确定</button>
-        <button class="ft-link-cancel" @click="cancelLink">取消</button>
+        >
+        <button
+          class="ft-link-confirm"
+          @click="confirmLink"
+        >
+          确定
+        </button>
+        <button
+          class="ft-link-cancel"
+          @click="cancelLink"
+        >
+          取消
+        </button>
       </div>
     </div>
   </Transition>
@@ -597,9 +637,12 @@ onBeforeUnmount(() => {
 .floating-toolbar {
   position: absolute;
   z-index: 100;
+  max-width: min(calc(100vw - 32px), calc(var(--paper-max-width, 680px) - 16px));
   transform: translateX(-50%);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   padding: 6px 8px;
   background: rgba(255, 255, 255, 0.96);
@@ -611,7 +654,7 @@ onBeforeUnmount(() => {
     0 4px 16px rgba(0, 0, 0, 0.08),
     0 1px 3px rgba(0, 0, 0, 0.04);
   pointer-events: auto;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .ft-btn {
@@ -636,6 +679,18 @@ onBeforeUnmount(() => {
 .ft-btn.active {
   background: var(--accent-color, #D32F2F);
   color: white;
+}
+
+@media (max-width: 480px) {
+  .floating-toolbar {
+    max-width: calc(100vw - 24px);
+    padding: 6px;
+  }
+
+  .ft-btn {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .ft-divider {

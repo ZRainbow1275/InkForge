@@ -1,0 +1,4 @@
+{"path":"prompts/0420/specs/22-command-palette-spec.md","reason":"Primary Command Palette architecture, command model, UI, store, keyboard, a11y, and test matrix contract."}
+{"path":"prompts/0420/acceptance-matrix.md","reason":"Acceptance ledger that must be updated with the baseline status and validation evidence."}
+{"path":".trellis/spec/frontend/index.md","reason":"Frontend guideline index for component, state, type safety, and quality conventions."}
+{"path":".trellis/spec/guides/index.md","reason":"Shared thinking guide index for cross-layer and code-reuse checks."}

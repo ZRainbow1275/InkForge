@@ -1,31 +1,23 @@
 <script setup lang="ts">
 /**
- * EditorPanel — 纸张风格编辑器
+ * EditorPanel — Typora / Source 双模式编辑器
  *
- * ⚠️ 不使用 useEditor() + EditorContent 组合！
- * useEditor 在 onMounted 创建 Editor 时挂到临时离线 div，
- * 然后 EditorContent 的 watchEffect + nextTick 做元素交换
- * (editor.setOptions + editor.createNodeViews)，
- * 导致 view.docView.updateChildren → localsInner 崩溃。
- *
- * 替代方案：手动在 onMounted 中用 new Editor({ element }) 直接挂载到
- * 已有 DOM 元素上，完全跳过元素交换。
+ * 约束：
+ * 1. 继续沿用手动 new Editor({ element }) 挂载，避免 EditorContent 交换元素导致的崩溃
+ * 2. Typora 模式以 TipTap + TyporaMode 扩展为主，Source 模式复用现有 MarkdownEditor
+ * 3. 当前主链以 Markdown 作为跨组件/导出/预览的兼容权威格式
  */
 import { ref, watch, computed, shallowRef, onMounted, onBeforeUnmount } from 'vue'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import ListItem from '@tiptap/extension-list-item'
 import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
 import UnderlineExtension from '@tiptap/extension-underline'
 import LinkExtension from '@tiptap/extension-link'
-import ImageExtension from '@tiptap/extension-image'
-import Table from '@tiptap/extension-table'
-import TableRow from '@tiptap/extension-table-row'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
+import { TableV2Extensions } from '@/extensions/TableV2'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Highlight from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'
@@ -33,7 +25,6 @@ import Color from '@tiptap/extension-color'
 import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import Dropcursor from '@tiptap/extension-dropcursor'
-import { common, createLowlight } from 'lowlight'
 import { useEditorStore } from '@/stores/editor'
 import { storeToRefs } from 'pinia'
 import { Loader2, AlertTriangle } from 'lucide-vue-next'
@@ -42,16 +33,86 @@ import type { EditedContent } from '@/types'
 import EditorEmptyState from './EditorEmptyState.vue'
 import { WeChatFormat } from '@/extensions/WeChatFormat'
 import { SmartPunctuation } from '@/extensions/SmartPunctuation'
+import type { SmartPunctuationRuleSettings } from '@/services/smart-punctuation'
 import { TypewriterMode } from '@/extensions/TypewriterMode'
+import { KeyboardShortcuts, type FindReplaceMode } from '@/extensions/KeyboardShortcuts'
+import { EditorKeymap } from '@/extensions/EditorKeymap'
 import { SlashCommands } from '@/extensions/SlashCommands'
+import { SnippetExpansion } from '@/extensions/SnippetExpansion'
 import { useSettingsStore } from '@/stores/settings'
+import { useAssetStore } from '@/stores/asset'
+import { useSnippetStore } from '@/stores/snippet'
+import { ImageV2Extension, ImageDropPaste, type ImageIngressState, type InsertedImageAsset } from '@/extensions/ImageV2'
+import { RichCodeBlock } from '@/extensions/RichCodeBlock'
+import { DetailsBlock } from '@/extensions/DetailsBlock'
+import { CitationMarks } from '@/extensions/CitationMarks'
+import { BlockDragHandle } from '@/extensions/BlockDragHandle'
+import { createInkforgeLowlight } from '@/extensions/codeLanguages'
+import { createInkforgeAssetUrl } from '@/utils/asset-url'
+import type { SnippetContext } from '@/services/snippet'
+import { registerActiveEditor } from '@/services/dev-tools'
 import SlashCommandMenu from './SlashCommandMenu.vue'
+import TableFloatingToolbar from './TableFloatingToolbar.vue'
+import EditorContextMenu from './EditorContextMenu.vue'
+import FindReplace from './FindReplace.vue'
+import MarkdownEditor from './MarkdownEditor.vue'
+import {
+  TyporaMode,
+  TYPORA_MODE_REFRESH_META,
+  type EditorMode,
+  type EditorWidth,
+  type TyporaSyncState,
+  isLikelyHtmlContent,
+  renderMarkdownToHtml,
+  serializeHtmlToMarkdown,
+} from '@/extensions/TyporaMode'
+
+const props = withDefaults(defineProps<{
+  editorMode?: EditorMode
+  editorWidth?: EditorWidth
+  isFocusMode?: boolean
+  externalPreviewActive?: boolean
+}>(), {
+  editorMode: 'typora',
+  editorWidth: 'medium',
+  isFocusMode: false,
+  externalPreviewActive: false,
+})
+
+const emit = defineEmits<{
+  (e: 'sync-state-change', value: TyporaSyncState): void
+  (e: 'toggle-editor-mode'): void
+}>()
 
 // lowlight 实例 (代码高亮引擎)
-const lowlight = createLowlight(common)
+const lowlight = createInkforgeLowlight()
+
+const InkforgeListItem = ListItem.extend({
+  addAttributes() {
+    return {
+      footnoteId: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.dataset.footnoteId ?? null,
+        renderHTML: attributes => attributes.footnoteId ? { 'data-footnote-id': attributes.footnoteId } : {},
+      },
+    }
+  },
+
+  addKeyboardShortcuts() {
+    return {}
+  },
+})
+
+const InkforgeTaskItem = TaskItem.extend({
+  addKeyboardShortcuts() {
+    return {}
+  },
+})
 
 const editorStore = useEditorStore()
 const settingsStore = useSettingsStore()
+const assetStore = useAssetStore()
+const snippetStore = useSnippetStore()
 const { currentContent, status: editorStatus, error: editorError } = storeToRefs(editorStore)
 
 // 派生状态
@@ -61,6 +122,45 @@ const isLoading = computed(() => editorStatus.value === 'loading')
 // 本地编辑状态
 const titleText = ref('')
 const transcriptText = ref('')
+const sourceMarkdown = ref('')
+
+type TyporaExtensionRecord = {
+  name: string
+  options: {
+    enabled?: boolean | (() => boolean)
+    rules?: SmartPunctuationRuleSettings | (() => SmartPunctuationRuleSettings)
+  }
+}
+
+const widthMap: Record<EditorWidth, string> = {
+  narrow: '560px',
+  medium: '680px',
+  wide: '860px',
+  full: 'calc(100% - 64px)',
+}
+
+const isSourceMode = computed(() => props.editorMode === 'source')
+const editorMode = computed(() => props.editorMode)
+const editorPaperWidth = computed(() => widthMap[props.editorWidth] ?? widthMap.medium)
+
+let isHydratingFromStore = false
+let isApplyingSourceProjection = false
+let saveTimeout: ReturnType<typeof setTimeout> | undefined
+let sourceProjectionTimeout: ReturnType<typeof setTimeout> | undefined
+let pendingSaveSequence = 0
+let hydrationSequence = 0
+let hydratedArticleId: string | null = null
+
+const syncState = ref<TyporaSyncState>('offline')
+
+function setSyncState(nextState: TyporaSyncState) {
+  if (syncState.value === nextState) {
+    return
+  }
+
+  syncState.value = nextState
+  emit('sync-state-change', nextState)
+}
 
 // ═══ Settings → CSS Variables ═══
 const editorFontFamily = computed(() => {
@@ -78,10 +178,204 @@ const editorLineHeight = computed(() => String(settingsStore.settings.appearance
 // ═══ 手动 Editor 管理 ═══
 // 直接操作 Editor 实例，不使用 useEditor/EditorContent
 const editorContainerRef = ref<HTMLElement | null>(null)
+const editorScrollRef = ref<HTMLElement | null>(null)
 const bodyEditor = shallowRef<Editor | null>(null)
+let cleanupDevPanelEditorBridge: (() => void) | null = null
 
-onMounted(() => {
-  if (!editorContainerRef.value) return
+function syncDevPanelEditorBridge(): void {
+  cleanupDevPanelEditorBridge?.()
+  cleanupDevPanelEditorBridge = null
+
+  if (!bodyEditor.value) return
+
+  cleanupDevPanelEditorBridge = registerActiveEditor({
+    editor: bodyEditor.value,
+    scrollElement: editorScrollRef.value,
+    articleId: currentContent.value?.articleId ?? null,
+    title: currentContent.value?.title ?? null,
+  })
+}
+type FloatingToolbarExpose = {
+  openLinkEditor: () => void
+}
+
+type ManualVueNodeViewEditor = Editor & {
+  contentComponent?: unknown
+  createNodeViews?: () => void
+}
+
+const manualContentComponentSentinel = { source: 'manual-editor-mount' }
+
+function enableManualVueNodeViews(editor: Editor): void {
+  const manualEditor = editor as ManualVueNodeViewEditor
+  manualEditor.contentComponent ??= manualContentComponentSentinel
+  manualEditor.createNodeViews?.()
+}
+
+const floatingToolbarRef = ref<FloatingToolbarExpose | null>(null)
+const findReplaceVisible = ref(false)
+const findReplaceMode = ref<FindReplaceMode>('find')
+const contextMenuVisible = ref(false)
+const contextMenuX = ref(0)
+const contextMenuY = ref(0)
+
+function getShortcutBinding(shortcutId: string): string | undefined {
+  return settingsStore.settings.shortcuts[shortcutId]
+}
+
+function openFindReplace(mode: FindReplaceMode): void {
+  findReplaceMode.value = mode
+  findReplaceVisible.value = true
+}
+
+function closeFindReplace(): void {
+  findReplaceVisible.value = false
+}
+
+function openLinkEditorFromShortcut(): void {
+  floatingToolbarRef.value?.openLinkEditor()
+}
+
+function requestEditorModeToggle(): void {
+  emit('toggle-editor-mode')
+}
+
+async function readSnippetClipboardText(): Promise<string> {
+  if (typeof navigator === 'undefined' || !navigator.clipboard?.readText) {
+    return ''
+  }
+
+  try {
+    return await navigator.clipboard.readText()
+  } catch {
+    return ''
+  }
+}
+
+async function buildSnippetContext(): Promise<SnippetContext> {
+  const selection = bodyEditor.value?.state.selection
+  const selectedText = selection && !selection.empty && bodyEditor.value
+    ? bodyEditor.value.state.doc.textBetween(selection.from, selection.to, '\n', '\n')
+    : ''
+
+  return {
+    articleId: currentContent.value?.articleId ?? null,
+    articleTitle: currentContent.value?.title ?? titleText.value,
+    authorName: '',
+    selectedText,
+    clipboardText: await readSnippetClipboardText(),
+    tags: [],
+    now: new Date(),
+  }
+}
+
+function openContextMenu(event: MouseEvent): void {
+  if (!bodyEditor.value) {
+    return
+  }
+
+  event.preventDefault()
+  contextMenuX.value = Math.min(event.clientX, window.innerWidth - 288)
+  contextMenuY.value = Math.min(event.clientY, window.innerHeight - 420)
+  contextMenuVisible.value = true
+}
+
+function closeContextMenu(): void {
+  contextMenuVisible.value = false
+}
+
+function requestContextImageInsert(): void {
+  if (bodyEditor.value) {
+    requestImageFileInsert(bodyEditor.value)
+  }
+}
+
+function requestContextFindReplace(): void {
+  openFindReplace('replace')
+}
+
+const imageIngressState = ref<ImageIngressState>('idle')
+const imageIngressError = ref<string | null>(null)
+const showImageIngressOverlay = computed(() => imageIngressState.value === 'dragging' || imageIngressState.value === 'uploading')
+
+function setImageIngressState(nextState: ImageIngressState): void {
+  imageIngressState.value = nextState
+  if (nextState !== 'idle') {
+    imageIngressError.value = null
+  }
+}
+
+function reportImageIngressError(message: string): void {
+  imageIngressError.value = message
+  imageIngressState.value = 'idle'
+  window.setTimeout(() => {
+    if (imageIngressError.value === message) {
+      imageIngressError.value = null
+    }
+  }, 4200)
+}
+
+async function uploadEditorImage(file: File): Promise<InsertedImageAsset> {
+  const asset = await assetStore.uploadAsset(file, currentContent.value?.articleId)
+
+  return {
+    assetId: asset.id,
+    src: createInkforgeAssetUrl(asset.id),
+    alt: asset.name,
+    title: asset.name,
+    width: asset.width,
+    height: asset.height,
+    naturalWidth: asset.width,
+    naturalHeight: asset.height,
+    link: null,
+  }
+}
+
+function insertUploadedImage(editor: Editor, image: InsertedImageAsset): void {
+  editor.chain().focus().insertContent({
+    type: 'image',
+    attrs: {
+      src: image.src,
+      alt: image.alt,
+      title: image.title ?? null,
+      assetId: image.assetId,
+      width: image.width ?? null,
+      height: image.height ?? null,
+      naturalWidth: image.naturalWidth ?? image.width ?? null,
+      naturalHeight: image.naturalHeight ?? image.height ?? null,
+      align: 'center',
+      caption: '',
+      link: image.link ?? null,
+    },
+  }).run()
+}
+
+function requestImageFileInsert(editor: Editor): void {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp'
+  input.onchange = () => {
+    const file = input.files?.[0]
+    if (!file) {
+      return
+    }
+
+    setImageIngressState('uploading')
+    void uploadEditorImage(file)
+      .then((image) => insertUploadedImage(editor, image))
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Image insertion failed'
+        reportImageIngressError(message)
+      })
+      .finally(() => setImageIngressState('idle'))
+  }
+  input.click()
+}
+
+function initializeBodyEditor(): void {
+  if (!editorContainerRef.value || bodyEditor.value) return
+
+  void snippetStore.loadSnippets()
 
   // 直接在真实 DOM 元素上创建 Editor，跳过元素交换
   bodyEditor.value = new Editor({
@@ -91,7 +385,9 @@ onMounted(() => {
         heading: { levels: [1, 2, 3, 4] },
         codeBlock: false,
         dropcursor: false,
+        listItem: false,
       }),
+      InkforgeListItem,
       Placeholder.configure({
         placeholder: '开始写作...'
       }),
@@ -99,6 +395,8 @@ onMounted(() => {
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
+        autolink: false,
+        linkOnPaste: false,
         HTMLAttributes: {
           class: 'editor-link',
           rel: 'noopener noreferrer',
@@ -107,66 +405,193 @@ onMounted(() => {
       }),
       WeChatFormat,
       SmartPunctuation.configure({
-        enabled: settingsStore.settings.editor.smartPunctuation,
+        enabled: () => settingsStore.settings.editor.smartPunctuation && !isSourceMode.value,
+        rules: () => settingsStore.settings.editor.smartPunctuationRules,
       }),
       TypewriterMode.configure({
         enabled: settingsStore.settings.editor.typewriterMode,
       }),
-      ImageExtension.configure({
+      TyporaMode.configure({
+        enabled: props.editorMode === 'typora' && settingsStore.settings.editor.highlightActiveLine,
+      }),
+      KeyboardShortcuts.configure({
+        getBinding: getShortcutBinding,
+        onFindReplace: openFindReplace,
+        onLinkRequested: openLinkEditorFromShortcut,
+        onToggleEditorMode: requestEditorModeToggle,
+      }),
+      EditorKeymap.configure({
+        getListEnterBehavior: () => settingsStore.settings.editor.listEnterBehavior,
+        getCodeBlockIndent: () => ' '.repeat(settingsStore.settings.editor.tabSize),
+      }),
+      SnippetExpansion.configure({
+        getSnippets: () => snippetStore.snippets,
+        getContext: buildSnippetContext,
+        onSnippetExpanded: async (snippetId) => {
+          await snippetStore.recordUsage(snippetId)
+        },
+        enabled: () => !isSourceMode.value,
+      }),
+      ImageV2Extension.configure({
         inline: false,
         allowBase64: true,
         HTMLAttributes: { class: 'editor-image' },
       }),
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableCell,
-      TableHeader,
+      ImageDropPaste.configure({
+        uploadImage: uploadEditorImage,
+        onStateChange: setImageIngressState,
+        onError: reportImageIngressError,
+      }),
+      ...TableV2Extensions,
       TaskList,
-      TaskItem.configure({ nested: true }),
-      CodeBlockLowlight.configure({ lowlight }),
+      InkforgeTaskItem.configure({ nested: true }),
+      RichCodeBlock.configure({ lowlight }),
+      DetailsBlock,
+      BlockDragHandle.configure({
+        enabled: () => editorMode.value === 'typora',
+      }),
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TextStyle,
       Color,
+      ...CitationMarks,
       Subscript,
       Superscript,
       Dropcursor.configure({ color: '#D32F2F', width: 2 }),
-      SlashCommands,
+      SlashCommands.configure({
+        onImageRequested: requestImageFileInsert,
+        onLinkRequested: () => openLinkEditorFromShortcut(),
+      }),
     ],
     content: '',
-    onUpdate: () => {
-      autoSave()
+    onUpdate: ({ editor }) => {
+      if (isHydratingFromStore || isApplyingSourceProjection || isSourceMode.value) {
+        return
+      }
+
+      const nextMarkdown = serializeHtmlToMarkdown(editor.getHTML())
+      if (nextMarkdown !== sourceMarkdown.value) {
+        sourceMarkdown.value = nextMarkdown
+      }
+
+      schedulePersist(nextMarkdown)
     }
   })
+
+  enableManualVueNodeViews(bodyEditor.value)
+  syncDevPanelEditorBridge()
+
+  setSyncState(editorStatus.value === 'ready' || editorStatus.value === 'saving' ? 'synced' : 'offline')
+
+  if (currentContent.value && isReady.value) {
+    void hydrateEditorContent(currentContent.value)
+  }
+}
+
+onMounted(() => {
+  initializeBodyEditor()
 })
+
+watch(
+  () => [isReady.value, editorContainerRef.value] as const,
+  () => initializeBodyEditor(),
+  { flush: 'post' },
+)
 
 // 设置 → 扩展实时同步
 watch(
   () => settingsStore.settings.editor,
   (editorSettings) => {
     if (!bodyEditor.value) return
-    const exts = bodyEditor.value.extensionManager.extensions
+    const exts = bodyEditor.value.extensionManager.extensions as TyporaExtensionRecord[]
     const sp = exts.find(e => e.name === 'smartPunctuation')
-    if (sp) sp.options.enabled = editorSettings.smartPunctuation
+    if (sp) {
+      sp.options.enabled = () => editorSettings.smartPunctuation && !isSourceMode.value
+      sp.options.rules = () => editorSettings.smartPunctuationRules
+    }
     const tw = exts.find(e => e.name === 'typewriterMode')
     if (tw) tw.options.enabled = editorSettings.typewriterMode
+    const typora = exts.find(e => e.name === 'typoraMode')
+    if (typora) {
+      typora.options.enabled = props.editorMode === 'typora' && editorSettings.highlightActiveLine
+    }
+    bodyEditor.value.view.dispatch(bodyEditor.value.state.tr.setMeta(TYPORA_MODE_REFRESH_META, Date.now()))
   },
   { deep: true }
 )
 
+watch(
+  () => [props.editorMode, settingsStore.settings.editor.highlightActiveLine] as const,
+  ([mode, highlightActiveLine]) => {
+    if (!bodyEditor.value) return
+    const exts = bodyEditor.value.extensionManager.extensions as TyporaExtensionRecord[]
+    const typora = exts.find(e => e.name === 'typoraMode')
+    if (typora) {
+      typora.options.enabled = mode === 'typora' && highlightActiveLine
+    }
+    bodyEditor.value.view.dispatch(bodyEditor.value.state.tr.setMeta(TYPORA_MODE_REFRESH_META, Date.now()))
+
+    if (mode === 'typora' && sourceMarkdown.value) {
+      void projectMarkdownToTypora(sourceMarkdown.value)
+    }
+  },
+)
+
+async function hydrateEditorContent(content: EditedContent): Promise<void> {
+  const currentHydration = ++hydrationSequence
+  const rawBody = content.body ?? ''
+  const markdown = isLikelyHtmlContent(rawBody)
+    ? serializeHtmlToMarkdown(rawBody)
+    : rawBody
+  const html = isLikelyHtmlContent(rawBody)
+    ? rawBody
+    : await renderMarkdownToHtml(markdown)
+
+  if (hydrationSequence !== currentHydration) {
+    return
+  }
+
+  isHydratingFromStore = true
+  titleText.value = content.title
+  transcriptText.value = content.transcript
+  sourceMarkdown.value = markdown
+  void assetStore.loadAssets(content.articleId)
+
+  if (bodyEditor.value && bodyEditor.value.getHTML() !== html) {
+    bodyEditor.value.commands.setContent(html || '', true)
+  }
+  hydratedArticleId = content.articleId
+
+  requestAnimationFrame(() => {
+    isHydratingFromStore = false
+  })
+
+  setSyncState(isReady.value ? 'synced' : 'offline')
+}
+
 // 同步内容 (仅当 Ready 时)
 watch(currentContent, (content: EditedContent | null) => {
-  if (content && isReady.value) {
-    if (titleText.value !== content.title) {
-      titleText.value = content.title
-    }
-    if (transcriptText.value !== content.transcript) {
-      transcriptText.value = content.transcript
-    }
-    if (bodyEditor.value && bodyEditor.value.getHTML() !== content.body) {
-      bodyEditor.value.commands.setContent(content.body || '')
-    }
+  syncDevPanelEditorBridge()
+  if (!content || !isReady.value) {
+    return
   }
+
+  const rawBody = content.body ?? ''
+  const normalizedBody = isLikelyHtmlContent(rawBody)
+    ? serializeHtmlToMarkdown(rawBody)
+    : rawBody
+  const isLocalPersistenceEcho =
+    hydratedArticleId === content.articleId &&
+    normalizedBody === sourceMarkdown.value &&
+    titleText.value === content.title &&
+    transcriptText.value === content.transcript
+
+  if (isLocalPersistenceEcho) {
+    setSyncState('synced')
+    return
+  }
+
+  void hydrateEditorContent(content)
 }, { immediate: true })
 
 // 监听状态变化，重置编辑器
@@ -174,47 +599,142 @@ watch(editorStatus, (newStatus) => {
   if (newStatus === 'loading' || newStatus === 'idle') {
     titleText.value = ''
     transcriptText.value = ''
+    sourceMarkdown.value = ''
+    hydratedArticleId = null
     bodyEditor.value?.commands.setContent('')
+    setSyncState('offline')
+    return
   }
+
+  if (newStatus === 'error') {
+    setSyncState('offline')
+    return
+  }
+
+  setSyncState('synced')
 })
 
 // ═══ Auto Save (防抖) ═══
-let saveTimeout: ReturnType<typeof setTimeout>
-function autoSave() {
+function schedulePersist(markdown: string) {
   if (!isReady.value) return
+
+  setSyncState('syncing')
+  const saveSequence = ++pendingSaveSequence
   clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(saveContent, 2000)
+  saveTimeout = setTimeout(() => {
+    void persistMarkdown(markdown, saveSequence)
+  }, 900)
 }
 
-async function saveContent() {
+async function persistMarkdown(markdown: string, saveSequence: number) {
   if (!isReady.value) return
+  const currentBody = currentContent.value?.body ?? ''
+  const normalizedCurrentBody = isLikelyHtmlContent(currentBody)
+    ? serializeHtmlToMarkdown(currentBody)
+    : currentBody
+
+  if (
+    normalizedCurrentBody === markdown &&
+    titleText.value === (currentContent.value?.title ?? '') &&
+    transcriptText.value === (currentContent.value?.transcript ?? '')
+  ) {
+    if (saveSequence === pendingSaveSequence) {
+      setSyncState('synced')
+    }
+    return
+  }
+
   await editorStore.updateContent({
     title: titleText.value,
-    body: bodyEditor.value?.getHTML() || '',
+    body: markdown,
     transcript: transcriptText.value
+  })
+
+  if (saveSequence === pendingSaveSequence) {
+    setSyncState('synced')
+  }
+}
+
+async function projectMarkdownToTypora(markdown: string): Promise<void> {
+  if (!bodyEditor.value) {
+    return
+  }
+
+  const html = await renderMarkdownToHtml(markdown)
+  if (bodyEditor.value.getHTML() === html) {
+    return
+  }
+
+  isApplyingSourceProjection = true
+  bodyEditor.value.commands.setContent(html || '', true)
+  requestAnimationFrame(() => {
+    isApplyingSourceProjection = false
   })
 }
 
+function handleSourceUpdate(nextMarkdown: string) {
+  sourceMarkdown.value = nextMarkdown
+  setSyncState('syncing')
+
+  clearTimeout(sourceProjectionTimeout)
+  sourceProjectionTimeout = setTimeout(() => {
+    void projectMarkdownToTypora(nextMarkdown)
+  }, 120)
+
+  schedulePersist(nextMarkdown)
+}
+
+async function flushPendingChanges(): Promise<void> {
+  clearTimeout(saveTimeout)
+  clearTimeout(sourceProjectionTimeout)
+
+  if (isSourceMode.value) {
+    await projectMarkdownToTypora(sourceMarkdown.value)
+    await persistMarkdown(sourceMarkdown.value, ++pendingSaveSequence)
+    return
+  }
+
+  const currentMarkdown = serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
+  sourceMarkdown.value = currentMarkdown
+  await persistMarkdown(currentMarkdown, ++pendingSaveSequence)
+}
+
 // 暴露编辑器实例供外部组件（如 OutlinePanel）使用
-defineExpose({ bodyEditor })
+defineExpose({
+  getBodyEditor: () => bodyEditor.value ?? undefined,
+  getEditorScrollElement: () => editorScrollRef.value,
+  flushPendingChanges,
+})
 
 onBeforeUnmount(() => {
+  cleanupDevPanelEditorBridge?.()
+  cleanupDevPanelEditorBridge = null
   bodyEditor.value?.destroy()
   bodyEditor.value = null
   clearTimeout(saveTimeout)
+  clearTimeout(sourceProjectionTimeout)
 })
 </script>
 
 <template>
   <div class="editor-panel">
     <!-- 1. Loading -->
-    <div v-if="isLoading" class="state-container loading">
-      <Loader2 :size="32" class="animate-spin" />
+    <div
+      v-if="isLoading"
+      class="state-container loading"
+    >
+      <Loader2
+        :size="32"
+        class="animate-spin"
+      />
       <p>正在加载内容...</p>
     </div>
 
     <!-- 2. Error -->
-    <div v-else-if="editorStatus === 'error'" class="state-container error">
+    <div
+      v-else-if="editorStatus === 'error'"
+      class="state-container error"
+    >
       <AlertTriangle :size="32" />
       <h3>发生错误</h3>
       <p>{{ editorError }}</p>
@@ -228,19 +748,86 @@ onBeforeUnmount(() => {
       Editor 直接用 new Editor({ element }) 挂载到 editorContainerRef，
       不使用 EditorContent 的元素交换流程，彻底避免 localsInner 崩溃。
     -->
-    <div v-show="isReady" class="editor-scroll">
+    <div
+      v-else-if="isReady"
+      class="editor-mode-shell"
+      :class="[`mode-${editorMode}`]"
+    >
       <div
-        class="editor-paper"
-        :style="{
-          '--paper-font': editorFontFamily,
-          '--paper-size': editorFontSize,
-          '--paper-lh': editorLineHeight,
-        }"
+        v-show="!isSourceMode"
+        ref="editorScrollRef"
+        class="editor-scroll"
       >
-        <!-- 编辑器直接挂载点 — Editor 在 onMounted 时直接挂到这个 div -->
-        <div ref="editorContainerRef" class="tiptap-content" />
-        <FloatingToolbar :editor="bodyEditor ?? undefined" />
-        <SlashCommandMenu :editor="bodyEditor ?? undefined" />
+        <div
+          class="editor-paper"
+          :style="{
+            '--paper-font': editorFontFamily,
+            '--paper-size': editorFontSize,
+            '--paper-lh': editorLineHeight,
+            '--paper-max-width': editorPaperWidth,
+          }"
+        >
+          <!-- 编辑器直接挂载点 — Editor 在 onMounted 时直接挂到这个 div -->
+          <div
+            ref="editorContainerRef"
+            class="tiptap-content"
+            @contextmenu="openContextMenu"
+          />
+          <div
+            v-if="showImageIngressOverlay"
+            class="image-ingress-overlay"
+            :class="imageIngressState"
+          >
+            <Loader2
+              v-if="imageIngressState === 'uploading'"
+              :size="28"
+              class="animate-spin"
+            />
+            <span>{{ imageIngressState === 'uploading' ? '正在写入图片资产...' : '释放以插入图片' }}</span>
+          </div>
+          <div
+            v-if="imageIngressError"
+            class="image-ingress-error"
+          >
+            <AlertTriangle :size="16" />
+            <span>{{ imageIngressError }}</span>
+          </div>
+          <FloatingToolbar
+            ref="floatingToolbarRef"
+            :editor="bodyEditor ?? undefined"
+          />
+          <TableFloatingToolbar :editor="bodyEditor ?? undefined" />
+          <FindReplace
+            v-if="findReplaceVisible"
+            :editor="bodyEditor ?? undefined"
+            :mode="findReplaceMode"
+            @close="closeFindReplace"
+          />
+          <SlashCommandMenu :editor="bodyEditor ?? undefined" />
+          <EditorContextMenu
+            :editor="bodyEditor ?? undefined"
+            :visible="contextMenuVisible"
+            :x="contextMenuX"
+            :y="contextMenuY"
+            @close="closeContextMenu"
+            @request-link="openLinkEditorFromShortcut"
+            @request-image="requestContextImageInsert"
+            @request-find-replace="requestContextFindReplace"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="isSourceMode"
+        class="source-mode-layout"
+      >
+        <section class="source-pane source-pane-editor">
+          <MarkdownEditor
+            :model-value="sourceMarkdown"
+            placeholder="# 开始写作..."
+            @update:model-value="handleSourceUpdate"
+          />
+        </section>
       </div>
     </div>
   </div>
@@ -274,7 +861,7 @@ onBeforeUnmount(() => {
 /* ─── 纸张 ─── */
 .editor-paper {
   width: 100%;
-  max-width: 680px;
+  max-width: var(--paper-max-width, 680px);
   min-height: 800px;
   margin: 0 auto;
   background: var(--bg-surface, #FFFFFF);
@@ -291,7 +878,120 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+.image-ingress-overlay {
+  position: absolute;
+  inset: 22px;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #991b1b;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  background: rgba(255, 247, 247, 0.82);
+  border: 2px dashed rgba(211, 47, 47, 0.44);
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.image-ingress-overlay.uploading {
+  color: #92400e;
+  background: rgba(255, 251, 235, 0.86);
+  border-color: rgba(217, 119, 6, 0.44);
+}
+
+.image-ingress-error {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 36;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(420px, calc(100% - 36px));
+  padding: 10px 12px;
+  color: #991b1b;
+  font-size: 0.86rem;
+  background: rgba(254, 242, 242, 0.96);
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(127, 29, 29, 0.14);
+}
+
 /* ─── TipTap ProseMirror ─── */
+.tiptap-content {
+  position: relative;
+}
+
+/* ─── Block drag handle ─── */
+.tiptap-content :deep(.block-drag-handle) {
+  position: absolute;
+  z-index: 42;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: rgba(55, 71, 79, 0.42);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  opacity: 0;
+  cursor: grab;
+  pointer-events: none;
+  transition: opacity 150ms ease, color 150ms ease, background 150ms ease;
+}
+
+.tiptap-content :deep(.block-drag-handle[data-visible="true"]) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tiptap-content :deep(.block-drag-handle:hover) {
+  color: rgba(55, 71, 79, 0.82);
+  background: rgba(211, 47, 47, 0.07);
+}
+
+.tiptap-content :deep(.block-drag-handle:active) {
+  color: #D32F2F;
+  cursor: grabbing;
+}
+
+.tiptap-content :deep(.block-drag-source) {
+  opacity: 0.42;
+}
+
+.tiptap-content :deep(.block-drag-insert-line) {
+  height: 2px;
+  margin: 6px 0;
+  background: #2563eb;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.16), 0 4px 12px rgba(37, 99, 235, 0.22);
+  pointer-events: none;
+}
+
+:global(.block-drag-ghost) {
+  position: fixed;
+  top: -10000px;
+  left: -10000px;
+  z-index: 9999;
+  max-height: 220px;
+  overflow: hidden;
+  padding: 8px 12px;
+  color: #263238;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px dashed #B0BEC5;
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
 .tiptap-content :deep(.ProseMirror) {
   outline: none;
   min-height: 600px;
@@ -301,6 +1001,43 @@ onBeforeUnmount(() => {
   color: #37474F;
   letter-spacing: 0.01em;
   caret-color: #D32F2F;
+}
+
+.tiptap-content :deep(.ProseMirror.typora-mode-enabled) {
+  position: relative;
+}
+
+.tiptap-content :deep(.ProseMirror .typora-active-line) {
+  position: relative;
+  border-radius: 6px;
+  background: rgba(211, 47, 47, 0.035);
+}
+
+.tiptap-content :deep(.ProseMirror .typora-active-line[data-typora-block-token]:not([data-typora-block-token=""]))::before {
+  content: attr(data-typora-block-token);
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 0;
+  color: rgba(55, 71, 79, 0.45);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: inherit;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tiptap-content :deep(.ProseMirror .typora-active-line[data-typora-inline-tokens]:not([data-typora-inline-tokens=""]))::after {
+  content: attr(data-typora-inline-tokens);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 0;
+  color: rgba(55, 71, 79, 0.38);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  line-height: inherit;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ─── Selection 样式 ─── */
@@ -343,7 +1080,7 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.ProseMirror blockquote) {
-  border-left: 3px solid #D32F2F;
+  border-left: 3px solid #B0BEC5;
   background: #FAFAFA;
   padding: 12px 16px;
   margin: 16px 0;
@@ -353,11 +1090,11 @@ onBeforeUnmount(() => {
 
 .tiptap-content :deep(.ProseMirror code) {
   font-family: 'JetBrains Mono', monospace;
-  background: #FFF3E0;
+  background: #ECEFF1;
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 14px;
-  color: #D32F2F;
+  color: #37474F;
 }
 
 .tiptap-content :deep(.ProseMirror pre) {
@@ -452,8 +1189,13 @@ onBeforeUnmount(() => {
 }
 
 /* ─── 滚动条 ─── */
+.editor-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 144, 156, 0.32) transparent;
+}
+
 .editor-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 
 .editor-scroll::-webkit-scrollbar-track {
@@ -461,12 +1203,66 @@ onBeforeUnmount(() => {
 }
 
 .editor-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 2px;
+  background: rgba(120, 144, 156, 0.32);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .editor-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(211, 47, 47, 0.42);
+  background-clip: padding-box;
+}
+
+:global(html.theme-dark) .editor-scroll,
+:global(html[data-theme="dark"]) .editor-scroll {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+:global(html.theme-dark) .editor-scroll::-webkit-scrollbar-thumb,
+:global(html[data-theme="dark"]) .editor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  background-clip: padding-box;
+}
+
+:global(html.theme-dark) .editor-scroll::-webkit-scrollbar-thumb:hover,
+:global(html[data-theme="dark"]) .editor-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 83, 80, 0.42);
+  background-clip: padding-box;
+}
+
+.editor-mode-shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.source-mode-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  background: #FAFBFC;
+}
+
+.source-pane {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.source-pane-editor {
+  min-width: 0;
+}
+
+.source-pane :deep(.markdown-editor) {
+  flex: 1;
+  min-height: 0;
+  background: #FAFBFC;
 }
 
 /* ─── 动画 ─── */
@@ -475,6 +1271,28 @@ onBeforeUnmount(() => {
 }
 
 /* ─── 表格样式 ─── */
+.tiptap-content :deep(.ProseMirror .tableWrapper) {
+  max-width: 100%;
+  margin: 24px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(211, 47, 47, 0.34) transparent;
+}
+
+.tiptap-content :deep(.ProseMirror .tableWrapper::-webkit-scrollbar) {
+  height: 6px;
+}
+
+.tiptap-content :deep(.ProseMirror .tableWrapper::-webkit-scrollbar-thumb) {
+  background: rgba(211, 47, 47, 0.34);
+  border-radius: 999px;
+}
+
+.tiptap-content :deep(.ProseMirror .tableWrapper > table) {
+  margin: 0;
+}
+
 .tiptap-content :deep(.ProseMirror table) {
   border-collapse: collapse;
   width: 100%;
@@ -482,6 +1300,10 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border-radius: 4px;
   border: 1px solid #ECEFF1;
+}
+
+.tiptap-content :deep(.ProseMirror .tableWrapper > table) {
+  margin: 0;
 }
 
 .tiptap-content :deep(.ProseMirror th),
@@ -517,8 +1339,8 @@ onBeforeUnmount(() => {
   right: -2px;
   top: 0;
   bottom: 0;
-  width: 4px;
-  background: #D32F2F;
+  width: 3px;
+  background: #B0BEC5;
   cursor: col-resize;
 }
 
@@ -660,6 +1482,49 @@ onBeforeUnmount(() => {
 .tiptap-content :deep(.ProseMirror sup) {
   font-size: 0.75em;
   vertical-align: super;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-footnote-ref a) {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-footnotes) {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid rgba(148, 163, 184, 0.36);
+  color: #475569;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-footnotes__title),
+.tiptap-content :deep(.ProseMirror .ink-bibliography__title) {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-footnote-backs) {
+  margin-left: 0.5em;
+  white-space: nowrap;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-academic-citation) {
+  padding: 0.05em 0.25em;
+  border-radius: 0.35em;
+  background: #eef6ff;
+  color: #1d4ed8;
+  font-style: normal;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-academic-citation--unresolved) {
+  background: #fff7ed;
+  color: #b45309;
+  border-bottom: 1px dashed currentColor;
+}
+
+.tiptap-content :deep(.ProseMirror .ink-bibliography) {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid rgba(59, 130, 246, 0.24);
 }
 
 /* ─── 文字对齐 ─── */

@@ -1,0 +1,8 @@
+{"file": "prompts/0420/specs/34-layout-persistence-spec.md", "reason": "Primary Layout Persistence requirements and acceptance criteria."}
+{"file": "prompts/0420/specs/13-workstation-layout-spec.md", "reason": "Existing Workstation layout behavior and panel terminology."}
+{"file": "prompts/0420/specs/14-statusbar-navigation-spec.md", "reason": "StatusBar visibility and navigation boundaries."}
+{"file": "prompts/0420/specs/18-tauri-desktop-spec.md", "reason": "Desktop window-state boundary and out-of-scope native geometry."}
+{"file": "prompts/0420/specs/26-multi-account-profile-spec.md", "reason": "Profile isolation requirements for local state."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Dexie persistence and no fake storage contracts."}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia service-backed state contracts."}
+{"file": ".trellis/tasks/05-02-05-02-p1-34-layout-persistence/research/layout-persistence-research.md", "reason": "Local/external research for Layout Persistence implementation decisions."}

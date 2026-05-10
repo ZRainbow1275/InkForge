@@ -1,0 +1,5 @@
+{"file":".trellis/tasks/04-30-04-30-p1-19-ftue-help/prd.md","reason":"Task acceptance criteria and deferred full-spec boundaries for review."}
+{"file":"prompts/0420/specs/19-ftue-help-spec.md","reason":"Spec compliance source for FTUE/help behavior and acceptance matrix."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend quality gate reference."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Type safety review for store/service/component contracts."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Review data round-trip across IndexedDB, store, App shell, Settings UI."}

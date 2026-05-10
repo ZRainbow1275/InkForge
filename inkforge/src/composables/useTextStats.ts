@@ -5,6 +5,10 @@
 
 import { ref, watch, onUnmounted, type Ref, type ComputedRef } from 'vue'
 import type { Editor } from '@tiptap/core'
+import {
+    isLikelyHtmlContent,
+    serializeHtmlToMarkdown,
+} from '@/extensions/TyporaMode'
 
 // ═══════════════════════════════════════════════════════════════════
 // 类型定义
@@ -50,6 +54,33 @@ export interface CursorPosition {
     column: number
 }
 
+export interface WritingWindowEntry {
+    rawContent?: string | null
+    updatedAt?: Date | string | null
+    createdAt?: Date | string | null
+}
+
+export interface WritingWindowStats {
+    todayWords: number
+    weeklyWords: number
+    todayEntries: number
+    weeklyEntries: number
+    dayStart: Date
+    weekStart: Date
+}
+
+export interface WritingGoalProgress {
+    documentTarget?: number
+    dailyTarget?: number
+    weeklyTarget?: number
+    currentDocumentWords: number
+    todayWords: number
+    weeklyWords: number
+    documentPercent?: number
+    dailyPercent?: number
+    weeklyPercent?: number
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 统计计算
 // ═══════════════════════════════════════════════════════════════════
@@ -61,7 +92,7 @@ const CHINESE_CHAR_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g
 const ENGLISH_WORD_RE = /[a-zA-Z]+(?:[''][a-zA-Z]+)*/g
 
 /** 标点符号正则 */
-const PUNCTUATION_RE = /[，。！？、；：""''（）【】《》…—\.,!?;:'"\(\)\[\]{}]/g
+const PUNCTUATION_RE = /[，。！？、；：""''（）【】《》…—.,!?;:'"()[\]{}]/g
 
 /** 句子结束正则 */
 const SENTENCE_END_RE = /[。！？.!?]+/g
@@ -69,10 +100,75 @@ const SENTENCE_END_RE = /[。！？.!?]+/g
 /** 阅读速度（中文字/分钟） */
 const READING_SPEED = 400
 
+function getNormalizedTextContent(rawContent: string): string {
+    if (!rawContent) {
+        return ''
+    }
+
+    return isLikelyHtmlContent(rawContent)
+        ? serializeHtmlToMarkdown(rawContent)
+        : rawContent
+}
+
+function stripMarkdownForPreview(text: string): string {
+    if (!text) {
+        return ''
+    }
+
+    let normalized = text
+    normalized = normalized.replace(/```[\s\S]*?```/g, ' ')
+    normalized = normalized.replace(/`([^`]+)`/g, '$1')
+    normalized = normalized.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    normalized = normalized.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    normalized = normalized.replace(/^#{1,6}\s+/gm, '')
+    normalized = normalized.replace(/\*\*(.+?)\*\*/g, '$1')
+    normalized = normalized.replace(/__(.+?)__/g, '$1')
+    normalized = normalized.replace(/\*(.+?)\*/g, '$1')
+    normalized = normalized.replace(/_(.+?)_/g, '$1')
+    normalized = normalized.replace(/~~(.+?)~~/g, '$1')
+    normalized = normalized.replace(/^[\s]*[-*+]\s+/gm, '')
+    normalized = normalized.replace(/^[\s]*\d+\.\s+/gm, '')
+    normalized = normalized.replace(/^>\s*/gm, '')
+    normalized = normalized.replace(/^(-{3,}|_{3,}|\*{3,})$/gm, ' ')
+    normalized = normalized.replace(/^\|[-: |]+\|$/gm, ' ')
+    normalized = normalized.replace(/\|/g, ' ')
+    normalized = normalized.replace(/<[^>]+>/g, ' ')
+    normalized = normalized.replace(/\s*\n\s*/g, ' ')
+    normalized = normalized.replace(/\s{2,}/g, ' ')
+    return normalized.trim()
+}
+
+function getReferenceDate(value: Date | string | null | undefined): Date | null {
+    if (!value) {
+        return null
+    }
+
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value
+    }
+
+    const parsed = new Date(value)
+    return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function getDayStart(now: Date): Date {
+    const dayStart = new Date(now)
+    dayStart.setHours(0, 0, 0, 0)
+    return dayStart
+}
+
+function getWeekStart(now: Date): Date {
+    const weekStart = getDayStart(now)
+    const day = weekStart.getDay()
+    const offset = day === 0 ? 6 : day - 1
+    weekStart.setDate(weekStart.getDate() - offset)
+    return weekStart
+}
+
 /**
  * 计算纯文本统计
  */
-function computeTextStats(text: string, html: string): TextStats {
+export function computeTextStats(text: string, html: string): TextStats {
     // 中文字符
     const chineseMatches = text.match(CHINESE_CHAR_RE)
     const chineseChars = chineseMatches ? chineseMatches.length : 0
@@ -126,7 +222,7 @@ function computeTextStats(text: string, html: string): TextStats {
 /**
  * 计算可读性评分
  */
-function computeReadabilityScore(stats: TextStats, text: string): ReadabilityScore {
+export function computeReadabilityScore(stats: TextStats, text: string): ReadabilityScore {
     const suggestions: string[] = []
     let totalScore = 0
 
@@ -213,6 +309,61 @@ function computeReadabilityScore(stats: TextStats, text: string): ReadabilitySco
     else grade = 'F'
 
     return { score, grade, suggestions }
+}
+
+export function computeContentWordCount(rawContent: string): number {
+    const normalizedText = getNormalizedTextContent(rawContent)
+    return computeTextStats(normalizedText, '').wordCount
+}
+
+export function extractContentPreviewText(rawContent: string, maxLength = 120): string {
+    const plainText = stripMarkdownForPreview(getNormalizedTextContent(rawContent))
+    if (plainText.length <= maxLength) {
+        return plainText
+    }
+
+    return `${plainText.slice(0, maxLength).trim()}...`
+}
+
+export function computeWritingWindowStats(
+    entries: readonly WritingWindowEntry[],
+    now: Date = new Date(),
+): WritingWindowStats {
+    const dayStart = getDayStart(now)
+    const weekStart = getWeekStart(now)
+
+    let todayWords = 0
+    let weeklyWords = 0
+    let todayEntries = 0
+    let weeklyEntries = 0
+
+    for (const entry of entries) {
+        const referenceDate = getReferenceDate(entry.updatedAt ?? entry.createdAt)
+        if (!referenceDate) {
+            continue
+        }
+
+        const wordCount = computeContentWordCount(entry.rawContent ?? '')
+
+        if (referenceDate >= dayStart) {
+            todayWords += wordCount
+            todayEntries += 1
+        }
+
+        if (referenceDate >= weekStart) {
+            weeklyWords += wordCount
+            weeklyEntries += 1
+        }
+    }
+
+    return {
+        todayWords,
+        weeklyWords,
+        todayEntries,
+        weeklyEntries,
+        dayStart,
+        weekStart,
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════

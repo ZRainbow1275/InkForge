@@ -1,5 +1,11 @@
 /**
- * 知乎导出引擎
+ * 知乎导出引擎（HTML）
+ *
+ * preview-only: 知乎 web editor strips most CSS — 该 HTML 输出仅用于预览面板/导出
+ * 文件，不应作为投递内容。真正发布产物由 zhihu-markdown.ts 产出 Markdown，并
+ * 经 platform-rules/zhihu 完成 LaTeX→equation 图、表格降级、代码语言强制等
+ * 平台合规变换。本文件不接 platform-rules transform。
+ *
  * 知乎特点：知识性、严谨、专业
  *
  * 增强功能：
@@ -12,6 +18,7 @@
 
 import juice from 'juice'
 import { marked } from 'marked'
+import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
 import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性
@@ -38,7 +45,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-academic',
     name: '学术论文',
-    icon: '🎓',
+    icon: 'zhihu-academic',
     primaryColor: '#0066ff',
     accentColor: '#003d99',
     fontSize: '16px',
@@ -47,7 +54,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-tech',
     name: '技术博客',
-    icon: '💻',
+    icon: 'zhihu-tech',
     primaryColor: '#1a1a2e',
     accentColor: '#16213e',
     fontSize: '15px',
@@ -56,7 +63,7 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
   {
     id: 'zhihu-insight',
     name: '深度评论',
-    icon: '📝',
+    icon: 'zhihu-insight',
     primaryColor: '#2d3436',
     accentColor: '#636e72',
     fontSize: '16px',
@@ -346,7 +353,7 @@ function buildZhihuFootnoteSection(
 
   let section = `
 <section style="margin-top:32px;padding-top:20px;border-top:2px solid ${primaryColor};">
-  <h4 style="font-size:16px;font-weight:700;color:${primaryColor};margin-bottom:16px;letter-spacing:0.5px;">📚 参考链接</h4>
+  <h4 style="font-size:16px;font-weight:700;color:${primaryColor};margin-bottom:16px;letter-spacing:0.5px;">参考链接</h4>
   <div style="font-size:13px;color:#555;line-height:2;">`
 
   footnotes.forEach((fn, index) => {
@@ -489,7 +496,7 @@ export async function markdownToZhihu(
     codeTheme?: CodeTheme
   }
 ): Promise<string> {
-  const html = await marked.parse(markdown)
+  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
   return convertToZhihu(html, presetId, options)
 }
 

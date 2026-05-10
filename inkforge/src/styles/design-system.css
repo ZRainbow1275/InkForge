@@ -20,8 +20,8 @@
 
   /* ═══ 中性色 (Neutral) ═══ */
   --text-primary: #263238;
-  --text-secondary: #607D8B;
-  --text-muted: #90A4AE;
+  --text-secondary: #546E7A;
+  --text-muted: #5F6F78;
   --border: #ECEFF1;
   --border-light: #F5F5F5;
 
@@ -65,6 +65,56 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-serif: 'Noto Serif SC', 'Source Han Serif SC', serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --font-body: var(--font-serif);
+  --font-cjk: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  --font-latin: Georgia, 'Times New Roman', Times, serif;
+  --font-size-body: 16px;
+  --line-height-body: 1.618;
+
+  /* ═══ ThemeEngine compatible baseline tokens ═══ */
+  --chrome-brand-red: #D32F2F;
+  --chrome-brand-red-a10: rgba(211, 47, 47, 0.1);
+  --chrome-brand-red-a20: rgba(211, 47, 47, 0.2);
+  --chrome-ink-900: #263238;
+  --chrome-ink-800: #37474F;
+  --chrome-ink-700: #455A64;
+  --chrome-ink-600: #546E7A;
+  --chrome-ink-500: #607D8B;
+  --chrome-ink-100: #CFD8DC;
+  --chrome-ink-50: #ECEFF1;
+  --chrome-ink-0: #FFFFFF;
+  --chrome-bg-canvas: #ECEFF1;
+  --chrome-bg-sidebar: #FFFFFF;
+  --chrome-bg-topbar: #FFFFFF;
+  --chrome-bg-statusbar: #ECEFF1;
+  --chrome-bg-hover: rgba(38, 50, 56, 0.04);
+  --chrome-bg-active: rgba(38, 50, 56, 0.08);
+  --chrome-text-primary: #263238;
+  --chrome-text-secondary: #546E7A;
+  --chrome-border-default: #CFD8DC;
+
+  --paper-bg: #FAFAF7;
+  --paper-bg-raised: #FFFFFF;
+  --paper-surface-1: #F5F5F0;
+  --paper-surface-2: #EEEEE8;
+  --paper-text-primary: #263238;
+  --paper-text-secondary: #455A64;
+  --paper-text-tertiary: #78909C;
+  --paper-text-syntax: #B0BEC5;
+  --paper-heading-h1: #1A237E;
+  --paper-heading-h2: #283593;
+  --paper-heading-h3: #3949AB;
+  --paper-blockquote-bg: #F5F5F0;
+  --paper-blockquote-border: var(--accent-primary);
+  --paper-blockquote-text: #455A64;
+  --paper-link: #1565C0;
+  --paper-link-hover: #0D47A1;
+
+  --typography-font-size: 16px;
+  --typography-line-height: 1.618;
+  --typography-paragraph-spacing: 16px;
+  --typography-letter-spacing: 0em;
+  --typography-text-indent: 0;
 }
 
 /* ═══ 全局重置 ═══ */
@@ -89,6 +139,67 @@ html, body {
 /* Rice Paper 纹理背景 */
 body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+}
+
+.inkforge-theme {
+  font-family: var(--font-body);
+  font-size: var(--typography-font-size, var(--font-size-body));
+  line-height: var(--typography-line-height, var(--line-height-body));
+  letter-spacing: var(--typography-letter-spacing, 0em);
+  color: var(--paper-text-primary);
+  background: var(--paper-bg);
+}
+
+.inkforge-theme p {
+  margin-bottom: var(--typography-paragraph-spacing, 16px);
+  text-indent: var(--typography-text-indent, 0);
+}
+
+.inkforge-theme blockquote {
+  color: var(--paper-blockquote-text);
+  background: var(--paper-blockquote-bg);
+  border-left: 4px solid var(--paper-blockquote-border);
+}
+
+.inkforge-theme a {
+  color: var(--paper-link);
+}
+
+.inkforge-theme a:hover {
+  color: var(--paper-link-hover);
+}
+
+html[data-typography-heading-style="underline"] .inkforge-theme h1,
+html[data-typography-heading-style="underline"] .inkforge-theme h2,
+html[data-typography-heading-style="underline"] .inkforge-theme h3 {
+  border-bottom: 2px solid var(--paper-blockquote-border);
+  padding-bottom: 0.18em;
+}
+
+html[data-typography-heading-style="border-left"] .inkforge-theme h1,
+html[data-typography-heading-style="border-left"] .inkforge-theme h2,
+html[data-typography-heading-style="border-left"] .inkforge-theme h3 {
+  border-left: 4px solid var(--paper-blockquote-border);
+  padding-left: 0.5em;
+}
+
+html[data-typography-heading-style="background"] .inkforge-theme h1,
+html[data-typography-heading-style="background"] .inkforge-theme h2,
+html[data-typography-heading-style="background"] .inkforge-theme h3 {
+  background: var(--accent-primary-light);
+  padding: 0.12em 0.4em;
+  border-radius: var(--radius-small);
+}
+
+html[data-typography-blockquote-style="minimal"] .inkforge-theme blockquote {
+  background: transparent;
+  border-left-width: 2px;
+}
+
+html[data-typography-blockquote-style="modern"] .inkforge-theme blockquote {
+  border-left-width: 0;
+  border-radius: var(--radius-medium);
+  box-shadow: inset 4px 0 0 var(--paper-blockquote-border);
 }
 
 #app {
@@ -490,4 +601,467 @@ body {
 .bento-card.dashed:hover {
   border-color: var(--accent-primary);
   background: var(--accent-primary-light);
+}
+
+/* P2-09 UI polish baseline */
+:root,
+html.theme-light,
+html[data-theme="light"] {
+  --bg-page: var(--bg-rice-paper);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.96);
+  --bg-input: #FFFFFF;
+  --bg-hover: rgba(38, 50, 56, 0.05);
+  --bg-active: rgba(211, 47, 47, 0.1);
+  --shadow-color: rgba(38, 50, 56, 0.12);
+  --scrollbar-thumb: rgba(96, 125, 139, 0.38);
+  --code-bg: #263238;
+  --code-text: #ECEFF1;
+  --accent-surface: rgba(211, 47, 47, 0.08);
+  --accent-border: rgba(211, 47, 47, 0.22);
+  --color-bg: var(--bg-surface);
+  --color-bg-secondary: var(--bg-rice-paper);
+  --color-surface: var(--bg-rice-paper);
+  --color-text: var(--text-primary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-muted);
+  --color-text-quaternary: #B0BEC5;
+  --color-border: var(--border);
+  --color-primary: var(--accent-primary);
+  --color-primary-light: var(--accent-primary-light);
+}
+
+html.theme-dark,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-rice-paper: #0F172A;
+  --bg-page: #0F172A;
+  --bg-surface: #182233;
+  --bg-frosted: rgba(24, 34, 51, 0.86);
+  --bg-elevated: rgba(30, 41, 59, 0.95);
+  --bg-surface-elevated: rgba(30, 41, 59, 0.98);
+  --bg-input: #111827;
+  --bg-hover: rgba(148, 163, 184, 0.12);
+  --bg-active: rgba(239, 83, 80, 0.18);
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border: rgba(148, 163, 184, 0.2);
+  --border-light: rgba(148, 163, 184, 0.12);
+  --accent-primary: #EF5350;
+  --accent-primary-light: rgba(239, 83, 80, 0.16);
+  --accent-primary-dark: #FF8A80;
+  --accent-secondary: #64B5F6;
+  --accent-secondary-light: rgba(100, 181, 246, 0.14);
+  --success: #81C784;
+  --success-light: rgba(129, 199, 132, 0.14);
+  --warning: #FFB74D;
+  --warning-light: rgba(255, 183, 77, 0.14);
+  --error: #EF9A9A;
+  --error-light: rgba(239, 154, 154, 0.14);
+  --shadow-color: rgba(0, 0, 0, 0.42);
+  --scrollbar-thumb: rgba(148, 163, 184, 0.38);
+  --code-bg: #0B1120;
+  --code-text: #E2E8F0;
+  --accent-surface: rgba(239, 83, 80, 0.14);
+  --accent-border: rgba(239, 83, 80, 0.32);
+  --color-bg: var(--bg-surface);
+  --color-bg-secondary: var(--bg-rice-paper);
+  --color-surface: var(--bg-rice-paper);
+  --color-text: var(--text-primary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-muted);
+  --color-text-quaternary: #64748B;
+  --color-border: var(--border);
+  --color-primary: var(--accent-primary);
+  --color-primary-light: var(--accent-primary-light);
+}
+
+.text-truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-2,
+.text-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.text-clamp-2 { -webkit-line-clamp: 2; }
+.text-clamp-3 { -webkit-line-clamp: 3; }
+
+.card-base {
+  background: var(--bg-elevated);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 12px 32px var(--shadow-color);
+}
+
+.card-interactive {
+  cursor: pointer;
+  transition: transform var(--duration-normal) var(--ease-smooth),
+    box-shadow var(--duration-normal) var(--ease-smooth),
+    border-color var(--duration-fast) var(--ease-smooth),
+    background-color var(--duration-fast) var(--ease-smooth);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px var(--shadow-color);
+  border-color: var(--accent-border);
+}
+
+.card-accent {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-dark));
+  border-color: transparent;
+  color: #FFFFFF;
+}
+
+.card-empty {
+  background: transparent;
+  border: 2px dashed var(--border);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.card-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.card-title {
+  color: var(--text-primary);
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.stat-number,
+.stat-value {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tab-overflow,
+.panel-tabs,
+.stage-platform-tabs {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+}
+
+.tab-overflow::-webkit-scrollbar,
+.panel-tabs::-webkit-scrollbar,
+.stage-platform-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.panel-tab,
+.stage-tab {
+  flex: 0 0 auto;
+}
+
+html.theme-dark body,
+html[data-theme="dark"] body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}
+
+html.theme-dark .bento-card:not(.card-hero):not(.hero):not(.dark):not(.card-accent),
+html[data-theme="dark"] .bento-card:not(.card-hero):not(.hero):not(.dark):not(.card-accent),
+html.theme-dark .insight-card,
+html[data-theme="dark"] .insight-card,
+html.theme-dark .secondary-card,
+html[data-theme="dark"] .secondary-card,
+html.theme-dark .sv-section,
+html[data-theme="dark"] .sv-section,
+html.theme-dark .sv-card,
+html[data-theme="dark"] .sv-card,
+html.theme-dark .sv-theme-card,
+html[data-theme="dark"] .sv-theme-card,
+html.theme-dark .sv-font-card,
+html[data-theme="dark"] .sv-font-card,
+html.theme-dark .sv-provider-card,
+html[data-theme="dark"] .sv-provider-card,
+html.theme-dark .sv-account-card,
+html[data-theme="dark"] .sv-account-card,
+html.theme-dark .sv-shortcut-card,
+html[data-theme="dark"] .sv-shortcut-card,
+html.theme-dark .sv-static-card,
+html[data-theme="dark"] .sv-static-card,
+html.theme-dark .sv-placeholder-card,
+html[data-theme="dark"] .sv-placeholder-card,
+html.theme-dark .detail-panel,
+html[data-theme="dark"] .detail-panel,
+html.theme-dark .modal,
+html[data-theme="dark"] .modal {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+html.theme-dark .sv-row-desc,
+html[data-theme="dark"] .sv-row-desc,
+html.theme-dark .sv-toggle-desc,
+html[data-theme="dark"] .sv-toggle-desc,
+html.theme-dark .sv-platform-desc,
+html[data-theme="dark"] .sv-platform-desc,
+html.theme-dark .sv-provider-desc,
+html[data-theme="dark"] .sv-provider-desc,
+html.theme-dark .secondary-desc,
+html[data-theme="dark"] .secondary-desc,
+html.theme-dark .inspiration-author,
+html[data-theme="dark"] .inspiration-author {
+  color: var(--text-secondary);
+}
+
+html.theme-dark input,
+html.theme-dark textarea,
+html.theme-dark select,
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: var(--bg-input);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+html.theme-dark code,
+html.theme-dark pre,
+html[data-theme="dark"] code,
+html[data-theme="dark"] pre {
+  background-color: var(--code-bg);
+  color: var(--code-text);
+}
+
+/* ─── Workstation chrome 暗色覆盖 ─────────────────────────────── */
+/* 解决 WorkstationView/WorkstationTabBar/FileManager 等 scoped 组件
+   硬编码 #FFFFFF / #FAFBFC 背景导致暗色模式仅编辑器变暗、外围 UI
+   仍呈白色的问题。Global selectors 覆盖 scoped[data-v-x] 默认值。 */
+
+/* WorkstationView 顶部 header */
+html.theme-dark .workstation-header,
+html[data-theme="dark"] .workstation-header {
+  background: var(--bg-surface);
+  border-bottom-color: var(--border);
+  color: var(--text-primary);
+}
+html.theme-dark .workstation-header .header-brand,
+html[data-theme="dark"] .workstation-header .header-brand {
+  border-right-color: var(--border);
+}
+
+/* Workstation 标签栏（pinned tabs 区） */
+html.theme-dark .workstation-tabbar,
+html[data-theme="dark"] .workstation-tabbar {
+  background: var(--bg-frosted);
+  border-bottom-color: var(--border);
+  color: var(--text-primary);
+}
+html.theme-dark .workstation-tabbar__tab,
+html[data-theme="dark"] .workstation-tabbar__tab {
+  color: var(--text-secondary);
+}
+html.theme-dark .workstation-tabbar__tab--active,
+html[data-theme="dark"] .workstation-tabbar__tab--active {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+}
+html.theme-dark .workstation-tabbar__tab--active *,
+html[data-theme="dark"] .workstation-tabbar__tab--active * {
+  color: inherit !important;
+}
+html.theme-dark .workstation-tabbar__tab:hover:not(.workstation-tabbar__tab--active),
+html[data-theme="dark"] .workstation-tabbar__tab:hover:not(.workstation-tabbar__tab--active) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Split-pane 工具栏 / 预览模式 header */
+html.theme-dark .split-pane-toolbar,
+html[data-theme="dark"] .split-pane-toolbar,
+html.theme-dark .preview-mode-header,
+html[data-theme="dark"] .preview-mode-header {
+  background: var(--bg-frosted);
+  border-bottom-color: var(--border);
+  color: var(--text-primary);
+}
+html.theme-dark .preview-mode-shell,
+html[data-theme="dark"] .preview-mode-shell {
+  background: var(--bg-rice-paper);
+}
+html.theme-dark .split-pane-title,
+html[data-theme="dark"] .split-pane-title,
+html.theme-dark .preview-mode-title,
+html[data-theme="dark"] .preview-mode-title {
+  color: var(--text-primary);
+}
+
+/* 平台选择 tabs（小红书/微信/知乎切换栏） */
+html.theme-dark .stage-platform-tabs,
+html[data-theme="dark"] .stage-platform-tabs {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+
+/* FileManager 左侧面板 */
+html.theme-dark .fm-root,
+html[data-theme="dark"] .fm-root {
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+}
+html.theme-dark .fm-toolbar,
+html[data-theme="dark"] .fm-toolbar {
+  background: transparent;
+  color: var(--text-primary);
+}
+html.theme-dark .fm-search-input,
+html[data-theme="dark"] .fm-search-input,
+html.theme-dark .fm-toolbar-select,
+html[data-theme="dark"] .fm-toolbar-select,
+html.theme-dark .fm-sort-toggle,
+html[data-theme="dark"] .fm-sort-toggle,
+html.theme-dark .fm-segmented,
+html[data-theme="dark"] .fm-segmented {
+  background: var(--bg-input);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+html.theme-dark .fm-search-input::placeholder,
+html[data-theme="dark"] .fm-search-input::placeholder {
+  color: var(--text-muted);
+}
+html.theme-dark .fm-articles-wrap,
+html[data-theme="dark"] .fm-articles-wrap,
+html.theme-dark .fm-articles-inner,
+html[data-theme="dark"] .fm-articles-inner {
+  background: transparent;
+}
+html.theme-dark .fm-article-row,
+html[data-theme="dark"] .fm-article-row {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+html.theme-dark .fm-article-row:hover,
+html[data-theme="dark"] .fm-article-row:hover {
+  background: var(--bg-hover);
+}
+html.theme-dark .fm-article-row.fm-article-active,
+html[data-theme="dark"] .fm-article-row.fm-article-active {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+}
+html.theme-dark .fm-article-row.fm-article-active *,
+html[data-theme="dark"] .fm-article-row.fm-article-active * {
+  color: inherit !important;
+}
+html.theme-dark .fm-article-row.fm-article-active .fm-article-time,
+html[data-theme="dark"] .fm-article-row.fm-article-active .fm-article-time {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+html.theme-dark .fm-article-title,
+html[data-theme="dark"] .fm-article-title {
+  color: inherit;
+}
+html.theme-dark .fm-article-time,
+html[data-theme="dark"] .fm-article-time {
+  color: var(--text-muted);
+}
+html.theme-dark .fm-new-btn,
+html[data-theme="dark"] .fm-new-btn {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+}
+
+/* 编辑器 ProseMirror 文本默认色（暗色下避免硬编码深灰文字） */
+html.theme-dark .ProseMirror,
+html[data-theme="dark"] .ProseMirror,
+html.theme-dark .ProseMirror p,
+html[data-theme="dark"] .ProseMirror p,
+html.theme-dark .ProseMirror h1,
+html[data-theme="dark"] .ProseMirror h1,
+html.theme-dark .ProseMirror h2,
+html[data-theme="dark"] .ProseMirror h2,
+html.theme-dark .ProseMirror h3,
+html[data-theme="dark"] .ProseMirror h3,
+html.theme-dark .ProseMirror h4,
+html[data-theme="dark"] .ProseMirror h4,
+html.theme-dark .ProseMirror h5,
+html[data-theme="dark"] .ProseMirror h5,
+html.theme-dark .ProseMirror h6,
+html[data-theme="dark"] .ProseMirror h6,
+html.theme-dark .ProseMirror li,
+html[data-theme="dark"] .ProseMirror li,
+html.theme-dark .ProseMirror blockquote,
+html[data-theme="dark"] .ProseMirror blockquote,
+html.theme-dark .ProseMirror span,
+html[data-theme="dark"] .ProseMirror span,
+html.theme-dark .ProseMirror strong,
+html[data-theme="dark"] .ProseMirror strong,
+html.theme-dark .ProseMirror em,
+html[data-theme="dark"] .ProseMirror em {
+  color: var(--text-primary);
+}
+html.theme-dark .ProseMirror code,
+html[data-theme="dark"] .ProseMirror code,
+html.theme-dark .ProseMirror pre,
+html[data-theme="dark"] .ProseMirror pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+}
+html.theme-dark .ProseMirror a,
+html[data-theme="dark"] .ProseMirror a {
+  color: var(--accent-secondary);
+}
+
+/* 工作站根容器、分屏 shell、编辑器面板（去除大块奶油底色） */
+html.theme-dark .workstation,
+html[data-theme="dark"] .workstation,
+html.theme-dark .editor-panel,
+html[data-theme="dark"] .editor-panel {
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
+}
+html.theme-dark .editor-split-shell,
+html[data-theme="dark"] .editor-split-shell {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+}
+
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }

@@ -1,0 +1,7 @@
+{"file":"prompts/0420/specs/56-citation-spec.md","reason":"Verify each implemented capability and limitation is reflected in the authoritative Spec 56 ledger."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Confirm citation work keeps Markdown source as truth and exporter/render paths do not write back derived HTML."}
+{"file":"prompts/0420/specs/15-export-publish-spec.md","reason":"Confirm platform-specific degradation for footnotes and citations is documented and aligned with exporter behavior."}
+{"file":"prompts/0420/specs/16-markdown-extensions-spec.md","reason":"Confirm extension registry status and round-trip expectations match the delivered baseline."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Add citation-specific quality gate after implementation and validation evidence."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Add citation-specific typed contracts after service and serializer boundaries are implemented."}
+

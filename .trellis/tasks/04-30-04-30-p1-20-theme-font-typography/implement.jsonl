@@ -1,0 +1,5 @@
+{"file":"prompts/0420/specs/20-theme-font-typography-spec.md","reason":"Primary Spec 20 contract for ThemeEngine, FontSystem, Typography, and WritingAmbience scope."}
+{"file":".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/prd.md","reason":"Task-specific compatible-baseline requirements and explicit pending boundaries."}
+{"file":".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/research/visual-system-current-practice.md","reason":"Current theming practice and local integration decision record."}
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend guideline entrypoint for implementation context."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Avoid duplicate visual constants and reuse existing font/settings sources."}

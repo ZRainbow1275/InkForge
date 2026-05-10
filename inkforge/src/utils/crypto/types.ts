@@ -70,6 +70,8 @@ export type KeyOperationType = 'generate' | 'load' | 'access' | 'cache_hit' | 'c
 /** 需要加密的敏感字段列表 */
 export const SENSITIVE_FIELDS = [
     'rawContent',
+    'markdownSource',
+    'htmlCache',
     'aiSummary',
     'body',
     'transcript'

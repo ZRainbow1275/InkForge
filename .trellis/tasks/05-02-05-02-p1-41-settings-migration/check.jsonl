@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/41-settings-migration-spec.md","reason":"Check implementation against Spec 41 functional and reliability requirements."}
+{"file":"prompts/0420/specs/07-settings-full-spec.md","reason":"Check Settings UI and existing import/export/reset compatibility."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check store integration and real-state contracts."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check strict typing, Zod validation, and unknown input handling."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check lint/type/test/build quality gates."}
+{"file":".trellis/tasks/05-02-05-02-p1-41-settings-migration/research/settings-migration-research.md","reason":"Check that implementation follows the researched safe migration and validation pattern."}

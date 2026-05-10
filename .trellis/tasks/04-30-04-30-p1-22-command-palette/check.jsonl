@@ -1,0 +1,5 @@
+{"path":".trellis/tasks/04-30-04-30-p1-22-command-palette/prd.md","reason":"Task-specific baseline requirements and explicit non-goals for verification."}
+{"path":"prompts/0420/specs/22-command-palette-spec.md","reason":"Spec 22 compliance target and full-spec pending boundaries."}
+{"path":"prompts/0420/acceptance-matrix.md","reason":"Acceptance ledger to verify and update after implementation."}
+{"path":".trellis/spec/frontend/index.md","reason":"Frontend quality and style guideline index."}
+{"path":".trellis/spec/guides/index.md","reason":"Shared thinking guide index for cross-layer and reuse verification."}

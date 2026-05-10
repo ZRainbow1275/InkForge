@@ -1,0 +1,8 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "prompts/0420/specs/17-crash-recovery-spec.md", "reason": "Spec compliance check"}
+{"file": "prompts/0420/acceptance-matrix.md", "reason": "Acceptance ledger check"}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"check","command":"pnpm exec vue-tsc --noEmit","result":"pass","notes":"Initial encoding-drift syntax failures from PowerShell rewrite were repaired; final typecheck passed."}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"check","command":"pnpm exec eslint src --ext .ts,.tsx,.vue --quiet","result":"pass"}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"check","command":"pnpm build","result":"pass","notes":"Only existing large chunk warning remains."}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"check","command":"Playwright browser validation on http://127.0.0.1:5176/workstation","result":"pass","notes":"Real Pinia/IndexedDB article created; emergency payload writeResult ok with localStorage duration about 0.1ms; recovery banner appeared; UI restore wrote one consumed crash-recovery recoveryPoint and restored both article.rawContent and contents.body; test article/content/recovery points/localStorage artifacts were cleaned; console errors 0."}
+{"ts":"2026-04-30T00:00:00+08:00","phase":"check","command":"netstat -ano | findstr :5176","result":"pass","notes":"Vite validation server stopped; no LISTENING process remained on 5176, only TIME_WAIT entries."}

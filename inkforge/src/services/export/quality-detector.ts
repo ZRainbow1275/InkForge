@@ -10,6 +10,7 @@
  * - docs/platform-rendering-rules/zhihu-rules.md
  */
 
+import { SUPPORTED_CODE_LANGUAGES } from '@/extensions/codeLanguages'
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -44,6 +45,7 @@ export function detectQuality(markdown: string, platform: Platform): QualityRepo
 
   // 通用检测
   detectCommonIssues(markdown, platform, issues)
+  detectRenderingCoreIssues(markdown, issues)
 
   const errors = issues.filter(i => i.severity === 'error').length
   const warnings = issues.filter(i => i.severity === 'warning').length
@@ -184,7 +186,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
         id: 'xhs-title-length',
         severity: 'warning',
         message: `标题 ${titleLength} 字，超过小红书 20 字限制`,
-        suggestion: '缩短标题至 10-15 字，带关键词 + emoji',
+        suggestion: '缩短标题至 10-15 字，保留关键词与明确利益点',
       })
     }
   }
@@ -204,22 +206,22 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 4. Emoji 密度检测
-  const emojiCount = countEmojis(plainText)
-  const emojiDensity = charCount > 0 ? emojiCount / charCount * 100 : 0
-  if (emojiDensity < 0.5 && charCount > 100) {
+  // 4. 装饰层次检测
+  const markerCount = countDecorativeMarkers(plainText)
+  const markerDensity = charCount > 0 ? markerCount / charCount * 100 : 0
+  if (markerDensity < 0.5 && charCount > 100) {
     addIssue(issues, {
-      id: 'xhs-emoji-sparse',
+      id: 'xhs-marker-sparse',
       severity: 'suggestion',
-      message: `Emoji 密度偏低（${emojiCount} 个 / ${charCount} 字）`,
-      suggestion: '建议每 100 字使用 1-2 个 emoji，导出时会自动注入',
+      message: `内容层次提示偏少（${markerCount} 处 / ${charCount} 字）`,
+      suggestion: '建议通过标题、分隔线或简短提示词增强阅读锚点，导出时会自动补入基础装饰',
     })
-  } else if (emojiDensity > 3) {
+  } else if (markerDensity > 3) {
     addIssue(issues, {
-      id: 'xhs-emoji-dense',
+      id: 'xhs-marker-dense',
       severity: 'suggestion',
-      message: `Emoji 密度偏高（${emojiCount} 个 / ${charCount} 字）`,
-      suggestion: '每 100 字不超过 3 个 emoji，避免视觉混乱',
+      message: `内容层次提示偏密（${markerCount} 处 / ${charCount} 字）`,
+      suggestion: '建议减少重复分隔或装饰标记，避免视觉噪音',
     })
   }
 
@@ -325,12 +327,25 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
       id: 'zhihu-task-list',
       severity: 'suggestion',
       message: `发现 ${taskLists.length} 个任务列表项，知乎不支持复选框`,
-      suggestion: '导出时会自动转为 emoji 替代（✅ / ☐）',
+      suggestion: '导出时会自动转为“已完成 / 待处理”文本标记',
     })
   }
 
-  // 5. 检测 LaTeX 语法错误
+  // 5. 检测 LaTeX 语法错误和发布前预览提示
   detectLatexErrors(markdown, issues)
+
+  const slash = String.fromCharCode(92)
+  const dollar = String.fromCharCode(36)
+  const latexPattern = `${slash}${dollar}${slash}${dollar}[${slash}s${slash}S]*?${slash}${dollar}${slash}${dollar}|${slash}${dollar}[^${dollar}${slash}n]+${slash}${dollar}`
+  const latexBlocks = markdown.match(new RegExp(latexPattern, 'g'))
+  if (latexBlocks) {
+    addIssue(issues, {
+      id: 'zhihu-latex-preview',
+      severity: 'suggestion',
+      message: `发现 ${latexBlocks.length} 个 LaTeX 公式，知乎不同导入入口的公式渲染表现可能不一致`,
+      suggestion: '导出会保留 LaTeX 源格式；发布前请在知乎编辑器预览，若未渲染则转换为 equation 图片或截图后上传',
+    })
+  }
 
   // 6. 检测 SVG 图片（知乎不支持 SVG）
   const svgImages = markdown.match(/!\[.*?\]\([^)]*\.svg[^)]*\)/gi)
@@ -405,6 +420,87 @@ function detectCommonIssues(markdown: string, _platform: Platform, issues: Quali
       severity: 'suggestion',
       message: `文章包含 ${externalImages.length} 张外链图片`,
       suggestion: '较多外链图片可能导致加载缓慢，发布后请检查图片显示',
+    })
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 渲染核心检测
+// ═══════════════════════════════════════════════════════════════════
+
+const CODE_LANGUAGE_ALIASES: Record<string, string> = {
+  js: 'javascript',
+  ts: 'typescript',
+  py: 'python',
+  rb: 'ruby',
+  sh: 'shell',
+  zsh: 'shell',
+  yml: 'yaml',
+  md: 'markdown',
+  cs: 'csharp',
+  cplusplus: 'cpp',
+  kt: 'kotlin',
+}
+
+function normalizeCodeLanguage(language: string): string {
+  const normalized = language.trim().toLowerCase()
+  return CODE_LANGUAGE_ALIASES[normalized] ?? normalized
+}
+
+function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): void {
+  const codeBlocks = Array.from(markdown.matchAll(/^```([^\s`]*)/gm))
+  const unlabeledBlocks = codeBlocks.filter(match => !match[1]).length
+  const unsupportedLanguages = Array.from(new Set(
+    codeBlocks
+      .map(match => normalizeCodeLanguage(match[1] ?? ''))
+      .filter(language => language && !(SUPPORTED_CODE_LANGUAGES as readonly string[]).includes(language)),
+  ))
+
+  if (unlabeledBlocks > 0) {
+    addIssue(issues, {
+      id: 'render-code-language-missing',
+      severity: 'suggestion',
+      message: `发现 ${unlabeledBlocks} 个未声明语言的代码块`,
+      suggestion: '为代码块补充语言名，可启用语言标签与稳定语法高亮',
+    })
+  }
+
+  if (unsupportedLanguages.length > 0) {
+    addIssue(issues, {
+      id: 'render-code-language-unsupported',
+      severity: 'warning',
+      message: `发现未覆盖的代码语言: ${unsupportedLanguages.join(', ')}`,
+      suggestion: '改用已支持语言别名，或在渲染语言注册表中补充该语言',
+    })
+  }
+
+  const blobImages = markdown.match(/!\[[^\]]*\]\(blob:[^)]+\)/g)
+  if (blobImages) {
+    addIssue(issues, {
+      id: 'render-blob-image-source',
+      severity: 'error',
+      message: `发现 ${blobImages.length} 张使用临时 blob: URL 的图片`,
+      suggestion: '图片必须通过资产管道写入 IndexedDB，并使用 inkforge-asset:// 稳定引用',
+    })
+  }
+
+  const localAssetImages = markdown.match(/!\[[^\]]*\]\(inkforge-asset:\/\/[^)]+\)/g)
+  if (localAssetImages && localAssetImages.length > 0) {
+    addIssue(issues, {
+      id: 'render-local-asset-image',
+      severity: 'suggestion',
+      message: `发现 ${localAssetImages.length} 张本地资产图片`,
+      suggestion: '发布前请通过目标平台导出器解析本地资产，避免直接复制内部引用',
+    })
+  }
+
+  const htmlTables = markdown.match(/<table[\s>]/gi)
+  if (htmlTables) {
+    addIssue(issues, {
+      id: 'render-html-table',
+      severity: 'suggestion',
+      message: `发现 ${htmlTables.length} 个 HTML 表格`,
+      suggestion: 'HTML 表格导出时需要内联样式；编辑器内建议使用原生表格节点以保留结构',
     })
   }
 }
@@ -494,10 +590,10 @@ function stripMarkdownSyntax(markdown: string): string {
   return text.trim()
 }
 
-/** 统计 emoji 数量 */
-function countEmojis(text: string): number {
-  const emojiPattern = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F|[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|[0-9]\uFE0F?\u20E3/gu
-  const matches = text.match(emojiPattern)
+/** 统计装饰标记数量 */
+function countDecorativeMarkers(text: string): number {
+  const markerPattern = /(?:^|\s)(?:【|〔|◆|◇|▫|○|▸|·|要点：|说明：|提示：|摘录：|片段：|检索关键词|查找关键词|\[代码\]|\[配图\]|\[图片\]|\[示意图\]|\[公式\]|\[表格\]|\[数据\])/gm
+  const matches = text.match(markerPattern)
   return matches ? matches.length : 0
 }
 

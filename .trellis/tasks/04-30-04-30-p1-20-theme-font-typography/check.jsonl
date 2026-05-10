@@ -1,0 +1,5 @@
+{"file":"prompts/0420/specs/20-theme-font-typography-spec.md","reason":"Verify baseline implementation against Spec 20 and note pending full-scope items."}
+{"file":".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/prd.md","reason":"Acceptance criteria and no-mock/no-emoji constraints for quality check."}
+{"file":".trellis/tasks/04-30-04-30-p1-20-theme-font-typography/research/visual-system-current-practice.md","reason":"Confirm implementation follows current root CSS variable strategy."}
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend quality checkpoint entrypoint."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check shared token and font-stack reuse."}

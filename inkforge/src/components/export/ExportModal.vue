@@ -3,18 +3,21 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { marked } from 'marked'
 import {
   X, Copy, Download, CheckCircle,
-  Hash, Link2, AlertCircle, Loader2
+  Hash, Link2, AlertCircle, Loader2, Lightbulb
 } from 'lucide-vue-next'
 import {
   convertToPlatform, getPlatformPresets,
-  convertToWechatWithStats, copyToClipboard, getDefaultPreset,
+  convertToNativeFormat, convertToWechatWithStats, copyTextToClipboard,
+  copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets
 } from '@/services/export'
+import { resolveExportIcon } from '@/utils/iconography'
 import type {
   Platform, ExportOptions, ExportStats,
-  QualityReport, QualityIssueSeverity, CodeTheme
+  NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
+import type { Component } from 'vue'
 
 // ─── Constants ───────────────────────────────────────────
 const FEEDBACK_DURATION = 2000
@@ -30,10 +33,42 @@ const CODE_THEMES: { id: CodeTheme; label: string }[] = [
 ]
 
 const PLATFORMS = [
-  { id: 'wechat' as Platform, name: '微信公众号', icon: '\uD83D\uDCAC', copyLabel: '复制到微信' },
-  { id: 'xiaohongshu' as Platform, name: '小红书', icon: '\uD83D\uDCD5', copyLabel: '复制到小红书' },
-  { id: 'zhihu' as Platform, name: '知乎', icon: '\uD83D\uDD35', copyLabel: '复制到知乎' },
+  { id: 'wechat' as Platform, name: '微信公众号', icon: 'wechat', copyLabel: '复制到微信' },
+  { id: 'xiaohongshu' as Platform, name: '小红书', icon: 'xiaohongshu', copyLabel: '复制到小红书' },
+  { id: 'zhihu' as Platform, name: '知乎', icon: 'zhihu', copyLabel: '复制到知乎' },
 ] as const
+
+const NATIVE_FORMAT_LABELS: Record<NativeExportResult['format'], string> = {
+  html: 'HTML',
+  text: '纯文本',
+  markdown: 'Markdown',
+}
+
+const NATIVE_FILE_EXTENSIONS: Record<NativeExportResult['format'], string> = {
+  html: 'html',
+  text: 'txt',
+  markdown: 'md',
+}
+
+const NATIVE_MIME_TYPES: Record<NativeExportResult['format'], string> = {
+  html: 'text/html;charset=utf-8',
+  text: 'text/plain;charset=utf-8',
+  markdown: 'text/markdown;charset=utf-8',
+}
+
+type FeedbackKind = 'success' | 'error' | 'info'
+
+interface OperationFeedback {
+  kind: FeedbackKind
+  message: string
+}
+
+interface PreflightRow {
+  key: string
+  label: string
+  state: 'ready' | 'blocked' | 'warning'
+  detail: string
+}
 
 // ─── Props / Emits ───────────────────────────────────────
 const props = defineProps<{
@@ -98,7 +133,60 @@ const exportOptions = ref<ExportOptions>({
 const previewHtml = ref('')
 const qualityReport = ref<QualityReport | null>(null)
 const wechatStats = ref<ExportStats | null>(null)
+const nativeResult = ref<NativeExportResult | null>(null)
+const renderErrorMessage = ref('')
 const isRendering = ref(false)
+
+const nativeFormatLabel = computed(() => {
+  if (!nativeResult.value) return '平台原生格式'
+  return NATIVE_FORMAT_LABELS[nativeResult.value.format]
+})
+
+const publishIntegrationStatus = computed(() => ({
+  configured: false,
+  detail: `${platformInfo.value.name} 尚未配置真实 API 授权；当前只提供可复制、可下载的真实导出产物。`,
+}))
+
+const preflightRows = computed<PreflightRow[]>(() => {
+  const rows: PreflightRow[] = [
+    {
+      key: 'source',
+      label: '权威 Markdown 输入',
+      state: props.content?.trim() ? 'ready' : 'blocked',
+      detail: props.content?.trim() ? '已从当前文稿读取真实内容' : '当前文稿为空，无法导出',
+    },
+    {
+      key: 'render',
+      label: '平台渲染产物',
+      state: previewHtml.value && nativeResult.value ? 'ready' : renderErrorMessage.value ? 'blocked' : 'warning',
+      detail: renderErrorMessage.value || (previewHtml.value && nativeResult.value ? '样式版与原生版均已生成' : '等待渲染完成'),
+    },
+    {
+      key: 'quality',
+      label: '发布质量检测',
+      state: qualityReport.value?.passed ? 'ready' : qualityReport.value ? 'warning' : 'warning',
+      detail: qualityReport.value
+        ? `错误 ${qualityReport.value.stats.errors}，警告 ${qualityReport.value.stats.warnings}，建议 ${qualityReport.value.stats.suggestions}`
+        : '等待质量检测结果',
+    },
+    {
+      key: 'clipboard',
+      label: '剪贴板权限',
+      state: isClipboardWriteAvailable() ? 'ready' : 'warning',
+      detail: isClipboardWriteAvailable()
+        ? '浏览器提供剪贴板写入能力，最终仍受用户手势与权限控制'
+        : '当前环境未暴露剪贴板写入能力，可改用下载文件',
+    },
+    {
+      key: 'publish',
+      label: '直连发布',
+      state: publishIntegrationStatus.value.configured ? 'ready' : 'blocked',
+      detail: publishIntegrationStatus.value.detail,
+    },
+  ]
+
+  return rows
+})
 
 let renderVersion = 0
 
@@ -109,6 +197,8 @@ watch(
       previewHtml.value = ''
       qualityReport.value = null
       wechatStats.value = null
+      nativeResult.value = null
+      renderErrorMessage.value = ''
       isRendering.value = false
       return
     }
@@ -118,6 +208,7 @@ watch(
     const presetId = selectedPresetId.value
 
     isRendering.value = true
+    renderErrorMessage.value = ''
 
     // Quality detection (synchronous)
     qualityReport.value = detectQuality(props.content, platform)
@@ -140,6 +231,20 @@ watch(
         previewHtml.value = html
         wechatStats.value = null
       }
+
+      const native = await convertToNativeFormat(props.content, platform, {
+        presetId,
+        exportOptions: exportOptions.value,
+      })
+      if (renderVersion !== thisVersion) return
+      nativeResult.value = native
+    } catch (error) {
+      if (renderVersion !== thisVersion) return
+      previewHtml.value = ''
+      nativeResult.value = null
+      wechatStats.value = null
+      renderErrorMessage.value = error instanceof Error ? error.message : '导出渲染失败'
+      showOperationFeedback('error', `导出渲染失败：${renderErrorMessage.value}`)
     } finally {
       if (renderVersion === thisVersion) {
         isRendering.value = false
@@ -151,16 +256,78 @@ watch(
 
 // ─── Copy ────────────────────────────────────────────────
 const copySuccess = ref(false)
+const nativeCopySuccess = ref(false)
+const operationFeedback = ref<OperationFeedback | null>(null)
+
+let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+let nativeCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+let operationFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+
+function showOperationFeedback(kind: FeedbackKind, message: string) {
+  operationFeedback.value = { kind, message }
+  clearTimeout(operationFeedbackTimer)
+  operationFeedbackTimer = setTimeout(() => {
+    operationFeedback.value = null
+  }, FEEDBACK_DURATION + 1000)
+}
+
+function buildExportFilename(kind: 'styled' | 'native'): string {
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+
+  if (kind === 'native' && nativeResult.value) {
+    const extension = NATIVE_FILE_EXTENSIONS[nativeResult.value.format]
+    return `inkforge-${selectedPlatform.value}-native-${timestamp}.${extension}`
+  }
+
+  return `inkforge-${selectedPlatform.value}-styled-${timestamp}.html`
+}
+
+function downloadArtifact(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.rel = 'noopener'
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(url)
+}
 
 async function handleCopy() {
   const content = previewHtml.value
   if (!content || isRendering.value) return
 
+  showOperationFeedback('info', '正在写入剪贴板，请等待浏览器权限返回。')
   const success = await copyToClipboard(content)
 
   if (success) {
     copySuccess.value = true
-    setTimeout(() => { copySuccess.value = false }, FEEDBACK_DURATION)
+    showOperationFeedback('success', `已复制 ${platformInfo.value.name} 样式版 HTML，可粘贴到平台编辑器。`)
+    clearTimeout(copyFeedbackTimer)
+    copyFeedbackTimer = setTimeout(() => { copySuccess.value = false }, FEEDBACK_DURATION)
+  } else {
+    showOperationFeedback('error', '复制失败：浏览器拒绝剪贴板写入，请使用下载文件或检查剪贴板权限。')
+  }
+}
+
+async function handleCopyNative() {
+  const result = nativeResult.value
+  if (!result?.content || isRendering.value) return
+
+  showOperationFeedback('info', `正在复制 ${platformInfo.value.name} ${NATIVE_FORMAT_LABELS[result.format]} 原生产物。`)
+  const success = result.format === 'html'
+    ? await copyToClipboard(result.content)
+    : await copyTextToClipboard(result.content)
+
+  if (success) {
+    nativeCopySuccess.value = true
+    showOperationFeedback('success', `已复制 ${platformInfo.value.name} ${NATIVE_FORMAT_LABELS[result.format]} 原生产物。`)
+    clearTimeout(nativeCopyFeedbackTimer)
+    nativeCopyFeedbackTimer = setTimeout(() => { nativeCopySuccess.value = false }, FEEDBACK_DURATION)
+  } else {
+    showOperationFeedback('error', '复制原生产物失败：当前浏览器或权限不允许写入剪贴板。')
   }
 }
 
@@ -170,25 +337,31 @@ function handleDownload() {
   if (!content || isRendering.value) return
 
   try {
-    const filename = `article-${selectedPlatform.value}.html`
-    const blob = new Blob([content], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadArtifact(content, buildExportFilename('styled'), 'text/html;charset=utf-8')
+    showOperationFeedback('success', '已生成样式版 HTML 下载文件。')
   } catch {
-    // fail silently
+    showOperationFeedback('error', '下载失败：浏览器未能创建本地文件，请稍后重试。')
+  }
+}
+
+function handleDownloadNative() {
+  const result = nativeResult.value
+  if (!result?.content || isRendering.value) return
+
+  try {
+    downloadArtifact(result.content, buildExportFilename('native'), NATIVE_MIME_TYPES[result.format])
+    showOperationFeedback('success', `已生成 ${NATIVE_FORMAT_LABELS[result.format]} 原生下载文件。`)
+  } catch {
+    showOperationFeedback('error', '下载原生产物失败：浏览器未能创建本地文件，请稍后重试。')
   }
 }
 
 // ─── Quality Helpers ─────────────────────────────────────
-function severityIcon(severity: QualityIssueSeverity): string {
+function severityIcon(severity: QualityIssueSeverity): Component {
   switch (severity) {
-    case 'error': return '\u274C'
-    case 'warning': return '\u26A0\uFE0F'
-    case 'suggestion': return '\uD83D\uDCA1'
+    case 'error': return X
+    case 'warning': return AlertCircle
+    case 'suggestion': return Lightbulb
     default: {
       const _exhaustiveCheck: never = severity
       return _exhaustiveCheck
@@ -211,17 +384,30 @@ watch(() => props.visible, (visible) => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
+  clearTimeout(copyFeedbackTimer)
+  clearTimeout(nativeCopyFeedbackTimer)
+  clearTimeout(operationFeedbackTimer)
 })
 </script>
 
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="export-overlay" @click.self="emit('close')">
+    <div
+      v-if="visible"
+      class="export-overlay"
+      @click.self="emit('close')"
+    >
       <div class="export-panel">
         <!-- ════ Header ════ -->
         <div class="export-header">
-          <h2 class="export-title">导出文章</h2>
-          <button class="header-close" @click="emit('close')" title="关闭">
+          <h2 class="export-title">
+            导出文章
+          </h2>
+          <button
+            class="header-close"
+            title="关闭"
+            @click="emit('close')"
+          >
             <X :size="18" />
           </button>
         </div>
@@ -241,7 +427,12 @@ onUnmounted(() => {
                     :class="{ active: selectedPlatform === p.id }"
                     @click="selectedPlatform = p.id"
                   >
-                    <span class="pill-icon">{{ p.icon }}</span>
+                    <component
+                      :is="resolveExportIcon(p.icon, p.id)"
+                      class="pill-icon"
+                      :size="14"
+                      :stroke-width="2"
+                    />
                     <span class="pill-label">{{ p.name }}</span>
                   </button>
                 </div>
@@ -249,7 +440,9 @@ onUnmounted(() => {
 
               <!-- Preset Theme Grid -->
               <div class="ctrl-section">
-                <div class="section-label">选择风格</div>
+                <div class="section-label">
+                  选择风格
+                </div>
                 <div class="preset-grid">
                   <button
                     v-for="preset in currentPresets"
@@ -258,27 +451,37 @@ onUnmounted(() => {
                     :class="{ active: selectedPresetId === preset.id }"
                     @click="selectPreset(preset.id)"
                   >
-                    <span class="preset-icon">{{ preset.icon }}</span>
+                    <component
+                      :is="resolveExportIcon(preset.id || preset.icon, preset.id)"
+                      class="preset-icon"
+                      :size="16"
+                      :stroke-width="2"
+                    />
                     <span class="preset-name">{{ preset.name }}</span>
                     <span
                       class="preset-color-bar"
                       :style="{ backgroundColor: preset.primaryColor }"
-                    ></span>
+                    />
                   </button>
                 </div>
               </div>
 
               <!-- Export Options -->
               <div class="ctrl-section">
-                <div class="section-label">导出选项</div>
+                <div class="section-label">
+                  导出选项
+                </div>
 
                 <!-- Code Theme Dropdown -->
                 <div class="option-row">
-                  <label class="option-label" for="code-theme-select">代码主题</label>
+                  <label
+                    class="option-label"
+                    for="code-theme-select"
+                  >代码主题</label>
                   <select
                     id="code-theme-select"
-                    class="option-select"
                     v-model="exportOptions.codeTheme"
+                    class="option-select"
                   >
                     <option
                       v-for="theme in CODE_THEMES"
@@ -293,61 +496,186 @@ onUnmounted(() => {
                 <!-- Toggle Options -->
                 <div class="toggle-list">
                   <label class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableMacCodeBlock" />
+                    <input
+                      v-model="exportOptions.enableMacCodeBlock"
+                      type="checkbox"
+                    >
                     <span class="toggle-text">Mac 窗口风格代码块</span>
                   </label>
                   <label class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableLineNumbers" />
-                    <Hash :size="13" class="toggle-icon" />
+                    <input
+                      v-model="exportOptions.enableLineNumbers"
+                      type="checkbox"
+                    >
+                    <Hash
+                      :size="13"
+                      class="toggle-icon"
+                    />
                     <span class="toggle-text">显示行号</span>
                   </label>
-                  <label v-if="selectedPlatform !== 'xiaohongshu'" class="toggle-item">
-                    <input type="checkbox" v-model="exportOptions.enableCiteStatus" />
-                    <Link2 :size="13" class="toggle-icon" />
+                  <label
+                    v-if="selectedPlatform !== 'xiaohongshu'"
+                    class="toggle-item"
+                  >
+                    <input
+                      v-model="exportOptions.enableCiteStatus"
+                      type="checkbox"
+                    >
+                    <Link2
+                      :size="13"
+                      class="toggle-icon"
+                    />
                     <span class="toggle-text">外链转脚注</span>
                   </label>
                 </div>
               </div>
 
               <!-- Quality Detection -->
-              <div v-if="qualityReport" class="ctrl-section quality-area">
-                <div class="section-label">质量检测</div>
+              <div
+                v-if="qualityReport"
+                class="ctrl-section quality-area"
+              >
+                <div class="section-label">
+                  质量检测
+                </div>
                 <div
                   class="quality-banner"
                   :class="qualityReport.passed ? 'quality-passed' : 'quality-failed'"
                 >
                   <span>{{ qualityReport.passed ? '检测通过' : '发现问题' }}</span>
                   <div class="quality-counts">
-                    <span v-if="qualityReport.stats.errors" class="qc-badge qc-error">
+                    <span
+                      v-if="qualityReport.stats.errors"
+                      class="qc-badge qc-error"
+                    >
                       {{ qualityReport.stats.errors }} 错误
                     </span>
-                    <span v-if="qualityReport.stats.warnings" class="qc-badge qc-warning">
+                    <span
+                      v-if="qualityReport.stats.warnings"
+                      class="qc-badge qc-warning"
+                    >
                       {{ qualityReport.stats.warnings }} 警告
                     </span>
-                    <span v-if="qualityReport.stats.suggestions" class="qc-badge qc-info">
+                    <span
+                      v-if="qualityReport.stats.suggestions"
+                      class="qc-badge qc-info"
+                    >
                       {{ qualityReport.stats.suggestions }} 建议
                     </span>
                   </div>
                 </div>
-                <div v-if="qualityReport.issues.length" class="quality-list">
+                <div
+                  v-if="qualityReport.issues.length"
+                  class="quality-list"
+                >
                   <div
                     v-for="issue in qualityReport.issues"
                     :key="issue.id"
                     class="quality-item"
                     :class="issue.severity"
                   >
-                    <span class="qi-icon">{{ severityIcon(issue.severity) }}</span>
+                    <component
+                      :is="severityIcon(issue.severity)"
+                      class="qi-icon"
+                      :size="14"
+                    />
                     <div class="qi-body">
-                      <p class="qi-message">{{ issue.message }}</p>
-                      <p v-if="issue.suggestion" class="qi-tip">{{ issue.suggestion }}</p>
+                      <p class="qi-message">
+                        {{ issue.message }}
+                      </p>
+                      <p
+                        v-if="issue.suggestion"
+                        class="qi-tip"
+                      >
+                        {{ issue.suggestion }}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Export Preflight -->
+              <div class="ctrl-section preflight-area">
+                <div class="section-label">
+                  导出预检
+                </div>
+                <div class="preflight-list">
+                  <div
+                    v-for="row in preflightRows"
+                    :key="row.key"
+                    class="preflight-row"
+                    :class="`preflight-${row.state}`"
+                  >
+                    <span
+                      class="preflight-dot"
+                      aria-hidden="true"
+                    />
+                    <div class="preflight-copy">
+                      <span class="preflight-label">{{ row.label }}</span>
+                      <span class="preflight-detail">{{ row.detail }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Native Output -->
+              <div class="ctrl-section native-area">
+                <div class="section-label">
+                  平台原生产物
+                </div>
+                <div
+                  v-if="nativeResult"
+                  class="native-card"
+                >
+                  <div class="native-card-main">
+                    <span class="native-format">{{ nativeFormatLabel }}</span>
+                    <span class="native-detail">
+                      {{ platformInfo.name }} 推荐复制格式，{{ nativeResult.content.length }} 字符
+                    </span>
+                  </div>
+                  <div class="native-actions">
+                    <button
+                      class="mini-action"
+                      :class="{ success: nativeCopySuccess }"
+                      :disabled="isRendering || !nativeResult.content"
+                      @click="handleCopyNative"
+                    >
+                      {{ nativeCopySuccess ? '已复制' : '复制原生' }}
+                    </button>
+                    <button
+                      class="mini-action"
+                      :disabled="isRendering || !nativeResult.content"
+                      @click="handleDownloadNative"
+                    >
+                      下载原生
+                    </button>
+                  </div>
+                </div>
+                <div
+                  v-else
+                  class="native-empty"
+                >
+                  原生产物会在真实渲染完成后生成。
+                </div>
+              </div>
+
+              <div
+                v-if="operationFeedback"
+                class="ctrl-section feedback-area"
+                :class="`feedback-${operationFeedback.kind}`"
+                aria-live="polite"
+              >
+                {{ operationFeedback.message }}
+              </div>
+
               <!-- WeChat Stats (when available) -->
-              <div v-if="wechatStats && selectedPlatform === 'wechat'" class="ctrl-section">
-                <div class="section-label">文章统计</div>
+              <div
+                v-if="wechatStats && selectedPlatform === 'wechat'"
+                class="ctrl-section"
+              >
+                <div class="section-label">
+                  文章统计
+                </div>
                 <div class="stats-row">
                   <div class="stat-chip">
                     <span class="stat-num">{{ wechatStats.wordCount }}</span>
@@ -371,9 +699,13 @@ onUnmounted(() => {
 
             <!-- Action Buttons (pinned to bottom) -->
             <div class="action-bar">
-              <button class="act-btn act-secondary" @click="handleDownload" :disabled="isRendering || !previewHtml">
+              <button
+                class="act-btn act-secondary"
+                :disabled="isRendering || !previewHtml"
+                @click="handleDownload"
+              >
                 <Download :size="14" />
-                <span>下载HTML</span>
+                <span>下载样式版</span>
               </button>
               <button
                 class="act-btn act-primary"
@@ -381,9 +713,15 @@ onUnmounted(() => {
                 :disabled="isRendering || !previewHtml"
                 @click="handleCopy"
               >
-                <CheckCircle v-if="copySuccess" :size="14" />
-                <Copy v-else :size="14" />
-                <span>{{ copySuccess ? '已复制!' : platformInfo.copyLabel }}</span>
+                <CheckCircle
+                  v-if="copySuccess"
+                  :size="14"
+                />
+                <Copy
+                  v-else
+                  :size="14"
+                />
+                <span>{{ copySuccess ? '已复制' : `${platformInfo.copyLabel}样式版` }}</span>
               </button>
             </div>
           </div>
@@ -391,23 +729,45 @@ onUnmounted(() => {
           <!-- ── Right: Preview Area ── -->
           <div class="preview-column">
             <div class="preview-topbar">
-              <span class="preview-topbar-label">
-                {{ platformInfo.icon }} {{ platformInfo.name }} 预览
+              <span class="preview-topbar-label preview-topbar-title">
+                <component
+                  :is="resolveExportIcon(platformInfo.icon, platformInfo.id)"
+                  class="preview-topbar-icon"
+                  :size="14"
+                  :stroke-width="2"
+                />
+                <span>{{ platformInfo.name }} 预览</span>
               </span>
             </div>
             <div class="preview-viewport">
               <!-- Loading Spinner -->
-              <div v-if="isRendering" class="preview-loading">
-                <Loader2 :size="28" class="spinner" />
+              <div
+                v-if="isRendering"
+                class="preview-loading"
+              >
+                <Loader2
+                  :size="28"
+                  class="spinner"
+                />
                 <span class="loading-text">渲染中...</span>
               </div>
               <!-- Empty State -->
-              <div v-else-if="!previewHtml" class="preview-empty">
-                <AlertCircle :size="32" class="empty-icon" />
+              <div
+                v-else-if="!previewHtml"
+                class="preview-empty"
+              >
+                <AlertCircle
+                  :size="32"
+                  class="empty-icon"
+                />
                 <span class="empty-text">暂无内容可预览</span>
               </div>
               <!-- v-html Preview -->
-              <div v-else class="preview-render" v-html="previewHtml"></div>
+              <div
+                v-else
+                class="preview-render"
+                v-html="previewHtml"
+              />
             </div>
           </div>
         </div>
@@ -604,6 +964,10 @@ onUnmounted(() => {
   background: #FFEBEE;
 }
 
+.pill-icon {
+  flex-shrink: 0;
+}
+
 .preset-card.active {
   border-color: #D32F2F;
   background: #FFEBEE;
@@ -611,8 +975,10 @@ onUnmounted(() => {
 }
 
 .preset-icon {
-  font-size: 24px;
-  line-height: 1;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #607D8B;
 }
 
 .preset-name {
@@ -820,6 +1186,147 @@ onUnmounted(() => {
   font-size: 11px;
 }
 
+/* ── Export preflight ── */
+.preflight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preflight-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid #ECEFF1;
+  border-radius: 9px;
+  background: #FAFBFC;
+}
+
+.preflight-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #90A4AE;
+  flex-shrink: 0;
+}
+
+.preflight-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preflight-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #263238;
+}
+
+.preflight-detail {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #607D8B;
+}
+
+.preflight-ready .preflight-dot {
+  background: #2E7D32;
+}
+
+.preflight-warning .preflight-dot {
+  background: #F57C00;
+}
+
+.preflight-blocked .preflight-dot {
+  background: #C62828;
+}
+
+/* ── Native output ── */
+.native-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ECEFF1;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF8F8 100%);
+}
+
+.native-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.native-format {
+  font-size: 13px;
+  font-weight: 800;
+  color: #C62828;
+}
+
+.native-detail,
+.native-empty {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #607D8B;
+}
+
+.native-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mini-action {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ECEFF1;
+  border-radius: 7px;
+  background: #FFFFFF;
+  color: #263238;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mini-action:hover:not(:disabled) {
+  border-color: #D32F2F;
+  color: #D32F2F;
+}
+
+.mini-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mini-action.success {
+  border-color: #2E7D32;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.feedback-area {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.feedback-success {
+  background: #E8F5E9;
+  color: #1B5E20;
+}
+
+.feedback-error {
+  background: #FFEBEE;
+  color: #B71C1C;
+}
+
+.feedback-info {
+  background: #E3F2FD;
+  color: #0D47A1;
+}
+
 /* ── Stats ── */
 .stats-row {
   display: grid;
@@ -932,6 +1439,16 @@ onUnmounted(() => {
   font-weight: 500;
   color: #607D8B;
   letter-spacing: 0.3px;
+}
+
+.preview-topbar-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-topbar-icon {
+  flex-shrink: 0;
 }
 
 .preview-viewport {

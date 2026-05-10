@@ -49,7 +49,10 @@ export async function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>
 
     // 动态导入 Tauri API（避免 Web 环境报错）
     const { invoke } = await import('@tauri-apps/api/tauri')
-    return invoke<T>(cmd, args)
+    const { recordTauriInvokeDiagnostic } = await import('@/services/dev-tools')
+    return recordTauriInvokeDiagnostic(cmd, () => invoke<T>(cmd, args), {
+        hasArgs: Boolean(args && Object.keys(args).length > 0),
+    })
 }
 
 /**
@@ -90,7 +93,11 @@ export async function getAppInfo(): Promise<AppInfo> {
  * 避免与 @tauri-apps/api 或 vite-env.d.ts 中的 declare global 声明冲突
  */
 function hasTauriGlobal(): boolean {
-    return typeof window !== 'undefined' &&
-        '__TAURI__' in window &&
-        (window as unknown as Record<string, unknown>).__TAURI__ !== undefined
+    if (typeof window === 'undefined') {
+        return false
+    }
+
+    const runtimeWindow = window as unknown as Record<string, unknown>
+    return runtimeWindow.__TAURI__ !== undefined ||
+        runtimeWindow.__TAURI_INTERNALS__ !== undefined
 }

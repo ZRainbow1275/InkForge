@@ -6,21 +6,28 @@ import { PenTool } from 'lucide-vue-next'
   <div class="empty-state">
     <div class="soviet-card">
       <div class="icon-wrapper">
-        <PenTool :size="48" class="icon" />
+        <PenTool
+          :size="48"
+          class="icon"
+        />
       </div>
       
-      <h2 class="title">准备写作</h2>
-      <h3 class="subtitle">READY FOR WRITING</h3>
+      <h2 class="title">
+        准备写作
+      </h2>
+      <h3 class="subtitle">
+        写作就绪
+      </h3>
       
-      <div class="divider"></div>
+      <div class="divider" />
       
       <p class="instruction">
-        请从左侧列表选择一篇资讯<br>
+        从左侧选择或新建一篇文章<br>
         开始您的创作任务
       </p>
 
       <div class="status-badge">
-        <span>STATUS: IDLE</span>
+        <span>等待选择文稿</span>
       </div>
     </div>
   </div>
@@ -38,14 +45,15 @@ import { PenTool } from 'lucide-vue-next'
 }
 
 .soviet-card {
+  width: min(400px, calc(100% - 32px));
+  box-sizing: border-box;
   border: 2px solid #2c3e50;
-  padding: 40px 60px;
+  padding: clamp(28px, 7vw, 40px) clamp(24px, 8vw, 60px);
   background: #fff;
   box-shadow: 8px 8px 0px rgba(44, 62, 80, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 400px;
   text-align: center;
 }
 
@@ -90,9 +98,32 @@ import { PenTool } from 'lucide-vue-next'
 .status-badge {
   background: #2c3e50;
   color: #fff;
-  padding: 4px 12px;
+  padding: 5px 14px;
   font-size: 12px;
-  font-family: monospace;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 560px) {
+  .empty-state {
+    align-items: flex-start;
+    min-height: 520px;
+    height: auto;
+    padding: 36px 0;
+  }
+
+  .soviet-card {
+    margin: 0 auto;
+    box-shadow: 5px 5px 0 rgba(44, 62, 80, 0.16);
+  }
+
+  .title {
+    font-size: 26px;
+    letter-spacing: 0.08em;
+  }
+
+  .subtitle {
+    letter-spacing: 0.22em;
+  }
 }
 </style>

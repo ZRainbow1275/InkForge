@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/43-drafts-box-spec.md","reason":"Primary source for Drafts Box view modes, peek panel, batch actions, stale signals, and acceptance requirements."}
+{"file":"prompts/0420/specs/11-document-lifecycle-spec.md","reason":"Draft batch actions must preserve existing article lifecycle state boundaries."}
+{"file":"prompts/0420/specs/12-file-manager-spec.md","reason":"Drafts Box must stay compatible with file-manager article filtering and status semantics."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Store/UI state contracts and no-mock requirements for draft management."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Strict typing requirements for selected-draft and batch action state."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Frontend quality and verification checklist."}

@@ -4,6 +4,7 @@ import { useCategoryStore } from '@/stores/category'
 import { storeToRefs } from 'pinia'
 import { Plus, Trash2 } from 'lucide-vue-next'
 import AddCategoryModal from './AddCategoryModal.vue'
+import { resolveCategoryIcon } from '@/utils/iconography'
 
 const categoryStore = useCategoryStore()
 const { categories, selectedCategoryId } = storeToRefs(categoryStore)
@@ -50,7 +51,12 @@ function cancelDelete() {
       :class="{ active: selectedCategoryId === null }"
       @click="selectCategory(null)"
     >
-      <span class="icon">📚</span>
+      <component
+        :is="resolveCategoryIcon(undefined)"
+        class="icon"
+        :size="16"
+        :stroke-width="2"
+      />
       <span class="name">全部</span>
       <span class="count">{{ categoryStore.totalArticleCount }}</span>
     </div>
@@ -63,20 +69,28 @@ function cancelDelete() {
       :class="{ active: selectedCategoryId === category.id }"
       @click="selectCategory(category.id)"
     >
-      <span class="icon">{{ category.icon || '📁' }}</span>
+      <component
+        :is="resolveCategoryIcon(category.icon)"
+        class="icon"
+        :size="16"
+        :stroke-width="2"
+      />
       <span class="name">{{ category.name }}</span>
       <span class="count">{{ category.articleCount }}</span>
       <button 
         class="delete-btn"
-        @click="deleteCategory(category.id, $event)"
         title="删除分类"
+        @click="deleteCategory(category.id, $event)"
       >
         <Trash2 :size="14" />
       </button>
     </div>
 
     <!-- 添加分类按钮 -->
-    <button class="add-btn" @click="showAddModal = true">
+    <button
+      class="add-btn"
+      @click="showAddModal = true"
+    >
       <Plus :size="16" />
       <span>添加分类</span>
     </button>
@@ -90,13 +104,27 @@ function cancelDelete() {
 
     <!-- 删除确认模态框 -->
     <Teleport to="body">
-      <div v-if="showDeleteConfirm" class="confirm-overlay" @click.self="cancelDelete">
+      <div
+        v-if="showDeleteConfirm"
+        class="confirm-overlay"
+        @click.self="cancelDelete"
+      >
         <div class="confirm-modal">
           <h3>确认删除</h3>
           <p>确定要删除这个分类吗？分类下的资讯将移至"全部"。</p>
           <div class="confirm-actions">
-            <button class="cancel-btn" @click="cancelDelete">取消</button>
-            <button class="delete-confirm-btn" @click="confirmDelete">删除</button>
+            <button
+              class="cancel-btn"
+              @click="cancelDelete"
+            >
+              取消
+            </button>
+            <button
+              class="delete-confirm-btn"
+              @click="confirmDelete"
+            >
+              删除
+            </button>
           </div>
         </div>
       </div>
@@ -131,7 +159,9 @@ function cancelDelete() {
 }
 
 .category-item .icon {
-  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .category-item .name {

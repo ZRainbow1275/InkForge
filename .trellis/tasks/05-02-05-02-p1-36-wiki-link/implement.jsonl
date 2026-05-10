@@ -1,0 +1,16 @@
+{"file":"prompts/0420/specs/36-wiki-link-spec.md","reason":"Primary WikiLink requirements and test matrix."}
+{"file":"prompts/0420/specs/10-markdown-authority-spec.md","reason":"Markdown source must remain authoritative and unrewritten."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie additive migration and derived-index persistence contracts."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Pinia store and UI state contracts for future backlink panel."}
+{"file":"inkforge/src/utils/db.ts","reason":"Additive v17 backlinks table and typed Dexie table."}
+{"file":"inkforge/src/services/markdown-ext/render.ts","reason":"Existing WikiLink render compatibility hook."}
+{"file":"inkforge/src/stores/article.ts","reason":"Article lifecycle integration for backlink rebuild/cleanup."}
+{"file":"inkforge/src/services/repository.ts","reason":"Real article repository access and decrypted article reads."}
+{"file":".trellis/tasks/05-02-05-02-p1-36-wiki-link/research/wiki-link-research.md","reason":"Current external and local research notes."}
+{"file": "inkforge/src/services/wiki-link/types.ts", "reason": "Typed WikiLink token and BacklinkRecord contracts."}
+{"file": "inkforge/src/services/wiki-link/parser.ts", "reason": "Pure parser/extractor and source-preserving label logic."}
+{"file": "inkforge/src/services/wiki-link/repository.ts", "reason": "Derived backlink table repository operations."}
+{"file": "inkforge/src/services/wiki-link/service.ts", "reason": "Article-backed backlink rebuild/search/broken-link service."}
+{"file": "inkforge/src/services/wiki-link/index.ts", "reason": "WikiLink module public exports."}
+{"file": "inkforge/src/services/wiki-link/wiki-link.test.ts", "reason": "Spec 36 parser, repository, service, store, renderer, and schema validation."}
+{"file": "inkforge/src/stores/wikiLink.ts", "reason": "Pinia store contract for future backlink UI."}

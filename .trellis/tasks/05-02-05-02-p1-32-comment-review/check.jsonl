@@ -1,0 +1,8 @@
+{"file": "prompts/0420/specs/32-comment-review-spec.md", "reason": "Primary Comment Review requirements and acceptance criteria."}
+{"file": "prompts/0420/specs/01-spec-editor-typora.md", "reason": "Editor integration and Tiptap/Typora-mode constraints."}
+{"file": "prompts/0420/specs/11-document-lifecycle-spec.md", "reason": "Document identity and lifecycle boundaries for docId-scoped comments."}
+{"file": "prompts/0420/specs/24-permission-audit-spec.md", "reason": "Audit action vocabulary and permission-aware review evidence."}
+{"file": "prompts/0420/specs/31-version-bundle-spec.md", "reason": "Version id and anchor drift relationship with snapshots."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Dexie persistence and no fake storage contracts."}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia service-backed state and no UI-only rows contracts."}
+{"file": ".trellis/tasks/05-02-05-02-p1-32-comment-review/research/comment-review-research.md", "reason": "Local/external research for Comment Review implementation decisions."}

@@ -4,14 +4,18 @@ import { useArticleStore } from '@/stores/article'
 import { useEditorStore } from '@/stores/editor'
 import { storeToRefs } from 'pinia'
 import {
-  ExternalLink, User, Calendar, Tag, Copy,
-  CheckCircle, Maximize2
+  ArrowLeft, CheckCircle, Copy, Calendar, ExternalLink,
+  Eye, Maximize2, Tag, User
 } from 'lucide-vue-next'
 import {
-  convertToPlatform, getPlatformPresets, copyToClipboard, getDefaultPreset
+  convertToPlatform, getPlatformPresets, copyToClipboard, getDefaultPreset,
+  markdownToXiaohongshuText, markdownToZhihuClean,
 } from '@/services/export'
+import { renderXhsMockHtml } from '@/services/export/preview-fidelity/xiaohongshu-mock'
+import { renderZhihuMockHtml } from '@/services/export/preview-fidelity/zhihu-mock'
 import type { Platform } from '@/services/export'
 import ExportModal from '@/components/export/ExportModal.vue'
+import { resolveExportIcon } from '@/utils/iconography'
 
 const articleStore = useArticleStore()
 const editorStore = useEditorStore()
@@ -23,9 +27,9 @@ const showExportModal = ref(false)
 
 // ─── 平台选择 ──────────────────────────────────────
 const PLATFORMS = [
-  { id: 'wechat' as Platform, name: '微信', icon: '💬' },
-  { id: 'xiaohongshu' as Platform, name: '小红书', icon: '📕' },
-  { id: 'zhihu' as Platform, name: '知乎', icon: '🔵' },
+  { id: 'wechat' as Platform, name: '微信', icon: 'wechat' },
+  { id: 'xiaohongshu' as Platform, name: '小红书', icon: 'xiaohongshu' },
+  { id: 'zhihu' as Platform, name: '知乎', icon: 'zhihu' },
 ] as const
 
 const selectedPlatform = ref<Platform>('wechat')
@@ -59,16 +63,48 @@ const copySuccess = ref(false)
 let renderVersion = 0
 
 watch([currentContent, selectedPresetId, selectedPlatform], async () => {
-  if (currentContent.value?.body) {
-    const thisVersion = ++renderVersion
-    const html = await convertToPlatform(currentContent.value.body, selectedPlatform.value, {
-      presetId: selectedPresetId.value,
-    })
-    if (renderVersion === thisVersion) {
-      previewHtml.value = html
-    }
-  } else {
+  if (!currentContent.value?.body) {
     previewHtml.value = ''
+    return
+  }
+  const thisVersion = ++renderVersion
+  const md = currentContent.value.body
+  const platform = selectedPlatform.value
+  const presetId = selectedPresetId.value
+  let html: string
+  if (platform === 'xiaohongshu') {
+    const r = markdownToXiaohongshuText(md)
+    const presetMatch = presetId.match(/^xhs-(fresh|simple|warm|tech|nature)$/)
+    html = renderXhsMockHtml(
+      {
+        text: r.text,
+        title: r.title,
+        body: r.body,
+        hashtags: r.hashtags,
+        suggestedTags: r.suggestedTags,
+        charCount: r.charCount,
+        overLimit: r.overLimit,
+      },
+      { presetId: (presetMatch?.[1] as 'fresh' | 'simple' | 'warm' | 'tech' | 'nature' | undefined) }
+    )
+  } else if (platform === 'zhihu') {
+    const r = markdownToZhihuClean(md)
+    const presetMatch = presetId.match(/^zhihu-(academic|tech|insight)$/)
+    html = renderZhihuMockHtml(
+      {
+        markdown: r.markdown,
+        latexBlocks: r.latexBlocksConverted,
+        latexInlines: r.latexInlinesConverted,
+        mermaidCount: r.mermaidCount,
+        taskListCount: r.taskListCount,
+      },
+      { presetId: (presetMatch?.[1] as 'academic' | 'tech' | 'insight' | undefined) }
+    )
+  } else {
+    html = await convertToPlatform(md, platform, { presetId })
+  }
+  if (renderVersion === thisVersion) {
+    previewHtml.value = html
   }
 }, { immediate: true, deep: true })
 
@@ -91,31 +127,50 @@ async function handleCopy() {
     <template v-if="selectedArticle">
       <!-- 元数据区 -->
       <div class="metadata">
-        <h1 class="article-title">{{ selectedArticle.title }}</h1>
+        <h1 class="article-title">
+          {{ selectedArticle.title }}
+        </h1>
 
         <div class="meta-row">
           <span class="meta-item">
             <ExternalLink :size="14" />
-            <a :href="selectedArticle.sourceUrl" target="_blank" class="source-link">
+            <a
+              :href="selectedArticle.sourceUrl"
+              target="_blank"
+              class="source-link"
+            >
               {{ selectedArticle.sourceName }}
             </a>
           </span>
         </div>
 
         <div class="meta-row">
-          <span v-if="selectedArticle.authors?.length" class="meta-item">
+          <span
+            v-if="selectedArticle.authors?.length"
+            class="meta-item"
+          >
             <User :size="14" />
             {{ selectedArticle.authors.join(', ') }}
           </span>
-          <span v-if="selectedArticle.publishedAt" class="meta-item">
+          <span
+            v-if="selectedArticle.publishedAt"
+            class="meta-item"
+          >
             <Calendar :size="14" />
             {{ new Date(selectedArticle.publishedAt).toLocaleDateString('zh-CN') }}
           </span>
         </div>
 
-        <div v-if="selectedArticle.tags?.length" class="tags-row">
+        <div
+          v-if="selectedArticle.tags?.length"
+          class="tags-row"
+        >
           <Tag :size="14" />
-          <span v-for="tag in selectedArticle.tags" :key="tag" class="tag">
+          <span
+            v-for="tag in selectedArticle.tags"
+            :key="tag"
+            class="tag"
+          >
             {{ tag }}
           </span>
         </div>
@@ -131,7 +186,12 @@ async function handleCopy() {
             :class="{ active: selectedPlatform === p.id }"
             @click="selectedPlatform = p.id"
           >
-            <span>{{ p.icon }}</span>
+            <component
+              :is="resolveExportIcon(p.icon, p.id)"
+              class="platform-icon"
+              :size="14"
+              :stroke-width="2"
+            />
             {{ p.name }}
           </button>
         </div>
@@ -139,7 +199,15 @@ async function handleCopy() {
 
       <!-- 预设选择 -->
       <div class="preset-section">
-        <h3>{{ platformInfo.icon }} 文章风格</h3>
+        <h3 class="preset-heading">
+          <component
+            :is="resolveExportIcon(platformInfo.icon, platformInfo.id)"
+            class="section-icon"
+            :size="14"
+            :stroke-width="2"
+          />
+          <span>文章风格</span>
+        </h3>
         <div class="preset-grid">
           <button
             v-for="preset in currentPresets"
@@ -148,7 +216,12 @@ async function handleCopy() {
             :class="{ active: selectedPresetId === preset.id }"
             @click="selectPreset(preset.id)"
           >
-            <span class="preset-icon">{{ preset.icon }}</span>
+            <component
+              :is="resolveExportIcon(preset.id || preset.icon, preset.id)"
+              class="preset-icon"
+              :size="16"
+              :stroke-width="2"
+            />
             <span class="preset-name">{{ preset.name }}</span>
           </button>
         </div>
@@ -158,17 +231,23 @@ async function handleCopy() {
       <div class="action-section">
         <button
           class="action-btn primary"
-          @click="handleCopy"
           :class="{ success: copySuccess }"
+          @click="handleCopy"
         >
-          <CheckCircle v-if="copySuccess" :size="16" />
-          <Copy v-else :size="16" />
+          <CheckCircle
+            v-if="copySuccess"
+            :size="16"
+          />
+          <Copy
+            v-else
+            :size="16"
+          />
           {{ copySuccess ? '已复制!' : `复制到${platformInfo.name}` }}
         </button>
         <button
           class="action-btn"
-          @click="showExportModal = true"
           title="全屏导出"
+          @click="showExportModal = true"
         >
           <Maximize2 :size="16" />
         </button>
@@ -176,15 +255,27 @@ async function handleCopy() {
 
       <!-- 预览区域 -->
       <div class="preview-section">
-        <h3>👁️ 预览效果</h3>
+        <h3 class="preview-title">
+          <Eye :size="14" />
+          <span>预览效果</span>
+        </h3>
         <div class="preview-frame">
-          <div class="preview-content" v-html="previewHtml"></div>
+          <div
+            class="preview-content"
+            v-html="previewHtml"
+          />
         </div>
       </div>
     </template>
 
-    <div v-else class="empty-state">
-      <p>👈 请从左侧选择一条资讯</p>
+    <div
+      v-else
+      class="empty-state"
+    >
+      <p class="empty-state-copy">
+        <ArrowLeft :size="14" />
+        <span>请从左侧选择一条资讯</span>
+      </p>
     </div>
 
     <!-- 导出模态框 -->
@@ -296,11 +387,27 @@ async function handleCopy() {
   font-weight: 600;
 }
 
+.platform-icon {
+  flex-shrink: 0;
+}
+
 /* 预设选择 */
 .preset-section h3 {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
+}
+
+.preset-heading,
+.preview-title,
+.empty-state-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-icon {
+  flex-shrink: 0;
 }
 
 .preset-grid {
@@ -333,7 +440,9 @@ async function handleCopy() {
 }
 
 .preset-icon {
-  font-size: 20px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .preset-name {

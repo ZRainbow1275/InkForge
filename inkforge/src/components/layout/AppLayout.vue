@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { FolderOpen, List, Eye, PenSquare } from 'lucide-vue-next'
 import ResizablePanel from './ResizablePanel.vue'
 import CategoryPanel from '../category/CategoryPanel.vue'
 import ArticlePanel from '../article/ArticlePanel.vue'
@@ -22,7 +23,10 @@ const editorWidth = ref(400)
       side="right"
     >
       <div class="panel-header">
-        <span>📁 分类</span>
+        <span class="panel-title">
+          <FolderOpen :size="14" />
+          分类
+        </span>
       </div>
       <div class="panel-content">
         <CategoryPanel />
@@ -37,7 +41,10 @@ const editorWidth = ref(400)
       side="right"
     >
       <div class="panel-header">
-        <span>📋 资讯列表</span>
+        <span class="panel-title">
+          <List :size="14" />
+          资讯列表
+        </span>
       </div>
       <div class="panel-content">
         <ArticlePanel />
@@ -45,9 +52,15 @@ const editorWidth = ref(400)
     </ResizablePanel>
 
     <!-- 中: 预览面板 -->
-    <main class="panel flex-1" style="min-width: 300px;">
+    <main
+      class="panel flex-1"
+      style="min-width: 300px;"
+    >
       <div class="panel-header">
-        <span>👁️ 内容预览</span>
+        <span class="panel-title">
+          <Eye :size="14" />
+          内容预览
+        </span>
       </div>
       <div class="panel-content">
         <PreviewPanel />
@@ -62,7 +75,10 @@ const editorWidth = ref(400)
       side="left"
     >
       <div class="panel-header">
-        <span>✏️ 编辑器</span>
+        <span class="panel-title">
+          <PenSquare :size="14" />
+          编辑器
+        </span>
       </div>
       <div class="panel-content">
         <EditorPanel />
@@ -74,5 +90,11 @@ const editorWidth = ref(400)
 <style scoped>
 .panel {
   transition: width 0.2s ease;
+}
+
+.panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 </style>

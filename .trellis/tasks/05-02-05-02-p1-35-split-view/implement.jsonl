@@ -1,0 +1,14 @@
+{"file":"prompts/0420/specs/35-split-view-spec.md","reason":"Primary SplitView product requirements and Phase 1 acceptance scope."}
+{"file":"prompts/0420/specs/34-layout-persistence-spec.md","reason":"SplitView ratio and mode state must persist through the existing layout persistence baseline."}
+{"file":"prompts/0420/specs/39-sync-scroll-spec.md","reason":"Sync-scroll controls and future anchor-map expectations constrain the Phase 1 fallback."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Dexie/layoutStates contracts and local-only persistence rules."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Layout persistence store and Workstation UI state contracts."}
+{"file":"inkforge/src/views/WorkstationView.vue","reason":"Main Workstation integration surface for split preview, separator, shortcut, and responsive fallback."}
+{"file":"inkforge/src/services/layout-persistence/types.ts","reason":"Persisted split-view fields belong to the existing layout state record."}
+{"file":"inkforge/src/services/layout-persistence/migration.ts","reason":"Migration/default normalization must backfill split-view fields for old rows."}
+{"file":".trellis/tasks/05-02-05-02-p1-35-split-view/research/split-view-research.md","reason":"Current split-pane accessibility, persistence, responsive, and sync-scroll implementation research."}
+{"file": "inkforge/src/stores/settings.ts", "reason": "Migrated SplitView and sidebar shortcut defaults to avoid Ctrl+Shift+E conflicts."}
+{"file": "inkforge/src/components/command-palette/CommandPalette.vue", "reason": "Registered the installed lucide Columns2 icon for the SplitView command."}
+{"file": "inkforge/src/services/command/builtin.ts", "reason": "Added view.toggleSplitView command-palette action."}
+{"file": "inkforge/src/types/command-palette.ts", "reason": "Extended WorkstationCommandBridge with toggleSplitView."}
+{"file": "inkforge/src/services/layout-persistence/layout-persistence.test.ts", "reason": "Covers real split field save/load, migration defaults, clamp behavior, debounce merge, and store propagation."}

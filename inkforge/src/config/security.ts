@@ -52,7 +52,7 @@ export const PASSWORD_POLICY = {
     /** 是否要求特殊字符 */
     REQUIRE_SPECIAL: false, // 当前设为 false，可根据需求启用
     /** 特殊字符正则 */
-    SPECIAL_CHARS_REGEX: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+    SPECIAL_CHARS_REGEX: /[!@#$%^&*()_+=[\]{};':"\\|,.<>/?-]/,
 } as const
 
 /** 密码策略配置类型（宽松化布尔字段，允许运行时覆盖） */
@@ -474,9 +474,9 @@ export const ERROR_SANITIZATION = {
     /** 敏感路径模式（将被替换为 [REDACTED]） */
     SENSITIVE_PATH_PATTERNS: [
         /[A-Za-z]:\\[^:\s]*/g,          // Windows 路径
-        /\/(?:Users|home)\/[^\/\s]+/g,  // Unix 用户目录
-        /\/tmp\/[^\/\s]+/g,             // 临时目录
-        /\/var\/[^\/\s]+/g,             // var 目录
+        /\/(?:Users|home)\/[^\s/]+/g,   // Unix 用户目录
+        /\/tmp\/[^\s/]+/g,              // 临时目录
+        /\/var\/[^\s/]+/g,              // var 目录
     ] as const,
 
     /** 替换文本 */

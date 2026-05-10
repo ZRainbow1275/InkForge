@@ -1,9 +1,9 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeDevCommand": "",
+    "beforeDevCommand": "pnpm dev --host 127.0.0.1 --port 3005",
     "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:3013",
+    "devPath": "http://localhost:3005",
     "distDir": "../dist"
   },
   "package": {
@@ -20,7 +20,11 @@
         "createDir": true,
         "removeFile": true,
         "exists": true,
-        "scope": ["$DOCUMENT/*", "$DOWNLOAD/*", "$APPDATA/*"]
+        "scope": [
+          "$DOCUMENT/*",
+          "$DOWNLOAD/*",
+          "$APPDATA/*"
+        ]
       },
       "dialog": {
         "all": true,
@@ -38,13 +42,15 @@
       "http": {
         "all": true,
         "request": true,
-        "scope": ["http://localhost:11434/*"]
+        "scope": [
+          "http://localhost:11434/*"
+        ]
       }
     },
     "bundle": {
       "active": true,
       "category": "Productivity",
-      "copyright": "Copyright © 2024 InkForge",
+      "copyright": "Copyright 2024 InkForge",
       "deb": {
         "depends": []
       },
@@ -56,7 +62,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.inkforge.app",
+      "identifier": "io.inkforge.app",
       "longDescription": "InkForge - 微信公众号排版编辑器，支持本地 AI 辅助写作",
       "macOS": {
         "entitlements": null,
@@ -67,7 +73,11 @@
       },
       "resources": [],
       "shortDescription": "微信公众号排版编辑器",
-      "targets": ["msi", "dmg", "app"],
+      "targets": [
+        "msi",
+        "dmg",
+        "app"
+      ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -91,7 +101,9 @@
         "width": 1400,
         "minWidth": 800,
         "minHeight": 600,
-        "center": true
+        "center": true,
+        "label": "main",
+        "fileDropEnabled": true
       }
     ]
   }

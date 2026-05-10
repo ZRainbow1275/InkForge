@@ -1,0 +1,4 @@
+{"file":"prompts/0420/specs/21-focus-writing-assist-spec.md","reason":"Authoritative Spec 21 requirements for focus mode, typewriter mode, vignette, Pomodoro, writing stats, ambient sound, and focus session summary."}
+{"file":"prompts/0420/acceptance-matrix.md","reason":"Project-level acceptance ledger and existing 0420 baseline notes to keep status language consistent."}
+{"file":".trellis/spec/frontend/index.md","reason":"Frontend spec index for local implementation conventions."}
+{"file":".trellis/spec/guides/index.md","reason":"Shared thinking guide index for cross-layer and reuse checks."}

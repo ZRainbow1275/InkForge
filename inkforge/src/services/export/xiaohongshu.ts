@@ -1,11 +1,12 @@
 /**
  * 小红书导出引擎
- * 小红书笔记特点：清新、年轻、图文混排、emoji 友好
+ * 小红书笔记特点：清新、年轻、图文混排、层次明确
  * 增强：代码高亮、表格支持、列表样式优化
  */
 
 import juice from 'juice'
 import { marked } from 'marked'
+import { renderMarkdownWithLazyOptionalEnhancements } from '@/services/rendering/lazy-optional-renderer'
 import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性
@@ -236,7 +237,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-fresh',
     name: '清新少女',
-    icon: '🌸',
+    icon: 'xhs-fresh',
     primaryColor: '#FF2442',
     accentColor: '#FFE4E6',
     customCSS: ``
@@ -244,7 +245,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-simple',
     name: '极简高级',
-    icon: '✨',
+    icon: 'xhs-simple',
     primaryColor: '#1A1A1A',
     accentColor: '#F5F5F5',
     customCSS: `
@@ -256,7 +257,7 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-warm',
     name: '温暖治愈',
-    icon: '🧸',
+    icon: 'xhs-warm',
     primaryColor: '#D4A574',
     accentColor: '#FDF6EC',
     customCSS: `
@@ -268,12 +269,12 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-tech',
     name: '科技数码',
-    icon: '🔮',
+    icon: 'xhs-tech',
     primaryColor: '#4F46E5',
     accentColor: '#818CF8',
     secondaryBg: '#f0f0ff',
-    listMarker: '🔹',
-    dividerText: '·  ·  · ⚡ ·  ·  ·',
+    listMarker: '▸',
+    dividerText: '·  ·  · 数码 ·  ·  ·',
     customCSS: `
       #xhs-note strong { color: #4F46E5; }
       #xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
@@ -282,12 +283,12 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
   {
     id: 'xhs-nature',
     name: '自然清新',
-    icon: '🌿',
+    icon: 'xhs-nature',
     primaryColor: '#059669',
     accentColor: '#34D399',
     secondaryBg: '#ecfdf5',
-    listMarker: '🍃',
-    dividerText: '·  ·  · 🌿 ·  ·  ·',
+    listMarker: '·',
+    dividerText: '·  ·  · 自然 ·  ·  ·',
     customCSS: `
       #xhs-note strong { color: #059669; }
       #xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; }
@@ -296,19 +297,8 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
 ]
 
 // ═══════════════════════════════════════════════════════════════════
-// Emoji 装饰系统
+// 标题装饰系统
 // ═══════════════════════════════════════════════════════════════════
-
-/**
- * 标题 emoji 前缀表 — 按预设 ID 映射
- */
-const HEADING_EMOJIS: Record<string, { h1: string; h2: string; h3: string }> = {
-  'xhs-fresh': { h1: '🌸', h2: '🌷', h3: '💐' },
-  'xhs-simple': { h1: '◆', h2: '◇', h3: '▫' },
-  'xhs-warm': { h1: '🧡', h2: '💛', h3: '🤎' },
-  'xhs-tech': { h1: '⚡', h2: '💫', h3: '✦' },
-  'xhs-nature': { h1: '🌿', h2: '🍀', h3: '🌱' },
-}
 
 /**
  * 标题装饰样式生成器 — 为不同预设生成不同的内联装饰
@@ -339,7 +329,7 @@ function getHeadingDecorationStyle(presetId: string, level: 'h1' | 'h2' | 'h3', 
 
 /**
  * 小红书后处理
- * 增强：标题emoji装饰、标题样式多样化、列表标记、图片圆角、表格边框修补、签名块
+ * 增强：标题样式多样化、列表标记、图片圆角、表格边框修补、签名块
  */
 function postProcessForXiaohongshu(html: string, preset: XiaohongshuPreset): string {
   let result = html
@@ -376,38 +366,25 @@ function postProcessForXiaohongshu(html: string, preset: XiaohongshuPreset): str
     }
   )
 
-  // 4. 标题 emoji 前缀 + 装饰样式
-  const emojis = HEADING_EMOJIS[presetId]
-  if (emojis) {
-    const headingLevels: Array<{ tag: 'h1' | 'h2' | 'h3'; emoji: string }> = [
-      { tag: 'h1', emoji: emojis.h1 },
-      { tag: 'h2', emoji: emojis.h2 },
-      { tag: 'h3', emoji: emojis.h3 },
-    ]
+  // 4. 标题样式装饰
+  const headingLevels: Array<'h1' | 'h2' | 'h3'> = ['h1', 'h2', 'h3']
+  for (const tag of headingLevels) {
+    const decoStyle = getHeadingDecorationStyle(presetId, tag, primaryColor, secondaryBg)
+    if (!decoStyle) continue
 
-    for (const { tag, emoji } of headingLevels) {
-      const decoStyle = getHeadingDecorationStyle(presetId, tag, primaryColor, secondaryBg)
-      result = result.replace(
-        new RegExp(`<${tag}([^>]*)>([\\s\\S]*?)<\\/${tag}>`, 'gi'),
-        (match, attrs: string, content: string) => {
-          // 避免重复添加 emoji（幂等处理）
-          const trimmed = content.trim()
-          if (trimmed.startsWith(emoji)) return match
-
-          // 合并装饰样式到已有 style
-          let newAttrs = attrs
-          if (decoStyle) {
-            if (newAttrs.includes('style="')) {
-              newAttrs = newAttrs.replace(/style="([^"]*)"/, `style="$1;${decoStyle}"`)
-            } else {
-              newAttrs = ` style="${decoStyle}"${newAttrs}`
-            }
-          }
-
-          return `<${tag}${newAttrs}>${emoji} ${content}</${tag}>`
+    result = result.replace(
+      new RegExp(`<${tag}([^>]*)>([\\s\\S]*?)<\\/${tag}>`, 'gi'),
+      (_match, attrs: string, content: string) => {
+        let newAttrs = attrs
+        if (newAttrs.includes('style="')) {
+          newAttrs = newAttrs.replace(/style="([^"]*)"/, `style="$1;${decoStyle}"`)
+        } else {
+          newAttrs = ` style="${decoStyle}"${newAttrs}`
         }
-      )
-    }
+
+        return `<${tag}${newAttrs}>${content}</${tag}>`
+      }
+    )
   }
 
   // 5. 列表标记增强 — 使用预设 listMarker 或默认彩色圆点
@@ -421,7 +398,7 @@ function postProcessForXiaohongshu(html: string, preset: XiaohongshuPreset): str
 
   // 6. 签名装饰块 — 添加到 #xhs-note 末尾
   const signatureBlock = `<section style="text-align:center;margin-top:32px;padding:16px 0;color:${primaryColor};font-size:13px;">` +
-    `✨ 感谢阅读 ✨` +
+    `感谢阅读` +
     `</section>`
   // 插入到最后一个 </section> 之前（即 #xhs-note 闭合标签前）
   const lastSectionClose = result.lastIndexOf('</section>')
@@ -442,7 +419,12 @@ function postProcessForXiaohongshu(html: string, preset: XiaohongshuPreset): str
 
 /**
  * HTML 转小红书格式
- * 增强：代码高亮(浅色主题)、Alert 块、表格增强、emoji装饰、段落排版
+ * 增强：代码高亮(浅色主题)、Alert 块、表格增强、标题装饰、段落排版
+ *
+ * preview-only: not for direct paste into 小红书
+ *   小红书 App 仅接受纯文本，HTML 内联样式无法发布到正式笔记。
+ *   该函数仅服务于编辑器内的 WYSIWYG preview / 平台外 demo 渲染。
+ *   实际发布请走 markdownToXiaohongshuText（文本引擎，已接入 platform-rules）。
  */
 export function convertToXiaohongshu(
   html: string,
@@ -498,7 +480,7 @@ export function convertToXiaohongshu(
   const tableEnhancedHtml = enhanceTableStyles(highlightedHtml, preset.primaryColor)
 
   // Step 5: 添加小红书特色分隔符（使用预设 dividerText）
-  const dividerText = preset.dividerText || '· · · ✦ · · ·'
+  const dividerText = preset.dividerText || '· · · · · · ·'
   let processedHtml = tableEnhancedHtml
     .replace(/<hr\s*\/?>/gi, `<div class="xhs-divider" style="text-align:center;margin:24px 0;color:${preset.primaryColor};font-size:14px;">${dividerText}</div>`)
 
@@ -546,7 +528,7 @@ export async function markdownToXiaohongshu(
   markdown: string,
   presetId: string = 'xhs-fresh'
 ): Promise<string> {
-  const html = await marked.parse(markdown)
+  const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
   return convertToXiaohongshu(html, presetId)
 }
 

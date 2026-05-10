@@ -23,6 +23,19 @@ export type { FilePickerOptions } from '@/services/file-picker'
 /** 文件源格式 */
 export type SourceFormat = 'markdown' | 'html' | 'text'
 
+/** 已识别但当前转换管道尚未支持的迁移格式 */
+export type UnsupportedImportFormat = 'docx' | 'zip' | 'json' | 'bear' | 'unknown'
+
+/** 格式检测结果 */
+export interface ImportFormatDetection {
+    fileName: string
+    extension: string
+    mimeType: string
+    format: SourceFormat | UnsupportedImportFormat
+    supported: boolean
+    reason: string
+}
+
 /** 单个文件的导入结果 */
 export interface ImportResult {
     /** 文章标题（优先 frontmatter.title，其次文件名推断） */
@@ -58,39 +71,79 @@ export interface ImportSummary {
 /** 单文件大小上限 (10 MB) */
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
+function getFileExtension(fileName: string): string {
+    const normalized = fileName.trim().toLowerCase()
+    const lastDot = normalized.lastIndexOf('.')
+    return lastDot >= 0 ? normalized.slice(lastDot + 1) : ''
+}
+
+function supportedDetection(
+    fileName: string,
+    mimeType: string,
+    extension: string,
+    format: SourceFormat,
+    reason: string,
+): ImportFormatDetection {
+    return { fileName, mimeType, extension, format, supported: true, reason }
+}
+
+function unsupportedDetection(
+    fileName: string,
+    mimeType: string,
+    extension: string,
+    format: UnsupportedImportFormat,
+    reason: string,
+): ImportFormatDetection {
+    return { fileName, mimeType, extension, format, supported: false, reason }
+}
+
+function isSourceFormat(format: SourceFormat | UnsupportedImportFormat): format is SourceFormat {
+    return format === 'markdown' || format === 'html' || format === 'text'
+}
+
 /**
- * 根据 MIME 类型和文件名判断源格式
+ * 根据 MIME 类型和文件名判断导入格式，并显式标记当前不支持的迁移格式。
  */
-function detectFormat(mimeType: string, fileName: string): SourceFormat {
-    // 优先根据 MIME 类型判断
-    if (mimeType === 'text/markdown' || mimeType === 'text/x-markdown') {
-        return 'markdown'
+export function detectImportFormat(mimeType: string, fileName: string): ImportFormatDetection {
+    const extension = getFileExtension(fileName)
+    const normalizedMime = mimeType.toLowerCase()
+
+    if (extension === 'md' || extension === 'markdown' || extension === 'mdx') {
+        return supportedDetection(fileName, mimeType, extension, 'markdown', 'markdown-extension')
     }
-    if (mimeType === 'text/html') {
-        return 'html'
+    if (normalizedMime === 'text/markdown' || normalizedMime === 'text/x-markdown') {
+        return supportedDetection(fileName, mimeType, extension, 'markdown', 'markdown-mime')
     }
-    if (mimeType === 'text/plain') {
-        // text/plain 可能是 .md 文件（某些系统不识别 markdown MIME）
-        const ext = fileName.split('.').pop()?.toLowerCase()
-        if (ext === 'md' || ext === 'markdown' || ext === 'mdx') {
-            return 'markdown'
-        }
-        return 'text'
+    if (extension === 'html' || extension === 'htm' || normalizedMime === 'text/html') {
+        return supportedDetection(fileName, mimeType, extension, 'html', 'html-extension-or-mime')
+    }
+    if (extension === 'txt' || (extension === '' && normalizedMime === 'text/plain')) {
+        return supportedDetection(fileName, mimeType, extension, 'text', 'plain-text')
     }
 
-    // 回退：根据扩展名判断
-    const ext = fileName.split('.').pop()?.toLowerCase()
-    switch (ext) {
-        case 'md':
-        case 'markdown':
-        case 'mdx':
-            return 'markdown'
-        case 'html':
-        case 'htm':
-            return 'html'
-        default:
-            return 'text'
+    if (extension === 'docx') {
+        return unsupportedDetection(fileName, mimeType, extension, 'docx', 'docx-converter-not-installed')
     }
+    if (extension === 'zip') {
+        return unsupportedDetection(fileName, mimeType, extension, 'zip', 'zip-workspace-import-not-implemented')
+    }
+    if (extension === 'json' || normalizedMime === 'application/json') {
+        return unsupportedDetection(fileName, mimeType, extension, 'json', 'json-import-not-implemented')
+    }
+    if (extension === 'bear' || extension === 'bear2bk') {
+        return unsupportedDetection(fileName, mimeType, extension, 'bear', 'bear-import-not-implemented')
+    }
+
+    return unsupportedDetection(fileName, mimeType, extension, 'unknown', 'unsupported-extension-or-mime')
+}
+
+export function getSupportedImportFormatOrThrow(mimeType: string, fileName: string): SourceFormat {
+    const detection = detectImportFormat(mimeType, fileName)
+    if (!detection.supported || !isSourceFormat(detection.format)) {
+        throw new Error('不支持导入 ' + fileName + ': ' + detection.reason)
+    }
+
+    return detection.format
 }
 
 /**
@@ -154,7 +207,7 @@ function processFile(
     mimeType: string,
     filePath?: string
 ): ImportResult {
-    const sourceFormat = detectFormat(mimeType, fileName)
+    const sourceFormat = getSupportedImportFormatOrThrow(mimeType, fileName)
 
     switch (sourceFormat) {
         case 'markdown': {
@@ -248,6 +301,13 @@ export async function importFiles(options?: FilePickerOptions): Promise<ImportSu
             summary.errors.push(
                 `跳过 ${file.name}: 文件过大 (${sizeMB} MB)，上限为 ${MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB`
             )
+            continue
+        }
+
+        const detection = detectImportFormat(file.mimeType, file.name)
+        if (!detection.supported) {
+            summary.failed++
+            summary.errors.push('不支持导入 ' + file.name + ': ' + detection.reason)
             continue
         }
 

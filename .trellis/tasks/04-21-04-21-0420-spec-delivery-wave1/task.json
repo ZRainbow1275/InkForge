@@ -1,0 +1,53 @@
+{
+  "id": "04-21-0420-spec-delivery-wave1",
+  "name": "04-21-0420-spec-delivery-wave1",
+  "title": "0420 Spec Driven Delivery Wave 1",
+  "description": "Wave 1 closeout for prompts/0420 covering Typora/Source/Preview, status bar, writing goals, drafts box, and Settings mainline.",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "ZRainbow1275",
+  "assignee": "ZRainbow1275",
+  "createdAt": "2026-04-21",
+  "completedAt": "2026-04-23",
+  "branch": null,
+  "base_branch": "dev/visual-fixes",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "brainstorm"
+    },
+    {
+      "phase": 2,
+      "action": "research"
+    },
+    {
+      "phase": 3,
+      "action": "implement"
+    },
+    {
+      "phase": 4,
+      "action": "check"
+    },
+    {
+      "phase": 5,
+      "action": "update-spec"
+    },
+    {
+      "phase": 6,
+      "action": "record-session"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Closed on 2026-04-23 after vue-tsc/build passed again and production preview confirmed Settings and Workstation main flows. GitNexus MCP still returns fetch failed and remains an external follow-up only.",
+  "meta": {}
+}

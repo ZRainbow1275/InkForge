@@ -19,6 +19,21 @@ export type {
     ArticleStatus
 } from '@/schemas/article';
 
+export type {
+    Tag,
+    TagRecord,
+    DocTag,
+    DocTagRecord,
+    TagCloudNode,
+    TagColorPreset,
+    TagFilterMode,
+    TagSortField,
+    TagSortDirection,
+    CreateTagParams,
+    UpdateTagParams,
+    MergeTagsParams
+} from '@/services/tag-system';
+
 // ═══════════════════════════════════════════════════════════════════
 // 从 Schema 统一导出 DTO 类型（运行时校验边界）
 // ═══════════════════════════════════════════════════════════════════

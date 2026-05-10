@@ -1,0 +1,6 @@
+{"file":"prompts/0420/specs/55-updater-spec.md","reason":"Primary updater requirements: check-only policy, Settings About UI, skip-version persistence, enterprise disable, audit/activity logging."}
+{"file":"prompts/0420/specs/24-permission-audit-spec.md","reason":"Updater user-visible actions must append typed audit entries without weakening audit validation."}
+{"file":"prompts/0420/specs/33-diagnostic-logging-spec.md","reason":"Background checks and updater failures must use ActivityLog levels and avoid noisy UI errors."}
+{"file":"prompts/0420/specs/40-dev-panel-spec.md","reason":"Settings About already contains runtime/developer diagnostics; updater status must integrate additively."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Follow frontend quality gates and add updater-specific gate after validation."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Keep updater settings, service results, skip records, and UI events strictly typed."}
