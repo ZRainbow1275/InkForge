@@ -2,10 +2,10 @@
   "id": "enhance-export-rendering",
   "name": "enhance-export-rendering",
   "title": "Enhance Export Rendering for WeChat Xiaohongshu Zhihu",
-  "description": "",
-  "status": "planning",
-  "dev_type": null,
-  "scope": null,
+  "description": "Audit and repair backend-like export services and real platform rendering rules for WeChat, Xiaohongshu, and Zhihu without changing frontend views/styles.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "backend-services-export",
   "priority": "P2",
   "creator": "ZRainbow1275",
   "assignee": "ZRainbow1275",
@@ -14,7 +14,7 @@
   "branch": null,
   "base_branch": "master",
   "worktree_path": null,
-  "current_phase": 0,
+  "current_phase": 2,
   "next_action": [
     {
       "phase": 1,
@@ -36,6 +36,11 @@
   "commit": null,
   "pr_url": null,
   "subtasks": [],
-  "relatedFiles": [],
-  "notes": ""
+  "relatedFiles": [
+    "inkforge/src/services/export/",
+    "inkforge/src/services/rendering/",
+    "inkforge/src/services/markdown-ext/",
+    "docs/platform-rendering-rules/"
+  ],
+  "notes": "Scope narrowed by 2026-05-11 brainstorm: no frontend component/view/style edits; focus on real service-layer capability audit and platform rendering rule fixes."
 }
