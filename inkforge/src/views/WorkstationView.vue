@@ -127,6 +127,8 @@ const LAST_NON_PREVIEW_EDITOR_MODE_STORAGE_KEY = 'inkforge.editor.lastNonPreview
 const EDITOR_WIDTH_STORAGE_KEY = 'inkforge.editor.editorWidth'
 const MODE_LAYOUTS_STORAGE_KEY = 'inkforge.workstation.modeLayouts'
 const WORKSTATION_PANEL_WIDTHS_STORAGE_KEY = 'inkforge.workstation.panelWidths'
+const LEGACY_INSPECTOR_PINNED_STORAGE_KEY = 'inkforge.workstation.inspectorPinned'
+const LEGACY_INLINE_RENDERING_LAYOUT_STORAGE_KEY = 'inkforge.workstation.inlineRenderingLayout.v1'
 const EDITOR_MODE_VALUES = ['typora', 'source', 'preview'] as const
 const NON_PREVIEW_EDITOR_MODE_VALUES = ['typora', 'source'] as const
 const EDITOR_MODE_CYCLE = ['typora', 'source', 'preview'] as const
@@ -283,6 +285,19 @@ function writeEditorPreference(key: string, value: string): void {
     localStorage.setItem(key, value)
   } catch {
     // 闈欓粯鍥為€€鍒拌繍琛屾椂鍐呭瓨鐘舵€?
+  }
+}
+
+function consumeLegacyInlineRenderingLayoutDefault(): boolean {
+  try {
+    const wasApplied = localStorage.getItem(LEGACY_INLINE_RENDERING_LAYOUT_STORAGE_KEY) === 'applied'
+    if (wasApplied) {
+      localStorage.removeItem(LEGACY_INLINE_RENDERING_LAYOUT_STORAGE_KEY)
+      localStorage.removeItem(LEGACY_INSPECTOR_PINNED_STORAGE_KEY)
+    }
+    return wasApplied
+  } catch {
+    return false
   }
 }
 
@@ -723,9 +738,35 @@ function applyPersistedLayoutRecord(record: LayoutStateRecord): void {
     nextActiveArticleId = applyPersistedLayoutTabs(record)
   })
 
-  if (nextActiveArticleId && hasArticle(nextActiveArticleId)) {
+  if (!routeArticleId.value && nextActiveArticleId && hasArticle(nextActiveArticleId)) {
     articleStore.selectArticle(nextActiveArticleId)
   }
+}
+
+function restoreLegacyInlineRenderingWorkbenchDefault(): void {
+  if (!consumeLegacyInlineRenderingLayoutDefault()) {
+    return
+  }
+
+  withSuspendedLayoutPersistence(() => {
+    splitViewEnabled.value = false
+    inspectorCollapsed.value = true
+    inspectorPinned.value = false
+    modeLayouts.value = {
+      ...modeLayouts.value,
+      typora: {
+        ...modeLayouts.value.typora,
+        inspectorCollapsed: true,
+      },
+      source: {
+        ...modeLayouts.value.source,
+        inspectorCollapsed: true,
+      },
+    }
+    writeModeLayoutsPreference(modeLayouts.value)
+  })
+
+  scheduleLayoutPersistenceSave()
 }
 
 async function initializeLayoutPersistence(): Promise<void> {
@@ -736,11 +777,13 @@ async function initializeLayoutPersistence(): Promise<void> {
       applyPersistedLayoutRecord(result.record)
     }
     await layoutPersistenceStore.cleanupStaleLayouts(profileId)
+    restoreLegacyInlineRenderingWorkbenchDefault()
   } catch (error) {
     logger.warn('workstation.layoutPersistence.restore.failed', {
       profileId,
       error: error instanceof Error ? error.message : String(error),
     })
+    restoreLegacyInlineRenderingWorkbenchDefault()
   }
 }
 
@@ -1107,14 +1150,30 @@ const saveStatusText = computed<string>(() => {
   if (editorStatus.value === 'idle') return '就绪'
   if (editorStatus.value === 'saving') return '保存中…'
   if (editorSyncState.value === 'syncing') return '同步中…'
+  if (editorSyncState.value === 'dirty') return '未保存'
   if (editorSyncState.value === 'synced') return '已同步 · 已保存'
   return '已保存'
 })
 
-const normalizedBody = computed(() => {
+const editorLiveBody = ref<string | null>(null)
+
+const persistedNormalizedBody = computed(() => {
   const rawBody = currentContent.value?.body ?? ''
   return isLikelyHtmlContent(rawBody) ? serializeHtmlToMarkdown(rawBody) : rawBody
 })
+
+const normalizedBody = computed(() => editorLiveBody.value ?? persistedNormalizedBody.value)
+
+watch(
+  () => currentContent.value?.articleId ?? null,
+  () => {
+    editorLiveBody.value = null
+  },
+)
+
+function handleEditorContentChange(markdown: string): void {
+  editorLiveBody.value = markdown
+}
 
 watch(
   () => [normalizedBody.value, isSplitViewActive.value, splitViewRatio.value, editorMode.value] as const,
@@ -1944,11 +2003,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     <div class="focus-overlay" />
 
     <button
+      type="button"
       v-if="isFocusMode"
       class="focus-exit-btn"
       title="退出专注模式 (Esc)"
-      @click="toggleFocusMode"
-    >
+      @click="toggleFocusMode">
       <span>退出专注</span>
       <span class="focus-exit-shortcut">Esc</span>
     </button>
@@ -1994,7 +2053,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         <!-- 淇濆瓨鐘舵€?Pill -->
         <div
           class="status-pill"
-          :class="editorStatus === 'error' ? 'error' : editorStatus === 'saving' || editorSyncState === 'syncing' ? 'unsaved' : 'saved'"
+          :class="editorStatus === 'error' ? 'error' : editorStatus === 'saving' || editorSyncState === 'syncing' || editorSyncState === 'dirty' ? 'unsaved' : 'saved'"
           :title="saveStatusText"
         >
           <span class="status-dot" />
@@ -2006,12 +2065,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
       <div class="header-actions">
         <!-- 澶嶅埗 -->
         <button
+          type="button"
           class="icon-btn"
           :class="{ success: copySuccess }"
           :disabled="!hasContent"
           :title="copySuccess ? 'Copied' : 'Copy to clipboard'"
-          @click="handleCopyToClipboard"
-        >
+          @click="handleCopyToClipboard">
           <svg
             v-if="copySuccess"
             width="16"
@@ -2047,11 +2106,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
         <!-- 导出 -->
         <button
+          type="button"
           class="icon-btn"
           :disabled="!hasContent"
           title="导出"
-          @click="showExportModal = true"
-        >
+          @click="showExportModal = true">
           <svg
             width="16"
             height="16"
@@ -2073,11 +2132,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
         <!-- 涓撴敞妯″紡 -->
         <button
+          type="button"
           class="icon-btn"
           :class="{ active: isFocusMode }"
           :title="isFocusMode ? '退出专注模式 (F11)' : '进入专注模式 (F11)'"
-          @click="toggleFocusMode"
-        >
+          @click="toggleFocusMode">
           <svg
             v-if="!isFocusMode"
             width="16"
@@ -2154,9 +2213,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
         <!-- 发布鎸夐挳 CTA -->
         <button
+          type="button"
           class="publish-btn"
-          @click="showExportModal = true"
-        >
+          @click="showExportModal = true">
           <svg
             width="14"
             height="14"
@@ -2242,17 +2301,17 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
       </div>
       <div class="recovery-banner-actions">
         <button
+          type="button"
           class="recovery-action recovery-action-primary"
           :disabled="isRestoringPrimaryRecovery"
-          @click="restorePrimaryRecoveryPayload"
-        >
+          @click="restorePrimaryRecoveryPayload">
           {{ isRestoringPrimaryRecovery ? '恢复中...' : '恢复此文稿' }}
         </button>
         <button
+          type="button"
           class="recovery-action"
           :disabled="isRestoringPrimaryRecovery"
-          @click="dismissPrimaryRecoveryPayload"
-        >
+          @click="dismissPrimaryRecoveryPayload">
           忽略
         </button>
       </div>
@@ -2297,10 +2356,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           <div class="panel-tabs">
             <div class="panel-tab-strip">
             <button
+              type="button"
               class="panel-tab"
               :class="{ active: managerTab === 'files' }"
-              @click="managerTab = 'files'"
-            >
+              @click="managerTab = 'files'">
               <svg
                 width="14"
                 height="14"
@@ -2316,10 +2375,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <span>文件</span>
             </button>
             <button
+              type="button"
               class="panel-tab"
               :class="{ active: managerTab === 'versions' }"
-              @click="managerTab = 'versions'"
-            >
+              @click="managerTab = 'versions'">
               <svg
                 width="14"
                 height="14"
@@ -2348,10 +2407,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <span>版本</span>
             </button>
             <button
+              type="button"
               class="panel-tab"
               :class="{ active: managerTab === 'outline' }"
-              @click="managerTab = 'outline'"
-            >
+              @click="managerTab = 'outline'">
               <svg
                 width="14"
                 height="14"
@@ -2397,10 +2456,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <span>大纲</span>
             </button>
             <button
+              type="button"
               class="panel-tab"
               :class="{ active: managerTab === 'tags' }"
-              @click="managerTab = 'tags'"
-            >
+              @click="managerTab = 'tags'">
               <svg
                 width="14"
                 height="14"
@@ -2425,10 +2484,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
             <!-- 鎶樺彔鎸夐挳 -->
             <button
+              type="button"
               class="collapse-trigger"
               title="收起面板"
-              @click="managerCollapsed = true"
-            >
+              @click="managerCollapsed = true">
               <svg
                 width="14"
                 height="14"
@@ -2496,6 +2555,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 :editor-width="editorWidth"
                 :is-focus-mode="isFocusMode"
                 :external-preview-active="isSplitViewActive"
+                @content-change="handleEditorContentChange"
                 @sync-state-change="handleEditorSyncStateChange"
                 @toggle-editor-mode="toggleEditorMode"
               />
@@ -2666,20 +2726,20 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           <div class="stage-header">
             <div class="stage-platform-tabs">
               <button
+                type="button"
                 v-for="opt in platformOptions"
                 :key="opt.value"
                 class="stage-tab"
                 :class="{ active: selectedPlatform === opt.value }"
-                @click="selectedPlatform = opt.value"
-              >
+                @click="selectedPlatform = opt.value">
                 {{ opt.label }}
               </button>
             </div>
             <button
+              type="button"
               class="collapse-trigger"
               title="收起面板"
-              @click="stageCollapsed = true"
-            >
+              @click="stageCollapsed = true">
               <svg
                 width="14"
                 height="14"
@@ -2760,11 +2820,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             <!-- 鎿嶄綔鎸夐挳缁?-->
             <div class="stage-actions">
               <button
+                type="button"
                 class="stage-btn-primary"
                 :class="{ success: copySuccess }"
                 :disabled="!hasContent"
-                @click="handleCopyToClipboard"
-              >
+                @click="handleCopyToClipboard">
                 <svg
                   v-if="copySuccess"
                   width="14"
@@ -2799,10 +2859,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 {{ copySuccess ? '已复制' : '复制平台输出' }}
               </button>
               <button
+                type="button"
                 class="stage-btn-secondary"
                 :disabled="!hasContent"
-                @click="showExportModal = true"
-              >
+                @click="showExportModal = true">
                 <svg
                   width="14"
                   height="14"
@@ -2869,10 +2929,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               </svg>
             </button>
             <button
+              type="button"
               class="collapse-trigger"
               title="收起右栏"
-              @click="inspectorCollapsed = true"
-            >
+              @click="inspectorCollapsed = true">
               <svg
                 width="14"
                 height="14"
@@ -2911,14 +2971,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <!-- 涓昏壊閫夋嫨鍣?-->
               <div class="accent-picker">
                 <button
+                  type="button"
                   v-for="color in accentColors"
                   :key="color.value"
                   class="accent-dot"
                   :class="{ active: settingsStore.settings.appearance.accentColor === color.value }"
                   :style="{ background: color.value }"
                   :title="color.label"
-                  @click="selectAccentColor(color.value)"
-                >
+                  @click="selectAccentColor(color.value)">
                   <svg
                     v-if="settingsStore.settings.appearance.accentColor === color.value"
                     width="12"
@@ -2936,13 +2996,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <!-- 棰勮蹇€熷垏鎹㈡潯 -->
               <div class="preset-strip">
                 <button
+                  type="button"
                   v-for="preset in topPresets"
                   :key="preset.id"
                   class="preset-chip"
                   :class="{ active: settingsStore.settings.export.defaultPresetId === preset.id }"
                   :title="preset.description"
-                  @click="applyPreset(preset.id)"
-                >
+                  @click="applyPreset(preset.id)">
                   <component
                     :is="resolveExportIcon(preset.icon || preset.id, preset.id)"
                     class="preset-icon"
@@ -2958,13 +3018,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <label>版心宽度</label>
                 <div class="style-options">
                   <button
+                    type="button"
                     v-for="opt in editorWidthOptions"
                     :key="opt.value"
                     class="style-option"
                     :class="{ active: editorWidth === opt.value }"
                     :title="opt.title"
-                    @click="editorWidth = opt.value"
-                  >
+                    @click="editorWidth = opt.value">
                     {{ opt.label }}
                   </button>
                 </div>
@@ -2995,10 +3055,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <label class="control-toggle">
                 <span>首行缩进</span>
                 <button
+                  type="button"
                   class="indent-toggle"
                   :class="{ active: typography.paragraphIndent }"
-                  @click="updateTypography('paragraphIndent', !typography.paragraphIndent)"
-                >
+                  @click="updateTypography('paragraphIndent', !typography.paragraphIndent)">
                   {{ typography.paragraphIndent ? '2em' : '无' }}
                 </button>
               </label>
@@ -3008,12 +3068,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <label>标题风格</label>
                 <div class="style-options">
                   <button
+                    type="button"
                     v-for="style in headingStyles"
                     :key="style.value"
                     class="style-option"
                     :class="{ active: typography.headingStyle === style.value }"
-                    @click="typography.headingStyle = style.value"
-                  >
+                    @click="typography.headingStyle = style.value">
                     {{ style.label }}
                   </button>
                 </div>
@@ -3024,12 +3084,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <label>引用样式</label>
                 <div class="style-options">
                   <button
+                    type="button"
                     v-for="style in blockquoteStyles"
                     :key="style.value"
                     class="style-option"
                     :class="{ active: typography.blockquoteStyle === style.value }"
-                    @click="typography.blockquoteStyle = style.value"
-                  >
+                    @click="typography.blockquoteStyle = style.value">
                     {{ style.label }}
                   </button>
                 </div>
@@ -3073,10 +3133,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               <!-- 字体鏃忛€夋嫨鎸夐挳缁?-->
               <div class="font-family-group">
                 <button
+                  type="button"
                   class="font-family-btn"
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'serif' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'serif'"
-                >
+                  @click="settingsStore.settings.appearance.fontFamily = 'serif'">
                   <span
                     class="font-family-preview"
                     :style="{ fontFamily: fontFamilyMap.serif }"
@@ -3084,10 +3144,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <span class="font-family-name">衬线</span>
                 </button>
                 <button
+                  type="button"
                   class="font-family-btn"
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'sans' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'sans'"
-                >
+                  @click="settingsStore.settings.appearance.fontFamily = 'sans'">
                   <span
                     class="font-family-preview"
                     :style="{ fontFamily: fontFamilyMap.sans }"
@@ -3095,10 +3155,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <span class="font-family-name">无衬线</span>
                 </button>
                 <button
+                  type="button"
                   class="font-family-btn"
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'kai' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'kai'"
-                >
+                  @click="settingsStore.settings.appearance.fontFamily = 'kai'">
                   <span
                     class="font-family-preview"
                     :style="{ fontFamily: fontFamilyMap.kai }"
@@ -3106,10 +3166,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                   <span class="font-family-name">楷体</span>
                 </button>
                 <button
+                  type="button"
                   class="font-family-btn"
                   :class="{ active: settingsStore.settings.appearance.fontFamily === 'mono' }"
-                  @click="settingsStore.settings.appearance.fontFamily = 'mono'"
-                >
+                  @click="settingsStore.settings.appearance.fontFamily = 'mono'">
                   <span
                     class="font-family-preview"
                     :style="{ fontFamily: fontFamilyMap.mono }"
@@ -3287,11 +3347,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                     </div>
                   </a>
                   <button
+                    type="button"
                     class="link-copy-btn"
                     :class="{ copied: copiedLinkIndex === idx }"
                     :title="copiedLinkIndex === idx ? 'Copied' : 'Copy link'"
-                    @click="copyLinkToClipboard(link.href, idx)"
-                  >
+                    @click="copyLinkToClipboard(link.href, idx)">
                     <svg
                       v-if="copiedLinkIndex === idx"
                       width="12"
