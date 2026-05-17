@@ -81,7 +81,6 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   (e: 'sync-state-change', value: TyporaSyncState): void
-  (e: 'content-change', value: string): void
   (e: 'toggle-editor-mode'): void
 }>()
 
@@ -143,15 +142,6 @@ const widthMap: Record<EditorWidth, string> = {
 const isSourceMode = computed(() => props.editorMode === 'source')
 const editorMode = computed(() => props.editorMode)
 const editorPaperWidth = computed(() => widthMap[props.editorWidth] ?? widthMap.medium)
-const autoSaveEnabled = computed(() => settingsStore.settings.editor.autoSave)
-const autoSaveDelayMs = computed(() => {
-  const intervalSeconds = settingsStore.settings.editor.autoSaveInterval
-  const boundedSeconds = Number.isFinite(intervalSeconds)
-    ? Math.min(300, Math.max(10, intervalSeconds))
-    : 30
-
-  return boundedSeconds * 1000
-})
 
 let isHydratingFromStore = false
 let isApplyingSourceProjection = false
@@ -170,10 +160,6 @@ function setSyncState(nextState: TyporaSyncState) {
 
   syncState.value = nextState
   emit('sync-state-change', nextState)
-}
-
-function emitContentChange(markdown: string): void {
-  emit('content-change', markdown)
 }
 
 // ═══ Settings → CSS Variables ═══
@@ -488,7 +474,6 @@ function initializeBodyEditor(): void {
         sourceMarkdown.value = nextMarkdown
       }
 
-      emitContentChange(nextMarkdown)
       schedulePersist(nextMarkdown)
     }
   })
@@ -536,32 +521,6 @@ watch(
 )
 
 watch(
-  () => [autoSaveEnabled.value, autoSaveDelayMs.value] as const,
-  ([enabled]) => {
-    clearTimeout(saveTimeout)
-    saveTimeout = undefined
-
-    if (!isReady.value) {
-      return
-    }
-
-    const markdown = getCurrentEditorMarkdown()
-    if (!hasContentChanges(markdown)) {
-      setSyncState('synced')
-      return
-    }
-
-    if (enabled) {
-      schedulePersist(markdown)
-      return
-    }
-
-    pendingSaveSequence += 1
-    setSyncState('dirty')
-  },
-)
-
-watch(
   () => [props.editorMode, settingsStore.settings.editor.highlightActiveLine] as const,
   ([mode, highlightActiveLine]) => {
     if (!bodyEditor.value) return
@@ -596,7 +555,6 @@ async function hydrateEditorContent(content: EditedContent): Promise<void> {
   titleText.value = content.title
   transcriptText.value = content.transcript
   sourceMarkdown.value = markdown
-  emitContentChange(markdown)
   void assetStore.loadAssets(content.articleId)
 
   if (bodyEditor.value && bodyEditor.value.getHTML() !== html) {
@@ -642,7 +600,6 @@ watch(editorStatus, (newStatus) => {
     titleText.value = ''
     transcriptText.value = ''
     sourceMarkdown.value = ''
-    emitContentChange('')
     hydratedArticleId = null
     bodyEditor.value?.commands.setContent('')
     setSyncState('offline')
@@ -658,59 +615,29 @@ watch(editorStatus, (newStatus) => {
 })
 
 // ═══ Auto Save (防抖) ═══
-function getNormalizedCurrentBody(): string {
-  const currentBody = currentContent.value?.body ?? ''
-  return isLikelyHtmlContent(currentBody)
-    ? serializeHtmlToMarkdown(currentBody)
-    : currentBody
-}
-
-function hasContentChanges(markdown: string): boolean {
-  return (
-    getNormalizedCurrentBody() !== markdown ||
-    titleText.value !== (currentContent.value?.title ?? '') ||
-    transcriptText.value !== (currentContent.value?.transcript ?? '')
-  )
-}
-
-function getCurrentEditorMarkdown(): string {
-  if (isSourceMode.value) {
-    return sourceMarkdown.value
-  }
-
-  return serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
-}
-
 function schedulePersist(markdown: string) {
   if (!isReady.value) return
 
-  clearTimeout(saveTimeout)
-  saveTimeout = undefined
-
-  if (!autoSaveEnabled.value) {
-    pendingSaveSequence += 1
-    setSyncState(hasContentChanges(markdown) ? 'dirty' : 'synced')
-    return
-  }
-
   setSyncState('syncing')
   const saveSequence = ++pendingSaveSequence
+  clearTimeout(saveTimeout)
   saveTimeout = setTimeout(() => {
-    if (!autoSaveEnabled.value) {
-      if (saveSequence === pendingSaveSequence) {
-        setSyncState(hasContentChanges(markdown) ? 'dirty' : 'synced')
-      }
-      return
-    }
-
     void persistMarkdown(markdown, saveSequence)
-  }, autoSaveDelayMs.value)
+  }, 900)
 }
 
 async function persistMarkdown(markdown: string, saveSequence: number) {
   if (!isReady.value) return
+  const currentBody = currentContent.value?.body ?? ''
+  const normalizedCurrentBody = isLikelyHtmlContent(currentBody)
+    ? serializeHtmlToMarkdown(currentBody)
+    : currentBody
 
-  if (!hasContentChanges(markdown)) {
+  if (
+    normalizedCurrentBody === markdown &&
+    titleText.value === (currentContent.value?.title ?? '') &&
+    transcriptText.value === (currentContent.value?.transcript ?? '')
+  ) {
     if (saveSequence === pendingSaveSequence) {
       setSyncState('synced')
     }
@@ -747,7 +674,6 @@ async function projectMarkdownToTypora(markdown: string): Promise<void> {
 
 function handleSourceUpdate(nextMarkdown: string) {
   sourceMarkdown.value = nextMarkdown
-  emitContentChange(nextMarkdown)
   setSyncState('syncing')
 
   clearTimeout(sourceProjectionTimeout)
@@ -770,7 +696,6 @@ async function flushPendingChanges(): Promise<void> {
 
   const currentMarkdown = serializeHtmlToMarkdown(bodyEditor.value?.getHTML() ?? '')
   sourceMarkdown.value = currentMarkdown
-  emitContentChange(currentMarkdown)
   await persistMarkdown(currentMarkdown, ++pendingSaveSequence)
 }
 
@@ -778,11 +703,6 @@ async function flushPendingChanges(): Promise<void> {
 defineExpose({
   getBodyEditor: () => bodyEditor.value ?? undefined,
   getEditorScrollElement: () => editorScrollRef.value,
-  requestImageInsert: () => {
-    if (bodyEditor.value) {
-      requestImageFileInsert(bodyEditor.value)
-    }
-  },
   flushPendingChanges,
 })
 
@@ -875,7 +795,6 @@ onBeforeUnmount(() => {
           <FloatingToolbar
             ref="floatingToolbarRef"
             :editor="bodyEditor ?? undefined"
-            @request-image="requestContextImageInsert"
           />
           <TableFloatingToolbar :editor="bodyEditor ?? undefined" />
           <FindReplace

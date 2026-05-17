@@ -175,7 +175,6 @@ and still run the narrow checks for the touched scope.
 ## Workstation Source Layout Visual Gate
 
 - Do not accept a Workstation layout change unless Source mode is tested in both inactive split-shell and active split-view states. When no right split pane is mounted, `.split-pane-left` must occupy the full editor shell; leaving a 50% blank white area is a blocking UI regression.
-- WeChat/export rendering work must not add persistent WeChat-specific toolbars, force split view, pin/open the inspector, or replace Workstation's primary `MarkdownPreview` surface. Keep WeChat controls in export/publish or an explicitly separate preview surface, and prove `.wechat-composer-strip` / `.inline-render-preview` are absent from the default Workstation route after rollback or refactoring.
 - Source mode must be validated by real browser measurements, not only by static CSS review. At minimum record `.editor-split-shell`, `.split-pane-left`, `.source-mode-layout`, `.source-pane-editor`, and `.source-pane-preview` widths for a desktop viewport around 1440px.
 - Source instant preview must use flexible columns and collapse by actual container width. Do not rely only on viewport media queries, because Workstation manager/stage/inspector panels can make the editor container narrower than the viewport.
 - Manager tabs and FileManager roots must not expose horizontal scrollbars at the default 240px manager width. If labels are tight, shrink/flex the tabs or hide horizontal overflow while preserving all actions.

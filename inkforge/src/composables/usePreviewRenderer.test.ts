@@ -85,15 +85,6 @@ interface RunArgs {
   presetId?: string
 }
 
-async function waitForPreviewRender(): Promise<void> {
-  // Wait for debounce + rAF + dynamic import + render
-  await new Promise((r) => setTimeout(r, 250))
-  // Drain pending microtasks (dynamic imports may chain promises)
-  for (let i = 0; i < 5; i++) await nextTick()
-  await new Promise((r) => setTimeout(r, 100))
-  for (let i = 0; i < 5; i++) await nextTick()
-}
-
 async function run(
   args: RunArgs
 ): Promise<{
@@ -116,7 +107,12 @@ async function run(
     })
   })!
 
-  await waitForPreviewRender()
+  // Wait for debounce + rAF + dynamic import + render
+  await new Promise((r) => setTimeout(r, 250))
+  // Drain pending microtasks (dynamic imports may chain promises)
+  for (let i = 0; i < 5; i++) await nextTick()
+  await new Promise((r) => setTimeout(r, 100))
+  for (let i = 0; i < 5; i++) await nextTick()
 
   return {
     previewHtml: result.previewHtml.value,
@@ -200,36 +196,6 @@ describe('usePreviewRenderer — platform routing (P3-T11)', () => {
       expect(previewMeta?.platform).toBe('wechat')
     } finally {
       dispose()
-    }
-  })
-
-  it('wechat: refreshes preview when live editor body changes', async () => {
-    const scope = effectScope()
-    const body = ref<string | undefined>('旧正文')
-    const platform = ref<Platform>('wechat')
-    const result = scope.run(() => usePreviewRenderer({
-      body,
-      platform,
-      getExportSettings: () => ({ defaultPresetId: 'thesis' }),
-      getAppearance: () => ({ accentColor: '#1565C0', fontFamily: 'serif' }),
-    }))!
-
-    try {
-      await waitForPreviewRender()
-      expect(result.previewHtml.value).toContain('旧正文')
-
-      body.value = [
-        '## 即时预览标题',
-        '',
-        '这是编辑器尚未自动保存时的正文。',
-      ].join('\n')
-      await waitForPreviewRender()
-
-      expect(result.previewHtml.value).toContain('即时预览标题')
-      expect(result.previewHtml.value).toContain('尚未自动保存')
-      expect(result.previewHtml.value).toMatch(/<section[^>]+id="nice"/i)
-    } finally {
-      scope.stop()
     }
   })
 
