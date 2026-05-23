@@ -15,6 +15,8 @@ import { composeRecipes } from './preset-decorations'
 
 const academicBaseCSS = generatePersonaBaseCSS('academic')
 const businessBaseCSS = generatePersonaBaseCSS('business')
+const lifestyleBaseCSS = generatePersonaBaseCSS('lifestyle')
+const creativeBaseCSS = generatePersonaBaseCSS('creative')
 
 const thesisRecipesPreview = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'preview' })
 const thesisRecipesExport = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'export' })
@@ -30,6 +32,28 @@ const commentaryRecipesExport = composeRecipes(['large-quote', 'h3-vertical-acce
 
 const aigcRecipesPreview = composeRecipes(['h3-vertical-accent', 'ornament-hr'], { target: 'preview' })
 const aigcRecipesExport = composeRecipes(['h3-vertical-accent', 'ornament-hr'], { target: 'export' })
+
+// ─── PR4: lifestyle + creative recipe composers ─────────────────────────
+const notesRecipesPreview = composeRecipes(['cjk-drop-cap', 'ornament-hr', 'pull-quote-bordered'], { target: 'preview' })
+const notesRecipesExport = composeRecipes(['cjk-drop-cap', 'ornament-hr', 'pull-quote-bordered'], { target: 'export' })
+
+const lifeRecipesPreview = composeRecipes(['cjk-drop-cap', 'large-quote', 'ornament-hr'], { target: 'preview' })
+const lifeRecipesExport = composeRecipes(['cjk-drop-cap', 'large-quote', 'ornament-hr'], { target: 'export' })
+
+const elegantRecipesPreview = composeRecipes(['cjk-drop-cap', 'large-quote', 'cjk-decimal-h2', 'h3-vertical-accent'], { target: 'preview' })
+const elegantRecipesExport = composeRecipes(['cjk-drop-cap', 'large-quote', 'cjk-decimal-h2', 'h3-vertical-accent'], { target: 'export' })
+
+const memeRecipesPreview = composeRecipes(['h3-vertical-accent', 'ornament-hr', 'h2-block-ribbon'], { target: 'preview' })
+const memeRecipesExport = composeRecipes(['h3-vertical-accent', 'ornament-hr', 'h2-block-ribbon'], { target: 'export' })
+
+const codeRecipesPreview = composeRecipes(['h2-underline-fine', 'pull-quote-bordered', 'numbered-list-roman'], { target: 'preview' })
+const codeRecipesExport = composeRecipes(['h2-underline-fine', 'pull-quote-bordered', 'numbered-list-roman'], { target: 'export' })
+
+const newsRecipesPreview = composeRecipes(['large-quote', 'pull-quote-bordered', 'h2-underline-fine'], { target: 'preview' })
+const newsRecipesExport = composeRecipes(['large-quote', 'pull-quote-bordered', 'h2-underline-fine'], { target: 'export' })
+
+const techRecipesPreview = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'preview' })
+const techRecipesExport = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'export' })
 
 // highlight.js 代码主题样式 (atom-one-dark)
 export const codeThemeCSS = `
@@ -504,17 +528,45 @@ ${aigcRecipesExport.css}`,
       #nice a { color: #7B2D8E; }
     `
   },
+  // CODE: 代码教程, 思源黑体 + JetBrains Mono, h2 极细底线 + 罗马序号列表; 终端绿
   {
     id: 'code',
     name: '编程创造',
     icon: 'code',
-    description: '程序员简练风',
+    description: '代码教程，终端绿调',
     theme: 'default',
     fontFamily: 'monospace',
     fontSize: '15px',
-    primaryColor: '#00FF41',
+    primaryColor: '#16a34a',
     isUseIndent: false,
     isUseJustify: false,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { --ink-accent: #16a34a; font-family: 'JetBrains Mono', 'Source Han Sans SC', 'Maple Mono CN', monospace; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0 0 0.6em; letter-spacing: -0.01em; }
+#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.6em; }
+#nice h3 { color: #16a34a; font-weight: 600; }
+#nice strong { color: #16a34a; }
+#nice code { background: rgba(22,163,74,0.08); color: #15803d; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
+#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; }
+#nice pre code { color: #c9d1d9; background: transparent; }
+#nice blockquote { border-top: 2px solid #16a34a; border-bottom: 2px solid #16a34a; background: transparent; padding: 1em 0; }
+#nice a { color: #16a34a; }
+${codeRecipesPreview.css}`,
+    exportCSS: `${creativeBaseCSS}
+#nice { font-family: 'JetBrains Mono', 'Source Han Sans SC', monospace; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0 0 0.6em; letter-spacing: -0.01em; }
+#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.6em; }
+#nice h3 { color: #16a34a; font-weight: 600; }
+#nice strong { color: #16a34a; }
+#nice code { background: rgba(22,163,74,0.08); color: #15803d; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
+#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; }
+#nice pre code { color: #c9d1d9; background: transparent; }
+#nice blockquote { border-top: 2px solid #16a34a; border-bottom: 2px solid #16a34a; background: transparent; padding: 1em 0; }
+#nice a { color: #16a34a; }
+${codeRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => codeRecipesExport.decorate(html, target),
     customCSS: `
       #nice { background: #0d1117; color: #c9d1d9; font-family: 'JetBrains Mono', monospace; }
       #nice h2, #nice h3 { color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
@@ -528,17 +580,41 @@ ${aigcRecipesExport.css}`,
       #nice hr { border-top: 1px solid #30363d; }
     `
   },
+  // NOTES: 个人笔记, LXGW WenKai + Fraunces, drop cap + 花体 hr + 双线 pull-quote; 巧克力色奶油底
   {
     id: 'notes',
     name: '学习笔记',
     icon: 'notes',
-    description: '知识卡片风',
+    description: '知识卡片，奶油暖调',
     theme: 'grace',
-    fontFamily: 'sans-serif',
+    fontFamily: 'serif',
     fontSize: '15px',
-    primaryColor: '#E07020',
+    primaryColor: '#d2691e',
     isUseIndent: false,
     isUseJustify: false,
+    persona: 'lifestyle',
+    fonts: PERSONA_FONTS.lifestyle,
+    previewCSS: `${lifestyleBaseCSS}
+#nice { --ink-accent: #d2691e; background: #fdfaf3; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0 0 0.6em; }
+#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 6px 12px; background: #fcf4e4; border-radius: 4px; border-left: 4px solid #d2691e; }
+#nice h3 { color: #a0522d; font-weight: 600; }
+#nice strong { color: #d2691e; }
+#nice code { background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: #d2691e; color: #fff; }
+#nice a { color: #d2691e; }
+${notesRecipesPreview.css}`,
+    exportCSS: `${lifestyleBaseCSS}
+#nice { background: #fdfaf3; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0 0 0.6em; }
+#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 6px 12px; background: #fcf4e4; border-radius: 4px; border-left: 4px solid #d2691e; }
+#nice h3 { color: #a0522d; font-weight: 600; }
+#nice strong { color: #d2691e; }
+#nice code { background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: #d2691e; color: #fff; }
+#nice a { color: #d2691e; }
+${notesRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => notesRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { color: #E07020; background: #FFF8E7; padding: 8px 14px; border-radius: 6px; border-left: 4px solid #E07020; }
       #nice blockquote { background: #FFF8E7; border-left-color: #E07020; border-radius: 4px; }
@@ -546,17 +622,38 @@ ${aigcRecipesExport.css}`,
       #nice code { background: rgba(224,112,32,0.08); color: #E07020; }
     `
   },
+  // NEWS: 新闻报道, 思源黑体 + Inter, 大引号 + 双线 pull-quote + h2 极细底线; 板岩黑庄重
   {
     id: 'news',
     name: '新闻',
     icon: 'news',
-    description: '极简新媒体',
+    description: '新闻报道，板岩黑调',
     theme: 'simple',
     fontFamily: 'sans-serif',
     fontSize: '15px',
-    primaryColor: '#000000',
+    primaryColor: '#0f172a',
     isUseIndent: false,
     isUseJustify: true,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { --ink-accent: #0f172a; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; }
+#nice h2 { color: #0f172a; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; }
+#nice h3 { color: #0f172a; font-weight: 800; border-left: 4px solid #0f172a; padding-left: 0.6em; }
+#nice strong { color: #0f172a; font-weight: 900; }
+#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; }
+#nice table th { background: #0f172a; color: #fff; }
+${newsRecipesPreview.css}`,
+    exportCSS: `${creativeBaseCSS}
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; }
+#nice h2 { color: #0f172a; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; }
+#nice h3 { color: #0f172a; font-weight: 800; border-left: 4px solid #0f172a; padding-left: 0.6em; }
+#nice strong { color: #0f172a; font-weight: 900; }
+#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; }
+#nice table th { background: #0f172a; color: #fff; }
+${newsRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => newsRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { font-weight: 900; text-transform: uppercase; letter-spacing: 1px; border-top: 3px solid #000; border-bottom: 1px solid #000; padding: 10px 0; text-align: center; }
       #nice h3 { font-weight: 700; border-left: 4px solid #000; padding-left: 12px; }
@@ -564,17 +661,44 @@ ${aigcRecipesExport.css}`,
       #nice strong { font-weight: 900; }
     `
   },
+  // MEME: meme风, 得意黑 + Space Grotesk, h2 全色块条 + h3 竖条 + 花体 hr; 热粉
   {
     id: 'meme',
     name: '整活',
     icon: 'meme',
-    description: '年轻有趣',
+    description: 'meme风，热粉破格',
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
-    primaryColor: '#FF6B9D',
+    primaryColor: '#ff006e',
     isUseIndent: false,
     isUseJustify: false,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { --ink-accent: #ff006e; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; }
+#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; }
+#nice h3 { color: #ff006e; font-weight: 700; border-left: 3px solid #ff006e; padding-left: 0.6em; }
+#nice strong { color: #ff006e; font-weight: 900; }
+#nice code { background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.1em 0.35em; border-radius: 4px; }
+#nice blockquote { border-left: 4px solid #ff006e; background: #fff0f5; border-radius: 0 12px 12px 0; padding: 12px 16px; }
+#nice table th { background: #ff006e; color: #fff; }
+#nice hr { border-top: 2px dashed #ff006e; }
+#nice a { color: #ff006e; }
+${memeRecipesPreview.css}`,
+    exportCSS: `${creativeBaseCSS}
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; }
+#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; }
+#nice h3 { color: #ff006e; font-weight: 700; border-left: 3px solid #ff006e; padding-left: 0.6em; }
+#nice strong { color: #ff006e; font-weight: 900; }
+#nice code { background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.1em 0.35em; border-radius: 4px; }
+#nice blockquote { border-left: 4px solid #ff006e; background: #fff0f5; border-radius: 0 12px 12px 0; padding: 12px 16px; }
+#nice table th { background: #ff006e; color: #fff; }
+#nice hr { border-top: 2px dashed #ff006e; }
+#nice a { color: #ff006e; }
+${memeRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => memeRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { color: #FF6B9D; font-weight: 800; font-size: 20px; }
       #nice h3 { color: #FF6B9D; }
@@ -586,17 +710,41 @@ ${aigcRecipesExport.css}`,
       #nice a { color: #FF6B9D; }
     `
   },
+  // LIFE: 生活随笔, LXGW WenKai Lite + Crimson Pro, drop cap + 大引号 + 花体 hr; 棕褐温和
   {
     id: 'life',
     name: '人生感悟',
     icon: 'life',
-    description: '极简Vlog风',
+    description: '生活随笔，棕褐温和',
     theme: 'simple',
     fontFamily: 'serif',
     fontSize: '15px',
-    primaryColor: '#666666',
+    primaryColor: '#a0522d',
     isUseIndent: true,
     isUseJustify: false,
+    persona: 'lifestyle',
+    fonts: PERSONA_FONTS.lifestyle,
+    previewCSS: `${lifestyleBaseCSS}
+#nice { --ink-accent: #a0522d; background: #fefcf8; }
+#nice p { line-height: 2.0; margin-bottom: 1.3em; }
+#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0 0 1em; }
+#nice h2 { color: #a0522d; font-weight: 500; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; }
+#nice h3 { color: #8b4513; font-weight: 500; }
+#nice strong { color: #a0522d; font-weight: 600; }
+#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 0.8em 1.2em; }
+#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; }
+${lifeRecipesPreview.css}`,
+    exportCSS: `${lifestyleBaseCSS}
+#nice { background: #fefcf8; }
+#nice p { line-height: 2.0; margin-bottom: 1.3em; }
+#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0 0 1em; }
+#nice h2 { color: #a0522d; font-weight: 500; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; }
+#nice h3 { color: #8b4513; font-weight: 500; }
+#nice strong { color: #a0522d; font-weight: 600; }
+#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 0.8em 1.2em; }
+#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; }
+${lifeRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => lifeRecipesExport.decorate(html, target),
     customCSS: `
       #nice { max-width: 600px; margin: 0 auto; }
       #nice p { line-height: 2.2; margin-bottom: 1.5em; }
@@ -607,17 +755,41 @@ ${aigcRecipesExport.css}`,
       #nice a { color: #888; border-bottom: 1px solid #ddd; }
     `
   },
+  // ELEGANT: 优雅长文, 思源宋体 + EB Garamond (lifestyle), drop cap + 大引号 + cjk-decimal h2 + h3 竖条; 深紫
   {
     id: 'elegant',
     name: '优雅',
     icon: 'elegant',
-    description: '暗金衬线，书卷气息',
+    description: '优雅长文，深紫书卷',
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '16px',
-    primaryColor: '#B8860B',
+    primaryColor: '#4a3c5a',
     isUseIndent: true,
     isUseJustify: true,
+    persona: 'lifestyle',
+    fonts: { cjk: PERSONA_FONTS.academic.cjk, latin: PERSONA_FONTS.academic.latin },
+    previewCSS: `${lifestyleBaseCSS}
+#nice { --ink-accent: #4a3c5a; font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; }
+#nice p { line-height: 1.95; margin-bottom: 1.2em; }
+#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0 0 1em; }
+#nice h2 { color: #4a3c5a; font-weight: 600; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; }
+#nice h3 { color: #4a3c5a; font-weight: 600; }
+#nice strong { color: #4a3c5a; }
+#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 0.8em 1.2em; }
+#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; }
+${elegantRecipesPreview.css}`,
+    exportCSS: `${lifestyleBaseCSS}
+#nice { font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; }
+#nice p { line-height: 1.95; margin-bottom: 1.2em; }
+#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0 0 1em; }
+#nice h2 { color: #4a3c5a; font-weight: 600; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; }
+#nice h3 { color: #4a3c5a; font-weight: 600; }
+#nice strong { color: #4a3c5a; }
+#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 0.8em 1.2em; }
+#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; }
+${elegantRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => elegantRecipesExport.decorate(html, target),
     customCSS: `
       #nice { font-family: Georgia, "Noto Serif SC", "Source Han Serif SC", serif; line-height: 1.9; }
       #nice p { margin-bottom: 1.2em; text-indent: 2em; }
@@ -625,17 +797,42 @@ ${aigcRecipesExport.css}`,
       #nice blockquote { border-left: 3px solid #B8860B; background: #faf8f0; font-style: italic; }
     `
   },
+  // TECH: 科技, 思源黑体 + Space Grotesk (creative), h2 全色块条 + h3 竖条; 靛蓝
   {
     id: 'tech',
     name: '科技',
     icon: 'tech',
-    description: '靛蓝渐变，未来感',
+    description: '科技，靛蓝未来',
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
     primaryColor: '#6366f1',
     isUseIndent: false,
     isUseJustify: false,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { --ink-accent: #6366f1; }
+#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #4338ca; letter-spacing: -0.01em; }
+#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; }
+#nice h3 { color: #6366f1; font-weight: 600; border-left: 2px solid #6366f1; padding-left: 0.6em; }
+#nice strong { color: #6366f1; }
+#nice code { background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice blockquote { border-left: 4px solid #6366f1; background: #f0f0ff; border-radius: 0 8px 8px 0; padding: 0.8em 1.2em; }
+#nice a { color: #6366f1; }
+#nice table th { background: #6366f1; color: #fff; }
+${techRecipesPreview.css}`,
+    exportCSS: `${creativeBaseCSS}
+#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #4338ca; letter-spacing: -0.01em; }
+#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; }
+#nice h3 { color: #6366f1; font-weight: 600; border-left: 2px solid #6366f1; padding-left: 0.6em; }
+#nice strong { color: #6366f1; }
+#nice code { background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice blockquote { border-left: 4px solid #6366f1; background: #f0f0ff; border-radius: 0 8px 8px 0; padding: 0.8em 1.2em; }
+#nice a { color: #6366f1; }
+#nice table th { background: #6366f1; color: #fff; }
+${techRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => techRecipesExport.decorate(html, target),
     customCSS: `
       #nice { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.8; }
       #nice p { margin-bottom: 1em; }

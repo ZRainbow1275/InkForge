@@ -335,6 +335,42 @@ const h3VerticalAccent: DecorationRecipe = {
 `,
 }
 
+// ─── 9. H2 full-width colored block ribbon ──────────────────────────────
+// Used by meme / news / creative presets to give h2 a strong visual hit.
+// Pure CSS recipe — both preview and export render identically because
+// background-color + padding + border-radius all survive juice + WeChat
+// CSS strip. No <span> injection needed.
+const h2BlockRibbon: DecorationRecipe = {
+  id: 'h2-block-ribbon',
+  description:
+    'H2 rendered as a full-width colored block with reversed text color. ' +
+    'Pure CSS, no post-process — both engines support background + padding.',
+  previewCSS: `
+#nice h2 {
+  background: var(--ink-accent, #0f172a);
+  color: #fff;
+  padding: 0.5em 0.8em;
+  border-radius: 4px;
+  margin-top: 1.6em;
+  margin-bottom: 0.9em;
+  border-left: none;
+  font-weight: 700;
+}
+`,
+  exportCSS: `
+#nice h2 {
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5em 0.8em;
+  border-radius: 4px;
+  margin-top: 1.6em;
+  margin-bottom: 0.9em;
+  border-left: none;
+  font-weight: 700;
+}
+`,
+}
+
 // ════════════════════════════════════════════════════════════════════════
 // Registry + composer
 // ════════════════════════════════════════════════════════════════════════
@@ -348,6 +384,7 @@ export const RECIPES: Record<string, DecorationRecipe> = {
   'pull-quote-bordered': pullQuoteBordered,
   'numbered-list-roman': numberedListRoman,
   'h3-vertical-accent': h3VerticalAccent,
+  'h2-block-ribbon': h2BlockRibbon,
 }
 
 export interface ComposeOptions {

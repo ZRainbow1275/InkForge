@@ -203,6 +203,17 @@ export interface XiaohongshuPreset {
   /** 分割线装饰文案 */
   dividerText?: string
   customCSS?: string
+  // ─── PR4 dual-track schema (optional, back-compat with customCSS) ──────
+  /** Visual persona family - groups presets for shared base styles */
+  persona?: PresetPersona
+  /** Bilingual font pair (CJK + Latin) */
+  fonts?: FontSpec
+  /** Full CSS3 for preview pane (pseudo-elements, counters, gradients) */
+  previewCSS?: string
+  /** Juice-safe CSS subset for platform exports */
+  exportCSS?: string
+  /** Post-process function for export-time decoration injection */
+  decorate?: (html: string, target: ExportTarget) => string
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -223,6 +234,17 @@ export interface ZhihuPreset {
   /** 代码主题覆盖 */
   codeTheme?: CodeTheme
   customCSS?: string
+  // ─── PR4 dual-track schema (optional, back-compat with customCSS) ──────
+  /** Visual persona family - groups presets for shared base styles */
+  persona?: PresetPersona
+  /** Bilingual font pair (CJK + Latin) */
+  fonts?: FontSpec
+  /** Full CSS3 for preview pane (pseudo-elements, counters, gradients) */
+  previewCSS?: string
+  /** Juice-safe CSS subset for platform exports */
+  exportCSS?: string
+  /** Post-process function for export-time decoration injection */
+  decorate?: (html: string, target: ExportTarget) => string
 }
 
 // ═══════════════════════════════════════════════════════════════════

@@ -3,7 +3,7 @@ import { RECIPES, composeRecipes } from './preset-decorations'
 import { themePresets, getPresetById } from './themes'
 
 describe('RECIPES registry', () => {
-  it('declares all 8 PR3 recipes', () => {
+  it('declares all 9 recipes (8 PR3 + 1 PR4)', () => {
     const expected = [
       'cjk-drop-cap',
       'ornament-hr',
@@ -13,6 +13,7 @@ describe('RECIPES registry', () => {
       'pull-quote-bordered',
       'numbered-list-roman',
       'h3-vertical-accent',
+      'h2-block-ribbon',
     ]
     for (const id of expected) {
       expect(RECIPES[id]).toBeDefined()
@@ -217,15 +218,38 @@ describe('migrated presets (thesis, legal, report, commentary, aigc)', () => {
     })
   }
 
-  it('non-migrated presets still lack the new dual-track fields', () => {
+  it('PR4 migrated lifestyle/creative presets now also have dual-track fields', () => {
     const notesPreset = getPresetById('notes')
     expect(notesPreset).toBeDefined()
-    expect(notesPreset?.previewCSS).toBeUndefined()
-    expect(notesPreset?.exportCSS).toBeUndefined()
-    expect(notesPreset?.decorate).toBeUndefined()
+    expect(notesPreset?.previewCSS).toBeDefined()
+    expect(notesPreset?.exportCSS).toBeDefined()
+    expect(typeof notesPreset?.decorate).toBe('function')
   })
 
   it('themePresets array still has all 12 wechat presets', () => {
     expect(themePresets).toHaveLength(12)
+  })
+})
+
+describe('h2-block-ribbon recipe (PR4)', () => {
+  it('renders identical block ribbon for preview and export', () => {
+    const previewCSS = RECIPES['h2-block-ribbon'].previewCSS
+    const exportCSS = RECIPES['h2-block-ribbon'].exportCSS
+    expect(previewCSS).toContain('background')
+    expect(previewCSS).toContain('color: #fff')
+    expect(previewCSS).toContain('border-radius')
+    expect(exportCSS).toContain('background')
+    expect(exportCSS).toContain('color: #fff')
+    expect(exportCSS).toContain('border-radius')
+  })
+
+  it('exportCSS uses literal hex color, no CSS variables', () => {
+    const exportCSS = RECIPES['h2-block-ribbon'].exportCSS
+    expect(exportCSS).not.toMatch(/var\(--/)
+    expect(exportCSS).toContain('#0f172a')
+  })
+
+  it('has no decorate function (pure CSS recipe)', () => {
+    expect(RECIPES['h2-block-ribbon'].decorate).toBeUndefined()
   })
 })

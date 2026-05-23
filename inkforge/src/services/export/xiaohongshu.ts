@@ -11,11 +11,33 @@ import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性
 marked.use({ breaks: true, gfm: true })
-import type { XiaohongshuPreset, XiaohongshuExportOptions } from './types'
+import type { XiaohongshuPreset, XiaohongshuExportOptions, ExportTarget } from './types'
 import { highlightCodeBlocks, renderAlertBlocks, enhanceTableStyles, convertTaskListCheckboxes, cleanEmptyParagraphs, limitConsecutiveBreaks } from './utils'
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION } from '@/config/security'
 import { logger } from '@/services/error'
+import { PERSONA_FONTS } from './preset-fonts'
+import { composeRecipes } from './preset-decorations'
+
+// ─── PR4: per-xhs-preset recipe composers ──────────────────────────────
+// Recipes are scoped to `#nice`; for xhs they bring decorate-time inline
+// styles so injected spans render in any container. exportCSS reuses the
+// recipe CSS verbatim because juice still inlines #nice-scoped declarations
+// onto whatever wrapping element matches.
+const xhsFreshRecipesPreview = composeRecipes(['ornament-hr', 'h3-vertical-accent'], { target: 'preview' })
+const xhsFreshRecipesExport = composeRecipes(['ornament-hr', 'h3-vertical-accent'], { target: 'export' })
+
+const xhsSimpleRecipesPreview = composeRecipes(['h2-underline-fine', 'h3-vertical-accent'], { target: 'preview' })
+const xhsSimpleRecipesExport = composeRecipes(['h2-underline-fine', 'h3-vertical-accent'], { target: 'export' })
+
+const xhsWarmRecipesPreview = composeRecipes(['cjk-drop-cap', 'large-quote', 'ornament-hr'], { target: 'preview' })
+const xhsWarmRecipesExport = composeRecipes(['cjk-drop-cap', 'large-quote', 'ornament-hr'], { target: 'export' })
+
+const xhsTechRecipesPreview = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'preview' })
+const xhsTechRecipesExport = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'export' })
+
+const xhsNatureRecipesPreview = composeRecipes(['ornament-hr', 'large-quote'], { target: 'preview' })
+const xhsNatureRecipesExport = composeRecipes(['ornament-hr', 'large-quote'], { target: 'export' })
 
 // ═══════════════════════════════════════════════════════════════════
 // 小红书基础样式
@@ -234,38 +256,89 @@ export const xiaohongshuBaseCSS = `
 // ═══════════════════════════════════════════════════════════════════
 
 export const xiaohongshuPresets: XiaohongshuPreset[] = [
+  // XHS-FRESH: 清新少女, Smiley Sans + Space Grotesk, 花体 hr + h3 竖条; 经典红
   {
     id: 'xhs-fresh',
     name: '清新少女',
     icon: 'xhs-fresh',
     primaryColor: '#FF2442',
     accentColor: '#FFE4E6',
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `
+#xhs-note h2 { color: #FF2442; font-weight: 700; }
+#xhs-note h3 { border-left: 2px solid #FF2442; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; color: #FF2442; }
+#xhs-note strong { color: #FF2442; }
+${xhsFreshRecipesPreview.css}`,
+    exportCSS: `
+#xhs-note h2 { color: #FF2442; font-weight: 700; }
+#xhs-note h3 { border-left: 2px solid #FF2442; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; color: #FF2442; }
+#xhs-note strong { color: #FF2442; }
+${xhsFreshRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => xhsFreshRecipesExport.decorate(html, target),
     customCSS: ``
   },
+  // XHS-SIMPLE: 极简高级, 思源黑体 + Inter (business), h2 极细底线 + h3 竖条; 近黑庄重
   {
     id: 'xhs-simple',
     name: '极简高级',
     icon: 'xhs-simple',
     primaryColor: '#1A1A1A',
     accentColor: '#F5F5F5',
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `
+#xhs-note { background: #FAFAFA; }
+#xhs-note h2 { color: #1A1A1A; font-weight: 700; border-bottom: 1px solid #1A1A1A; padding-bottom: 0.3em; }
+#xhs-note h3 { color: #1A1A1A; border-left: 2px solid #1A1A1A; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; }
+#xhs-note strong { color: #1A1A1A; font-weight: 900; }
+#xhs-note blockquote { border-left-color: #1A1A1A; background: #F5F5F5; }
+${xhsSimpleRecipesPreview.css}`,
+    exportCSS: `
+#xhs-note { background: #FAFAFA; }
+#xhs-note h2 { color: #1A1A1A; font-weight: 700; border-bottom: 1px solid #1A1A1A; padding-bottom: 0.3em; }
+#xhs-note h3 { color: #1A1A1A; border-left: 2px solid #1A1A1A; padding-left: 0.6em; margin-top: 1.4em; font-weight: 600; }
+#xhs-note strong { color: #1A1A1A; font-weight: 900; }
+#xhs-note blockquote { border-left-color: #1A1A1A; background: #F5F5F5; }
+${xhsSimpleRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => xhsSimpleRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note { background: #FAFAFA; }
       #xhs-note strong { color: #1A1A1A; font-weight: 900; }
       #xhs-note blockquote { border-left-color: #1A1A1A; background: #F5F5F5; }
     `
   },
+  // XHS-WARM: 温暖治愈, LXGW WenKai Lite + Crimson Pro, drop cap + 大引号 + 花体 hr; 焦糖暖色
   {
     id: 'xhs-warm',
     name: '温暖治愈',
     icon: 'xhs-warm',
     primaryColor: '#D4A574',
     accentColor: '#FDF6EC',
+    persona: 'lifestyle',
+    fonts: PERSONA_FONTS.lifestyle,
+    previewCSS: `
+#xhs-note { background: #FFFDF9; }
+#xhs-note h2 { color: #D4A574; font-weight: 600; }
+#xhs-note h3 { color: #B8860B; font-weight: 600; }
+#xhs-note strong { color: #D4A574; }
+#xhs-note blockquote { border-left-color: #D4A574; background: #FDF6EC; font-style: italic; }
+${xhsWarmRecipesPreview.css}`,
+    exportCSS: `
+#xhs-note { background: #FFFDF9; }
+#xhs-note h2 { color: #D4A574; font-weight: 600; }
+#xhs-note h3 { color: #B8860B; font-weight: 600; }
+#xhs-note strong { color: #D4A574; }
+#xhs-note blockquote { border-left-color: #D4A574; background: #FDF6EC; font-style: italic; }
+${xhsWarmRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => xhsWarmRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note { background: #FFFDF9; }
       #xhs-note strong { color: #D4A574; }
       #xhs-note blockquote { border-left-color: #D4A574; background: #FDF6EC; }
     `
   },
+  // XHS-TECH: 科技数码, 思源黑体 + Inter (business), h2 色块条 + h3 竖条; 靛蓝
   {
     id: 'xhs-tech',
     name: '科技数码',
@@ -275,11 +348,29 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
     secondaryBg: '#f0f0ff',
     listMarker: '▸',
     dividerText: '·  ·  · 数码 ·  ·  ·',
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `
+#xhs-note h2 { background: #4F46E5; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; font-weight: 700; }
+#xhs-note h3 { color: #4F46E5; border-left: 2px solid #4F46E5; padding-left: 0.6em; font-weight: 600; }
+#xhs-note strong { color: #4F46E5; }
+#xhs-note code { background: rgba(79,70,229,0.08); color: #4F46E5; padding: 0.1em 0.35em; border-radius: 3px; }
+#xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
+${xhsTechRecipesPreview.css}`,
+    exportCSS: `
+#xhs-note h2 { background: #4F46E5; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; font-weight: 700; }
+#xhs-note h3 { color: #4F46E5; border-left: 2px solid #4F46E5; padding-left: 0.6em; font-weight: 600; }
+#xhs-note strong { color: #4F46E5; }
+#xhs-note code { background: rgba(79,70,229,0.08); color: #4F46E5; padding: 0.1em 0.35em; border-radius: 3px; }
+#xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
+${xhsTechRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => xhsTechRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note strong { color: #4F46E5; }
       #xhs-note blockquote { border-left-color: #4F46E5; background: #f0f0ff; }
     `
   },
+  // XHS-NATURE: 自然清新, LXGW WenKai Lite + Fraunces, 花体 hr + 大引号; 翠绿
   {
     id: 'xhs-nature',
     name: '自然清新',
@@ -289,6 +380,21 @@ export const xiaohongshuPresets: XiaohongshuPreset[] = [
     secondaryBg: '#ecfdf5',
     listMarker: '·',
     dividerText: '·  ·  · 自然 ·  ·  ·',
+    persona: 'lifestyle',
+    fonts: PERSONA_FONTS.lifestyle,
+    previewCSS: `
+#xhs-note h2 { color: #059669; font-weight: 600; border-bottom: 1px solid #34D399; padding-bottom: 0.3em; }
+#xhs-note h3 { color: #047857; font-weight: 600; }
+#xhs-note strong { color: #059669; }
+#xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; font-style: italic; }
+${xhsNatureRecipesPreview.css}`,
+    exportCSS: `
+#xhs-note h2 { color: #059669; font-weight: 600; border-bottom: 1px solid #34D399; padding-bottom: 0.3em; }
+#xhs-note h3 { color: #047857; font-weight: 600; }
+#xhs-note strong { color: #059669; }
+#xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; font-style: italic; }
+${xhsNatureRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => xhsNatureRecipesExport.decorate(html, target),
     customCSS: `
       #xhs-note strong { color: #059669; }
       #xhs-note blockquote { border-left-color: #059669; background: #ecfdf5; }
@@ -508,11 +614,18 @@ export function convertToXiaohongshu(
 
   // Step 9: CSS内联
   const styledHtml = `<style>${css}</style>${wrappedHtml}`
-  const inlinedHtml = juice(styledHtml, {
+  let inlinedHtml = juice(styledHtml, {
     removeStyleTags: true,
     preserveImportant: true,
     inlinePseudoElements: true
   })
+
+  // Step 9.5: PR4 dual-track decorate hook — inject real <span> wrappers for
+  // pseudo-element-only effects (drop cap, large quote, ornament hr, etc.).
+  // The wechat pipeline has the same hook; xhs is opt-in per preset.
+  if (preset.decorate) {
+    inlinedHtml = preset.decorate(inlinedHtml, 'xhs')
+  }
 
   // Step 10: 小红书兼容性后处理（传入完整预设）
   const xhsProcessedHtml = postProcessForXiaohongshu(inlinedHtml, preset)

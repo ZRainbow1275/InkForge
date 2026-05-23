@@ -23,7 +23,7 @@ import DOMPurify from 'dompurify'
 
 // 确保 marked 配置一致性
 marked.use({ breaks: true, gfm: true })
-import type { ZhihuPreset, CodeTheme, ZhihuExportOptions } from './types'
+import type { ZhihuPreset, CodeTheme, ZhihuExportOptions, ExportTarget } from './types'
 import {
   highlightCodeBlocks,
   convertLinksToFootnotes,
@@ -36,12 +36,25 @@ import {
 import { enforcePlatformCSS } from './css-validator'
 import { REDOS_PROTECTION } from '@/config/security'
 import { logger } from '@/services/error'
+import { PERSONA_FONTS } from './preset-fonts'
+import { composeRecipes } from './preset-decorations'
+
+// ─── PR4: per-zhihu-preset recipe composers ─────────────────────────────
+const zhihuAcademicRecipesPreview = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'preview' })
+const zhihuAcademicRecipesExport = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'export' })
+
+const zhihuTechRecipesPreview = composeRecipes(['h2-underline-fine', 'h3-vertical-accent'], { target: 'preview' })
+const zhihuTechRecipesExport = composeRecipes(['h2-underline-fine', 'h3-vertical-accent'], { target: 'export' })
+
+const zhihuInsightRecipesPreview = composeRecipes(['large-quote', 'h2-underline-fine', 'pull-quote-bordered'], { target: 'preview' })
+const zhihuInsightRecipesExport = composeRecipes(['large-quote', 'h2-underline-fine', 'pull-quote-bordered'], { target: 'export' })
 
 // ═══════════════════════════════════════════════════════════════════
 // 知乎预设主题
 // ═══════════════════════════════════════════════════════════════════
 
 const ZHIHU_PRESETS: ZhihuPreset[] = [
+  // ZHIHU-ACADEMIC: 学术论文, 思源宋体 + EB Garamond, 第N章编号 + h2 极细底线; 学术蓝
   {
     id: 'zhihu-academic',
     name: '学术论文',
@@ -50,7 +63,21 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
     accentColor: '#003d99',
     fontSize: '16px',
     codeTheme: 'github-dark',
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `
+#zhihu-answer h2 { color: #0066ff; font-weight: 700; border-bottom: 1px solid #0066ff; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #003d99; font-weight: 600; }
+#zhihu-answer strong { color: #0066ff; }
+${zhihuAcademicRecipesPreview.css}`,
+    exportCSS: `
+#zhihu-answer h2 { color: #0066ff; font-weight: 700; border-bottom: 1px solid #0066ff; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #003d99; font-weight: 600; }
+#zhihu-answer strong { color: #0066ff; }
+${zhihuAcademicRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => zhihuAcademicRecipesExport.decorate(html, target),
   },
+  // ZHIHU-TECH: 技术博客, 思源黑体 + Inter (business), h2 极细底线 + h3 竖条; 板岩黑
   {
     id: 'zhihu-tech',
     name: '技术博客',
@@ -59,7 +86,23 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
     accentColor: '#16213e',
     fontSize: '15px',
     codeTheme: 'atom-one-dark',
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `
+#zhihu-answer h2 { color: #1a1a2e; font-weight: 700; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #1a1a2e; border-left: 2px solid #1a1a2e; padding-left: 0.6em; font-weight: 600; }
+#zhihu-answer strong { color: #1a1a2e; }
+#zhihu-answer code { background: rgba(26,26,46,0.08); color: #16213e; padding: 0.1em 0.35em; border-radius: 3px; }
+${zhihuTechRecipesPreview.css}`,
+    exportCSS: `
+#zhihu-answer h2 { color: #1a1a2e; font-weight: 700; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #1a1a2e; border-left: 2px solid #1a1a2e; padding-left: 0.6em; font-weight: 600; }
+#zhihu-answer strong { color: #1a1a2e; }
+#zhihu-answer code { background: rgba(26,26,46,0.08); color: #16213e; padding: 0.1em 0.35em; border-radius: 3px; }
+${zhihuTechRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => zhihuTechRecipesExport.decorate(html, target),
   },
+  // ZHIHU-INSIGHT: 深度评论, 思源宋体 + EB Garamond, 大引号 + h2 极细底线 + 双线 pull-quote; 炭灰深沉
   {
     id: 'zhihu-insight',
     name: '深度评论',
@@ -68,6 +111,21 @@ const ZHIHU_PRESETS: ZhihuPreset[] = [
     accentColor: '#636e72',
     fontSize: '16px',
     codeTheme: 'github-light',
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `
+#zhihu-answer h2 { color: #2d3436; font-weight: 700; border-bottom: 1px solid #2d3436; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #2d3436; font-weight: 600; }
+#zhihu-answer strong { color: #2d3436; }
+#zhihu-answer blockquote { border-left-color: #2d3436; background: #f7f7f7; font-style: italic; }
+${zhihuInsightRecipesPreview.css}`,
+    exportCSS: `
+#zhihu-answer h2 { color: #2d3436; font-weight: 700; border-bottom: 1px solid #2d3436; padding-bottom: 0.3em; margin-bottom: 0.9em; }
+#zhihu-answer h3 { color: #2d3436; font-weight: 600; }
+#zhihu-answer strong { color: #2d3436; }
+#zhihu-answer blockquote { border-left-color: #2d3436; background: #f7f7f7; font-style: italic; }
+${zhihuInsightRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => zhihuInsightRecipesExport.decorate(html, target),
   },
 ]
 
@@ -467,13 +525,24 @@ export function convertToZhihu(
   const wrappedHtml = `<section id="zhihu-answer">${processedHtml}${footnoteHtml}</section>`
 
   // Step 7: CSS内联
-  const css = generateZhihuCSS(preset)
+  let css = generateZhihuCSS(preset)
+  // PR4: append preset-specific exportCSS so dual-track recipes (h2 lines,
+  // h3 accents, etc.) end up in the inlined style attributes.
+  if (preset.exportCSS) {
+    css += '\n' + preset.exportCSS
+  }
   const styledHtml = `<style>${css}</style>${wrappedHtml}`
-  const inlinedHtml = juice(styledHtml, {
+  let inlinedHtml = juice(styledHtml, {
     removeStyleTags: true,
     preserveImportant: true,
     inlinePseudoElements: true
   })
+
+  // Step 7.5: PR4 dual-track decorate hook — inject real <span> for
+  // pseudo-element-only effects (cjk-decimal-h2, large-quote, ornament-hr).
+  if (preset.decorate) {
+    inlinedHtml = preset.decorate(inlinedHtml, 'zhihu')
+  }
 
   // Step 8: 知乎兼容性后处理
   const zhihuProcessedHtml = postProcessForZhihu(inlinedHtml)
