@@ -4,7 +4,7 @@
  * 统一的类型系统，支持微信公众号、知乎、小红书三个平台的导出渲染
  */
 
-import type { ExportPreset } from '@/types'
+import type { ExportPreset, PresetPersona, ExportTarget, FontSpec } from '@/types'
 
 // ═══════════════════════════════════════════════════════════════════
 // 代码高亮主题
@@ -238,8 +238,8 @@ export interface PlatformPresetRegistry {
   zhihu: ZhihuPreset[]
 }
 
-// 重新导出 ExportPreset 类型
-export type { ExportPreset }
+// 重新导出 ExportPreset 类型 + dual-track schema 类型
+export type { ExportPreset, PresetPersona, ExportTarget, FontSpec }
 
 // ═══════════════════════════════════════════════════════════════════
 // 平台专用导出选项

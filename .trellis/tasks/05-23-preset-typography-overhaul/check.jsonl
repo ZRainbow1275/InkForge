@@ -1,1 +1,6 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "三检（test/typecheck/lint）+ snapshot 测试标准"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "PresetDefinition schema 类型严格性检查"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "preview/export 双轨数据流跨层校验"}
+{"file": ".trellis/tasks/05-23-preset-typography-overhaul/prd.md", "reason": "AC-1..AC-8 验收清单逐项核对"}
+{"file": ".trellis/tasks/05-23-preset-typography-overhaul/research/typography-line-length-cjk.md", "reason": "AC-3 行长 18-22 字测量基准"}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-css-svg-rules.md", "reason": "导出 CSS 不可越界微信编辑器兼容矩阵"}

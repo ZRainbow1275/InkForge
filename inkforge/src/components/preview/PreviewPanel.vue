@@ -10,6 +10,7 @@ import {
 import {
   convertToPlatform, getPlatformPresets, copyToClipboard, getDefaultPreset,
   markdownToXiaohongshuText, markdownToZhihuClean,
+  resolveSampleContent,
 } from '@/services/export'
 import { renderXhsMockHtml } from '@/services/export/preview-fidelity/xiaohongshu-mock'
 import { renderZhihuMockHtml } from '@/services/export/preview-fidelity/zhihu-mock'
@@ -58,19 +59,22 @@ function selectPreset(id: string) {
 // ─── 预览 HTML ────────────────────────────────────
 const previewHtml = ref('')
 const copySuccess = ref(false)
+const usingSampleContent = ref(false)
 
 // 竞态保护
 let renderVersion = 0
 
 watch([currentContent, selectedPresetId, selectedPlatform], async () => {
-  if (!currentContent.value?.body) {
-    previewHtml.value = ''
-    return
-  }
   const thisVersion = ++renderVersion
-  const md = currentContent.value.body
   const platform = selectedPlatform.value
   const presetId = selectedPresetId.value
+  const rawBody = currentContent.value?.body ?? ''
+  const isEmpty = !rawBody.trim()
+  // 空内容时注入默认 sample，让 preset 的字体/装饰/色彩首次可见
+  const md = isEmpty
+    ? resolveSampleContent({ sampleContent: undefined })
+    : rawBody
+  usingSampleContent.value = isEmpty
   let html: string
   if (platform === 'xiaohongshu') {
     const r = markdownToXiaohongshuText(md)
@@ -263,6 +267,12 @@ async function handleCopy() {
           class="preview-frame"
           :class="`preview-frame--${selectedPlatform}`"
         >
+          <div
+            v-if="usingSampleContent"
+            class="preview-sample-hint"
+          >
+            示例内容
+          </div>
           <div
             v-if="selectedPlatform === 'wechat'"
             class="wechat-mock-header"
@@ -527,6 +537,22 @@ async function handleCopy() {
   overflow-y: auto;
   min-height: 480px;
   box-shadow: 0 8px 24px -16px rgba(15, 23, 42, 0.18);
+  position: relative;
+}
+
+.preview-sample-hint {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .preview-frame--wechat {

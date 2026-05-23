@@ -42,6 +42,9 @@ export type {
   AlertTheme,
   PlatformPresetRegistry,
   ExportPreset,
+  PresetPersona,
+  ExportTarget,
+  FontSpec,
   // 原生格式导出类型
   XiaohongshuTextResult,
   XiaohongshuTextOptions,
@@ -64,6 +67,12 @@ export {
   getDefaultPreset,
   applyHeadingDecorations
 } from './themes'
+
+// 空内容兜底 sample
+export {
+  DEFAULT_SAMPLE_MARKDOWN,
+  resolveSampleContent,
+} from './sample-content'
 
 // 工具函数导出
 export {

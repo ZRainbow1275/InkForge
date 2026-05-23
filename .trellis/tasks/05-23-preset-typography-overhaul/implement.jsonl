@@ -1,1 +1,11 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec index — entry point for all frontend conventions"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "新建 preset-decorations.ts / preset-fonts.ts / sample-content.ts 需遵守目录约定"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "PreviewPanel.vue 修改需遵守组件规范"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "PresetDefinition schema 扩展 + decorate(html, target) 函数签名严格类型"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "测试 / lint / typecheck 标准"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "applyHeadingDecorations 升级为通用 applyDecorations 时复用旧模式"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Tauri WebView2 vs WeChat editor 差异决策（pseudo-element / hanging-punctuation 支持矩阵）"}
+{"file": ".trellis/tasks/05-23-preset-typography-overhaul/research/typography-line-length-cjk.md", "reason": "18-22 字行长 + max-width 22em CSS 模板 + CJK quirks 的事实依据"}
+{"file": ".trellis/tasks/05-23-preset-typography-overhaul/research/css-decoration-elements.md", "reason": "12 装饰 recipe 实现 + [Preview only]/[Export-safe]/[Both] 标注"}
+{"file": ".trellis/tasks/05-23-preset-typography-overhaul/research/font-pairing-bilingual.md", "reason": "4 persona 字体对矩阵 + subset 尺寸数据 + bundle budget"}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-css-svg-rules.md", "reason": "微信编辑器 CSS 兼容矩阵 — exportCSS 必须遵守的约束"}
