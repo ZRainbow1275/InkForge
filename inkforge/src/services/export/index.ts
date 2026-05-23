@@ -74,6 +74,15 @@ export {
   resolveSampleContent,
 } from './sample-content'
 
+// Preset 字体基础设施（PR2）
+export {
+  PERSONA_FONTS,
+  FONT_FACE_SPECS,
+  generateFontFaceCSS,
+  generatePersonaBaseCSS,
+} from './preset-fonts'
+export type { FontFaceSpec } from './preset-fonts'
+
 // 工具函数导出
 export {
   EDITOR_LINE_HEIGHT,

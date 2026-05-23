@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "subsetCharset": "GB2312 (~6763 chars) + ASCII + Latin-1 Supplement",
+  "expectedSize": "~10-12 MB total after subsetting",
+  "files": [
+    {
+      "name": "SourceHanSerifSC-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/adobe-fonts/source-han-serif/releases"
+    },
+    {
+      "name": "SourceHanSerifSC-Bold-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/adobe-fonts/source-han-serif/releases"
+    },
+    {
+      "name": "SourceHanSansSC-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/adobe-fonts/source-han-sans/releases"
+    },
+    {
+      "name": "SourceHanSansSC-Semibold-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/adobe-fonts/source-han-sans/releases"
+    },
+    {
+      "name": "LXGWWenKaiLite-Regular.woff2",
+      "shipped": false,
+      "source": "https://github.com/lxgw/LxgwWenKai-Lite/releases"
+    },
+    {
+      "name": "SmileySans-Oblique-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/atelier-anchor/smiley-sans/releases"
+    },
+    {
+      "name": "EBGaramond-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://fonts.google.com/specimen/EB+Garamond"
+    },
+    {
+      "name": "EBGaramond-Italic-subset.woff2",
+      "shipped": false,
+      "source": "https://fonts.google.com/specimen/EB+Garamond"
+    },
+    {
+      "name": "Inter-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/rsms/inter"
+    },
+    {
+      "name": "Inter-SemiBold-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/rsms/inter"
+    },
+    {
+      "name": "Fraunces-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/undercasetype/Fraunces"
+    },
+    {
+      "name": "CrimsonPro-Regular-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/Fonthausen/CrimsonPro"
+    },
+    {
+      "name": "SpaceGrotesk-Medium-subset.woff2",
+      "shipped": false,
+      "source": "https://github.com/floriankarsten/space-grotesk"
+    }
+  ],
+  "note": "Run `node scripts/font-subset.mjs --plan` to print download + subset commands. Fonts gracefully fall back to system fonts when missing."
+}
