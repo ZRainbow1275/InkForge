@@ -43,6 +43,7 @@ export interface TagCloudItem {
   tag: string
   count: number
   weight: number
+  fontSize?: number
   color?: string
 }
 

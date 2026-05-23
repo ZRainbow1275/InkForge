@@ -690,24 +690,25 @@ export function calculateStats(html: string, readingSpeed: number): ExportStats 
  * 生成阅读时间头部（增强版 — 更多统计指标）
  */
 export function buildReadingTimeHeader(stats: ExportStats): string {
-  const badges: string[] = [
-    `<span style="margin-right:16px;">阅读约 <strong>${stats.readingTime}</strong> 分钟</span>`,
-    `<span style="margin-right:16px;">全文 <strong>${stats.wordCount}</strong> 字</span>`,
+  const dot = `<span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px;"></span>`
+  const items: string[] = [
+    `<span>阅读约 ${stats.readingTime} 分钟</span>`,
+    `<span>全文 ${stats.wordCount} 字</span>`,
   ]
 
   if (stats.codeBlockCount > 0) {
-    badges.push(`<span style="margin-right:16px;">${stats.codeBlockCount} 个代码块</span>`)
+    items.push(`<span>${stats.codeBlockCount} 段代码</span>`)
   }
   if (stats.imageCount > 0) {
-    badges.push(`<span style="margin-right:16px;">${stats.imageCount} 张图片</span>`)
+    items.push(`<span>${stats.imageCount} 张图</span>`)
   }
   if (stats.tableCount > 0) {
-    badges.push(`<span style="margin-right:16px;">${stats.tableCount} 个表格</span>`)
+    items.push(`<span>${stats.tableCount} 张表</span>`)
   }
 
   return `
-<div style="margin-bottom:20px;padding:12px 16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:8px;color:white;font-size:13px;">
-  ${badges.join('\n  ')}
+<div style="margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid #E8EAED;color:#8E959D;font-size:13px;letter-spacing:0.2px;line-height:1.6;">
+  ${items.join(dot)}
 </div>
 `
 }

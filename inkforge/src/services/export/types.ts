@@ -99,6 +99,9 @@ export interface AlertTheme {
  * 导出选项接口
  * 统一配置三平台渲染行为
  */
+export type ExportFontFamily = 'sans-serif' | 'serif' | 'monospace'
+export type ExportFontSize = '14px' | '15px' | '16px' | '17px' | '18px'
+
 export interface ExportOptions {
   /** 启用外链转脚注 (默认true) */
   enableCiteStatus?: boolean
@@ -122,6 +125,12 @@ export interface ExportOptions {
   enableEnhancedTable?: boolean
   /** 启用代码块语言标签显示 (默认true) */
   enableCodeLanguageLabel?: boolean
+  /** 微信文章字体覆盖（默认跟随预设） */
+  fontFamily?: ExportFontFamily
+  /** 微信文章正文字号覆盖（默认跟随预设） */
+  fontSize?: ExportFontSize
+  /** 微信文章主题色覆盖，必须为 6 位 HEX 色值 */
+  primaryColor?: string
 }
 
 /**

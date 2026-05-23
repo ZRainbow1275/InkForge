@@ -582,12 +582,6 @@ def clear_active_task(
     """Clear the active task by deleting the current session context file."""
     context_key = resolve_context_key(platform_input, platform)
     if not context_key:
-        previous = resolve_active_task(repo_root, platform_input, platform)
-        if previous.source_type == "session-fallback" and previous.context_key:
-            context_path = _context_path(repo_root, previous.context_key)
-            if context_path.is_file():
-                _remove_file(context_path)
-            return previous
         return ActiveTask(None, "none")
 
     previous = resolve_active_task(repo_root, platform_input, platform)

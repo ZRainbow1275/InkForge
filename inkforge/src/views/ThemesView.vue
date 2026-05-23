@@ -139,7 +139,10 @@ function cancel() {
     <header class="themes-header">
       <div class="header-left">
         <button
+          type="button"
           class="back-btn"
+          aria-label="返回上一页"
+          title="返回上一页"
           @click="cancel"
         >
           <svg
@@ -158,6 +161,7 @@ function cancel() {
         </h1>
       </div>
       <button
+        type="button"
         class="header-apply-btn"
         @click="applyPreset"
       >
@@ -170,11 +174,14 @@ function cancel() {
       <!-- Left: Theme Grid -->
       <div class="themes-grid-wrapper">
         <div class="themes-grid">
-          <div
+          <button
             v-for="theme in themes"
             :key="theme.id"
+            type="button"
             class="theme-card"
             :class="{ active: selectedPreset === theme.id }"
+            :aria-pressed="selectedPreset === theme.id"
+            :aria-label="`选择主题：${theme.name}`"
             @click="selectPreset(theme.id)"
           >
             <!-- Color Bar -->
@@ -202,7 +209,7 @@ function cancel() {
                 {{ theme.previewText }}
               </p>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -226,12 +233,14 @@ function cancel() {
 
         <div class="preview-panel-actions">
           <button
+            type="button"
             class="btn-apply"
             @click="applyPreset"
           >
             应用此主题
           </button>
           <button
+            type="button"
             class="btn-cancel"
             @click="cancel"
           >
@@ -334,10 +343,16 @@ function cancel() {
 
 /* ═══ THEME CARD ═══ */
 .theme-card {
+  appearance: none;
+  width: 100%;
+  padding: 0;
   position: relative;
   background: #FFFFFF;
   border: 2px solid transparent;
   border-radius: 12px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);

@@ -14,7 +14,13 @@ import DOMPurify from 'dompurify'
 // 确保 marked 配置一致性（防止直接调用 markdownToWechat 时配置缺失）
 marked.use({ breaks: true, gfm: true })
 import type { ExportPreset } from '@/types'
-import type { ExportResult, ExportStats, WechatExportOptions } from './types'
+import type {
+  ExportFontFamily,
+  ExportFontSize,
+  ExportResult,
+  ExportStats,
+  WechatExportOptions,
+} from './types'
 import { parseToAST, type InkforgeMeta } from './renderers/ast'
 import {
   wechatComplianceTransform,
@@ -223,6 +229,86 @@ function degradeWechatLatexHtml(html: string, primaryColor?: string): string {
     .replace(/<div\s+class=["']math-fallback["']>\s*<code>([\s\S]*?)<\/code>\s*<\/div>/gi, (_match, source: string) => buildWechatLatexFallback(source, true, primaryColor))
 }
 
+function buildWechatMermaidFallback(summary: string, primaryColor?: string): string {
+  const color = primaryColor || '#0066cc'
+  const normalizedSummary = summary.replace(/\s+/g, ' ').trim()
+  const suffix = normalizedSummary
+    ? `；摘要：${escapeWechatText(normalizedSummary.slice(0, 160))}`
+    : ''
+  return `<section style="margin:12px 0;padding:10px 12px;border-left:3px solid ${color};background:#f7f9fb;color:#333;font-size:14px;line-height:1.7;">图表：Mermaid 图表需转为 PNG/JPG 后上传微信正文图片${suffix}</section>`
+}
+
+function extractWechatMermaidSummaryFromHtml(html: string): string {
+  return decodeWechatText(
+    html
+      .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<defs\b[\s\S]*?<\/defs>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+  ).replace(/\s+/g, ' ').trim()
+}
+
+function extractWechatMermaidDataSource(attrs: string): string {
+  const match = attrs.match(/\sdata-source=(["'])([\s\S]*?)\1/i)
+  return match?.[2] ? decodeWechatText(match[2]).trim() : ''
+}
+
+function extractWechatMermaidSummary(node: HTMLElement): string {
+  const dataSource = node.getAttribute('data-source')?.trim()
+  if (dataSource) {
+    return dataSource
+  }
+
+  const fallbackSource = node.querySelector('code')?.textContent?.trim()
+  if (fallbackSource) {
+    return fallbackSource
+  }
+
+  const labelTexts = Array.from(node.querySelectorAll('text, tspan'))
+    .map(item => item.textContent?.replace(/\s+/g, ' ').trim())
+    .filter((item): item is string => Boolean(item))
+
+  if (labelTexts.length > 0) {
+    return Array.from(new Set(labelTexts)).join(' / ')
+  }
+
+  const clone = node.cloneNode(true) as HTMLElement
+  clone.querySelectorAll('style, script, defs').forEach(item => item.remove())
+  const cloneText = clone.textContent?.replace(/\s+/g, ' ').trim()
+  if (cloneText) {
+    return cloneText
+  }
+
+  return extractWechatMermaidSummaryFromHtml(node.innerHTML)
+}
+
+function degradeWechatMermaidHtml(html: string, primaryColor?: string): string {
+  if (!/mermaid-(?:rendered|fallback)/i.test(html)) {
+    return html
+  }
+
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html')
+    const nodes = Array.from(doc.body.querySelectorAll<HTMLElement>('.mermaid-rendered, .mermaid-fallback'))
+
+    for (const node of nodes) {
+      if (!node.isConnected || !node.parentNode) continue
+      const template = doc.createElement('template')
+      template.innerHTML = buildWechatMermaidFallback(extractWechatMermaidSummary(node), primaryColor)
+      const fallback = template.content.firstElementChild
+      if (fallback) {
+        node.replaceWith(fallback)
+      }
+    }
+
+    return doc.body.innerHTML
+  }
+
+  return html
+    .replace(/<div\b([^>]*class=["'][^"']*mermaid-rendered[^"']*["'][^>]*)>([\s\S]*?)<\/div>/gi, (_match, attrs: string, body: string) => buildWechatMermaidFallback(extractWechatMermaidDataSource(attrs) || extractWechatMermaidSummaryFromHtml(body), primaryColor))
+    .replace(/<pre\b([^>]*class=["'][^"']*mermaid-fallback[^"']*["'][^>]*)>([\s\S]*?)<\/pre>/gi, (_match, attrs: string, body: string) => buildWechatMermaidFallback(extractWechatMermaidDataSource(attrs) || extractWechatMermaidSummaryFromHtml(body), primaryColor))
+}
+
 function normalizeImageAttributes(html: string): string {
   // 输入长度检查
   if (!checkInputLength(html, 'normalizeImageAttributes')) {
@@ -273,6 +359,31 @@ function normalizeImageAttributes(html: string): string {
  * 处理所有图片标签
  * 使用字符串索引替代复杂正则
  */
+function findHtmlTagEnd(html: string, startIndex: number): number {
+  let quote: '"' | "'" | null = null
+
+  for (let index = startIndex; index < html.length; index += 1) {
+    const char = html[index]
+    if (quote) {
+      if (char === quote) {
+        quote = null
+      }
+      continue
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char
+      continue
+    }
+
+    if (char === '>') {
+      return index
+    }
+  }
+
+  return -1
+}
+
 function processImageTags(html: string, processor: (imgTag: string) => string): string {
   const result: string[] = []
   let lastIndex = 0
@@ -287,7 +398,7 @@ function processImageTags(html: string, processor: (imgTag: string) => string): 
     }
 
     // 查找标签结束的 >
-    const imgEnd = html.indexOf('>', imgStart)
+    const imgEnd = findHtmlTagEnd(html, imgStart)
     if (imgEnd === -1) {
       result.push(html.substring(lastIndex))
       break
@@ -867,6 +978,51 @@ export function postProcessForWechat(html: string, primaryColor?: string): strin
 // 主要导出函数
 // ═══════════════════════════════════════════════════════════════════
 
+const EXPORT_FONT_FAMILIES: readonly ExportFontFamily[] = ['sans-serif', 'serif', 'monospace']
+const EXPORT_FONT_SIZES: readonly ExportFontSize[] = ['14px', '15px', '16px', '17px', '18px']
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function normalizeExportFontFamily(value?: ExportFontFamily): ExportFontFamily | undefined {
+  return value && EXPORT_FONT_FAMILIES.includes(value) ? value : undefined
+}
+
+function normalizeExportFontSize(value?: ExportFontSize): ExportFontSize | undefined {
+  return value && EXPORT_FONT_SIZES.includes(value) ? value : undefined
+}
+
+function normalizeExportPrimaryColor(value?: string): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed && /^#[0-9a-f]{6}$/i.test(trimmed) ? trimmed : undefined
+}
+
+function applyWechatStyleOptions(
+  preset: ExportPreset,
+  options: WechatExportOptions
+): ExportPreset {
+  const primaryColor = normalizeExportPrimaryColor(options.primaryColor)
+  const fontFamily = normalizeExportFontFamily(options.fontFamily)
+  const fontSize = normalizeExportFontSize(options.fontSize)
+
+  if (!primaryColor && !fontFamily && !fontSize) {
+    return preset
+  }
+
+  const customCSS = primaryColor && preset.customCSS
+    ? preset.customCSS.replace(new RegExp(escapeRegExp(preset.primaryColor), 'gi'), primaryColor)
+    : preset.customCSS
+
+  return {
+    ...preset,
+    primaryColor: primaryColor ?? preset.primaryColor,
+    fontFamily: fontFamily ?? preset.fontFamily,
+    fontSize: fontSize ?? preset.fontSize,
+    customCSS,
+  }
+}
+
 /**
  * HTML转微信格式 (P1/P2增强版)
  * 1. DOMPurify XSS防护
@@ -913,13 +1069,17 @@ export function convertToWechatWithStats(
     darkModeBg,
   } = options
 
+  const effectivePreset = applyWechatStyleOptions(preset, options)
+
   // 计算统计信息
-  const stats = calculateStats(html, readingSpeed)
+  const statsOverride = (options as WechatExportOptions & { statsOverride?: ExportStats }).statsOverride
+  const stats = statsOverride ?? calculateStats(html, readingSpeed)
 
   // Step 1: Task List Checkbox 转换（必须在 DOMPurify 之前，因为 input 标签会被删除）
-  const checkboxProcessedHtml = convertTaskListCheckboxes(html, preset.primaryColor)
+  const checkboxProcessedHtml = convertTaskListCheckboxes(html, effectivePreset.primaryColor)
   // Step 1.5: KaTeX MathML annotation 会被 DOMPurify 白名单移除，WeChat 公式降级必须抢先保留 TeX 源。
-  const latexDegradedHtml = degradeWechatLatexHtml(checkboxProcessedHtml, preset.primaryColor)
+  const latexDegradedHtml = degradeWechatLatexHtml(checkboxProcessedHtml, effectivePreset.primaryColor)
+  const mermaidDegradedHtml = degradeWechatMermaidHtml(latexDegradedHtml, effectivePreset.primaryColor)
 
   // Step 2: DOMPurify XSS防护 (增强配置)
   // 使用独立实例避免并发时全局状态污染
@@ -952,7 +1112,7 @@ export function convertToWechatWithStats(
 
   let sanitizedHtml: string
   try {
-    sanitizedHtml = purify.sanitize(latexDegradedHtml, {
+    sanitizedHtml = purify.sanitize(mermaidDegradedHtml, {
       ALLOWED_TAGS: [
         'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'strong', 'em', 'u', 's', 'del', 'ins',
@@ -1031,7 +1191,7 @@ export function convertToWechatWithStats(
   const wrappedHtml = `<section id="nice">${finalContent}</section>`
 
   // 生成CSS (包含代码主题)
-  let css = generateThemeCSS(preset) + codeThemeCSS
+  let css = generateThemeCSS(effectivePreset) + codeThemeCSS
 
   // 处理首行缩进选项：显式传入时覆盖预设设置
   if (enableTextIndent === true) {
@@ -1052,15 +1212,15 @@ export function convertToWechatWithStats(
 
   // 应用主题特定的标题装饰（在 juice 内联之后，微信兼容性处理之前）
   // 伪元素和渐变裁剪等效果在 juice 内联后会丢失，需要转换为真实 HTML 元素
-  const decoratedHtml = applyHeadingDecorations(inlinedHtml, preset)
+  const decoratedHtml = applyHeadingDecorations(inlinedHtml, effectivePreset)
 
   // 增强表格样式 — 条纹行、圆角、主色表头（在 juice 内联之后）
   const tableEnhancedHtml = enableEnhancedTable
-    ? enhanceTableStyles(decoratedHtml, preset.primaryColor)
+    ? enhanceTableStyles(decoratedHtml, effectivePreset.primaryColor)
     : decoratedHtml
 
   // 微信兼容性处理（传递主题色用于 CSS 变量替换）
-  const wechatProcessedHtml = postProcessForWechat(tableEnhancedHtml, preset.primaryColor)
+  const wechatProcessedHtml = postProcessForWechat(tableEnhancedHtml, effectivePreset.primaryColor)
 
   // 最终安全网: 平台 CSS 合规化（确保无遗漏的不支持属性）
   const cssCompliantHtml = enforcePlatformCSS(wechatProcessedHtml, 'wechat')
@@ -1090,10 +1250,13 @@ export function convertToWechatWithStats(
  * 仅在持有原始 markdown 时调用 —— `convertToWechat[WithStats]` 入参是
  * 已渲染过的 HTML，无法走这条路径，因此此处不强行二次解析（成本高、收益低）。
  */
-function mergeAstMetaIntoStats(stats: ExportStats, meta: InkforgeMeta): ExportStats {
+function mergeAstMetaIntoStats(stats: ExportStats, meta: InkforgeMeta, readingSpeed: number): ExportStats {
+  const wordCount = meta.wordCount > 0 ? meta.wordCount : stats.wordCount
+
   return {
     ...stats,
-    wordCount: meta.wordCount > 0 ? meta.wordCount : stats.wordCount,
+    wordCount,
+    readingTime: Math.max(1, Math.ceil(wordCount / readingSpeed)),
     codeBlockCount: meta.codeBlocks.length,
     imageCount: meta.images.length,
     headingCount: meta.headings.length,
@@ -1128,16 +1291,22 @@ export async function markdownToWechatWithStats(
   options: WechatExportOptions = {}
 ): Promise<ExportResult> {
   const html = await renderMarkdownWithLazyOptionalEnhancements(markdown)
-  const result = convertToWechatWithStats(html, preset, options)
+  const readingSpeed = options.readingSpeed ?? 300
+  const baseStats = calculateStats(html, readingSpeed)
 
   // AST 仅用于 stats 增强：旧 marked 渲染管线保持不变，规避回归。
-  let mergedStats = result.stats
+  let mergedStats = baseStats
   try {
     const { meta } = parseToAST(markdown)
-    mergedStats = mergeAstMetaIntoStats(result.stats, meta)
+    mergedStats = mergeAstMetaIntoStats(baseStats, meta, readingSpeed)
   } catch {
     // AST 解析失败时降级，stats 沿用原值。
   }
+
+  const result = convertToWechatWithStats(html, preset, {
+    ...options,
+    statsOverride: mergedStats,
+  } as WechatExportOptions)
 
   return { html: result.html, stats: mergedStats }
 }

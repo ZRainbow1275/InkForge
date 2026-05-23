@@ -146,7 +146,7 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
       id: 'wechat-mermaid',
       severity: 'suggestion',
       message: `发现 ${mermaidBlocks.length} 个 Mermaid 图表`,
-      suggestion: 'Mermaid 图表会被转为 SVG 嵌入，但可能存在兼容性问题，建议检查渲染效果',
+      suggestion: '微信发布链不能依赖矢量节点直出；请先转为 PNG/JPG 并上传为微信正文图片，失败时保留文字摘要',
     })
   }
 
@@ -453,6 +453,8 @@ const CODE_LANGUAGE_ALIASES: Record<string, string> = {
   kt: 'kotlin',
 }
 
+const SPECIAL_RENDERER_BLOCK_LANGUAGES = new Set(['mermaid'])
+
 function normalizeCodeLanguage(language: string): string {
   const normalized = language.trim().toLowerCase()
   return CODE_LANGUAGE_ALIASES[normalized] ?? normalized
@@ -464,7 +466,9 @@ function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): vo
   const unsupportedLanguages = Array.from(new Set(
     codeBlocks
       .map(match => normalizeCodeLanguage(match[1] ?? ''))
-      .filter(language => language && !(SUPPORTED_CODE_LANGUAGES as readonly string[]).includes(language)),
+      .filter(language => language
+        && !SPECIAL_RENDERER_BLOCK_LANGUAGES.has(language)
+        && !(SUPPORTED_CODE_LANGUAGES as readonly string[]).includes(language)),
   ))
 
   if (unlabeledBlocks > 0) {

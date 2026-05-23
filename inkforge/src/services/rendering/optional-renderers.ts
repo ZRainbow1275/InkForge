@@ -69,7 +69,7 @@ async function renderMermaid(source: string): Promise<string> {
   try {
     mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' })
     const result = await mermaid.render(`inkforge_mermaid_${Date.now()}_${mermaidCounter++}`, source)
-    return `<div class="mermaid-rendered">${result.svg}</div>`
+    return `<div class="mermaid-rendered" data-source="${escapeHtml(source)}">${result.svg}</div>`
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Mermaid render failed'
     return `<pre class="mermaid-fallback" data-error="${escapeHtml(message)}"><code>${escapeHtml(source)}</code></pre>`

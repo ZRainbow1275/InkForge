@@ -3,7 +3,7 @@
  */
 
 import type { ExportPreset } from '@/types'
-import { FONT_STACKS } from '@/constants'
+import { DEFAULT_PRESET_ID, FONT_STACKS } from '@/constants'
 
 // highlight.js 代码主题样式 (atom-one-dark)
 export const codeThemeCSS = `
@@ -77,44 +77,50 @@ export const codeThemeCSS = `
 export const baseCSS = `
 /* 基础样式 */
 #nice {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #333;
-  padding: 16px;
+  font-size: 16px;
+  line-height: 1.85;
+  color: #263238;
+  padding: 20px;
   word-break: break-word;
+  letter-spacing: 0;
 }
 
 #nice p {
-  margin: 0 0 16px 0;
+  margin: 0 0 18px 0;
   padding: 0;
-  line-height: 1.8;
+  line-height: 1.85;
 }
 
 #nice h1 {
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
-  color: #1a1a1a;
-  margin: 32px 0 16px 0;
-  padding: 0;
-  line-height: 1.4;
+  color: #1F2933;
+  margin: 34px 0 20px 0;
+  padding: 0 0 14px 0;
+  line-height: 1.38;
+  border-bottom: 2px solid #E6ECF2;
 }
 
 #nice h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
-  margin: 24px 0 16px 0;
-  padding: 0;
-  line-height: 1.5;
+  color: #0066cc;
+  margin: 30px 0 16px 0;
+  padding: 8px 0 8px 14px;
+  line-height: 1.45;
+  border-left: 4px solid #0066cc;
+  background: #F7FAFC;
+  border-radius: 0 4px 4px 0;
 }
 
 #nice h3 {
   font-size: 17px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #0066cc;
   margin: 20px 0 12px 0;
-  padding: 0;
+  padding: 0 0 0 10px;
   line-height: 1.5;
+  border-left: 3px solid #D8E2EC;
 }
 
 #nice h4 {
@@ -146,7 +152,7 @@ export const baseCSS = `
 
 #nice strong {
   font-weight: 700;
-  color: #333;
+  color: #1F2933;
 }
 
 #nice em {
@@ -175,11 +181,12 @@ export const baseCSS = `
 }
 
 #nice blockquote {
-  margin: 16px 0;
-  padding: 12px 16px;
+  margin: 18px 0;
+  padding: 14px 16px;
   border-left: 4px solid #0066cc;
-  background: #f5f7f9;
-  color: #666;
+  background: #F6F8FA;
+  color: #455A64;
+  border-radius: 0 6px 6px 0;
 }
 
 #nice blockquote p {
@@ -192,13 +199,13 @@ export const baseCSS = `
 }
 
 #nice li {
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   line-height: 1.8;
 }
 
 #nice code {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 14px;
+  font-size: 0.92em;
   background: #fff5f5;
   padding: 2px 6px;
   border-radius: 4px;
@@ -207,10 +214,10 @@ export const baseCSS = `
 }
 
 #nice pre {
-  margin: 16px 0;
+  margin: 18px 0;
   padding: 16px;
   background: #282c34;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow-x: auto;
 }
 
@@ -230,31 +237,46 @@ export const baseCSS = `
 #nice img {
   max-width: 100%;
   height: auto;
-  margin: 16px 0;
-  border-radius: 4px;
+  margin: 18px auto;
+  border-radius: 6px;
 }
 
 #nice table {
   width: 100%;
   border-collapse: collapse;
-  margin: 16px 0;
+  margin: 20px 0;
+  font-size: 14px;
 }
 
 #nice th, #nice td {
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #D8E2EC;
   text-align: left;
+  line-height: 1.65;
 }
 
 #nice th {
-  background: #f5f5f5;
+  background: #F1F5F9;
   font-weight: 600;
+}
+
+#nice figure {
+  margin: 20px 0;
+  padding: 0;
+  text-align: center;
+}
+
+#nice figcaption {
+  margin-top: 8px;
+  color: #78909C;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 #nice hr {
   border: none;
-  border-top: 1px solid #eee;
-  margin: 24px 0;
+  border-top: 1px solid #E6ECF2;
+  margin: 28px 0;
 }
 `
 
@@ -310,11 +332,12 @@ export const themePresets: ExportPreset[] = [
     isUseIndent: false,
     isUseJustify: true,
     customCSS: `
-      #nice { border-top: 8px solid #004080; padding-top: 24px; }
-      #nice h2 { color: #004080; font-weight: 800; letter-spacing: -0.5px; border-bottom: 2px solid #004080; padding-bottom: 6px; }
-      #nice table th { background: #004080; color: #fff; font-weight: 600; }
-      #nice table { border: 1px solid #004080; }
-      #nice blockquote { background: #E3F2FD; border-left: 4px solid #004080; border-radius: 0 4px 4px 0; }
+      #nice h2 { color: #004080; font-weight: 700; letter-spacing: -0.2px; border-bottom: 1px solid #D6DEE6; padding-bottom: 6px; margin-top: 32px; }
+      #nice h3 { color: #1A3A5C; font-weight: 600; }
+      #nice table th { background: #F2F5F9; color: #1A3A5C; font-weight: 600; border-bottom: 2px solid #004080; }
+      #nice table td { border-color: #E6ECF2; }
+      #nice blockquote { background: #F5F8FB; border-left: 3px solid #004080; border-radius: 0; color: #36474F; }
+      #nice a { color: #004080; }
     `
   },
   {
@@ -507,13 +530,17 @@ export function generateThemeCSS(preset: ExportPreset): string {
   const fontStack = FONT_STACKS[fontKey] || FONT_STACKS.sans
 
   css += `
-    #nice { font-family: ${fontStack}; }
+    #nice { font-family: ${fontStack}; font-size: ${preset.fontSize}; }
   `
 
   // 主色
   css += `
     #nice a { color: ${preset.primaryColor}; }
+    #nice h2 { color: ${preset.primaryColor}; border-left-color: ${preset.primaryColor}; }
+    #nice h3 { color: ${preset.primaryColor}; }
     #nice blockquote { border-left-color: ${preset.primaryColor}; }
+    #nice code { color: ${preset.primaryColor}; }
+    #nice table th { background: ${preset.primaryColor}; color: #fff; }
   `
 
   // 首行缩进
@@ -546,7 +573,7 @@ export function getPresetById(id: string): ExportPreset | undefined {
 }
 
 export function getDefaultPreset(): ExportPreset {
-  return themePresets[0]
+  return getPresetById(DEFAULT_PRESET_ID) ?? themePresets[0]
 }
 
 /**

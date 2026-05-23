@@ -286,6 +286,7 @@ import { computeDiff } from '@/composables/useVersionManager'
         </div>
         <div class="action-buttons">
           <button
+            type="button"
             class="save-btn"
             :disabled="isCreating"
             @click="handleCreateVersion"
@@ -294,6 +295,7 @@ import { computeDiff } from '@/composables/useVersionManager'
             <span>{{ isCreating ? '保存中...' : '保存版本' }}</span>
           </button>
           <button
+            type="button"
             class="diff-toggle-btn"
             :class="{ active: diffMode }"
             title="对比模式"
@@ -318,10 +320,11 @@ import { computeDiff } from '@/composables/useVersionManager'
                 ({{ selectedForDiff.length }}/2)
               </span>
             </span>
-            <button
-              class="diff-execute-btn"
-              :disabled="selectedForDiff.length !== 2"
-              @click="performDiff"
+          <button
+            type="button"
+            class="diff-execute-btn"
+            :disabled="selectedForDiff.length !== 2"
+            @click="performDiff"
             >
               <ChevronRight :size="12" />
               对比
@@ -423,16 +426,18 @@ import { computeDiff } from '@/composables/useVersionManager'
               <span class="diff-removed">-{{ switchDiffSummary.removedCount }} 行</span>
             </div>
             <div class="confirm-actions">
-              <button
-                class="confirm-cancel-btn"
-                @click="cancelSwitch"
-              >
+        <button
+          type="button"
+          class="confirm-cancel-btn"
+          @click="cancelSwitch"
+        >
                 取消
               </button>
-              <button
-                class="confirm-ok-btn"
-                @click="confirmSwitch"
-              >
+        <button
+          type="button"
+          class="confirm-ok-btn"
+          @click="confirmSwitch"
+        >
                 确认切换
               </button>
             </div>

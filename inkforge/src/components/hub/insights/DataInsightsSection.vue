@@ -105,7 +105,6 @@ const writingTimelineEvents = computed<TimelineEvent[]>(() => articleFacts.value
 const productivityMetrics = computed<ProductivityMetric[]>(() => {
   const byHour = Array.from({ length: 24 }, () => 0)
   const byWeekday = Array.from({ length: 7 }, () => 0)
-  const byCategory = new Map<string, number>()
   let totalWords = 0
   let longest = { title: '暂无文章', words: 0 }
 
@@ -116,14 +115,11 @@ const productivityMetrics = computed<ProductivityMetric[]>(() => {
       byHour[item.updatedAt.getHours()] += 1
       byWeekday[item.updatedAt.getDay()] += 1
     }
-    const categoryName = props.categories.find(category => category.id === item.article.categoryId)?.name ?? '未分类'
-    byCategory.set(categoryName, (byCategory.get(categoryName) ?? 0) + 1)
   }
 
   const avgWords = props.articles.length > 0 ? Math.round(totalWords / props.articles.length) : 0
   const peakHour = byHour.reduce((best, count, hour) => count > byHour[best] ? hour : best, 0)
   const peakWeekday = byWeekday.reduce((best, count, day) => count > byWeekday[best] ? day : best, 0)
-  const activeCategory = [...byCategory.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '暂无'
 
   return [
     { key: 'peak-hour', label: '最高产时段', value: byHour[peakHour] > 0 ? `${peakHour}:00` : '暂无', numericValue: byHour[peakHour], detail: `${byHour[peakHour]} 次编辑` },
@@ -153,6 +149,7 @@ const tagCloudItems = computed<TagCloudItem[]>(() => tagStore.tagCloudNodes.map(
   tag: node.tag.name,
   count: node.tag.docCount,
   weight: node.weight,
+  fontSize: node.fontSize,
   color: node.tag.color,
 })))
 

@@ -13,6 +13,6 @@ export {
     type ImageDimensions,
 } from './dimension-extractor'
 
-export { WechatUploader } from './uploaders/wechat-stub'
+export { WechatUploader } from './uploaders/wechat'
 export { ZhihuUploader } from './uploaders/zhihu-stub'
 export { XiaohongshuUploader } from './uploaders/xhs-stub'

@@ -111,65 +111,61 @@ def safe_trellis_paths_to_add(repo_root: Path) -> list[str]:
     return paths
 
 
-def _repo_relative_path(path: str, repo_root: Path) -> str | None:
-    """Normalize a pathspec to a repo-relative POSIX path when possible."""
-    raw = path.strip()
-    if not raw:
-        return None
-
-    path_obj = Path(raw)
-    if path_obj.is_absolute():
-        try:
-            return path_obj.resolve().relative_to(repo_root.resolve()).as_posix()
-        except (OSError, ValueError):
-            return None
-
-    normalized = raw.replace("\\", "/")
-    while normalized.startswith("./"):
-        normalized = normalized[2:]
-    if normalized in (".", "..") or normalized.startswith("../") or "/../" in normalized:
-        return None
-    return normalized
-
-
 def safe_archive_paths_to_add(
     repo_root: Path,
-    archived_source_path: str | None = None,
+    task_name: str | None = None,
+    modified_children: list[str] | None = None,
 ) -> list[str]:
     """Return paths to stage after `task.py archive`.
 
-    Limited to the archive subtree (where the freshly-moved task lives), the
-    source task directory path (so git records the pre-move deletion), and
-    active task dirs that may have relationship metadata updates.
+    Scoped to ONLY the paths the archive operation actually touched:
+
+      - the archive subtree (where the freshly-moved task lives)
+      - the source task directory (for source-side deletes; caller pairs
+        this with `git rm --cached` since `git add` won't stage deletes
+        for a path that no longer exists in the working tree)
+      - any child task directories whose `task.json` was edited to drop
+        the archived parent (parent-children relationship update)
+
+    This narrow scope avoids "scope creep" — dirty changes in OTHER
+    active task dirs (parallel-window edits) are NOT bundled into the
+    archive commit. Callers handle each kind of change in its own
+    commit boundary.
+
+    Backwards-compat: with no arguments, the function walks the whole
+    `.trellis/tasks/` subtree the old way (active tasks + archive). New
+    callers should always pass `task_name`.
     """
     paths: list[str] = []
-
-    if archived_source_path:
-        source_rel = _repo_relative_path(archived_source_path, repo_root)
-        if (
-            source_rel
-            and source_rel.startswith(f"{DIR_WORKFLOW}/{DIR_TASKS}/")
-            and source_rel not in paths
-        ):
-            # Keep even when the path no longer exists: `git add -- <path>`
-            # stages tracked deletions after archive_task_complete() moves it.
-            paths.append(source_rel)
-
     tasks_dir = repo_root / DIR_WORKFLOW / DIR_TASKS
-    if tasks_dir.is_dir():
-        # The archive copy.
-        archive_dir = tasks_dir / DIR_ARCHIVE
+    if not tasks_dir.is_dir():
+        return paths
+
+    archive_dir = tasks_dir / DIR_ARCHIVE
+
+    if task_name is not None:
+        # Narrow scope — only paths that still exist on disk (so
+        # `git add` doesn't choke on the moved-away source). The caller
+        # handles the source-side deletes via `git rm --cached`
+        # explicitly.
         if archive_dir.is_dir():
-            paths.append(f"{DIR_WORKFLOW}/{DIR_TASKS}/{DIR_ARCHIVE}")
-        # Active tasks (some may have been re-touched, e.g. parent's
-        # children list). This captures the source-path deletion too because
-        # `git add` on a directory records removals.
-        for child in sorted(tasks_dir.iterdir()):
-            if not child.is_dir():
-                continue
-            if child.name == DIR_ARCHIVE:
-                continue
-            paths.append(f"{DIR_WORKFLOW}/{DIR_TASKS}/{child.name}")
+            paths.append(
+                f"{DIR_WORKFLOW}/{DIR_TASKS}/{DIR_ARCHIVE}"
+            )
+        for child_name in modified_children or []:
+            paths.append(f"{DIR_WORKFLOW}/{DIR_TASKS}/{child_name}")
+        return paths
+
+    # Legacy wide scope (no task_name): preserve old behavior so callers
+    # that have not been updated keep working.
+    if archive_dir.is_dir():
+        paths.append(f"{DIR_WORKFLOW}/{DIR_TASKS}/{DIR_ARCHIVE}")
+    for child in sorted(tasks_dir.iterdir()):
+        if not child.is_dir():
+            continue
+        if child.name == DIR_ARCHIVE:
+            continue
+        paths.append(f"{DIR_WORKFLOW}/{DIR_TASKS}/{child.name}")
     return paths
 
 

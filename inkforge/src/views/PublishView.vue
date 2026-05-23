@@ -13,7 +13,7 @@ import { useThemeStore, ARTICLE_PRESETS } from '@/stores/theme'
 import { marked } from 'marked'
 import {
   themePresets,
-  convertToWechatWithStats,
+  markdownToWechatWithStats,
   convertToXiaohongshu,
   convertToZhihu,
   calculateStats,
@@ -148,7 +148,7 @@ async function generateHtml() {
     switch (platform.value) {
       case 'wechat': {
         const preset = themePresets.find(p => p.id === selectedPreset.value) || themePresets[0]
-        const result = convertToWechatWithStats(rawHtml, preset, {
+        const result = await markdownToWechatWithStats(content, preset, {
           enableCiteStatus: exportOptions.value.convertFootnotes,
           enableLineNumbers: exportOptions.value.lineNumbers,
           enableMacCodeBlock: exportOptions.value.macCodeBlock,
@@ -312,6 +312,9 @@ onMounted(() => {
       <div class="header-left">
         <button
           class="back-btn"
+          type="button"
+          aria-label="返回工作台"
+          title="返回工作台"
           @click="goBack"
         >
           <svg
@@ -359,6 +362,7 @@ onMounted(() => {
           </h3>
           <div class="platform-list">
             <button
+              type="button"
               class="platform-card"
               :class="{ active: platform === 'wechat' }"
               @click="platform = 'wechat'"
@@ -379,6 +383,7 @@ onMounted(() => {
               </div>
             </button>
             <button
+              type="button"
               class="platform-card"
               :class="{ active: platform === 'xiaohongshu' }"
               @click="platform = 'xiaohongshu'"
@@ -407,6 +412,7 @@ onMounted(() => {
               </div>
             </button>
             <button
+              type="button"
               class="platform-card"
               :class="{ active: platform === 'zhihu' }"
               @click="platform = 'zhihu'"
@@ -434,6 +440,7 @@ onMounted(() => {
             <button
               v-for="preset in quickPresets"
               :key="preset.id"
+              type="button"
               class="preset-item"
               :class="{ active: selectedPreset === preset.id }"
               @click="selectedPreset = preset.id"
@@ -450,6 +457,7 @@ onMounted(() => {
             </button>
           </div>
           <button
+            type="button"
             class="more-themes-btn"
             @click="goToThemes"
           >
@@ -495,6 +503,7 @@ onMounted(() => {
             <button
               v-for="preset in xhsPresets"
               :key="preset.id"
+              type="button"
               class="preset-item"
               :class="{ active: xhsPreset === preset.id }"
               @click="xhsPreset = preset.id"
@@ -620,6 +629,7 @@ onMounted(() => {
         <!-- Action Buttons -->
         <section class="sidebar-section sidebar-actions">
           <button
+            type="button"
             class="btn-copy-primary"
             :class="{ success: copySuccess }"
             :disabled="!hasPublishSource || isGenerating"
@@ -659,6 +669,7 @@ onMounted(() => {
           </button>
           <div class="btn-row">
             <button
+              type="button"
               class="btn-secondary"
               @click="viewMode = 'code'"
             >
@@ -676,6 +687,7 @@ onMounted(() => {
               查看源码
             </button>
             <button
+              type="button"
               class="btn-secondary"
               :disabled="!hasPublishSource || isGenerating"
               @click="downloadHtmlFile"
@@ -709,6 +721,7 @@ onMounted(() => {
         <div class="view-toggle-bar">
           <div class="view-tabs-pill">
             <button
+              type="button"
               class="tab-btn"
               :class="{ active: viewMode === 'preview' }"
               @click="viewMode = 'preview'"
@@ -731,6 +744,7 @@ onMounted(() => {
               预览
             </button>
             <button
+              type="button"
               class="tab-btn"
               :class="{ active: viewMode === 'code' }"
               @click="viewMode = 'code'"
@@ -852,6 +866,7 @@ onMounted(() => {
             <div class="code-panel-header">
               <span class="code-lang-badge">{{ hasPublishSource ? 'HTML (带内联样式)' : '等待真实正文' }}</span>
               <button
+                type="button"
                 class="code-copy-btn"
                 :disabled="!hasPublishSource || isGenerating"
                 @click="copyHtmlCode"

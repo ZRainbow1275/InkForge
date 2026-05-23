@@ -71,7 +71,11 @@ pub async fn check_ollama_status() -> Result<OllamaStatus, String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let response = match client.get(format!("{}/api/tags", OLLAMA_BASE_URL)).send().await {
+    let response = match client
+        .get(format!("{}/api/tags", OLLAMA_BASE_URL))
+        .send()
+        .await
+    {
         Ok(resp) => resp,
         Err(e) => {
             return Ok(OllamaStatus {

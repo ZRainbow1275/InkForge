@@ -15,7 +15,7 @@ export type { ArticleStatus } from '@/schemas/article';
 // ═══════════════════════════════════════════════════════════════════
 
 /** 默认预设 ID */
-export const DEFAULT_PRESET_ID = 'thesis' as const
+export const DEFAULT_PRESET_ID = 'report' as const
 
 // ═══════════════════════════════════════════════════════════════════
 // 文档状态

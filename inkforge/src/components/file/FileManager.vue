@@ -29,8 +29,11 @@ type FileManagerViewMode = 'tree' | 'flat' | 'recent'
 type FileManagerSortField = 'updatedAt' | 'createdAt' | 'title' | 'status'
 type FileManagerSortDirection = 'asc' | 'desc'
 type FileManagerStatusFilter = 'all' | 'drafts' | 'review' | 'ready' | 'done'
+type QuickAccessDropPosition = 'before' | 'after'
 
 const FILE_MANAGER_PREF_KEY = 'inkforge:file-manager:prefs:v1'
+const QUICK_ACCESS_ORDER_KEY = 'inkforge:file-manager:quick-access-order:v1'
+const QUICK_ACCESS_LIMIT = 8
 const FILE_MANAGER_VIEW_MODES: FileManagerViewMode[] = ['tree', 'flat', 'recent']
 const FILE_MANAGER_SORT_FIELDS: FileManagerSortField[] = ['updatedAt', 'createdAt', 'title', 'status']
 const FILE_MANAGER_SORT_DIRECTIONS: FileManagerSortDirection[] = ['asc', 'desc']
@@ -42,6 +45,12 @@ interface FileManagerPrefs {
     sortDirection: FileManagerSortDirection
     statusFilter: FileManagerStatusFilter
     expandedMap: Record<string, boolean>
+}
+
+interface QuickAccessGroup {
+    id: 'active' | 'done'
+    label: string
+    articles: Article[]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -57,6 +66,11 @@ function pickExpandedMap(value: unknown): Record<string, boolean> {
     return Object.fromEntries(
         Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')
     )
+}
+
+function pickStringArray(value: unknown): string[] {
+    if (!Array.isArray(value)) return []
+    return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
 }
 
 function readFileManagerPrefs(): FileManagerPrefs {
@@ -84,12 +98,23 @@ function readFileManagerPrefs(): FileManagerPrefs {
     }
 }
 
+function readQuickAccessOrder(): string[] {
+    if (typeof window === 'undefined') return []
+    try {
+        return pickStringArray(JSON.parse(window.localStorage.getItem(QUICK_ACCESS_ORDER_KEY) ?? '[]') as unknown)
+    } catch {
+        return []
+    }
+}
+
 const initialPrefs = readFileManagerPrefs()
 const searchQuery = ref('')
 const viewMode = ref<FileManagerViewMode>(initialPrefs.viewMode)
 const sortField = ref<FileManagerSortField>(initialPrefs.sortField)
 const sortDirection = ref<FileManagerSortDirection>(initialPrefs.sortDirection)
 const statusFilter = ref<FileManagerStatusFilter>(initialPrefs.statusFilter)
+const quickAccessOrder = ref<string[]>(readQuickAccessOrder())
+const draggingQuickAccessId = ref<string | null>(null)
 
 function matchesStatusFilter(article: Article): boolean {
     switch (statusFilter.value) {
@@ -135,6 +160,45 @@ const filteredArticlesMap = computed(() => {
     return effectiveSortDirection === 'asc' ? sorted : sorted.reverse()
 })
 
+function getArticleTimestamp(article: Article): number {
+    const timestamp = new Date(article.updatedAt || article.createdAt).getTime()
+    return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+function isCompletedQuickAccessArticle(article: Article): boolean {
+    return article.status === ARTICLE_STATUS.PROCESSED
+        || article.status === ARTICLE_STATUS.PUBLISHED
+        || article.status === ARTICLE_STATUS.ARCHIVED
+}
+
+const quickAccessArticles = computed<Article[]>(() => {
+    const articleById = new Map(articles.value.map(article => [article.id, article]))
+    const ordered = quickAccessOrder.value
+        .map(id => articleById.get(id))
+        .filter((article): article is Article => Boolean(article))
+    const orderedIds = new Set(ordered.map(article => article.id))
+    const recent = [...articles.value]
+        .sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a))
+        .filter(article => !orderedIds.has(article.id))
+
+    return [...ordered, ...recent].slice(0, QUICK_ACCESS_LIMIT)
+})
+
+const quickAccessGroups = computed<QuickAccessGroup[]>(() => {
+    const active = quickAccessArticles.value.filter(article => !isCompletedQuickAccessArticle(article))
+    const done = quickAccessArticles.value.filter(isCompletedQuickAccessArticle)
+    const groups: QuickAccessGroup[] = []
+
+    if (active.length > 0) {
+        groups.push({ id: 'active', label: '进行中', articles: active })
+    }
+    if (done.length > 0) {
+        groups.push({ id: 'done', label: '已完成', articles: done })
+    }
+
+    return groups
+})
+
 // ═══════════════════════════════════════════════════════════════════
 // 文件树：按分类分组
 // ═══════════════════════════════════════════════════════════════════
@@ -143,6 +207,7 @@ interface CategoryNode {
     category: Category | null // null 代表"未分类"
     articles: Article[]
     expanded: boolean
+    bucket?: { key: string; label: string }
 }
 
 const expandedMap = ref<Record<string, boolean>>(initialPrefs.expandedMap ?? {})
@@ -167,12 +232,55 @@ const fileTree = computed<CategoryNode[]>(() => {
 
     if (filtered.length === 0 && (searchQuery.value.trim() || statusFilter.value !== 'all')) return []
 
-    if (viewMode.value === 'flat' || viewMode.value === 'recent') {
+    if (viewMode.value === 'flat') {
         return [{
             category: null,
-            articles: viewMode.value === 'recent' ? filtered.slice(0, 100) : filtered,
+            articles: filtered,
             expanded: true,
         }]
+    }
+
+    if (viewMode.value === 'recent') {
+        const now = new Date()
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+        const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000
+        const startOfWeek = startOfToday - 6 * 24 * 60 * 60 * 1000
+        const startOfMonth = startOfToday - 29 * 24 * 60 * 60 * 1000
+
+        type BucketKey = 'today' | 'yesterday' | 'week' | 'month' | 'earlier'
+        const bucketOrder: BucketKey[] = ['today', 'yesterday', 'week', 'month', 'earlier']
+        const bucketLabels: Record<BucketKey, string> = {
+            today: '今天',
+            yesterday: '昨天',
+            week: '本周',
+            month: '本月',
+            earlier: '更早',
+        }
+        const buckets: Record<BucketKey, Article[]> = {
+            today: [], yesterday: [], week: [], month: [], earlier: [],
+        }
+
+        const limited = filtered.slice(0, 100)
+        for (const article of limited) {
+            const ts = new Date(article.updatedAt ?? article.createdAt ?? 0).getTime()
+            if (ts >= startOfToday) buckets.today.push(article)
+            else if (ts >= startOfYesterday) buckets.yesterday.push(article)
+            else if (ts >= startOfWeek) buckets.week.push(article)
+            else if (ts >= startOfMonth) buckets.month.push(article)
+            else buckets.earlier.push(article)
+        }
+
+        const nodes: CategoryNode[] = []
+        for (const key of bucketOrder) {
+            if (buckets[key].length === 0) continue
+            nodes.push({
+                category: null,
+                articles: buckets[key],
+                expanded: ensureExpanded(`__recent_${key}__`),
+                bucket: { key: `__recent_${key}__`, label: bucketLabels[key] },
+            })
+        }
+        return nodes
     }
 
     const catMap = new Map<string, Article[]>()
@@ -253,6 +361,15 @@ function persistFileManagerPrefs(prefs: FileManagerPrefs): void {
     }
 }
 
+function persistQuickAccessOrder(ids: string[]): void {
+    if (typeof window === 'undefined') return
+    try {
+        window.localStorage.setItem(QUICK_ACCESS_ORDER_KEY, JSON.stringify(ids))
+    } catch {
+        // Quick access ordering is a convenience preference; document operations continue.
+    }
+}
+
 watch([viewMode, sortField, sortDirection, statusFilter, expandedMap], () => {
     persistFileManagerPrefs({
         viewMode: viewMode.value,
@@ -262,6 +379,75 @@ watch([viewMode, sortField, sortDirection, statusFilter, expandedMap], () => {
         expandedMap: expandedMap.value,
     })
 }, { deep: true })
+
+watch(articles, () => {
+    const knownIds = new Set(articles.value.map(article => article.id))
+    const nextOrder = quickAccessOrder.value.filter(id => knownIds.has(id))
+    if (nextOrder.length !== quickAccessOrder.value.length) {
+        quickAccessOrder.value = nextOrder
+        persistQuickAccessOrder(nextOrder)
+    }
+})
+
+function getQuickAccessDropPosition(event: DragEvent): QuickAccessDropPosition {
+    if (!(event.currentTarget instanceof HTMLElement)) return 'after'
+    const rect = event.currentTarget.getBoundingClientRect()
+    return event.clientY > rect.top + rect.height / 2 ? 'after' : 'before'
+}
+
+function reorderQuickAccessIds(
+    ids: string[],
+    draggedId: string,
+    targetId: string,
+    position: QuickAccessDropPosition
+): string[] {
+    const withoutDragged = ids.filter(id => id !== draggedId)
+    const targetIndex = withoutDragged.indexOf(targetId)
+    if (targetIndex === -1) return ids
+    const insertIndex = position === 'after' ? targetIndex + 1 : targetIndex
+    return [
+        ...withoutDragged.slice(0, insertIndex),
+        draggedId,
+        ...withoutDragged.slice(insertIndex),
+    ]
+}
+
+function handleQuickAccessDragStart(event: DragEvent, articleId: string): void {
+    draggingQuickAccessId.value = articleId
+    event.dataTransfer?.setData('text/plain', articleId)
+    if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move'
+    }
+}
+
+function handleQuickAccessDragOver(event: DragEvent): void {
+    event.preventDefault()
+    if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move'
+    }
+}
+
+function handleQuickAccessDrop(event: DragEvent, targetArticleId: string): void {
+    event.preventDefault()
+    const draggedId = event.dataTransfer?.getData('text/plain') || draggingQuickAccessId.value
+    if (!draggedId || draggedId === targetArticleId) return
+
+    const visibleIds = quickAccessArticles.value.map(article => article.id)
+    if (!visibleIds.includes(draggedId) || !visibleIds.includes(targetArticleId)) return
+
+    const nextOrder = reorderQuickAccessIds(
+        visibleIds,
+        draggedId,
+        targetArticleId,
+        getQuickAccessDropPosition(event)
+    )
+    quickAccessOrder.value = nextOrder
+    persistQuickAccessOrder(nextOrder)
+}
+
+function handleQuickAccessDragEnd(): void {
+    draggingQuickAccessId.value = null
+}
 
 function getAssetThumbnail(assetId: string): string | null {
     return assetStore.getThumbnailUrl(assetId)
@@ -284,6 +470,10 @@ async function createBlankArticle(): Promise<void> {
         const article = await articleStore.addArticle({
             title: '无标题文章',
             sourceUrl: 'https://local.inkforge.app/blank',
+            sourceName: 'InkForge 本地新建',
+            rawContent: '',
+            description: '',
+            status: ARTICLE_STATUS.DRAFT,
             categoryId: categoryStore.selectedCategoryId ?? undefined,
         })
         articleStore.selectArticle(article.id)
@@ -622,6 +812,10 @@ async function ctxNewArticleInCategory(): Promise<void> {
         const article = await articleStore.addArticle({
             title: '无标题文章',
             sourceUrl: 'https://local.inkforge.app/blank',
+            sourceName: 'InkForge 本地新建',
+            rawContent: '',
+            description: '',
+            status: ARTICLE_STATUS.DRAFT,
             categoryId: categoryId ?? undefined,
         })
         articleStore.selectArticle(article.id)
@@ -706,10 +900,12 @@ function getStatusClass(status: string): string {
 // ═══════════════════════════════════════════════════════════════════
 
 function getCategoryKey(node: CategoryNode): string {
+    if (node.bucket) return node.bucket.key
     return node.category?.id ?? '__uncategorized__'
 }
 
 function getCategoryLabel(node: CategoryNode): string {
+    if (node.bucket) return node.bucket.label
     if (node.category) return node.category.name
     if (viewMode.value === 'flat') return '全部文档'
     if (viewMode.value === 'recent') return '最近更新'
@@ -717,6 +913,7 @@ function getCategoryLabel(node: CategoryNode): string {
 }
 
 function getCategoryIconComponent(node: CategoryNode) {
+    if (node.bucket) return resolveCategoryIcon('clock', 'clock')
     return resolveCategoryIcon(node.category?.icon, node.category ? 'folder' : 'uncategorized')
 }
 
@@ -872,6 +1069,7 @@ const deleteConfirmText = computed(() => {
         class="fm-new-wrap"
       >
         <button
+          type="button"
           class="fm-new-btn"
           title="新建"
           @click.stop="toggleNewMenu"
@@ -921,6 +1119,7 @@ const deleteConfirmText = computed(() => {
             class="fm-dropdown"
           >
             <button
+              type="button"
               class="fm-dropdown-item"
               @click.stop="createBlankArticle"
             >
@@ -952,6 +1151,7 @@ const deleteConfirmText = computed(() => {
               <span>新建空白文章</span>
             </button>
             <button
+              type="button"
               class="fm-dropdown-item"
               @click.stop="startNewCategory"
             >
@@ -985,6 +1185,7 @@ const deleteConfirmText = computed(() => {
             </button>
             <div class="fm-dropdown-separator" />
             <button
+              type="button"
               class="fm-dropdown-item"
               :disabled="importing"
               @click.stop="handleImportFiles"
@@ -1058,6 +1259,7 @@ const deleteConfirmText = computed(() => {
         </svg>
         <span class="fm-import-text">{{ importResult.success }} 成功<template v-if="importResult.failed > 0"> / {{ importResult.failed }} 失败</template><template v-if="importResult.skippedOversize > 0"> / {{ importResult.skippedOversize }} 超限跳过</template></span>
         <button
+          type="button"
           class="fm-import-close"
           title="关闭"
           @click="dismissImportResult"
@@ -1170,6 +1372,53 @@ const deleteConfirmText = computed(() => {
     </div>
 
     <!-- 文件树 -->
+    <section
+      v-if="quickAccessGroups.length > 0"
+      class="fm-quick-access"
+      aria-label="快速访问"
+    >
+      <header class="fm-quick-access-head">
+        <span>快速访问</span>
+        <strong>{{ quickAccessArticles.length }}</strong>
+      </header>
+      <div class="fm-quick-access-list">
+        <details
+          v-for="group in quickAccessGroups"
+          :key="group.id"
+          class="fm-quick-access-group"
+          open
+        >
+          <summary class="fm-quick-access-summary">
+            <span>{{ group.label }}</span>
+            <strong>{{ group.articles.length }}</strong>
+          </summary>
+          <button
+            v-for="article in group.articles"
+            :key="article.id"
+            type="button"
+            class="fm-quick-access-item"
+            :class="{ 'fm-quick-access-item--active': selectedArticleId === article.id }"
+            draggable="true"
+            @click="handleSelectArticle(article.id)"
+            @dragstart="handleQuickAccessDragStart($event, article.id)"
+            @dragover="handleQuickAccessDragOver"
+            @drop="handleQuickAccessDrop($event, article.id)"
+            @dragend="handleQuickAccessDragEnd"
+          >
+            <span class="fm-quick-access-dot" />
+            <span class="fm-quick-access-title">{{ article.title }}</span>
+            <span
+              class="fm-status"
+              :class="getStatusClass(article.status)"
+            >
+              {{ getStatusLabel(article.status) }}
+            </span>
+            <time class="fm-quick-access-time">{{ formatRelativeTime(article.updatedAt) }}</time>
+          </button>
+        </details>
+      </div>
+    </section>
+
     <div class="fm-tree">
       <template v-if="fileTree.length === 0 && (searchQuery.trim() || statusFilter !== 'all')">
         <div class="fm-empty-search">
@@ -1233,6 +1482,10 @@ const deleteConfirmText = computed(() => {
           v-for="node in fileTree"
           :key="getCategoryKey(node)"
           class="fm-category-node"
+          :class="[
+            `fm-mode-${viewMode}`,
+            { 'fm-node-bucket': !!node.bucket },
+          ]"
         >
           <!-- 分类行 -->
           <div
@@ -1241,8 +1494,9 @@ const deleteConfirmText = computed(() => {
             @click="toggleExpand(getCategoryKey(node))"
             @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
           >
-            <!-- 展开/折叠箭头 -->
+            <!-- 展开/折叠箭头 (flat 模式隐藏) -->
             <svg
+              v-if="viewMode !== 'flat'"
               class="fm-chevron"
               :class="{ 'fm-chevron-open': node.expanded }"
               width="12"
@@ -1470,6 +1724,7 @@ const deleteConfirmText = computed(() => {
           <!-- 文章右键菜单 -->
           <template v-if="contextMenu.type === 'article'">
             <button
+              type="button"
               class="fm-ctx-item"
               @click="ctxOpenArticle"
             >
@@ -1495,6 +1750,7 @@ const deleteConfirmText = computed(() => {
               <span>打开</span>
             </button>
             <button
+              type="button"
               class="fm-ctx-item"
               @click="ctxStartRenameArticle"
             >
@@ -1516,6 +1772,7 @@ const deleteConfirmText = computed(() => {
             <div class="fm-ctx-separator" />
             <div class="fm-ctx-submenu-wrap">
               <button
+                type="button"
                 class="fm-ctx-item fm-ctx-has-submenu"
                 @click.stop="ctxToggleMoveSubmenu"
               >
@@ -1555,6 +1812,7 @@ const deleteConfirmText = computed(() => {
                   class="fm-ctx-submenu"
                 >
                   <button
+                    type="button"
                     class="fm-ctx-item"
                     @click="ctxMoveToCategory(null)"
                   >
@@ -1567,6 +1825,7 @@ const deleteConfirmText = computed(() => {
                     <span>未分类</span>
                   </button>
                   <button
+                    type="button"
                     v-for="cat in categories"
                     :key="cat.id"
                     class="fm-ctx-item"
@@ -1585,6 +1844,7 @@ const deleteConfirmText = computed(() => {
             </div>
             <div class="fm-ctx-separator" />
             <button
+              type="button"
               class="fm-ctx-item fm-ctx-danger"
               @click="ctxDeleteArticle"
             >
@@ -1612,6 +1872,7 @@ const deleteConfirmText = computed(() => {
             <!-- 仅对真实分类（非"未分类"）显示重命名和删除 -->
             <template v-if="contextMenu.targetCategoryId">
               <button
+                type="button"
                 class="fm-ctx-item"
                 @click="ctxStartRenameCategory"
               >
@@ -1632,6 +1893,7 @@ const deleteConfirmText = computed(() => {
               </button>
             </template>
             <button
+              type="button"
               class="fm-ctx-item"
               @click="ctxNewArticleInCategory"
             >
@@ -1665,6 +1927,7 @@ const deleteConfirmText = computed(() => {
             <template v-if="contextMenu.targetCategoryId">
               <div class="fm-ctx-separator" />
               <button
+                type="button"
                 class="fm-ctx-item fm-ctx-danger"
                 @click="ctxDeleteCategory"
               >
@@ -1708,12 +1971,14 @@ const deleteConfirmText = computed(() => {
             </p>
             <div class="fm-confirm-actions">
               <button
+                type="button"
                 class="fm-btn fm-btn-cancel"
                 @click="cancelDelete"
               >
                 取消
               </button>
               <button
+                type="button"
                 class="fm-btn fm-btn-danger"
                 @click="confirmDelete"
               >
@@ -1771,6 +2036,7 @@ const deleteConfirmText = computed(() => {
 
 .fm-toolbar-row--search {
     grid-area: search;
+    overflow: visible;
 }
 
 .fm-toolbar-row--actions {
@@ -1799,7 +2065,9 @@ const deleteConfirmText = computed(() => {
 }
 
 .fm-search-wrap:focus-within {
-    flex-grow: 999;
+    flex: 0 0 min(480px, calc(100vw - 360px));
+    width: min(480px, calc(100vw - 360px));
+    max-width: min(480px, calc(100vw - 360px));
     z-index: 4;
     transform: scale(1.015);
 }
@@ -2080,6 +2348,7 @@ html.theme-dark .fm-sort-toggle.is-asc:not(:disabled) .fm-sort-icon {
     position: relative;
     flex-shrink: 0;
     grid-area: new;
+    z-index: 6;
 }
 
 .fm-new-btn {
@@ -2236,28 +2505,22 @@ html.theme-dark .fm-sort-toggle.is-asc:not(:disabled) .fm-sort-icon {
 
 .fm-smart-folders {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 6px 6px;
     padding: 8px 10px;
     border-bottom: 1px solid #ECEFF1;
     background: #FAFAF7;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.fm-smart-folders::-webkit-scrollbar {
-    display: none;
 }
 
 .fm-smart-folder {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    flex: 0 0 auto;
+    justify-content: center;
+    gap: 5px;
+    flex: 1 1 auto;
     min-width: 0;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border: 1px solid #ECEFF1;
     border-radius: 999px;
     background: transparent;
@@ -2361,6 +2624,157 @@ html.theme-dark .fm-smart-folder.active strong {
     padding: 4px 0;
 }
 
+.fm-quick-access {
+    flex: 0 0 auto;
+    margin: 6px 8px 8px;
+    padding: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 10px;
+    background: rgba(248, 250, 252, 0.86);
+    overflow: hidden;
+}
+
+.fm-quick-access-head,
+.fm-quick-access-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.fm-quick-access-head {
+    height: 22px;
+    color: #263238;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fm-quick-access-head strong,
+.fm-quick-access-summary strong {
+    color: #90A4AE;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.fm-quick-access-list {
+    display: grid;
+    gap: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.fm-quick-access-group {
+    display: grid;
+    gap: 4px;
+}
+
+.fm-quick-access-summary {
+    height: 24px;
+    padding: 0 4px;
+    border-radius: 6px;
+    color: #607D8B;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    list-style: none;
+}
+
+.fm-quick-access-summary::-webkit-details-marker {
+    display: none;
+}
+
+.fm-quick-access-item {
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #455A64;
+    cursor: grab;
+    font: inherit;
+    text-align: left;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.fm-quick-access-item:hover {
+    border-color: rgba(211, 47, 47, 0.24);
+    background: #FFF5F5;
+    transform: translateX(2px);
+}
+
+.fm-quick-access-item:active {
+    cursor: grabbing;
+}
+
+.fm-quick-access-item--active {
+    border-color: rgba(211, 47, 47, 0.32);
+    background: #FEF2F2;
+}
+
+.fm-quick-access-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #D32F2F;
+}
+
+.fm-quick-access-title {
+    overflow: hidden;
+    color: #263238;
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-quick-access-time {
+    color: #90A4AE;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fm-quick-access-item,
+    .fm-quick-access-item:hover {
+        transform: none;
+        transition: background 0.1s ease, border-color 0.1s ease;
+    }
+}
+
+html.theme-dark .fm-quick-access {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(15, 23, 42, 0.82);
+}
+
+html.theme-dark .fm-quick-access-head,
+html.theme-dark .fm-quick-access-title {
+    color: #E5E7EB;
+}
+
+html.theme-dark .fm-quick-access-summary,
+html.theme-dark .fm-quick-access-time {
+    color: #94A3B8;
+}
+
+html.theme-dark .fm-quick-access-item {
+    color: #CBD5E1;
+}
+
+html.theme-dark .fm-quick-access-item:hover {
+    border-color: rgba(239, 83, 80, 0.34);
+    background: rgba(127, 29, 29, 0.24);
+}
+
+html.theme-dark .fm-quick-access-item--active {
+    border-color: rgba(239, 83, 80, 0.42);
+    background: rgba(127, 29, 29, 0.32);
+}
+
 /* ─── 分类节点 ─── */
 
 .fm-category-node {
@@ -2425,6 +2839,58 @@ html.theme-dark .fm-smart-folder.active strong {
     font-size: 11px;
     color: #9CA3AF;
     font-weight: 400;
+}
+
+/* ─── 视图模式差异 ─── */
+
+.fm-mode-flat .fm-category-row {
+    height: 28px;
+    background: transparent;
+    color: #4B5563;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ECEFF1;
+    border-left: none;
+    cursor: default;
+}
+
+.fm-mode-flat .fm-category-row:hover {
+    background: transparent;
+    transform: none;
+    border-left: none;
+}
+
+.fm-node-bucket .fm-category-row {
+    height: 26px;
+    padding-left: 10px;
+    background: transparent;
+    color: #6B7280;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    border-left: none;
+    margin-top: 4px;
+}
+
+.fm-node-bucket .fm-cat-icon {
+    width: 12px;
+    height: 12px;
+    color: #9CA3AF;
+}
+
+.fm-node-bucket .fm-category-row:hover {
+    background: rgba(211, 47, 47, 0.04);
+    transform: none;
+    border-left: none;
+}
+
+.fm-mode-tree .fm-articles-inner {
+    padding-left: 8px;
+    border-left: 1px dashed #E5E7EB;
+    margin-left: 12px;
 }
 
 /* ─── 文章列表（展开/折叠） ─── */

@@ -2,28 +2,39 @@
 import { computed } from 'vue'
 import { Tag } from 'lucide-vue-next'
 import type { TagCloudItem } from './types'
-import InsightEmptyState from './InsightEmptyState.vue'
 
 const props = defineProps<{ tags: TagCloudItem[] }>()
 
 const FALLBACK_TAGS = ['草稿', '已发布', '灵感', '笔记', '待整理']
+const FALLBACK_WEIGHTS = [1, 0.78, 0.62, 0.48, 0.36] as const
 const FALLBACK_PALETTE = ['#D32F2F', '#1565C0', '#F57C00', '#6A1B9A', '#2E7D32']
+const MIN_TAG_FONT_SIZE = 12
+const MAX_TAG_FONT_SIZE = 28
 
 const displayTags = computed<TagCloudItem[]>(() => {
   if (props.tags.length > 0) return props.tags
   return FALLBACK_TAGS.map((tag, index) => ({
     tag,
     count: 0,
-    weight: 0.5,
+    weight: FALLBACK_WEIGHTS[index % FALLBACK_WEIGHTS.length],
     color: FALLBACK_PALETTE[index % FALLBACK_PALETTE.length],
   }))
 })
 
 const isEmpty = computed<boolean>(() => props.tags.length === 0)
 
-function fontSizeFor(weight: number): string {
+function fontSizeFromWeight(weight: number): number {
   const clamped = Math.max(0, Math.min(1, weight))
-  return `${Math.round(12 + clamped * 16)}px`
+  const scaled = Math.log1p(clamped * 9) / Math.log1p(9)
+  return Math.round(MIN_TAG_FONT_SIZE + scaled * (MAX_TAG_FONT_SIZE - MIN_TAG_FONT_SIZE))
+}
+
+function fontSizeFor(item: TagCloudItem): string {
+  const explicitFontSize = item.fontSize
+  const size = typeof explicitFontSize === 'number' && Number.isFinite(explicitFontSize)
+    ? explicitFontSize
+    : fontSizeFromWeight(item.weight)
+  return `${Math.round(Math.max(MIN_TAG_FONT_SIZE, Math.min(MAX_TAG_FONT_SIZE, size)))}px`
 }
 </script>
 
@@ -46,7 +57,7 @@ function fontSizeFor(weight: number): string {
         v-for="item in displayTags"
         :key="item.tag"
         :style="{
-          fontSize: fontSizeFor(item.weight),
+          fontSize: fontSizeFor(item),
           color: item.color ?? `rgb(${96 + Math.round(item.weight * 115)}, ${125 - Math.round(item.weight * 78)}, ${139 - Math.round(item.weight * 92)})`,
         }"
         :title="`${item.tag}：${item.count} 篇`"
@@ -61,7 +72,7 @@ function fontSizeFor(weight: number): string {
           v-for="(item, index) in displayTags"
           :key="item.tag"
           :style="{
-            fontSize: fontSizeFor(item.weight),
+            fontSize: fontSizeFor(item),
             color: item.color,
             opacity: 0.42 - index * 0.05,
           }"

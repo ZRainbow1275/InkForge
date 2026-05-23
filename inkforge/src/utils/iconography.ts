@@ -3,6 +3,7 @@ import {
   BarChart3,
   BookOpen,
   Bot,
+  Clock,
   Code2,
   Feather,
   FileText,
@@ -93,6 +94,7 @@ const categoryIconMap: Record<string, IconComponent> = {
   favorite: Star,
   hot: Flame,
   chat: MessageSquare,
+  clock: Clock,
 }
 
 const categoryIconAliases: Record<string, string> = {

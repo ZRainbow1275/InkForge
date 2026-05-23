@@ -1,11 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resolveImage, resolveInkforgeAsset } from './asset-resolver'
 import { extractFromDataUrl } from './dimension-extractor'
 import { NotImplementedError } from './types'
-import { WechatUploader } from './uploaders/wechat-stub'
+import { WechatUploader } from './uploaders/wechat'
 import { ZhihuUploader } from './uploaders/zhihu-stub'
 import { XiaohongshuUploader } from './uploaders/xhs-stub'
+
+const uploadWechatArticleImageMock = vi.fn()
+
+vi.mock('@/services/export/wechat-publish', () => ({
+    uploadWechatArticleImage: (image: unknown) => uploadWechatArticleImageMock(image),
+}))
 
 const TINY_PNG_1X1_BASE64 =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=='
@@ -71,14 +77,28 @@ describe('extractFromDataUrl', () => {
     })
 })
 
-describe('uploader stubs', () => {
-    it('WechatUploader.upload throws NotImplementedError with feature in message', async () => {
+describe('uploader integrations', () => {
+    beforeEach(() => {
+        uploadWechatArticleImageMock.mockReset()
+    })
+
+    it('WechatUploader.upload delegates to the real WeChat publish service', async () => {
         const uploader = new WechatUploader()
+        uploadWechatArticleImageMock.mockResolvedValue({
+            remoteUrl: 'https://mmbiz.qpic.cn/demo-uploaded/640',
+            uploadedAt: '2026-05-16T00:00:00.000Z',
+        })
+
         await expect(
             uploader.upload({ src: 'https://example.com/x.png', resolvedUrl: 'https://example.com/x.png' }),
-        ).rejects.toMatchObject({
-            name: 'NotImplementedError',
-            feature: expect.stringContaining('WechatUploader.upload'),
+        ).resolves.toEqual({
+            remoteUrl: 'https://mmbiz.qpic.cn/demo-uploaded/640',
+            uploadedAt: '2026-05-16T00:00:00.000Z',
+        })
+
+        expect(uploadWechatArticleImageMock).toHaveBeenCalledWith({
+            src: 'https://example.com/x.png',
+            resolvedUrl: 'https://example.com/x.png',
         })
     })
 

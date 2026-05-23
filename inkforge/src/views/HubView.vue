@@ -31,7 +31,6 @@ import {
   getArticleStatusLabel,
   getLifecycleContinuationPriority,
   isCompletedStatus,
-  isDraftBoxStatus,
   isDraftLikeStatus,
   isUnfinishedStatus,
 } from '@/core/lifecycle'
@@ -157,22 +156,6 @@ const stats = computed(() => {
   }
 })
 
-const strictDraftArticles = computed(() => {
-  return [...articles.value]
-    .filter((article: Article) => isDraftBoxStatus(article.status))
-    .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
-})
-
-const draftArticlesForSignal = computed(() => strictDraftArticles.value.slice(0, 3))
-
-const latestStrictDraft = computed(() => strictDraftArticles.value[0] ?? null)
-
-const draftSignalCountLabel = computed(() => (
-  strictDraftArticles.value.length > 99
-    ? '99+'
-    : String(strictDraftArticles.value.length)
-))
-
 function toGoalPercent(current: number, target: number | undefined): number | null {
   if (!target || target < 1) {
     return null
@@ -221,61 +204,6 @@ const workflowProgress = computed(() => {
     summary: `已完成 ${stats.value.processedArticles}/${stats.value.totalArticles} 篇，本周产出 ${weeklyTotal.value} 篇，连续创作 ${stats.value.streak} 天。`,
     actionLabel: '设置目标',
   }
-})
-
-const productivitySignals = computed(() => {
-  const goal = settingsStore.settings.writingGoal
-  const latestStrictDraftTime = latestStrictDraft.value
-    ? formatRelativeTime(latestStrictDraft.value.updatedAt || latestStrictDraft.value.createdAt)
-    : null
-  const goalValue = goal.dailyTarget
-    ? `${toGoalPercent(writingWindowStats.value.todayWords, goal.dailyTarget) ?? 0}%`
-    : goal.weeklyTarget
-      ? `${toGoalPercent(writingWindowStats.value.weeklyWords, goal.weeklyTarget) ?? 0}%`
-      : '未设'
-
-  const goalDetail = goal.dailyTarget
-    ? `今日 ${formatNumber(writingWindowStats.value.todayWords)} / ${formatNumber(goal.dailyTarget)} 字，工作台会同步显示当前文稿进度。`
-    : goal.weeklyTarget
-      ? `本周 ${formatNumber(writingWindowStats.value.weeklyWords)} / ${formatNumber(goal.weeklyTarget)} 字，未配置每日目标时首页回退为周目标。`
-      : '配置写作目标后，首页与工作台会按真实文章内容统计进度。'
-
-  const draftDetail = latestStrictDraftTime
-    ? `最近一篇真实草稿更新于 ${latestStrictDraftTime}，可以直接继续写作或进入草稿箱集中整理。`
-    : stats.value.draftCount > 0
-      ? '当前首页仍兼容旧待整理文稿，但草稿箱只收拢真实草稿。'
-      : '当前没有待整理草稿。'
-
-  return [
-    {
-      key: 'goal',
-      label: '写作目标',
-      value: goalValue,
-      detail: goalDetail,
-      icon: Target,
-    },
-    {
-      key: 'drafts',
-      label: '草稿箱',
-      value: draftSignalCountLabel.value,
-      detail: draftDetail,
-      icon: FileText,
-    },
-    {
-      key: 'categories',
-      label: '分类系统',
-      value: String(categoryStore.categories.length),
-      detail: categoryStore.categories.length > 0 ? '分类入口已接入首页筛选与卡片导航。' : '先创建分类，再让首页筛选更快收敛。',
-      icon: LayoutTemplate,
-    },
-    {
-      key: 'assets',
-      label: '素材沉淀',
-      value: String(stats.value.assetCount),
-      detail: stats.value.assetCount > 0 ? '已有素材可复用到后续创作链路。' : '导入文档与后续编辑会逐步沉淀素材。',
-      icon: FolderPlus,
-    },
-  ]
 })
 
 /** 计算连续创作天数 */
@@ -723,15 +651,6 @@ function openQuickActionMenu(source: 'header' | 'fab', focusTarget: 'first' | 'l
   })
 }
 
-function toggleQuickActionMenu(source: 'header' | 'fab'): void {
-  if (showQuickActionMenu.value) {
-    closeQuickActionMenu(true)
-    return
-  }
-
-  openQuickActionMenu(source)
-}
-
 function openTemplatePicker(): void {
   closeQuickActionMenu()
   showTemplatePicker.value = true
@@ -1164,6 +1083,8 @@ onMounted(async () => {
         </button>
         <button
           class="icon-btn"
+          type="button"
+          aria-label="打开设置"
           title="设置"
           @click="goToSettings()"
         >
@@ -1748,6 +1669,8 @@ onMounted(async () => {
               <button
                 v-if="aiStore.isAvailable"
                 class="inspiration-refresh"
+                type="button"
+                aria-label="AI 生成新灵感"
                 :class="{ spinning: aiInspirationLoading }"
                 :disabled="aiInspirationLoading"
                 title="AI 生成新灵感"
@@ -1771,6 +1694,8 @@ onMounted(async () => {
               <button
                 v-else
                 class="inspiration-setup"
+                type="button"
+                aria-label="前往设置配置 AI 灵感"
                 title="配置 AI 后可生成灵感"
                 @click.stop="goToSettings()"
               >
@@ -2024,6 +1949,7 @@ onMounted(async () => {
         <div class="filter-tabs">
           <button
             class="filter-tab"
+            type="button"
             :class="{ active: filterMode === 'all' }"
             @click="setFilterMode('all')"
           >
@@ -2031,6 +1957,7 @@ onMounted(async () => {
           </button>
           <button
             class="filter-tab"
+            type="button"
             :class="{ active: filterMode === 'week' }"
             @click="setFilterMode('week')"
           >
@@ -2039,6 +1966,7 @@ onMounted(async () => {
           <div class="filter-category-wrapper">
             <button
               class="filter-tab"
+              type="button"
               :class="{ active: filterMode === 'category' }"
               @click="setFilterMode('category')"
             >
@@ -2048,15 +1976,16 @@ onMounted(async () => {
               v-if="filterMode === 'category'"
               class="category-dropdown"
             >
-              <div
+              <button
                 v-for="cat in categoryStore.categories"
                 :key="cat.id"
+                type="button"
                 class="category-option"
                 :class="{ selected: filterCategoryId === cat.id }"
                 @click="filterCategoryId = cat.id"
               >
                 {{ cat.name }}
-              </div>
+              </button>
               <div
                 v-if="categoryStore.categories.length === 0"
                 class="category-option disabled"
@@ -2093,6 +2022,7 @@ onMounted(async () => {
             <input
               v-model="searchQuery"
               type="text"
+              aria-label="搜索最近文章"
               placeholder="搜索文章..."
               class="search-input"
             >
@@ -2100,6 +2030,7 @@ onMounted(async () => {
           <select
             v-model="sortMode"
             class="sort-select"
+            aria-label="文章排序方式"
           >
             <option value="recent">
               最近更新
@@ -2205,6 +2136,7 @@ onMounted(async () => {
           <p>使用右下角快速创建、创作工具卡或最近编辑卡底部入口，开始第一篇创作。</p>
           <button
             class="empty-create-btn"
+            type="button"
             @click="startNewProject"
           >
             新建文章
@@ -2238,6 +2170,7 @@ onMounted(async () => {
           <p>试试调整筛选条件或搜索关键词</p>
           <button
             class="empty-create-btn"
+            type="button"
             @click="setFilterMode('all'); searchQuery = ''"
           >
             清除筛选
@@ -2453,7 +2386,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: min(1680px, 100%);
+  max-width: calc(100vw - 96px);
   width: 100%;
   margin: 0 auto 18px;
   padding: 0;
@@ -2808,7 +2741,7 @@ onMounted(async () => {
   gap: 14px;
   flex: 1;
   min-height: 0;
-  max-width: min(1680px, 100%);
+  max-width: calc(100vw - 96px);
   width: 100%;
   margin: 0 auto;
   align-items: stretch;
@@ -2855,7 +2788,7 @@ onMounted(async () => {
 
 /* === SECONDARY TOOLS SECTION === */
 .hub-secondary-grid {
-  max-width: min(1680px, calc(100vw - 96px));
+  max-width: calc(100vw - 96px);
   width: 100%;
   margin: 0 auto;
   display: grid;
@@ -3934,7 +3867,40 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   min-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(176, 190, 197, 0.4) transparent;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-recent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-recent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-recent::-webkit-scrollbar-thumb {
+  background: rgba(176, 190, 197, 0.35);
+  border-radius: 3px;
+}
+
+.card-recent::-webkit-scrollbar-thumb:hover {
+  background: rgba(176, 190, 197, 0.6);
+}
+
+.card-recent .recent-main {
+  flex: 0 0 auto;
+}
+
+.card-recent .recent-articles-list,
+.card-recent .recent-todo-list {
+  flex: 0 0 auto;
+}
+
+.card-recent .recent-create-actions {
+  flex: 0 0 auto;
 }
 
 .recent-main {
@@ -4589,7 +4555,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: min(1680px, calc(100vw - 96px));
+  max-width: calc(100vw - 96px);
   margin: 0 auto 20px;
   padding: 12px 4px;
   gap: 16px;
@@ -4740,7 +4706,8 @@ onMounted(async () => {
 .waterfall-grid {
   columns: 6 280px;
   column-gap: 24px;
-  max-width: min(1680px, calc(100vw - 96px));
+  max-width: calc(100vw - 96px);
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -4897,7 +4864,7 @@ onMounted(async () => {
 }
 
 .card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #263238;
   margin: 0 0 8px;
@@ -4949,7 +4916,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  max-width: min(1680px, calc(100vw - 96px));
+  max-width: calc(100vw - 96px);
   margin: 80px auto 0;
   text-align: center;
 }

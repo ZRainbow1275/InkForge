@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { marked } from 'marked'
 import {
   X, Copy, Download, CheckCircle,
-  Hash, Link2, AlertCircle, Loader2, Lightbulb
+  Hash, Link2, AlertCircle, Loader2, Lightbulb, Palette, Type
 } from 'lucide-vue-next'
 import {
   convertToPlatform, getPlatformPresets,
-  convertToNativeFormat, convertToWechatWithStats, copyTextToClipboard,
+  convertToNativeFormat, copyTextToClipboard,
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
-  detectQuality, themePresets
+  detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
+  WECHAT_DRAFT_TITLE_MAX_CHARS,
+  markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
 import { resolveExportIcon } from '@/utils/iconography'
 import type {
   Platform, ExportOptions, ExportStats,
-  NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme
+  NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
+  WechatPublishStatus, WechatDraftPublishResult,
+  ExportFontFamily, ExportFontSize
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -30,6 +33,29 @@ const CODE_THEMES: { id: CodeTheme; label: string }[] = [
   { id: 'atom-one-dark', label: 'Atom One Dark' },
   { id: 'vs2015', label: 'VS2015' },
   { id: 'dracula', label: 'Dracula' },
+]
+
+const STYLE_FONT_OPTIONS: { id: ExportFontFamily; label: string }[] = [
+  { id: 'sans-serif', label: '无衬线' },
+  { id: 'serif', label: '衬线' },
+  { id: 'monospace', label: '等宽' },
+]
+
+const STYLE_SIZE_OPTIONS: { id: ExportFontSize; label: string }[] = [
+  { id: '14px', label: '14' },
+  { id: '15px', label: '15' },
+  { id: '16px', label: '16' },
+  { id: '17px', label: '17' },
+  { id: '18px', label: '18' },
+]
+
+const STYLE_COLOR_OPTIONS: { id: string; label: string; color: string }[] = [
+  { id: 'classic-blue', label: '经典蓝', color: '#1565C0' },
+  { id: 'emerald', label: '翡翠绿', color: '#0F766E' },
+  { id: 'orange', label: '活力橘', color: '#EA580C' },
+  { id: 'lavender', label: '薰衣紫', color: '#7C3AED' },
+  { id: 'graphite', label: '石墨黑', color: '#263238' },
+  { id: 'rose', label: '玫瑰红', color: '#BE3455' },
 ]
 
 const PLATFORMS = [
@@ -67,6 +93,12 @@ interface PreflightRow {
   key: string
   label: string
   state: 'ready' | 'blocked' | 'warning'
+  detail: string
+}
+
+interface PublishIntegrationStatus {
+  configured: boolean
+  state: PreflightRow['state']
   detail: string
 }
 
@@ -114,7 +146,26 @@ const currentPresets = computed((): PresetDisplay[] => {
 
 function selectPreset(id: string) {
   platformPresetIds.value[selectedPlatform.value] = id
+  if (selectedPlatform.value === 'wechat') {
+    const preset = themePresets.find(item => item.id === id) || getDefaultPreset()
+    exportOptions.value.primaryColor = preset.primaryColor
+    exportOptions.value.fontFamily = normalizeExportFontFamily(preset.fontFamily)
+    exportOptions.value.fontSize = normalizeExportFontSize(preset.fontSize)
+  }
 }
+
+function normalizeExportFontFamily(value: string): ExportFontFamily {
+  if (value === 'serif' || value === 'monospace') return value
+  return 'sans-serif'
+}
+
+function normalizeExportFontSize(value: string): ExportFontSize {
+  return STYLE_SIZE_OPTIONS.some(option => option.id === value)
+    ? value as ExportFontSize
+    : '16px'
+}
+
+const defaultWechatPreset = getDefaultPreset()
 
 // ─── Export Options ──────────────────────────────────────
 const exportOptions = ref<ExportOptions>({
@@ -124,9 +175,12 @@ const exportOptions = ref<ExportOptions>({
   enableCodeHighlight: true,
   enableAlertBlocks: true,
   enableEnhancedTable: true,
-  enableMacCodeBlock: false,
+  enableMacCodeBlock: true,
   codeTheme: 'atom-one-dark',
   readingSpeed: 300,
+  primaryColor: defaultWechatPreset.primaryColor,
+  fontFamily: normalizeExportFontFamily(defaultWechatPreset.fontFamily),
+  fontSize: normalizeExportFontSize(defaultWechatPreset.fontSize),
 })
 
 // ─── Render State ────────────────────────────────────────
@@ -142,10 +196,189 @@ const nativeFormatLabel = computed(() => {
   return NATIVE_FORMAT_LABELS[nativeResult.value.format]
 })
 
-const publishIntegrationStatus = computed(() => ({
-  configured: false,
-  detail: `${platformInfo.value.name} 尚未配置真实 API 授权；当前只提供可复制、可下载的真实导出产物。`,
-}))
+const wechatPublishStatus = ref<WechatPublishStatus | null>(null)
+const isWechatPublishStatusLoading = ref(false)
+const wechatPublishStatusError = ref('')
+let publishStatusVersion = 0
+
+const wechatDraftTitle = ref('')
+const wechatDraftThumbMediaId = ref('')
+const wechatDraftShowCoverPic = ref(false)
+const isWechatDraftCreating = ref(false)
+const wechatDraftError = ref('')
+const wechatDraftResult = ref<WechatDraftPublishResult | null>(null)
+let draftSeedKey = ''
+
+function cleanDraftTitle(title: string): string {
+  return title
+    .replace(/<[^>]+>/g, '')
+    .replace(/[#*_`[\]()>~-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, WECHAT_DRAFT_TITLE_MAX_CHARS)
+}
+
+function inferWechatDraftTitle(markdown: string): string {
+  const heading = markdown.match(/^\s{0,3}#\s+(.+)$/m)?.[1]
+  if (heading) {
+    const title = cleanDraftTitle(heading)
+    if (title) return title
+  }
+
+  const firstContentLine = markdown
+    .split(/\r?\n/)
+    .map(line => cleanDraftTitle(line))
+    .find(line => line.length > 0)
+
+  return firstContentLine || 'Inkforge 微信草稿'
+}
+
+async function refreshPublishIntegrationStatus() {
+  if (!props.visible || selectedPlatform.value !== 'wechat') {
+    publishStatusVersion += 1
+    wechatPublishStatus.value = null
+    wechatPublishStatusError.value = ''
+    isWechatPublishStatusLoading.value = false
+    return
+  }
+
+  const thisVersion = ++publishStatusVersion
+  isWechatPublishStatusLoading.value = true
+  wechatPublishStatusError.value = ''
+
+  try {
+    const status = await getWechatPublishStatus()
+    if (publishStatusVersion !== thisVersion) return
+    wechatPublishStatus.value = status
+  } catch (error) {
+    if (publishStatusVersion !== thisVersion) return
+    wechatPublishStatus.value = null
+    wechatPublishStatusError.value = error instanceof Error ? error.message : '未知错误'
+  } finally {
+    if (publishStatusVersion === thisVersion) {
+      isWechatPublishStatusLoading.value = false
+    }
+  }
+}
+
+const publishIntegrationStatus = computed<PublishIntegrationStatus>(() => {
+  if (selectedPlatform.value !== 'wechat') {
+    return {
+      configured: false,
+      state: 'blocked',
+      detail: `${platformInfo.value.name} 尚未接入真实 API 发布链；当前只提供可复制、可下载的真实导出产物。`,
+    }
+  }
+
+  if (isWechatPublishStatusLoading.value) {
+    return {
+      configured: false,
+      state: 'warning',
+      detail: '正在检测微信公众号真实发布能力...',
+    }
+  }
+
+  if (wechatPublishStatusError.value) {
+    return {
+      configured: false,
+      state: 'blocked',
+      detail: `微信公众号发布状态检测失败：${wechatPublishStatusError.value}`,
+    }
+  }
+
+  if (wechatPublishStatus.value) {
+    return {
+      configured: wechatPublishStatus.value.configured,
+      state: wechatPublishStatus.value.configured ? 'ready' : 'blocked',
+      detail: describeWechatPublishStatus(wechatPublishStatus.value),
+    }
+  }
+
+  return {
+    configured: false,
+    state: 'warning',
+    detail: '等待检测微信公众号真实发布能力。',
+  }
+})
+
+const canCreateWechatDraft = computed(() => {
+  const native = nativeResult.value
+  return (
+    selectedPlatform.value === 'wechat'
+    && publishIntegrationStatus.value.configured
+    && !isRendering.value
+    && !isWechatDraftCreating.value
+    && native?.format === 'html'
+    && Boolean(native.content.trim())
+    && Boolean(wechatDraftTitle.value.trim())
+    && Array.from(wechatDraftTitle.value.trim()).length <= WECHAT_DRAFT_TITLE_MAX_CHARS
+    && Boolean(wechatDraftThumbMediaId.value.trim())
+  )
+})
+
+const wechatDraftPreflightRow = computed<PreflightRow>(() => {
+  if (selectedPlatform.value !== 'wechat') {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'blocked',
+      detail: '仅微信公众号平台支持创建草稿。',
+    }
+  }
+
+  if (!publishIntegrationStatus.value.configured) {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'blocked',
+      detail: '需要先在 Tauri 桌面环境配置 WECHAT_APP_ID / WECHAT_APP_SECRET。',
+    }
+  }
+
+  if (!nativeResult.value?.content.trim()) {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'warning',
+      detail: '等待微信 HTML 原生产物生成后才能创建草稿。',
+    }
+  }
+
+  if (!wechatDraftTitle.value.trim()) {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'blocked',
+      detail: '需要填写草稿标题。',
+    }
+  }
+
+  const titleLength = Array.from(wechatDraftTitle.value.trim()).length
+  if (titleLength > WECHAT_DRAFT_TITLE_MAX_CHARS) {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'blocked',
+      detail: `草稿标题不能超过 ${WECHAT_DRAFT_TITLE_MAX_CHARS} 字，当前为 ${titleLength} 字。`,
+    }
+  }
+
+  if (!wechatDraftThumbMediaId.value.trim()) {
+    return {
+      key: 'wechat-draft',
+      label: '微信草稿',
+      state: 'blocked',
+      detail: '需要填写真实永久封面素材 thumb_media_id；不会伪造封面素材。',
+    }
+  }
+
+  return {
+    key: 'wechat-draft',
+    label: '微信草稿',
+    state: 'ready',
+    detail: '已具备创建微信公众号草稿的最小必要字段。',
+  }
+})
 
 const preflightRows = computed<PreflightRow[]>(() => {
   const rows: PreflightRow[] = [
@@ -179,11 +412,15 @@ const preflightRows = computed<PreflightRow[]>(() => {
     },
     {
       key: 'publish',
-      label: '直连发布',
-      state: publishIntegrationStatus.value.configured ? 'ready' : 'blocked',
+      label: selectedPlatform.value === 'wechat' ? '微信 API 授权' : '直连发布',
+      state: publishIntegrationStatus.value.state,
       detail: publishIntegrationStatus.value.detail,
     },
   ]
+
+  if (selectedPlatform.value === 'wechat') {
+    rows.push(wechatDraftPreflightRow.value)
+  }
 
   return rows
 })
@@ -216,9 +453,7 @@ watch(
     try {
       if (platform === 'wechat') {
         const preset = themePresets.find(p => p.id === presetId) || getDefaultPreset()
-        const parsedHtml = await marked.parse(props.content)
-        if (renderVersion !== thisVersion) return
-        const result = convertToWechatWithStats(parsedHtml, preset, exportOptions.value)
+        const result = await markdownToWechatWithStats(props.content, preset, exportOptions.value)
         if (renderVersion !== thisVersion) return
         previewHtml.value = result.html
         wechatStats.value = result.stats
@@ -252,6 +487,27 @@ watch(
     }
   },
   { immediate: true, deep: true }
+)
+
+watch(
+  [() => props.visible, selectedPlatform],
+  () => {
+    void refreshPublishIntegrationStatus()
+  },
+  { immediate: true }
+)
+
+watch(
+  [() => props.visible, () => props.content],
+  ([visible, content]) => {
+    const nextSeedKey = visible ? content : ''
+    if (nextSeedKey === draftSeedKey) return
+    draftSeedKey = nextSeedKey
+    wechatDraftTitle.value = visible ? inferWechatDraftTitle(content) : ''
+    wechatDraftError.value = ''
+    wechatDraftResult.value = null
+  },
+  { immediate: true }
 )
 
 // ─── Copy ────────────────────────────────────────────────
@@ -356,6 +612,38 @@ function handleDownloadNative() {
   }
 }
 
+async function handleCreateWechatDraft() {
+  if (selectedPlatform.value !== 'wechat') return
+
+  const native = nativeResult.value
+  if (!canCreateWechatDraft.value || !native || native.format !== 'html') {
+    showOperationFeedback('error', wechatDraftPreflightRow.value.detail)
+    return
+  }
+
+  isWechatDraftCreating.value = true
+  wechatDraftError.value = ''
+  wechatDraftResult.value = null
+  showOperationFeedback('info', '正在上传正文图片并创建微信公众号草稿。')
+
+  try {
+    const result = await publishWechatDraft({
+      title: wechatDraftTitle.value.trim(),
+      contentHtml: native.content,
+      thumbMediaId: wechatDraftThumbMediaId.value.trim(),
+      showCoverPic: wechatDraftShowCoverPic.value ? 1 : 0,
+    })
+    wechatDraftResult.value = result
+    showOperationFeedback('success', `微信草稿已创建：${result.mediaId}`)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '创建微信草稿失败'
+    wechatDraftError.value = message
+    showOperationFeedback('error', `创建微信草稿失败：${message}`)
+  } finally {
+    isWechatDraftCreating.value = false
+  }
+}
+
 // ─── Quality Helpers ─────────────────────────────────────
 function severityIcon(severity: QualityIssueSeverity): Component {
   switch (severity) {
@@ -397,14 +685,24 @@ onUnmounted(() => {
       class="export-overlay"
       @click.self="emit('close')"
     >
-      <div class="export-panel">
+      <div
+        class="export-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-modal-title"
+      >
         <!-- ════ Header ════ -->
         <div class="export-header">
-          <h2 class="export-title">
+          <h2
+            id="export-modal-title"
+            class="export-title"
+          >
             导出文章
           </h2>
           <button
+            type="button"
             class="header-close"
+            aria-label="关闭导出面板"
             title="关闭"
             @click="emit('close')"
           >
@@ -423,6 +721,7 @@ onUnmounted(() => {
                   <button
                     v-for="p in PLATFORMS"
                     :key="p.id"
+                    type="button"
                     class="pill-btn"
                     :class="{ active: selectedPlatform === p.id }"
                     @click="selectedPlatform = p.id"
@@ -447,6 +746,7 @@ onUnmounted(() => {
                   <button
                     v-for="preset in currentPresets"
                     :key="preset.id"
+                    type="button"
                     class="preset-card"
                     :class="{ active: selectedPresetId === preset.id }"
                     @click="selectPreset(preset.id)"
@@ -466,13 +766,78 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <!-- Export Options -->
+              <!-- Style Options -->
               <div class="ctrl-section">
                 <div class="section-label">
-                  导出选项
+                  样式
                 </div>
 
-                <!-- Code Theme Dropdown -->
+                <div
+                  v-if="selectedPlatform === 'wechat'"
+                  class="style-control-group"
+                >
+                  <div class="style-control-row">
+                    <span class="option-label">
+                      <Type
+                        :size="13"
+                        class="inline-option-icon"
+                      />
+                      字体
+                    </span>
+                    <div class="segmented-control">
+                      <button
+                        v-for="font in STYLE_FONT_OPTIONS"
+                        :key="font.id"
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: exportOptions.fontFamily === font.id }"
+                        @click="exportOptions.fontFamily = font.id"
+                      >
+                        {{ font.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="style-control-row">
+                    <span class="option-label">字号</span>
+                    <div class="segmented-control compact">
+                      <button
+                        v-for="size in STYLE_SIZE_OPTIONS"
+                        :key="size.id"
+                        type="button"
+                        class="segment-btn"
+                        :class="{ active: exportOptions.fontSize === size.id }"
+                        @click="exportOptions.fontSize = size.id"
+                      >
+                        {{ size.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="style-control-row swatch-row">
+                    <span class="option-label">
+                      <Palette
+                        :size="13"
+                        class="inline-option-icon"
+                      />
+                      主题色
+                    </span>
+                    <div class="swatch-grid">
+                      <button
+                        v-for="swatch in STYLE_COLOR_OPTIONS"
+                        :key="swatch.id"
+                        type="button"
+                        class="swatch-btn"
+                        :class="{ active: exportOptions.primaryColor === swatch.color }"
+                        :style="{ backgroundColor: swatch.color }"
+                        :title="swatch.label"
+                        :aria-label="swatch.label"
+                        @click="exportOptions.primaryColor = swatch.color"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div class="option-row">
                   <label
                     class="option-label"
@@ -493,7 +858,6 @@ onUnmounted(() => {
                   </select>
                 </div>
 
-                <!-- Toggle Options -->
                 <div class="toggle-list">
                   <label class="toggle-item">
                     <input
@@ -501,6 +865,46 @@ onUnmounted(() => {
                       type="checkbox"
                     >
                     <span class="toggle-text">Mac 窗口风格代码块</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Format Options -->
+              <div class="ctrl-section">
+                <div class="section-label">
+                  格式
+                </div>
+                <div class="toggle-list">
+                  <label
+                    v-if="selectedPlatform === 'wechat'"
+                    class="toggle-item"
+                  >
+                    <input
+                      v-model="exportOptions.enableReadingTime"
+                      type="checkbox"
+                    >
+                    <span class="toggle-text">阅读时间</span>
+                  </label>
+                  <label class="toggle-item">
+                    <input
+                      v-model="exportOptions.enableEnhancedTable"
+                      type="checkbox"
+                    >
+                    <span class="toggle-text">增强表格</span>
+                  </label>
+                  <label
+                    v-if="selectedPlatform === 'wechat'"
+                    class="toggle-item"
+                  >
+                    <input
+                      v-model="exportOptions.enableAlertBlocks"
+                      type="checkbox"
+                    >
+                    <Lightbulb
+                      :size="13"
+                      class="toggle-icon"
+                    />
+                    <span class="toggle-text">Alert 块</span>
                   </label>
                   <label class="toggle-item">
                     <input
@@ -618,6 +1022,77 @@ onUnmounted(() => {
                 </div>
               </div>
 
+              <!-- WeChat Draft Creation -->
+              <div
+                v-if="selectedPlatform === 'wechat'"
+                class="ctrl-section wechat-draft-area"
+              >
+                <div class="section-label">
+                  微信草稿
+                </div>
+                <div class="wechat-draft-panel">
+                  <label class="draft-field">
+                    <span class="draft-label">草稿标题</span>
+                    <input
+                      v-model="wechatDraftTitle"
+                      class="draft-input"
+                      type="text"
+                      :maxlength="WECHAT_DRAFT_TITLE_MAX_CHARS"
+                      autocomplete="off"
+                    >
+                  </label>
+                  <label class="draft-field">
+                    <span class="draft-label">封面 thumb_media_id</span>
+                    <input
+                      v-model="wechatDraftThumbMediaId"
+                      class="draft-input"
+                      type="text"
+                      autocomplete="off"
+                      spellcheck="false"
+                      placeholder="填写真实永久图片素材 media_id"
+                    >
+                  </label>
+                  <label class="draft-checkbox">
+                    <input
+                      v-model="wechatDraftShowCoverPic"
+                      type="checkbox"
+                    >
+                    <span>正文显示封面图</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="draft-action"
+                    :disabled="!canCreateWechatDraft"
+                    @click="handleCreateWechatDraft"
+                  >
+                    <Loader2
+                      v-if="isWechatDraftCreating"
+                      :size="14"
+                      class="spinner"
+                    />
+                    <span>{{ isWechatDraftCreating ? '创建中' : '创建草稿' }}</span>
+                  </button>
+                  <div
+                    v-if="wechatDraftResult"
+                    class="draft-result draft-result-success"
+                  >
+                    草稿 media_id：{{ wechatDraftResult.mediaId }}；已上传正文图片 {{ wechatDraftResult.uploadedImageCount }} 张。
+                  </div>
+                  <div
+                    v-else-if="wechatDraftError"
+                    class="draft-result draft-result-error"
+                  >
+                    {{ wechatDraftError }}
+                  </div>
+                  <div
+                    v-else
+                    class="draft-help"
+                  >
+                    这里只创建公众号草稿；群发、投票、小程序卡片等后台组件仍需在微信后台完成。
+                  </div>
+                </div>
+              </div>
+
               <!-- Native Output -->
               <div class="ctrl-section native-area">
                 <div class="section-label">
@@ -635,6 +1110,7 @@ onUnmounted(() => {
                   </div>
                   <div class="native-actions">
                     <button
+                      type="button"
                       class="mini-action"
                       :class="{ success: nativeCopySuccess }"
                       :disabled="isRendering || !nativeResult.content"
@@ -643,6 +1119,7 @@ onUnmounted(() => {
                       {{ nativeCopySuccess ? '已复制' : '复制原生' }}
                     </button>
                     <button
+                      type="button"
                       class="mini-action"
                       :disabled="isRendering || !nativeResult.content"
                       @click="handleDownloadNative"
@@ -700,6 +1177,7 @@ onUnmounted(() => {
             <!-- Action Buttons (pinned to bottom) -->
             <div class="action-bar">
               <button
+                type="button"
                 class="act-btn act-secondary"
                 :disabled="isRendering || !previewHtml"
                 @click="handleDownload"
@@ -708,6 +1186,7 @@ onUnmounted(() => {
                 <span>下载样式版</span>
               </button>
               <button
+                type="button"
                 class="act-btn act-primary"
                 :class="{ 'act-success': copySuccess }"
                 :disabled="isRendering || !previewHtml"
@@ -1001,6 +1480,25 @@ onUnmounted(() => {
 }
 
 /* ── Export Options ── */
+.style-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.style-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inline-option-icon {
+  color: #607D8B;
+  flex-shrink: 0;
+}
+
 .option-row {
   display: flex;
   align-items: center;
@@ -1010,6 +1508,9 @@ onUnmounted(() => {
 }
 
 .option-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 13px;
   color: #263238;
   font-weight: 500;
@@ -1037,6 +1538,68 @@ onUnmounted(() => {
 
 .option-select:focus {
   border-color: #D32F2F;
+}
+
+.segmented-control {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  min-width: 204px;
+  padding: 3px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+}
+
+.segmented-control.compact {
+  min-width: 204px;
+}
+
+.segment-btn {
+  min-width: 0;
+  height: 28px;
+  padding: 0 7px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #607D8B;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.segment-btn:hover {
+  color: #263238;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.segment-btn.active {
+  color: #FFFFFF;
+  background: #263238;
+}
+
+.swatch-row {
+  align-items: flex-start;
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 24px);
+  gap: 7px;
+}
+
+.swatch-btn {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #FFFFFF;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #CBD5E1;
+  cursor: pointer;
+}
+
+.swatch-btn:hover,
+.swatch-btn.active {
+  box-shadow: 0 0 0 2px #263238;
 }
 
 .toggle-list {
@@ -1241,6 +1804,103 @@ onUnmounted(() => {
 
 .preflight-blocked .preflight-dot {
   background: #C62828;
+}
+
+/* ── WeChat draft ── */
+.wechat-draft-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ECEFF1;
+  border-radius: 10px;
+  background: #FAFBFC;
+}
+
+.draft-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.draft-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #455A64;
+}
+
+.draft-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid #CFD8DC;
+  border-radius: 7px;
+  background: #FFFFFF;
+  color: #263238;
+  font-size: 12px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.draft-input:focus {
+  border-color: #D32F2F;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.08);
+}
+
+.draft-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #455A64;
+  font-size: 12px;
+}
+
+.draft-checkbox input {
+  width: 14px;
+  height: 14px;
+  accent-color: #D32F2F;
+}
+
+.draft-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  border: none;
+  border-radius: 7px;
+  background: #D32F2F;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.draft-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.draft-action:hover:not(:disabled) {
+  background: #B71C1C;
+}
+
+.draft-help,
+.draft-result {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.draft-help {
+  color: #607D8B;
+}
+
+.draft-result-success {
+  color: #1B5E20;
+}
+
+.draft-result-error {
+  color: #B71C1C;
 }
 
 /* ── Native output ── */

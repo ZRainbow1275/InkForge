@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Quality reviewer should apply project thinking guides and cross-layer checks."}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Quality reviewer should check frontend/export work against project guidelines."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/prd.md", "reason": "Quality reviewer should verify implementation against PRD acceptance criteria."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-css-svg-rules.md", "reason": "Quality reviewer should enforce WeChat CSS/SVG platform constraints."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-components-and-api-boundaries.md", "reason": "Quality reviewer should verify no fake WeChat component/API behavior is introduced."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/repo-current-wechat-pipeline.md", "reason": "Quality reviewer should ensure changes reuse existing Inkforge WeChat pipeline."}

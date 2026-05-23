@@ -67,7 +67,11 @@ pub async fn create_new_window(
 
     let label = format!("window-{}", unique_suffix());
     let mut url = format!("index.html?profileId={}", encode_query(profile_id));
-    if let Some(article_id) = article_id.as_deref().map(str::trim).filter(|value| !value.is_empty()) {
+    if let Some(article_id) = article_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
         url.push_str("&articleId=");
         url.push_str(&encode_query(article_id));
     }

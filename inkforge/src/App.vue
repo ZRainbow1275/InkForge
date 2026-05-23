@@ -356,12 +356,14 @@ function handleDismiss(): void {
       <div class="error-boundary__actions">
         <button
           class="error-boundary__btn error-boundary__btn--primary"
+          type="button"
           @click="handleRetry"
         >
           刷新页面
         </button>
         <button
           class="error-boundary__btn error-boundary__btn--secondary"
+          type="button"
           @click="handleDismiss"
         >
           尝试恢复

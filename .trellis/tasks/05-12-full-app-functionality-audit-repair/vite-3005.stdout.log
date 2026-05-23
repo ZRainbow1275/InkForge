@@ -1,0 +1,21 @@
+
+> inkforge@0.1.0 dev D:\Desktop\Inkforge\inkforge
+> vite "--host" "127.0.0.1" "--port" "3005"
+
+
+  VITE v6.4.1  ready in 787 ms
+
+  ➜  Local:   http://127.0.0.1:3005/
+11:33:10 [vite] (client) hmr update /src/components/file/FileManager.vue, /src/styles/main.css
+11:52:56 [vite] (client) hmr update /src/components/version/VersionDiffModal.vue, /src/styles/main.css
+13:28:59 [vite] (client) hmr update /src/views/HubView.vue, /src/styles/main.css
+13:29:47 [vite] (client) hmr update /src/views/HubView.vue, /src/styles/main.css
+13:40:00 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css
+13:53:53 [vite] (client) hmr update /src/views/ThemesView.vue, /src/styles/main.css
+13:54:00 [vite] (client) hmr update /src/views/ThemesView.vue?vue&type=style&index=0&scoped=475da50d&lang.css
+14:01:49 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
+14:39:48 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
+14:43:12 [vite] (client) hmr update /src/views/SettingsView.vue, /src/styles/main.css
+15:36:51 [vite] (client) page reload src/extensions/TyporaMode.ts
+15:36:51 [vite] (client) hmr update /src/components/editor/EditorPanel.vue, /src/styles/main.css
+15:36:51 [vite] (client) hmr update /src/views/WorkstationView.vue, /src/styles/main.css

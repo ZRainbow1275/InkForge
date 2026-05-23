@@ -17,6 +17,7 @@ import {
   Heading1, Heading2, Heading3,
   List, ListOrdered, Quote,
   Link, Code2, Minus,
+  Image,
   Highlighter, Palette,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Superscript, Subscript,
@@ -25,6 +26,10 @@ import {
 
 const props = defineProps<{
   editor: Editor | undefined
+}>()
+
+const emit = defineEmits<{
+  requestImage: []
 }>()
 
 // ---- 工具栏可见性与定位 ----
@@ -571,6 +576,13 @@ defineExpose({ openLinkEditor })
       <div class="ft-divider" />
 
       <!-- 插入组: Link / CodeBlock / HorizontalRule / Table -->
+      <button
+        class="ft-btn"
+        title="插入图片"
+        @click="emit('requestImage')"
+      >
+        <Image :size="15" />
+      </button>
       <button
         class="ft-btn"
         :class="{ active: isActive('link') }"

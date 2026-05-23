@@ -8,6 +8,7 @@ import {
   convertToWechatWithStats,
   detectQuality,
   getDefaultPreset,
+  markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
   postProcessForWechat,
@@ -65,7 +66,7 @@ describe('platform native export rendering rules', () => {
     expect(result.html).not.toMatch(/display:\s*flex|gap:\s*8px|var\(/i)
     expect(result.html).toMatch(/style="[^"]+"/i)
     expect(result.html).toContain('max-width:100%')
-    expect(result.html).toContain('border:1px solid #ddd')
+    expect(result.html).toContain('border:1px solid #D8E2EC')
     expect(result.html).toContain('https://vite.dev')
   })
 
@@ -90,7 +91,7 @@ describe('platform native export rendering rules', () => {
     const result = convertToWechatWithStats(
       [
         '<section id="nice">',
-        '<p><img src="https://example.com/a.png" width="1200" height="900" alt="大图"></p>',
+        '<p><img alt="a > b" src="https://example.com/a.png" width="1200" height="900"></p>',
         '<p><img src="https://example.com/b.png" style="width:1280px;height:720px" alt="样式大图"></p>',
         '</section>',
       ].join(''),
@@ -101,6 +102,7 @@ describe('platform native export rendering rules', () => {
     expect(result.html).not.toMatch(/\swidth=["']1200["']|\sheight=["']900["']/i)
     expect(result.html).not.toMatch(/width:\s*1200px|width:\s*1280px/i)
     expect(result.html.match(/width:640px/g)?.length).toBe(2)
+    expect(result.html).toContain('alt="a > b"')
     expect(result.html).toContain('max-width:100%')
     expect(result.html).toContain('height:auto')
   })
@@ -116,6 +118,102 @@ describe('platform native export rendering rules', () => {
     expect(result.content).toContain('公式：a+b=c')
     expect(result.content).not.toMatch(/katex|MathML|<math\b|<annotation\b|\sclass=/i)
     expect(result.qualityReport?.issues.some(issue => issue.id === 'wechat-latex-degrade')).toBe(true)
+  })
+
+  it('reports WeChat Mermaid as image conversion work instead of SVG embedding', () => {
+    const report = detectQuality(['```mermaid', 'graph TD', 'A-->B', '```'].join('\n'), 'wechat')
+    const issue = report.issues.find(item => item.id === 'wechat-mermaid')
+
+    expect(issue?.suggestion).toContain('PNG/JPG')
+    expect(issue?.suggestion).not.toContain('SVG 嵌入')
+    expect(report.issues.some(item => item.id === 'render-code-language-unsupported')).toBe(false)
+  })
+
+  it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
+    const result = convertToWechatWithStats(
+      '<div class="mermaid-rendered" data-source="graph TD A[流程 A] --> B[流程 B]"><svg><style>#x{font-family:sans-serif}@keyframes edge{}</style><text>流程 A</text><text>流程 B</text></svg></div>',
+      getDefaultPreset(),
+      { enableReadingTime: false }
+    )
+
+    expect(result.html).toContain('Mermaid 图表需转为 PNG/JPG')
+    expect(result.html).toContain('graph TD A[流程 A] --&gt; B[流程 B]')
+    expect(result.html).not.toContain('#x{font-family')
+    expect(result.html).not.toContain('@keyframes edge')
+    expect(result.html).not.toMatch(/<svg\b|<text\b|\sclass=/i)
+  })
+
+  it('routes WeChat markdown Mermaid through readable placeholder instead of code block output', async () => {
+    const result = await markdownToWechatWithStats(
+      ['# 图表', '', '```mermaid', 'graph TD', 'A[草稿] --> B[发布]', '```'].join('\n'),
+      getDefaultPreset(),
+      { enableReadingTime: false }
+    )
+
+    expect(result.html).toContain('Mermaid 图表需转为 PNG/JPG')
+    expect(result.html).not.toMatch(/<pre\b|language-mermaid|<code\b/i)
+  })
+
+  it('keeps WeChat reading header stats aligned with markdown AST stats after Mermaid degradation', async () => {
+    const result = await markdownToWechatWithStats(
+      [
+        '# 微信导出实测',
+        '',
+        '```mermaid',
+        'graph TD',
+        'A[草稿] --> B[导出]',
+        'B --> C[发布]',
+        '```',
+        '',
+        '正文包含 Vue3 和 React18。',
+      ].join('\n'),
+      getDefaultPreset()
+    )
+
+    expect(result.stats.wordCount).toBeLessThan(80)
+    expect(result.html).toMatch(new RegExp(`全文 ${result.stats.wordCount} 字`))
+    expect(result.html).not.toMatch(/全文 [3-9]\d{2,} 字/)
+  })
+
+  it('applies WeChat style controls for primary color, font family, font size, and Mac code blocks', () => {
+    const result = convertToWechatWithStats(
+      [
+        '<h2>样式验证</h2>',
+        '<p>正文段落。</p>',
+        '<blockquote>引用内容</blockquote>',
+        '<pre><code class="language-ts">const styled = true</code></pre>',
+        '<table><tr><th>列</th></tr><tr><td>值</td></tr></table>',
+      ].join(''),
+      getDefaultPreset(),
+      {
+        enableReadingTime: false,
+        primaryColor: '#0F766E',
+        fontFamily: 'monospace',
+        fontSize: '17px',
+        enableMacCodeBlock: true,
+      }
+    )
+
+    expect(result.html).toContain('#0F766E')
+    expect(result.html).toContain('font-size:17px')
+    expect(result.html).toContain('JetBrains Mono')
+    expect(result.html).toMatch(/background:#FF5F56/i)
+    expect(result.html).not.toMatch(/<style\b|\sclass=|var\(|display:\s*flex/i)
+  })
+
+  it('ignores unsafe WeChat primary color overrides instead of injecting CSS', () => {
+    const result = convertToWechatWithStats(
+      '<h2>颜色安全</h2><p>正文</p>',
+      getDefaultPreset(),
+      {
+        enableReadingTime: false,
+        primaryColor: '#123456;background:url(javascript:alert(1))',
+      }
+    )
+
+    expect(result.html).not.toContain('#123456;background')
+    expect(result.html).not.toContain('javascript:')
+    expect(result.html).toContain(getDefaultPreset().primaryColor)
   })
 
   // ─── P2-T6 WeChat platform-rules 接入 ─────────────────────────────

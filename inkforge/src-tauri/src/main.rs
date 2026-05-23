@@ -12,7 +12,7 @@
 
 mod commands;
 
-use commands::{desktop, ollama, window};
+use commands::{desktop, ollama, wechat, window};
 
 fn main() {
     tauri::Builder::default()
@@ -26,6 +26,10 @@ fn main() {
             ollama::check_ollama_status,
             ollama::ollama_generate,
             ollama::ollama_generate_stream,
+            wechat::wechat_publish_status,
+            wechat::wechat_upload_article_image,
+            wechat::wechat_upload_cover_image,
+            wechat::wechat_create_draft,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import type { CSSProperties } from 'vue'
 import type { Article } from '@/types'
 import { computeContentWordCount } from '@/composables/useTextStats'
 import { getArticleStatusClass, getArticleStatusLabel } from '@/core/lifecycle'
@@ -30,7 +31,7 @@ const POPUP_WIDTH = 320
 const POPUP_GAP = 12
 const VIEWPORT_PAD = 16
 
-const popupStyle = computed<Record<string, string>>(() => {
+const popupStyle = computed<CSSProperties>(() => {
   if (!props.anchor) return { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1440
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900
@@ -61,7 +62,7 @@ const popupStyle = computed<Record<string, string>>(() => {
   }
 })
 
-const caretStyle = computed<Record<string, string> | null>(() => {
+const caretStyle = computed<CSSProperties | null>(() => {
   if (!props.anchor) return null
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1440
   const placeRight = props.anchor.right + POPUP_GAP + POPUP_WIDTH <= vw - VIEWPORT_PAD

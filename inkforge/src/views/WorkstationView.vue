@@ -21,7 +21,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useLayoutPersistenceStore } from '@/stores/layoutPersistence'
 import { useTocStore } from '@/stores/toc'
 import { useWorkstationTabsStore } from '@/stores/workstationTabs'
-import type { WorkstationTab, WorkstationTabDocType, WorkstationTabSaveState } from '@/stores/workstationTabs'
+import type { WorkstationTabDocType } from '@/stores/workstationTabs'
 import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
   copyToClipboard,
@@ -64,7 +64,6 @@ import WritingAssistPanel from '@/components/editor/WritingAssistPanel.vue'
 import FocusSessionSummaryModal from '@/components/editor/FocusSessionSummaryModal.vue'
 import AssetManager from '@/components/asset/AssetManager.vue'
 import ExportModal from '@/components/export/ExportModal.vue'
-import WorkstationTabBar from '@/components/workstation/WorkstationTabBar.vue'
 import TagBrowser from '@/components/tag-system/TagBrowser.vue'
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
@@ -1215,36 +1214,9 @@ watch(
 const activeArticleStatus = computed(() => selectedArticle.value?.status ?? null)
 const pendingWorkstationCloseTabId = ref<string | null>(null)
 
-interface WorkstationTabViewItem extends WorkstationTab {
-  saveState: WorkstationTabSaveState
-}
-
 function getWorkstationTabDocType(article: Article): WorkstationTabDocType {
   return isDraftBoxStatus(article.status) ? 'draft' : 'article'
 }
-
-function getWorkstationTabSaveState(tabId: string): WorkstationTabSaveState {
-  if (tabId !== selectedArticleId.value) {
-    return 'clean'
-  }
-
-  if (editorStatus.value === 'saving') {
-    return 'saving'
-  }
-
-  if (editorStatus.value === 'error') {
-    return 'error'
-  }
-
-  return 'clean'
-}
-
-const workstationTabItems = computed<WorkstationTabViewItem[]>(() => workstationTabsStore.orderedTabs.map(tab => ({
-  ...tab,
-  saveState: getWorkstationTabSaveState(tab.id),
-})))
-
-const recentlyClosedWorkstationTabCount = computed(() => workstationTabsStore.recentlyClosed.length)
 
 const selectedArticleTabIdentity = computed(() => {
   const article = selectedArticle.value
@@ -1336,10 +1308,6 @@ function restoreClosedWorkstationTab(): void {
   }
 
   activateWorkstationTab(restored.id)
-}
-
-function reorderWorkstationTab(payload: { draggedTabId: string; targetTabId: string; position: 'before' | 'after' }): void {
-  workstationTabsStore.reorderTab(payload.draggedTabId, payload.targetTabId, payload.position)
 }
 
 function handleWorkstationTabShortcut(event: KeyboardEvent): boolean {
@@ -2178,22 +2146,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         </button>
       </div>
     </header>
-
-    <div
-      v-if="workstationTabItems.length > 0"
-      class="workstation-tabbar-host"
-    >
-      <WorkstationTabBar
-        :tabs="workstationTabItems"
-        :active-tab-id="workstationTabsStore.activeTabId"
-        :recently-closed-count="recentlyClosedWorkstationTabCount"
-        @activate="activateWorkstationTab"
-        @close="closeWorkstationTab"
-        @toggle-pin="workstationTabsStore.togglePinnedTab"
-        @restore-closed="restoreClosedWorkstationTab"
-        @reorder="reorderWorkstationTab"
-      />
-    </div>
 
     <section
       v-if="recoveryBannerPayload"
@@ -3470,12 +3422,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .recovery-action-primary:hover:not(:disabled) {
   background: #9A3412;
 }
-.workstation-tabbar-host {
-  padding: 8px 16px;
-  background: transparent;
-  z-index: 9;
-}
-
 .workstation-header {
   height: 52px;
   min-height: 52px;
@@ -4443,13 +4389,7 @@ html[data-theme="dark"] .panel-tab.active {
   background: rgba(207, 216, 220, 0.24);
   border-radius: 999px;
   padding: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.stage-platform-tabs::-webkit-scrollbar {
-  display: none;
+  overflow: hidden;
 }
 
 .stage-tab {
@@ -4503,29 +4443,29 @@ html[data-theme="dark"] .panel-tab.active {
 .stage-body {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 16px;
-  gap: 16px;
+  padding: 14px 12px 12px;
+  gap: 12px;
   background: linear-gradient(180deg, #F2F3F5 0%, #ECEEF0 100%);
+  overflow: hidden;
 }
 
 /* 鈹€鈹€鈹€ iPhone 璁惧妗?鈹€鈹€鈹€ */
 .device-frame {
   width: 100%;
   max-width: 320px;
-  aspect-ratio: 9 / 19;
+  flex: 1 1 0;
+  min-height: 320px;
   background: #FAFAF7;
-  border-radius: 32px;
+  border-radius: 28px;
   border: 1px solid #ECEFF1;
-  padding: 56px 16px 32px;
+  padding: 46px 12px 22px;
   position: relative;
   box-shadow:
     0 12px 32px -8px rgba(38, 50, 56, 0.18),
     0 2px 6px rgba(38, 50, 56, 0.06);
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
@@ -4533,11 +4473,11 @@ html[data-theme="dark"] .panel-tab.active {
 /* 鍒樻捣 */
 .device-notch {
   position: absolute;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 104px;
-  height: 30px;
+  width: 88px;
+  height: 24px;
   background: #0F0F0F;
   border-radius: 999px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -4559,11 +4499,11 @@ html[data-theme="dark"] .panel-tab.active {
 /* Home Indicator */
 .device-home-indicator {
   position: absolute;
-  bottom: 12px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  height: 4px;
+  width: 34px;
+  height: 3px;
   background: #CFD8DC;
   border-radius: 999px;
   flex-shrink: 0;
@@ -5486,14 +5426,6 @@ html[data-theme="dark"] .panel-tab.active {
 .focus-mode .panel-inspector.collapsed {
   width: 0;
   min-width: 0;
-}
-
-.focus-mode .workstation-tabbar-host {
-  height: 0;
-  min-height: 0;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
 }
 
 .focus-mode .workstation-header {

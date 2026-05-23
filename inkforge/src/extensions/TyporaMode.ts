@@ -8,7 +8,7 @@ import { createInkforgeAssetUrl, extractInkforgeAssetId } from '@/utils/asset-ur
 
 export type EditorMode = 'typora' | 'source' | 'preview'
 export type EditorWidth = 'narrow' | 'medium' | 'wide' | 'full'
-export type TyporaSyncState = 'synced' | 'syncing' | 'offline'
+export type TyporaSyncState = 'synced' | 'syncing' | 'dirty' | 'offline'
 export const TYPORA_MODE_REFRESH_META = 'typoraModeRefresh'
 
 export interface TyporaModeOptions {

@@ -2420,7 +2420,9 @@ onUnmounted(() => {
     <!-- Header -->
     <header class="sv-header">
       <button
+        type="button"
         class="sv-back-btn"
+        aria-label="返回上一页"
         title="返回上一页"
         @click="goBack"
       >
@@ -2468,6 +2470,7 @@ onUnmounted(() => {
           <button
             v-for="tab in tabs"
             :key="tab.id"
+            type="button"
             class="sv-nav-item"
             :class="{ active: currentTab === tab.id }"
             @click="selectTab(tab.id)"
@@ -2852,6 +2855,7 @@ onUnmounted(() => {
             <div class="sv-range-control">
               <input
                 type="range"
+                aria-label="字体大小"
                 :value="settings.appearance.fontSize"
                 min="12"
                 max="24"
@@ -2872,6 +2876,7 @@ onUnmounted(() => {
             <div class="sv-range-control">
               <input
                 type="range"
+                aria-label="行高"
                 :value="settings.appearance.lineHeight"
                 min="1.4"
                 max="2.4"
@@ -2930,9 +2935,11 @@ onUnmounted(() => {
               <button
                 v-for="color in accentColors"
                 :key="color.value"
+                type="button"
                 class="sv-accent-swatch"
                 :class="{ selected: settings.appearance.accentColor === color.value }"
                 :style="{ '--swatch-color': color.value }"
+                :aria-label="`主题色：${color.label}`"
                 :title="color.label"
                 @click="settings.appearance.accentColor = color.value"
               >
@@ -2977,6 +2984,7 @@ onUnmounted(() => {
               <input
                 v-model.number="settings.appearance.sidebarWidth"
                 type="range"
+                aria-label="侧边栏宽度"
                 min="180"
                 max="400"
                 step="10"
@@ -2996,6 +3004,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.appearance.reducedMotion"
                 type="checkbox"
+                aria-label="减弱动效"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3199,6 +3208,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.autoSave"
                 type="checkbox"
+                aria-label="自动保存"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3219,6 +3229,7 @@ onUnmounted(() => {
               <input
                 v-model.number="settings.editor.autoSaveInterval"
                 type="range"
+                aria-label="自动保存间隔"
                 min="10"
                 max="300"
                 step="10"
@@ -3240,6 +3251,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.spellCheck"
                 type="checkbox"
+                aria-label="拼写检查"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3257,6 +3269,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.typewriterMode"
                 type="checkbox"
+                aria-label="打字机模式"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3274,6 +3287,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.smartPunctuation"
                 type="checkbox"
+                aria-label="智能标点"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3325,6 +3339,7 @@ onUnmounted(() => {
                     <input
                       v-model="settings.editor.smartPunctuationRules[rule.id]"
                       type="checkbox"
+                      :aria-label="`智能标点规则：${rule.label}`"
                     >
                     <span class="sv-switch-track">
                       <span class="sv-switch-thumb" />
@@ -3342,6 +3357,7 @@ onUnmounted(() => {
             </div>
             <div class="sv-tab-size-group">
               <button
+                type="button"
                 class="sv-tab-size-btn"
                 :class="{ selected: settings.editor.listEnterBehavior === 'notion' }"
                 @click="settings.editor.listEnterBehavior = 'notion'"
@@ -3349,6 +3365,7 @@ onUnmounted(() => {
                 逐级减缩
               </button>
               <button
+                type="button"
                 class="sv-tab-size-btn"
                 :class="{ selected: settings.editor.listEnterBehavior === 'typora' }"
                 @click="settings.editor.listEnterBehavior = 'typora'"
@@ -3368,6 +3385,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.wordWrap"
                 type="checkbox"
+                aria-label="自动换行"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3387,6 +3405,7 @@ onUnmounted(() => {
               <button
                 v-for="size in [2, 4, 8]"
                 :key="size"
+                type="button"
                 class="sv-tab-size-btn"
                 :class="{ selected: settings.editor.tabSize === size }"
                 @click="settings.editor.tabSize = size"
@@ -3408,6 +3427,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.showLineNumbers"
                 type="checkbox"
+                aria-label="显示行号"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3425,6 +3445,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.highlightActiveLine"
                 type="checkbox"
+                aria-label="高亮当前行"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3442,6 +3463,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.bracketMatching"
                 type="checkbox"
+                aria-label="括号匹配"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3459,6 +3481,7 @@ onUnmounted(() => {
               <input
                 v-model="settings.editor.statusBarVisible"
                 type="checkbox"
+                aria-label="显示工作台状态栏"
               >
               <span class="sv-switch-track">
                 <span class="sv-switch-thumb" />
@@ -3614,6 +3637,7 @@ onUnmounted(() => {
               <input
                 v-model.number="settings.export.imageMaxWidth"
                 type="range"
+                aria-label="导出图片最大宽度"
                 min="320"
                 max="1080"
                 step="20"
@@ -3878,6 +3902,7 @@ onUnmounted(() => {
                   placeholder="sk-..."
                 >
                 <button
+                  type="button"
                   class="sv-input-addon"
                   :title="showApiKey ? '隐藏' : '显示'"
                   @click="showApiKey = !showApiKey"
@@ -3976,6 +4001,7 @@ onUnmounted(() => {
                 <input
                   v-model.number="settings.ai.maxTokens"
                   type="range"
+                  aria-label="AI 最大 Token 数"
                   min="100"
                   max="8000"
                   step="100"
@@ -3995,6 +4021,7 @@ onUnmounted(() => {
                 <input
                   v-model.number="settings.ai.temperature"
                   type="range"
+                  aria-label="AI Temperature"
                   min="0"
                   max="2"
                   step="0.1"
@@ -4027,6 +4054,7 @@ onUnmounted(() => {
             <!-- 连接测试 -->
             <div class="sv-section">
               <button
+                type="button"
                 class="sv-test-btn"
                 :class="{ testing: aiTestStatus === 'testing' }"
                 :disabled="aiTestStatus === 'testing'"
@@ -4275,6 +4303,7 @@ onUnmounted(() => {
             </h3>
             <div class="sv-btn-group">
               <button
+                type="button"
                 class="sv-action-btn"
                 @click="handleExportSettings"
               >
@@ -4300,6 +4329,7 @@ onUnmounted(() => {
                 导出设置
               </button>
               <button
+                type="button"
                 class="sv-action-btn"
                 @click="handleImportSettings"
               >
@@ -4452,6 +4482,7 @@ onUnmounted(() => {
                 <input
                   v-model.number="settings.data.backupInterval"
                   type="number"
+                  aria-label="备份间隔（分钟）"
                   min="1"
                   max="240"
                   class="sv-input"
@@ -4462,6 +4493,7 @@ onUnmounted(() => {
                 <input
                   v-model.number="settings.data.maxBackups"
                   type="number"
+                  aria-label="备份保留数量"
                   min="1"
                   max="50"
                   class="sv-input"
@@ -4570,6 +4602,7 @@ onUnmounted(() => {
                   <span class="sv-danger-row-desc">永久删除所有文章及其编辑内容</span>
                 </div>
                 <button
+                  type="button"
                   class="sv-danger-btn"
                   @click="handleClearArticles"
                 >
@@ -4582,6 +4615,7 @@ onUnmounted(() => {
                   <span class="sv-danger-row-desc">永久删除所有上传的图片和文件</span>
                 </div>
                 <button
+                  type="button"
                   class="sv-danger-btn"
                   @click="handleClearAssets"
                 >
@@ -4594,6 +4628,7 @@ onUnmounted(() => {
                   <span class="sv-danger-row-desc">将所有设置恢复为默认值</span>
                 </div>
                 <button
+                  type="button"
                   class="sv-danger-btn"
                   @click="handleResetSettings"
                 >
@@ -5337,6 +5372,7 @@ onUnmounted(() => {
                 <input
                   class="sv-input"
                   type="file"
+                  aria-label="选择扩展 manifest 文件"
                   accept="application/json,.json"
                   @change="handleExtensionManifestFile"
                 >
@@ -5760,6 +5796,7 @@ onUnmounted(() => {
                 ref="customCssImportInput"
                 class="sv-visually-hidden-input"
                 type="file"
+                aria-label="导入 CustomCSS 文件"
                 accept="text/css,.css"
                 @change="handleImportCustomCssFile"
               >
@@ -6532,11 +6569,13 @@ onUnmounted(() => {
               v-model.trim="confirmDialog.input"
               type="text"
               class="sv-input"
+              aria-label="确认操作校验文本"
               :placeholder="confirmDialog.requiresText"
             >
           </div>
           <div class="sv-confirm-actions">
             <button
+              type="button"
               class="sv-confirm-cancel"
               :disabled="confirmDialog.busy"
               @click="cancelConfirm"
@@ -6544,6 +6583,7 @@ onUnmounted(() => {
               取消
             </button>
             <button
+              type="button"
               class="sv-confirm-ok"
               :disabled="confirmActionDisabled"
               @click="confirmAction"

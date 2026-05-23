@@ -1,0 +1,18 @@
+[
+  {
+    "name": "CodemirrorEditor.vue",
+    "path": "apps/web/src/views/CodemirrorEditor.vue",
+    "sha": "e7af477c80b33caf0fa1b6da5cf1e733fb6327d0",
+    "size": 8934,
+    "url": "https://api.github.com/repos/doocs/md/contents/apps/web/src/views/CodemirrorEditor.vue?ref=main",
+    "html_url": "https://github.com/doocs/md/blob/main/apps/web/src/views/CodemirrorEditor.vue",
+    "git_url": "https://api.github.com/repos/doocs/md/git/blobs/e7af477c80b33caf0fa1b6da5cf1e733fb6327d0",
+    "download_url": "https://raw.githubusercontent.com/doocs/md/main/apps/web/src/views/CodemirrorEditor.vue",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/doocs/md/contents/apps/web/src/views/CodemirrorEditor.vue?ref=main",
+      "git": "https://api.github.com/repos/doocs/md/git/blobs/e7af477c80b33caf0fa1b6da5cf1e733fb6327d0",
+      "html": "https://github.com/doocs/md/blob/main/apps/web/src/views/CodemirrorEditor.vue"
+    }
+  }
+]

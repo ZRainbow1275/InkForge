@@ -259,7 +259,25 @@ async function handleCopy() {
           <Eye :size="14" />
           <span>预览效果</span>
         </h3>
-        <div class="preview-frame">
+        <div
+          class="preview-frame"
+          :class="`preview-frame--${selectedPlatform}`"
+        >
+          <div
+            v-if="selectedPlatform === 'wechat'"
+            class="wechat-mock-header"
+          >
+            <div class="wechat-mock-title">
+              {{ selectedArticle?.title || '未命名文章' }}
+            </div>
+            <div class="wechat-mock-meta">
+              <span class="wechat-mock-author">{{ selectedArticle?.authors?.[0] || '原创' }}</span>
+              <span class="wechat-mock-dot" />
+              <span class="wechat-mock-account">{{ selectedArticle?.sourceName || '公众号' }}</span>
+              <span class="wechat-mock-dot" />
+              <span>{{ new Date().toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) }}</span>
+            </div>
+          </div>
           <div
             class="preview-content"
             v-html="previewHtml"
@@ -504,13 +522,99 @@ async function handleCopy() {
 .preview-frame {
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 12px;
   background: white;
   overflow-y: auto;
+  min-height: 480px;
+  box-shadow: 0 8px 24px -16px rgba(15, 23, 42, 0.18);
+}
+
+.preview-frame--wechat {
+  font-size: 17px;
+  line-height: 1.75;
+  color: #1f1f1f;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+}
+
+.preview-frame--xiaohongshu,
+.preview-frame--zhihu {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.wechat-mock-header {
+  padding: 20px 22px 12px;
+  border-bottom: 1px solid #F0F0F0;
+  background: #FFFFFF;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.wechat-mock-title {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #181818;
+  letter-spacing: -0.2px;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+
+.wechat-mock-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  color: #8E959D;
+  line-height: 1.5;
+}
+
+.wechat-mock-author {
+  color: #576B95;
+  font-weight: 500;
+}
+
+.wechat-mock-account {
+  color: #576B95;
+}
+
+.wechat-mock-dot {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #C7CDD3;
 }
 
 .preview-content {
-  padding: 16px;
+  padding: 18px 22px 28px;
+}
+
+.preview-frame--wechat .preview-content :deep(p) {
+  margin: 0 0 1.1em;
+  font-size: 17px;
+  line-height: 1.75;
+  letter-spacing: 0.2px;
+}
+
+.preview-frame--wechat .preview-content :deep(h1),
+.preview-frame--wechat .preview-content :deep(h2),
+.preview-frame--wechat .preview-content :deep(h3) {
+  line-height: 1.4;
+  margin-top: 1.4em;
+}
+
+.preview-frame--wechat .preview-content :deep(img) {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+  margin: 14px auto;
+}
+
+.preview-frame--wechat .preview-content :deep(blockquote) {
+  font-size: 16px;
 }
 
 .empty-state {

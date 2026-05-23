@@ -213,7 +213,6 @@ export function createBuiltinCommands(deps: BuiltinCommandDependencies): Command
       scope: CommandScope.Global,
       group: CommandGroup.Publish,
       contexts: [CommandContextTag.Global, CommandContextTag.Document],
-      requiredPermissions: ['publish.execute'],
       handler: async () => {
         await deps.router.push({ name: 'Publish' })
       },

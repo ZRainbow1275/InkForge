@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "General Trellis thinking guides for cross-layer and reuse decisions before implementation."}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend guideline index for any later Vue/export UI work."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/prd.md", "reason": "Confirmed task requirements and scope boundary."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-css-svg-rules.md", "reason": "CSS/SVG/platform rendering rules and recommended visual strategy."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/wechat-components-and-api-boundaries.md", "reason": "WeChat component and official API boundary research."}
+{"file": ".trellis/tasks/05-14-wechat-rendering-rules-research/research/repo-current-wechat-pipeline.md", "reason": "Current Inkforge WeChat export pipeline map."}

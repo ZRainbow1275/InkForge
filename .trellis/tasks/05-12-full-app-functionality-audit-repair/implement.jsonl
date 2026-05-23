@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec entry point for app-wide UI implementation guidance."}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "Confirms runnable nested frontend package and feature directory boundaries."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component, icon, props, accessibility, and no-mock UI constraints for every control repair."}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "Composable conventions for reusable audit or interaction helpers."}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Store/service persistence and real boundary contracts behind controls and Settings items."}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Non-mutating gates, browser evidence, forbidden fake-success patterns, and quality checklist."}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Strict TS/Zod/schema rules for Settings, stores, services, and component payloads."}
+{"file": ".trellis/tasks/05-12-full-app-functionality-audit-repair/research/verification-strategy.md", "reason": "Defines the evidence model for full-app control-level audit and repair."}

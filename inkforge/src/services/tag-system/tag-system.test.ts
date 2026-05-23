@@ -224,8 +224,10 @@ describe('TagRepository merge, cleanup, backfill, and counts', () => {
 
     const nodes = computeTagCloudNodes(await repository.listTags('account-1'))
     expect(nodes.find(node => node.tag.id === many.id)?.weight).toBe(1)
+    expect(nodes.find(node => node.tag.id === many.id)?.fontSize).toBe(28)
     expect(nodes.find(node => node.tag.id === one.id)?.weight).toBe(0)
-    expect(computeTagCloudNodes([one])[0].weight).toBe(0.5)
+    expect(nodes.find(node => node.tag.id === one.id)?.fontSize).toBe(12)
+    expect(computeTagCloudNodes([one])[0]).toMatchObject({ weight: 0.5, fontSize: 20 })
   })
 })
 

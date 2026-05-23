@@ -186,13 +186,13 @@ export function makeDocTagId(docId: string, tagId: string): string {
   return `${docId}::${tagId}`
 }
 
-export function computeTagCloudNodes(tags: Tag[], minFontSize = 13, maxFontSize = 30): TagCloudNode[] {
+export function computeTagCloudNodes(tags: Tag[], minFontSize = 12, maxFontSize = 28): TagCloudNode[] {
   if (tags.length === 0) return []
   const counts = tags.map(tag => tag.docCount)
   const min = Math.min(...counts)
   const max = Math.max(...counts)
   return tags.map(tag => {
-    const weight = max === min ? 0.5 : (tag.docCount - min) / (max - min)
+    const weight = max === min ? 0.5 : Math.log1p(tag.docCount - min) / Math.log1p(max - min)
     return {
       tag,
       weight,

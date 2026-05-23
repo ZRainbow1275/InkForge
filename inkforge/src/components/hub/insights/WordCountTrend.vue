@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { TrendingUp } from 'lucide-vue-next'
 import type { TrendPoint } from './types'
-import InsightEmptyState from './InsightEmptyState.vue'
 
 const props = defineProps<{ points: TrendPoint[] }>()
 

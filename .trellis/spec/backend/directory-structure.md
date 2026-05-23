@@ -66,7 +66,10 @@ inkforge/src/
   `Provider`, for example `TagRepository` and `WebDAVProvider`.
 - Feature type files are named `types.ts`; public barrels are named `index.ts`.
 - Explicit unsupported implementations should be named honestly, for example
-  `uploaders/wechat-stub.ts`, and must throw a typed unsupported error.
+  `uploaders/xhs-stub.ts`, and must throw a typed unsupported error.
+- Once an integration starts calling a real service/API bridge, drop the
+  `-stub` suffix. Example: the WeChat uploader now lives at
+  `uploaders/wechat.ts` because it delegates to the real publish service layer.
 
 ---
 

@@ -65,12 +65,20 @@ onUnmounted(() => {
       class="diff-overlay"
       @click.self="emit('close')"
     >
-      <div class="diff-modal">
+      <div
+        class="diff-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="version-diff-title"
+      >
         <!-- 头部 -->
         <div class="diff-header">
           <div class="diff-title-area">
             <FileText :size="18" />
-            <h2 class="diff-title">
+            <h2
+              id="version-diff-title"
+              class="diff-title"
+            >
               版本对比
             </h2>
             <div class="diff-summary-badges">
@@ -80,7 +88,9 @@ onUnmounted(() => {
             </div>
           </div>
           <button
+            type="button"
             class="close-btn"
+            aria-label="关闭版本对比"
             title="关闭"
             @click="emit('close')"
           >
@@ -163,6 +173,7 @@ onUnmounted(() => {
             <span>共 {{ diffLines.length }} 行</span>
           </div>
           <button
+            type="button"
             class="footer-close-btn"
             @click="emit('close')"
           >

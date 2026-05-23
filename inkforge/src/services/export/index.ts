@@ -28,6 +28,8 @@ marked.use({
 // 类型导出
 export type {
   ExportOptions,
+  ExportFontFamily,
+  ExportFontSize,
   ExportResult,
   ExportStats,
   Footnote,
@@ -89,6 +91,7 @@ export {
   convertToWechat,
   convertToWechatWithStats,
   markdownToWechat,
+  markdownToWechatWithStats,
   postProcessForWechat
 } from './wechat'
 
@@ -155,6 +158,30 @@ export {
   enforcePlatformCSS,
   auditPlatformCompliance
 } from './css-validator'
+
+// 微信真实发布能力
+export type {
+  WechatPublishStatus,
+  WechatCredentialSource,
+  WechatDraftArticleInput,
+  WechatDraftCreateResult,
+  WechatDraftPublishInput,
+  WechatDraftPublishResult,
+  WechatHtmlRewriteResult,
+  WechatCoverUploadResult,
+} from './wechat-publish'
+export {
+  WECHAT_CREDENTIAL_KEYS,
+  WECHAT_DRAFT_TITLE_MAX_CHARS,
+  getWechatPublishStatus,
+  uploadWechatArticleImage,
+  uploadWechatCoverImage,
+  rewriteWechatArticleImages,
+  createWechatDraft,
+  publishWechatDraft,
+  describeWechatPublishStatus,
+  isWechatHostedContentImageUrl,
+} from './wechat-publish'
 
 // ═══════════════════════════════════════════════════════════════════
 // 统一导出接口

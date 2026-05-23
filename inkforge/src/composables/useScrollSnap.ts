@@ -28,6 +28,9 @@ export function useScrollSnap(options: UseScrollSnapOptions): UseScrollSnapRetur
   let lastSnapAt = 0
   let cleanupObserver: (() => void) | null = null
   let mediaQuery: MediaQueryList | null = null
+  let animationFrameId: number | null = null
+  let animationRunId = 0
+  let suspendedScrollStyles: { scrollBehavior: string; scrollSnapType: string } | null = null
 
   function readReducedMotion(): boolean {
     if (typeof window === 'undefined') return false
@@ -51,8 +54,33 @@ export function useScrollSnap(options: UseScrollSnapOptions): UseScrollSnapRetur
     return top
   }
 
+  function suspendScrollStyles(container: HTMLElement): void {
+    if (!suspendedScrollStyles) {
+      suspendedScrollStyles = {
+        scrollBehavior: container.style.scrollBehavior,
+        scrollSnapType: container.style.scrollSnapType,
+      }
+    }
+    container.style.scrollBehavior = 'auto'
+    container.style.scrollSnapType = 'none'
+  }
+
+  function restoreScrollStyles(container: HTMLElement): void {
+    if (!suspendedScrollStyles) return
+    container.style.scrollBehavior = suspendedScrollStyles.scrollBehavior
+    container.style.scrollSnapType = suspendedScrollStyles.scrollSnapType
+    suspendedScrollStyles = null
+  }
+
   function animateScroll(container: HTMLElement, target: number): void {
+    animationRunId += 1
+    const runId = animationRunId
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId)
+      animationFrameId = null
+    }
     if (reducedMotion.value) {
+      restoreScrollStyles(container)
       container.scrollTop = target
       animating.value = false
       return
@@ -60,6 +88,7 @@ export function useScrollSnap(options: UseScrollSnapOptions): UseScrollSnapRetur
     const start = container.scrollTop
     const distance = target - start
     if (Math.abs(distance) < 2) {
+      restoreScrollStyles(container)
       animating.value = false
       return
     }
@@ -67,27 +96,25 @@ export function useScrollSnap(options: UseScrollSnapOptions): UseScrollSnapRetur
     // 浏览器会拦截每帧 scrollTop 赋值进入自身的 smooth-scroll 队列，并把
     // 中间值往最近 snap 点拉回，与 RAF 互相打架 → 视觉上滚动几乎停滞。
     // RAF 期间改成 auto/none，结束后恢复；原生 snap 仍可服务滚轮输入。
-    const prevBehavior = container.style.scrollBehavior
-    const prevSnap = container.style.scrollSnapType
-    container.style.scrollBehavior = 'auto'
-    container.style.scrollSnapType = 'none'
+    suspendScrollStyles(container)
     const startTime = performance.now()
     animating.value = true
     function step(now: number): void {
+      if (runId !== animationRunId) return
       const elapsed = now - startTime
       const progress = Math.min(1, elapsed / duration)
       const eased = EASE(progress)
       container.scrollTop = start + distance * eased
       if (progress < 1) {
-        requestAnimationFrame(step)
+        animationFrameId = requestAnimationFrame(step)
       } else {
-        container.style.scrollBehavior = prevBehavior
-        container.style.scrollSnapType = prevSnap
+        animationFrameId = null
+        restoreScrollStyles(container)
         animating.value = false
         lastSnapAt = performance.now()
       }
     }
-    requestAnimationFrame(step)
+    animationFrameId = requestAnimationFrame(step)
   }
 
   function snapTo(index: number): void {
@@ -207,6 +234,13 @@ export function useScrollSnap(options: UseScrollSnapOptions): UseScrollSnapRetur
     cleanupObserver?.()
     cleanupObserver = null
     const container = containerRef.value
+    animationRunId += 1
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId)
+      animationFrameId = null
+    }
+    if (container) restoreScrollStyles(container)
+    animating.value = false
     container?.removeEventListener('wheel', handleWheel)
     window.removeEventListener('keydown', handleKey)
     mediaQuery?.removeEventListener?.('change', handleReducedMotionChange)

@@ -73,14 +73,27 @@ Trellis SessionStart 已注入：workflow、当前任务状态、开发者身份
 Then continue directly with the user's request. This notice is one-shot: do not repeat it after the first assistant reply in the same session.
 </first-reply-notice>"""
 
-# IMPORTANT: Force stdout to use UTF-8 on Windows
-# This fixes UnicodeEncodeError when outputting non-ASCII characters
+# Force UTF-8 on stdin/stdout/stderr on Windows. Default codepage there is
+# cp936 / cp1252 / etc. — non-ASCII content (Chinese task names, prd snippets)
+# both in stdin (hook payload from host CLI) and stdout (our emitted blocks)
+# raises UnicodeDecodeError / UnicodeEncodeError. Equivalent to `python -X utf8`
+# but applied per-stream so we don't depend on host CLI's command wiring.
 if sys.platform.startswith("win"):
     import io as _io
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
-    elif hasattr(sys.stdout, "detach"):
-        sys.stdout = _io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+    for _stream_name in ("stdin", "stdout", "stderr"):
+        _stream = getattr(sys, _stream_name, None)
+        if _stream is None:
+            continue
+        if hasattr(_stream, "reconfigure"):
+            try:
+                _stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+            except Exception:
+                pass
+        elif hasattr(_stream, "detach"):
+            try:
+                setattr(sys, _stream_name, _io.TextIOWrapper(_stream.detach(), encoding="utf-8", errors="replace"))
+            except Exception:
+                pass
 
 
 
@@ -346,25 +359,7 @@ def _get_task_status(trellis_dir: Path, input_data: dict) -> str:
             "inline in the main session. Findings go to `{task_dir}/research/*.md`; PRD only links to them."
         )
 
-    # Case 4b: Task has already been activated — do not route back to Phase 1.
-    # In Codex inline mode, jsonl curation is intentionally skipped; more
-    # importantly, task.json.status is the workflow phase authority after
-    # `task.py start` flips it to in_progress.
-    if task_status == "in_progress":
-        return (
-            f"Status: IN_PROGRESS\nTask: {task_title}\n"
-            f"Source: {active.source}\n"
-            "Next required action: continue Phase 2 / Phase 3 for this task. "
-            "If implementation is not finished, follow Phase 2.1; if changes are written, "
-            "run Phase 2.2 / 3.1 quality verification, then Phase 3.3 spec review and "
-            "Phase 3.4 work commits before `/trellis:finish-work`.\n"
-            "For agent-capable platforms, dispatch `trellis-implement` / `trellis-check` "
-            "unless the user's current message explicitly opts into inline work. "
-            "For Codex inline mode, load `trellis-before-dev` / `trellis-check` and work "
-            "directly in the main session."
-        )
-
-    # Case 4c: PRD exists but implement.jsonl has only seed (no curated entries) — Phase 1.3 gate
+    # Case 4b: PRD exists but implement.jsonl has only seed (no curated entries) — Phase 1.3 gate
     implement_jsonl = task_dir / "implement.jsonl"
     if implement_jsonl.is_file() and not _has_curated_jsonl_entry(implement_jsonl):
         return (
@@ -378,21 +373,24 @@ def _get_task_status(trellis_dir: Path, input_data: dict) -> str:
             "See `.trellis/workflow.md` Phase 1.3 for details."
         )
 
-    # Case 5: PRD + curated jsonl — activate the task before Execute phase.
-    if task_status == "planning":
-        return (
-            f"Status: READY_TO_START (Phase 1.4)\nTask: {task_title}\n"
-            f"Source: {active.source}\n"
-            f"Next required action: run `python ./.trellis/scripts/task.py start {task_dir.as_posix()}` "
-            "to flip task.json.status to `in_progress`, then proceed to Phase 2."
-        )
-
-    # Case 6: Unknown custom status — surface it without guessing.
+    # Case 5: PRD + curated jsonl (or agent-less platform with no jsonl) — enter Execute phase
     return (
-        f"Status: {task_status}\nTask: {task_title}\n"
+        f"Status: READY\nTask: {task_title}\n"
         f"Source: {active.source}\n"
-        "Next required action: inspect `.trellis/workflow.md` and the task artifacts, then choose "
-        "the matching phase explicitly. Do not infer Phase 1/2 from JSONL alone."
+        "Next required action: dispatch `trellis-implement` per Phase 2.1. "
+        "For agent-capable platforms, the default is to NOT edit code in the main session. "
+        "After implementation, dispatch `trellis-check` per Phase 2.2 before reporting completion.\n"
+        "Sub-agent roster: `trellis-implement` (writes code), `trellis-check` (verifies + self-fixes), "
+        "`trellis-research` (persists findings to `research/*.md` — use when you'd otherwise do "
+        "multiple WebFetch/WebSearch inline).\n"
+        "Sub-agent self-exemption: if you are reading this as a `trellis-implement` or "
+        "`trellis-check` sub-agent (your own role / agent name reflects that), this dispatch "
+        "instruction does NOT apply to you — you are already the dispatched sub-agent. "
+        "Implement / check directly without spawning another sub-agent of the same kind.\n"
+        "User override (per-turn escape hatch): if the user's CURRENT message explicitly tells the "
+        "main session to handle it directly (\"你直接改\" / \"别派 sub-agent\" / \"main session 写就行\" / "
+        "\"do it inline\" / \"不用 sub-agent\"), honor it for this turn and edit code directly. "
+        "Per-turn only; do NOT invent an override the user did not say."
     )
 
 
@@ -780,11 +778,15 @@ When the user sends the first message, follow <task-status> and the workflow gui
 If a task is READY, execute its Next required action without asking whether to continue.
 </ready>""")
 
+    context_text = output.getvalue()
     result = {
+        # Claude Code / Qoder / CodeBuddy / Droid / Gemini / Copilot format
         "hookSpecificOutput": {
             "hookEventName": "SessionStart",
-            "additionalContext": output.getvalue(),
-        }
+            "additionalContext": context_text,
+        },
+        # Cursor sessionStart format (top-level snake_case per Cursor docs)
+        "additional_context": context_text,
     }
 
     # Output JSON - stdout is already configured for UTF-8
