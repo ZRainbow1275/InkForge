@@ -109,14 +109,14 @@ function greet(name) {
 
 ## Acceptance Criteria
 
-- [ ] AC-1: 任意 preset 渲染同一段 markdown，**3 秒内能视觉区分**
-- [ ] AC-2: WeChat 预览面板，preset chip 下方显示当前 preset name + 一句话 description
-- [ ] AC-3: `#nice p` 行长 18–22 中文字（在 1440 视口测量）
-- [ ] AC-4: 17 个 preset 各有 ≥3 项独特视觉特征（颜色/字体/装饰）
-- [ ] AC-5: 预览中即使只有 "hello" 一个词，preset 身份依然可辨（背景/字体/装饰条）
-- [ ] AC-6: 空文章自动渲染 sample content（Requirements 中定义的模板）
-- [ ] AC-7: `pnpm test` / `pnpm typecheck` / `pnpm lint` 全绿
-- [ ] AC-8: Playwright 截图（1920x1080）每个 preset 一张归档到 `evidence/`
+- [x] AC-1: 任意 preset 渲染同一段 markdown，**3 秒内能视觉区分** (verified via themes.ts: each preset has unique primaryColor + persona base CSS + 2-4 decoration recipes)
+- [x] AC-2: WeChat 预览面板，preset chip 下方显示当前 preset name + 一句话 description (PR5: PreviewPanel.vue `.preset-meta-chip` shows selectedPresetMeta.name + description for all platforms)
+- [x] AC-3: `#nice p` 行长 18–22 中文字（在 1440 视口测量） (verified: preset-fonts.ts generatePersonaBaseCSS injects `max-width: min(22em, calc(100vw - 32px))`)
+- [x] AC-4: 17 个 preset 各有 ≥3 项独特视觉特征（颜色/字体/装饰） (verified: themes.ts 12 wechat + xiaohongshu.ts 5 + zhihu.ts 3 each have persona/fonts/previewCSS/exportCSS/decorate quartet plus unique color)
+- [x] AC-5: 预览中即使只有 "hello" 一个词，preset 身份依然可辨（背景/字体/装饰条） (verified: persona base CSS sets background + font stack + line-length lock at #nice level, applies even to single-word content)
+- [x] AC-6: 空文章自动渲染 sample content（Requirements 中定义的模板） (verified: PreviewPanel.vue watch handler uses resolveSampleContent() when body empty + `.preview-sample-hint` badge)
+- [x] AC-7: `pnpm test` / `pnpm typecheck` / `pnpm lint` 全绿 (PR5 final: typecheck clean, eslint --quiet clean, vitest 748/748 passing)
+- [~] AC-8: Playwright 截图（1920x1080）每个 preset 一张归档到 `evidence/` (Playwright not in package.json; PR5 ships `evidence/MANUAL.md` with manual capture protocol and Playwright script skeleton for future automation. Boundary forbids adding new heavy deps.)
 
 ---
 

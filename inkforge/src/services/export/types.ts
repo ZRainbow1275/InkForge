@@ -194,6 +194,8 @@ export interface XiaohongshuPreset {
   id: string
   name: string
   icon: string
+  /** One-line description shown under preset chip in preview panel */
+  description?: string
   primaryColor: string
   accentColor: string
   /** 二级背景色 */
@@ -227,6 +229,8 @@ export interface ZhihuPreset {
   id: string
   name: string
   icon: string
+  /** One-line description shown under preset chip in preview panel */
+  description?: string
   primaryColor: string
   accentColor: string
   /** 正文字号 */

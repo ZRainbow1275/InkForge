@@ -37,7 +37,7 @@ const selectedPlatform = ref<Platform>('wechat')
 const platformInfo = computed(() => PLATFORMS.find(p => p.id === selectedPlatform.value)!)
 
 // ─── 预设管理（按平台独立记忆） ───────────────────
-interface PresetDisplay { id: string; name: string; icon: string }
+interface PresetDisplay { id: string; name: string; icon: string; description?: string }
 
 const platformPresetIds = ref<Record<Platform, string>>({
   wechat: getDefaultPreset().id,
@@ -49,8 +49,12 @@ const selectedPresetId = computed(() => platformPresetIds.value[selectedPlatform
 
 const currentPresets = computed((): PresetDisplay[] => {
   const presets = getPlatformPresets(selectedPlatform.value)
-  return presets.map(p => ({ id: p.id, name: p.name, icon: p.icon }))
+  return presets.map(p => ({ id: p.id, name: p.name, icon: p.icon, description: p.description }))
 })
+
+const selectedPresetMeta = computed((): PresetDisplay | undefined =>
+  currentPresets.value.find(p => p.id === selectedPresetId.value)
+)
 
 function selectPreset(id: string) {
   platformPresetIds.value[selectedPlatform.value] = id
@@ -229,6 +233,16 @@ async function handleCopy() {
             <span class="preset-name">{{ preset.name }}</span>
           </button>
         </div>
+        <div
+          v-if="selectedPresetMeta"
+          class="preset-meta-chip"
+        >
+          <strong class="preset-meta-name">{{ selectedPresetMeta.name }}</strong>
+          <span
+            v-if="selectedPresetMeta.description"
+            class="preset-meta-desc"
+          >· {{ selectedPresetMeta.description }}</span>
+        </div>
       </div>
 
       <!-- 操作按钮 -->
@@ -288,10 +302,16 @@ async function handleCopy() {
               <span>{{ new Date().toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) }}</span>
             </div>
           </div>
-          <div
-            class="preview-content"
-            v-html="previewHtml"
-          />
+          <transition
+            name="preset-fade"
+            mode="out-in"
+          >
+            <div
+              :key="selectedPresetId"
+              class="preview-content"
+              v-html="previewHtml"
+            />
+          </transition>
         </div>
       </div>
     </template>
@@ -477,6 +497,41 @@ async function handleCopy() {
   font-size: 11px;
   color: var(--color-text);
   text-align: center;
+}
+
+.preset-meta-chip {
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: var(--color-bg-secondary);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-meta-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.preset-meta-desc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* 200ms crossfade when switching presets */
+.preset-fade-enter-active,
+.preset-fade-leave-active {
+  transition: opacity 200ms ease-out;
+}
+
+.preset-fade-enter-from,
+.preset-fade-leave-to {
+  opacity: 0;
 }
 
 /* 操作按钮 */
