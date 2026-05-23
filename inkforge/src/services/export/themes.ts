@@ -2,8 +2,34 @@
  * 主题预设和 CSS 生成
  */
 
-import type { ExportPreset } from '@/types'
+import type { ExportPreset, ExportTarget } from '@/types'
 import { DEFAULT_PRESET_ID, FONT_STACKS } from '@/constants'
+import { PERSONA_FONTS, generatePersonaBaseCSS } from './preset-fonts'
+import { composeRecipes } from './preset-decorations'
+
+// ─── PR3: persona+recipe composers for the 5 migrated presets ──────────
+// Each pair (preview + export) is generated once and reused inside the
+// preset definition. Persona base CSS sets the 22em line-length lock,
+// 1.75 line-height (academic/business), and bilingual font stack. The
+// composed recipe CSS layers decoration on top.
+
+const academicBaseCSS = generatePersonaBaseCSS('academic')
+const businessBaseCSS = generatePersonaBaseCSS('business')
+
+const thesisRecipesPreview = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'preview' })
+const thesisRecipesExport = composeRecipes(['cjk-decimal-h2', 'h2-underline-fine'], { target: 'export' })
+
+const legalRecipesPreview = composeRecipes(['cjk-decimal-h2', 'numbered-list-roman'], { target: 'preview' })
+const legalRecipesExport = composeRecipes(['cjk-decimal-h2', 'numbered-list-roman'], { target: 'export' })
+
+const reportRecipesPreview = composeRecipes(['h2-underline-fine', 'pull-quote-bordered'], { target: 'preview' })
+const reportRecipesExport = composeRecipes(['h2-underline-fine', 'pull-quote-bordered'], { target: 'export' })
+
+const commentaryRecipesPreview = composeRecipes(['large-quote', 'h3-vertical-accent'], { target: 'preview' })
+const commentaryRecipesExport = composeRecipes(['large-quote', 'h3-vertical-accent'], { target: 'export' })
+
+const aigcRecipesPreview = composeRecipes(['h3-vertical-accent', 'ornament-hr'], { target: 'preview' })
+const aigcRecipesExport = composeRecipes(['h3-vertical-accent', 'ornament-hr'], { target: 'export' })
 
 // highlight.js 代码主题样式 (atom-one-dark)
 export const codeThemeCSS = `
@@ -282,17 +308,37 @@ export const baseCSS = `
 
 // 10种主题预设
 export const themePresets: ExportPreset[] = [
+  // THESIS: 学术正经, 思源宋体 + EB Garamond, 第N章编号 + h2 极细底线; 墨色单调
   {
     id: 'thesis',
     name: '论文翻译',
     icon: 'thesis',
-    description: '学术严谨，苏联红色调',
+    description: '学术严谨，墨色单调',
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
-    primaryColor: '#8B0000',
+    primaryColor: '#5a4a3c',
     isUseIndent: true,
     isUseJustify: true,
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `${academicBaseCSS}
+#nice { --ink-accent: #5a4a3c; background: #faf9f6; }
+#nice h1 { font-size: 2.1em; font-weight: 700; text-align: center; margin: 0 0 0.6em; letter-spacing: 0.05em; color: #2a2a2a; }
+#nice h2 { color: #2a2a2a; text-align: left; letter-spacing: 0.02em; margin-top: 1.6em; }
+#nice h3 { color: #5a4a3c; font-weight: 600; margin-top: 1.2em; }
+#nice blockquote { background: #f4f1ec; border-left: 3px solid #5a4a3c; padding: 0.8em 1.2em; color: #2a2a2a; }
+#nice table th { background: #5a4a3c; color: #fff; }
+${thesisRecipesPreview.css}`,
+    exportCSS: `${academicBaseCSS}
+#nice { background: #faf9f6; }
+#nice h1 { font-size: 2.1em; font-weight: 700; text-align: center; margin: 0 0 0.6em; letter-spacing: 0.05em; color: #2a2a2a; }
+#nice h2 { color: #2a2a2a; text-align: left; letter-spacing: 0.02em; margin-top: 1.6em; }
+#nice h3 { color: #5a4a3c; font-weight: 600; margin-top: 1.2em; }
+#nice blockquote { background: #f4f1ec; border-left: 3px solid #5a4a3c; padding: 0.8em 1.2em; color: #2a2a2a; }
+#nice table th { background: #5a4a3c; color: #fff; }
+${thesisRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => thesisRecipesExport.decorate(html, target),
     customCSS: `
       #nice { background: #faf9f6; }
       #nice h2 { text-align: center; font-variant: small-caps; letter-spacing: 2px; border-bottom: 1px solid #8B0000; padding-bottom: 12px; margin-bottom: 24px; }
@@ -301,17 +347,38 @@ export const themePresets: ExportPreset[] = [
       #nice table th { background: #8B0000; color: #fff; }
     `
   },
+  // LEGAL: 法学严谨, 思源宋体 + EB Garamond, 第N章编号 + 罗马序号列表; 近黑庄重
   {
     id: 'legal',
     name: '法学研讨',
     icon: 'legal',
-    description: '常青藤学院风',
+    description: '法学严谨，近黑庄重',
     theme: 'grace',
     fontFamily: 'serif',
     fontSize: '15px',
-    primaryColor: '#1A3A5C',
+    primaryColor: '#1a1a2e',
     isUseIndent: true,
     isUseJustify: true,
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `${academicBaseCSS}
+#nice { --ink-accent: #1a1a2e; }
+#nice h1 { font-size: 2em; font-weight: 700; text-align: center; margin: 0 0 0.8em; color: #1a1a2e; letter-spacing: 0.04em; }
+#nice h2 { color: #1a1a2e; font-weight: 700; margin-top: 1.6em; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; }
+#nice h3 { color: #1a1a2e; font-weight: 600; }
+#nice blockquote { background: #f4f4ee; border-left: 3px solid #1a1a2e; padding: 0.8em 1.2em; color: #1a1a2e; font-style: normal; }
+#nice table th { background: #1a1a2e; color: #fff; }
+#nice table td { border-color: #d0d0c8; }
+${legalRecipesPreview.css}`,
+    exportCSS: `${academicBaseCSS}
+#nice h1 { font-size: 2em; font-weight: 700; text-align: center; margin: 0 0 0.8em; color: #1a1a2e; letter-spacing: 0.04em; }
+#nice h2 { color: #1a1a2e; font-weight: 700; margin-top: 1.6em; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; }
+#nice h3 { color: #1a1a2e; font-weight: 600; }
+#nice blockquote { background: #f4f4ee; border-left: 3px solid #1a1a2e; padding: 0.8em 1.2em; color: #1a1a2e; font-style: normal; }
+#nice table th { background: #1a1a2e; color: #fff; }
+#nice table td { border-color: #d0d0c8; }
+${legalRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => legalRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { border-bottom: 2px solid #1A3A5C; padding-bottom: 8px; color: #1A3A5C; }
       #nice h3 { border-left: 4px solid #4A7C59; padding-left: 12px; }
@@ -320,17 +387,40 @@ export const themePresets: ExportPreset[] = [
       #nice table td { border-color: #d0d0c8; }
     `
   },
+  // REPORT: 商务理性, 思源宋体 + EB Garamond, h2 极细底线 + pull-quote 双线; 商务蓝
   {
     id: 'report',
     name: '行业研报',
     icon: 'report',
-    description: '华尔街日报风',
+    description: '商务理性，商务蓝调',
     theme: 'default',
-    fontFamily: 'sans-serif',
+    fontFamily: 'serif',
     fontSize: '15px',
     primaryColor: '#004080',
     isUseIndent: false,
     isUseJustify: true,
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `${academicBaseCSS}
+#nice { --ink-accent: #004080; }
+#nice h1 { font-size: 2em; font-weight: 700; margin: 0 0 0.5em; color: #004080; letter-spacing: -0.01em; }
+#nice h2 { color: #004080; font-weight: 700; letter-spacing: 0; margin-top: 1.8em; }
+#nice h3 { color: #1A3A5C; font-weight: 600; }
+#nice strong { color: #004080; }
+#nice table th { background: #F2F5F9; color: #1A3A5C; font-weight: 600; border-bottom: 2px solid #004080; }
+#nice table td { border-color: #E6ECF2; }
+#nice a { color: #004080; }
+${reportRecipesPreview.css}`,
+    exportCSS: `${academicBaseCSS}
+#nice h1 { font-size: 2em; font-weight: 700; margin: 0 0 0.5em; color: #004080; letter-spacing: -0.01em; }
+#nice h2 { color: #004080; font-weight: 700; letter-spacing: 0; margin-top: 1.8em; }
+#nice h3 { color: #1A3A5C; font-weight: 600; }
+#nice strong { color: #004080; }
+#nice table th { background: #F2F5F9; color: #1A3A5C; font-weight: 600; border-bottom: 2px solid #004080; }
+#nice table td { border-color: #E6ECF2; }
+#nice a { color: #004080; }
+${reportRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => reportRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { color: #004080; font-weight: 700; letter-spacing: -0.2px; border-bottom: 1px solid #D6DEE6; padding-bottom: 6px; margin-top: 32px; }
       #nice h3 { color: #1A3A5C; font-weight: 600; }
@@ -340,17 +430,34 @@ export const themePresets: ExportPreset[] = [
       #nice a { color: #004080; }
     `
   },
+  // COMMENTARY: 评论锋利, 思源黑体 + Inter, 大引号 + h3 竖条; 热血红
   {
     id: 'commentary',
     name: '时事点评',
     icon: 'commentary',
-    description: '观点清晰鲜明',
+    description: '观点锋利，热血红调',
     theme: 'simple',
     fontFamily: 'sans-serif',
     fontSize: '15px',
-    primaryColor: '#C00000',
+    primaryColor: '#c0392b',
     isUseIndent: false,
     isUseJustify: true,
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `${businessBaseCSS}
+#nice { --ink-accent: #c0392b; }
+#nice h1 { font-size: 2.2em; font-weight: 900; margin: 0 0 0.5em; color: #1a1a1a; letter-spacing: -0.01em; }
+#nice h2 { color: #c0392b; font-weight: 900; font-size: 1.5em; margin-top: 1.6em; }
+#nice strong { color: #c0392b; font-weight: 700; }
+#nice hr { border: 0; border-top: 2px solid #c0392b; margin: 2.4em 0; }
+${commentaryRecipesPreview.css}`,
+    exportCSS: `${businessBaseCSS}
+#nice h1 { font-size: 2.2em; font-weight: 900; margin: 0 0 0.5em; color: #1a1a1a; letter-spacing: -0.01em; }
+#nice h2 { color: #c0392b; font-weight: 900; font-size: 1.5em; margin-top: 1.6em; }
+#nice strong { color: #c0392b; font-weight: 700; }
+#nice hr { border: 0; border-top: 2px solid #c0392b; margin: 2.4em 0; }
+${commentaryRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => commentaryRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { color: #C00000; font-weight: 900; font-size: 22px; margin-top: 32px; }
       #nice strong { color: #C00000; font-weight: 900; }
@@ -358,17 +465,38 @@ export const themePresets: ExportPreset[] = [
       #nice hr { border-top: 2px solid #C00000; margin: 32px 0; }
     `
   },
+  // AIGC: 科技理性, 思源黑体 + Inter, h3 竖条 + ornament HR; 科技蓝
   {
     id: 'aigc',
     name: 'AIGC',
     icon: 'aigc',
-    description: '未来科技感',
+    description: '科技理性，科技蓝调',
     theme: 'default',
     fontFamily: 'sans-serif',
     fontSize: '15px',
-    primaryColor: '#7B2D8E',
+    primaryColor: '#2563eb',
     isUseIndent: false,
     isUseJustify: false,
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `${businessBaseCSS}
+#nice { --ink-accent: #2563eb; }
+#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; }
+#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.6em; padding-left: 0; border-left: none; }
+#nice strong { color: #2563eb; }
+#nice code { background: rgba(37,99,235,0.08); color: #2563eb; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice blockquote { border-left: 3px solid #2563eb; background: rgba(37,99,235,0.04); padding: 0.8em 1.2em; border-radius: 0 4px 4px 0; }
+#nice a { color: #2563eb; }
+${aigcRecipesPreview.css}`,
+    exportCSS: `${businessBaseCSS}
+#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; }
+#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.6em; padding-left: 0; border-left: none; }
+#nice strong { color: #2563eb; }
+#nice code { background: rgba(37,99,235,0.08); color: #2563eb; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice blockquote { border-left: 3px solid #2563eb; background: rgba(37,99,235,0.04); padding: 0.8em 1.2em; border-radius: 0 4px 4px 0; }
+#nice a { color: #2563eb; }
+${aigcRecipesExport.css}`,
+    decorate: (html: string, target: ExportTarget): string => aigcRecipesExport.decorate(html, target),
     customCSS: `
       #nice h2 { color: #7B2D8E; background: linear-gradient(135deg, rgba(123,45,142,0.08), rgba(99,102,241,0.08)); padding: 8px 12px; border-radius: 4px; }
       #nice code { background: rgba(123,45,142,0.1); color: #7B2D8E; }
@@ -518,8 +646,28 @@ export const themePresets: ExportPreset[] = [
 
 /**
  * 生成主题CSS
+ *
+ * PR3 dual-track: when `target === 'export'` and preset.exportCSS is present,
+ * the export-safe CSS replaces the legacy customCSS layer (persona base CSS
+ * already includes font/line-length lock). When `target === 'preview'` and
+ * preset.previewCSS is present, the full CSS3 variant is used instead.
+ * Presets that haven't been migrated yet fall through to the legacy path.
  */
-export function generateThemeCSS(preset: ExportPreset): string {
+export function generateThemeCSS(preset: ExportPreset, target: 'preview' | 'export' = 'export'): string {
+  // ─── New dual-track path: preset has explicit per-target CSS ──────────
+  const dualTrackCSS = target === 'preview' ? preset.previewCSS : preset.exportCSS
+  if (dualTrackCSS) {
+    let css = baseCSS + '\n' + dualTrackCSS
+    if (preset.isUseIndent) {
+      css += '\n#nice p { text-indent: 2em; }'
+    }
+    if (preset.isUseJustify) {
+      css += '\n#nice p { text-align: justify; }'
+    }
+    return css
+  }
+
+  // ─── Legacy path: customCSS + computed font / primary color ───────────
   let css = baseCSS
 
   // 字体 - 使用统一的字体栈定义

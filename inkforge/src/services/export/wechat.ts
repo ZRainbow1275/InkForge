@@ -27,6 +27,7 @@ import {
   type WechatRuleOptions,
 } from './platform-rules/wechat'
 import { generateThemeCSS, codeThemeCSS, applyHeadingDecorations } from './themes'
+import { FONT_STACKS } from '@/constants'
 import {
   highlightCodeBlocks,
   convertLinksToFootnotes,
@@ -1010,16 +1011,41 @@ function applyWechatStyleOptions(
     return preset
   }
 
-  const customCSS = primaryColor && preset.customCSS
-    ? preset.customCSS.replace(new RegExp(escapeRegExp(preset.primaryColor), 'gi'), primaryColor)
-    : preset.customCSS
+  // Compute font-family / font-size overlay only when caller actually
+  // supplied an override. This lets dual-track presets keep their
+  // persona-bound fonts as the default while still honoring Inspector
+  // / WeChat option overrides at runtime.
+  let fontOverlay = ''
+  if (fontFamily || fontSize) {
+    const effectiveFamily = fontFamily ?? preset.fontFamily
+    const effectiveSize = fontSize ?? preset.fontSize
+    const fontKey = effectiveFamily === 'sans-serif' ? 'sans'
+      : effectiveFamily === 'monospace' ? 'mono'
+      : effectiveFamily as keyof typeof FONT_STACKS
+    const stack = FONT_STACKS[fontKey] ?? FONT_STACKS.sans
+    fontOverlay = `\n#nice { font-family: ${stack}; font-size: ${effectiveSize}; }`
+  }
+
+  const rewriteAndOverlay = (css?: string): string | undefined => {
+    if (!css) return css
+    let next = css
+    if (primaryColor) {
+      next = next.replace(new RegExp(escapeRegExp(preset.primaryColor), 'gi'), primaryColor)
+    }
+    if (fontOverlay) {
+      next += fontOverlay
+    }
+    return next
+  }
 
   return {
     ...preset,
     primaryColor: primaryColor ?? preset.primaryColor,
     fontFamily: fontFamily ?? preset.fontFamily,
     fontSize: fontSize ?? preset.fontSize,
-    customCSS,
+    customCSS: rewriteAndOverlay(preset.customCSS),
+    previewCSS: rewriteAndOverlay(preset.previewCSS),
+    exportCSS: rewriteAndOverlay(preset.exportCSS),
   }
 }
 
@@ -1191,7 +1217,8 @@ export function convertToWechatWithStats(
   const wrappedHtml = `<section id="nice">${finalContent}</section>`
 
   // 生成CSS (包含代码主题)
-  let css = generateThemeCSS(effectivePreset) + codeThemeCSS
+  // PR3: pass 'export' so dual-track presets emit the juice-safe variant
+  let css = generateThemeCSS(effectivePreset, 'export') + codeThemeCSS
 
   // 处理首行缩进选项：显式传入时覆盖预设设置
   if (enableTextIndent === true) {
@@ -1212,7 +1239,13 @@ export function convertToWechatWithStats(
 
   // 应用主题特定的标题装饰（在 juice 内联之后，微信兼容性处理之前）
   // 伪元素和渐变裁剪等效果在 juice 内联后会丢失，需要转换为真实 HTML 元素
-  const decoratedHtml = applyHeadingDecorations(inlinedHtml, effectivePreset)
+  let decoratedHtml = applyHeadingDecorations(inlinedHtml, effectivePreset)
+
+  // PR3: dual-track decorate hook — migrated presets inject real <span> for
+  // pseudo-element-only effects (drop cap, CJK counters, large quote mark).
+  if (effectivePreset.decorate) {
+    decoratedHtml = effectivePreset.decorate(decoratedHtml, 'wechat')
+  }
 
   // 增强表格样式 — 条纹行、圆角、主色表头（在 juice 内联之后）
   const tableEnhancedHtml = enableEnhancedTable
