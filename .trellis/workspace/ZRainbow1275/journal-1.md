@@ -188,3 +188,36 @@ Audited and committed Trellis 0.5.12 tooling migration, fixed SessionStart in_pr
 ### Next Steps
 
 - None - task complete
+
+
+## Session 5: Preset typography overhaul — wire dead PreviewPanel features into stage panel
+
+**Date**: 2026-05-25
+**Task**: Preset typography overhaul — wire dead PreviewPanel features into stage panel
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Resumed from OOM-truncated session. Diagnosed 4 critical defects after E2E Playwright verification: (1) PreviewPanel.vue + AppLayout.vue + ResizablePanel.vue all dead code; (2) usePreviewRenderer empty-body branch never consulted resolveSampleContent; (3) stage panel had no preset switcher (only inspector strip gated behind toggle); (4) topPresets.slice(0,5) hid 7 wechat + 5 xhs + 3 zhihu presets. Dispatched trellis-implement sub-agent for all 4 fixes (deleted 3 .vue files, extended PreviewMeta with isSample flag, added platform-aware stage-preset-strip with 200ms crossfade + meta chip, replaced themePresets.slice with getPlatformPresets). trellis-check sub-agent verified READY_TO_COMMIT: 748/748 vitest, typecheck/lint clean, zero dead-code grep matches, sample-content fallback flows through all 3 platforms. Live Playwright smoke confirmed 12/5/3 chips per platform, active meta chip, sample render.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `63042a9` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

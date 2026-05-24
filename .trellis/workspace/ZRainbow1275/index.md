@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 4
-- **Last Active**: 2026-05-11
+- **Total Sessions**: 5
+- **Last Active**: 2026-05-25
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~190 | Active |
+| `journal-1.md` | ~223 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 5 | 2026-05-25 | Preset typography overhaul — wire dead PreviewPanel features into stage panel | `63042a9` | `dev/visual-fixes` |
 | 4 | 2026-05-11 | Trellis tooling dirty-tree audit | `669ce5d`, `0184e36` | `dev/visual-fixes` |
 | 3 | 2026-05-11 | Bootstrap project guideline specs | `2959fe6` | `dev/visual-fixes` |
 | 2 | 2026-05-11 | Export rendering real-capability audit | `f1cc7e6`, `92c714c` | `dev/visual-fixes` |
