@@ -42,6 +42,8 @@ export interface PreviewMeta {
   taskListCount?: number
   /** 表格降级数（知乎） */
   tablesConverted?: number
+  /** 是否使用空内容 sample 兜底（用于 UI 标示「示例内容」徽章） */
+  isSample?: boolean
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -118,12 +120,8 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
    *   - zhihu → markdownToZhihuClean → renderZhihuMockHtml
    */
   async function renderPreview(): Promise<void> {
-    const body = options.body.value
-    if (!body) {
-      previewHtml.value = ''
-      previewMeta.value = null
-      return
-    }
+    const rawBody = options.body.value
+    const isEmptyBody = !rawBody || !rawBody.trim()
 
     previewLoading.value = true
     const startTime = performance.now()
@@ -134,6 +132,15 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
       const platform = options.platform.value
       const presetId = exportSettings.defaultPresetId as string | undefined
       const primaryColor = appearance.accentColor
+
+      // 空内容兜底：用 resolveSampleContent 注入 sample markdown，让 preset 身份首次可见
+      // 仍走与 body-present 完全相同的渲染管线，保持视觉一致性
+      let body = rawBody as string
+      if (isEmptyBody) {
+        const { resolveSampleContent, getPresetById } = await import('@/services/export')
+        const activePreset = presetId ? getPresetById(presetId) : undefined
+        body = resolveSampleContent({ sampleContent: activePreset?.sampleContent })
+      }
 
       if (platform === 'xiaohongshu') {
         const { markdownToXiaohongshuText } = await import('@/services/export')
@@ -164,6 +171,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           title: textResult.title,
           hashtags: textResult.hashtags,
           suggestedTags: textResult.suggestedTags,
+          isSample: isEmptyBody,
         }
       } else if (platform === 'zhihu') {
         const { markdownToZhihuClean } = await import('@/services/export')
@@ -191,6 +199,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           mermaidCount: mdResult.mermaidCount,
           taskListCount: mdResult.taskListCount,
           tablesConverted: mdResult.tablesConverted,
+          isSample: isEmptyBody,
         }
       } else {
         const { convertToPlatform } = await import('@/services/export')
@@ -217,7 +226,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           },
         })
         previewHtml.value = result
-        previewMeta.value = { platform: 'wechat' }
+        previewMeta.value = { platform: 'wechat', isSample: isEmptyBody }
       }
     } catch {
       previewHtml.value = '<p style="color:#C62828;">预览渲染失败</p>'

@@ -25,7 +25,10 @@ import type { WorkstationTabDocType } from '@/stores/workstationTabs'
 import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
   copyToClipboard,
+  getPlatformPresets,
+  getPresetById,
   type Platform,
+  type ExportPreset,
 } from '@/services/export'
 import { usePreviewRenderer } from '@/composables/usePreviewRenderer'
 import {
@@ -34,7 +37,6 @@ import {
   type WritingGoalProgress,
   type WritingWindowEntry,
 } from '@/composables/useTextStats'
-import { themePresets } from '@/services/export/themes'
 import { logger } from '@/services/error'
 import { DEFAULT_PROFILE_ID } from '@/services/profile/types'
 import { layoutPersistenceService, type LayoutStatePatch, type LayoutStateRecord, type SerializedTab } from '@/services/layout-persistence'
@@ -988,7 +990,41 @@ function selectAccentColor(color: string): void {
 }
 
 // 鈹€鈹€鈹€ 鎺掔増棰勮蹇€熷垏鎹?鈹€鈹€鈹€
-const topPresets = computed(() => themePresets.slice(0, 5))
+// ─── 排版预设快速切换（平台感知） ───
+// 替换原 themePresets.slice(0, 5) 的硬编码上限；按当前选中平台动态返回全部预设：
+// - wechat: 12 个
+// - xiaohongshu: 5 个（xhs-*）
+// - zhihu: 3 个（zhihu-*）
+// Inspector 排版策略条与 Stage 顶部 chip 条共享同一数据源。
+const topPresets = computed<Array<{ id: string; name: string; icon?: string; description?: string }>>(() => {
+  const presets = getPlatformPresets(selectedPlatform.value)
+  return presets.map(p => ({
+    id: p.id,
+    name: p.name,
+    icon: p.icon,
+    description: p.description,
+  }))
+})
+
+// 当前激活预设的元信息（用于 Stage 头部「preset name · description」chip）
+const activePresetMeta = computed<{ id: string; name: string; description?: string; persona?: string } | null>(() => {
+  const presetId = settingsStore.settings.export.defaultPresetId
+  const wechatPreset = getPresetById(presetId) as ExportPreset | undefined
+  if (wechatPreset) {
+    return {
+      id: wechatPreset.id,
+      name: wechatPreset.name,
+      description: wechatPreset.description,
+      persona: wechatPreset.persona,
+    }
+  }
+  const platformPresets = getPlatformPresets(selectedPlatform.value)
+  const match = platformPresets.find(p => p.id === presetId)
+  if (match) {
+    return { id: match.id, name: match.name, description: match.description }
+  }
+  return null
+})
 
 function applyPreset(presetId: string): void {
   settingsStore.settings.export.defaultPresetId = presetId
@@ -1397,7 +1433,7 @@ async function openDocumentStatusTarget(): Promise<void> {
 // 棰勮娓叉煋锛堟櫤鑳介槻鎶?composable锛?
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 
-const { previewHtml, previewLoading, lastRenderTime } = usePreviewRenderer({
+const { previewHtml, previewLoading, lastRenderTime, previewMeta } = usePreviewRenderer({
   body: computed(() => normalizedBody.value),
   platform: selectedPlatform,
   getExportSettings: () => ({ ...settingsStore.settings.export }),
@@ -2645,6 +2681,45 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             </button>
           </div>
 
+          <!-- ── Stage 预设切换条（平台感知，覆盖全部预设） ── -->
+          <div
+            v-if="topPresets.length > 0"
+            class="stage-preset-strip"
+          >
+            <button
+              v-for="preset in topPresets"
+              :key="preset.id"
+              class="stage-preset-chip"
+              :class="{ active: settingsStore.settings.export.defaultPresetId === preset.id }"
+              :title="preset.description || preset.name"
+              @click="applyPreset(preset.id)"
+            >
+              <component
+                :is="resolveExportIcon(preset.icon || preset.id, preset.id)"
+                class="stage-preset-icon"
+                :size="12"
+                :stroke-width="2"
+              />
+              <span class="stage-preset-name">{{ preset.name }}</span>
+            </button>
+          </div>
+
+          <!-- ── 当前激活预设的 meta chip（preset name · description / persona） ── -->
+          <div
+            v-if="activePresetMeta"
+            class="stage-preset-meta"
+          >
+            <strong class="stage-preset-meta-name">{{ activePresetMeta.name }}</strong>
+            <span
+              v-if="activePresetMeta.persona"
+              class="stage-preset-meta-persona"
+            >{{ activePresetMeta.persona }}</span>
+            <span
+              v-if="activePresetMeta.description"
+              class="stage-preset-meta-desc"
+            >· {{ activePresetMeta.description }}</span>
+          </div>
+
           <div class="stage-body">
             <!-- iPhone 璁惧妗?-->
             <div class="device-frame">
@@ -2698,11 +2773,24 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 </div>
 
                 <!-- 娓叉煋棰勮 -->
-                <div
-                  v-else
-                  class="preview-content"
-                  v-html="previewHtml"
-                />
+                <template v-else>
+                  <div
+                    v-if="previewMeta?.isSample"
+                    class="preview-sample-hint"
+                  >
+                    示例内容
+                  </div>
+                  <transition
+                    name="preset-fade"
+                    mode="out-in"
+                  >
+                    <div
+                      :key="settingsStore.settings.export.defaultPresetId"
+                      class="preview-content"
+                      v-html="previewHtml"
+                    />
+                  </transition>
+                </template>
               </div>
               <!-- Home Indicator锛堢伆鑹插渾瑙掓潯锛?-->
               <div class="device-home-indicator" />
@@ -4438,6 +4526,126 @@ html[data-theme="dark"] .panel-tab.active {
 .stage-header .collapse-trigger:hover {
   background: rgba(207, 216, 220, 0.32);
   color: #37474F;
+}
+
+/* ─── Stage 预设切换条（平台感知，含全部 12/5/3 预设） ─── */
+.stage-preset-strip {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px 6px;
+  background: rgba(255, 255, 255, 0.62);
+  border-bottom: 1px solid #E5E7EB;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+
+.stage-preset-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.stage-preset-strip::-webkit-scrollbar-thumb {
+  background: rgba(207, 216, 220, 0.6);
+  border-radius: 2px;
+}
+
+.stage-preset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  font-size: 11px;
+  color: #607D8B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.stage-preset-chip:hover {
+  border-color: #CFD8DC;
+  background: #F5F5F5;
+  color: #263238;
+}
+
+.stage-preset-chip.active {
+  border-color: var(--accent-primary, #D32F2F);
+  background: #FFEBEE;
+  color: var(--accent-primary, #D32F2F);
+  font-weight: 500;
+}
+
+.stage-preset-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.stage-preset-name {
+  font-size: 11px;
+}
+
+/* ─── 当前激活预设的 meta chip ─── */
+.stage-preset-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px 8px;
+  background: rgba(255, 255, 255, 0.62);
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #607D8B;
+}
+
+.stage-preset-meta-name {
+  font-weight: 600;
+  color: #263238;
+}
+
+.stage-preset-meta-persona {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(207, 216, 220, 0.4);
+  color: #455A64;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.stage-preset-meta-desc {
+  color: #78909C;
+}
+
+/* ─── 预览面板「示例内容」徽章 ─── */
+.preview-sample-hint {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 3;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #607D8B;
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+/* ─── 预设切换 200ms 淡入淡出过渡 ─── */
+.preset-fade-enter-active,
+.preset-fade-leave-active {
+  transition: opacity 200ms ease-out;
+}
+
+.preset-fade-enter-from,
+.preset-fade-leave-to {
+  opacity: 0;
 }
 
 .stage-body {

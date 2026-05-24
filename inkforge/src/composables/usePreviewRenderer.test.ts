@@ -199,14 +199,20 @@ describe('usePreviewRenderer — platform routing (P3-T11)', () => {
     }
   })
 
-  it('empty body: previewHtml empty, previewMeta null', async () => {
+  it('empty body: renders sample content and flags previewMeta.isSample = true', async () => {
+    // Contract change (DEFECT 2 fix): when body is empty, usePreviewRenderer now
+    // resolves a preset-aware sample markdown via resolveSampleContent() and
+    // renders it through the platform pipeline. previewMeta carries isSample:true
+    // so the UI can show a "示例内容" badge instead of the old empty-state.
     const { previewHtml, previewMeta, dispose } = await run({
       body: '',
       platform: 'xiaohongshu',
     })
     try {
-      expect(previewHtml).toBe('')
-      expect(previewMeta).toBeNull()
+      expect(previewHtml.length).toBeGreaterThan(0)
+      expect(previewHtml).toContain('xhs-mock')
+      expect(previewMeta?.platform).toBe('xiaohongshu')
+      expect(previewMeta?.isSample).toBe(true)
     } finally {
       dispose()
     }
