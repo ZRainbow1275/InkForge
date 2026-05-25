@@ -2873,7 +2873,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         />
 
         <!-- 灞曞紑鎬佸唴瀹癸細4涓瀭鐩存粴鍔?Section -->
-        <template v-else>
+        <template v-if="!inspectorCollapsed">
           <div class="inspector-header">
             <span class="inspector-title">检查器</span>
             <button
