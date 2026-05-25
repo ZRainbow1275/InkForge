@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 6
+- **Total Sessions**: 7
 - **Last Active**: 2026-05-25
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~256 | Active |
+| `journal-1.md` | ~289 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 7 | 2026-05-25 | trellis-check follow-up: drop redundant persona type assertion | `6a79f58` | `dev/visual-fixes` |
 | 6 | 2026-05-25 | Audit & revert over-engineered stage preset strip; enhance inspector chip | `70a0683` | `dev/visual-fixes` |
 | 5 | 2026-05-25 | Preset typography overhaul — wire dead PreviewPanel features into stage panel | `63042a9` | `dev/visual-fixes` |
 | 4 | 2026-05-11 | Trellis tooling dirty-tree audit | `669ce5d`, `0184e36` | `dev/visual-fixes` |

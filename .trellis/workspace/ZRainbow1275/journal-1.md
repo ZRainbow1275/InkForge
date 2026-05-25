@@ -254,3 +254,36 @@ Resumed from OOM-truncated session. Diagnosed 4 critical defects after E2E Playw
 ### Next Steps
 
 - None - task complete
+
+
+## Session 7: trellis-check follow-up: drop redundant persona type assertion
+
+**Date**: 2026-05-25
+**Task**: trellis-check follow-up: drop redundant persona type assertion
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+/trellis-check 复审 commit 70a0683 抓到 type-safety 违规：sub-agent 在 topPresets computed 加了 (p as { persona?: string }).persona 多余 cast。三个 preset 类型 (XiaohongshuPreset/ZhihuPreset/ExportPreset, src/services/export/types.ts:210,243 + themes.ts) 都已声明 persona?: PresetPersona，无需断言。.trellis/spec/frontend/type-safety.md:56 明文'Do not use broad type assertions to silence vue-tsc; fix the returned shape'。已 inline fix：(p as ...) 改成 p.persona，typecheck 仍绿。证明三遍审查的价值——commit 70a0683 单次过 lint/typecheck/test 全绿仍隐藏 spec 违规，trellis-check 第二遍审查抓出。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6a79f58` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
