@@ -97,6 +97,89 @@ function replaceCssVariables(html: string, primaryColor?: string): string {
   return result
 }
 
+const CSS_UNICODE_ESCAPE_PATTERN = /\\([0-9a-fA-F]{1,6})([ \t\r\n\f])?/g
+
+const WECHAT_DECORATED_PSEUDO_RULES: Record<string, RegExp[]> = {
+  thesis: [
+    /#nice\s+h2::before\s*\{[^{}]*\}/gi,
+    /#nice\s+h3::before\s*\{[^{}]*\}/gi,
+    /#nice\s+hr::before\s*\{[^{}]*\}/gi,
+  ],
+  legal: [
+    /#nice\s+p:first-of-type::first-letter\s*\{[^{}]*\}/gi,
+    /#nice\s+h2::before\s*\{[^{}]*\}/gi,
+    /#nice\s+blockquote::before\s*\{[^{}]*\}/gi,
+  ],
+  report: [
+    /#nice\s+h1::after\s*\{[^{}]*\}/gi,
+    /#nice\s+h2::before\s*\{[^{}]*\}/gi,
+    /#nice\s+ol\s+li::before\s*\{[^{}]*\}/gi,
+  ],
+  commentary: [
+    /#nice\s+h1::after\s*\{[^{}]*\}/gi,
+    /#nice\s+h2::before\s*\{[^{}]*\}/gi,
+    /#nice\s+h3::after\s*\{[^{}]*\}/gi,
+    /#nice\s+blockquote::before\s*\{[^{}]*\}/gi,
+    /#nice\s+hr::after\s*\{[^{}]*\}/gi,
+  ],
+  news: [
+    /#nice\s+blockquote::before\s*\{[^{}]*\}/gi,
+  ],
+  life: [
+    /#nice\s+>\s*p:first-of-type::first-letter\s*\{[^{}]*\}/gi,
+    /#nice\s+blockquote::before\s*\{[^{}]*\}/gi,
+    /#nice\s+hr::before\s*\{[^{}]*\}/gi,
+  ],
+  elegant: [
+    /#nice\s+>\s*p:first-of-type::first-letter\s*\{[^{}]*\}/gi,
+    /#nice\s+p:first-of-type::first-letter\s*\{[^{}]*\}/gi,
+    /#nice\s+h2::before\s*\{[^{}]*\}/gi,
+    /#nice\s+blockquote::before\s*\{[^{}]*\}/gi,
+  ],
+  notes: [
+    /#nice\s+>\s*p:first-of-type::first-letter\s*\{[^{}]*\}/gi,
+    /#nice\s+hr::before\s*\{[^{}]*\}/gi,
+  ],
+  aigc: [
+    /#nice\s+hr::before\s*\{[^{}]*\}/gi,
+  ],
+  meme: [
+    /#nice\s+hr::before\s*\{[^{}]*\}/gi,
+  ],
+}
+
+function decodeCssUnicodeEscapes(value: string): string {
+  return value.replace(CSS_UNICODE_ESCAPE_PATTERN, (_match, hex: string, trailingWhitespace: string | undefined) => {
+    const codePoint = Number.parseInt(hex, 16)
+    if (!Number.isFinite(codePoint)) return _match
+
+    try {
+      const decoded = String.fromCodePoint(codePoint)
+      return trailingWhitespace ? `${decoded} ` : decoded
+    } catch {
+      return _match
+    }
+  })
+}
+
+function normalizeCssGeneratedContent(css: string): string {
+  return css.replace(
+    /(content\s*:\s*)(['"])([\s\S]*?)\2/gi,
+    (_match, prefix: string, quote: string, content: string) =>
+      `${prefix}${quote}${decodeCssUnicodeEscapes(content)}${quote}`
+  )
+}
+
+function prepareWechatPreviewCssForJuice(css: string, presetId: string): string {
+  const pseudoRules = WECHAT_DECORATED_PSEUDO_RULES[presetId] ?? []
+  const withoutDecoratedPseudoRules = pseudoRules.reduce(
+    (nextCss, rulePattern) => nextCss.replace(rulePattern, ''),
+    css
+  )
+
+  return normalizeCssGeneratedContent(withoutDecoratedPseudoRules)
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 微信兼容性处理
 // ═══════════════════════════════════════════════════════════════════
@@ -1222,7 +1305,10 @@ export function convertToWechatWithStats(
   // Use 'preview' track: richer CSS (fonts, colors, pseudo-element rules) that
   // juice can inline. Unsupported properties (var(), counters, pseudo-elements)
   // are handled downstream by replaceCssVariables, decorate hooks, and enforcePlatformCSS.
-  let css = generateThemeCSS(effectivePreset, 'preview') + codeThemeCSS
+  let css = prepareWechatPreviewCssForJuice(
+    generateThemeCSS(effectivePreset, 'preview') + codeThemeCSS,
+    effectivePreset.id
+  )
 
   // 处理首行缩进选项：显式传入时覆盖预设设置
   if (enableTextIndent === true) {

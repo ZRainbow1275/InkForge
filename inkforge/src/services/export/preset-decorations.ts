@@ -33,6 +33,8 @@ export interface DecorationRecipe {
 // Recipe implementations
 // ════════════════════════════════════════════════════════════════════════
 
+const HR_TAG_PATTERN = /<hr(?:\s[^>]*)?\s*\/?>/gi
+
 // ─── 1. CJK Drop Cap ────────────────────────────────────────────────────
 const cjkDropCap: DecorationRecipe = {
   id: 'cjk-drop-cap',
@@ -112,7 +114,7 @@ const ornamentHr: DecorationRecipe = {
     // Already converted? bail.
     if (html.includes('class="ink-ornament-hr"')) return html
     return html.replace(
-      /<hr\s*\/?>/gi,
+      HR_TAG_PATTERN,
       '<div class="ink-ornament-hr" style="text-align:center;margin:2.4em 0;font-size:14px;letter-spacing:0.6em;color:#B8860B;opacity:0.85;">❀ ❀ ❀</div>',
     )
   },
@@ -402,7 +404,7 @@ export function decorateThesisHrDots(html: string, target: ExportTarget): string
   if (target === 'preview') return html
   if (html.includes('class="ink-thesis-hr"')) return html
   return html.replace(
-    /<hr\s*\/?>/gi,
+    HR_TAG_PATTERN,
     '<div class="ink-thesis-hr" style="text-align:center;margin:2em 0;color:#8a7659;letter-spacing:1em;font-size:1.2em;">· · ·</div>',
   )
 }
@@ -602,7 +604,7 @@ export function decorateCommentaryHrDiamond(html: string, target: ExportTarget):
   if (target === 'preview') return html
   if (html.includes('class="ink-comm-hrd"')) return html
   return html.replace(
-    /<hr\s*\/?>/gi,
+    HR_TAG_PATTERN,
     '<div class="ink-comm-hrd" style="text-align:center;margin:2.4em 0;border-top:3px solid #c0392b;position:relative;"><span style="display:inline-block;color:#c0392b;background:#ffffff;padding:0 0.6em;font-size:0.9em;position:relative;top:-0.6em;">◆</span></div>',
   )
 }

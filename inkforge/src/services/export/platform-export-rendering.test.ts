@@ -8,6 +8,7 @@ import {
   convertToWechatWithStats,
   detectQuality,
   getDefaultPreset,
+  getPresetById,
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
@@ -39,6 +40,61 @@ const REAL_EXPORT_MARKDOWN = [
   '<span class="legacy" style="color:red">HTML文本</span>',
 ].join('\n')
 
+const RICH_WECHAT_PRESET_HTML = [
+  '<h1>微信排版视觉手测稿</h1>',
+  '<p>这是用于验证 <strong>12 个微信预设</strong> 预览与导出视觉差异的真实编辑器内容。</p>',
+  '<h2>核心结论</h2>',
+  '<p>微信正文需要保留标题色块、边框、背景、阴影、段落间距和字体层次。</p>',
+  '<blockquote><p>引用块用于验证大引号、边框、背景色与段落间距是否被保留。</p></blockquote>',
+  '<h3>小节观察</h3>',
+  '<p>这段文字用于 legal 首字下沉、thesis § 前缀、commentary 下划线、report 标题徽章等装饰检查。</p>',
+  '<hr>',
+  '<h2>行动清单</h2>',
+  '<ol><li><p>确认微信导出保留 previewCSS 的主要视觉效果。</p></li></ol>',
+  '<pre><code class="language-ts">const preset = "wechat"</code></pre>',
+  '<table><thead><tr><th>平台</th><th>关注点</th></tr></thead><tbody><tr><td>微信</td><td>previewCSS</td></tr></tbody></table>',
+].join('')
+
+const WECHAT_PRESET_IDS = [
+  'thesis',
+  'legal',
+  'report',
+  'commentary',
+  'aigc',
+  'code',
+  'notes',
+  'news',
+  'meme',
+  'life',
+  'elegant',
+  'tech',
+] as const
+
+function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
+  const preset = getPresetById(presetId)
+  expect(preset).toBeDefined()
+
+  return convertToWechatWithStats(RICH_WECHAT_PRESET_HTML, preset ?? getDefaultPreset(), {
+    enableReadingTime: false,
+    enableCiteStatus: false,
+    enableCodeHighlight: false,
+    enableCjkSpacing: false,
+    maxContentWidth: null,
+  }).html
+}
+
+function compactText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/\u202F/g, '')
+    .replace(/\s+/g, '')
+}
+
+function countText(text: string, needle: string): number {
+  return text.split(needle).length - 1
+}
+
 describe('platform native export rendering rules', () => {
   it('keeps WeChat HTML compatible with draft content sanitization and inline CSS rendering', () => {
     const preset = getDefaultPreset()
@@ -68,6 +124,40 @@ describe('platform native export rendering rules', () => {
     expect(result.html).toContain('max-width:100%')
     expect(result.html).toContain('border:1px solid #D8E2EC')
     expect(result.html).toContain('https://vite.dev')
+  })
+
+  it('keeps WeChat preset decorators as a single source of truth in final export HTML', () => {
+    const thesisText = compactText(exportWechatPresetHtml('thesis'))
+    expect(thesisText).toContain('第一章核心结论')
+    expect(thesisText).toContain('§小节观察')
+    expect(thesisText).toContain('···')
+    expect(thesisText).not.toMatch(/第一章第[一二三四五六七八九十0-9]+章/)
+    expect(thesisText).not.toContain('§§')
+
+    const legalText = compactText(exportWechatPresetHtml('legal'))
+    expect(legalText).toContain('§I.核心结论')
+    expect(legalText).not.toContain('第一章')
+    expect(legalText).not.toContain('““')
+    expect(countText(legalText, '“')).toBe(1)
+
+    const reportText = compactText(exportWechatPresetHtml('report'))
+    expect(reportText).toContain('01核心结论')
+    expect(reportText).toContain('01确认微信导出保留previewCSS')
+    expect(reportText).not.toContain('0101核心结论')
+
+    const commentaryText = compactText(exportWechatPresetHtml('commentary'))
+    expect(commentaryText).toContain('◆')
+    expect(commentaryText).not.toContain('““')
+    expect(countText(commentaryText, '“')).toBe(1)
+  })
+
+  it('does not leak raw CSS unicode escape codes from any WeChat preset export', () => {
+    for (const presetId of WECHAT_PRESET_IDS) {
+      const html = exportWechatPresetHtml(presetId)
+      expect(html, presetId).not.toMatch(/\b(?:201C|270F|2726)\b/i)
+    }
+
+    expect(compactText(exportWechatPresetHtml('notes'))).toContain('✏核心结论')
   })
 
   it('strips WeChat-unsupported CSS even when style values contain normal whitespace', () => {

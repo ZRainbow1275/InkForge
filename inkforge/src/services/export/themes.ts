@@ -1154,6 +1154,13 @@ export function getDefaultPreset(): ExportPreset {
 export function applyHeadingDecorations(html: string, preset: ExportPreset): string {
   let result = html
 
+  // Migrated dual-track presets use recipe/preset decorators as the single
+  // source of export-only HTML decoration. Keep the legacy path only for
+  // meme's strong highlighter, which is not represented by a recipe.
+  if (preset.decorate && preset.id !== 'meme') {
+    return result
+  }
+
   switch (preset.id) {
     case 'thesis':
       // Thesis decorations (第N章, § h3 prefix, · · · hr ornament) are now
