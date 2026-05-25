@@ -1478,92 +1478,29 @@ const deleteConfirmText = computed(() => {
           tag="div"
           class="fm-category-list"
         >
-        <div
-          v-for="node in fileTree"
-          :key="getCategoryKey(node)"
-          class="fm-category-node"
-          :class="[
-            `fm-mode-${viewMode}`,
-            { 'fm-node-bucket': !!node.bucket },
-          ]"
-        >
-          <!-- 分类行 -->
           <div
-            class="fm-category-row"
-            :class="{ 'fm-expanded': node.expanded }"
-            @click="toggleExpand(getCategoryKey(node))"
-            @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
+            v-for="node in fileTree"
+            :key="getCategoryKey(node)"
+            class="fm-category-node"
+            :class="[
+              `fm-mode-${viewMode}`,
+              { 'fm-node-bucket': !!node.bucket },
+            ]"
           >
-            <!-- 展开/折叠箭头 (flat 模式隐藏) -->
-            <svg
-              v-if="viewMode !== 'flat'"
-              class="fm-chevron"
-              :class="{ 'fm-chevron-open': node.expanded }"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-
-            <!-- 分类图标 -->
-            <component
-              :is="getCategoryIconComponent(node)"
-              class="fm-cat-icon"
-              :size="14"
-              :stroke-width="2"
-            />
-
-            <!-- 重命名模式 -->
-            <template v-if="renamingCategoryId === node.category?.id && node.category">
-              <input
-                ref="renameCategoryInputRef"
-                v-model="renameCategoryValue"
-                type="text"
-                class="fm-rename-input fm-rename-inline"
-                @keydown.enter="confirmRenameCategory"
-                @keydown.escape="cancelRenameCategory"
-                @blur="confirmRenameCategory"
-                @click.stop
-              >
-            </template>
-            <template v-else>
-              <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
-            </template>
-
-            <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
-          </div>
-
-          <!-- 分类下的文章列表（展开/折叠动画） -->
-          <div
-            class="fm-articles-wrap"
-            :class="{ 'fm-articles-expanded': node.expanded }"
-          >
-            <TransitionGroup
-              name="fm-list"
-              tag="div"
-              class="fm-articles-inner"
-            >
+            <!-- 分类行 -->
             <div
-              v-for="article in node.articles"
-              :key="article.id"
-              class="fm-article-row"
-              :class="{
-                'fm-article-active': selectedArticleId === article.id,
-              }"
-              @click="handleSelectArticle(article.id)"
-              @contextmenu="openArticleContextMenu($event, article.id)"
+              class="fm-category-row"
+              :class="{ 'fm-expanded': node.expanded }"
+              @click="toggleExpand(getCategoryKey(node))"
+              @contextmenu="openCategoryContextMenu($event, node.category?.id ?? null)"
             >
-              <!-- 文件图标 -->
+              <!-- 展开/折叠箭头 (flat 模式隐藏) -->
               <svg
-                class="fm-file-icon"
-                width="14"
-                height="14"
+                v-if="viewMode !== 'flat'"
+                class="fm-chevron"
+                :class="{ 'fm-chevron-open': node.expanded }"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -1571,41 +1508,104 @@ const deleteConfirmText = computed(() => {
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
+                <polyline points="9 18 15 12 9 6" />
               </svg>
 
+              <!-- 分类图标 -->
+              <component
+                :is="getCategoryIconComponent(node)"
+                class="fm-cat-icon"
+                :size="14"
+                :stroke-width="2"
+              />
+
               <!-- 重命名模式 -->
-              <template v-if="renamingArticleId === article.id">
+              <template v-if="renamingCategoryId === node.category?.id && node.category">
                 <input
-                  ref="renameInputRef"
-                  v-model="renameValue"
+                  ref="renameCategoryInputRef"
+                  v-model="renameCategoryValue"
                   type="text"
                   class="fm-rename-input fm-rename-inline"
-                  @keydown.enter="confirmRenameArticle"
-                  @keydown.escape="cancelRenameArticle"
-                  @blur="confirmRenameArticle"
+                  @keydown.enter="confirmRenameCategory"
+                  @keydown.escape="cancelRenameCategory"
+                  @blur="confirmRenameCategory"
                   @click.stop
                 >
               </template>
               <template v-else>
-                <span class="fm-article-title">{{ article.title }}</span>
+                <span class="fm-cat-name">{{ getCategoryLabel(node) }}</span>
               </template>
 
-              <!-- 状态标记 -->
-              <span
-                class="fm-status"
-                :class="getStatusClass(article.status)"
-              >
-                {{ getStatusLabel(article.status) }}
-              </span>
-
-              <!-- 更新时间 -->
-              <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
+              <span class="fm-cat-count">({{ getArticleCount(node) }})</span>
             </div>
-            </TransitionGroup>
+
+            <!-- 分类下的文章列表（展开/折叠动画） -->
+            <div
+              class="fm-articles-wrap"
+              :class="{ 'fm-articles-expanded': node.expanded }"
+            >
+              <TransitionGroup
+                name="fm-list"
+                tag="div"
+                class="fm-articles-inner"
+              >
+                <div
+                  v-for="article in node.articles"
+                  :key="article.id"
+                  class="fm-article-row"
+                  :class="{
+                    'fm-article-active': selectedArticleId === article.id,
+                  }"
+                  @click="handleSelectArticle(article.id)"
+                  @contextmenu="openArticleContextMenu($event, article.id)"
+                >
+                  <!-- 文件图标 -->
+                  <svg
+                    class="fm-file-icon"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+
+                  <!-- 重命名模式 -->
+                  <template v-if="renamingArticleId === article.id">
+                    <input
+                      ref="renameInputRef"
+                      v-model="renameValue"
+                      type="text"
+                      class="fm-rename-input fm-rename-inline"
+                      @keydown.enter="confirmRenameArticle"
+                      @keydown.escape="cancelRenameArticle"
+                      @blur="confirmRenameArticle"
+                      @click.stop
+                    >
+                  </template>
+                  <template v-else>
+                    <span class="fm-article-title">{{ article.title }}</span>
+                  </template>
+
+                  <!-- 状态标记 -->
+                  <span
+                    class="fm-status"
+                    :class="getStatusClass(article.status)"
+                  >
+                    {{ getStatusLabel(article.status) }}
+                  </span>
+
+                  <!-- 更新时间 -->
+                  <span class="fm-article-time">{{ formatRelativeTime(article.updatedAt) }}</span>
+                </div>
+              </TransitionGroup>
+            </div>
           </div>
-        </div>
         </TransitionGroup>
       </template>
     </div>
@@ -1825,9 +1825,9 @@ const deleteConfirmText = computed(() => {
                     <span>未分类</span>
                   </button>
                   <button
-                    type="button"
                     v-for="cat in categories"
                     :key="cat.id"
+                    type="button"
                     class="fm-ctx-item"
                     @click="ctxMoveToCategory(cat.id)"
                   >

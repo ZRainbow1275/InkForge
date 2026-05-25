@@ -320,11 +320,11 @@ import { computeDiff } from '@/composables/useVersionManager'
                 ({{ selectedForDiff.length }}/2)
               </span>
             </span>
-          <button
-            type="button"
-            class="diff-execute-btn"
-            :disabled="selectedForDiff.length !== 2"
-            @click="performDiff"
+            <button
+              type="button"
+              class="diff-execute-btn"
+              :disabled="selectedForDiff.length !== 2"
+              @click="performDiff"
             >
               <ChevronRight :size="12" />
               对比
@@ -426,18 +426,18 @@ import { computeDiff } from '@/composables/useVersionManager'
               <span class="diff-removed">-{{ switchDiffSummary.removedCount }} 行</span>
             </div>
             <div class="confirm-actions">
-        <button
-          type="button"
-          class="confirm-cancel-btn"
-          @click="cancelSwitch"
-        >
+              <button
+                type="button"
+                class="confirm-cancel-btn"
+                @click="cancelSwitch"
+              >
                 取消
               </button>
-        <button
-          type="button"
-          class="confirm-ok-btn"
-          @click="confirmSwitch"
-        >
+              <button
+                type="button"
+                class="confirm-ok-btn"
+                @click="confirmSwitch"
+              >
                 确认切换
               </button>
             </div>

@@ -48,9 +48,21 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id="trend-empty-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="rgba(211, 47, 47, 0.10)" />
-            <stop offset="100%" stop-color="rgba(211, 47, 47, 0)" />
+          <linearGradient
+            id="trend-empty-fill"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
+            <stop
+              offset="0%"
+              stop-color="rgba(211, 47, 47, 0.10)"
+            />
+            <stop
+              offset="100%"
+              stop-color="rgba(211, 47, 47, 0)"
+            />
           </linearGradient>
         </defs>
         <path
@@ -67,7 +79,10 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
         />
       </svg>
       <p class="trend-empty-hint">
-        <TrendingUp :size="14" :stroke-width="2" />
+        <TrendingUp
+          :size="14"
+          :stroke-width="2"
+        />
         <span>开始写作后将聚合每日字数</span>
       </p>
     </div>

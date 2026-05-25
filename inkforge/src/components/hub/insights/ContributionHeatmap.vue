@@ -51,10 +51,16 @@ function getLevel(day: HeatmapDay): number {
       <footer class="heatmap-footer">
         <span class="heatmap-summary">
           <strong>{{ activeDays }}</strong>/{{ days.length }} 天活跃
-          <span class="heatmap-summary-divider" aria-hidden="true">·</span>
+          <span
+            class="heatmap-summary-divider"
+            aria-hidden="true"
+          >·</span>
           {{ totalArticles }} 篇 · {{ totalWords }} 字
         </span>
-        <span class="heatmap-scale" aria-hidden="true">
+        <span
+          class="heatmap-scale"
+          aria-hidden="true"
+        >
           <span class="heatmap-scale-label">少</span>
           <i class="heatmap-cell heatmap-cell--legend level-0" />
           <i class="heatmap-cell heatmap-cell--legend level-1" />

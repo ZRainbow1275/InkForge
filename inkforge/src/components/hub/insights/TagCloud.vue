@@ -79,7 +79,10 @@ function fontSizeFor(item: TagCloudItem): string {
         >{{ item.tag }}</span>
       </div>
       <p class="tag-empty-hint">
-        <Tag :size="13" :stroke-width="2" />
+        <Tag
+          :size="13"
+          :stroke-width="2"
+        />
         <span>为文档添加标签后将展示真实标签云</span>
       </p>
     </div>
