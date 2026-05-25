@@ -372,6 +372,242 @@ const h2BlockRibbon: DecorationRecipe = {
 }
 
 // ════════════════════════════════════════════════════════════════════════
+// Preset-specific decorate helpers
+// ════════════════════════════════════════════════════════════════════════
+// These functions handle pseudo-element effects that are unique to a
+// single preset and are NOT covered by the generic recipe system above.
+// They follow the same contract: idempotent, regex-based, skip preview.
+
+/**
+ * THESIS — h3::before { content: '§ ' }
+ * Injects a section-mark span before h3 text content.
+ */
+export function decorateThesisH3Section(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-thesis-h3s"')) return html
+  return html.replace(
+    /<h3(\s[^>]*)?>([\s\S]*?)<\/h3>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      const a = attrs ?? ''
+      return `<h3${a}><span class="ink-thesis-h3s" style="color:#8a7659;font-weight:400;font-style:normal;">§ </span>${content}</h3>`
+    },
+  )
+}
+
+/**
+ * THESIS — hr::before { content: '· · ·' }
+ * Replaces <hr> with a centered ornamental dots divider.
+ */
+export function decorateThesisHrDots(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-thesis-hr"')) return html
+  return html.replace(
+    /<hr\s*\/?>/gi,
+    '<div class="ink-thesis-hr" style="text-align:center;margin:2em 0;color:#8a7659;letter-spacing:1em;font-size:1.2em;">· · ·</div>',
+  )
+}
+
+/**
+ * LEGAL — p:first-of-type::first-letter drop cap
+ * Wraps the first character of the first paragraph in a drop-cap span.
+ */
+export function decorateLegalDropCap(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-legal-dc"')) return html
+  return html.replace(
+    /<p(\s[^>]*)?>(\s*)([一-鿿㐀-䶿A-Za-z])/,
+    (match, attrs: string | undefined, ws: string, char: string) => {
+      if (match.includes('class="ink-legal-dc"')) return match
+      const a = attrs ?? ''
+      return `<p${a}>${ws}<span class="ink-legal-dc" style="font-family:'EB Garamond','Crimson Pro',Georgia,serif;font-size:3em;font-weight:700;float:left;line-height:0.9;margin:0.05em 0.12em -0.05em 0;color:#1a1a2e;">${char}</span>`
+    },
+  )
+}
+
+/**
+ * LEGAL — h2::before { content: '§ ' counter(legal-section, upper-roman) '. ' }
+ * Injects incrementing Roman numeral section marks before each h2.
+ */
+export function decorateLegalH2Roman(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-legal-h2r"')) return html
+  const toRoman = (n: number): string => {
+    const pairs: [number, string][] = [
+      [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+      [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+      [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
+    ]
+    let result = ''
+    let remaining = n
+    for (const [value, numeral] of pairs) {
+      while (remaining >= value) {
+        result += numeral
+        remaining -= value
+      }
+    }
+    return result
+  }
+  let counter = 0
+  return html.replace(
+    /<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      counter += 1
+      const a = attrs ?? ''
+      const label = `§ ${toRoman(counter)}. `
+      return `<h2${a}><span class="ink-legal-h2r" style="font-family:'EB Garamond',Georgia,serif;font-weight:400;margin-right:0.3em;color:#3d3d52;">${label}</span>${content}</h2>`
+    },
+  )
+}
+
+/**
+ * LEGAL — blockquote::before { content: '"' }
+ * Injects a large opening quote mark into each blockquote.
+ */
+export function decorateLegalBlockquote(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  return html.replace(
+    /<blockquote(\s[^>]*)?>([\s\S]*?)<\/blockquote>/gi,
+    (match, attrs: string | undefined, body: string) => {
+      if (body.includes('class="ink-legal-qm"')) return match
+      const a = attrs ?? ''
+      const injected = body.replace(
+        /(<p(?:\s[^>]*)?>)(\s*)/,
+        (_m: string, openTag: string, ws: string) =>
+          `${openTag}${ws}<span class="ink-legal-qm" style="font-family:'EB Garamond',Georgia,serif;font-size:2.5em;color:#1a1a2e;line-height:0;vertical-align:-0.4em;margin-right:0.1em;opacity:0.4;">“</span>`,
+      )
+      return `<blockquote${a}>${injected}</blockquote>`
+    },
+  )
+}
+
+/**
+ * REPORT — h1::after { content:''; display:block; width:60px; height:3px; background:#004080 }
+ * Appends an underline accent bar after h1 content.
+ */
+export function decorateReportH1Bar(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-report-h1b"')) return html
+  return html.replace(
+    /<h1(\s[^>]*)?>([\s\S]*?)<\/h1>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      const a = attrs ?? ''
+      return `<h1${a}>${content}<span class="ink-report-h1b" style="display:block;width:60px;height:3px;background:#004080;margin-top:0.4em;"></span></h1>`
+    },
+  )
+}
+
+/**
+ * REPORT — h2::before with counter(report-h2, decimal-leading-zero) badge
+ * Injects incrementing 01, 02, ... numbered badge spans before each h2.
+ */
+export function decorateReportH2Badge(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-report-h2n"')) return html
+  let counter = 0
+  return html.replace(
+    /<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      counter += 1
+      const a = attrs ?? ''
+      const label = String(counter).padStart(2, '0')
+      return `<h2${a}><span class="ink-report-h2n" style="font-family:'Inter',sans-serif;font-weight:800;color:#fff;background:#004080;padding:0.1em 0.5em;font-size:0.7em;border-radius:3px;letter-spacing:0.05em;margin-right:0.6em;display:inline-block;">${label}</span>${content}</h2>`
+    },
+  )
+}
+
+/**
+ * REPORT — ol li::before { content: counter(report-li, decimal-leading-zero) }
+ * Injects zero-padded numbers before each <li> inside <ol>.
+ */
+export function decorateReportOlNumbers(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-report-oln"')) return html
+  // Process each <ol>...</ol> block independently so counters reset per list.
+  return html.replace(
+    /<ol(\s[^>]*)?>([\s\S]*?)<\/ol>/gi,
+    (match, olAttrs: string | undefined, olBody: string) => {
+      if (olBody.includes('class="ink-report-oln"')) return match
+      let liCounter = 0
+      const processed = olBody.replace(
+        /<li(\s[^>]*)?>([\s\S]*?)<\/li>/gi,
+        (_m: string, liAttrs: string | undefined, liContent: string) => {
+          liCounter += 1
+          const la = liAttrs ?? ''
+          const num = String(liCounter).padStart(2, '0')
+          return `<li${la}><span class="ink-report-oln" style="color:#004080;font-family:'Inter',sans-serif;font-weight:700;font-size:0.95em;margin-right:0.5em;">${num}</span>${liContent}</li>`
+        },
+      )
+      const oa = olAttrs ?? ''
+      return `<ol${oa}>${processed}</ol>`
+    },
+  )
+}
+
+/**
+ * COMMENTARY — h1::after { content:''; display:block; width:80px; height:5px; background:#c0392b }
+ * Appends a red accent bar after h1 content.
+ */
+export function decorateCommentaryH1Bar(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-comm-h1b"')) return html
+  return html.replace(
+    /<h1(\s[^>]*)?>([\s\S]*?)<\/h1>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      const a = attrs ?? ''
+      return `<h1${a}>${content}<span class="ink-comm-h1b" style="display:block;width:80px;height:5px;background:#c0392b;margin-top:0.4em;"></span></h1>`
+    },
+  )
+}
+
+/**
+ * COMMENTARY — h2::before { content:''; left vertical bar }
+ * Injects a colored bar span before h2 content.
+ * Since position:absolute is WeChat-unsupported, we use a simple inline
+ * border-left approach instead (the preset exportCSS already sets
+ * padding-left on h2 — this span provides the visual marker).
+ */
+export function decorateCommentaryH2Bar(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-comm-h2b"')) return html
+  return html.replace(
+    /<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      const a = attrs ?? ''
+      return `<h2${a}><span class="ink-comm-h2b" style="display:inline-block;width:6px;height:0.9em;background:#c0392b;margin-right:0.5em;vertical-align:baseline;border-radius:1px;"></span>${content}</h2>`
+    },
+  )
+}
+
+/**
+ * COMMENTARY — h3::after { content:''; display:block; width:28px; height:2px; background:#c0392b }
+ * Appends a short red underline after h3 content.
+ */
+export function decorateCommentaryH3Line(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-comm-h3l"')) return html
+  return html.replace(
+    /<h3(\s[^>]*)?>([\s\S]*?)<\/h3>/gi,
+    (_match: string, attrs: string | undefined, content: string) => {
+      const a = attrs ?? ''
+      return `<h3${a}>${content}<span class="ink-comm-h3l" style="display:block;width:28px;height:2px;background:#c0392b;margin-top:0.3em;"></span></h3>`
+    },
+  )
+}
+
+/**
+ * COMMENTARY — hr::after { content:'◆' } diamond ornament
+ * Replaces <hr> with a centered diamond ornament on a red rule.
+ */
+export function decorateCommentaryHrDiamond(html: string, target: ExportTarget): string {
+  if (target === 'preview') return html
+  if (html.includes('class="ink-comm-hrd"')) return html
+  return html.replace(
+    /<hr\s*\/?>/gi,
+    '<div class="ink-comm-hrd" style="text-align:center;margin:2.4em 0;border-top:3px solid #c0392b;position:relative;"><span style="display:inline-block;color:#c0392b;background:#ffffff;padding:0 0.6em;font-size:0.9em;position:relative;top:-0.6em;">◆</span></div>',
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════
 // Registry + composer
 // ════════════════════════════════════════════════════════════════════════
 
@@ -409,4 +645,17 @@ export function composeRecipes(ids: string[], options: ComposeOptions): Composed
   const decorate = (html: string, target: ExportTarget): string =>
     recipes.reduce((current, recipe) => (recipe.decorate ? recipe.decorate(current, target) : current), html)
   return { css, decorate }
+}
+
+/** Decorate function signature used by presets. */
+export type DecorateFn = (html: string, target: ExportTarget) => string
+
+/**
+ * Chain multiple decorate functions into one. Functions are applied
+ * left-to-right (first function in the array runs first). Each function
+ * receives the output of the previous one.
+ */
+export function chainDecorators(...fns: DecorateFn[]): DecorateFn {
+  return (html: string, target: ExportTarget): string =>
+    fns.reduce((current, fn) => fn(current, target), html)
 }

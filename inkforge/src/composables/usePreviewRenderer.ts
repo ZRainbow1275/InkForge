@@ -223,32 +223,30 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           isSample: isEmptyBody,
         }
       } else {
-        const { convertToPlatform } = await import('@/services/export')
+        // wechat: mock 渲染器 — 对齐 xhs/zhihu 架构
+        // 注入 previewCSS 为 <style> 块，浏览器原生渲染伪元素/counter/字体
+        const { renderMarkdownWithLazyOptionalEnhancements } = await import(
+          '@/services/rendering/lazy-optional-renderer'
+        )
+        const { getPresetById, generateThemeCSS } = await import('@/services/export')
+        const { renderWechatMockHtml } = await import(
+          '@/services/export/preview-fidelity/wechat-mock'
+        )
+
+        const renderedHtml = await renderMarkdownWithLazyOptionalEnhancements(body)
         if (isStale()) return
-        const result = await convertToPlatform(body, platform, {
-          presetId,
-          exportOptions: {
-            enableMacCodeBlock: exportSettings.macCodeBlock as boolean | undefined,
-            enableLineNumbers: exportSettings.lineNumbers as boolean | undefined,
-            enableCiteStatus: exportSettings.convertFootnotes as boolean | undefined,
-            enableTextIndent: exportSettings.textIndent as boolean | undefined,
-            codeTheme: exportSettings.codeTheme as
-              | 'atom-one-dark'
-              | 'atom-one-light'
-              | 'github-dark'
-              | 'github-light'
-              | 'monokai'
-              | 'vs2015'
-              | 'dracula'
-              | undefined,
-          },
-          overrides: {
+
+        const preset = presetId ? getPresetById(presetId) : undefined
+        const wechatThemeCSS = preset ? generateThemeCSS(preset, 'preview') : undefined
+
+        previewHtml.value = renderWechatMockHtml(
+          { html: renderedHtml },
+          {
+            presetId,
             primaryColor,
-            fontFamily: appearance.fontFamily,
-          },
-        })
-        if (isStale()) return
-        previewHtml.value = result
+            themeCSS: wechatThemeCSS,
+          }
+        )
         previewMeta.value = { platform: 'wechat', isSample: isEmptyBody }
       }
     } catch {

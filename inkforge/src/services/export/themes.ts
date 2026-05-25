@@ -5,7 +5,22 @@
 import type { ExportPreset, ExportTarget } from '@/types'
 import { DEFAULT_PRESET_ID, FONT_STACKS } from '@/constants'
 import { PERSONA_FONTS, generatePersonaBaseCSS } from './preset-fonts'
-import { composeRecipes } from './preset-decorations'
+import {
+  composeRecipes,
+  chainDecorators,
+  decorateThesisH3Section,
+  decorateThesisHrDots,
+  decorateLegalDropCap,
+  decorateLegalH2Roman,
+  decorateLegalBlockquote,
+  decorateReportH1Bar,
+  decorateReportH2Badge,
+  decorateReportOlNumbers,
+  decorateCommentaryH1Bar,
+  decorateCommentaryH2Bar,
+  decorateCommentaryH3Line,
+  decorateCommentaryHrDiamond,
+} from './preset-decorations'
 
 // ─── PR3: persona+recipe composers for the 5 migrated presets ──────────
 // Each pair (preview + export) is generated once and reused inside the
@@ -375,7 +390,11 @@ ${thesisRecipesPreview.css}`,
 #nice blockquote { background: #f4f1ec; border-left: 3px solid #5a4a3c; padding: 0.8em 1.2em; color: #2a2a2a; }
 #nice table th { background: #5a4a3c; color: #fff; }
 ${thesisRecipesExport.css}`,
-    decorate: (html: string, target: ExportTarget): string => thesisRecipesExport.decorate(html, target),
+    decorate: chainDecorators(
+      thesisRecipesExport.decorate,
+      decorateThesisH3Section,
+      decorateThesisHrDots,
+    ),
     customCSS: `
       #nice { background: #faf9f6; }
       #nice h2 { text-align: center; font-variant: small-caps; letter-spacing: 2px; border-bottom: 1px solid #8B0000; padding-bottom: 12px; margin-bottom: 24px; }
@@ -429,7 +448,11 @@ ${legalRecipesPreview.css}`,
 #nice table th { background: #1a1a2e; color: #fff; }
 #nice table td { border-color: #d0d0c8; }
 ${legalRecipesExport.css}`,
-    decorate: (html: string, target: ExportTarget): string => legalRecipesExport.decorate(html, target),
+    decorate: chainDecorators(
+      decorateLegalDropCap,
+      decorateLegalH2Roman,
+      decorateLegalBlockquote,
+    ),
     customCSS: `
       #nice h2 { border-bottom: 2px solid #1A3A5C; padding-bottom: 8px; color: #1A3A5C; }
       #nice h3 { border-left: 4px solid #4A7C59; padding-left: 12px; }
@@ -484,7 +507,12 @@ ${reportRecipesPreview.css}`,
 #nice table td { border-color: #E6ECF2; }
 #nice a { color: #004080; }
 ${reportRecipesExport.css}`,
-    decorate: (html: string, target: ExportTarget): string => reportRecipesExport.decorate(html, target),
+    decorate: chainDecorators(
+      reportRecipesExport.decorate,
+      decorateReportH1Bar,
+      decorateReportH2Badge,
+      decorateReportOlNumbers,
+    ),
     customCSS: `
       #nice h2 { color: #004080; font-weight: 700; letter-spacing: -0.2px; border-bottom: 1px solid #D6DEE6; padding-bottom: 6px; margin-top: 32px; }
       #nice h3 { color: #1A3A5C; font-weight: 600; }
@@ -537,7 +565,13 @@ ${commentaryRecipesPreview.css}`,
 #nice strong { color: #c0392b; font-weight: 700; }
 #nice hr { border: 0; border-top: 2px solid #c0392b; margin: 2.4em 0; }
 ${commentaryRecipesExport.css}`,
-    decorate: (html: string, target: ExportTarget): string => commentaryRecipesExport.decorate(html, target),
+    decorate: chainDecorators(
+      commentaryRecipesExport.decorate,
+      decorateCommentaryH1Bar,
+      decorateCommentaryH2Bar,
+      decorateCommentaryH3Line,
+      decorateCommentaryHrDiamond,
+    ),
     customCSS: `
       #nice h2 { color: #C00000; font-weight: 900; font-size: 22px; margin-top: 32px; }
       #nice strong { color: #C00000; font-weight: 900; }
@@ -545,7 +579,7 @@ ${commentaryRecipesExport.css}`,
       #nice hr { border-top: 2px solid #C00000; margin: 32px 0; }
     `
   },
-  // AIGC: 科技理性, 思源黑体 + Inter, h3 竖条 + ornament HR; 科技蓝
+  // AIGC: 科技商务, 思源黑体 + Inter, h3 竖条 + ornament HR; 数据蓝
   {
     id: 'aigc',
     name: 'AIGC',
@@ -560,21 +594,45 @@ ${commentaryRecipesExport.css}`,
     persona: 'business',
     fonts: PERSONA_FONTS.business,
     previewCSS: `${businessBaseCSS}
-#nice { --ink-accent: #2563eb; }
-#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; }
-#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.6em; padding-left: 0; border-left: none; }
-#nice strong { color: #2563eb; }
-#nice code { background: rgba(37,99,235,0.08); color: #2563eb; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice blockquote { border-left: 3px solid #2563eb; background: rgba(37,99,235,0.04); padding: 0.8em 1.2em; border-radius: 0 4px 4px 0; }
-#nice a { color: #2563eb; }
+#nice { --ink-accent: #2563eb; font-family: 'Inter', 'Source Han Sans SC', 'IBM Plex Sans CN', 'Noto Sans SC', 'PingFang SC', sans-serif; background: #ffffff; color: #1a1a1a; counter-reset: aigc-h2; }
+#nice p { line-height: 1.75; margin-bottom: 0.95em; }
+#nice h1 { font-size: 2.1em; font-weight: 800; margin: 0.2em 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; line-height: 1.25; padding: 0.5em 0.8em; background: #EFF6FF; border-left: 5px solid #2563eb; }
+#nice h1::after { content: ''; display: block; margin-top: 0.4em; width: 80px; height: 3px; background: linear-gradient(90deg, #2563eb, #06b6d4); }
+#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.8em; font-size: 1.4em; padding-bottom: 0.3em; border-bottom: 2px solid #2563eb; padding-left: 0; border-left: none; counter-increment: aigc-h2; }
+#nice h2::before { content: '0' counter(aigc-h2); font-family: 'Inter', 'JetBrains Mono', monospace; font-weight: 800; color: #fff; background: #2563eb; padding: 0.1em 0.5em; font-size: 0.7em; border-radius: 3px; margin-right: 0.6em; letter-spacing: 0.05em; }
+#nice h3 { color: #1e40af; font-weight: 600; font-size: 1.15em; margin-top: 1.4em; padding-left: 0.7em; border-left: 3px solid #2563eb; text-transform: uppercase; letter-spacing: 0.03em; }
+#nice h4 { color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.92em; }
+#nice strong { color: #2563eb; font-weight: 700; }
+#nice em { font-family: 'Inter', 'Source Han Sans SC', sans-serif; font-style: italic; color: #1e40af; }
+#nice code { font-family: 'JetBrains Mono', 'Inter', monospace; background: #1e293b; color: #93c5fd; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #1e293b; border-radius: 6px; padding: 1em; border: 1px solid #334155; }
+#nice pre code { color: #e2e8f0; background: transparent; }
+#nice blockquote { border-left: 4px solid #2563eb; background: #EFF6FF; padding: 1em 1.3em; color: #1e40af; border-radius: 0 4px 4px 0; }
+#nice blockquote p { line-height: 1.7; }
+#nice ul li::marker { color: #2563eb; content: '▸ '; }
+#nice ol li::marker { color: #2563eb; font-weight: 700; font-family: 'Inter', monospace; }
+#nice a { color: #2563eb; border-bottom: 1px solid #93c5fd; text-decoration: none; }
+#nice hr { border: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #2563eb 60px, #E2E8F0 60px, #E2E8F0); margin: 2em 0; }
+#nice table th { background: #2563eb; color: #fff; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; font-size: 0.88em; }
+#nice table td { border-color: #E2E8F0; }
 ${aigcRecipesPreview.css}`,
     exportCSS: `${businessBaseCSS}
-#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; }
-#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.6em; padding-left: 0; border-left: none; }
-#nice strong { color: #2563eb; }
-#nice code { background: rgba(37,99,235,0.08); color: #2563eb; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice blockquote { border-left: 3px solid #2563eb; background: rgba(37,99,235,0.04); padding: 0.8em 1.2em; border-radius: 0 4px 4px 0; }
-#nice a { color: #2563eb; }
+#nice { font-family: 'Inter', 'Source Han Sans SC', 'IBM Plex Sans CN', 'Noto Sans SC', 'PingFang SC', sans-serif; background: #ffffff; color: #1a1a1a; }
+#nice p { line-height: 1.75; margin-bottom: 0.95em; }
+#nice h1 { font-size: 2.1em; font-weight: 800; margin: 0.2em 0 0.6em; color: #1a1a1a; letter-spacing: -0.01em; line-height: 1.25; padding: 0.5em 0.8em; background: #EFF6FF; border-left: 5px solid #2563eb; }
+#nice h2 { color: #2563eb; font-weight: 700; margin-top: 1.8em; font-size: 1.4em; padding-bottom: 0.3em; border-bottom: 2px solid #2563eb; padding-left: 0; border-left: none; }
+#nice h3 { color: #1e40af; font-weight: 600; font-size: 1.15em; margin-top: 1.4em; padding-left: 0.7em; border-left: 3px solid #2563eb; letter-spacing: 0.03em; }
+#nice h4 { color: #475569; font-weight: 600; letter-spacing: 0.08em; font-size: 0.92em; }
+#nice strong { color: #2563eb; font-weight: 700; }
+#nice em { font-style: italic; color: #1e40af; }
+#nice code { font-family: 'JetBrains Mono', 'Inter', monospace; background: #1e293b; color: #93c5fd; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #1e293b; border-radius: 6px; padding: 1em; border: 1px solid #334155; }
+#nice pre code { color: #e2e8f0; background: transparent; }
+#nice blockquote { border-left: 4px solid #2563eb; background: #EFF6FF; padding: 1em 1.3em; color: #1e40af; border-radius: 0 4px 4px 0; }
+#nice a { color: #2563eb; border-bottom: 1px solid #93c5fd; text-decoration: none; }
+#nice hr { border: 0; height: 3px; background: #2563eb; margin: 2em 0; }
+#nice table th { background: #2563eb; color: #fff; font-weight: 700; letter-spacing: 0.03em; font-size: 0.88em; }
+#nice table td { border-color: #E2E8F0; }
 ${aigcRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => aigcRecipesExport.decorate(html, target),
     customCSS: `
@@ -599,28 +657,44 @@ ${aigcRecipesExport.css}`,
     persona: 'creative',
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
-#nice { --ink-accent: #16a34a; font-family: 'JetBrains Mono', 'Source Han Sans SC', 'Maple Mono CN', monospace; }
-#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0 0 0.6em; letter-spacing: -0.01em; }
-#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.6em; }
-#nice h3 { color: #16a34a; font-weight: 600; }
-#nice strong { color: #16a34a; }
-#nice code { background: rgba(22,163,74,0.08); color: #15803d; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
-#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; }
+#nice { --ink-accent: #16a34a; font-family: 'JetBrains Mono', 'Source Han Sans SC', 'Maple Mono CN', monospace; background: #fafffe; color: #1a1a1a; }
+#nice p { line-height: 1.8; margin-bottom: 1em; letter-spacing: 0.01em; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0.2em 0 0.6em; letter-spacing: -0.01em; border-bottom: 2px dashed #16a34a; padding-bottom: 0.3em; font-family: 'JetBrains Mono', monospace; }
+#nice h1::before { content: '# '; color: #16a34a; opacity: 0.5; }
+#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.8em; font-size: 1.35em; font-family: 'JetBrains Mono', monospace; }
+#nice h2::before { content: '// '; color: #16a34a; opacity: 0.4; font-weight: 400; }
+#nice h3 { color: #15803d; font-weight: 600; font-size: 1.1em; margin-top: 1.3em; font-family: 'JetBrains Mono', monospace; }
+#nice h3::before { content: '> '; color: #16a34a; opacity: 0.4; font-weight: 400; }
+#nice strong { color: #16a34a; font-weight: 700; background: rgba(22,163,74,0.08); padding: 0.05em 0.2em; border-radius: 2px; }
+#nice em { font-style: italic; color: #6b7280; }
+#nice code { font-family: 'JetBrains Mono', 'Fira Code', monospace; background: #0d1117; color: #7ee787; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; border: 1px solid #30363d; }
 #nice pre code { color: #c9d1d9; background: transparent; }
-#nice blockquote { border-top: 2px solid #16a34a; border-bottom: 2px solid #16a34a; background: transparent; padding: 1em 0; }
-#nice a { color: #16a34a; }
+#nice blockquote { border-left: 4px solid #16a34a; background: #0d1117; padding: 1em 1.3em; color: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 0.95em; border-radius: 0 4px 4px 0; }
+#nice blockquote p { line-height: 1.7; }
+#nice ul li::marker { color: #16a34a; content: '- '; }
+#nice ol li::marker { color: #16a34a; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+#nice a { color: #16a34a; border-bottom: 1px dashed #16a34a; text-decoration: none; }
+#nice hr { border: 0; border-top: 1px dashed #16a34a; margin: 2em 0; }
+#nice table th { background: #0d1117; color: #7ee787; font-weight: 700; font-family: 'JetBrains Mono', monospace; border-bottom: 2px solid #16a34a; }
+#nice table td { border-color: #30363d; font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 ${codeRecipesPreview.css}`,
     exportCSS: `${creativeBaseCSS}
-#nice { font-family: 'JetBrains Mono', 'Source Han Sans SC', monospace; }
-#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0 0 0.6em; letter-spacing: -0.01em; }
-#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.6em; }
-#nice h3 { color: #16a34a; font-weight: 600; }
-#nice strong { color: #16a34a; }
-#nice code { background: rgba(22,163,74,0.08); color: #15803d; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
-#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; }
+#nice { font-family: 'JetBrains Mono', 'Source Han Sans SC', monospace; background: #fafffe; color: #1a1a1a; }
+#nice p { line-height: 1.8; margin-bottom: 1em; letter-spacing: 0.01em; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #16a34a; margin: 0.2em 0 0.6em; letter-spacing: -0.01em; border-bottom: 2px dashed #16a34a; padding-bottom: 0.3em; }
+#nice h2 { color: #16a34a; font-weight: 700; margin-top: 1.8em; font-size: 1.35em; }
+#nice h3 { color: #15803d; font-weight: 600; font-size: 1.1em; margin-top: 1.3em; }
+#nice strong { color: #16a34a; font-weight: 700; background: rgba(22,163,74,0.08); padding: 0.05em 0.2em; border-radius: 2px; }
+#nice em { font-style: italic; color: #6b7280; }
+#nice code { font-family: 'JetBrains Mono', 'Fira Code', monospace; background: #0d1117; color: #7ee787; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #0d1117; border-radius: 6px; padding: 1em; border: 1px solid #30363d; }
 #nice pre code { color: #c9d1d9; background: transparent; }
-#nice blockquote { border-top: 2px solid #16a34a; border-bottom: 2px solid #16a34a; background: transparent; padding: 1em 0; }
-#nice a { color: #16a34a; }
+#nice blockquote { border-left: 4px solid #16a34a; background: #0d1117; padding: 1em 1.3em; color: #8b949e; font-size: 0.95em; border-radius: 0 4px 4px 0; }
+#nice a { color: #16a34a; border-bottom: 1px dashed #16a34a; text-decoration: none; }
+#nice hr { border: 0; border-top: 1px dashed #16a34a; margin: 2em 0; }
+#nice table th { background: #0d1117; color: #7ee787; font-weight: 700; border-bottom: 2px solid #16a34a; }
+#nice table td { border-color: #30363d; font-size: 0.92em; }
 ${codeRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => codeRecipesExport.decorate(html, target),
     customCSS: `
@@ -651,24 +725,37 @@ ${codeRecipesExport.css}`,
     persona: 'lifestyle',
     fonts: PERSONA_FONTS.lifestyle,
     previewCSS: `${lifestyleBaseCSS}
-#nice { --ink-accent: #d2691e; background: #fdfaf3; }
-#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0 0 0.6em; }
-#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 6px 12px; background: #fcf4e4; border-radius: 4px; border-left: 4px solid #d2691e; }
-#nice h3 { color: #a0522d; font-weight: 600; }
-#nice strong { color: #d2691e; }
-#nice code { background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice table th { background: #d2691e; color: #fff; }
-#nice a { color: #d2691e; }
+#nice { --ink-accent: #d2691e; font-family: 'LXGW WenKai Lite', 'LXGW WenKai', 'Kaiti SC', 'Fraunces', serif; background: #fdfaf3; color: #3d2b1f; }
+#nice p { line-height: 2.0; margin-bottom: 1.1em; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0.2em 0 0.6em; text-align: center; letter-spacing: 0.04em; }
+#nice h1::after { content: ''; display: block; width: 60px; height: 2px; background: #d2691e; margin: 0.5em auto 0; opacity: 0.6; }
+#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 0.4em 0.8em; background: #fcf4e4; border-radius: 6px; border-left: 4px solid #d2691e; font-size: 1.3em; }
+#nice h2::before { content: '\\270F '; font-size: 0.85em; opacity: 0.6; }
+#nice h3 { color: #a0522d; font-weight: 600; font-style: italic; font-size: 1.12em; margin-top: 1.3em; }
+#nice strong { color: #d2691e; font-weight: 700; background: rgba(255,248,220,0.7); padding: 0.05em 0.25em; border-radius: 3px; }
+#nice em { font-family: 'LXGW WenKai Lite', 'Fraunces', serif; font-style: italic; color: #8b6914; }
+#nice code { font-family: 'LXGW WenKai Lite', monospace; background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 4px; }
+#nice blockquote { border-left: 4px solid #d2691e; background: #FFF8DC; padding: 1em 1.3em; color: #5a3a1c; border-radius: 0 8px 8px 0; font-style: italic; }
+#nice blockquote p { line-height: 1.85; }
+#nice ul li::marker { color: #d2691e; }
+#nice ol li::marker { color: #d2691e; font-weight: 600; }
+#nice a { color: #d2691e; border-bottom: 1px solid #e6c9a8; text-decoration: none; }
+#nice table th { background: #d2691e; color: #fff; font-weight: 600; }
+#nice table td { border-color: #e6d5c3; }
 ${notesRecipesPreview.css}`,
     exportCSS: `${lifestyleBaseCSS}
-#nice { background: #fdfaf3; }
-#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0 0 0.6em; }
-#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 6px 12px; background: #fcf4e4; border-radius: 4px; border-left: 4px solid #d2691e; }
-#nice h3 { color: #a0522d; font-weight: 600; }
-#nice strong { color: #d2691e; }
-#nice code { background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice table th { background: #d2691e; color: #fff; }
-#nice a { color: #d2691e; }
+#nice { font-family: 'LXGW WenKai Lite', 'LXGW WenKai', 'Kaiti SC', 'Fraunces', serif; background: #fdfaf3; color: #3d2b1f; }
+#nice p { line-height: 2.0; margin-bottom: 1.1em; }
+#nice h1 { font-size: 2em; font-weight: 700; color: #5a3a1c; margin: 0.2em 0 0.6em; text-align: center; letter-spacing: 0.04em; }
+#nice h2 { color: #d2691e; font-weight: 600; margin-top: 1.6em; padding: 0.4em 0.8em; background: #fcf4e4; border-radius: 6px; border-left: 4px solid #d2691e; font-size: 1.3em; }
+#nice h3 { color: #a0522d; font-weight: 600; font-style: italic; font-size: 1.12em; margin-top: 1.3em; }
+#nice strong { color: #d2691e; font-weight: 700; background: rgba(255,248,220,0.7); padding: 0.05em 0.25em; border-radius: 3px; }
+#nice em { font-style: italic; color: #8b6914; }
+#nice code { background: rgba(210,105,30,0.08); color: #a0522d; padding: 0.1em 0.35em; border-radius: 4px; }
+#nice blockquote { border-left: 4px solid #d2691e; background: #FFF8DC; padding: 1em 1.3em; color: #5a3a1c; border-radius: 0 8px 8px 0; font-style: italic; }
+#nice a { color: #d2691e; border-bottom: 1px solid #e6c9a8; text-decoration: none; }
+#nice table th { background: #d2691e; color: #fff; font-weight: 600; }
+#nice table td { border-color: #e6d5c3; }
 ${notesRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => notesRecipesExport.decorate(html, target),
     customCSS: `
@@ -693,21 +780,40 @@ ${notesRecipesExport.css}`,
     persona: 'creative',
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
-#nice { --ink-accent: #0f172a; }
-#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; }
-#nice h2 { color: #0f172a; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; }
-#nice h3 { color: #0f172a; font-weight: 800; border-left: 4px solid #0f172a; padding-left: 0.6em; }
-#nice strong { color: #0f172a; font-weight: 900; }
-#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; }
-#nice table th { background: #0f172a; color: #fff; }
+#nice { --ink-accent: #0f172a; font-family: 'Space Grotesk', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #ffffff; color: #0f172a; }
+#nice p { line-height: 1.65; margin-bottom: 0.85em; text-align: justify; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0.1em 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; line-height: 1.15; }
+#nice h1::after { content: ''; display: block; width: 40px; height: 3px; background: #dc2626; margin: 0.4em auto 0; }
+#nice h2 { color: #0f172a; font-weight: 900; font-size: 1.5em; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; border-bottom: 2px solid #0f172a; padding-bottom: 0.25em; }
+#nice h3 { color: #0f172a; font-weight: 800; font-size: 1.15em; border-left: 4px solid #dc2626; padding-left: 0.6em; margin-top: 1.3em; font-style: italic; }
+#nice h4 { color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.9em; }
+#nice strong { color: #dc2626; font-weight: 900; }
+#nice em { font-style: italic; color: #475569; }
+#nice blockquote { border-left: 4px solid #dc2626; background: transparent; padding: 0.8em 1.2em; color: #334155; font-style: italic; font-size: 1.05em; }
+#nice blockquote::before { content: '\\201C'; font-size: 3em; line-height: 0; vertical-align: -0.5em; color: #dc2626; margin-right: 0.1em; opacity: 0.4; font-family: Georgia, serif; }
+#nice code { background: #f1f5f9; color: #0f172a; padding: 0.1em 0.35em; border-radius: 2px; font-weight: 600; }
+#nice ul li::marker { color: #dc2626; font-weight: 900; }
+#nice ol li::marker { color: #0f172a; font-weight: 900; }
+#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; font-weight: 600; }
+#nice hr { border: 0; border-top: 1px solid #0f172a; margin: 1.8em 0; }
+#nice table th { background: #0f172a; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.88em; }
+#nice table td { border-color: #e2e8f0; }
 ${newsRecipesPreview.css}`,
     exportCSS: `${creativeBaseCSS}
-#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; }
-#nice h2 { color: #0f172a; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; }
-#nice h3 { color: #0f172a; font-weight: 800; border-left: 4px solid #0f172a; padding-left: 0.6em; }
-#nice strong { color: #0f172a; font-weight: 900; }
-#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; }
-#nice table th { background: #0f172a; color: #fff; }
+#nice { font-family: 'Space Grotesk', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #ffffff; color: #0f172a; }
+#nice p { line-height: 1.65; margin-bottom: 0.85em; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0.1em 0 0.5em; color: #0f172a; letter-spacing: -0.02em; text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 0.3em; line-height: 1.15; }
+#nice h2 { color: #0f172a; font-weight: 900; font-size: 1.5em; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1.8em; border-bottom: 2px solid #0f172a; padding-bottom: 0.25em; }
+#nice h3 { color: #0f172a; font-weight: 800; font-size: 1.15em; border-left: 4px solid #dc2626; padding-left: 0.6em; margin-top: 1.3em; font-style: italic; }
+#nice h4 { color: #475569; font-weight: 700; letter-spacing: 0.06em; font-size: 0.9em; }
+#nice strong { color: #dc2626; font-weight: 900; }
+#nice em { font-style: italic; color: #475569; }
+#nice blockquote { border-left: 4px solid #dc2626; background: transparent; padding: 0.8em 1.2em; color: #334155; font-style: italic; font-size: 1.05em; }
+#nice code { background: #f1f5f9; color: #0f172a; padding: 0.1em 0.35em; border-radius: 2px; font-weight: 600; }
+#nice a { color: #0f172a; border-bottom: 1px solid #0f172a; font-weight: 600; }
+#nice hr { border: 0; border-top: 1px solid #0f172a; margin: 1.8em 0; }
+#nice table th { background: #0f172a; color: #fff; font-weight: 700; letter-spacing: 0.04em; font-size: 0.88em; }
+#nice table td { border-color: #e2e8f0; }
 ${newsRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => newsRecipesExport.decorate(html, target),
     customCSS: `
@@ -732,27 +838,38 @@ ${newsRecipesExport.css}`,
     persona: 'creative',
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
-#nice { --ink-accent: #ff006e; }
-#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; }
-#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; }
-#nice h3 { color: #ff006e; font-weight: 700; border-left: 3px solid #ff006e; padding-left: 0.6em; }
-#nice strong { color: #ff006e; font-weight: 900; }
-#nice code { background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.1em 0.35em; border-radius: 4px; }
-#nice blockquote { border-left: 4px solid #ff006e; background: #fff0f5; border-radius: 0 12px 12px 0; padding: 12px 16px; }
-#nice table th { background: #ff006e; color: #fff; }
-#nice hr { border-top: 2px dashed #ff006e; }
-#nice a { color: #ff006e; }
+#nice { --ink-accent: #ff006e; font-family: 'Smiley Sans', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #fffbfc; color: #1a1a1a; }
+#nice p { line-height: 1.9; margin-bottom: 1.1em; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0.1em 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; line-height: 1.15; font-style: italic; }
+#nice h1::after { content: ''; display: block; width: 100px; height: 4px; background: linear-gradient(90deg, #ff006e, #ff6b9d, #ff006e); margin-top: 0.3em; border-radius: 2px; }
+#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 8px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; font-size: 1.4em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; }
+#nice h3 { color: #ff006e; font-weight: 700; font-size: 1.15em; border-left: 4px solid #ff006e; padding-left: 0.6em; margin-top: 1.3em; font-style: italic; }
+#nice strong { color: #ff006e; font-weight: 900; background: rgba(255,0,110,0.08); padding: 0.05em 0.2em; border-radius: 3px; }
+#nice em { font-style: italic; color: #a855f7; font-weight: 500; }
+#nice code { font-family: 'Smiley Sans', monospace; background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.15em 0.4em; border-radius: 6px; font-weight: 600; }
+#nice blockquote { border-left: 5px solid #ff006e; background: #fff0f5; border-radius: 0 16px 16px 0; padding: 1em 1.3em; color: #8b2252; font-style: italic; }
+#nice blockquote p { line-height: 1.75; }
+#nice ul li::marker { color: #ff006e; content: '\\2726 '; }
+#nice ol li::marker { color: #ff006e; font-weight: 900; }
+#nice a { color: #ff006e; font-weight: 600; border-bottom: 2px solid #ff6b9d; text-decoration: none; }
+#nice hr { border: 0; border-top: 3px dashed #ff006e; margin: 2em 0; }
+#nice table th { background: #ff006e; color: #fff; font-weight: 700; }
+#nice table td { border-color: #ffd6e7; }
 ${memeRecipesPreview.css}`,
     exportCSS: `${creativeBaseCSS}
-#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; }
-#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; }
-#nice h3 { color: #ff006e; font-weight: 700; border-left: 3px solid #ff006e; padding-left: 0.6em; }
-#nice strong { color: #ff006e; font-weight: 900; }
-#nice code { background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.1em 0.35em; border-radius: 4px; }
-#nice blockquote { border-left: 4px solid #ff006e; background: #fff0f5; border-radius: 0 12px 12px 0; padding: 12px 16px; }
-#nice table th { background: #ff006e; color: #fff; }
-#nice hr { border-top: 2px dashed #ff006e; }
-#nice a { color: #ff006e; }
+#nice { font-family: 'Smiley Sans', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #fffbfc; color: #1a1a1a; }
+#nice p { line-height: 1.9; margin-bottom: 1.1em; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0.1em 0 0.5em; color: #ff006e; letter-spacing: -0.02em; font-family: 'Smiley Sans', 'Source Han Sans SC', sans-serif; line-height: 1.15; font-style: italic; }
+#nice h2 { background: #ff006e; color: #fff; padding: 0.5em 0.8em; border-radius: 8px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 800; font-size: 1.4em; }
+#nice h3 { color: #ff006e; font-weight: 700; font-size: 1.15em; border-left: 4px solid #ff006e; padding-left: 0.6em; margin-top: 1.3em; font-style: italic; }
+#nice strong { color: #ff006e; font-weight: 900; background: rgba(255,0,110,0.08); padding: 0.05em 0.2em; border-radius: 3px; }
+#nice em { font-style: italic; color: #a855f7; font-weight: 500; }
+#nice code { background: rgba(255,0,110,0.1); color: #ff006e; padding: 0.15em 0.4em; border-radius: 6px; font-weight: 600; }
+#nice blockquote { border-left: 5px solid #ff006e; background: #fff0f5; border-radius: 0 16px 16px 0; padding: 1em 1.3em; color: #8b2252; font-style: italic; }
+#nice a { color: #ff006e; font-weight: 600; border-bottom: 2px solid #ff6b9d; text-decoration: none; }
+#nice hr { border: 0; border-top: 3px dashed #ff006e; margin: 2em 0; }
+#nice table th { background: #ff006e; color: #fff; font-weight: 700; }
+#nice table td { border-color: #ffd6e7; }
 ${memeRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => memeRecipesExport.decorate(html, target),
     customCSS: `
@@ -781,24 +898,36 @@ ${memeRecipesExport.css}`,
     persona: 'lifestyle',
     fonts: PERSONA_FONTS.lifestyle,
     previewCSS: `${lifestyleBaseCSS}
-#nice { --ink-accent: #a0522d; background: #fefcf8; }
+#nice { --ink-accent: #a0522d; font-family: 'Fraunces', 'LXGW WenKai Lite', 'Crimson Pro', Georgia, serif; background: #fefcf8; color: #3d2b1f; }
 #nice p { line-height: 2.0; margin-bottom: 1.3em; }
-#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0 0 1em; }
-#nice h2 { color: #a0522d; font-weight: 500; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; }
-#nice h3 { color: #8b4513; font-weight: 500; }
+#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0.2em 0 1em; font-family: 'Fraunces', 'Crimson Pro', Georgia, serif; }
+#nice h1::after { content: ''; display: block; width: 80px; height: 1px; background: #d4b896; margin: 0.6em auto 0; }
+#nice h2 { color: #a0522d; font-weight: 500; font-size: 1.35em; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; font-style: italic; }
+#nice h3 { color: #8b4513; font-weight: 500; font-size: 1.1em; letter-spacing: 0.02em; margin-top: 1.5em; }
 #nice strong { color: #a0522d; font-weight: 600; }
-#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 0.8em 1.2em; }
-#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; }
+#nice em { font-family: 'Fraunces', 'Crimson Pro', Georgia, serif; font-style: italic; color: #6b5a4a; }
+#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 1em 1.3em; border-radius: 0 4px 4px 0; }
+#nice blockquote p { line-height: 1.85; }
+#nice code { font-family: 'Crimson Pro', Georgia, monospace; background: rgba(160,82,45,0.06); color: #8b4513; padding: 0.1em 0.3em; border-radius: 3px; font-style: italic; }
+#nice ul li::marker { color: #d4b896; }
+#nice ol li::marker { color: #a0522d; font-weight: 500; }
+#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; text-decoration: none; }
+#nice table th { background: #a0522d; color: #fefcf8; font-weight: 500; letter-spacing: 0.03em; }
+#nice table td { border-color: #e6d5c3; }
 ${lifeRecipesPreview.css}`,
     exportCSS: `${lifestyleBaseCSS}
-#nice { background: #fefcf8; }
+#nice { font-family: 'Fraunces', 'LXGW WenKai Lite', 'Crimson Pro', Georgia, serif; background: #fefcf8; color: #3d2b1f; }
 #nice p { line-height: 2.0; margin-bottom: 1.3em; }
-#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0 0 1em; }
-#nice h2 { color: #a0522d; font-weight: 500; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; }
-#nice h3 { color: #8b4513; font-weight: 500; }
+#nice h1 { font-size: 2em; font-weight: 500; text-align: center; color: #5a3a1c; letter-spacing: 0.04em; margin: 0.2em 0 1em; }
+#nice h2 { color: #a0522d; font-weight: 500; font-size: 1.35em; letter-spacing: 0.04em; border-bottom: 1px solid #d4b896; padding-bottom: 0.4em; margin-top: 2em; font-style: italic; }
+#nice h3 { color: #8b4513; font-weight: 500; font-size: 1.1em; letter-spacing: 0.02em; margin-top: 1.5em; }
 #nice strong { color: #a0522d; font-weight: 600; }
-#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 0.8em 1.2em; }
-#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; }
+#nice em { font-style: italic; color: #6b5a4a; }
+#nice blockquote { border-left: 3px solid #d4b896; color: #6b5a4a; font-style: italic; background: rgba(212,184,150,0.08); padding: 1em 1.3em; border-radius: 0 4px 4px 0; }
+#nice code { background: rgba(160,82,45,0.06); color: #8b4513; padding: 0.1em 0.3em; border-radius: 3px; font-style: italic; }
+#nice a { color: #a0522d; border-bottom: 1px solid #d4b896; text-decoration: none; }
+#nice table th { background: #a0522d; color: #fefcf8; font-weight: 500; letter-spacing: 0.03em; }
+#nice table td { border-color: #e6d5c3; }
 ${lifeRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => lifeRecipesExport.decorate(html, target),
     customCSS: `
@@ -826,24 +955,38 @@ ${lifeRecipesExport.css}`,
     persona: 'lifestyle',
     fonts: { cjk: PERSONA_FONTS.academic.cjk, latin: PERSONA_FONTS.academic.latin },
     previewCSS: `${lifestyleBaseCSS}
-#nice { --ink-accent: #4a3c5a; font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; }
-#nice p { line-height: 1.95; margin-bottom: 1.2em; }
-#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0 0 1em; }
-#nice h2 { color: #4a3c5a; font-weight: 600; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; }
-#nice h3 { color: #4a3c5a; font-weight: 600; }
-#nice strong { color: #4a3c5a; }
-#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 0.8em 1.2em; }
-#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; }
+#nice { --ink-accent: #4a3c5a; font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; color: #2a2438; }
+#nice p { line-height: 1.95; margin-bottom: 1.2em; text-indent: 2em; }
+#nice p:first-of-type { text-indent: 0; }
+#nice p:first-of-type::first-letter { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-size: 3em; font-weight: 700; float: left; line-height: 0.85; margin: 0.05em 0.12em -0.05em 0; color: #4a3c5a; }
+#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0.2em 0 1em; font-family: 'Source Han Serif SC', 'EB Garamond', Georgia, serif; }
+#nice h1::after { content: ''; display: block; width: 120px; height: 1px; background: #4a3c5a; margin: 0.5em auto 0; opacity: 0.4; }
+#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; letter-spacing: 0.03em; }
+#nice h3 { color: #4a3c5a; font-weight: 600; font-size: 1.15em; font-style: italic; margin-top: 1.4em; }
+#nice strong { color: #4a3c5a; font-weight: 700; }
+#nice em { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-style: italic; color: #6b5a7a; }
+#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 1em 1.3em; color: #3a3048; border-radius: 0 4px 4px 0; }
+#nice blockquote p { line-height: 1.85; text-indent: 0; }
+#nice code { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; background: rgba(74,60,90,0.06); color: #4a3c5a; padding: 0.05em 0.3em; border-radius: 2px; font-style: italic; }
+#nice ul li::marker { color: #4a3c5a; }
+#nice ol li::marker { color: #4a3c5a; font-weight: 600; }
+#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; text-decoration: none; }
+#nice table th { background: #4a3c5a; color: #fafaf6; font-weight: 600; letter-spacing: 0.03em; }
+#nice table td { border-color: #d8d0e0; }
 ${elegantRecipesPreview.css}`,
     exportCSS: `${lifestyleBaseCSS}
-#nice { font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; }
+#nice { font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; color: #2a2438; }
 #nice p { line-height: 1.95; margin-bottom: 1.2em; }
-#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0 0 1em; }
-#nice h2 { color: #4a3c5a; font-weight: 600; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; }
-#nice h3 { color: #4a3c5a; font-weight: 600; }
-#nice strong { color: #4a3c5a; }
-#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 0.8em 1.2em; }
-#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; }
+#nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0.2em 0 1em; }
+#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; letter-spacing: 0.03em; }
+#nice h3 { color: #4a3c5a; font-weight: 600; font-size: 1.15em; font-style: italic; margin-top: 1.4em; }
+#nice strong { color: #4a3c5a; font-weight: 700; }
+#nice em { font-style: italic; color: #6b5a7a; }
+#nice blockquote { border-left: 3px solid #4a3c5a; background: #f4f2f8; font-style: italic; padding: 1em 1.3em; color: #3a3048; border-radius: 0 4px 4px 0; }
+#nice code { background: rgba(74,60,90,0.06); color: #4a3c5a; padding: 0.05em 0.3em; border-radius: 2px; font-style: italic; }
+#nice a { color: #4a3c5a; border-bottom: 1px solid #c4b6d8; text-decoration: none; }
+#nice table th { background: #4a3c5a; color: #fafaf6; font-weight: 600; letter-spacing: 0.03em; }
+#nice table td { border-color: #d8d0e0; }
 ${elegantRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => elegantRecipesExport.decorate(html, target),
     customCSS: `
@@ -868,25 +1011,45 @@ ${elegantRecipesExport.css}`,
     persona: 'creative',
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
-#nice { --ink-accent: #6366f1; }
-#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #4338ca; letter-spacing: -0.01em; }
-#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; }
-#nice h3 { color: #6366f1; font-weight: 600; border-left: 2px solid #6366f1; padding-left: 0.6em; }
-#nice strong { color: #6366f1; }
-#nice code { background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice blockquote { border-left: 4px solid #6366f1; background: #f0f0ff; border-radius: 0 8px 8px 0; padding: 0.8em 1.2em; }
-#nice a { color: #6366f1; }
-#nice table th { background: #6366f1; color: #fff; }
+#nice { --ink-accent: #6366f1; font-family: 'Space Grotesk', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #fafaff; color: #1a1a2e; }
+#nice p { line-height: 1.8; margin-bottom: 1em; }
+#nice h1 { font-size: 2.1em; font-weight: 800; margin: 0.2em 0 0.6em; color: #4338ca; letter-spacing: -0.01em; padding: 0.5em 0.8em; background: #6366f1; color: #fff; border-radius: 4px; line-height: 1.3; }
+#nice h1::after { content: ''; display: block; margin-top: 0.3em; width: 50px; height: 3px; background: rgba(255,255,255,0.5); border-radius: 2px; }
+#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; font-size: 1.35em; }
+#nice h2::before { content: '[0x] '; font-family: 'JetBrains Mono', 'Space Grotesk', monospace; font-weight: 400; opacity: 0.6; font-size: 0.8em; }
+#nice h3 { color: #6366f1; font-weight: 600; font-size: 1.12em; border-left: 3px solid #6366f1; padding-left: 0.6em; margin-top: 1.3em; }
+#nice h4 { color: #4338ca; font-weight: 600; letter-spacing: 0.04em; font-size: 0.92em; }
+#nice strong { color: #6366f1; font-weight: 700; }
+#nice em { font-style: italic; color: #818cf8; }
+#nice code { font-family: 'JetBrains Mono', 'Space Grotesk', monospace; background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #1e1b4b; border-radius: 6px; padding: 1em; border: 1px solid #312e81; }
+#nice pre code { color: #c7d2fe; background: transparent; }
+#nice blockquote { border-left: 4px solid #6366f1; background: #eef2ff; border-radius: 0 4px 4px 0; padding: 1em 1.3em; color: #3730a3; }
+#nice blockquote p { line-height: 1.7; }
+#nice ul li::marker { color: #6366f1; }
+#nice ol li::marker { color: #6366f1; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+#nice a { color: #6366f1; border-bottom: 1px solid #a5b4fc; text-decoration: none; }
+#nice hr { border: 0; height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6); margin: 2em 0; border-radius: 2px; }
+#nice table th { background: #6366f1; color: #fff; font-weight: 700; letter-spacing: 0.03em; }
+#nice table td { border-color: #e0e7ff; }
 ${techRecipesPreview.css}`,
     exportCSS: `${creativeBaseCSS}
-#nice h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 0.6em; color: #4338ca; letter-spacing: -0.01em; }
-#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; }
-#nice h3 { color: #6366f1; font-weight: 600; border-left: 2px solid #6366f1; padding-left: 0.6em; }
-#nice strong { color: #6366f1; }
-#nice code { background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.1em 0.35em; border-radius: 3px; }
-#nice blockquote { border-left: 4px solid #6366f1; background: #f0f0ff; border-radius: 0 8px 8px 0; padding: 0.8em 1.2em; }
-#nice a { color: #6366f1; }
-#nice table th { background: #6366f1; color: #fff; }
+#nice { font-family: 'Space Grotesk', 'Source Han Sans SC', 'PingFang SC', sans-serif; background: #fafaff; color: #1a1a2e; }
+#nice p { line-height: 1.8; margin-bottom: 1em; }
+#nice h1 { font-size: 2.1em; font-weight: 800; margin: 0.2em 0 0.6em; padding: 0.5em 0.8em; background: #6366f1; color: #fff; border-radius: 4px; line-height: 1.3; }
+#nice h2 { background: #6366f1; color: #fff; padding: 0.5em 0.8em; border-radius: 4px; margin-top: 1.6em; margin-bottom: 0.9em; font-weight: 700; font-size: 1.35em; }
+#nice h3 { color: #6366f1; font-weight: 600; font-size: 1.12em; border-left: 3px solid #6366f1; padding-left: 0.6em; margin-top: 1.3em; }
+#nice h4 { color: #4338ca; font-weight: 600; letter-spacing: 0.04em; font-size: 0.92em; }
+#nice strong { color: #6366f1; font-weight: 700; }
+#nice em { font-style: italic; color: #818cf8; }
+#nice code { font-family: 'JetBrains Mono', 'Space Grotesk', monospace; background: rgba(99,102,241,0.08); color: #4338ca; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+#nice pre { background: #1e1b4b; border-radius: 6px; padding: 1em; border: 1px solid #312e81; }
+#nice pre code { color: #c7d2fe; background: transparent; }
+#nice blockquote { border-left: 4px solid #6366f1; background: #eef2ff; border-radius: 0 4px 4px 0; padding: 1em 1.3em; color: #3730a3; }
+#nice a { color: #6366f1; border-bottom: 1px solid #a5b4fc; text-decoration: none; }
+#nice hr { border: 0; height: 3px; background: #6366f1; margin: 2em 0; border-radius: 2px; }
+#nice table th { background: #6366f1; color: #fff; font-weight: 700; letter-spacing: 0.03em; }
+#nice table td { border-color: #e0e7ff; }
 ${techRecipesExport.css}`,
     decorate: (html: string, target: ExportTarget): string => techRecipesExport.decorate(html, target),
     customCSS: `
@@ -993,14 +1156,10 @@ export function applyHeadingDecorations(html: string, preset: ExportPreset): str
 
   switch (preset.id) {
     case 'thesis':
-      // 在 h2 内容前后添加金色星号装饰
-      // 替代原先的 ::before/::after 伪元素
-      result = result.replace(
-        /<h2([^>]*)>([\s\S]*?)<\/h2>/gi,
-        (_match: string, attrs: string, content: string) => {
-          return `<h2${attrs}><span style="color:#D4AF37;margin-right:8px;">&#9733;</span>${content}<span style="color:#D4AF37;margin-left:8px;">&#9733;</span></h2>`
-        }
-      )
+      // Thesis decorations (第N章, § h3 prefix, · · · hr ornament) are now
+      // handled by the chained decorators in preset.decorate(). The legacy
+      // gold-star ★ h2 decorations have been removed to avoid conflict with
+      // the cjk-decimal-h2 recipe that injects "第N章" before each h2.
       break
 
     case 'report':

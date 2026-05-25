@@ -56,6 +56,7 @@ import { logger } from '@/services/error'
 function createCssVariableMap(primaryColor?: string): Record<string, string> {
   return {
     '--md-primary-color': primaryColor || '#D32F2F',
+    '--ink-accent': primaryColor || '#D32F2F',
     '--md-font-family': '-apple-system-font, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif',
     '--md-font-size': '15px',
     '--foreground': '#3f3f3f',
@@ -89,6 +90,7 @@ function replaceCssVariables(html: string, primaryColor?: string): string {
 
   // 移除 CSS 变量定义
   result = result.replace(/--md-primary-color:[^;]+;/g, '')
+  result = result.replace(/--ink-accent:[^;]+;/g, '')
   result = result.replace(/--md-font-family:[^;]+;/g, '')
   result = result.replace(/--md-font-size:[^;]+;/g, '')
 
@@ -1217,8 +1219,10 @@ export function convertToWechatWithStats(
   const wrappedHtml = `<section id="nice">${finalContent}</section>`
 
   // 生成CSS (包含代码主题)
-  // PR3: pass 'export' so dual-track presets emit the juice-safe variant
-  let css = generateThemeCSS(effectivePreset, 'export') + codeThemeCSS
+  // Use 'preview' track: richer CSS (fonts, colors, pseudo-element rules) that
+  // juice can inline. Unsupported properties (var(), counters, pseudo-elements)
+  // are handled downstream by replaceCssVariables, decorate hooks, and enforcePlatformCSS.
+  let css = generateThemeCSS(effectivePreset, 'preview') + codeThemeCSS
 
   // 处理首行缩进选项：显式传入时覆盖预设设置
   if (enableTextIndent === true) {

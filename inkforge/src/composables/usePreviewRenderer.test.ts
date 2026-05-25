@@ -183,13 +183,13 @@ describe('usePreviewRenderer — platform routing (P3-T11)', () => {
     }
   })
 
-  it('wechat: preview HTML retains styled `<section id="nice">` shell', async () => {
+  it('wechat: preview HTML uses mock renderer with wechat-article container', async () => {
     const { previewHtml, previewMeta, dispose } = await run({
       body: RICH_MARKDOWN,
       platform: 'wechat',
     })
     try {
-      expect(previewHtml).toMatch(/<section[^>]+id="nice"/i)
+      expect(previewHtml).toMatch(/<section[^>]+id="wechat-article"/i)
       // wechat HTML should NOT contain xhs/zhihu fidelity markers
       expect(previewHtml).not.toContain('xhs-mock')
       expect(previewHtml).not.toContain('zhihu-mock')
