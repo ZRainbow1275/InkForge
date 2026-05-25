@@ -221,3 +221,36 @@ Resumed from OOM-truncated session. Diagnosed 4 critical defects after E2E Playw
 ### Next Steps
 
 - None - task complete
+
+
+## Session 6: Audit & revert over-engineered stage preset strip; enhance inspector chip
+
+**Date**: 2026-05-25
+**Task**: Audit & revert over-engineered stage preset strip; enhance inspector chip
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+用户反馈 commit 63042a9 的 .stage-preset-strip + .stage-preset-meta 冗余（inspector 已能切换 preset）。走完整 brainstorm 6Q 对齐：Q1 删 stage 顶两条；Q2 选择 chip 双行布局把 meta 信息并入 inspector（icon+name 上行，persona 微标签下行）；Q3 crossfade 200ms→100ms；Q4 sample-hint 保留；Q5 getPlatformPresets 保留；Q6 inspector-collapsed-bar 已是入口无需新增。Dispatch trellis-implement 单文件 (WorkstationView.vue, +159/-336) 完成。发现 sub-agent 跑 eslint --fix 副作用污染 6 个非目标文件，revert 还原保持 commit 单一职责。同时清理 commit 63042a9 之前就存在的 orphan CSS（.stage-presets, .stage-preset-chip/-icon/-name）。Playwright 视觉验证 PASS：stage 顶纯净、inspector 12 wechat chip 双行带 persona 标签、active 优雅/lifestyle 红色高亮。三检全绿 (typecheck/lint/748 tests)。反思：上一轮 DEFECT 3 (stage 缺切换器) 是臆造问题，没问 inspector 是否已覆盖就加 UI = 过度设计。本轮严格走 brainstorm 把每个改动逐个反问真伪。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `70a0683` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
