@@ -287,3 +287,36 @@ Resumed from OOM-truncated session. Diagnosed 4 critical defects after E2E Playw
 ### Next Steps
 
 - None - task complete
+
+
+## Session 8: WeChat previewCSS export decorator dedupe
+
+**Date**: 2026-05-26
+**Task**: WeChat previewCSS export decorator dedupe
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Fixed WeChat previewCSS+juice decorator duplication and CSS unicode escape leakage across presets; added export regressions and browser evidence for WeChat, Xiaohongshu, and Zhihu export previews.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9cf0527` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 7
-- **Last Active**: 2026-05-25
+- **Total Sessions**: 8
+- **Last Active**: 2026-05-26
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~289 | Active |
+| `journal-1.md` | ~322 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 8 | 2026-05-26 | WeChat previewCSS export decorator dedupe | `9cf0527` | `dev/visual-fixes` |
 | 7 | 2026-05-25 | trellis-check follow-up: drop redundant persona type assertion | `6a79f58` | `dev/visual-fixes` |
 | 6 | 2026-05-25 | Audit & revert over-engineered stage preset strip; enhance inspector chip | `70a0683` | `dev/visual-fixes` |
 | 5 | 2026-05-25 | Preset typography overhaul — wire dead PreviewPanel features into stage panel | `63042a9` | `dev/visual-fixes` |
