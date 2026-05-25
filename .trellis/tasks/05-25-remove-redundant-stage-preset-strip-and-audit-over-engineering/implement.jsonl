@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "WorkstationView.vue 模板/CSS 修改需遵守组件规范"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "3 检（test/typecheck/lint）+ Playwright 视觉验证标准"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "topPresets computed 类型 + persona 字段透出严格类型"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "增强 inspector preset-chip 而非新建组件，复用既有 .preset-strip 样式"}
+{"file": ".trellis/tasks/archive/2026-05/05-23-preset-typography-overhaul/prd.md", "reason": "回溯 AC 来源 + commit 63042a9 改动上下文"}

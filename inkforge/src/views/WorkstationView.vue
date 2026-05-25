@@ -26,9 +26,7 @@ import type { WorkstationCommandBridge } from '@/types/command-palette'
 import {
   copyToClipboard,
   getPlatformPresets,
-  getPresetById,
   type Platform,
-  type ExportPreset,
 } from '@/services/export'
 import { usePreviewRenderer } from '@/composables/usePreviewRenderer'
 import {
@@ -995,35 +993,16 @@ function selectAccentColor(color: string): void {
 // - wechat: 12 个
 // - xiaohongshu: 5 个（xhs-*）
 // - zhihu: 3 个（zhihu-*）
-// Inspector 排版策略条与 Stage 顶部 chip 条共享同一数据源。
-const topPresets = computed<Array<{ id: string; name: string; icon?: string; description?: string }>>(() => {
+// Inspector 排版策略条消费此数据（双行 chip：name + persona 微标签）。
+const topPresets = computed<Array<{ id: string; name: string; icon?: string; description?: string; persona?: string }>>(() => {
   const presets = getPlatformPresets(selectedPlatform.value)
   return presets.map(p => ({
     id: p.id,
     name: p.name,
     icon: p.icon,
     description: p.description,
+    persona: (p as { persona?: string }).persona,
   }))
-})
-
-// 当前激活预设的元信息（用于 Stage 头部「preset name · description」chip）
-const activePresetMeta = computed<{ id: string; name: string; description?: string; persona?: string } | null>(() => {
-  const presetId = settingsStore.settings.export.defaultPresetId
-  const wechatPreset = getPresetById(presetId) as ExportPreset | undefined
-  if (wechatPreset) {
-    return {
-      id: wechatPreset.id,
-      name: wechatPreset.name,
-      description: wechatPreset.description,
-      persona: wechatPreset.persona,
-    }
-  }
-  const platformPresets = getPlatformPresets(selectedPlatform.value)
-  const match = platformPresets.find(p => p.id === presetId)
-  if (match) {
-    return { id: match.id, name: match.name, description: match.description }
-  }
-  return null
 })
 
 function applyPreset(presetId: string): void {
@@ -2284,131 +2263,131 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           <!-- Tab 鏍?-->
           <div class="panel-tabs">
             <div class="panel-tab-strip">
-            <button
-              class="panel-tab"
-              :class="{ active: managerTab === 'files' }"
-              @click="managerTab = 'files'"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+              <button
+                class="panel-tab"
+                :class="{ active: managerTab === 'files' }"
+                @click="managerTab = 'files'"
               >
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-              </svg>
-              <span>文件</span>
-            </button>
-            <button
-              class="panel-tab"
-              :class="{ active: managerTab === 'versions' }"
-              @click="managerTab = 'versions'"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>文件</span>
+              </button>
+              <button
+                class="panel-tab"
+                :class="{ active: managerTab === 'versions' }"
+                @click="managerTab = 'versions'"
               >
-                <line
-                  x1="6"
-                  y1="3"
-                  x2="6"
-                  y2="15"
-                /><circle
-                  cx="18"
-                  cy="6"
-                  r="3"
-                /><circle
-                  cx="6"
-                  cy="18"
-                  r="3"
-                /><path d="M18 9a9 9 0 0 1-9 9" />
-              </svg>
-              <span>版本</span>
-            </button>
-            <button
-              class="panel-tab"
-              :class="{ active: managerTab === 'outline' }"
-              @click="managerTab = 'outline'"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line
+                    x1="6"
+                    y1="3"
+                    x2="6"
+                    y2="15"
+                  /><circle
+                    cx="18"
+                    cy="6"
+                    r="3"
+                  /><circle
+                    cx="6"
+                    cy="18"
+                    r="3"
+                  /><path d="M18 9a9 9 0 0 1-9 9" />
+                </svg>
+                <span>版本</span>
+              </button>
+              <button
+                class="panel-tab"
+                :class="{ active: managerTab === 'outline' }"
+                @click="managerTab = 'outline'"
               >
-                <line
-                  x1="8"
-                  y1="6"
-                  x2="21"
-                  y2="6"
-                /><line
-                  x1="8"
-                  y1="12"
-                  x2="21"
-                  y2="12"
-                /><line
-                  x1="8"
-                  y1="18"
-                  x2="21"
-                  y2="18"
-                /><line
-                  x1="3"
-                  y1="6"
-                  x2="3.01"
-                  y2="6"
-                /><line
-                  x1="3"
-                  y1="12"
-                  x2="3.01"
-                  y2="12"
-                /><line
-                  x1="3"
-                  y1="18"
-                  x2="3.01"
-                  y2="18"
-                />
-              </svg>
-              <span>大纲</span>
-            </button>
-            <button
-              class="panel-tab"
-              :class="{ active: managerTab === 'tags' }"
-              @click="managerTab = 'tags'"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line
+                    x1="8"
+                    y1="6"
+                    x2="21"
+                    y2="6"
+                  /><line
+                    x1="8"
+                    y1="12"
+                    x2="21"
+                    y2="12"
+                  /><line
+                    x1="8"
+                    y1="18"
+                    x2="21"
+                    y2="18"
+                  /><line
+                    x1="3"
+                    y1="6"
+                    x2="3.01"
+                    y2="6"
+                  /><line
+                    x1="3"
+                    y1="12"
+                    x2="3.01"
+                    y2="12"
+                  /><line
+                    x1="3"
+                    y1="18"
+                    x2="3.01"
+                    y2="18"
+                  />
+                </svg>
+                <span>大纲</span>
+              </button>
+              <button
+                class="panel-tab"
+                :class="{ active: managerTab === 'tags' }"
+                @click="managerTab = 'tags'"
               >
-                <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-                <circle
-                  cx="7.5"
-                  cy="7.5"
-                  r=".5"
-                  fill="currentColor"
-                />
-              </svg>
-              <span>标签</span>
-            </button>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+                  <circle
+                    cx="7.5"
+                    cy="7.5"
+                    r=".5"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span>标签</span>
+              </button>
             </div>
 
             <!-- 鎶樺彔鎸夐挳 -->
@@ -2681,45 +2660,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             </button>
           </div>
 
-          <!-- ── Stage 预设切换条（平台感知，覆盖全部预设） ── -->
-          <div
-            v-if="topPresets.length > 0"
-            class="stage-preset-strip"
-          >
-            <button
-              v-for="preset in topPresets"
-              :key="preset.id"
-              class="stage-preset-chip"
-              :class="{ active: settingsStore.settings.export.defaultPresetId === preset.id }"
-              :title="preset.description || preset.name"
-              @click="applyPreset(preset.id)"
-            >
-              <component
-                :is="resolveExportIcon(preset.icon || preset.id, preset.id)"
-                class="stage-preset-icon"
-                :size="12"
-                :stroke-width="2"
-              />
-              <span class="stage-preset-name">{{ preset.name }}</span>
-            </button>
-          </div>
-
-          <!-- ── 当前激活预设的 meta chip（preset name · description / persona） ── -->
-          <div
-            v-if="activePresetMeta"
-            class="stage-preset-meta"
-          >
-            <strong class="stage-preset-meta-name">{{ activePresetMeta.name }}</strong>
-            <span
-              v-if="activePresetMeta.persona"
-              class="stage-preset-meta-persona"
-            >{{ activePresetMeta.persona }}</span>
-            <span
-              v-if="activePresetMeta.description"
-              class="stage-preset-meta-desc"
-            >· {{ activePresetMeta.description }}</span>
-          </div>
-
           <div class="stage-body">
             <!-- iPhone 璁惧妗?-->
             <div class="device-frame">
@@ -2978,18 +2918,25 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 <button
                   v-for="preset in topPresets"
                   :key="preset.id"
+                  type="button"
                   class="preset-chip"
                   :class="{ active: settingsStore.settings.export.defaultPresetId === preset.id }"
                   :title="preset.description"
                   @click="applyPreset(preset.id)"
                 >
-                  <component
-                    :is="resolveExportIcon(preset.icon || preset.id, preset.id)"
-                    class="preset-icon"
-                    :size="12"
-                    :stroke-width="2"
-                  />
-                  <span class="preset-name">{{ preset.name }}</span>
+                  <div class="preset-chip-row-top">
+                    <component
+                      :is="resolveExportIcon(preset.icon || preset.id, preset.id)"
+                      class="preset-icon"
+                      :size="12"
+                      :stroke-width="2"
+                    />
+                    <span class="preset-name">{{ preset.name }}</span>
+                  </div>
+                  <span
+                    v-if="preset.persona"
+                    class="preset-persona"
+                  >{{ preset.persona }}</span>
                 </button>
               </div>
 
@@ -4528,99 +4475,6 @@ html[data-theme="dark"] .panel-tab.active {
   color: #37474F;
 }
 
-/* ─── Stage 预设切换条（平台感知，含全部 12/5/3 预设） ─── */
-.stage-preset-strip {
-  display: flex;
-  gap: 6px;
-  padding: 8px 14px 6px;
-  background: rgba(255, 255, 255, 0.62);
-  border-bottom: 1px solid #E5E7EB;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  scrollbar-width: thin;
-}
-
-.stage-preset-strip::-webkit-scrollbar {
-  height: 4px;
-}
-
-.stage-preset-strip::-webkit-scrollbar-thumb {
-  background: rgba(207, 216, 220, 0.6);
-  border-radius: 2px;
-}
-
-.stage-preset-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  background: #FFFFFF;
-  font-size: 11px;
-  color: #607D8B;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.stage-preset-chip:hover {
-  border-color: #CFD8DC;
-  background: #F5F5F5;
-  color: #263238;
-}
-
-.stage-preset-chip.active {
-  border-color: var(--accent-primary, #D32F2F);
-  background: #FFEBEE;
-  color: var(--accent-primary, #D32F2F);
-  font-weight: 500;
-}
-
-.stage-preset-icon {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-.stage-preset-name {
-  font-size: 11px;
-}
-
-/* ─── 当前激活预设的 meta chip ─── */
-.stage-preset-meta {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px 14px 8px;
-  background: rgba(255, 255, 255, 0.62);
-  border-bottom: 1px solid #E5E7EB;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #607D8B;
-}
-
-.stage-preset-meta-name {
-  font-weight: 600;
-  color: #263238;
-}
-
-.stage-preset-meta-persona {
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(207, 216, 220, 0.4);
-  color: #455A64;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-
-.stage-preset-meta-desc {
-  color: #78909C;
-}
-
 /* ─── 预览面板「示例内容」徽章 ─── */
 .preview-sample-hint {
   position: absolute;
@@ -4637,10 +4491,10 @@ html[data-theme="dark"] .panel-tab.active {
   pointer-events: none;
 }
 
-/* ─── 预设切换 200ms 淡入淡出过渡 ─── */
+/* ─── 预设切换 100ms 淡入淡出过渡 ─── */
 .preset-fade-enter-active,
 .preset-fade-leave-active {
-  transition: opacity 200ms ease-out;
+  transition: opacity 100ms ease-out;
 }
 
 .preset-fade-enter-from,
@@ -4797,53 +4651,6 @@ html[data-theme="dark"] .panel-tab.active {
 }
 
 /* 鈹€鈹€鈹€ Stage 棰勮蹇€熼€夋嫨 鈹€鈹€鈹€ */
-.stage-presets {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
-  max-width: 375px;
-}
-
-.stage-preset-chip {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  background: #FFFFFF;
-  font-size: 11px;
-  color: #607D8B;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.stage-preset-chip:hover {
-  border-color: #CFD8DC;
-  background: #F5F5F5;
-  color: #263238;
-}
-
-.stage-preset-chip.active {
-  border-color: #D32F2F;
-  background: #FFEBEE;
-  color: #D32F2F;
-  font-weight: 500;
-}
-
-.stage-preset-icon {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-.stage-preset-name {
-  font-size: 11px;
-}
-
 /* 鈹€鈹€鈹€ Stage 鎿嶄綔鎸夐挳缁?鈹€鈹€鈹€ */
 .stage-actions {
   display: flex;
@@ -5328,9 +5135,11 @@ html[data-theme="dark"] .panel-tab.active {
 
 .preset-chip {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 8px;
+  min-height: 34px;
   border: 1px solid #E5E7EB;
   border-radius: 6px;
   background: #FFFFFF;
@@ -5354,6 +5163,12 @@ html[data-theme="dark"] .panel-tab.active {
   font-weight: 500;
 }
 
+.preset-chip-row-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .preset-icon {
   width: 12px;
   height: 12px;
@@ -5362,6 +5177,14 @@ html[data-theme="dark"] .panel-tab.active {
 
 .preset-name {
   font-size: 11px;
+}
+
+.preset-persona {
+  font-size: 10px;
+  line-height: 1.2;
+  opacity: 0.65;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 /* 鈹€鈹€鈹€ 鎺у埗缁?鈹€鈹€鈹€ */

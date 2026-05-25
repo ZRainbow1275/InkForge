@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "3 检 + 视觉验证 + 截图证据标准"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "审计单文件 Vue 修改是否破坏组件规范"}
+{"file": ".trellis/tasks/05-25-remove-redundant-stage-preset-strip-and-audit-over-engineering/prd.md", "reason": "AC + DOD 逐项核对（特别是删 stage 顶 + chip 双行 + 100ms crossfade）"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "审计 chip 双行布局是否复用 .preset-strip 既有样式而非新建"}
