@@ -135,9 +135,6 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   >
     <header class="writing-assist-header">
       <div>
-        <p class="eyebrow">
-          专注写作
-        </p>
         <h3>写作辅助</h3>
       </div>
       <button
@@ -339,19 +336,11 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   gap: 12px;
 }
 
-.eyebrow {
-  margin: 0 0 2px;
-  color: #90A4AE;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .writing-assist-header h3 {
   margin: 0;
-  color: #263238;
-  font-size: 15px;
+  color: #607D8B;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .assist-focus-btn,
@@ -373,7 +362,7 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   padding: 0 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .assist-focus-btn:hover,
@@ -417,9 +406,9 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
 .assist-card-label {
   gap: 6px;
   margin-bottom: 8px;
-  color: #78909C;
+  color: #90A4AE;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .assist-card strong {
@@ -434,6 +423,7 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   margin-top: 6px;
   color: #90A4AE;
   font-size: 11px;
+  font-weight: 500;
 }
 
 .assist-section {
@@ -442,9 +432,9 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
 
 .assist-section-title {
   margin-bottom: 10px;
-  color: #455A64;
+  color: #607D8B;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .goal-row + .goal-row {
@@ -454,9 +444,9 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
 .goal-row-top {
   justify-content: space-between;
   gap: 8px;
-  color: #607D8B;
+  color: #90A4AE;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .goal-track {
@@ -491,11 +481,12 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   padding: 0 10px;
   border-radius: 11px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .assist-toggle span {
   font-size: 11px;
+  font-weight: 500;
   opacity: 0.72;
 }
 
@@ -503,9 +494,9 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   grid-column: 1 / -1;
   display: grid;
   gap: 7px;
-  color: #607D8B;
+  color: #90A4AE;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .assist-range.disabled {
@@ -536,8 +527,9 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
 
 .pomodoro-display span {
   display: block;
-  color: #78909C;
+  color: #90A4AE;
   font-size: 11px;
+  font-weight: 500;
 }
 
 .pomodoro-actions,
@@ -554,15 +546,15 @@ async function toggleSound(type: AmbientSoundType): Promise<void> {
   min-height: 28px;
   padding: 0 8px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .ambient-header {
   justify-content: space-between;
-  color: #455A64;
+  color: #607D8B;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .ambient-error {
