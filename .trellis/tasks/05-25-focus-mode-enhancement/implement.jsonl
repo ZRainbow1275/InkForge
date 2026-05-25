@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue component conventions for new SVG widgets"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia store extensions (pomodoroHistory, goalStreak, activeSounds)"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "typecheck/lint/test contract"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "New types for PomodoroSession, GoalStreak, extended AmbientSoundState"}

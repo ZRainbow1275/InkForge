@@ -3,6 +3,12 @@ export interface WordCountSample {
   count: number
 }
 
+export interface GoalStreakInput {
+  currentDays: number
+  longestDays: number
+  lastDate: string
+}
+
 const DEFAULT_WPM_MINIMUM_ELAPSED_MS = 10_000
 const MAX_REASONABLE_WPM = 300
 
@@ -92,4 +98,61 @@ export function formatPomodoroTime(totalSeconds: number): string {
   const minutes = Math.floor(safeSeconds / 60)
   const seconds = safeSeconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+export function isGoalMetToday(todayWords: number, dailyTarget: number | undefined): boolean {
+  if (!dailyTarget || dailyTarget < 1) {
+    return false
+  }
+
+  return todayWords >= dailyTarget
+}
+
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function daysBetween(a: string, b: string): number {
+  const parse = (value: string): number => {
+    const [year, month, day] = value.split('-').map(Number)
+    if (!year || !month || !day) {
+      return Number.NaN
+    }
+    return Date.UTC(year, month - 1, day)
+  }
+  const left = parse(a)
+  const right = parse(b)
+  if (!Number.isFinite(left) || !Number.isFinite(right)) {
+    return Number.NaN
+  }
+  return Math.round((right - left) / 86_400_000)
+}
+
+export function computeStreak(
+  dailyGoalMet: boolean,
+  current: GoalStreakInput,
+  today: Date = new Date(),
+): GoalStreakInput {
+  const todayKey = formatLocalDate(today)
+
+  if (!dailyGoalMet) {
+    return { ...current }
+  }
+
+  if (current.lastDate === todayKey) {
+    return { ...current }
+  }
+
+  const gap = current.lastDate ? daysBetween(current.lastDate, todayKey) : Number.NaN
+  const continuing = Number.isFinite(gap) && gap === 1
+  const nextCurrent = continuing ? current.currentDays + 1 : 1
+
+  return {
+    currentDays: nextCurrent,
+    longestDays: Math.max(current.longestDays, nextCurrent),
+    lastDate: todayKey,
+  }
 }
