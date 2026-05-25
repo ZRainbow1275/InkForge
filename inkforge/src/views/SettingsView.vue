@@ -2466,6 +2466,46 @@ onUnmounted(() => {
     <div class="sv-body">
       <!-- Sidebar Navigation -->
       <aside class="sv-sidebar">
+        <div class="sv-settings-search-panel">
+          <label
+            class="sv-settings-search-label"
+            for="settings-search-input"
+          >设置搜索</label>
+          <input
+            id="settings-search-input"
+            v-model.trim="settingsSearch"
+            type="search"
+            class="sv-input sv-settings-search-input"
+            placeholder="搜索设置、作用域或关键词"
+            @keydown.enter.prevent="settingsRegistryMatches[0] && focusSettingsRegistryItem(settingsRegistryMatches[0])"
+          >
+          <div
+            class="sv-settings-search-results"
+            role="listbox"
+            aria-label="设置搜索结果"
+          >
+            <button
+              v-for="item in settingsRegistryMatches"
+              :key="item.id"
+              type="button"
+              class="sv-settings-search-result"
+              :class="{ active: activeRegistryMatchId === item.id }"
+              @click="focusSettingsRegistryItem(item)"
+            >
+              <span class="sv-settings-search-result__label">{{ item.label }}</span>
+              <span class="sv-settings-search-result__meta">
+                {{ getTabName(item.tab) }} / {{ getRegistryScopeLabel(item.scope) }}
+              </span>
+            </button>
+            <div
+              v-if="settingsRegistryMatches.length === 0"
+              class="sv-settings-search-empty"
+            >
+              没有匹配的设置项
+            </div>
+          </div>
+        </div>
+
         <nav class="sv-nav">
           <button
             v-for="tab in tabs"
@@ -2716,46 +2756,6 @@ onUnmounted(() => {
             <span>{{ tab.name }}</span>
           </button>
         </nav>
-
-        <div class="sv-settings-search-panel">
-          <label
-            class="sv-settings-search-label"
-            for="settings-search-input"
-          >设置搜索</label>
-          <input
-            id="settings-search-input"
-            v-model.trim="settingsSearch"
-            type="search"
-            class="sv-input sv-settings-search-input"
-            placeholder="搜索设置、作用域或关键词"
-            @keydown.enter.prevent="settingsRegistryMatches[0] && focusSettingsRegistryItem(settingsRegistryMatches[0])"
-          >
-          <div
-            class="sv-settings-search-results"
-            role="listbox"
-            aria-label="设置搜索结果"
-          >
-            <button
-              v-for="item in settingsRegistryMatches"
-              :key="item.id"
-              type="button"
-              class="sv-settings-search-result"
-              :class="{ active: activeRegistryMatchId === item.id }"
-              @click="focusSettingsRegistryItem(item)"
-            >
-              <span class="sv-settings-search-result__label">{{ item.label }}</span>
-              <span class="sv-settings-search-result__meta">
-                {{ getTabName(item.tab) }} / {{ getRegistryScopeLabel(item.scope) }}
-              </span>
-            </button>
-            <div
-              v-if="settingsRegistryMatches.length === 0"
-              class="sv-settings-search-empty"
-            >
-              没有匹配的设置项
-            </div>
-          </div>
-        </div>
       </aside>
 
       <!-- Content Area -->
@@ -6724,7 +6724,7 @@ onUnmounted(() => {
 }
 
 .sv-settings-search-panel {
-  margin-top: 14px;
+  margin-bottom: 14px;
   padding: 12px;
   background: var(--bg-surface, #FFFFFF);
   border: 1px solid #ECEFF1;
