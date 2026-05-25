@@ -1,0 +1,7 @@
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/prd.md", "reason": "Full PRD with P1-P5 requirements, acceptance criteria, technical approach"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/wechat-pipeline.md", "reason": "WeChat export pipeline full chain analysis — juice, enforcePlatformCSS, postProcessForWechat"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/wechat-css-capabilities.md", "reason": "WeChat 2025 actual CSS support — what works, what doesn't"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/mock-renderer-architecture.md", "reason": "XHS/Zhihu mock renderer patterns + wechat mock design blueprint"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/previewcss-vs-exportcss-analysis.md", "reason": "12-preset CSS diff — juice-safe vs needs-decorate vs wechat-unsupported categorization"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/gitnexus-architecture.md", "reason": "Code graph — callers, callees, impact analysis for all modified symbols"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/platform-css-rules.md", "reason": "Platform CSS rule matrix — WECHAT_SUPPORT, enforcePlatformCSS logic"}

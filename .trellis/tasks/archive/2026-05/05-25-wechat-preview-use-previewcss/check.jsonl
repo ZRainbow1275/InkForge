@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/prd.md", "reason": "Acceptance criteria and definition of done for verification"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/previewcss-vs-exportcss-analysis.md", "reason": "Per-preset CSS diff to verify all juice-safe properties are included in export"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/wechat-css-capabilities.md", "reason": "Verify no wechat-unsupported CSS leaks into export without fallback"}
+{"file": ".trellis/tasks/05-25-wechat-preview-use-previewcss/research/mock-renderer-architecture.md", "reason": "Verify wechat mock follows established patterns"}
