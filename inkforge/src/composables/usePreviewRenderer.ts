@@ -100,6 +100,10 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
 
   let rafId: number | null = null
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
+  // 渲染序号：每次 scheduleRender 自增，renderPreview 完成时仅当 token 仍是
+  // 最新值才写回 previewHtml/previewMeta，避免并发 async 渲染的 stale write
+  // 导致预设切换 off-by-one。
+  let renderToken = 0
 
   /**
    * 根据文档长度计算防抖延迟
@@ -119,12 +123,15 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
    *   - xiaohongshu → markdownToXiaohongshuText → renderXhsMockHtml
    *   - zhihu → markdownToZhihuClean → renderZhihuMockHtml
    */
-  async function renderPreview(): Promise<void> {
+  async function renderPreview(token: number): Promise<void> {
     const rawBody = options.body.value
     const isEmptyBody = !rawBody || !rawBody.trim()
 
     previewLoading.value = true
     const startTime = performance.now()
+
+    // 仅当当前 render 仍是最新一次 schedule 时才写回结果。
+    const isStale = (): boolean => token !== renderToken
 
     try {
       const exportSettings = options.getExportSettings()
@@ -143,11 +150,17 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
       }
 
       if (platform === 'xiaohongshu') {
-        const { markdownToXiaohongshuText } = await import('@/services/export')
+        const { markdownToXiaohongshuText, getXiaohongshuPresets } = await import('@/services/export')
         const { renderXhsMockHtml } = await import(
           '@/services/export/preview-fidelity/xiaohongshu-mock'
         )
         const textResult = markdownToXiaohongshuText(body)
+        if (isStale()) return
+        const xhsKey = stripXhsPresetPrefix(presetId)
+        const xhsPresetId = xhsKey ? `xhs-${xhsKey}` : undefined
+        const xhsThemeCSS = xhsPresetId
+          ? getXiaohongshuPresets().find((p) => p.id === xhsPresetId)?.previewCSS
+          : undefined
         previewHtml.value = renderXhsMockHtml(
           {
             text: textResult.text,
@@ -159,8 +172,9 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
             overLimit: textResult.overLimit,
           },
           {
-            presetId: stripXhsPresetPrefix(presetId),
+            presetId: xhsKey,
             primaryColor,
+            themeCSS: xhsThemeCSS,
           }
         )
         previewMeta.value = {
@@ -174,11 +188,17 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
           isSample: isEmptyBody,
         }
       } else if (platform === 'zhihu') {
-        const { markdownToZhihuClean } = await import('@/services/export')
+        const { markdownToZhihuClean, getZhihuPresets } = await import('@/services/export')
         const { renderZhihuMockHtml } = await import(
           '@/services/export/preview-fidelity/zhihu-mock'
         )
         const mdResult = markdownToZhihuClean(body)
+        if (isStale()) return
+        const zhihuKey = stripZhihuPresetPrefix(presetId)
+        const zhihuPresetId = zhihuKey ? `zhihu-${zhihuKey}` : undefined
+        const zhihuThemeCSS = zhihuPresetId
+          ? getZhihuPresets().find((p) => p.id === zhihuPresetId)?.previewCSS
+          : undefined
         previewHtml.value = renderZhihuMockHtml(
           {
             markdown: mdResult.markdown,
@@ -188,8 +208,9 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
             taskListCount: mdResult.taskListCount,
           },
           {
-            presetId: stripZhihuPresetPrefix(presetId),
+            presetId: zhihuKey,
             primaryColor,
+            themeCSS: zhihuThemeCSS,
           }
         )
         previewMeta.value = {
@@ -203,6 +224,7 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
         }
       } else {
         const { convertToPlatform } = await import('@/services/export')
+        if (isStale()) return
         const result = await convertToPlatform(body, platform, {
           presetId,
           exportOptions: {
@@ -225,15 +247,19 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
             fontFamily: appearance.fontFamily,
           },
         })
+        if (isStale()) return
         previewHtml.value = result
         previewMeta.value = { platform: 'wechat', isSample: isEmptyBody }
       }
     } catch {
+      if (isStale()) return
       previewHtml.value = '<p style="color:#C62828;">预览渲染失败</p>'
       previewMeta.value = null
     } finally {
-      previewLoading.value = false
-      lastRenderTime.value = Math.round(performance.now() - startTime)
+      if (!isStale()) {
+        previewLoading.value = false
+        lastRenderTime.value = Math.round(performance.now() - startTime)
+      }
     }
   }
 
@@ -265,11 +291,14 @@ export function usePreviewRenderer(options: PreviewRendererOptions): PreviewRend
     if (debounceTimer !== null) clearTimeout(debounceTimer)
     if (rafId !== null) cancelAnimationFrame(rafId)
 
+    // 任何一次 schedule 都让此前在飞的 renderPreview 失效 —— 即使 timer/rAF
+    // 已经触发但 dynamic import 还没解决，token 比对会丢弃它的写回。
+    const token = ++renderToken
     const delay = getDebounceDelay()
 
     debounceTimer = setTimeout(() => {
       rafId = requestAnimationFrame(() => {
-        void renderPreview()
+        void renderPreview(token)
       })
     }, delay)
   }

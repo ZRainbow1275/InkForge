@@ -347,12 +347,25 @@ export const themePresets: ExportPreset[] = [
     persona: 'academic',
     fonts: PERSONA_FONTS.academic,
     previewCSS: `${academicBaseCSS}
-#nice { --ink-accent: #5a4a3c; background: #faf9f6; }
-#nice h1 { font-size: 2.1em; font-weight: 700; text-align: center; margin: 0 0 0.6em; letter-spacing: 0.05em; color: #2a2a2a; }
-#nice h2 { color: #2a2a2a; text-align: left; letter-spacing: 0.02em; margin-top: 1.6em; }
-#nice h3 { color: #5a4a3c; font-weight: 600; margin-top: 1.2em; }
-#nice blockquote { background: #f4f1ec; border-left: 3px solid #5a4a3c; padding: 0.8em 1.2em; color: #2a2a2a; }
-#nice table th { background: #5a4a3c; color: #fff; }
+#nice { --ink-accent: #5a4a3c; background: #faf9f6; font-family: 'Source Han Serif SC', 'Noto Serif SC', 'Crimson Pro', 'EB Garamond', 'Songti SC', serif; color: #2a2a2a; }
+#nice p { line-height: 1.95; margin-bottom: 1.1em; text-indent: 2em; }
+#nice p:first-of-type { text-indent: 0; }
+#nice h1 { font-size: 2.1em; font-weight: 700; text-align: center; margin: 0.2em 0 0.8em; letter-spacing: 0.08em; color: #2a2a2a; font-variant-numeric: oldstyle-nums; padding: 0 0 0.3em; border-bottom: 1px solid #cdbfa9; }
+#nice h2 { color: #2a2a2a; text-align: left; letter-spacing: 0.03em; margin-top: 1.8em; font-weight: 700; font-size: 1.45em; padding-bottom: 0.25em; border-bottom: 1px solid #d6c9b2; font-variant-numeric: oldstyle-nums; }
+#nice h3 { color: #5a4a3c; font-weight: 600; margin-top: 1.3em; font-size: 1.18em; letter-spacing: 0.02em; font-style: italic; }
+#nice h3::before { content: '§ '; color: #8a7659; font-weight: 400; font-style: normal; }
+#nice strong { color: #3d2f24; font-weight: 700; }
+#nice em { font-family: 'Crimson Pro', 'EB Garamond', Georgia, serif; font-style: italic; color: #4a3a2c; }
+#nice blockquote { background: #f4f1ec; border-left: 3px solid #5a4a3c; padding: 0.8em 1.2em; color: #3a3027; font-style: italic; margin: 1.4em 0; }
+#nice blockquote p { line-height: 1.85; text-indent: 0; }
+#nice ul, #nice ol { padding-left: 1.4em; }
+#nice ul li::marker { color: #8a7659; }
+#nice code { font-family: 'Crimson Pro', 'EB Garamond', Georgia, serif; font-size: 0.92em; color: #5a4a3c; background: #f0eadf; padding: 0.05em 0.3em; border-radius: 2px; }
+#nice a { color: #5a4a3c; border-bottom: 1px solid #b8a589; text-decoration: none; }
+#nice hr { border: 0; text-align: center; height: 0; margin: 2em 0; }
+#nice hr::before { content: '· · ·'; color: #8a7659; letter-spacing: 1em; font-size: 1.2em; }
+#nice table th { background: #5a4a3c; color: #faf9f6; font-weight: 600; letter-spacing: 0.04em; }
+#nice table td { font-variant-numeric: oldstyle-nums; }
 ${thesisRecipesPreview.css}`,
     exportCSS: `${academicBaseCSS}
 #nice { background: #faf9f6; }
@@ -386,12 +399,26 @@ ${thesisRecipesExport.css}`,
     persona: 'academic',
     fonts: PERSONA_FONTS.academic,
     previewCSS: `${academicBaseCSS}
-#nice { --ink-accent: #1a1a2e; }
-#nice h1 { font-size: 2em; font-weight: 700; text-align: center; margin: 0 0 0.8em; color: #1a1a2e; letter-spacing: 0.04em; }
-#nice h2 { color: #1a1a2e; font-weight: 700; margin-top: 1.6em; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; }
-#nice h3 { color: #1a1a2e; font-weight: 600; }
-#nice blockquote { background: #f4f4ee; border-left: 3px solid #1a1a2e; padding: 0.8em 1.2em; color: #1a1a2e; font-style: normal; }
-#nice table th { background: #1a1a2e; color: #fff; }
+#nice { --ink-accent: #1a1a2e; font-family: 'Source Han Serif SC', 'Noto Serif SC', 'EB Garamond', 'Songti SC', serif; background: #fbfaf5; color: #1a1a2e; counter-reset: legal-section; }
+#nice p { line-height: 1.85; margin-bottom: 1em; text-align: justify; text-indent: 2em; }
+#nice p:first-of-type { text-indent: 0; }
+#nice p:first-of-type::first-letter { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-size: 3em; font-weight: 700; float: left; line-height: 0.9; margin: 0.05em 0.12em -0.05em 0; color: #1a1a2e; }
+#nice h1 { font-size: 2em; font-weight: 700; text-align: center; margin: 0.2em 0 1em; color: #1a1a2e; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 0.4em; border-bottom: 3px double #1a1a2e; }
+#nice h2 { color: #1a1a2e; font-weight: 700; margin-top: 2em; font-size: 1.4em; letter-spacing: 0.04em; border-bottom: 1px solid #1a1a2e; padding-bottom: 0.3em; counter-increment: legal-section; }
+#nice h2::before { content: '§ ' counter(legal-section, upper-roman) '. '; font-family: 'EB Garamond', Georgia, serif; font-weight: 400; margin-right: 0.3em; color: #3d3d52; }
+#nice h3 { color: #1a1a2e; font-weight: 600; font-size: 1.15em; font-style: italic; margin-top: 1.3em; }
+#nice strong { color: #1a1a2e; font-weight: 700; text-decoration: underline; text-decoration-color: #b8b8c8; text-underline-offset: 0.2em; }
+#nice em { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-style: italic; }
+#nice blockquote { background: #f4f4ee; border-left: 4px double #1a1a2e; padding: 1em 1.3em; color: #1a1a2e; font-style: normal; margin: 1.5em 0; }
+#nice blockquote p { text-indent: 0; line-height: 1.8; }
+#nice blockquote::before { content: '“'; font-family: 'EB Garamond', Georgia, serif; font-size: 2.5em; color: #1a1a2e; line-height: 0; vertical-align: -0.4em; margin-right: 0.1em; opacity: 0.4; }
+#nice ol { padding-left: 2em; }
+#nice ol li::marker { font-family: 'EB Garamond', Georgia, serif; font-weight: 600; color: #1a1a2e; }
+#nice ul li::marker { color: #1a1a2e; }
+#nice code { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-style: italic; background: #ebebe0; color: #1a1a2e; padding: 0.05em 0.3em; }
+#nice a { color: #1a1a2e; border-bottom: 1px solid #1a1a2e; }
+#nice hr { border: 0; border-top: 1px solid #1a1a2e; margin: 2em 0; position: relative; }
+#nice table th { background: #1a1a2e; color: #fbfaf5; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.92em; }
 #nice table td { border-color: #d0d0c8; }
 ${legalRecipesPreview.css}`,
     exportCSS: `${academicBaseCSS}
@@ -426,14 +453,27 @@ ${legalRecipesExport.css}`,
     persona: 'academic',
     fonts: PERSONA_FONTS.academic,
     previewCSS: `${academicBaseCSS}
-#nice { --ink-accent: #004080; }
-#nice h1 { font-size: 2em; font-weight: 700; margin: 0 0 0.5em; color: #004080; letter-spacing: -0.01em; }
-#nice h2 { color: #004080; font-weight: 700; letter-spacing: 0; margin-top: 1.8em; }
-#nice h3 { color: #1A3A5C; font-weight: 600; }
-#nice strong { color: #004080; }
-#nice table th { background: #F2F5F9; color: #1A3A5C; font-weight: 600; border-bottom: 2px solid #004080; }
-#nice table td { border-color: #E6ECF2; }
-#nice a { color: #004080; }
+#nice { --ink-accent: #004080; font-family: 'Source Han Sans SC', 'IBM Plex Sans CN', 'Noto Sans SC', 'Inter', 'PingFang SC', sans-serif; background: #ffffff; color: #1A3A5C; counter-reset: report-h2; }
+#nice p { line-height: 1.75; margin-bottom: 0.95em; text-align: justify; }
+#nice h1 { font-size: 2em; font-weight: 800; margin: 0.2em 0 0.6em; color: #004080; letter-spacing: -0.01em; line-height: 1.25; padding: 0.6em 0.8em; background: #F2F5F9; border-left: 6px solid #004080; }
+#nice h1::after { content: ''; display: block; margin-top: 0.4em; width: 60px; height: 3px; background: #004080; }
+#nice h2 { color: #004080; font-weight: 700; letter-spacing: 0.01em; margin-top: 2em; font-size: 1.4em; padding-bottom: 0.3em; border-bottom: 2px solid #004080; counter-increment: report-h2; display: flex; align-items: baseline; gap: 0.6em; }
+#nice h2::before { content: '0' counter(report-h2); font-family: 'Inter', sans-serif; font-weight: 800; color: #fff; background: #004080; padding: 0.1em 0.5em; font-size: 0.7em; border-radius: 3px; letter-spacing: 0.05em; }
+#nice h3 { color: #1A3A5C; font-weight: 600; font-size: 1.15em; margin-top: 1.4em; padding-left: 0.7em; border-left: 3px solid #004080; }
+#nice h4 { color: #36474F; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.92em; }
+#nice strong { color: #004080; font-weight: 700; background: linear-gradient(180deg, transparent 60%, rgba(0,64,128,0.15) 60%); padding: 0 0.1em; }
+#nice em { font-style: normal; color: #004080; font-weight: 600; }
+#nice ul li::marker { color: #004080; content: '▸ '; }
+#nice ul li { margin-bottom: 0.4em; }
+#nice ol { counter-reset: report-li; padding-left: 0; }
+#nice ol li { list-style: none; counter-increment: report-li; padding-left: 2.2em; position: relative; margin-bottom: 0.5em; }
+#nice ol li::before { content: counter(report-li, decimal-leading-zero); position: absolute; left: 0; top: 0.05em; color: #004080; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.95em; }
+#nice blockquote { background: #F5F8FB; border-left: 4px solid #004080; padding: 1em 1.3em; color: #36474F; border-radius: 0 4px 4px 0; }
+#nice code { font-family: 'Inter', 'Consolas', monospace; background: #EFF3F7; color: #004080; padding: 0.05em 0.3em; border-radius: 2px; }
+#nice table th { background: #F2F5F9; color: #1A3A5C; font-weight: 700; border-bottom: 3px solid #004080; text-transform: uppercase; font-size: 0.88em; letter-spacing: 0.05em; }
+#nice table td { border-color: #E6ECF2; font-variant-numeric: tabular-nums; }
+#nice a { color: #004080; border-bottom: 1px solid #99B4CC; }
+#nice hr { border: 0; height: 3px; background: linear-gradient(90deg, #004080, #004080 60px, #E6ECF2 60px, #E6ECF2); margin: 2em 0; }
 ${reportRecipesPreview.css}`,
     exportCSS: `${academicBaseCSS}
 #nice h1 { font-size: 2em; font-weight: 700; margin: 0 0 0.5em; color: #004080; letter-spacing: -0.01em; }
@@ -469,11 +509,27 @@ ${reportRecipesExport.css}`,
     persona: 'business',
     fonts: PERSONA_FONTS.business,
     previewCSS: `${businessBaseCSS}
-#nice { --ink-accent: #c0392b; }
-#nice h1 { font-size: 2.2em; font-weight: 900; margin: 0 0 0.5em; color: #1a1a1a; letter-spacing: -0.01em; }
-#nice h2 { color: #c0392b; font-weight: 900; font-size: 1.5em; margin-top: 1.6em; }
-#nice strong { color: #c0392b; font-weight: 700; }
-#nice hr { border: 0; border-top: 2px solid #c0392b; margin: 2.4em 0; }
+#nice { --ink-accent: #c0392b; font-family: 'Source Han Sans SC', 'IBM Plex Sans CN', 'Noto Sans SC', 'Inter', 'PingFang SC', sans-serif; background: #ffffff; color: #1a1a1a; }
+#nice p { line-height: 1.7; margin-bottom: 1em; font-size: 1.02em; }
+#nice h1 { font-size: 2.4em; font-weight: 900; margin: 0.1em 0 0.4em; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.15; }
+#nice h1::after { content: ''; display: block; width: 80px; height: 5px; background: #c0392b; margin-top: 0.4em; }
+#nice h2 { color: #c0392b; font-weight: 900; font-size: 1.65em; margin-top: 1.8em; line-height: 1.3; letter-spacing: -0.01em; position: relative; padding-left: 0.7em; }
+#nice h2::before { content: ''; position: absolute; left: 0; top: 0.25em; bottom: 0.25em; width: 6px; background: #c0392b; }
+#nice h3 { color: #1a1a1a; font-weight: 800; font-size: 1.22em; margin-top: 1.3em; }
+#nice h3::after { content: ''; display: block; width: 28px; height: 2px; background: #c0392b; margin-top: 0.3em; }
+#nice strong { color: #c0392b; font-weight: 800; }
+#nice em { font-family: 'Inter', 'Source Han Sans SC', sans-serif; font-style: italic; font-weight: 600; color: #1a1a1a; border-bottom: 1px dashed #c0392b; }
+#nice blockquote { border-left: 5px solid #c0392b; background: #FFF5F3; padding: 1em 1.3em; margin: 1.4em 0; color: #2a1a17; font-style: italic; font-size: 1.08em; }
+#nice blockquote p { line-height: 1.65; }
+#nice blockquote::before { content: '“'; font-family: 'Inter', Georgia, serif; font-size: 3em; line-height: 0; vertical-align: -0.5em; color: #c0392b; margin-right: 0.15em; opacity: 0.5; }
+#nice ul li { padding-left: 0.2em; margin-bottom: 0.5em; }
+#nice ul li::marker { color: #c0392b; content: '— '; }
+#nice ol li::marker { color: #c0392b; font-weight: 800; }
+#nice code { font-family: 'Inter', 'Consolas', monospace; background: #FFEBE8; color: #c0392b; padding: 0.05em 0.3em; border-radius: 2px; font-weight: 600; }
+#nice a { color: #c0392b; font-weight: 600; border-bottom: 2px solid #c0392b; }
+#nice hr { border: 0; border-top: 3px solid #c0392b; margin: 2.4em 0; position: relative; }
+#nice hr::after { content: '◆'; position: absolute; left: 50%; top: -0.6em; transform: translateX(-50%); color: #c0392b; background: #ffffff; padding: 0 0.6em; font-size: 0.9em; }
+#nice table th { background: #c0392b; color: #fff; font-weight: 700; }
 ${commentaryRecipesPreview.css}`,
     exportCSS: `${businessBaseCSS}
 #nice h1 { font-size: 2.2em; font-weight: 900; margin: 0 0 0.5em; color: #1a1a1a; letter-spacing: -0.01em; }

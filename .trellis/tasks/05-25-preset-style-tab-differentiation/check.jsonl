@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Typecheck/lint contract"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Mock signatures + preset payload types"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Avoid duplicating preset CSS injection logic across mocks"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "wechat / xhs / zhihu pipeline consistency"}

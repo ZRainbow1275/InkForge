@@ -27,6 +27,15 @@ export interface XhsMockOptions {
   showHashtagPills?: boolean
   /** 显示字符计数 (默认 true) */
   showCharCounter?: boolean
+  /**
+   * 来自 themes.ts xhs preset.previewCSS 的主题 CSS，scope 到 `#xhs-note`。
+   * 注入后会覆盖 mock 内联 fallback 的字体/装饰/标题颜色等。
+   * 未提供时 mock 仍以内联 PRESET_TOKENS 渲染。
+   *
+   * 注意：preset 中由 composeRecipes 注入的规则使用 `#nice` 前缀，会被
+   * 自动改写为 `#xhs-note` 以匹配本 mock 的容器 id。
+   */
+  themeCSS?: string
 }
 
 export interface XhsMockInput {
@@ -129,6 +138,7 @@ export function renderXhsMockHtml(
   const tokens = PRESET_TOKENS[presetId] ?? PRESET_TOKENS.fresh
   const primary = options.primaryColor ?? tokens.primaryColor
   const titleEmoji = TITLE_DECORATIONS[presetId]
+  const themeStyle = renderThemeStyle(options.themeCSS)
 
   const showTitle = options.showTitleHeader ?? true
   const showHashtags = options.showHashtagPills ?? true
@@ -189,13 +199,30 @@ export function renderXhsMockHtml(
   ].join(';')
 
   return [
-    `<section class="xhs-mock" data-preset="${escapeHtml(presetId)}" style="${sectionStyle}">`,
+    `<section id="xhs-note" class="xhs-mock" data-preset="${escapeHtml(presetId)}" style="${sectionStyle}">`,
+    themeStyle,
     headerSection,
     `<article class="xhs-mock-body" style="${articleStyle}">${escapeHtml(articleText)}</article>`,
     hashtagSection,
     `<div class="xhs-mock-watermark" style="${watermarkStyle}">${escapeHtml(WATERMARK_TEXT)}</div>`,
     '</section>',
   ].join('')
+}
+
+/**
+ * Wrap preset.previewCSS in a `<style>` block scoped to the xhs mock container.
+ *
+ * - themes.ts xhs preset CSS already uses `#xhs-note` selectors, injected as-is.
+ * - composeRecipes() returns rules prefixed with `#nice` — rewritten to
+ *   `#xhs-note` so decoration recipes (drop cap, ornament hr, …) match the
+ *   actual mock DOM.
+ * - `</style>` in the payload is escaped to prevent breaking out of the block.
+ */
+function renderThemeStyle(css: string | undefined): string {
+  if (!css || !css.trim()) return ''
+  const rescoped = css.replace(/#nice\b/g, '#xhs-note')
+  const safe = rescoped.replace(/<\/style/gi, '<\\/style')
+  return `<style data-preset-theme="xhs-note">${safe}</style>`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue scoped style + composable conventions"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Pinia store conventions for preset mutations"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Typecheck/lint contract"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Type changes to mock signatures + preset payload"}
+{"file": ".trellis/tasks/05-25-preset-style-tab-differentiation/research/codebase-gap-analysis.md", "reason": "Research findings — root cause for A/B"}

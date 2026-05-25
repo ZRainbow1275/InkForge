@@ -38,6 +38,15 @@ export interface ZhihuMockOptions {
   showLatexAsImg?: boolean
   /** 是否显示代码块语言徽章（右上角小标签）— 默认 true */
   showCodeLanguageBadge?: boolean
+  /**
+   * 来自 themes.ts zhihu preset.previewCSS 的主题 CSS，scope 到 `#zhihu-answer`。
+   * 注入后会覆盖 mock 内联 fallback 的字体/装饰/标题颜色等。
+   * 未提供时 mock 仍以内联 PRESET_TOKENS + applyInlineThemeAccents 渲染。
+   *
+   * 注意：preset 中由 composeRecipes 注入的规则使用 `#nice` 前缀，会被
+   * 自动改写为 `#zhihu-answer` 以匹配本 mock 的容器 id。
+   */
+  themeCSS?: string
 }
 
 export interface ZhihuMockInput {
@@ -153,7 +162,26 @@ export function renderZhihuMockHtml(
   // Step 5: watermark
   const watermark = `<div class="zhihu-mock-watermark" style="margin-top:24px;padding:8px 12px;font-size:12px;color:#888;border-top:1px dashed #e5e5e5;text-align:center;">预览 · 知乎 web 编辑器会过滤大部分 CSS</div>`
 
-  return `<section class="zhihu-mock zhihu-mock-${escapeAttr(options?.presetId ?? 'academic')}" data-primary="${escapeAttr(tokens.primaryColor)}" style="${containerStyle}">${themedHtml}${watermark}</section>`
+  // Step 6: preset themeCSS — scoped to `#zhihu-answer`. Injected before body
+  // so cascade order favors mock inline styles only when no preset rule matches.
+  const themeStyle = renderThemeStyle(options?.themeCSS)
+
+  return `<section id="zhihu-answer" class="zhihu-mock zhihu-mock-${escapeAttr(options?.presetId ?? 'academic')}" data-primary="${escapeAttr(tokens.primaryColor)}" style="${containerStyle}">${themeStyle}${themedHtml}${watermark}</section>`
+}
+
+/**
+ * Wrap preset.previewCSS in a `<style>` block scoped to the zhihu mock container.
+ *
+ * - themes.ts zhihu preset CSS already uses `#zhihu-answer` selectors, injected as-is.
+ * - composeRecipes() returns rules prefixed with `#nice` — rewritten to
+ *   `#zhihu-answer` so decoration recipes match the actual mock DOM.
+ * - `</style>` in the payload is escaped to prevent breaking out of the block.
+ */
+function renderThemeStyle(css: string | undefined): string {
+  if (!css || !css.trim()) return ''
+  const rescoped = css.replace(/#nice\b/g, '#zhihu-answer')
+  const safe = rescoped.replace(/<\/style/gi, '<\\/style')
+  return `<style data-preset-theme="zhihu-answer">${safe}</style>`
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
