@@ -845,6 +845,51 @@ function handleSplitDividerKeydown(event: KeyboardEvent): void {
   }
 }
 
+// ── Inspector resize (drag handle) ──
+const isDraggingInspector = ref(false)
+
+function handleInspectorResizeMove(event: PointerEvent): void {
+  if (!isDraggingInspector.value) return
+  event.preventDefault()
+  const container = document.querySelector('.main-content') as HTMLElement | null
+  if (!container) return
+  const rect = container.getBoundingClientRect()
+  const newWidth = rect.right - event.clientX
+  panelWidths.value = {
+    ...panelWidths.value,
+    inspector: clampPanelWidth('inspector', newWidth),
+  }
+}
+
+function stopInspectorResize(): void {
+  isDraggingInspector.value = false
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('split-view-resizing')
+  }
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('pointermove', handleInspectorResizeMove)
+    window.removeEventListener('pointerup', stopInspectorResize)
+  }
+  writePanelWidthsPreference(panelWidths.value)
+}
+
+function startInspectorResize(event: PointerEvent): void {
+  event.preventDefault()
+  if (typeof document === 'undefined' || typeof window === 'undefined') return
+  isDraggingInspector.value = true
+  document.body.classList.add('split-view-resizing')
+  window.addEventListener('pointermove', handleInspectorResizeMove)
+  window.addEventListener('pointerup', stopInspectorResize, { once: true })
+}
+
+function resetInspectorWidth(): void {
+  panelWidths.value = {
+    ...panelWidths.value,
+    inspector: WORKSTATION_PANEL_WIDTH_LIMITS.inspector.default,
+  }
+  writePanelWidthsPreference(panelWidths.value)
+}
+
 function applyLayoutPreset(presetId: WorkstationLayoutPresetId): void {
   const preset = WORKSTATION_LAYOUT_PRESETS.find(item => item.id === presetId)
   if (!preset) return
@@ -2817,6 +2862,16 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           <div class="inspector-collapsed-indicator" />
         </div>
 
+        <!-- 展开态：左侧 drag handle，拖拽改变宽度 -->
+        <div
+          v-if="!inspectorCollapsed"
+          class="inspector-resize-handle"
+          :class="{ active: isDraggingInspector }"
+          title="拖动调整宽度 / 双击重置"
+          @pointerdown="startInspectorResize"
+          @dblclick="resetInspectorWidth"
+        />
+
         <!-- 灞曞紑鎬佸唴瀹癸細4涓瀭鐩存粴鍔?Section -->
         <template v-else>
           <div class="inspector-header">
@@ -3907,6 +3962,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   user-select: none;
 }
 
+:global(body.split-view-resizing) .panel-inspector {
+  transition: none;
+}
+
 @container (max-width: 720px) {
   .editor-split-shell,
   .editor-split-shell.active {
@@ -4189,12 +4248,32 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 /* 鈹€鈹€鈹€ 鍙虫爮 鈹€鈹€鈹€ */
 .panel-inspector {
+  position: relative;
   width: var(--workstation-inspector-width, 260px);
   min-width: var(--workstation-inspector-width, 260px);
   flex-shrink: 0;
   border-right: none;
   border-left: 1px solid #E5E7EB;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.inspector-resize-handle {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  background: transparent;
+  transition: background 0.15s ease;
+  touch-action: none;
+  user-select: none;
+}
+
+.inspector-resize-handle:hover,
+.inspector-resize-handle.active {
+  background: rgba(211, 47, 47, 0.18);
 }
 
 .panel-inspector.pinned:not(.collapsed) {

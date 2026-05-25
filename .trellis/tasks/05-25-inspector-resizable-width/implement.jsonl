@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue event handler + template conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "typecheck/lint contract"}
