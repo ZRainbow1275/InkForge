@@ -1001,7 +1001,7 @@ const topPresets = computed<Array<{ id: string; name: string; icon?: string; des
     name: p.name,
     icon: p.icon,
     description: p.description,
-    persona: (p as { persona?: string }).persona,
+    persona: p.persona,
   }))
 })
 
