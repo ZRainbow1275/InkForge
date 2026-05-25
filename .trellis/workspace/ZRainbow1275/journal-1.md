@@ -320,3 +320,36 @@ Fixed WeChat previewCSS+juice decorator duplication and CSS unicode escape leaka
 ### Next Steps
 
 - None - task complete
+
+
+## Session 9: Export modal manual QA responsive fix
+
+**Date**: 2026-05-26
+**Task**: Export modal manual QA responsive fix
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Continued full browser manual QA for the WeChat previewCSS export task, found mobile ExportModal horizontal overflow at 390px, fixed the modal responsive layout, and revalidated WeChat/XHS/Zhihu export previews plus quality gates.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `03e54c5` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
