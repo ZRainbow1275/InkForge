@@ -2222,4 +2222,109 @@ onUnmounted(() => {
 .quality-list::-webkit-scrollbar-thumb:hover {
   background: #B0BEC5;
 }
+
+@media (max-width: 760px) {
+  .export-overlay {
+    padding: 12px;
+    align-items: stretch;
+  }
+
+  .export-panel {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100vh - 24px);
+    border-radius: 12px;
+  }
+
+  .export-header {
+    padding: 14px 16px;
+  }
+
+  .export-body {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .control-column {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 1px solid #ECEFF1;
+  }
+
+  .control-scroll {
+    overflow: visible;
+  }
+
+  .ctrl-section {
+    padding: 14px 16px;
+  }
+
+  .preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .action-bar {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+
+  .act-btn {
+    min-width: 0;
+    padding: 10px 12px;
+    white-space: normal;
+  }
+
+  .preview-column {
+    width: 100%;
+    min-width: 0;
+    min-height: 420px;
+    flex: 0 0 auto;
+  }
+
+  .preview-topbar {
+    padding: 10px 16px;
+  }
+
+  .preview-viewport {
+    max-height: 520px;
+    padding: 14px;
+  }
+
+  .preview-render {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .export-overlay {
+    padding: 8px;
+  }
+
+  .export-panel {
+    max-height: calc(100vh - 16px);
+  }
+
+  .platform-pills {
+    gap: 4px;
+  }
+
+  .pill-btn {
+    padding: 8px 4px;
+  }
+
+  .action-bar {
+    flex-direction: column;
+  }
+
+  .preview-column {
+    min-height: 360px;
+  }
+
+  .preview-viewport {
+    max-height: 460px;
+  }
+}
 </style>
