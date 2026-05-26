@@ -1,21 +1,26 @@
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 
 // ═══════════════════════════════════════════════════════════════════
-// 打字机模式 TipTap 扩展
-// 将光标所在行始终保持在编辑器视口垂直中央
+// 打字机模式 TipTap 扩展（沉浸式聚焦写作）
+// - 光标行视口居中滚动（cursorPosition 0.3~0.7 可调）
+// - 分级淡化：当前段 1.0 / 相邻段 ±1 = 0.85 / 更远段 ≥±2 = 0.5
+// - 句子级聚焦：活跃段内当前句 1.0 / 其他句 0.75（代码块/列表跳过）
+// - 段落侧栏：当前段左侧 2px 主题色竖条
+// - 闲置呼吸：>1.2s 无操作给 ProseMirror DOM 写 data-typewriter-idle
 // ═══════════════════════════════════════════════════════════════════
 
 /** 扩展配置 */
 export interface TypewriterModeOptions {
     /** 启用状态（可动态切换） */
     enabled: boolean
-    /** 光标位置占视口高度的百分比（0.5 = 正中间） */
+    /** 光标位置占视口高度的百分比（0.3 ~ 0.7） */
     cursorPosition: number
     /** 滚动动画（smooth/auto） */
     scrollBehavior: ScrollBehavior
-    /** 非活跃段落淡化（opacity: 0.7） */
+    /** 非活跃段落淡化（统一钩子，分级 class 决定具体 opacity） */
     dimInactiveParagraphs: boolean
 }
 
@@ -29,6 +34,15 @@ const DEFAULT_OPTIONS: TypewriterModeOptions = {
 
 /** ProseMirror 插件 Key */
 const typewriterPluginKey = new PluginKey('typewriterMode')
+
+/** 闲置阈值（ms）— 超过则进入呼吸态 */
+const IDLE_THRESHOLD_MS = 1200
+
+/** 句末切分正则（中英文标点 + 可选空白） */
+const SENTENCE_SPLIT_REGEX = /[.!?。！？；;]+\s*/g
+
+/** 不做句子细分的节点类型（代码块/列表整体处理） */
+const SKIP_SENTENCE_SPLIT_TYPES = new Set(['codeBlock', 'code_block', 'listItem', 'list_item', 'taskList', 'task_list', 'taskItem', 'task_item', 'bulletList', 'orderedList'])
 
 /**
  * 查找最近的可滚动父元素
@@ -58,13 +72,113 @@ function findScrollParent(element: HTMLElement): HTMLElement | null {
 }
 
 /**
+ * 在 doc 顶层块里定位当前 selection 所在的块 index。
+ * 返回 -1 表示未找到（极端情况，例如 selection 越界）。
+ */
+function findActiveBlockIndex(doc: ProseMirrorNode, selectionFrom: number): number {
+    let activeIndex = -1
+    doc.forEach((node, offset, index) => {
+        const start = offset
+        const end = offset + node.nodeSize
+        if (selectionFrom >= start && selectionFrom <= end) {
+            activeIndex = index
+        }
+    })
+    return activeIndex
+}
+
+/**
+ * Phase C: 找到离光标最近的 textblock 祖先（paragraph / heading / listItem 的 paragraph 子 / codeBlock 等）。
+ * 嵌套块（如 li > p）场景下，sidebar / active class 必须挂到具体 textblock 而非整个顶层 ul/ol。
+ *
+ * 返回该 textblock 在 doc 中的绝对位置范围 + node 引用。无 textblock 祖先（极端情况）返回 null。
+ */
+function findActiveTextblockRange(
+    doc: ProseMirrorNode,
+    selectionFrom: number,
+): { from: number; to: number; node: ProseMirrorNode; depth: number } | null {
+    let $from: ReturnType<ProseMirrorNode['resolve']>
+    try {
+        $from = doc.resolve(selectionFrom)
+    } catch {
+        return null
+    }
+
+    for (let d = $from.depth; d > 0; d--) {
+        const node = $from.node(d)
+        if (node.isTextblock) {
+            return {
+                from: $from.before(d),
+                to: $from.after(d),
+                node,
+                depth: d,
+            }
+        }
+    }
+    return null
+}
+
+/**
+ * 计算当前块内 cursor 所在句子的 [start, end] inline 偏移（相对块内容起点）。
+ * 返回 null 表示无法定位（节点无文本 / 句切失败 / 节点类型不支持切句）。
+ */
+function findActiveSentenceRange(
+    activeNode: ProseMirrorNode,
+    activeNodeStart: number,
+    selectionFrom: number,
+): { start: number; end: number; ranges: Array<{ start: number; end: number }> } | null {
+    if (SKIP_SENTENCE_SPLIT_TYPES.has(activeNode.type.name)) {
+        return null
+    }
+
+    const text = activeNode.textContent
+    if (!text || text.length === 0) {
+        return null
+    }
+
+    // contentStart: 块内容起始位置（块开始位置 + 1 个 openStart）
+    const contentStart = activeNodeStart + 1
+    const cursorOffset = selectionFrom - contentStart
+
+    const ranges: Array<{ start: number; end: number }> = []
+    let lastIndex = 0
+    let match: RegExpExecArray | null
+
+    SENTENCE_SPLIT_REGEX.lastIndex = 0
+    while ((match = SENTENCE_SPLIT_REGEX.exec(text)) !== null) {
+        const endIndex = match.index + match[0].length
+        if (endIndex > lastIndex) {
+            ranges.push({ start: lastIndex, end: endIndex })
+        }
+        lastIndex = endIndex
+    }
+    if (lastIndex < text.length) {
+        ranges.push({ start: lastIndex, end: text.length })
+    }
+
+    if (ranges.length === 0) {
+        return null
+    }
+
+    let activeRange = ranges[ranges.length - 1]
+    for (const range of ranges) {
+        if (cursorOffset >= range.start && cursorOffset <= range.end) {
+            activeRange = range
+            break
+        }
+    }
+
+    return { start: activeRange.start, end: activeRange.end, ranges }
+}
+
+/**
  * TypewriterMode TipTap Extension
  *
  * 功能：
- * - 光标始终保持在编辑器视口垂直中央
+ * - 光标始终保持在编辑器视口指定垂直位置（0.3~0.7 可调）
  * - 打字时自动滚动，营造打字机效果
- * - 非活跃段落淡化（opacity: 0.7）
- * - 可配置光标位置比例和滚动行为
+ * - 分级淡化 + 句子级聚焦 + 段落侧栏（沉浸式聚焦）
+ * - 闲置 >1.2s 触发呼吸光标（data-typewriter-idle 属性 + CSS）
  * - 可通过 enabled 选项动态开关
  */
 export const TypewriterMode = Extension.create<TypewriterModeOptions>({
@@ -78,14 +192,59 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
         const extensionOptions = this.options
 
         return [
-            // 插件 1: 光标居中滚动
+            // 插件 1: 光标居中滚动 + 闲置呼吸 timer
             new Plugin({
                 key: typewriterPluginKey,
 
-                view() {
+                view(initialView) {
+                    let idleTimer: ReturnType<typeof setTimeout> | null = null
+
+                    const clearIdle = () => {
+                        if (idleTimer !== null) {
+                            clearTimeout(idleTimer)
+                            idleTimer = null
+                        }
+                    }
+
+                    const setIdleAttr = (view: { dom: Element }, idle: boolean) => {
+                        const dom = view.dom as HTMLElement
+                        if (idle) {
+                            dom.setAttribute('data-typewriter-idle', 'true')
+                        } else {
+                            dom.removeAttribute('data-typewriter-idle')
+                        }
+                    }
+
+                    const scheduleIdle = (view: { dom: Element }) => {
+                        clearIdle()
+                        if (!extensionOptions.enabled) return
+                        idleTimer = setTimeout(() => {
+                            setIdleAttr(view, true)
+                        }, IDLE_THRESHOLD_MS)
+                    }
+
+                    // 初始装载：禁用态保证移除任何残留属性
+                    setIdleAttr(initialView, false)
+                    if (extensionOptions.enabled) {
+                        scheduleIdle(initialView)
+                    }
+
                     return {
                         update(view, prevState) {
-                            if (!extensionOptions.enabled) return
+                            if (import.meta.env.DEV) {
+                                // eslint-disable-next-line no-console
+                                console.debug('[typewriter] plugin1 update', { enabled: extensionOptions.enabled })
+                            }
+                            // 关闭打字机时清理一切痕迹
+                            if (!extensionOptions.enabled) {
+                                clearIdle()
+                                setIdleAttr(view, false)
+                                return
+                            }
+
+                            // 任何状态变化都视为活跃，重置呼吸 timer
+                            setIdleAttr(view, false)
+                            scheduleIdle(view)
 
                             // 只在光标位置发生变化时滚动
                             const cursorMoved = !prevState.selection.eq(view.state.selection)
@@ -121,50 +280,99 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                                 }
                             })
                         },
+
+                        destroy() {
+                            clearIdle()
+                            setIdleAttr(initialView, false)
+                        },
                     }
                 },
             }),
 
-            // 插件 2: 非活跃段落淡化
+            // 插件 2: 分级淡化 + 句子级聚焦 + 段落侧栏装饰
             new Plugin({
                 key: new PluginKey('typewriterDim'),
 
                 props: {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prosemirror-transform 版本冲突导致 DecorationSet 与 DecorationSource 不兼容
                     decorations(state): any {
+                        if (import.meta.env.DEV) {
+                            // eslint-disable-next-line no-console
+                            console.debug('[typewriter] decorations call', {
+                                enabled: extensionOptions.enabled,
+                                dimInactive: extensionOptions.dimInactiveParagraphs,
+                                cursorPos: extensionOptions.cursorPosition,
+                                docChildCount: state.doc.childCount,
+                                selectionFrom: state.selection.from,
+                            })
+                        }
+
                         if (!extensionOptions.enabled || !extensionOptions.dimInactiveParagraphs) {
                             return DecorationSet.empty
                         }
 
-                        const { selection } = state
+                        const { selection, doc } = state
                         const decorations: Decoration[] = []
 
-                        // 找到光标所在的顶层块节点
-                        const $pos = state.doc.resolve(selection.from)
-                        // 获取顶层块的位置（depth=1 表示文档直接子节点）
-                        const activeDepth = Math.min($pos.depth, 1)
-                        const activeBlockStart = activeDepth > 0 ? $pos.start(activeDepth) : 0
-                        const activeBlockEnd = activeDepth > 0 ? $pos.end(activeDepth) : state.doc.content.size
+                        const activeBlockIndex = findActiveBlockIndex(doc, selection.from)
+                        // Phase C: 找到光标真正所在的 textblock 祖先（嵌套块如 li > p 时正确锚定 sidebar）
+                        const activeTextblock = findActiveTextblockRange(doc, selection.from)
 
-                        // 遍历文档的顶层块节点，淡化非活跃段落
-                        state.doc.forEach((node, offset) => {
+                        // 第一遍：扫描每个顶层块，按距离打 class
+                        doc.forEach((node, offset, index) => {
                             const nodeStart = offset
                             const nodeEnd = offset + node.nodeSize
+                            const distance = activeBlockIndex < 0 ? 999 : Math.abs(index - activeBlockIndex)
 
-                            // 跳过光标所在的块
-                            if (nodeStart >= activeBlockStart && nodeEnd <= activeBlockEnd + 1) {
-                                return
+                            if (distance === 0) {
+                                // Phase C: sidebar / active class 挂到具体 textblock 范围而非整个顶层块。
+                                // 顶层块本身若就是 textblock（paragraph / heading），其范围与 textblock 一致。
+                                // 嵌套场景（ul > li > p），active 范围 = 当前 li 内的 p，sidebar 贴在 p 而非 ul。
+                                const activeFrom = activeTextblock ? activeTextblock.from : nodeStart
+                                const activeTo = activeTextblock ? activeTextblock.to : nodeEnd
+                                const activeNode = activeTextblock ? activeTextblock.node : node
+                                const sentenceContentStart = activeFrom + 1
+
+                                decorations.push(
+                                    Decoration.node(activeFrom, activeTo, {
+                                        class: 'typewriter-block-active',
+                                    }),
+                                )
+
+                                // 句子级 inline 装饰（活跃 textblock 文本拆句，光标所在句不淡化）
+                                const activeRange = findActiveSentenceRange(activeNode, activeFrom, selection.from)
+                                if (activeRange) {
+                                    for (const range of activeRange.ranges) {
+                                        if (range.start === activeRange.start && range.end === activeRange.end) {
+                                            continue
+                                        }
+                                        const from = sentenceContentStart + range.start
+                                        const to = sentenceContentStart + range.end
+                                        if (to > from) {
+                                            decorations.push(
+                                                Decoration.inline(from, to, {
+                                                    class: 'typewriter-sentence-dim',
+                                                }),
+                                            )
+                                        }
+                                    }
+                                }
+                            } else if (distance === 1) {
+                                decorations.push(
+                                    Decoration.node(nodeStart, nodeEnd, {
+                                        class: 'typewriter-dimmed typewriter-dim-near',
+                                    }),
+                                )
+                            } else {
+                                decorations.push(
+                                    Decoration.node(nodeStart, nodeEnd, {
+                                        class: 'typewriter-dimmed typewriter-dim-far',
+                                    }),
+                                )
                             }
-
-                            decorations.push(
-                                Decoration.node(nodeStart, nodeEnd, {
-                                    class: 'typewriter-dimmed',
-                                    style: 'opacity: 0.7; transition: opacity 0.3s ease;',
-                                })
-                            )
                         })
 
-                        return DecorationSet.create(state.doc, decorations)
+                        return DecorationSet.create(doc, decorations)
                     },
                 },
             }),

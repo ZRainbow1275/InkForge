@@ -1065,3 +1065,60 @@ html[data-reduced-motion="true"] *::after {
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   打字机模式 / TypewriterMode 装饰样式
+   - dim-near / dim-far：分级淡化（!important 防止 ProseMirror 内层节点覆盖）
+   - sentence-dim：句子级聚焦
+   - block-active：当前段落左侧主题色侧栏
+   - data-typewriter-idle：闲置 >1.2s 时光标呼吸
+   ───────────────────────────────────────────────────────────── */
+.typewriter-dim-near {
+  opacity: 0.85 !important;
+  transition: opacity 0.3s ease;
+}
+
+.typewriter-dim-far {
+  opacity: 0.5 !important;
+  transition: opacity 0.3s ease;
+}
+
+.typewriter-sentence-dim {
+  opacity: 0.75;
+  transition: opacity 0.25s ease;
+}
+
+.typewriter-block-active {
+  position: relative;
+}
+
+.typewriter-block-active::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-primary, #D32F2F);
+  opacity: 0.85;
+  border-radius: 1px;
+  transition: opacity 0.25s ease, background 0.25s ease;
+  pointer-events: none;
+}
+
+@keyframes typewriter-cursor-breathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.ProseMirror[data-typewriter-idle="true"] {
+  caret-color: var(--color-primary, #D32F2F);
+}
+
+.ProseMirror[data-typewriter-idle="true"] .typewriter-block-active::before {
+  animation: typewriter-cursor-breathe 1.6s ease-in-out infinite;
+}

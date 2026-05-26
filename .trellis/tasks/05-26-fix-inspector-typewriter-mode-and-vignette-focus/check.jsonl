@@ -1,2 +1,6 @@
-{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "Verify single-file change matches AC; no scope creep"}
+{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "Verify Phase 2 implementation matches AC (tiered dim / sentence focus / slider / breathing + side bar); no scope creep beyond A+B+C+D"}
 {"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Reviewer enforces no fake success, no mock-only, real gates"}
+{"file": "inkforge/src/extensions/TypewriterMode.ts", "reason": "Verify plugin 2 emits tiered classes + sentence inline dim + active-block class; plugin 1 sets idle data-attr; CSS class names match"}
+{"file": "inkforge/src/stores/writingAssist.ts", "reason": "Verify cursorPosition schema clamp 0.3-0.7, default 0.5, persisted to localStorage, action exposed"}
+{"file": "inkforge/src/components/editor/WritingAssistPanel.vue", "reason": "Verify slider wiring (range 0.3-0.7 step 0.05), disabled state when typewriter off, label %"}
+{"file": "inkforge/src/components/editor/EditorPanel.vue", "reason": "Verify TypewriterMode.configure initial cursorPosition + watcher reactively syncs to tw.options"}

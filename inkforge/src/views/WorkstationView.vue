@@ -1965,7 +1965,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 <template>
   <div
     class="workstation"
-    :class="{ 'focus-mode': isFocusMode, 'focus-vignette': isFocusMode && writingAssistStore.vignette.isEnabled, 'split-view-active': isSplitViewActive, [`mode-${editorMode}`]: true }"
+    :class="{ 'focus-mode': isFocusMode, 'focus-vignette': writingAssistStore.vignette.isEnabled, 'split-view-active': isSplitViewActive, [`mode-${editorMode}`]: true }"
     :style="workstationLayoutStyle"
   >
     <!-- Focus Overlay (涓撴敞妯″紡鏆楄) -->
@@ -2490,6 +2490,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         class="panel panel-editor"
         :class="{ 'panel-editor--preview': isPreviewMode, 'panel-editor--split': isSplitViewActive }"
       >
+        <!-- Vignette Overlay (暗角聚焦，独立于 focus mode，锚定在编辑区) -->
+        <div
+          v-if="writingAssistStore.vignette.isEnabled"
+          class="vignette-overlay"
+          aria-hidden="true"
+        />
+
         <div
           v-if="!isPreviewMode"
           ref="splitViewContainerRef"
@@ -3813,10 +3820,32 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 /* 鈹€鈹€鈹€ 缂栬緫鍣ㄦ爮 鈹€鈹€鈹€ */
 .panel-editor {
+  position: relative;
   flex: 1;
   min-width: 0;
   border-right: 1px solid #E5E7EB;
   container-type: inline-size;
+}
+
+/* 鈹€鈹€鈹€ Vignette Overlay (鏆楄鑱氱劍锛屾爣鍦ㄧ紪杈戝尯) 鈹€鈹€鈹€ */
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.focus-vignette .vignette-overlay {
+  opacity: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18) 0,
+    transparent var(--focus-vignette-height),
+    transparent calc(100% - var(--focus-vignette-height)),
+    rgba(0, 0, 0, 0.18) 100%
+  );
 }
 
 .panel-editor--preview {
@@ -5545,6 +5574,13 @@ html[data-theme="dark"] .panel-tab.active {
 
 .focus-mode .workstation-header:hover {
   opacity: 1;
+}
+
+/* focus mode 涓嬮殣钘忛《鏍忔搷浣滃尯锛岄伩鍏嶄笌 .focus-exit-btn (top:18/right:20) 閲嶅彔 */
+.focus-mode .workstation-header .header-actions,
+.focus-mode .workstation-header .layout-presets,
+.focus-mode .workstation-header .publish-btn {
+  display: none;
 }
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?

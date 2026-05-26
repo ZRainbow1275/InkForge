@@ -81,7 +81,10 @@ const {
   pomodoroHistory,
   goalStreak,
   wordCountHistory,
+  cursorPosition,
 } = storeToRefs(writingAssistStore)
+
+const cursorPositionPercent = computed(() => Math.round(cursorPosition.value * 100))
 
 const soundOptions: ReadonlyArray<{ type: AmbientSoundType; label: string; icon: LucideIcon }> = [
   { type: 'rain', label: '雨声', icon: Waves },
@@ -543,6 +546,22 @@ function ringOffset(percent: number | undefined): number {
           :disabled="!vignette.isEnabled"
           :value="vignette.height"
           @input="writingAssistStore.setVignetteHeight(Number(($event.target as HTMLInputElement).value))"
+        >
+      </label>
+      <label
+        class="assist-range"
+        :class="{ disabled: !typewriterMode }"
+        :aria-label="`光标位置 ${cursorPositionPercent}%`"
+      >
+        <span>光标位置 {{ cursorPositionPercent }}%</span>
+        <input
+          type="range"
+          min="0.3"
+          max="0.7"
+          step="0.05"
+          :disabled="!typewriterMode"
+          :value="cursorPosition"
+          @input="writingAssistStore.setCursorPosition(Number(($event.target as HTMLInputElement).value))"
         >
       </label>
     </div>

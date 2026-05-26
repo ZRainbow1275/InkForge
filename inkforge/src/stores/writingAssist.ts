@@ -149,7 +149,19 @@ const PersistedWritingAssistSchema = z.object({
   activeSounds: z.array(AmbientSoundTypeSchema).max(MAX_ACTIVE_SOUNDS).default([]),
   pomodoroHistory: z.array(PomodoroSessionSchema).default([]),
   goalStreak: GoalStreakSchema.default({ currentDays: 0, longestDays: 0, lastDate: '' }),
+  cursorPosition: z.number().min(0.3).max(0.7).default(0.5),
 })
+
+const CURSOR_POSITION_MIN = 0.3
+const CURSOR_POSITION_MAX = 0.7
+const CURSOR_POSITION_DEFAULT = 0.5
+
+function clampCursorPosition(value: number): number {
+  if (!Number.isFinite(value)) {
+    return CURSOR_POSITION_DEFAULT
+  }
+  return Math.max(CURSOR_POSITION_MIN, Math.min(CURSOR_POSITION_MAX, value))
+}
 
 type PersistedWritingAssist = z.infer<typeof PersistedWritingAssistSchema>
 
@@ -221,6 +233,7 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
   const wordCountHistory = ref<WordCountSample[]>([])
   const pomodoroHistory = ref<PomodoroSession[]>([...persisted.pomodoroHistory])
   const goalStreak = ref<GoalStreak>({ ...persisted.goalStreak })
+  const cursorPosition = ref<number>(clampCursorPosition(persisted.cursorPosition))
 
   let pomodoroTimer: ReturnType<typeof setInterval> | null = null
   let focusSessionTimer: ReturnType<typeof setInterval> | null = null
@@ -245,6 +258,7 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
       activeSounds: [...ambientSound.value.activeSounds],
       pomodoroHistory: pomodoroHistory.value.slice(-MAX_POMODORO_HISTORY),
       goalStreak: { ...goalStreak.value },
+      cursorPosition: cursorPosition.value,
     })
   }
 
@@ -326,6 +340,11 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
       ...vignette.value,
       height: Math.max(40, Math.min(200, Math.trunc(height))),
     }
+    persistSettings()
+  }
+
+  function setCursorPosition(value: number): void {
+    cursorPosition.value = clampCursorPosition(value)
     persistSettings()
   }
 
@@ -584,6 +603,7 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
     pomodoroHistory,
     goalStreak,
     wordCountHistory,
+    cursorPosition,
     pomodoroTimeDisplay,
     documentGoalPercent,
     isPomodoroActive,
@@ -594,6 +614,7 @@ export const useWritingAssistStore = defineStore('writingAssist', () => {
     dismissSummary,
     setVignetteEnabled,
     setVignetteHeight,
+    setCursorPosition,
     updateStats,
     startPomodoro,
     pausePomodoro,

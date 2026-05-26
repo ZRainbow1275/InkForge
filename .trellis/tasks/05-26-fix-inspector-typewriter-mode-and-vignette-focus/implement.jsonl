@@ -1,2 +1,6 @@
-{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "PRD with single-file decision, AC, full-sweep self-check"}
+{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "PRD with Phase 1 (done) and Phase 2 (A+B+C+D) design + AC + implementation order"}
 {"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Forbidden/required patterns; gate via typecheck/lint/vitest"}
+{"file": "inkforge/src/extensions/TypewriterMode.ts", "reason": "Phase 2 main battleground: rewrite plugin 2 decorations (tiered dim + sentence focus + active block class), plugin 1 idle timer"}
+{"file": "inkforge/src/stores/writingAssist.ts", "reason": "Add cursorPosition state + schema clamp 0.3-0.7 + setCursorPosition action + persist"}
+{"file": "inkforge/src/components/editor/WritingAssistPanel.vue", "reason": "Add cursor position slider symmetric to vignette height slider; storeToRefs cursorPosition"}
+{"file": "inkforge/src/components/editor/EditorPanel.vue", "reason": "TypewriterMode.configure initial cursorPosition + watcher sync writingAssistStore.cursorPosition into tw.options"}

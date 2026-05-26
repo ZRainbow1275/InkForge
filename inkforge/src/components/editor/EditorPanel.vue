@@ -42,6 +42,7 @@ import { SnippetExpansion } from '@/extensions/SnippetExpansion'
 import { useSettingsStore } from '@/stores/settings'
 import { useAssetStore } from '@/stores/asset'
 import { useSnippetStore } from '@/stores/snippet'
+import { useWritingAssistStore } from '@/stores/writingAssist'
 import { ImageV2Extension, ImageDropPaste, type ImageIngressState, type InsertedImageAsset } from '@/extensions/ImageV2'
 import { RichCodeBlock } from '@/extensions/RichCodeBlock'
 import { DetailsBlock } from '@/extensions/DetailsBlock'
@@ -113,6 +114,7 @@ const editorStore = useEditorStore()
 const settingsStore = useSettingsStore()
 const assetStore = useAssetStore()
 const snippetStore = useSnippetStore()
+const writingAssistStore = useWritingAssistStore()
 const { currentContent, status: editorStatus, error: editorError } = storeToRefs(editorStore)
 
 // 派生状态
@@ -129,6 +131,7 @@ type TyporaExtensionRecord = {
   options: {
     enabled?: boolean | (() => boolean)
     rules?: SmartPunctuationRuleSettings | (() => SmartPunctuationRuleSettings)
+    cursorPosition?: number
   }
 }
 
@@ -410,6 +413,7 @@ function initializeBodyEditor(): void {
       }),
       TypewriterMode.configure({
         enabled: settingsStore.settings.editor.typewriterMode,
+        cursorPosition: writingAssistStore.cursorPosition,
       }),
       TyporaMode.configure({
         enabled: props.editorMode === 'typora' && settingsStore.settings.editor.highlightActiveLine,
@@ -479,6 +483,9 @@ function initializeBodyEditor(): void {
   })
 
   enableManualVueNodeViews(bodyEditor.value)
+  if (import.meta.env.DEV) {
+    ;(window as unknown as { __inkforgeEditor?: unknown }).__inkforgeEditor = bodyEditor.value
+  }
   syncDevPanelEditorBridge()
 
   setSyncState(editorStatus.value === 'ready' || editorStatus.value === 'saving' ? 'synced' : 'offline')
@@ -510,7 +517,10 @@ watch(
       sp.options.rules = () => editorSettings.smartPunctuationRules
     }
     const tw = exts.find(e => e.name === 'typewriterMode')
-    if (tw) tw.options.enabled = editorSettings.typewriterMode
+    if (tw) {
+      tw.options.enabled = editorSettings.typewriterMode
+      tw.options.cursorPosition = writingAssistStore.cursorPosition
+    }
     const typora = exts.find(e => e.name === 'typoraMode')
     if (typora) {
       typora.options.enabled = props.editorMode === 'typora' && editorSettings.highlightActiveLine
@@ -518,6 +528,21 @@ watch(
     bodyEditor.value.view.dispatch(bodyEditor.value.state.tr.setMeta(TYPORA_MODE_REFRESH_META, Date.now()))
   },
   { deep: true }
+)
+
+// writingAssist → TypewriterMode 光标位置实时同步
+// 不触发 TYPORA_MODE_REFRESH_META：cursorPosition 仅影响下一次光标移动的滚动计算，无需重绘装饰
+watch(
+  () => writingAssistStore.cursorPosition,
+  (nextCursorPosition) => {
+    if (!bodyEditor.value) return
+    const exts = bodyEditor.value.extensionManager.extensions as TyporaExtensionRecord[]
+    const tw = exts.find(e => e.name === 'typewriterMode')
+    if (tw) {
+      tw.options.cursorPosition = nextCursorPosition
+    }
+  },
+  { flush: 'post' },
 )
 
 watch(
