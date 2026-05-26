@@ -86,7 +86,7 @@
     },
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' http://localhost:11434; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
-      "freezePrototype": true,
+      "freezePrototype": false,
       "dangerousDisableAssetCspModification": false
     },
     "updater": {

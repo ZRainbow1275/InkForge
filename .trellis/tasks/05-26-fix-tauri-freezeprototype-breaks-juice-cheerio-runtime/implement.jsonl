@@ -1,0 +1,7 @@
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/prd.md", "reason": "PRD with goal/decision/AC/Implementation Plan slices (PR1-3)"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Tauri webview vs browser parity is the core failure mode — apply checklist before declaring done"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Forbidden/required patterns; no mock-only proofs; explicit gates (typecheck/lint/vitest)"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Any test fixture / config changes must remain typed"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/tauri-freezeprototype-semantics.md", "reason": "Exact list of prototypes Tauri freezes — needed to design frozen-prototype test fixture and SECURITY note"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/juice-cheerio-freeze-issue.md", "reason": "Confirms root cause + whether keeping juice/cheerio is safe under flag=false"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/repo-export-callgraph-and-dep-audit.md", "reason": "Full three-platform call graph + other dep risk; drives PR2 manual test matrix and PR3 audit report"}

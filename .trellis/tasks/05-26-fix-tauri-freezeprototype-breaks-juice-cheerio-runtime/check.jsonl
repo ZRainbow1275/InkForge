@@ -1,0 +1,6 @@
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/prd.md", "reason": "Verify deliverables map back to AC: 三平台全路径 + tauri:dev/release + frozen-prototype 单测 + dep 审计报告"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Reviewer must check Tauri webview vs browser parity holes are closed (no implicit assumption left)"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "No fake UI success, no mock-only proofs, real service boundaries crossed in tests"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/tauri-freezeprototype-semantics.md", "reason": "Reviewer confirms frozen-prototype test fixture mirrors the actual Tauri injection list"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/juice-cheerio-freeze-issue.md", "reason": "Verify chosen mitigation matches root cause; no residual juice/cheerio risk under flag=false"}
+{"file": ".trellis/tasks/05-26-fix-tauri-freezeprototype-breaks-juice-cheerio-runtime/research/repo-export-callgraph-and-dep-audit.md", "reason": "Reviewer cross-checks: did implementation cover EVERY entry point in the call graph and decide on every flagged dep"}

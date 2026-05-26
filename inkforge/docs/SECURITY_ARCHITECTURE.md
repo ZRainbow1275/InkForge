@@ -3,6 +3,9 @@
 > 版本: 1.0.0
 > 更新日期: 2026-01-30
 > 适用范围: Web + Tauri 双平台
+>
+> 配置层取舍记录（如 `tauri.conf.json security.freezePrototype` 关闭的理由）见
+> 项目根目录的 [`SECURITY.md`](../SECURITY.md)。
 
 ---
 
