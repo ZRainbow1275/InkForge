@@ -1,0 +1,2 @@
+{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "Verify single-file change matches AC; no scope creep"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Reviewer enforces no fake success, no mock-only, real gates"}

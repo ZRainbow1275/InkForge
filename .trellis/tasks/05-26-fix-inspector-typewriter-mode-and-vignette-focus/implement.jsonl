@@ -1,0 +1,2 @@
+{"file": ".trellis/tasks/05-26-fix-inspector-typewriter-mode-and-vignette-focus/prd.md", "reason": "PRD with single-file decision, AC, full-sweep self-check"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Forbidden/required patterns; gate via typecheck/lint/vitest"}

@@ -15,7 +15,7 @@ export interface TypewriterModeOptions {
     cursorPosition: number
     /** 滚动动画（smooth/auto） */
     scrollBehavior: ScrollBehavior
-    /** 非活跃段落淡化（opacity: 0.4） */
+    /** 非活跃段落淡化（opacity: 0.7） */
     dimInactiveParagraphs: boolean
 }
 
@@ -63,7 +63,7 @@ function findScrollParent(element: HTMLElement): HTMLElement | null {
  * 功能：
  * - 光标始终保持在编辑器视口垂直中央
  * - 打字时自动滚动，营造打字机效果
- * - 非活跃段落淡化（opacity: 0.4）
+ * - 非活跃段落淡化（opacity: 0.7）
  * - 可配置光标位置比例和滚动行为
  * - 可通过 enabled 选项动态开关
  */
@@ -159,7 +159,7 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                             decorations.push(
                                 Decoration.node(nodeStart, nodeEnd, {
                                     class: 'typewriter-dimmed',
-                                    style: 'opacity: 0.4; transition: opacity 0.3s ease;',
+                                    style: 'opacity: 0.7; transition: opacity 0.3s ease;',
                                 })
                             )
                         })
