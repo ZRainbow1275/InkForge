@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/05-26-redesign-hub-cards-eliminate-redundancy/prd.md", "reason": "Verify changes match Decision + AC; no scope creep beyond Approach A"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Reviewer enforces no fake success, no mock-only, real gates"}
+{"file": "inkforge/src/views/HubView.vue", "reason": "Verify new-metrics block deleted, todoArticlesForCard filter excludes latestArticle.id, CSS adjustment doesn't break grid"}

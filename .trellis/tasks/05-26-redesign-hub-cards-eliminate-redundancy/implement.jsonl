@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/05-26-redesign-hub-cards-eliminate-redundancy/prd.md", "reason": "PRD with Decision (Approach A) + Requirements + AC + Implementation Plan"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Forbidden/required patterns; gate via typecheck/lint/vitest"}
+{"file": "inkforge/src/views/HubView.vue", "reason": "Single file target: template delete new-metrics block L1280-1299, computed filter latestArticle from todoArticlesForCard, CSS micro-adjust card-new spacing"}

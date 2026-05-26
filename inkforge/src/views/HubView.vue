@@ -454,7 +454,11 @@ const unfinishedArticles = computed(() => {
 
 const continueWritingArticle = computed(() => unfinishedArticles.value[0] ?? null)
 
-const todoArticlesForCard = computed(() => unfinishedArticles.value.slice(0, 4))
+const todoArticlesForCard = computed(() =>
+  unfinishedArticles.value
+    .filter(article => article.id !== latestArticle.value?.id)
+    .slice(0, 4)
+)
 
 /** 最近文章列表（跳过第一篇，用于 card-recent 底部） */
 const recentArticlesForCard = computed(() => {
@@ -1277,26 +1281,6 @@ onMounted(async () => {
           <p class="new-desc">
             从空白页面、模板或本地文件起稿
           </p>
-          <div
-            v-if="stats.draftCount > 0 || stats.streak > 0"
-            class="new-metrics"
-            aria-label="创作工具统计"
-          >
-            <div
-              v-if="stats.draftCount > 0"
-              class="new-metric"
-            >
-              <strong>{{ stats.draftCount }}</strong>
-              <span>草稿</span>
-            </div>
-            <div
-              v-if="stats.streak > 0"
-              class="new-metric"
-            >
-              <strong>{{ stats.streak }}</strong>
-              <span>连续创作天</span>
-            </div>
-          </div>
           <div
             class="new-actions"
             role="group"
@@ -3720,34 +3704,6 @@ onMounted(async () => {
   line-height: 1.55;
 }
 
-.new-metrics {
-  display: flex;
-  gap: 24px;
-  padding: 8px 0;
-  border-top: 1px solid #ECEFF1;
-  border-bottom: 1px solid #ECEFF1;
-}
-
-.new-metric {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.new-metric strong {
-  font-size: 18px;
-  font-weight: 700;
-  color: #263238;
-  font-variant-numeric: tabular-nums;
-}
-
-.new-metric span {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  color: #90A4AE;
-}
-
 .new-actions {
   display: flex;
   gap: 8px;
@@ -5144,7 +5100,6 @@ onMounted(async () => {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .new-metrics,
   .new-actions,
   .recent-create-actions {
     grid-template-columns: 1fr;
@@ -5163,10 +5118,6 @@ onMounted(async () => {
 
   .secondary-badge {
     align-self: flex-start;
-  }
-
-  .new-metric {
-    min-height: 58px;
   }
 
   .waterfall-grid {
@@ -5484,8 +5435,6 @@ html.theme-dark .secondary-kicker,
 html.theme-dark .secondary-desc,
 html.theme-dark .new-desc,
 html.theme-dark .new-eyebrow,
-html.theme-dark .new-metric strong,
-html.theme-dark .new-metric span,
 html.theme-dark .recent-article-row-meta,
 html[data-theme="dark"] .stats-primary-note,
 html[data-theme="dark"] .stats-primary-unit,
@@ -5495,17 +5444,13 @@ html[data-theme="dark"] .secondary-kicker,
 html[data-theme="dark"] .secondary-desc,
 html[data-theme="dark"] .new-desc,
 html[data-theme="dark"] .new-eyebrow,
-html[data-theme="dark"] .new-metric strong,
-html[data-theme="dark"] .new-metric span,
 html[data-theme="dark"] .recent-article-row-meta {
   color: #B5BFCC;
 }
 
 /* row-value（如 "字数 3"）数字保持高亮以易读 */
 html.theme-dark .stats-row-value,
-html.theme-dark .new-metric strong,
-html[data-theme="dark"] .stats-row-value,
-html[data-theme="dark"] .new-metric strong {
+html[data-theme="dark"] .stats-row-value {
   color: #ECEFF4;
 }
 
@@ -5542,13 +5487,6 @@ html[data-theme="dark"] .new-action-btn-secondary:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.06);
   border-color: #ECEFF4;
   color: #ECEFF4;
-}
-
-/* new-metrics 上下分隔线 */
-html.theme-dark .new-metrics,
-html[data-theme="dark"] .new-metrics {
-  border-top-color: rgba(255, 255, 255, 0.08);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 /* 通用 elevation 卡 hover 阴影 */
