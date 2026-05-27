@@ -1,19 +1,18 @@
+<!--
+  Evidence: PR3 HTML loading placeholder (subset of inkforge/index.html).
+  Captured 2026-05-27 — open this file directly in a browser to inspect
+  the rendered look without running pnpm dev.
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:* ws://localhost:* https://*.siliconflow.cn https://*.openai.com https://*.anthropic.com https://*.deepseek.com; font-src 'self' data: https://fonts.gstatic.com;">
-    <title>InkForge - 墨铸编辑器</title>
+    <title>InkForge HTML Loading Snapshot (Evidence)</title>
     <style>
-      /* InkForge loading placeholder — CSS-only, 0 JS dependency.
-         Visible from first paint until Vue replaces #app's children on app.mount('#app').
-         Brand spec: docs/inkforge-brand-identity.md §11 Loading Placeholder. */
       html, body { margin: 0; padding: 0; height: 100%; }
       body {
-        background: #F5F0E6; /* Vellum */
-        color: #252933;      /* Graphite */
+        background: #F5F0E6;
+        color: #252933;
         font-family: 'Source Han Serif SC','Noto Serif SC','Songti SC','STSong','SimSun','EB Garamond',serif;
         -webkit-font-smoothing: antialiased;
       }
@@ -38,13 +37,13 @@
       .ink-app-shell__wordmark {
         font-size: 14px;
         letter-spacing: 0.18em;
-        color: #6E7580; /* Ash */
+        color: #6E7580;
         font-weight: 600;
       }
       .ink-app-shell__caption {
         font-size: 13px;
         letter-spacing: 0.08em;
-        color: #9B958D; /* Smoke */
+        color: #9B958D;
         margin-top: 2px;
         animation: ink-app-shell-pulse 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       }
@@ -53,7 +52,7 @@
         50%      { opacity: 1; }
       }
       @media (prefers-color-scheme: dark) {
-        body, .ink-app-shell { background: #1A1D24; color: #E8E4DC; } /* Char + light text */
+        body, .ink-app-shell { background: #1A1D24; color: #E8E4DC; }
         .ink-app-shell__wordmark { color: #9B958D; }
         .ink-app-shell__caption  { color: #6E7580; }
         .ink-app-shell__seal     { filter: drop-shadow(0 6px 12px rgba(0,0,0,0.55)); }
@@ -80,6 +79,5 @@
         <div class="ink-app-shell__caption">正在准备墨砚...</div>
       </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

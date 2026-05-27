@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="InkForge 墨铸">
+  <title>InkForge 墨铸</title>
+  <!-- Favicon variant: minimal padding (~6%), no ornament row, no inner hairline; optimized for 16-32px legibility. -->
+  <rect x="2" y="2" width="28" height="28" rx="5" ry="5" fill="#D95B3F"/>
+  <text x="16" y="23"
+        text-anchor="middle"
+        font-family="'Source Han Serif SC','Noto Serif SC','Songti SC','STSong','SimSun',serif"
+        font-weight="700"
+        font-size="22"
+        fill="#252933">铸</text>
+</svg>

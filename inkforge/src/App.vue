@@ -5,7 +5,7 @@
  * 包含全局错误边界，捕获未处理的组件异常
  * + 全局 CSS Variables 从 Settings Store 同步
  */
-import { ref, computed, watch, onMounted, onUnmounted, onErrorCaptured, defineAsyncComponent } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted, onErrorCaptured, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { logger, ErrorCode, AppError } from './services/error'
 import { useSettingsStore } from './stores/settings'
@@ -28,6 +28,8 @@ import {
   applyCustomCssRuntime,
   shouldSuspendForCustomCssErrors,
 } from '@/services/custom-css'
+import { notifyAppReady } from '@/services/app-lifecycle/notifyAppReady'
+import TitleBar from '@/components/chrome/TitleBar.vue'
 
 /**
  * Settings → 全局 CSS Variables 同步
@@ -193,7 +195,7 @@ function handleGlobalCommandShortcut(event: KeyboardEvent): void {
 }
 
 // Initial load plus global listeners.
-onMounted(() => {
+onMounted(async () => {
   syncCSSVariables()
   syncCustomCssRuntime()
   void ftueStore.initialize()
@@ -214,6 +216,11 @@ onMounted(() => {
   window.addEventListener('keydown', handleGlobalHelpShortcut)
   window.addEventListener('keydown', handleGlobalCommandShortcut)
   window.addEventListener('keydown', handleGlobalDevPanelShortcut)
+
+  // Tell the Rust backend the app is mounted; close splash + show main window.
+  // Guarded inside notifyAppReady() against non-Tauri environments.
+  await nextTick()
+  void notifyAppReady()
 })
 
 onUnmounted(() => {
@@ -246,6 +253,11 @@ watch(
  * 环境检测
  */
 const isProduction = computed(() => import.meta.env.PROD)
+
+/**
+ * Titlebar 当前文档名（无活动文档时由 TitleBar 自身回退到 tagline）
+ */
+const activeArticleTitle = computed<string | null>(() => articleStore.selectedArticle?.title ?? null)
 
 /**
  * 错误状态
@@ -304,102 +316,115 @@ function handleDismiss(): void {
 </script>
 
 <template>
-  <!-- 错误回退 UI -->
-  <div
-    v-if="hasError"
-    class="error-boundary"
-  >
-    <div class="error-boundary__content">
-      <div class="error-boundary__icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+  <TitleBar :document-title="activeArticleTitle" />
+
+  <div class="app-content">
+    <!-- 错误回退 UI -->
+    <div
+      v-if="hasError"
+      class="error-boundary"
+    >
+      <div class="error-boundary__content">
+        <div class="error-boundary__icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <line
+              x1="12"
+              y1="8"
+              x2="12"
+              y2="12"
+            />
+            <line
+              x1="12"
+              y1="16"
+              x2="12.01"
+              y2="16"
+            />
+          </svg>
+        </div>
+        <h1 class="error-boundary__title">
+          页面出现问题
+        </h1>
+        <p class="error-boundary__message">
+          {{ errorMessage }}
+        </p>
+        <p
+          v-if="showTechnicalDetails"
+          class="error-boundary__details"
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-          />
-          <line
-            x1="12"
-            y1="8"
-            x2="12"
-            y2="12"
-          />
-          <line
-            x1="12"
-            y1="16"
-            x2="12.01"
-            y2="16"
-          />
-        </svg>
-      </div>
-      <h1 class="error-boundary__title">
-        页面出现问题
-      </h1>
-      <p class="error-boundary__message">
-        {{ errorMessage }}
-      </p>
-      <p
-        v-if="showTechnicalDetails"
-        class="error-boundary__details"
-      >
-        错误位置: {{ errorDetails }}
-      </p>
-      <div class="error-boundary__actions">
-        <button
-          class="error-boundary__btn error-boundary__btn--primary"
-          type="button"
-          @click="handleRetry"
-        >
-          刷新页面
-        </button>
-        <button
-          class="error-boundary__btn error-boundary__btn--secondary"
-          type="button"
-          @click="handleDismiss"
-        >
-          尝试恢复
-        </button>
+          错误位置: {{ errorDetails }}
+        </p>
+        <div class="error-boundary__actions">
+          <button
+            class="error-boundary__btn error-boundary__btn--primary"
+            type="button"
+            @click="handleRetry"
+          >
+            刷新页面
+          </button>
+          <button
+            class="error-boundary__btn error-boundary__btn--secondary"
+            type="button"
+            @click="handleDismiss"
+          >
+            尝试恢复
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Normal content -->
+    <template v-else>
+      <router-view v-slot="{ Component, route }">
+        <Transition
+          :name="route.meta.transition || 'page-fade'"
+          mode="out-in"
+        >
+          <component
+            :is="Component"
+            :key="route.fullPath"
+            class="app-route-shell"
+          />
+        </Transition>
+      </router-view>
+
+      <WelcomeModal />
+      <HelpCenter />
+      <CommandPalette />
+      <UpdateToast />
+      <UpdateDetailsModal />
+      <DevPanel v-if="devPanelStore.shouldRenderPanel" />
+    </template>
   </div>
-
-  <!-- Normal content -->
-  <template v-else>
-    <router-view v-slot="{ Component, route }">
-      <Transition
-        :name="route.meta.transition || 'page-fade'"
-        mode="out-in"
-      >
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          class="app-route-shell"
-        />
-      </Transition>
-    </router-view>
-
-    <WelcomeModal />
-    <HelpCenter />
-    <CommandPalette />
-    <UpdateToast />
-    <UpdateDetailsModal />
-    <DevPanel v-if="devPanelStore.shouldRenderPanel" />
-  </template>
 </template>
 
 <style>
 #app {
   width: 100%;
   height: 100vh;
+}
+
+/* TitleBar offsets the route content. TitleBar.vue writes the actual height
+   (32px Win/Linux, 28px macOS) to --ink-titlebar-height on :root. */
+.app-content {
+  width: 100%;
+  height: calc(100vh - var(--ink-titlebar-height, 32px));
+  margin-top: var(--ink-titlebar-height, 32px);
+  overflow: hidden;
 }
 
 .app-route-shell {
@@ -461,7 +486,7 @@ function handleDismiss(): void {
   justify-content: center;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: linear-gradient(135deg, #F5F0E6 0%, #EDE7DB 100%);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -486,20 +511,20 @@ function handleDismiss(): void {
   margin: 0 0 12px;
   font-size: 24px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #252933;
 }
 
 .error-boundary__message {
   margin: 0 0 8px;
   font-size: 16px;
-  color: #666666;
+  color: #6E7580;
   line-height: 1.5;
 }
 
 .error-boundary__details {
   margin: 0 0 24px;
   font-size: 14px;
-  color: #999999;
+  color: #9B958D;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 }
 
@@ -519,20 +544,20 @@ function handleDismiss(): void {
 }
 
 .error-boundary__btn--primary {
-  background: #0066cc;
+  background: #D95B3F;
   color: #ffffff;
 }
 
 .error-boundary__btn--primary:hover {
-  background: #0052a3;
+  background: #B84A30;
 }
 
 .error-boundary__btn--secondary {
-  background: #f0f0f0;
-  color: #333333;
+  background: #EDE7DB;
+  color: #252933;
 }
 
 .error-boundary__btn--secondary:hover {
-  background: #e0e0e0;
+  background: #DED7CA;
 }
 </style>

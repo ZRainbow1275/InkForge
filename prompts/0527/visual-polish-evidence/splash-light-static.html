@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InkForge Splash · Light Mode Preview</title>
+  <style>
+    body { margin: 0; background: #2c2c2c; min-height: 100vh; display: grid; place-items: center; font-family: sans-serif; color: #ddd; padding: 24px; gap: 16px; }
+    .frame { width: 520px; height: 340px; box-shadow: 0 18px 48px rgba(0,0,0,0.5); border-radius: 12px; overflow: hidden; background: #fff; }
+    .frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .meta { font-size: 13px; max-width: 520px; line-height: 1.5; opacity: 0.85; }
+    .meta a { color: #C19A56; }
+    .meta code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="meta">
+    <strong>InkForge Splash Preview — Light Mode</strong><br>
+    Canonical source: <code>inkforge/public/splash.html</code> (this preview iframes that file).<br>
+    Force-light via <code>?theme=light</code> on the iframe. Force-dark variant: open <a href="./splash-dark-static.html">splash-dark-static.html</a>.<br>
+    <small>If you opened this file directly on disk and the iframe is blank, your browser may be blocking <code>file://</code> iframes — run a local static server (e.g. <code>npx serve prompts/0527</code>) and visit via http.</small>
+  </div>
+  <div class="frame">
+    <iframe src="../../../inkforge/public/splash.html" title="InkForge splash (light)"></iframe>
+  </div>
+  <script>
+    // Force the embedded splash into light mode regardless of the host OS theme.
+    const iframe = document.querySelector('iframe');
+    iframe.addEventListener('load', () => {
+      try {
+        iframe.contentDocument.documentElement.setAttribute('data-theme', 'light');
+      } catch (e) {
+        // Cross-origin file:// access can fail; the splash will fall back to
+        // prefers-color-scheme. Preview the dark page directly to confirm.
+      }
+    });
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@
 //! - Ollama API 代理（解决 CORS 问题）
 //! - 文件系统操作
 //! - 系统剪贴板访问
+//! - Splash window + IPC handshake (`app_ready`) with 3s fallback timeout
 
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
@@ -11,11 +12,49 @@
 )]
 
 mod commands;
+mod splash;
 
-use commands::{desktop, ollama, wechat, window};
+use std::time::Duration;
+
+use commands::app_ready::SplashReadySignal;
+use commands::{app_ready, desktop, ollama, wechat, window};
+use tauri::Manager;
+
+const SPLASH_FALLBACK_TIMEOUT: Duration = Duration::from_secs(3);
 
 fn main() {
     tauri::Builder::default()
+        .manage(SplashReadySignal::new())
+        .setup(|app| {
+            // Detect system theme and inject it into the splash DOM before the
+            // seal animation begins. Defaults to "light" if detection fails so
+            // we never block the user behind an undefined state.
+            let theme = match dark_light::detect() {
+                dark_light::Mode::Dark => "dark",
+                _ => "light",
+            };
+            splash::inject_splash_theme(&app.handle(), theme);
+
+            // Spawn the 3s fallback timeout. The task is cancelled cheaply via
+            // `Notify::notify_waiters()` from the `app_ready` command. If the
+            // frontend never signals readiness (panic, hang, infinite loop),
+            // the timeout fires and the user still gets a usable main window.
+            let signal_state = app.state::<SplashReadySignal>();
+            let notify = signal_state.handle();
+            let handle = app.handle();
+            tauri::async_runtime::spawn(async move {
+                tokio::select! {
+                    _ = notify.notified() => {
+                        // Frontend signalled ready first; nothing to do.
+                    }
+                    _ = tokio::time::sleep(SPLASH_FALLBACK_TIMEOUT) => {
+                        splash::close_splash_and_show_main(&handle);
+                    }
+                }
+            });
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             desktop::get_desktop_runtime_info,
             desktop::reveal_in_explorer,
@@ -30,6 +69,7 @@ fn main() {
             wechat::wechat_upload_article_image,
             wechat::wechat_upload_cover_image,
             wechat::wechat_create_draft,
+            app_ready::app_ready,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="InkForge 墨铸 logo">
+  <title>InkForge 墨铸 — 「铸」字方印</title>
+  <desc>Kiln #D95B3F rounded-rect seal background with Graphite #252933 「铸」character and ◇ diamond ornaments. 22% safe padding for Win11 squircle / macOS rounded square auto-crop.</desc>
+
+  <defs>
+    <!-- Subtle inner shadow gives the seal a forged metal feel -->
+    <radialGradient id="kilnGrad" cx="50%" cy="44%" r="62%">
+      <stop offset="0%" stop-color="#E27654"/>
+      <stop offset="65%" stop-color="#D95B3F"/>
+      <stop offset="100%" stop-color="#B84A30"/>
+    </radialGradient>
+    <!-- Soft outer shadow under the seal -->
+    <filter id="sealShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Transparent canvas; bundlers render onto Vellum on light surfaces but app icon needs to be transparent so the rounded seal floats. -->
+
+  <!-- Safe padding: viewBox 1024 with 22% padding → seal lives in 226..798 (572×572) -->
+  <g filter="url(#sealShadow)">
+    <!-- Seal body: Kiln #D95B3F rounded square, radius ~12% of side (≈68) -->
+    <rect x="226" y="226" width="572" height="572" rx="72" ry="72" fill="url(#kilnGrad)"/>
+    <!-- Inner hairline to suggest a stamped border -->
+    <rect x="244" y="244" width="536" height="536" rx="58" ry="58" fill="none" stroke="#F5F0E6" stroke-opacity="0.18" stroke-width="2"/>
+  </g>
+
+  <!-- 「铸」character — Graphite #252933 阴文 on Kiln seal -->
+  <!-- We use system CJK serif fallback chain so the SVG remains pure vector and portable. -->
+  <text x="512" y="612"
+        text-anchor="middle"
+        font-family="'Source Han Serif SC','Noto Serif SC','Songti SC','STSong','SimSun',serif"
+        font-weight="700"
+        font-size="380"
+        fill="#252933"
+        letter-spacing="0">铸</text>
+
+  <!-- ◇ ◇ ◇ ornament below seal, Vellum tint -->
+  <g fill="none" stroke="#F5F0E6" stroke-opacity="0.78" stroke-width="6" stroke-linejoin="round">
+    <!-- left diamond -->
+    <polygon points="436,748 458,726 480,748 458,770"/>
+    <!-- center diamond (slightly larger as focal accent) -->
+    <polygon points="486,748 512,720 538,748 512,776"/>
+    <!-- right diamond -->
+    <polygon points="544,748 566,726 588,748 566,770"/>
+  </g>
+</svg>

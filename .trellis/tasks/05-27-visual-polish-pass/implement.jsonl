@@ -1,0 +1,13 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend 总规约入口 — Pre-Development Checklist + Quality Check"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "新组件 TitleBar.vue / app-lifecycle service / splash 资产 的放置规则"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "TitleBar.vue 新组件规范 + setup script 风格 + props/emits 约束"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Vue + TS strict 约束，IPC 调用类型签名规范"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "如何与 settings store / 现有 visual-system 模块集成"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend Rust src-tauri 总规约入口"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "新增 splash.rs / commands/app_ready.rs 文件位置约束"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Rust 端 splash spawn 失败 / IPC 超时 / dark-light crate 失败 处理规范"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "splash 生命周期日志 + IPC handshake 追踪日志规范"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "前端 Vue ↔ Rust Tauri IPC handshake 跨层设计指导"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Windows decorations:false / macOS titleBarStyle:Overlay / Linux 平台分支处理"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "评估能否复用 visual-system / settings/appearance 现有抽象，避免重复实现 dark mode 检测"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "品牌设计系统 source of truth — 色板 / typography / 装饰元素 / dark token / WeChat compliance；logo + splash + loading + titlebar 实现的视觉约束依据"}

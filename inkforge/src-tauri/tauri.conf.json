@@ -103,7 +103,26 @@
         "minHeight": 600,
         "center": true,
         "label": "main",
-        "fileDropEnabled": true
+        "fileDropEnabled": true,
+        "visible": false,
+        "decorations": false,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      },
+      {
+        "label": "splash",
+        "url": "splash.html",
+        "visible": true,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "width": 520,
+        "height": 340,
+        "center": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "focus": true,
+        "title": "InkForge"
       }
     ]
   }
