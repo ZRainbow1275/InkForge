@@ -1,0 +1,130 @@
+{
+  "ts": "2026-05-27T10-24-26-883Z",
+  "consoleErrors": [],
+  "stateBeforeF9": {
+    "activeLineCount": 9,
+    "htmlSnippet": "<p>第1段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第2段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第3段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第4段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第5段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第6段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第7段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第8段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\">第9段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty\" dat"
+  },
+  "stateAfterF9": {
+    "activeLineCount": 9,
+    "htmlSnippet": "<p class=\"typewriter-dimmed typewriter-dim-far\" style=\"opacity: 0.37; transition: opacity 0.3s;\">第1段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far\" style=\"opacity: 0.44; transition: opacity 0.3s;\">第2段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far\" style=\"opacity: 0.51; transition: opacity 0.3s;\">第3段：内容。</p><p class=\"typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far\" style=\"opacity: 0.58; transition: opacity 0.3s;\">第4段：内容。</p><p class=\"typora-active-line is-empt"
+  },
+  "stateAfterCursor": {
+    "activeLineCount": 8,
+    "perBlockClasses": [
+      {
+        "i": 0,
+        "classes": "typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 1,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 2,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 3,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 4,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-near",
+        "dataset": {}
+      },
+      {
+        "i": 5,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-block-active",
+        "dataset": {
+          "typoraBlockToken": "",
+          "typoraInlineTokens": "",
+          "typoraNode": "paragraph"
+        }
+      },
+      {
+        "i": 6,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-near",
+        "dataset": {}
+      },
+      {
+        "i": 7,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 8,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 9,
+        "classes": "is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      }
+    ]
+  },
+  "stateAfterCursorMove": {
+    "activeLineCount": 7,
+    "perBlockClasses": [
+      {
+        "i": 0,
+        "classes": "typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 1,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 2,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 3,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 4,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 5,
+        "classes": "is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 6,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far",
+        "dataset": {}
+      },
+      {
+        "i": 7,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-near",
+        "dataset": {}
+      },
+      {
+        "i": 8,
+        "classes": "typora-active-line is-empty is-editor-empty typewriter-block-active",
+        "dataset": {
+          "typoraBlockToken": "",
+          "typoraInlineTokens": "",
+          "typoraNode": "paragraph"
+        }
+      },
+      {
+        "i": 9,
+        "classes": "is-empty is-editor-empty typewriter-dimmed typewriter-dim-near",
+        "dataset": {}
+      }
+    ]
+  }
+}

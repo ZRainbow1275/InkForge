@@ -1,0 +1,69 @@
+{
+  "ts": "2026-05-27T10-53-13-392Z",
+  "enableAttrCheck": {
+    "activeMode": "true",
+    "afterHeight": "450px",
+    "scrollHeight": 1698,
+    "clientHeight": 1698
+  },
+  "perParagraph": [
+    {
+      "paragraph": 1,
+      "cursorRatio": 0.12009803921568628,
+      "scrollTop": 0,
+      "splitScrollHeight": 1890,
+      "splitClientHeight": 816,
+      "pmAfterHeight": "450px",
+      "screenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-always-center-p1-2026-05-27T10-53-13-392Z.png"
+    },
+    {
+      "paragraph": 8,
+      "cursorRatio": 0.4769071691176471,
+      "scrollTop": 0,
+      "splitScrollHeight": 1890,
+      "splitClientHeight": 816,
+      "pmAfterHeight": "450px",
+      "screenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-always-center-p8-2026-05-27T10-53-13-392Z.png"
+    },
+    {
+      "paragraph": 15,
+      "cursorRatio": 0.5003829656862745,
+      "scrollTop": 272,
+      "splitScrollHeight": 1890,
+      "splitClientHeight": 816,
+      "pmAfterHeight": "450px",
+      "screenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-always-center-p15-2026-05-27T10-53-13-392Z.png"
+    },
+    {
+      "paragraph": 23,
+      "cursorRatio": 0.5000765931372549,
+      "scrollTop": 605,
+      "splitScrollHeight": 1890,
+      "splitClientHeight": 816,
+      "pmAfterHeight": "450px",
+      "screenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-always-center-p23-2026-05-27T10-53-13-392Z.png"
+    },
+    {
+      "paragraph": 30,
+      "cursorRatio": 0.5002680759803921,
+      "scrollTop": 896,
+      "splitScrollHeight": 1890,
+      "splitClientHeight": 816,
+      "pmAfterHeight": "450px",
+      "screenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-always-center-p30-2026-05-27T10-53-13-392Z.png"
+    }
+  ],
+  "offCheck": {
+    "activeMode": null,
+    "afterHeight": "auto",
+    "scrollHeight": 1235
+  },
+  "offScreenshot": "D:\\Desktop\\Inkforge\\prompts\\0526\\verification-evidence\\typewriter-off-no-padding-2026-05-27T10-53-13-392Z.png",
+  "pass": {
+    "activeModeAttrAttached": true,
+    "afterSpacerHeightOnEnable": "450px",
+    "allCursorsCentered": false,
+    "activeModeAttrRemovedOnDisable": true,
+    "afterSpacerRemovedOnDisable": true
+  }
+}

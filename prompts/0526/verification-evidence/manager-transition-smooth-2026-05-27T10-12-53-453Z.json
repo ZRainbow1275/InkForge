@@ -1,0 +1,137 @@
+{
+  "ts": "2026-05-27T10-12-53-453Z",
+  "transitionInfo": {
+    "manager": {
+      "sel": ".panel-manager",
+      "transitionProperty": "width, min-width, box-shadow",
+      "transitionDuration": "0.25s, 0.25s, 0.2s",
+      "transitionTimingFunction": "cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1), ease",
+      "width": "12px",
+      "minWidth": "12px",
+      "bbox": 12
+    },
+    "inspector": {
+      "sel": ".panel-inspector",
+      "transitionProperty": "width, min-width, box-shadow",
+      "transitionDuration": "0.25s, 0.25s, 0.2s",
+      "transitionTimingFunction": "cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0.4, 0, 0.2, 1), ease",
+      "width": "12px",
+      "minWidth": "12px",
+      "bbox": 12
+    }
+  },
+  "expandedBbox": 280,
+  "collapsedBbox": 0,
+  "focusPresetClicked": true,
+  "collapseFrames": [
+    {
+      "t": 50,
+      "width": 242.421875
+    },
+    {
+      "t": 94,
+      "width": 151.859375
+    },
+    {
+      "t": 154,
+      "width": 34.6875
+    },
+    {
+      "t": 204,
+      "width": 6.890625
+    },
+    {
+      "t": 255,
+      "width": 0
+    },
+    {
+      "t": 302,
+      "width": 0
+    },
+    {
+      "t": 349,
+      "width": 0
+    },
+    {
+      "t": 395,
+      "width": 0
+    }
+  ],
+  "expandedAgain": true,
+  "expandFrames": [
+    {
+      "t": 56,
+      "width": 0
+    },
+    {
+      "t": 104,
+      "width": 0
+    },
+    {
+      "t": 151,
+      "width": 0
+    },
+    {
+      "t": 197,
+      "width": 0
+    },
+    {
+      "t": 245,
+      "width": 0
+    },
+    {
+      "t": 291,
+      "width": 0
+    },
+    {
+      "t": 346,
+      "width": 0
+    },
+    {
+      "t": 402,
+      "width": 0
+    }
+  ],
+  "togglers": [
+    {
+      "tag": "button",
+      "cls": "icon-btn",
+      "title": "进入专注模式 (F11)",
+      "aria": "",
+      "text": ""
+    },
+    {
+      "tag": "button",
+      "cls": "layout-preset-btn active",
+      "title": "展开完整四栏工作台，并使用舒展的默认面板宽度",
+      "aria": "",
+      "text": "默认"
+    },
+    {
+      "tag": "button",
+      "cls": "layout-preset-btn",
+      "title": "保留文件管理与检查器，收起预览栏并扩大正文区域",
+      "aria": "",
+      "text": "写作"
+    },
+    {
+      "tag": "button",
+      "cls": "layout-preset-btn",
+      "title": "复用现有专注模式，进入纯写作视图",
+      "aria": "",
+      "text": "专注"
+    },
+    {
+      "tag": "button",
+      "cls": "manager-button",
+      "title": "",
+      "aria": "",
+      "text": "管理"
+    }
+  ],
+  "expectation": {
+    "transitionInfo": ".panel-manager transition-property should contain `width, min-width`, duration ~0.25s",
+    "collapseFrames": "widths should monotonically decrease from expanded to ~12px over ~250ms",
+    "expandFrames": "widths should monotonically increase back from ~12px"
+  }
+}

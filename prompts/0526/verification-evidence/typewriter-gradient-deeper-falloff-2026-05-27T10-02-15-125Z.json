@@ -1,0 +1,242 @@
+{
+  "ts": "2026-05-27T10-02-15-125Z",
+  "url": "http://localhost:3005/workstation?id=9b143b93-2360-41a1-88f7-6b4e00776bbc",
+  "blockCount": 45,
+  "activeBlockIndex": 11,
+  "opacities": [
+    {
+      "i": 0,
+      "opacity": "0.230",
+      "classes": "typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 1,
+      "opacity": "0.300",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 2,
+      "opacity": "0.370",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 3,
+      "opacity": "0.440",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 4,
+      "opacity": "0.510",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 5,
+      "opacity": "0.580",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 6,
+      "opacity": "0.650",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 7,
+      "opacity": "0.720",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 8,
+      "opacity": "0.790",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 9,
+      "opacity": "0.860",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 10,
+      "opacity": "0.930",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-near"
+    },
+    {
+      "i": 11,
+      "opacity": "1.000",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-block-active"
+    },
+    {
+      "i": 12,
+      "opacity": "0.930",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-near"
+    },
+    {
+      "i": 13,
+      "opacity": "0.860",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 14,
+      "opacity": "0.790",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 15,
+      "opacity": "0.720",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 16,
+      "opacity": "0.650",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 17,
+      "opacity": "0.580",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 18,
+      "opacity": "0.510",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 19,
+      "opacity": "0.440",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 20,
+      "opacity": "0.370",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 21,
+      "opacity": "0.300",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 22,
+      "opacity": "0.230",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 23,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 24,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 25,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 26,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 27,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 28,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 29,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 30,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 31,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 32,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 33,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 34,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 35,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 36,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 37,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 38,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 39,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 40,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 41,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 42,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 43,
+      "opacity": "0.180",
+      "classes": "typora-active-line is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    },
+    {
+      "i": 44,
+      "opacity": "0.180",
+      "classes": "is-empty is-editor-empty typewriter-dimmed typewriter-dim-far"
+    }
+  ],
+  "consoleErrors": [],
+  "expectations": {
+    "d=1": "~0.93",
+    "d=2": "~0.86",
+    "d=3": "~0.79",
+    "d=5": "~0.65",
+    "d=10": "~0.30",
+    "d=12+": "0.18 (floor)"
+  }
+}

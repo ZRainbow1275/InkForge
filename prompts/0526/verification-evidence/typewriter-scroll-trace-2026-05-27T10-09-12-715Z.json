@@ -1,0 +1,453 @@
+{
+  "ts": "2026-05-27T10-09-12-715Z",
+  "url": "http://localhost:3005/workstation?id=c17b2067-6159-423e-a595-86af33ce78b2",
+  "ancestorReport": {
+    "chain": [
+      {
+        "tag": "div",
+        "cls": "tiptap ProseMirror typora-mode-enabled ProseMirror-focused",
+        "id": "",
+        "scrollHeight": 2099,
+        "clientHeight": 2099,
+        "scrollable": false,
+        "overflow": "visible",
+        "overflowY": "visible",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "tiptap-content",
+        "id": "",
+        "scrollHeight": 2099,
+        "clientHeight": 2099,
+        "scrollable": false,
+        "overflow": "visible",
+        "overflowY": "visible",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "editor-paper",
+        "id": "",
+        "scrollHeight": 2240,
+        "clientHeight": 2240,
+        "scrollable": false,
+        "overflow": "visible",
+        "overflowY": "visible",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "editor-scroll",
+        "id": "",
+        "scrollHeight": 2304,
+        "clientHeight": 2304,
+        "scrollable": false,
+        "overflow": "auto",
+        "overflowY": "auto",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "editor-mode-shell mode-typora",
+        "id": "",
+        "scrollHeight": 2304,
+        "clientHeight": 2304,
+        "scrollable": false,
+        "overflow": "visible",
+        "overflowY": "visible",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "editor-panel",
+        "id": "",
+        "scrollHeight": 2304,
+        "clientHeight": 2304,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "editor-wrapper",
+        "id": "",
+        "scrollHeight": 2304,
+        "clientHeight": 2304,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      },
+      {
+        "tag": "section",
+        "cls": "split-pane split-pane-left",
+        "id": "",
+        "scrollHeight": 2304,
+        "clientHeight": 816,
+        "scrollable": true,
+        "overflow": "auto",
+        "overflowY": "auto",
+        "scrollTop": 1380
+      },
+      {
+        "tag": "div",
+        "cls": "editor-split-shell",
+        "id": "",
+        "scrollHeight": 816,
+        "clientHeight": 816,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      },
+      {
+        "tag": "main",
+        "cls": "panel panel-editor",
+        "id": "workstation-document-c17b2067-6159-423e-a595-86af33ce78b2",
+        "scrollHeight": 848,
+        "clientHeight": 848,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "main-content",
+        "id": "",
+        "scrollHeight": 848,
+        "clientHeight": 848,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      },
+      {
+        "tag": "div",
+        "cls": "workstation mode-typora app-route-shell",
+        "id": "",
+        "scrollHeight": 900,
+        "clientHeight": 900,
+        "scrollable": false,
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "scrollTop": 0
+      }
+    ],
+    "scrollParent": {
+      "tag": "div",
+      "cls": "editor-scroll",
+      "id": "",
+      "scrollHeight": 2304,
+      "clientHeight": 2304,
+      "scrollable": false,
+      "overflow": "auto",
+      "overflowY": "auto",
+      "scrollTop": 0
+    },
+    "windowScrollY": 0,
+    "docElement": {
+      "scrollTop": 0,
+      "scrollHeight": 900,
+      "clientHeight": 900
+    }
+  },
+  "surfacesAtTop": {
+    "editorScroll": {
+      "sel": ".editor-scroll",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "splitPaneLeft": {
+      "sel": ".split-pane-left",
+      "scrollTop": 20,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    "editorWrapper": {
+      "sel": ".editor-wrapper",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "panelEditor": {
+      "sel": ".panel-editor",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "workstation": {
+      "sel": ".workstation",
+      "scrollTop": 0,
+      "scrollHeight": 900,
+      "clientHeight": 900
+    },
+    "mainContent": {
+      "sel": ".main-content",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "window": {
+      "scrollY": 0,
+      "innerHeight": 900
+    },
+    "docHtml": {
+      "scrollTop": 0,
+      "scrollHeight": 900
+    }
+  },
+  "surfacesAfterJump": {
+    "editorScroll": {
+      "sel": ".editor-scroll",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "splitPaneLeft": {
+      "sel": ".split-pane-left",
+      "scrollTop": 1481,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    "editorWrapper": {
+      "sel": ".editor-wrapper",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "panelEditor": {
+      "sel": ".panel-editor",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "workstation": {
+      "sel": ".workstation",
+      "scrollTop": 0,
+      "scrollHeight": 900,
+      "clientHeight": 900
+    },
+    "mainContent": {
+      "sel": ".main-content",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "window": {
+      "scrollY": 0,
+      "innerHeight": 900
+    },
+    "docHtml": {
+      "scrollTop": 0,
+      "scrollHeight": 900
+    }
+  },
+  "surfacesAfterCtrlEnd": {
+    "editorScroll": {
+      "sel": ".editor-scroll",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "splitPaneLeft": {
+      "sel": ".split-pane-left",
+      "scrollTop": 1492,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    "editorWrapper": {
+      "sel": ".editor-wrapper",
+      "scrollTop": 0,
+      "scrollHeight": 2308,
+      "clientHeight": 2308
+    },
+    "panelEditor": {
+      "sel": ".panel-editor",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "workstation": {
+      "sel": ".workstation",
+      "scrollTop": 0,
+      "scrollHeight": 900,
+      "clientHeight": 900
+    },
+    "mainContent": {
+      "sel": ".main-content",
+      "scrollTop": 0,
+      "scrollHeight": 848,
+      "clientHeight": 848
+    },
+    "window": {
+      "scrollY": 0,
+      "innerHeight": 900
+    },
+    "docHtml": {
+      "scrollTop": 0,
+      "scrollHeight": 900
+    }
+  },
+  "typeProgress": [
+    {
+      "scrollTop": 0,
+      "time": 1779876565515
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876565668
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876565834
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876565987
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876566141
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876566295
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876566454
+    },
+    {
+      "scrollTop": 0,
+      "time": 1779876566607
+    }
+  ],
+  "consoleErrorCount": 0,
+  "consoleErrors": [],
+  "typewriterDebugLogs": [
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 1, selectionFrom: 1}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: false, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1430}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: false}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1430}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 46}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1238}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1142}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1430}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1431}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1432}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1433}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] plugin1 update {enabled: true}"
+    },
+    {
+      "type": "debug",
+      "text": "[typewriter] decorations call {enabled: true, dimInactive: true, cursorPos: 0.5, docChildCount: 30, selectionFrom: 1434}"
+    }
+  ]
+}

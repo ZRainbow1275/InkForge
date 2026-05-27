@@ -1,0 +1,87 @@
+{
+  "ts": "2026-05-27T10-15-09-172Z",
+  "series": [
+    {
+      "scrollTop": 0,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 359.96875,
+      "cursorOffsetInSplit": 307.96875,
+      "cursorRatio": 0.37741268382352944
+    },
+    {
+      "scrollTop": 0,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 401.5625,
+      "cursorOffsetInSplit": 349.5625,
+      "cursorRatio": 0.4283854166666667
+    },
+    {
+      "scrollTop": 0,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 443.15625,
+      "cursorOffsetInSplit": 391.15625,
+      "cursorRatio": 0.47935814950980393
+    },
+    {
+      "scrollTop": 25,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 459.75,
+      "cursorOffsetInSplit": 407.75,
+      "cursorRatio": 0.4996936274509804
+    },
+    {
+      "scrollTop": 48,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 478.34375,
+      "cursorOffsetInSplit": 426.34375,
+      "cursorRatio": 0.5224800857843137
+    },
+    {
+      "scrollTop": 48,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 519.9375,
+      "cursorOffsetInSplit": 467.9375,
+      "cursorRatio": 0.573452818627451
+    },
+    {
+      "scrollTop": 48,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 561.53125,
+      "cursorOffsetInSplit": 509.53125,
+      "cursorRatio": 0.6244255514705882
+    },
+    {
+      "scrollTop": 87,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 564.125,
+      "cursorOffsetInSplit": 512.125,
+      "cursorRatio": 0.6276041666666666
+    },
+    {
+      "scrollTop": 129,
+      "splitTop": 52,
+      "splitHeight": 816,
+      "cursorTop": 563.71875,
+      "cursorOffsetInSplit": 511.71875,
+      "cursorRatio": 0.6271063112745098
+    }
+  ],
+  "initialCursorRatio": 0.37741268382352944,
+  "finalCursorRatio": 0.6271063112745098,
+  "expectation": {
+    "cursorRatio": "Every series entry should have cursorRatio near 0.5 (typewriter keeps cursor centered)",
+    "scrollTopProgression": "scrollTop should monotonically increase as we add paragraphs"
+  },
+  "pass": {
+    "cursorStaysCentered": true,
+    "scrollProgressed": true
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "ts": "2026-05-27T10-10-30-017Z",
+  "url": "http://localhost:3005/workstation?id=c3772a9e-0214-44d1-997a-7b20b2c53d4c",
+  "detectedScrollParent": {
+    "tag": "section",
+    "cls": "split-pane split-pane-left",
+    "scrollHeight": 2304,
+    "clientHeight": 816,
+    "scrollTop": 1380
+  },
+  "splitAtTop": {
+    "scrollTop": 0,
+    "scrollHeight": 2308,
+    "clientHeight": 816
+  },
+  "splitAfterJumpDown": {
+    "scrollTop": 1481,
+    "scrollHeight": 2308,
+    "clientHeight": 816
+  },
+  "splitAfterJumpBack": {
+    "scrollTop": 0,
+    "scrollHeight": 2308,
+    "clientHeight": 816
+  },
+  "splitBeforeTyping": {
+    "scrollTop": 565,
+    "scrollHeight": 2308,
+    "clientHeight": 816
+  },
+  "typeProgress": [
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    },
+    {
+      "scrollTop": 565,
+      "scrollHeight": 2308,
+      "clientHeight": 816
+    }
+  ],
+  "cursorViewportPos": {
+    "cursor": {
+      "top": 460.484375,
+      "height": 23
+    },
+    "splitTop": 52,
+    "splitHeight": 816,
+    "offsetFromTop": 408.484375,
+    "offsetRatio": 0.5005935968137255
+  },
+  "consoleErrorCount": 0,
+  "consoleErrors": [],
+  "expectation": {
+    "detectedScrollParent": "Should be .split-pane-left (not .editor-scroll) after fix",
+    "splitAfterJumpDown": "scrollTop should be significantly > splitAtTop",
+    "splitAfterJumpBack": "scrollTop should be near 0 after jumping back to top",
+    "typeProgress": "scrollTop should change as cursor enters new line(s) at viewport bottom",
+    "cursorViewportPos": "offsetRatio should be near 0.5 (cursorPosition default)"
+  }
+}
