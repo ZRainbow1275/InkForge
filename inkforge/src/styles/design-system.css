@@ -1073,37 +1073,57 @@ html[data-reduced-motion="true"] *::after {
    - block-active：当前段落左侧主题色侧栏
    - data-typewriter-idle：闲置 >1.2s 时光标呼吸
    ───────────────────────────────────────────────────────────── */
-.typewriter-dim-near {
-  opacity: 0.85 !important;
-  transition: opacity 0.3s ease;
-}
-
+/* Continuous gradient: opacity set inline by extension (0.35→0.88 by distance).
+   No !important — let inline style drive value; only inherit transition. */
+.typewriter-dim-near,
 .typewriter-dim-far {
-  opacity: 0.5 !important;
   transition: opacity 0.3s ease;
 }
 
 .typewriter-sentence-dim {
-  opacity: 0.75;
+  opacity: 0.75 !important;
   transition: opacity 0.25s ease;
 }
 
+/*
+ * Active block marker (typewriter mode).
+ *
+ * Visual contract:
+ * - Sidebar (::before) is the SOLE active indicator. No gradient background, no
+ *   horizontal padding/negative margin — those caused visual bleed onto adjacent
+ *   blocks when ProseMirror's class diffing left stale class strings behind
+ *   (TyporaMode's `.typora-active-line` exhibits the same class-leak shape).
+ * - `position: relative` is required so ::before sits inside the active block.
+ * - `min-height` keeps the sidebar full-height on empty paragraphs.
+ * - Background and any cosmetic chrome are gated on `[data-typewriter-active="true"]`,
+ *   which is a Decoration.node ATTRIBUTE (reliably cleaned up across renders,
+ *   unlike class strings). This guarantees no rendered visual treatment can leak
+ *   to paragraphs whose `typewriter-block-active` class is stale.
+ */
 .typewriter-block-active {
-  position: relative;
+  position: relative !important;
 }
 
-.typewriter-block-active::before {
-  content: '';
-  position: absolute;
-  left: -10px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+.typewriter-block-active[data-typewriter-active="true"] {
+  min-height: 1.6em;
+}
+
+/* sidebar 竖条：specificity 强化（.ProseMirror 前缀），防外部 :deep / theme 覆盖 */
+.ProseMirror .typewriter-block-active[data-typewriter-active="true"]::before,
+.typewriter-block-active[data-typewriter-active="true"]::before {
+  content: '' !important;
+  position: absolute !important;
+  left: -12px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  min-height: 1.4em;
   background: var(--color-primary, #D32F2F);
-  opacity: 0.85;
-  border-radius: 1px;
+  opacity: 0.9;
+  border-radius: 2px;
   transition: opacity 0.25s ease, background 0.25s ease;
   pointer-events: none;
+  display: block !important;
 }
 
 @keyframes typewriter-cursor-breathe {
@@ -1119,6 +1139,33 @@ html[data-reduced-motion="true"] *::after {
   caret-color: var(--color-primary, #D32F2F);
 }
 
-.ProseMirror[data-typewriter-idle="true"] .typewriter-block-active::before {
+.ProseMirror[data-typewriter-idle="true"] .typewriter-block-active[data-typewriter-active="true"]::before {
   animation: typewriter-cursor-breathe 1.6s ease-in-out infinite;
+}
+
+/*
+ * Typewriter mode bottom spacer.
+ *
+ * Why: When typewriter mode is on we want the cursor to always sit at viewport
+ * mid-line (cursorPosition ≈ 0.5). Without a spacer the scroll container hits
+ * its scrollTop max (`scrollHeight - clientHeight`) before the final paragraphs
+ * can be lifted to the middle, leaving the cursor stuck at ~95% of the viewport.
+ *
+ * Industry standard fix (Typora / Bear / iA Writer): pad the editor end with
+ * roughly (1 - cursorPosition) × viewport so scrollHeight gains enough room
+ * for any line — including the very last — to reach the centre.
+ *
+ * 50vh covers cursorPosition ∈ [0.3, 0.7] without leaving meaningful blank
+ * space when the user reads back from the top (the spacer is below the last
+ * paragraph, not between paragraphs).
+ *
+ * The attribute is toggled by TypewriterMode plugin 1 (`setActiveModeAttr`).
+ * Disabling typewriter mode removes the attribute and the spacer disappears
+ * immediately, so non-typewriter editing never gets phantom whitespace.
+ */
+.ProseMirror[data-typewriter-active-mode="true"]::after {
+  content: '';
+  display: block;
+  height: 50vh;
+  pointer-events: none;
 }

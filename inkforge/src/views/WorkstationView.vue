@@ -161,7 +161,7 @@ interface WorkstationLayoutPreset {
 
 const WORKSTATION_PANEL_WIDTH_LIMITS: Record<WorkstationPanelKey, { default: number; min: number; max: number }> = {
   manager: { default: 280, min: 220, max: 380 },
-  stage: { default: 320, min: 280, max: 520 },
+  stage: { default: 400, min: 360, max: 520 },
   inspector: { default: 260, min: 240, max: 460 },
 }
 
@@ -182,12 +182,12 @@ function cloneModeLayout(layout: WorkstationModeLayout): WorkstationModeLayout {
 function createDefaultModeLayouts(): WorkstationModeLayouts {
   return {
     typora: {
-      managerCollapsed: false,
+      managerCollapsed: true,
       stageCollapsed: true,
       inspectorCollapsed: true,
     },
     source: {
-      managerCollapsed: false,
+      managerCollapsed: true,
       stageCollapsed: true,
       inspectorCollapsed: true,
     },
@@ -228,7 +228,7 @@ const WORKSTATION_LAYOUT_PRESETS: WorkstationLayoutPreset[] = [
     label: '写作',
     description: '保留文件管理与检查器，收起预览栏并扩大正文区域',
     layout: { managerCollapsed: false, stageCollapsed: true, inspectorCollapsed: false },
-    widths: { manager: 280, stage: 320, inspector: 260 },
+    widths: { manager: 280, stage: 360, inspector: 260 },
     focusMode: false,
   },
   {
@@ -444,7 +444,7 @@ const editorWidthOptions: { value: EditorWidth; label: string; title: string }[]
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 
 /** 宸︽爮鎶樺彔 */
-const managerCollapsed = ref(false)
+const managerCollapsed = ref(true)
 /** 棰勮鏍忔姌鍙?*/
 const stageCollapsed = ref(false)
 /** 鍙虫爮鎶樺彔 */
@@ -2287,20 +2287,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         <!-- 鎶樺彔鎬佺珫鏍囩 -->
         <div
           v-if="managerCollapsed"
-          class="collapsed-label"
+          class="manager-collapsed-bar"
           @click="managerCollapsed = false"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-          <span>管理</span>
+          <div class="manager-collapsed-indicator" />
         </div>
 
         <!-- 灞曞紑鎬佸唴瀹?-->
@@ -2618,7 +2608,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               ref="splitViewRightScrollRef"
               class="split-preview-content"
             >
-              <MarkdownPreview :markdown="normalizedBody" />
+              <div class="preview-device-frame">
+                <MarkdownPreview :markdown="normalizedBody" />
+              </div>
             </div>
           </aside>
         </div>
@@ -2645,7 +2637,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             </button>
           </div>
           <div class="preview-mode-body">
-            <MarkdownPreview :markdown="normalizedBody" />
+            <div class="preview-device-frame">
+              <MarkdownPreview :markdown="normalizedBody" />
+            </div>
           </div>
         </div>
         <EditorStatusBar
@@ -3811,11 +3805,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: var(--workstation-manager-width, 280px);
   min-width: var(--workstation-manager-width, 280px);
   flex-shrink: 0;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
 }
 
 .panel-manager.collapsed {
-  width: 36px;
-  min-width: 36px;
+  width: 12px;
+  min-width: 12px;
+  overflow: hidden;
+  border-right: none;
 }
 
 /* 鈹€鈹€鈹€ 缂栬緫鍣ㄦ爮 鈹€鈹€鈹€ */
@@ -3976,13 +3973,19 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-height: 0;
   overflow: auto;
   padding: 20px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background:
+    radial-gradient(circle at top left, rgba(211, 47, 47, 0.03), transparent 32%),
+    linear-gradient(180deg, #FAFBFC 0%, #F5F7F8 100%);
 }
 
 .split-preview-content :deep(.markdown-preview) {
   min-height: 100%;
   height: auto;
   overflow: visible;
-  padding: 0;
+  padding: 20px;
   background: transparent;
 }
 
@@ -4020,8 +4023,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   }
 
   .panel-stage:not(.collapsed) {
-    width: min(var(--workstation-stage-width, 320px), 320px);
-    min-width: min(var(--workstation-stage-width, 320px), 320px);
+    width: min(var(--workstation-stage-width, 400px), 400px);
+    min-width: min(var(--workstation-stage-width, 400px), 400px);
   }
 
   .panel-inspector:not(.collapsed) {
@@ -4161,7 +4164,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     overflow: hidden;
   }
 
-  .collapsed-label,
+  .manager-collapsed-bar,
   .stage-collapsed-bar,
   .inspector-collapsed-bar {
     height: 44px;
@@ -4226,22 +4229,45 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   background:
     radial-gradient(circle at top left, rgba(211, 47, 47, 0.04), transparent 28%),
     linear-gradient(180deg, #FAFBFC 0%, #F5F7F8 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .preview-mode-body :deep(.markdown-preview) {
-  max-width: 920px;
   min-height: 100%;
-  margin: 0 auto;
-  padding: 56px 64px;
-  border-radius: 2px;
+  margin: 0;
+  padding: 24px 20px;
+  background: transparent;
+}
+
+/* 真机预览容器：模拟 375px 移动视口，确保中文每行 18-22 字 */
+.preview-device-frame {
+  flex-shrink: 0;
+  width: 375px;
+  max-width: 100%;
   background: #FFFFFF;
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.08),
+    0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .preview-device-frame {
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 /* 鈹€鈹€鈹€ 棰勮鏍?鈹€鈹€鈹€ */
 .panel-stage {
-  width: var(--workstation-stage-width, 320px);
-  min-width: var(--workstation-stage-width, 320px);
+  width: var(--workstation-stage-width, 400px);
+  min-width: var(--workstation-stage-width, 400px);
   flex-shrink: 0;
   transition: width 0.25s ease, min-width 0.25s ease;
 }
@@ -4316,8 +4342,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   border-left: none;
 }
 
-/* 鈹€鈹€鈹€ Inspector 鎶樺彔瑙﹀彂鏉?鈹€鈹€鈹€ */
-.inspector-collapsed-bar {
+/* ─── Inspector 折叠触发栏 ─── */
+.inspector-collapsed-bar,
+.manager-collapsed-bar {
   width: 100%;
   height: 100%;
   cursor: pointer;
@@ -4327,7 +4354,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   position: relative;
 }
 
-.inspector-collapsed-indicator {
+.inspector-collapsed-indicator,
+.manager-collapsed-indicator {
   width: 4px;
   height: 100%;
   background: transparent;
@@ -4335,7 +4363,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   border-radius: 2px;
 }
 
-.inspector-collapsed-bar:hover .inspector-collapsed-indicator {
+.inspector-collapsed-bar:hover .inspector-collapsed-indicator,
+.manager-collapsed-bar:hover .manager-collapsed-indicator {
   background: #B0BEC5;
 }
 
@@ -4616,7 +4645,7 @@ html[data-theme="dark"] .panel-tab.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 12px 12px;
+  padding: 14px 4px 12px;
   gap: 12px;
   background: linear-gradient(180deg, #F2F3F5 0%, #ECEEF0 100%);
   overflow: hidden;
@@ -4625,19 +4654,50 @@ html[data-theme="dark"] .panel-tab.active {
 /* 鈹€鈹€鈹€ iPhone 璁惧妗?鈹€鈹€鈹€ */
 .device-frame {
   width: 100%;
-  max-width: 320px;
+  max-width: 375px;
   flex: 1 1 0;
   min-height: 320px;
   background: #FAFAF7;
   border-radius: 28px;
   border: 1px solid #ECEFF1;
-  padding: 46px 12px 22px;
+  padding: 46px 4px 22px;
   position: relative;
   box-shadow:
     0 12px 32px -8px rgba(38, 50, 56, 0.18),
     0 2px 6px rgba(38, 50, 56, 0.06);
   display: flex;
   flex-direction: column;
+}
+
+/* 真机预览：strip section inline padding/max-width/字号，强制移动 18-22 字/行 */
+.panel-stage .preview-content :deep(section) {
+  padding: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+
+.panel-stage .preview-content :deep(section h1) {
+  font-size: 22px !important;
+  line-height: 1.4 !important;
+}
+
+.panel-stage .preview-content :deep(section h2) {
+  font-size: 18px !important;
+  line-height: 1.4 !important;
+}
+
+.panel-stage .preview-content :deep(section h3) {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+
+.panel-stage .preview-content :deep(section p),
+.panel-stage .preview-content :deep(section li),
+.panel-stage .preview-content :deep(section blockquote) {
+  font-size: 16px !important;
+  line-height: 1.7 !important;
 }
 
 /* 鍒樻捣 */
@@ -4661,7 +4721,7 @@ html[data-theme="dark"] .panel-tab.active {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px 8px;
   position: relative;
   box-shadow: inset 0 0 0 1px rgba(207, 216, 220, 0.32);
 }

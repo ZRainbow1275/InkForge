@@ -1032,9 +1032,23 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
+/*
+ * TyporaMode active-line marker.
+ *
+ * Background/highlight is gated on `[data-typora-node]` instead of the bare
+ * `.typora-active-line` class because the class attribute can leak across
+ * renders when ProseMirror's per-plugin decoration diff fails to strip the
+ * class from previously-active blocks (data attributes from the same
+ * Decoration.node are still cleaned up reliably). Gating on the data attribute
+ * keeps the active-line highlight constrained to the single block whose data
+ * attributes are currently present.
+ */
 .tiptap-content :deep(.ProseMirror .typora-active-line) {
   position: relative;
   border-radius: 6px;
+}
+
+.tiptap-content :deep(.ProseMirror .typora-active-line[data-typora-node]) {
   background: rgba(211, 47, 47, 0.035);
 }
 

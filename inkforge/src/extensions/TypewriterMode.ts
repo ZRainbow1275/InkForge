@@ -45,18 +45,29 @@ const SENTENCE_SPLIT_REGEX = /[.!?。！？；;]+\s*/g
 const SKIP_SENTENCE_SPLIT_TYPES = new Set(['codeBlock', 'code_block', 'listItem', 'list_item', 'taskList', 'task_list', 'taskItem', 'task_item', 'bulletList', 'orderedList'])
 
 /**
- * 查找最近的可滚动父元素
+ * 查找最近的"真正可滚动"父元素。
+ *
+ * 仅仅 overflow:auto / scroll 不够：
+ * - 在 InkForge 编辑器嵌套布局中，`.editor-scroll` 声明了 overflow:auto，
+ *   但因为它本身（在 flex 链中）会膨胀到与内容同高，scrollHeight===clientHeight，
+ *   `scrollBy()` 在它上面是 no-op。真正在滚的是它的更外层（如 `.split-pane-left`）。
+ *
+ * 所以必须同时满足：
+ *   1) overflow / overflowY 属于 auto | scroll
+ *   2) 当前实际 scrollHeight > clientHeight（有可滚动距离）
+ *
+ * 找不到候选时回退到编辑器自身（如果它本身有可滚动区域）。
  */
 function findScrollParent(element: HTMLElement): HTMLElement | null {
     let current: HTMLElement | null = element
 
     while (current) {
         const { overflow, overflowY } = getComputedStyle(current)
-
-        if (
+        const overflowAllowsScroll =
             overflow === 'auto' || overflow === 'scroll' ||
             overflowY === 'auto' || overflowY === 'scroll'
-        ) {
+
+        if (overflowAllowsScroll && current.scrollHeight > current.clientHeight) {
             return current
         }
 
@@ -215,6 +226,25 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                         }
                     }
 
+                    /**
+                     * 同步打字机模式总开关到 DOM。
+                     *
+                     * Why: 末段无法居中是因为 scrollTop 已经触底（剩余文档高度
+                     * < viewport × (1 - cursorPosition)）。业界标准做法（Typora /
+                     * Bear / iA Writer）是给编辑器底部加 50vh spacer，让
+                     * scrollHeight 多出一段，使 cursor 在任何位置都能滚到中线。
+                     * 我们用 `[data-typewriter-active-mode="true"]::after { height: 50vh }`
+                     * 实现，CSS 同时只在打字机启用时生效，关闭后自动消失。
+                     */
+                    const setActiveModeAttr = (view: { dom: Element }, enabled: boolean) => {
+                        const dom = view.dom as HTMLElement
+                        if (enabled) {
+                            dom.setAttribute('data-typewriter-active-mode', 'true')
+                        } else {
+                            dom.removeAttribute('data-typewriter-active-mode')
+                        }
+                    }
+
                     const scheduleIdle = (view: { dom: Element }) => {
                         clearIdle()
                         if (!extensionOptions.enabled) return
@@ -225,6 +255,7 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
 
                     // 初始装载：禁用态保证移除任何残留属性
                     setIdleAttr(initialView, false)
+                    setActiveModeAttr(initialView, extensionOptions.enabled)
                     if (extensionOptions.enabled) {
                         scheduleIdle(initialView)
                     }
@@ -239,11 +270,13 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                             if (!extensionOptions.enabled) {
                                 clearIdle()
                                 setIdleAttr(view, false)
+                                setActiveModeAttr(view, false)
                                 return
                             }
 
                             // 任何状态变化都视为活跃，重置呼吸 timer
                             setIdleAttr(view, false)
+                            setActiveModeAttr(view, true)
                             scheduleIdle(view)
 
                             // 只在光标位置发生变化时滚动
@@ -284,6 +317,7 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                         destroy() {
                             clearIdle()
                             setIdleAttr(initialView, false)
+                            setActiveModeAttr(initialView, false)
                         },
                     }
                 },
@@ -336,6 +370,13 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                                 decorations.push(
                                     Decoration.node(activeFrom, activeTo, {
                                         class: 'typewriter-block-active',
+                                        style: 'opacity: 1;',
+                                        // Data attribute attached via PM Decoration.node is reliably
+                                        // cleaned up across renders, unlike class strings which can
+                                        // leak when other plugins also decorate the same node. CSS
+                                        // gates visual treatment on this attribute so backgrounds
+                                        // cannot bleed onto stale class-only elements.
+                                        'data-typewriter-active': 'true',
                                     }),
                                 )
 
@@ -352,21 +393,21 @@ export const TypewriterMode = Extension.create<TypewriterModeOptions>({
                                             decorations.push(
                                                 Decoration.inline(from, to, {
                                                     class: 'typewriter-sentence-dim',
+                                                    style: 'opacity: 0.75;',
                                                 }),
                                             )
                                         }
                                     }
                                 }
-                            } else if (distance === 1) {
-                                decorations.push(
-                                    Decoration.node(nodeStart, nodeEnd, {
-                                        class: 'typewriter-dimmed typewriter-dim-near',
-                                    }),
-                                )
                             } else {
+                                // 连续梯度：每段距离 ×0.07 衰减，下限 0.18（长文远段继续递浅但仍可见）
+                                // dist 1=0.93, 2=0.86, 3=0.79, 5=0.65, 10=0.30, 12+=0.18 (floor)
+                                const opacity = Math.max(0.18, 1 - distance * 0.07)
+                                const tier = distance === 1 ? 'typewriter-dim-near' : 'typewriter-dim-far'
                                 decorations.push(
                                     Decoration.node(nodeStart, nodeEnd, {
-                                        class: 'typewriter-dimmed typewriter-dim-far',
+                                        class: `typewriter-dimmed ${tier}`,
+                                        style: `opacity: ${opacity.toFixed(2)}; transition: opacity 0.3s ease;`,
                                     }),
                                 )
                             }
