@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/05-27-fix-visual-polish-regressions/prd.md", "reason": "Acceptance Criteria to verify against — every checkbox in PRD"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Confirm §9 Logo Mark updated to Forge Nib; §10-12 untouched"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify 0 NEW lint/typecheck warnings"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Verify Win/macOS branches in TitleBar honored (drag region, spacer, decorations)"}

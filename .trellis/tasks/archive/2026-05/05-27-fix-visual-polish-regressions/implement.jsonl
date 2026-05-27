@@ -1,0 +1,5 @@
+{"file": ".trellis/tasks/05-27-fix-visual-polish-regressions/prd.md", "reason": "Task PRD: Forge Nib geometry spec, drag fix root cause, Acceptance Criteria, Out of Scope"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Brand palette + §9 Logo Mark (rewrite to Forge Nib) + §10-12 chrome/splash semantics (must not break)"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue 3 SFC conventions for TitleBar.vue edits"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "lint/typecheck bar — 0 NEW warning required by AC"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Tauri Win/macOS branching — drag region, decorations, traffic light spacer"}
