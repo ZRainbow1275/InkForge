@@ -387,3 +387,36 @@ Diagnosed and fixed four typewriter-mode regressions on dev/visual-fixes: (1) sc
 ### Next Steps
 
 - None - task complete
+
+
+## Session 11: Visual polish pass — logo / splash / loading / titlebar
+
+**Date**: 2026-05-27
+**Task**: Visual polish pass — logo / splash / loading / titlebar
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Brand identity v1.1 落地 Tauri chrome 全链路。3 PR 并行 team-based 执行 (1 main + 6 sub-agent: pr1-finisher / pr1-checker / pr2-impl / pr2-check-2 / pr3-impl / pr3-check)。PR1 brand assets: 「铸」字方印 SVG master + build-icons.mjs (sharp + png-to-ico) → Win .ico 7-size / macOS .icns 8+@2x / Linux PNG 5-size, App.vue 错误边界配色去 #0066cc 迁 Kiln/Tempera token, favicon 替换, brand doc §9 Logo Mark + 「墨锻」→「墨铸」正名。PR2 splash + IPC: dark-light theme detect → splash window (Vellum/Char 双模式 + 宣纸墨痕动画 + reduced-motion) → tokio::select! { Notify, sleep 3s } 双路径共用 close_splash_and_show_main, notifyAppReady.ts Tauri-guarded, App.vue onMounted async + await nextTick, brand doc §10 Splash。PR3 loading + titlebar: index.html #app inline CSS-only loading (印章静态 + 正在准备墨砚...), TitleBar.vue (Win 自绘 min/max/close Kiln hover, macOS overlay 28px inset 保留 traffic light), window-controls.ts, brand doc §11 Loading + §12 Titlebar。质量门 17/17 + 32/32 + 40/40 全 pass; cargo check/clippy/fmt + pnpm typecheck/lint 全绿。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `da5560bb` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
