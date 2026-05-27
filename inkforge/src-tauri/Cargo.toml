@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
-tauri = { version = "1.6", features = [ "fs-exists", "fs-read-file", "fs-create-dir", "fs-read-dir", "fs-write-file", "fs-remove-file", "clipboard-all", "dialog-all", "http-all", "shell-open"] }
+tauri = { version = "1.6", features = [ "fs-exists", "fs-read-file", "fs-create-dir", "fs-read-dir", "fs-write-file", "fs-remove-file", "clipboard-all", "dialog-all", "http-all", "shell-open", "window-close", "window-hide", "window-maximize", "window-minimize", "window-set-focus", "window-show", "window-start-dragging", "window-unmaximize"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 reqwest = { version = "0.11", features = ["json", "multipart"] }

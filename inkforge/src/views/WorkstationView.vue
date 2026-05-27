@@ -54,6 +54,7 @@ import {
 } from '@/extensions/TyporaMode'
 
 // 鈹€鈹€鈹€ 瀛愮粍浠?鈹€鈹€鈹€
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import FileManager from '@/components/file/FileManager.vue'
 import VersionPanel from '@/components/version/VersionPanel.vue'
 import OutlinePanel from '@/components/outline/OutlinePanel.vue'
@@ -1989,8 +1990,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         title="返回首页"
         @click="handleBack"
       >
-        <div class="header-logo">
-          IF
+        <div
+          class="header-logo"
+          role="img"
+          aria-label="InkForge"
+        >
+          <ForgeNibMark :size="28" />
         </div>
         <span class="header-brand-name">InkForge</span>
       </div>
@@ -3545,14 +3550,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .header-logo {
   width: 28px;
   height: 28px;
-  background: #D32F2F;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 11px;
   flex-shrink: 0;
 }
 

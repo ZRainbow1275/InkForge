@@ -404,53 +404,74 @@ const inkforgePreset: ExportPreset = {
 
 ---
 
-## 9. Logo Mark 标识
+## 9. Logo Mark 标识 — Forge Nib (锻铸笔尖)
+
+> Version: 2026-05-28 redesign. Replaces the prior「铸」-character seal mark.
+> The prior design depended on a system CJK serif font fallback chain (Source
+> Han Serif SC → Noto Serif SC → Songti SC → STSong → SimSun), which produced
+> blurry/illegible raster icons at 16-32px and inconsistent cross-machine
+> results. Forge Nib is **pure geometry, 0 font dependency**.
 
 ### 9.1 Design Intent 设计意图
 
-- **形 (Form)**: 「铸」字方印 (bronze stamp seal) — 圆角矩形 + 中央阴文 + 底部 ◇ 三连印章符号
-- **色 (Color)**: Kiln `#D95B3F` 朱砂底 + Graphite `#252933` 阴文「铸」+ Vellum `#F5F0E6` ◇ 衬底
-- **叙 (Narrative)**: 「墨 + 铸」= ink cast into form。印章 (CJK 千年传统) × 圆角矩形 (现代 OS chrome 语言) 的桥接
-- **唯一性 (Differentiation)**: 市面无任何 editor 使用 Kiln 朱砂底方印 + CJK 阴文 + 三连菱形组合作为 app icon
+- **形 (Form)**: Kiln 朱砂方印 (rounded-square seal) + Graphite 菱形笔尖 (nib diamond) + Vellum 中线劈缝 (nib slit) + Amber 底锻线 (forge line)
+- **色 (Color)**: Kiln `#D95B3F` 朱砂底 (radialGradient `#E27654`→`#D95B3F`→`#B84A30`) + Graphite `#252933` 笔尖 + Vellum `#F5F0E6` 劈缝 + Amber linearGradient (`#D4B070`→`#C19A56`) 锻线
+- **叙 (Narrative)**: 「墨 + 铸」= ink cast into form。**Kiln 衬底 = 熔铸炉**, **Graphite 菱形 = 笔尖**, **Vellum 劈缝 = 钢笔金属切口**, **Amber 锻线 = 冷却中的金属火痕** — 完整翻译「Markdown → 精致排版」的锻造叙事
+- **唯一性 (Differentiation)**: 市面无任何 editor 使用「熔铸炉 + 笔尖 + 劈缝 + 锻线」四元几何组合, 也无任何 editor 用 Kiln 朱砂 × Graphite 高碳蓝灰冷热对比作为 app mark
+- **0 字体依赖**: 全部由 `rect` / `polygon` / `polyline` 构成, 任何机器 (CI runner, 无 CJK 字体的 Linux) raster 出来视觉一致
 
 ### 9.2 SVG Master
 
 - **Location**: `inkforge/src-tauri/icons/master.svg`
 - **viewBox**: 1024 × 1024
 - **Safe area padding**: ~22% (seal 位于 226..798，572×572)，防 Win11 squircle 自动圆角 / macOS rounded square 自动剪切到主体
-- **纯矢量**: 无 raster embed，CJK 字符通过 `font-family` fallback chain 渲染（`Source Han Serif SC` → `Noto Serif SC` → `Songti SC` → `STSong` → `SimSun`）
-- **装饰细节**: `radialGradient` 内阴影模拟铸造金属质感 + `feGaussianBlur` 外阴影 6px@28% alpha
+- **纯矢量, 纯 path/shape**:
+  - Kiln seal: `rect x=226 y=226 w=572 h=572 rx=72` fill=`url(#kilnGrad)`
+  - Inner hairline: `rect x=244 y=244 w=536 h=536 rx=58` stroke=`#F5F0E6` opacity=0.18 width=2
+  - Graphite nib diamond: `polygon points="512,312 680,512 512,712 344,512"` fill=`#252933`
+  - Bevel highlight: `polyline points="380,500 512,360"` stroke=`#F5F0E6` opacity=0.22 width=14 linecap=round
+  - Vellum nib slit: `rect x=506 y=380 w=12 h=260 rx=6` fill=`#F5F0E6`
+  - Amber forge line: `rect x=412 y=748 w=200 h=10 rx=5` fill=`url(#amberGrad)`
+- **装饰细节**: `radialGradient` 模拟熔铸光晕 + `linearGradient` 模拟金属锻线 + `feGaussianBlur` 外阴影 6px@28% alpha
+- **校验契约**: `grep -c '<text' inkforge/src-tauri/icons/master.svg` MUST return 0
 
 ### 9.3 Sizing Rules 尺寸策略
 
-| 用途 | size 范围 | padding 策略 |
+| 用途 | size 范围 | 几何策略 |
 |---|---|---|
-| App icon (Win/macOS/Linux) | 16 ~ 1024 | 22% padding 主体留中 (使用 master.svg) |
-| Favicon (浏览器 tab) | 32 | 减少 padding 至 ~6% 提升小尺寸辨识 (使用 `public/favicon.svg`) |
-| Splash logo (居中印章) | 96 ~ 128 | 容器已限定空间，0 padding |
-| TitleBar 内嵌 logo | 16 | 仅主体印章，0 padding，无 ◇ 衬底 |
+| App icon (Win/macOS/Linux) | 16 ~ 1024 | 完整 Forge Nib (master.svg)，22% 安全 padding 主体留中 |
+| Favicon (浏览器 tab) | 32 | 缩比 Forge Nib (`public/favicon.svg`)，~6% padding，去 hairline + bevel highlight |
+| Splash logo (居中印章) | 108 (CSS px) | 完整 Forge Nib (splash.html 内联)，0 padding，去 filter (CSS 提供 drop-shadow) |
+| TitleBar 内嵌 logo | 16 | 缩比 Forge Nib (TitleBar.vue 内联，与 favicon 同 32-viewBox)，0 padding |
+| `index.html` 启动占位 | 64 (CSS px) | 完整 Forge Nib 1024-viewBox，0 ◇ ornament，去 bevel highlight |
+
+### 9.3.1 16/32px 退化策略
+
+- **16×16 raster**: 菱形 + 中线劈缝 + 底锻线全保留, bevel highlight scale 至 < 1px 视觉消失但不破坏轮廓
+- **favicon.svg / TitleBar 16px**: 同样的 32-viewBox 几何，hairline + bevel + filter 已删除，避免 1px 模糊伪影
 
 ### 9.4 Platform Squircle Handling 平台圆角处理
 
-- **Windows 11**: 任务栏 / Start 自动 ~22% 圆角 crop，master 的 22% 安全 padding 确保「铸」字主体不被切到
+- **Windows 11**: 任务栏 / Start 自动 ~22% 圆角 crop，master 的 22% 安全 padding 确保主形 (菱形笔尖) 不被切到
 - **macOS Big Sur+**: 系统对 app icon 自动 squircle 包装 (圆角矩形 mask)，22% padding 同样适用
 - **Linux**: 各桌面环境 (GNOME / KDE / XFCE) 不统一；master 提供完整方形 + transparent 背景，DE 自行处理 mask
 
 ### 9.5 Generated Asset Pipeline 资产生成管线
 
-- **Source**: `inkforge/src-tauri/icons/master.svg` (1024×1024 viewBox)
+- **Source**: `inkforge/src-tauri/icons/master.svg` (1024×1024 viewBox, Forge Nib)
 - **Tool**: `inkforge/scripts/build-icons.mjs` (Node ESM + `sharp` + `png-to-ico`)
 - **Outputs**:
   - **Win `.ico`** (multi-resolution 包): 16 / 24 / 32 / 48 / 64 / 128 / 256
   - **macOS `.icns`** (8 entries): 16 / 32 / 64 / 128 / 256 / 512 / 1024 + 1024@2x (2048 actual)
   - **Linux PNG**: 32 / 64 / 128 / 256 / 512
   - **Tauri-named** (back-compat for `tauri.conf.json` bundle.icon): `32x32.png`, `128x128.png`, `128x128@2x.png`
+- **Derivation chain**: `master.svg` (1024) → `public/favicon.svg` (32, simplified) → TitleBar 内联 (32-viewBox, 16px CSS) → `public/splash.html` 内联 (572-cropped viewBox, 108px CSS) → `index.html` 内联 (1024-viewBox, 64px CSS) → raster `.ico` / `.icns` / `.png`
 - **Rebuild command**:
   ```bash
   cd inkforge && pnpm run icons:build
   # 或: node scripts/build-icons.mjs
   ```
-- **Idempotency**: 安全重跑，每次完整覆盖 `src-tauri/icons/` 输出
+- **Idempotency**: 安全重跑，每次完整覆盖 `src-tauri/icons/` 输出。 跨机器 raster 一致 (无 CJK 字体依赖)。
 
 ---
 
@@ -461,7 +482,7 @@ const inkforgePreset: ExportPreset = {
 InkForge 启动 splash 是 **「双击 icon → 首屏可交互」全链路** 第一个品牌投射节点。市面 editor 多用纯色背景 + spinner 占位（Notion / Obsidian / Logseq），instant-but-anonymous。InkForge splash 走相反方向：动画短（≤ 800ms）但有「印章降落 + 墨痕渗透」的人文叙事，让用户在毫秒级时间内感知到产品的匠人气质。
 
 - **形 (Form)**: 居中印章 + wordmark + tagline 三层垂直布局
-- **色 (Color)**: Vellum `#F5F0E6` 仿宣纸底 + Kiln 印章 + Graphite 阴文「铸」+ Ash tagline
+- **色 (Color)**: Vellum `#F5F0E6` 仿宣纸底 + Kiln 印章 + Graphite 笔尖菱形 (Forge Nib) + Ash tagline
 - **叙 (Narrative)**: 「印章落下 → 盖印瞬间挤压 → 墨痕从印章边缘 8 方向渗透」— 把品牌名「墨铸」（ink cast into form）翻译为可视动画
 
 ### 10.2 Layout 布局
@@ -471,8 +492,8 @@ InkForge 启动 splash 是 **「双击 icon → 首屏可交互」全链路** �
 │                                         │
 │                                         │
 │              ╔══════════╗               │  ← 108×108 印章
-│              ║   铸     ║               │     (master.svg 几何 -22% padding)
-│              ║ ◇ ◇ ◇   ║               │
+│              ║    ◆     ║               │     (master.svg Forge Nib 几何 -22% padding)
+│              ║   ──     ║               │     菱形 + Vellum 中线劈缝 + Amber 底锻线
 │              ╚══════════╝               │
 │                                         │
 │        InkForge · 墨铸                  │  ← wordmark
@@ -580,8 +601,8 @@ artifact during full reload (F5 / devtools reload) inside the main window, so
 it must read as a continuation of the splash — same seal, same Vellum field,
 same wordmark, same tagline narrative — but quieter and motion-restrained.
 
-- **形 (Form)**: 静态「铸」印章 (64×64) + 「InkForge · 墨铸」wordmark + 「正在准备墨砚...」caption
-- **色 (Color)**: Vellum `#F5F0E6` 底 + Kiln `#D95B3F` 印章 + Graphite `#252933` 阴文「铸」+ Ash `#6E7580` wordmark + Smoke `#9B958D` caption
+- **形 (Form)**: 静态 Forge Nib 印章 (64×64, master.svg 几何) + 「InkForge · 墨铸」wordmark + 「正在准备墨砚...」caption
+- **色 (Color)**: Vellum `#F5F0E6` 底 + Kiln `#D95B3F` 印章 + Graphite `#252933` 笔尖菱形 + Vellum `#F5F0E6` 中线劈缝 + Amber `#C19A56` 底锻线 + Ash `#6E7580` wordmark + Smoke `#9B958D` caption
 - **声 (Voice)**: caption「正在准备墨砚...」延续匠人锻造叙事，比通用 "Loading..." 更有人格
 
 ### 11.2 Technical Contract 技术约束
@@ -653,8 +674,8 @@ Windows / Linux structure (32px tall):
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │ [data-tauri-drag-region                                                ] │
-│  [16×16 seal SVG]  「文档名 or 成为作者吧」    [_]  [□]  [×]          │
-│ ──────────────────────────────────────────────────────────────────── ◀ Hairline (1px)
+│  [14×14 ForgeNibMark]  「文档名 or 成为作者吧」    [_]  [□]  [×]      │
+│ ········································································ ◀ Soft 2% box-shadow (no hairline)
 └────────────────────────────────────────────────────────────────────────┘
    ↑ drag region (whole bar minus buttons)              ↑ no-drag controls
 ```
@@ -670,17 +691,18 @@ macOS structure (28px inset):
 
 ### 12.4 Logo 嵌入 Embedded Seal
 
-- Size: 16×16 (inline `<svg>`, no external request)
-- Composition: only the Kiln rounded square + Graphite「铸」阴文 — **no ◇ ornament row** at this size (would degrade to noise)
+- Size: 14×14 (inline shared `<ForgeNibMark size="14" />`, no external request) — small footprint helps the chrome feel less imposing
+- Composition: Forge Nib geometry — Kiln rounded square + Graphite nib diamond + Vellum slit + Amber forge line. **No ◇ ornament row** at this size (would degrade to noise)
 - Padding: 0 (the titlebar acts as the container)
 
 ### 12.5 Title Text 标题文本
 
 - **Source**: active article title (`articleStore.selectedArticle?.title`) when present, otherwise `成为作者吧` tagline fallback
 - **Font**: `Source Han Serif SC, Noto Serif SC, EB Garamond, Georgia, serif`
-- **Size / weight**: 12px / 600
+- **Size / weight**: 12px / 500
 - **Color**: Graphite `#252933` (light) / `#E8E4DC` (dark)
-- **Letter-spacing**: 0.04em
+- **Letter-spacing**: 0.06em
+- **Opacity**: 0.78 — softer presence so the chrome title hints at the document instead of competing with the editor content below
 - **Truncation**: `text-overflow: ellipsis` with `max-width: 60vw` so very long article titles fade into `...` instead of pushing the window-control buttons offscreen
 
 ### 12.6 Window Control Buttons 窗口按钮 (Windows / Linux)
@@ -692,8 +714,8 @@ macOS structure (28px inset):
 | Close | `lucide-vue-next` X | 同上 | bg Kiln `#D95B3F` + white icon |
 
 - Button size: 46×32 (matches Win11 chrome conventions)
-- Buttons MUST NOT carry `data-tauri-drag-region` (would block clicks)
-- Buttons MUST carry `-webkit-app-region: no-drag` for the same reason on WebKit-based WebViews
+- Buttons MUST carry `data-tauri-drag-region="false"` so the drag-region opt-out is explicit (Tauri 1.x belt-and-suspenders even when buttons live in a sibling container)
+- The Electron-only `-webkit-app-region: no-drag` declaration is **not** used. Tauri WebView2/WKWebView honors the `data-tauri-drag-region` attribute instead.
 
 ### 12.7 Dark Mode 暗色模式
 
@@ -705,7 +727,8 @@ set. Palette:
 |---|---|---|
 | Titlebar bg | Vellum `#F5F0E6` | Char `#1A1D24` |
 | Titlebar fg | Graphite `#252933` | `#E8E4DC` |
-| Border | Hairline `#DED7CA` | `#3A3D44` |
+| Border token (`--ink-titlebar-border`, no longer rendered as hard line) | Hairline `#DED7CA` | `#3A3D44` |
+| Shadow (`--ink-titlebar-shadow`, replaces border) | `0 1px 0 rgba(0,0,0,0.02)` | `0 1px 0 rgba(255,255,255,0.04)` |
 | Accent (close hover, btn hover) | Kiln `#D95B3F` | Kiln lifted `#E8734F` |
 | Btn hover bg | `rgba(217,91,63,0.10)` | `rgba(232,115,79,0.16)` |
 
@@ -736,13 +759,13 @@ their top by `var(--ink-titlebar-height)` rather than hard-coding a number.
 
 - Do **not** render the titlebar inside a `router-view` slot — it must live in
   `App.vue` at the same level as the route shell so it survives transitions.
-- Do **not** put `data-tauri-drag-region` on the window control buttons.
+- Do **not** put `data-tauri-drag-region` (without explicit `="false"`) on the window control buttons — that would make them draggable and unclickable. Buttons MUST carry `data-tauri-drag-region="false"` to opt out.
 - Do **not** import lucide icons that are not already in the bundle just to
   vary the chrome — Minus / Square / Copy / X are sufficient.
 - Do **not** use Emoji as the seal or the buttons.
 
 ---
 
-*Last updated: 2026-05-27*
+*Last updated: 2026-05-28*
 *Version: 1.0*
 *Author: InkForge Design System*

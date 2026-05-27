@@ -45,6 +45,17 @@
         "scope": [
           "http://localhost:11434/*"
         ]
+      },
+      "window": {
+        "all": false,
+        "minimize": true,
+        "maximize": true,
+        "unmaximize": true,
+        "close": true,
+        "show": true,
+        "hide": true,
+        "startDragging": true,
+        "setFocus": true
       }
     },
     "bundle": {

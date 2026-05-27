@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import { useFTUEStore } from '@/stores/ftue'
 import type { OnboardingPath } from '@/services/ftue/types'
 
@@ -68,7 +69,7 @@ function handleEscape(): void {
             class="if-welcome__mark"
             aria-hidden="true"
           >
-            IF
+            <ForgeNibMark :size="56" />
           </div>
 
           <template v-if="step === 'welcome'">
@@ -219,13 +220,7 @@ function handleEscape(): void {
   width: 56px;
   height: 56px;
   margin-bottom: 20px;
-  border-radius: 18px;
-  background: #111827;
-  color: #f8fafc;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  border-radius: 12px;
 }
 
 .if-welcome__eyebrow {

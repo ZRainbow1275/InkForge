@@ -21,6 +21,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import ShortcutInput from '@/components/settings/ShortcutInput.vue'
 import UpdateCard from '@/components/settings/UpdateCard.vue'
 import CssEditor from '@/components/editor/CssEditor.vue'
@@ -5898,8 +5899,12 @@ onUnmounted(() => {
 
           <!-- Logo Card -->
           <div class="sv-about-hero">
-            <div class="sv-about-logo">
-              <span class="sv-about-logo-text">IF</span>
+            <div
+              class="sv-about-logo"
+              role="img"
+              aria-label="InkForge"
+            >
+              <ForgeNibMark :size="48" />
             </div>
             <div class="sv-about-hero-info">
               <h3 class="sv-about-name">
@@ -8506,19 +8511,11 @@ details.sv-history-row summary::-webkit-details-marker {
 .sv-about-logo {
   width: 48px;
   height: 48px;
-  background: var(--accent-primary, #D32F2F);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.sv-about-logo-text {
-  color: white;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -1px;
 }
 
 .sv-about-hero-info {

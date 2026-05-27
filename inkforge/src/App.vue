@@ -420,6 +420,19 @@ function handleDismiss(): void {
 
 /* TitleBar offsets the route content. TitleBar.vue writes the actual height
    (32px Win/Linux, 28px macOS) to --ink-titlebar-height on :root. */
+/*
+ * .app-content uses `overflow: hidden` intentionally:
+ * - All globally floating UI (CommandPalette, ExportModal, WelcomeModal,
+ *   HelpCenter, UpdateToast, UpdateDetailsModal, etc.) is `<Teleport to="body">`
+ *   so it bypasses this clip region.
+ * - PublishView and other route-internal popovers use `position: fixed` on the
+ *   viewport (no ancestor with `transform`/`filter`/`perspective`/`contain`
+ *   creates a containing block here), so they are not clipped by this overflow.
+ * - Route-internal `position: absolute` elements (preset color bars, toggle
+ *   knobs, etc.) are intentionally clipped to their own bounded container.
+ * Switching to `overflow: visible` would let route-internal scroll bleed into
+ * the TitleBar and is not necessary for current modal/popover wiring.
+ */
 .app-content {
   width: 100%;
   height: calc(100vh - var(--ink-titlebar-height, 32px));

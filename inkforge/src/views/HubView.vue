@@ -38,6 +38,7 @@ import { computeContentWordCount, computeWritingWindowStats, extractContentPrevi
 import { getDailyQuote, formatNumber } from '@/data/quotes'
 import type { Article } from '@/types'
 import AddCategoryModal from '@/components/category/AddCategoryModal.vue'
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import TemplatePicker from '@/components/template/TemplatePicker.vue'
 import DataInsightsSection from '@/components/hub/insights/DataInsightsSection.vue'
 import UserAvatarPopover from '@/components/hub/UserAvatarPopover.vue'
@@ -988,8 +989,12 @@ onMounted(async () => {
     <!-- HEADER (移入第一屏 region 内部，保证 scroll-snap 第一屏完整可见) -->
     <header class="hub-header hub-header-floating">
       <div class="header-brand">
-        <div class="logo">
-          IF
+        <div
+          class="logo"
+          role="img"
+          aria-label="InkForge"
+        >
+          <ForgeNibMark :size="36" />
         </div>
         <div class="brand-text">
           <h1>InkForge</h1>
@@ -2406,16 +2411,11 @@ onMounted(async () => {
 .logo {
   width: 36px;
   height: 36px;
-  background: #D32F2F;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: -0.5px;
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.15);
   flex-shrink: 0;
 }
 

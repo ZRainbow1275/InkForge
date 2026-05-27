@@ -12,6 +12,7 @@
  */
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Minus, Square, Copy, X } from 'lucide-vue-next'
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import { isTauriEnv } from '@/utils/platform'
 import {
     close as closeWindow,
@@ -108,11 +109,14 @@ onBeforeUnmount(() => {
     :data-platform="isMac ? 'mac' : 'pc'"
     :style="{ '--ink-titlebar-h': `${titlebarHeightPx}px` }"
   >
-    <!-- macOS reserves ~80px for traffic light (rendered by system Overlay style). -->
+    <!-- macOS reserves ~80px for traffic light (rendered by system Overlay style).
+         Marked draggable so user can grab inside this band the same way the
+         right side of the bar drags. -->
     <div
       v-if="isMac"
       class="ink-titlebar__mac-traffic-spacer"
       aria-hidden="true"
+      data-tauri-drag-region
     />
 
     <div
@@ -123,30 +127,12 @@ onBeforeUnmount(() => {
         class="ink-titlebar__seal"
         aria-hidden="true"
       >
-        <svg
-          viewBox="0 0 1024 1024"
-          xmlns="http://www.w3.org/2000/svg"
-          focusable="false"
-        >
-          <rect
-            x="226"
-            y="226"
-            width="572"
-            height="572"
-            rx="72"
-            ry="72"
-            fill="#D95B3F"
-          />
-          <text
-            x="512"
-            y="612"
-            text-anchor="middle"
-            font-family="'Source Han Serif SC','Noto Serif SC','Songti SC','STSong','SimSun',serif"
-            font-weight="700"
-            font-size="380"
-            fill="#252933"
-          >铸</text>
-        </svg>
+        <!--
+          Forge Nib mini seal via shared <ForgeNibMark/>. 0 <text>, 0 font
+          dependency. Size 14 (down from 16) — the mark stays readable while
+          the smaller footprint helps the titlebar feel less imposing.
+        -->
+        <ForgeNibMark :size="14" />
       </span>
       <span
         class="ink-titlebar__title"
@@ -163,6 +149,7 @@ onBeforeUnmount(() => {
         class="ink-titlebar__btn"
         aria-label="最小化"
         title="最小化"
+        data-tauri-drag-region="false"
         @click="handleMinimize"
       >
         <Minus
@@ -175,6 +162,7 @@ onBeforeUnmount(() => {
         class="ink-titlebar__btn"
         :aria-label="maximized ? '还原' : '最大化'"
         :title="maximized ? '还原' : '最大化'"
+        data-tauri-drag-region="false"
         @click="handleToggleMaximize"
       >
         <Copy
@@ -193,6 +181,7 @@ onBeforeUnmount(() => {
         class="ink-titlebar__btn ink-titlebar__btn--close"
         aria-label="关闭"
         title="关闭"
+        data-tauri-drag-region="false"
         @click="handleClose"
       >
         <X
@@ -212,6 +201,11 @@ onBeforeUnmount(() => {
     --ink-titlebar-border: var(--ink-border, #DED7CA);
     --ink-titlebar-accent: var(--ink-accent, #D95B3F);
     --ink-titlebar-btn-hover-bg: rgba(217, 91, 63, 0.10);
+    /* Soft separation: 2% inset shadow on the bottom edge so the chrome
+       reads as a layer without fighting the content below. Dark mode lifts
+       the alpha to 4% white (see dark-mode block). Variable lets dark mode
+       override cleanly through Vue scoped-style :global() rules. */
+    --ink-titlebar-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
 
     position: fixed;
     top: 0;
@@ -222,7 +216,10 @@ onBeforeUnmount(() => {
     align-items: stretch;
     background: var(--ink-titlebar-bg);
     color: var(--ink-titlebar-fg);
-    border-bottom: 1px solid var(--ink-titlebar-border);
+    /* No hard hairline divider — pure variable-driven shadow keeps the
+       layering hint while removing the heavy line that fought content below. */
+    border-bottom: none;
+    box-shadow: var(--ink-titlebar-shadow);
     user-select: none;
     z-index: 1000;
     font-family: 'Source Han Serif SC', 'Noto Serif SC', 'EB Garamond', Georgia, serif;
@@ -235,6 +232,7 @@ onBeforeUnmount(() => {
 .ink-titlebar--mac {
     background: transparent;
     border-bottom: none;
+    --ink-titlebar-shadow: none;
 }
 
 .ink-titlebar__mac-traffic-spacer {
@@ -252,17 +250,20 @@ onBeforeUnmount(() => {
 }
 
 .ink-titlebar__seal {
-    flex: 0 0 16px;
-    width: 16px;
-    height: 16px;
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    /* Children of [data-tauri-drag-region] must not capture mousedown,
+       otherwise Tauri 1.x stops treating the parent as a drag surface. */
+    pointer-events: none;
 }
 
 .ink-titlebar__seal svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     display: block;
 }
 
@@ -271,9 +272,16 @@ onBeforeUnmount(() => {
     white-space: nowrap;
     text-overflow: ellipsis;
     color: var(--ink-titlebar-fg);
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    /* Softer presence: lighter weight + wider tracking + slight opacity
+       so the chrome title hints at the document instead of competing
+       with the editor content below. */
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    opacity: 0.78;
     max-width: 60vw;
+    /* Same drag-region rule as .ink-titlebar__seal: title text must let the
+       parent drag surface keep mousedown. */
+    pointer-events: none;
 }
 
 .ink-titlebar__controls {
@@ -295,7 +303,9 @@ onBeforeUnmount(() => {
     padding: 0;
     cursor: pointer;
     transition: background-color 0.12s ease, color 0.12s ease;
-    -webkit-app-region: no-drag;
+    /* Tauri 1.x honors `data-tauri-drag-region="false"` per-button (set in
+       template). The Electron-only `-webkit-app-region: no-drag` is dead
+       code on Tauri WebView2/WKWebView and is intentionally not declared. */
 }
 
 .ink-titlebar__btn:hover,
@@ -319,6 +329,7 @@ onBeforeUnmount(() => {
     --ink-titlebar-border: #3A3D44;
     --ink-titlebar-accent: #E8734F;
     --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
+    --ink-titlebar-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -330,6 +341,7 @@ onBeforeUnmount(() => {
         --ink-titlebar-border: #3A3D44;
         --ink-titlebar-accent: #E8734F;
         --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
+        --ink-titlebar-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 }
 </style>
