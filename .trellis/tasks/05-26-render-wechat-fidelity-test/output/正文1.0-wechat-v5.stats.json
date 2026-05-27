@@ -11,11 +11,11 @@
     "hearth": "#EDE7DB",
     "ink": "#1A1D24"
   },
-  "generatedAt": "2026-05-27T14:53:22.542Z",
+  "generatedAt": "2026-05-27T17:19:58.839Z",
   "markdownBytesOriginal": 88670,
   "markdownBytesPreprocessed": 92090,
-  "htmlBytes": 297775,
-  "innerHtmlBytes": 296263,
+  "htmlBytes": 299260,
+  "innerHtmlBytes": 297748,
   "preprocStats": {
     "boldReplacements": 272,
     "italicReplacements": 4,
@@ -37,7 +37,7 @@
     "nums": 6,
     "toc": 1,
     "dc": 1,
-    "pqs": 6,
+    "pqs": 0,
     "endmark": 1,
     "badge": 1,
     "strayBold": 0

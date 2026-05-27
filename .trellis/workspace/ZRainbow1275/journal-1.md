@@ -420,3 +420,36 @@ Brand identity v1.1 落地 Tauri chrome 全链路。3 PR 并行 team-based 执�
 ### Next Steps
 
 - None - task complete
+
+
+## Session 12: Fix titlebar drag/buttons + Forge Nib brand consistency
+
+**Date**: 2026-05-28
+**Task**: Fix titlebar drag/buttons + Forge Nib brand consistency
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Fixed 3 regressions from prior visual-polish-pass: TitleBar drag (span children captured mousedown — pointer-events:none + data-tauri-drag-region="false" on buttons); window controls dead (added window allowlist + Cargo.toml window-* features); illegible «铸» logo at 16-32px (CJK font fallback to SimSun) — replaced with pure-geometry Forge Nib (Kiln seal + Graphite diamond + Vellum slit + Amber forge line, 0 <text>). New reusable ForgeNibMark.vue component kills 4 stale «IF» red-square placeholders across Hub/Workstation/Settings/Welcome. Titlebar visual softened: border→soft shadow, weight 600→500. Brand identity §9 rewritten, §§10-12 doc drift fixed. Regenerated full raster icon set.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e87f283` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

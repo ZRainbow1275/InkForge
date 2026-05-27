@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 11
-- **Last Active**: 2026-05-27
+- **Total Sessions**: 12
+- **Last Active**: 2026-05-28
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~422 | Active |
+| `journal-1.md` | ~455 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 12 | 2026-05-28 | Fix titlebar drag/buttons + Forge Nib brand consistency | `e87f283` | `dev/visual-fixes` |
 | 11 | 2026-05-27 | Visual polish pass — logo / splash / loading / titlebar | `da5560bb` | `dev/visual-fixes` |
 | 10 | 2026-05-27 | dev/visual-fixes: typewriter scroll/center/leak + manager polish | `619d473`, `66c2659` | `dev/visual-fixes` |
 | 9 | 2026-05-26 | Export modal manual QA responsive fix | `03e54c5` | `dev/visual-fixes` |
