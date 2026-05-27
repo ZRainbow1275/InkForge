@@ -1,0 +1,50 @@
+{
+  "version": "v4",
+  "brand": "InkForge Signature",
+  "presetId": "inkforge-signature",
+  "presetName": "InkForge Signature（墨锻）",
+  "palette": {
+    "graphite": "#252933",
+    "kiln": "#D95B3F",
+    "tempera": "#3B7A6B",
+    "amber": "#C19A56",
+    "vellum": "#F5F0E6",
+    "ash": "#6E7580",
+    "smoke": "#9B958D",
+    "hairline": "#DED7CA",
+    "hearth": "#EDE7DB",
+    "char": "#1A1D24",
+    "ink": "#1C1F26"
+  },
+  "generatedAt": "2026-05-27T11:09:35.969Z",
+  "markdownBytesOriginal": 88670,
+  "markdownBytesPreprocessed": 92090,
+  "htmlBytes": 264596,
+  "innerHtmlBytes": 262284,
+  "preprocStats": {
+    "boldReplacements": 272,
+    "italicReplacements": 4,
+    "h3PromotedToH2": 4,
+    "h2ChaptersInserted": 2,
+    "h1TitleInserted": true
+  },
+  "renderStats": {
+    "wordCount": 30106,
+    "readingTime": 101,
+    "codeBlockCount": 0,
+    "linkCount": 0,
+    "imageCount": 0,
+    "headingCount": 53,
+    "tableCount": 1
+  },
+  "decorations": {
+    "chapterNumerals": 6,
+    "forgeLines": 6,
+    "h1OrnamentTop": 1,
+    "h1Divider": 1,
+    "dropCap": 1,
+    "toc": 1,
+    "ornaments": 5,
+    "strayBold": 0
+  }
+}

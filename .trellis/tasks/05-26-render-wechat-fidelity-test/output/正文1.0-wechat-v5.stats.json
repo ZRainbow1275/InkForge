@@ -1,0 +1,45 @@
+{
+  "version": "v5",
+  "brand": "InkForge Structural",
+  "presetId": "inkforge-v5",
+  "palette": {
+    "graphite": "#252933",
+    "kiln": "#D95B3F",
+    "vellum": "#F5F0E6",
+    "ash": "#6E7580",
+    "hairline": "#DED7CA",
+    "hearth": "#EDE7DB",
+    "ink": "#1A1D24"
+  },
+  "generatedAt": "2026-05-27T12:46:11.440Z",
+  "markdownBytesOriginal": 88670,
+  "markdownBytesPreprocessed": 92090,
+  "htmlBytes": 269847,
+  "innerHtmlBytes": 268335,
+  "preprocStats": {
+    "boldReplacements": 272,
+    "italicReplacements": 4,
+    "h3PromotedToH2": 4,
+    "h2ChaptersInserted": 2,
+    "h1TitleInserted": true
+  },
+  "renderStats": {
+    "wordCount": 30106,
+    "readingTime": 101,
+    "codeBlockCount": 0,
+    "linkCount": 0,
+    "imageCount": 0,
+    "headingCount": 53,
+    "tableCount": 1
+  },
+  "decorations": {
+    "seal": 1,
+    "nums": 6,
+    "toc": 1,
+    "dc": 1,
+    "pqs": 6,
+    "endmark": 1,
+    "badge": 1,
+    "strayBold": 0
+  }
+}

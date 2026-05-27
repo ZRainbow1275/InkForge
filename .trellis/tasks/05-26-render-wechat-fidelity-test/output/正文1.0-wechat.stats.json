@@ -1,0 +1,18 @@
+{
+  "presetId": "report",
+  "presetName": "行业研报",
+  "presetPrimaryColor": "#004080",
+  "generatedAt": "2026-05-27T11:06:54.342Z",
+  "markdownBytes": 88670,
+  "htmlBytes": 172626,
+  "innerHtmlBytes": 170540,
+  "stats": {
+    "wordCount": 29919,
+    "readingTime": 100,
+    "codeBlockCount": 0,
+    "linkCount": 0,
+    "imageCount": 0,
+    "headingCount": 50,
+    "tableCount": 1
+  }
+}

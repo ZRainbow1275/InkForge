@@ -353,3 +353,37 @@ Continued full browser manual QA for the WeChat previewCSS export task, found mo
 ### Next Steps
 
 - None - task complete
+
+
+## Session 10: dev/visual-fixes: typewriter scroll/center/leak + manager polish
+
+**Date**: 2026-05-27
+**Task**: dev/visual-fixes: typewriter scroll/center/leak + manager polish
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Diagnosed and fixed four typewriter-mode regressions on dev/visual-fixes: (1) scroll-follow no-op because findScrollParent picked an inert overflow:auto ancestor — added scrollHeight>clientHeight guard; (2) cursor stuck at viewport bottom on last paragraph — added 50vh ProseMirror::after spacer gated on data-typewriter-active-mode attr; (3) opacity binary 0.5/0.85 cliff replaced with continuous max(0.18, 1 - distance*0.07) so far paragraphs keep dimming; (4) active block bg leaked onto every prior cursor location because ProseMirror multi-plugin diff leaves class fragments — moved typora-active-line + typewriter-block-active visuals behind [data-typora-node] / [data-typewriter-active] attribute selectors which PM cleans reliably. Also gave .panel-manager the same width transition as inspector and aligned collapsed widths to 12px symmetric. All E2E-verified via Playwright on Vite :3005 (cursor ratio 0.50 at paragraphs 8/15/23/30; bg leak 28->1; collapse 280->0 in ~200ms ease-out). vitest 803/806 (3 failures pre-existing in export/sync, out of scope), vue-tsc clean, eslint clean.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `619d473` | (see git log) |
+| `66c2659` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

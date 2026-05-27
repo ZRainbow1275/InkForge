@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 9
-- **Last Active**: 2026-05-26
+- **Total Sessions**: 10
+- **Last Active**: 2026-05-27
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~355 | Active |
+| `journal-1.md` | ~389 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 10 | 2026-05-27 | dev/visual-fixes: typewriter scroll/center/leak + manager polish | `619d473`, `66c2659` | `dev/visual-fixes` |
 | 9 | 2026-05-26 | Export modal manual QA responsive fix | `03e54c5` | `dev/visual-fixes` |
 | 8 | 2026-05-26 | WeChat previewCSS export decorator dedupe | `9cf0527` | `dev/visual-fixes` |
 | 7 | 2026-05-25 | trellis-check follow-up: drop redundant persona type assertion | `6a79f58` | `dev/visual-fixes` |
