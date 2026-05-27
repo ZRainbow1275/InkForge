@@ -10,11 +10,19 @@ interface ForgeNibMarkProps {
     size?: number | string
     /** Hide from a11y tree when used purely decoratively next to a text label. */
     decorative?: boolean
+    /**
+     * Enable hover micro-interaction: scale 1.06 + Kiln glow drop-shadow.
+     * Hover triggers via the mark itself or via parent `.ink-titlebar__seal`
+     * (so titlebar can keep `pointer-events: none` on the wrapper while still
+     * surfacing the effect through the parent hover state).
+     */
+    interactive?: boolean
 }
 
 withDefaults(defineProps<ForgeNibMarkProps>(), {
     size: 32,
     decorative: true,
+    interactive: false,
 })
 </script>
 
@@ -29,6 +37,7 @@ withDefaults(defineProps<ForgeNibMarkProps>(), {
     :role="decorative ? undefined : 'img'"
     :aria-label="decorative ? undefined : 'InkForge 墨铸'"
     class="forge-nib-mark"
+    :class="{ 'forge-nib-mark--interactive': interactive }"
   >
     <rect
       x="2"
@@ -67,5 +76,16 @@ withDefaults(defineProps<ForgeNibMarkProps>(), {
 <style scoped>
 .forge-nib-mark {
     display: block;
+}
+
+.forge-nib-mark--interactive {
+    transition: transform var(--motion-base) var(--ease-out-quart),
+                filter var(--motion-base) var(--ease-out-quart);
+}
+
+.forge-nib-mark--interactive:hover,
+:global(.ink-titlebar__seal:hover) .forge-nib-mark--interactive {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 8px rgba(217, 91, 63, 0.5));
 }
 </style>

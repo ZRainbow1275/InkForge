@@ -1,0 +1,88 @@
+/**
+ * InkForge Design Tokens — single source of truth for motion, elevation,
+ * hairlines, focus rings, surface translucency, and typographic rhythm.
+ *
+ * Loaded globally by App.vue (imported at top of <script setup>).
+ * Brand reference: docs/inkforge-brand-identity.md §§13-15.
+ *
+ * Dark contract:
+ *   :root[data-theme='dark']       — explicit theme set by Settings store
+ *   @media (prefers-color-scheme: dark) :root:not([data-theme])
+ *                                  — OS preference fallback when no explicit
+ *                                    theme is set yet
+ *
+ * Reduced motion: cascades all --motion-* tokens to 0ms via @media block.
+ */
+
+:root {
+    /* ─── Motion durations (Restrained Premium ladder) ───────────────── */
+    --motion-instant: 80ms;
+    --motion-fast: 120ms;
+    --motion-base: 180ms;
+    --motion-slow: 240ms;
+
+    /* ─── Easing curves ──────────────────────────────────────────────── */
+    --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* ─── Elevation ladder (light) ───────────────────────────────────── */
+    --elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+    --elev-2: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --elev-3: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+
+    /* ─── Hairlines ──────────────────────────────────────────────────── */
+    --hairline-light: rgba(37, 41, 51, 0.06);
+    --hairline-dark: rgba(245, 240, 230, 0.08);
+    --hairline: var(--hairline-light);
+
+    /* ─── Focus ring (Kiln double-ring, accessibility) ───────────────── */
+    --focus-ring: 0 0 0 2px #D95B3F, 0 0 0 4px rgba(217, 91, 63, 0.2);
+
+    /* ─── Surface translucency (chrome glassmorphism) ────────────────── */
+    --surface-chrome-light: rgba(245, 240, 230, 0.92);
+    --surface-chrome-dark: rgba(26, 29, 36, 0.84);
+    --surface-chrome-fallback-light: #F5F0E6;
+    --surface-chrome-fallback-dark: #1A1D24;
+
+    /* ─── Type rhythm (vertical scale) ───────────────────────────────── */
+    --type-step-1: 14px;
+    --type-step-2: 22px;
+    --type-step-3: 34px;
+    --type-step-4: 56px;
+
+    /* ─── Type weights (dual-weight ladder, Ulysses rule) ────────────── */
+    --type-weight-normal: 400;
+    --type-weight-emphasis: 600;
+
+    /* ─── Type faces ─────────────────────────────────────────────────── */
+    --font-serif: 'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif;
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Source Han Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, Menlo, monospace;
+}
+
+/* Dark contract — explicit theme set by Settings store wins. */
+:root[data-theme='dark'] {
+    --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+    --hairline: var(--hairline-dark);
+}
+
+/* OS-preference fallback — only when no explicit data-theme is set. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+        --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+        --hairline: var(--hairline-dark);
+    }
+}
+
+/* Reduced motion: collapse all motion tokens to 0ms. */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-instant: 0ms;
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+        --motion-slow: 0ms;
+    }
+}

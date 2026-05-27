@@ -766,6 +766,258 @@ their top by `var(--ink-titlebar-height)` rather than hard-coding a number.
 
 ---
 
+## 13. Motion Tokens 动效令牌
+
+> Canonical source: `inkforge/src/styles/tokens.css`. Splash window mirrors a
+> subset inline (it loads before Vue and cannot import the file).
+
+### 13.1 Design Intent 设计意图
+
+Restrained Premium — the same lane as Linear and Notion. 0 spring, 0 bounce,
+0 parallax. The motion ladder is short on purpose: four durations and one
+easing curve cover every InkForge transition. Anything that needs more is a
+sign the interaction is fighting the rest of the system.
+
+### 13.2 Ladder 阶梯
+
+| Token | Value | Use case |
+|---|---|---|
+| `--motion-instant` | `80ms` | tooltip show/hide, focus ring fade |
+| `--motion-fast` | `120ms` | button/sidebar hover bg, control tint |
+| `--motion-base` | `180ms` | Forge Nib seal scale 1.06, window control hover, icon tint |
+| `--motion-slow` | `240ms` | modal fade+slide, view transitions, surface cross-fade |
+
+Single easing curve:
+
+| Token | Value |
+|---|---|
+| `--ease-out-quart` | `cubic-bezier(0.22, 1, 0.36, 1)` |
+
+### 13.3 Usage Rules 使用规则
+
+- Always reference the variable, never hardcode the ms value. The variable
+  cascades through `prefers-reduced-motion`; raw ms does not.
+- Pair `transition` and `animation-duration` declarations with
+  `var(--ease-out-quart)` unless there is a specific reason (e.g. ember bleed
+  uses a symmetrical curve because both ends fade out).
+- No spring / no bounce tokens are exposed. If a celebratory moment ever needs
+  one, gate it behind a feature flag, do not promote it into the shared ladder.
+
+### 13.4 Reduced Motion 减少动画
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 0ms;
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}
+```
+
+Cascading the tokens to `0ms` is preferred over per-rule `animation: none`
+overrides — every component that respects the ladder is now reduced-motion-
+compliant automatically. Decorative `transform` / `scale` / `glow` effects
+collapse; functional `opacity` transitions remain visible because they read
+as state, not motion.
+
+### 13.5 Example 示例
+
+```css
+.ink-titlebar__btn {
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
+}
+
+.forge-nib-mark--interactive {
+  transition: transform var(--motion-base) var(--ease-out-quart),
+              filter var(--motion-base) var(--ease-out-quart);
+}
+
+.forge-nib-mark--interactive:hover {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 8px rgba(217, 91, 63, 0.5));
+}
+```
+
+---
+
+## 14. Elevation Ladder 层级阴影
+
+> Canonical source: `inkforge/src/styles/tokens.css`. Light / dark variants
+> live on `:root` and `:root[data-theme='dark']` respectively, with an OS
+> preference fallback for unbranded sessions.
+
+### 14.1 Design Intent 设计意图
+
+Three levels. No more. The premium-app survey (`research/premium-writing-app-
+chrome.md` §3) shows Linear, Bear, Ulysses, and Notion all converge on the
+same 3-rung ladder: resting card → hover/popover → modal. Anything beyond
+elevation-3 is either a `position: fixed` overlay or a wrong choice.
+
+### 14.2 Light Mode 浅色模式
+
+| Token | Value | Use case |
+|---|---|---|
+| `--elev-1` | `0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.02)` | resting card, surface chrome |
+| `--elev-2` | `0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)` | card hover, popover, dropdown |
+| `--elev-3` | `0 16px 40px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06)` | modal, command palette, floating panel |
+
+### 14.3 Dark Mode 暗色模式
+
+Per the research §4 anti-pattern #7: dark mode shadows must be **LIGHTER on
+darker surfaces, not darker shadows**. The black alpha is lifted so the
+shadow remains a visual layer rather than disappearing into the bg.
+
+| Token | Value |
+|---|---|
+| `--elev-1` | `0 1px 2px rgba(0,0,0,0.4)` |
+| `--elev-2` | `0 4px 12px rgba(0,0,0,0.5)` |
+| `--elev-3` | `0 16px 40px rgba(0,0,0,0.6)` |
+
+### 14.4 Hairlines 发丝边
+
+Hard `1px solid #DED7CA` reads as Bootstrap 2014 (research §4 anti-pattern
+#1). Replace with cascading hairline tokens:
+
+| Token | Value |
+|---|---|
+| `--hairline-light` | `rgba(37, 41, 51, 0.06)` |
+| `--hairline-dark` | `rgba(245, 240, 230, 0.08)` |
+| `--hairline` | `var(--hairline-light)` (auto-flips under dark contract) |
+
+The original `Hairline` brand token (`#DED7CA`) is reserved for INTENTIONAL
+dividers (Settings tab dividers, image frame edges) — not all panel edges.
+
+### 14.5 Focus Ring 焦点环
+
+Kiln double-ring, accessibility-mandatory:
+
+| Token | Value |
+|---|---|
+| `--focus-ring` | `0 0 0 2px #D95B3F, 0 0 0 4px rgba(217, 91, 63, 0.2)` |
+
+App.vue applies it globally to `button, a, input, select, textarea,
+[tabindex]` via `:focus-visible`. TitleBar window controls use the same
+token with `inset` so the ring does not spill past the window edge.
+
+### 14.6 Surface Translucency 表面半透明
+
+Chrome only (research §3 lesson: glass is for chrome, NOT for content). The
+fallback hex applies under `@supports` for engines that cannot composite
+`backdrop-filter` — older WebKitGTK, software rasterizer.
+
+| Token | Value |
+|---|---|
+| `--surface-chrome-light` | `rgba(245, 240, 230, 0.92)` |
+| `--surface-chrome-dark` | `rgba(26, 29, 36, 0.84)` |
+| `--surface-chrome-fallback-light` | `#F5F0E6` |
+| `--surface-chrome-fallback-dark` | `#1A1D24` |
+
+### 14.7 Example 示例
+
+```css
+.surface-card {
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-base) var(--ease-out-quart);
+}
+
+.surface-card:hover {
+  box-shadow: var(--elev-2);
+  transform: translateY(-2px);
+}
+
+.surface-modal {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: var(--elev-3);
+}
+```
+
+---
+
+## 15. Typography Rhythm 排版节奏
+
+> Canonical source: `inkforge/src/styles/tokens.css`. App.vue installs the
+> body default (`var(--font-sans)`, `var(--type-weight-normal)`) so every
+> view inherits the dual-weight ladder automatically.
+
+### 15.1 Design Intent 设计意图
+
+Ulysses rule (research §5 Pattern E): typography rhythm carries layout, not
+borders. Pick a scale and obey it. The 14 / 22 / 34 / 56 ladder powers Hub
+cards, Settings sections, modal stack spacing — anywhere whitespace can
+substitute for hairlines.
+
+Dual-weight ladder (research §4 anti-pattern #4): premium apps pick 2-3
+weights MAX. InkForge uses 400 (normal) + 600 (emphasis). No 500. No 700
+heading weights outside the article body itself.
+
+### 15.2 Vertical Scale 垂直比例
+
+| Token | Value | Use case |
+|---|---|---|
+| `--type-step-1` | `14px` | meta / caption / micro-label |
+| `--type-step-2` | `22px` | body / paragraph baseline |
+| `--type-step-3` | `34px` | section heading inside a view |
+| `--type-step-4` | `56px` | view title, modal hero |
+
+### 15.3 Weight Ladder 字重阶梯
+
+| Token | Value |
+|---|---|
+| `--type-weight-normal` | `400` |
+| `--type-weight-emphasis` | `600` |
+
+### 15.4 Font Faces 字体栈
+
+| Token | Stack | Use case |
+|---|---|---|
+| `--font-serif` | `'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif` | brand wordmark, doc title in titlebar, drop caps, chapter numerals |
+| `--font-sans` | `'Inter', system-ui, -apple-system, 'Segoe UI', 'Source Han Sans SC', sans-serif` | UI labels, buttons, body chrome |
+| `--font-mono` | `'JetBrains Mono', 'Cascadia Code', Consolas, Menlo, monospace` | counters, timestamps, code |
+
+### 15.5 Usage Rules 使用规则
+
+- Headings and large text use `var(--font-serif)`; UI surface text uses
+  `var(--font-sans)`. Mixing them in the same horizontal strip is a smell.
+- Use `var(--type-weight-emphasis)` for headings and active states only. Body
+  emphasis (`<strong>`) keeps the Amber gradient underlay (§4.5), not raw
+  weight 700.
+- Letter spacing is rhythm-adjacent: serif headings use `0.04em–0.06em`,
+  sans UI defaults to none.
+
+### 15.6 Example 示例
+
+```css
+.view-title {
+  font-family: var(--font-serif);
+  font-size: var(--type-step-4);
+  font-weight: var(--type-weight-emphasis);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.section-heading {
+  font-family: var(--font-serif);
+  font-size: var(--type-step-3);
+  font-weight: var(--type-weight-emphasis);
+  margin-block: var(--type-step-2);
+}
+
+.meta-row {
+  font-family: var(--font-mono);
+  font-size: var(--type-step-1);
+  color: var(--ink-text-muted, #6E7580);
+}
+```
+
+---
+
 *Last updated: 2026-05-28*
-*Version: 1.0*
+*Version: 1.1*
 *Author: InkForge Design System*

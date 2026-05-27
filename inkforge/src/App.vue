@@ -30,6 +30,7 @@ import {
 } from '@/services/custom-css'
 import { notifyAppReady } from '@/services/app-lifecycle/notifyAppReady'
 import TitleBar from '@/components/chrome/TitleBar.vue'
+import './styles/tokens.css'
 
 /**
  * Settings → 全局 CSS Variables 同步
@@ -413,6 +414,31 @@ function handleDismiss(): void {
 </template>
 
 <style>
+/* ────────────────────────────────────────────────────────────────────
+ * Global tokens-driven baseline (Inkstone Glass foundation).
+ *
+ * - Body font defaults to Inter/system UI per the dual-weight ladder.
+ * - All keyboard-focusable interactive elements get the Kiln double-ring
+ *   so we never strand keyboard users with `outline: none`. Scoped to
+ *   buttons/links/form controls/[tabindex] to avoid blanketing routine
+ *   text spans / images / icons.
+ * ──────────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--type-weight-normal);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 4px;
+}
+
 #app {
   width: 100%;
   height: 100vh;

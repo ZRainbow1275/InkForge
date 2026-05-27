@@ -14,6 +14,13 @@
     ------------------------------------------------------------------ */
 
     :root {
+      /* Motion tokens mirrored from src/styles/tokens.css. Splash loads
+         before Vue so it cannot import from there; values are kept in sync
+         manually (Restrained Premium ladder, §13 of brand identity doc). */
+      --motion-base: 180ms;
+      --motion-slow: 240ms;
+      --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
+
       --ink-vellum: #F5F0E6;
       --ink-char: #1A1D24;
       --ink-graphite: #252933;
@@ -110,7 +117,7 @@
       width: 108px;
       height: 108px;
       flex-shrink: 0;
-      animation: ink-seal-drop 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: ink-seal-drop 360ms var(--ease-out-quart) both;
       transform-origin: 50% 100%;
     }
     .ink-seal svg {
@@ -160,7 +167,7 @@
     .ink-wordmark {
       margin-top: 28px;
       text-align: center;
-      animation: ink-wordmark-rise 500ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+      animation: ink-wordmark-rise 500ms var(--ease-out-quart) 240ms both;
     }
     .ink-wordmark__latin {
       font-family: "EB Garamond", "Crimson Pro", Georgia, serif;

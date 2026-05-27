@@ -1,14 +1,18 @@
 <script setup lang="ts">
 /**
- * InkForge TitleBar — custom chrome for Tauri main window.
+ * InkForge TitleBar — Inkstone Glass chrome for the Tauri main window.
  *
- * Windows / Linux: tauri.conf decorations:false, this component draws the seal
- *  logo + document name + min/max/close controls and the drag region.
+ * Windows / Linux: tauri.conf decorations:false. This component draws a 36px
+ *  glassmorphism strip with left-anchored seal + wordmark + active document
+ *  title, min/max/close controls on the right, an ember-line ::after at the
+ *  bottom edge, and a `@supports`-gated backdrop-filter with a solid Vellum
+ *  fallback for engines that cannot composite blur (older WebKitGTK / SW
+ *  rasterizer).
  * macOS: titleBarStyle:"Overlay" + hiddenTitle keeps the system traffic light
  *  on the left; this component reserves space and renders the brand mark on
  *  the right side of the inset.
  *
- * Brand reference: docs/inkforge-brand-identity.md §12.
+ * Brand reference: docs/inkforge-brand-identity.md §§12-15.
  */
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Minus, Square, Copy, X } from 'lucide-vue-next'
@@ -46,16 +50,18 @@ const isMac = ref<boolean>(detectIsMac())
 const maximized = ref<boolean>(false)
 let maximizeSubscription: WindowMaximizeSubscription | null = null
 
-const titlebarHeightPx = computed<number>(() => (isMac.value ? 28 : 32))
+// Inkstone Glass: 36px chrome on Win/Linux, macOS keeps 28px inset.
+const titlebarHeightPx = computed<number>(() => (isMac.value ? 28 : 36))
 const showWindowControls = computed<boolean>(() => !isMac.value && isTauriEnv())
 
-const displayTitle = computed<string>(() => {
-    const docTitle = props.documentTitle?.trim()
-    if (docTitle && docTitle.length > 0) {
-        return docTitle
-    }
-    return props.tagline
-})
+const trimmedDocTitle = computed<string>(() => (props.documentTitle ?? '').trim())
+const hasActiveDocument = computed<boolean>(() => trimmedDocTitle.value.length > 0)
+
+// macOS keeps the legacy single-string fallback because the bar is inset and
+// the brand strip lives centered above the system traffic light.
+const macDisplayTitle = computed<string>(() =>
+    hasActiveDocument.value ? trimmedDocTitle.value : props.tagline,
+)
 
 async function refreshMaximizedState(): Promise<void> {
     maximized.value = await isMaximized()
@@ -119,25 +125,55 @@ onBeforeUnmount(() => {
       data-tauri-drag-region
     />
 
+    <!-- macOS layout: keep the centered seal + display title strip (single
+         line). Inkstone Glass left-anchor pattern applies to Win/Linux only. -->
     <div
-      class="ink-titlebar__drag"
+      v-if="isMac"
+      class="ink-titlebar__drag ink-titlebar__drag--mac"
       data-tauri-drag-region
     >
       <span
         class="ink-titlebar__seal"
         aria-hidden="true"
       >
-        <!--
-          Forge Nib mini seal via shared <ForgeNibMark/>. 0 <text>, 0 font
-          dependency. Size 14 (down from 16) — the mark stays readable while
-          the smaller footprint helps the titlebar feel less imposing.
-        -->
-        <ForgeNibMark :size="14" />
+        <ForgeNibMark
+          :size="14"
+          interactive
+        />
       </span>
       <span
         class="ink-titlebar__title"
-        :title="displayTitle"
-      >{{ displayTitle }}</span>
+        :title="macDisplayTitle"
+      >{{ macDisplayTitle }}</span>
+    </div>
+
+    <!-- Win/Linux: Inkstone Glass left-anchor layout. When no active doc, the
+         center stays silent (no tagline fallback rendered). -->
+    <div
+      v-else
+      class="ink-titlebar__drag ink-titlebar__drag--pc"
+      data-tauri-drag-region
+    >
+      <span
+        class="ink-titlebar__seal"
+        aria-hidden="true"
+      >
+        <ForgeNibMark
+          :size="20"
+          interactive
+        />
+      </span>
+      <span class="ink-titlebar__wordmark">InkForge</span>
+      <span
+        v-if="hasActiveDocument"
+        class="ink-titlebar__separator"
+        aria-hidden="true"
+      >·</span>
+      <span
+        v-if="hasActiveDocument"
+        class="ink-titlebar__title"
+        :title="trimmedDocTitle"
+      >{{ trimmedDocTitle }}</span>
     </div>
 
     <div
@@ -195,36 +231,63 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .ink-titlebar {
-    --ink-titlebar-bg: var(--ink-bg, #F5F0E6);
     --ink-titlebar-fg: var(--ink-text, #252933);
     --ink-titlebar-fg-muted: var(--ink-text-muted, #6E7580);
     --ink-titlebar-border: var(--ink-border, #DED7CA);
     --ink-titlebar-accent: var(--ink-accent, #D95B3F);
     --ink-titlebar-btn-hover-bg: rgba(217, 91, 63, 0.10);
-    /* Soft separation: 2% inset shadow on the bottom edge so the chrome
-       reads as a layer without fighting the content below. Dark mode lifts
-       the alpha to 4% white (see dark-mode block). Variable lets dark mode
-       override cleanly through Vue scoped-style :global() rules. */
-    --ink-titlebar-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+    /* Inkstone Glass: the chrome surface uses the @supports-gated translucent
+       palette below. The fallback hex keeps the bar opaque on engines that
+       cannot composite backdrop-filter (older WebKitGTK / SW rasterizer). */
+    --ink-titlebar-surface-fallback: var(--surface-chrome-fallback-light, #F5F0E6);
+    --ink-titlebar-surface: var(--surface-chrome-light, rgba(245, 240, 230, 0.92));
 
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: var(--ink-titlebar-h, 32px);
+    height: var(--ink-titlebar-h, 36px);
     display: flex;
     align-items: stretch;
-    background: var(--ink-titlebar-bg);
+    /* @supports block below upgrades to translucent + backdrop-filter. */
+    background: var(--ink-titlebar-surface-fallback);
     color: var(--ink-titlebar-fg);
-    /* No hard hairline divider — pure variable-driven shadow keeps the
-       layering hint while removing the heavy line that fought content below. */
+    /* Border removed; ember-line ::after renders the bottom edge. */
     border-bottom: none;
-    box-shadow: var(--ink-titlebar-shadow);
     user-select: none;
     z-index: 1000;
-    font-family: 'Source Han Serif SC', 'Noto Serif SC', 'EB Garamond', Georgia, serif;
+    font-family: var(--font-serif, 'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif);
     font-size: 12px;
     line-height: 1;
+}
+
+/* Inkstone Glass ember line — 1px wide gradient that fades Kiln in/out across
+   the bottom edge. Replaces the prior solid box-shadow hairline. */
+.ink-titlebar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(217, 91, 63, 0.25) 50%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
+
+/* Glass enhancement: any engine that supports backdrop-filter (or the
+   -webkit- prefix) gets the translucent + blur surface; everyone else keeps
+   the solid fallback declared above. Probing with blur(1px) per research. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .ink-titlebar:not(.ink-titlebar--mac) {
+        background: var(--ink-titlebar-surface);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
 }
 
 /* macOS: keep transparent so titleBarStyle:Overlay system chrome shows through.
@@ -232,7 +295,11 @@ onBeforeUnmount(() => {
 .ink-titlebar--mac {
     background: transparent;
     border-bottom: none;
-    --ink-titlebar-shadow: none;
+}
+
+.ink-titlebar--mac::after {
+    /* No ember line under the system Overlay — would clash with traffic light. */
+    display: none;
 }
 
 .ink-titlebar__mac-traffic-spacer {
@@ -243,16 +310,23 @@ onBeforeUnmount(() => {
     flex: 1 1 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
     padding: 0 12px;
     min-width: 0;
 }
 
+.ink-titlebar__drag--mac {
+    justify-content: center;
+}
+
+.ink-titlebar__drag--pc {
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 14px;
+}
+
 .ink-titlebar__seal {
-    flex: 0 0 14px;
-    width: 14px;
-    height: 14px;
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -261,10 +335,49 @@ onBeforeUnmount(() => {
     pointer-events: none;
 }
 
-.ink-titlebar__seal svg {
+/* mac legacy 14px seal */
+.ink-titlebar__drag--mac .ink-titlebar__seal {
+    flex-basis: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+.ink-titlebar__drag--mac .ink-titlebar__seal svg {
     width: 14px;
     height: 14px;
     display: block;
+}
+
+/* Inkstone Glass 20px seal */
+.ink-titlebar__drag--pc .ink-titlebar__seal {
+    flex-basis: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.ink-titlebar__drag--pc .ink-titlebar__seal svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+.ink-titlebar__wordmark {
+    font-family: var(--font-serif, 'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif);
+    font-style: italic;
+    font-size: 12px;
+    font-weight: var(--type-weight-normal, 400);
+    letter-spacing: 0.04em;
+    color: var(--ink-titlebar-fg);
+    opacity: 0.72;
+    /* Drag-region rule: brand strip text must keep parent surface draggable. */
+    pointer-events: none;
+}
+
+.ink-titlebar__separator {
+    color: var(--ink-titlebar-accent);
+    opacity: 0.5;
+    font-style: normal;
+    pointer-events: none;
 }
 
 .ink-titlebar__title {
@@ -272,16 +385,21 @@ onBeforeUnmount(() => {
     white-space: nowrap;
     text-overflow: ellipsis;
     color: var(--ink-titlebar-fg);
-    /* Softer presence: lighter weight + wider tracking + slight opacity
-       so the chrome title hints at the document instead of competing
-       with the editor content below. */
-    font-weight: 500;
+    font-family: var(--font-serif, 'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif);
+    font-style: italic;
+    /* macOS keeps the legacy 12px size to fit the 28px inset bar. */
+    font-size: 12px;
+    font-weight: var(--type-weight-normal, 400);
     letter-spacing: 0.06em;
-    opacity: 0.78;
+    opacity: 0.72;
     max-width: 60vw;
-    /* Same drag-region rule as .ink-titlebar__seal: title text must let the
-       parent drag surface keep mousedown. */
     pointer-events: none;
+}
+
+/* Inkstone Glass doc title — slightly larger to anchor the brand strip. */
+.ink-titlebar__drag--pc .ink-titlebar__title {
+    font-size: 14px;
+    letter-spacing: 0.04em;
 }
 
 .ink-titlebar__controls {
@@ -291,8 +409,9 @@ onBeforeUnmount(() => {
 }
 
 .ink-titlebar__btn {
-    width: 46px;
-    height: var(--ink-titlebar-h, 32px);
+    /* Restrained Premium controls: 50px wide, motion tokens for hover. */
+    width: 50px;
+    height: var(--ink-titlebar-h, 36px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -302,46 +421,77 @@ onBeforeUnmount(() => {
     margin: 0;
     padding: 0;
     cursor: pointer;
-    transition: background-color 0.12s ease, color 0.12s ease;
+    transition: background-color var(--motion-fast, 120ms) var(--ease-out-quart, ease-out),
+                color var(--motion-fast, 120ms) var(--ease-out-quart, ease-out);
     /* Tauri 1.x honors `data-tauri-drag-region="false"` per-button (set in
        template). The Electron-only `-webkit-app-region: no-drag` is dead
        code on Tauri WebView2/WKWebView and is intentionally not declared. */
 }
 
-.ink-titlebar__btn:hover,
-.ink-titlebar__btn:focus-visible {
+.ink-titlebar__btn:hover {
     background: var(--ink-titlebar-btn-hover-bg);
-    outline: none;
 }
 
-.ink-titlebar__btn--close:hover,
+/* Inset focus ring — controls sit at the window edge, so an outer ring would
+   spill past the chrome. Inset keeps the Kiln double-ring visible. */
+.ink-titlebar__btn:focus-visible {
+    outline: none;
+    box-shadow: inset var(--focus-ring, 0 0 0 2px #D95B3F);
+}
+
+.ink-titlebar__btn--close:hover {
+    background: var(--ink-titlebar-accent);
+    color: #FFFFFF;
+}
+
 .ink-titlebar__btn--close:focus-visible {
     background: var(--ink-titlebar-accent);
     color: #FFFFFF;
+    outline: none;
+    box-shadow: inset var(--focus-ring, 0 0 0 2px #D95B3F);
 }
 
 /* Dark mode contract: chrome flips when :root[data-theme="dark"] is set
    by the Settings store; also follow OS preference as a fallback. */
 :global(:root[data-theme='dark']) .ink-titlebar {
-    --ink-titlebar-bg: #1A1D24;
     --ink-titlebar-fg: #E8E4DC;
     --ink-titlebar-fg-muted: #9B958D;
     --ink-titlebar-border: #3A3D44;
     --ink-titlebar-accent: #E8734F;
     --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
-    --ink-titlebar-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+    --ink-titlebar-surface-fallback: var(--surface-chrome-fallback-dark, #1A1D24);
+    --ink-titlebar-surface: var(--surface-chrome-dark, rgba(26, 29, 36, 0.84));
+}
+
+:global(:root[data-theme='dark']) .ink-titlebar::after {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(232, 115, 79, 0.25) 50%,
+        transparent 100%
+    );
 }
 
 @media (prefers-color-scheme: dark) {
     :global(:root:not([data-theme])) .ink-titlebar,
     :global(:root[data-theme='system']) .ink-titlebar {
-        --ink-titlebar-bg: #1A1D24;
         --ink-titlebar-fg: #E8E4DC;
         --ink-titlebar-fg-muted: #9B958D;
         --ink-titlebar-border: #3A3D44;
         --ink-titlebar-accent: #E8734F;
         --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
-        --ink-titlebar-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+        --ink-titlebar-surface-fallback: var(--surface-chrome-fallback-dark, #1A1D24);
+        --ink-titlebar-surface: var(--surface-chrome-dark, rgba(26, 29, 36, 0.84));
+    }
+
+    :global(:root:not([data-theme])) .ink-titlebar::after,
+    :global(:root[data-theme='system']) .ink-titlebar::after {
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(232, 115, 79, 0.25) 50%,
+            transparent 100%
+        );
     }
 }
 </style>
