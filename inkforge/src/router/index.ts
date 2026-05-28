@@ -4,6 +4,13 @@
  *
  * 导航流程：
  * Hub (/) → Workstation (/workstation) → Publish/Settings/Themes
+ *
+ * View transitions are now handled by `<ViewTransition />` (single 240ms
+ * cross-fade) — see `components/chrome/ViewTransition.vue`. The legacy
+ * per-route `meta.transition` keys (page-slide-left / page-slide-right /
+ * page-fade) were removed in PR3 of the visual polish sweep because the
+ * directional slide patterns violated the Restrained Premium lock
+ * ("0 spring / 0 bounce / 0 parallax").
  */
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { logger } from '@/services/error'
@@ -12,7 +19,6 @@ import { logger } from '@/services/error'
 declare module 'vue-router' {
     interface RouteMeta {
         title?: string
-        transition?: 'page-fade' | 'page-slide-left' | 'page-slide-right'
     }
 }
 
@@ -31,43 +37,43 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         name: 'Hub',
         component: HubView,
-        meta: { title: 'InkForge - 首页', transition: 'page-slide-right' }
+        meta: { title: 'InkForge - 首页' }
     },
     {
         path: '/workstation',
         name: 'Workstation',
         component: WorkstationView,
-        meta: { title: 'InkForge - 工作站', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 工作站' }
     },
     {
         path: '/drafts',
         name: 'Drafts',
         component: DraftsView,
-        meta: { title: 'InkForge - 草稿箱', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 草稿箱' }
     },
     {
         path: '/publish',
         name: 'Publish',
         component: PublishView,
-        meta: { title: 'InkForge - 发布', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 发布' }
     },
     {
         path: '/settings',
         name: 'Settings',
         component: SettingsView,
-        meta: { title: 'InkForge - 设置', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 设置' }
     },
     {
         path: '/account',
         name: 'Account',
         component: AccountWelcome,
-        meta: { title: 'InkForge - 本地账户', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 本地账户' }
     },
     {
         path: '/themes',
         name: 'Themes',
         component: ThemesView,
-        meta: { title: 'InkForge - 主题', transition: 'page-slide-left' }
+        meta: { title: 'InkForge - 主题' }
     },
     // 兼容性重定向
     {
@@ -95,7 +101,7 @@ const routes: RouteRecordRaw[] = [
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: NotFoundView,
-        meta: { title: 'InkForge - 页面不存在', transition: 'page-fade' }
+        meta: { title: 'InkForge - 页面不存在' }
     }
 ]
 

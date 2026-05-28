@@ -2311,7 +2311,7 @@ onMounted(async () => {
   overflow: hidden;
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.6s var(--ease-out-quart), transform 0.6s var(--ease-out-quart);
 }
 
 @media (max-width: 1100px) {
@@ -2763,7 +2763,7 @@ onMounted(async () => {
               border-color var(--motion-fast) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: fadeInUp 0.5s var(--ease-out-quart) backwards;
   min-height: 0;
 }
 
@@ -3324,7 +3324,7 @@ onMounted(async () => {
   flex: 1;
   background: rgba(255, 255, 255, 0.18);
   border-radius: 4px 4px 0 0;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--motion-slow) var(--ease-out-quart);
   cursor: pointer;
   position: relative;
   min-height: 6%;
@@ -3356,7 +3356,7 @@ onMounted(async () => {
   font-weight: 600;
   white-space: nowrap;
   opacity: 0;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--motion-base) var(--ease-out-quart);
   pointer-events: none;
 }
 
@@ -3504,7 +3504,7 @@ onMounted(async () => {
 /* Expand transition */
 .expand-enter-active,
 .expand-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all var(--motion-slow) var(--ease-out-quart);
   max-height: 200px;
   opacity: 1;
   overflow: hidden;
@@ -3851,7 +3851,7 @@ onMounted(async () => {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(176, 190, 197, 0.4) transparent;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all var(--motion-slow) var(--ease-out-quart);
 }
 
 .card-recent::-webkit-scrollbar {
@@ -3987,7 +3987,7 @@ onMounted(async () => {
   justify-content: center;
   color: white;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--motion-base) var(--ease-out-quart);
 }
 
 .recent-main:hover .recent-open-btn {
@@ -4197,14 +4197,14 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 8px;
   border: 1px solid transparent;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--motion-fast) var(--ease-out-quart);
   cursor: pointer;
 }
 
 .category-cell:hover {
   border-color: var(--hover-border);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--elev-2);
 }
 
 .category-icon-svg {
@@ -4707,7 +4707,7 @@ onMounted(async () => {
               border-color var(--motion-fast) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: fadeInUp 0.5s var(--ease-out-quart) backwards;
   animation-delay: calc(min(var(--i), 10) * 50ms);
   display: flex;
   flex-direction: column;
@@ -4927,13 +4927,13 @@ onMounted(async () => {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--motion-base) var(--ease-out-quart);
 }
 
 .empty-create-btn:hover {
   background: #B71C1C;
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(211, 47, 47, 0.3);
+  box-shadow: var(--elev-2);
 }
 
 /* =================================================================
@@ -5280,7 +5280,7 @@ html[data-theme="dark"] .workflow-progress-card {
   color: #ECEFF4;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--elev-1);
 }
 
 /* 累计指标卡（中间，单指标）— 用更深一档背景营造层次 */
@@ -5512,7 +5512,7 @@ html.theme-dark .bento-card:not(.card-hero):not(.card-inspiration):not(.card-new
 html[data-theme="dark"] .bento-card:not(.card-hero):not(.card-inspiration):not(.card-new):hover {
   background: #1F2832;
   border-color: rgba(239, 83, 80, 0.32);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+  box-shadow: var(--elev-2);
 }
 
 /* 浮动 header */
@@ -5631,7 +5631,7 @@ html.theme-dark .template-market-card:hover,
 html[data-theme="dark"] .template-market-card:hover {
   background: #1F2832;
   border-color: rgba(239, 83, 80, 0.42);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+  box-shadow: var(--elev-2);
 }
 
 html.theme-dark .template-market-card-cta,
@@ -5667,7 +5667,7 @@ html[data-theme="dark"] :deep(.insight-card) {
   background: #1A222D;
   border-color: rgba(255, 255, 255, 0.08);
   color: #ECEFF4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--elev-1);
 }
 
 html.theme-dark :deep(.insight-card-head h3),
@@ -5824,7 +5824,7 @@ html.theme-dark .category-dropdown,
 html[data-theme="dark"] .category-dropdown {
   background: #1A222D;
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40);
+  box-shadow: var(--elev-2);
 }
 html.theme-dark .category-option,
 html[data-theme="dark"] .category-option {
@@ -5929,7 +5929,7 @@ html[data-theme="dark"] .meta-time {
 html.theme-dark .article-card:hover,
 html[data-theme="dark"] .article-card:hover {
   border-color: rgba(239, 83, 80, 0.32);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--elev-2);
 }
 
 

@@ -669,18 +669,20 @@ the splash hands off to the main window. It must:
 
 ### 12.3 Layout 布局
 
-Windows / Linux structure (32px tall):
+Windows / Linux structure (Inkstone Glass, **36px** tall — increased from 32px
+in the PR1 visual-polish sweep to give the seal + EB Garamond italic wordmark
+room to breathe and to expose the Kiln ember gradient signature line):
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ [data-tauri-drag-region                                                ] │
-│  [14×14 ForgeNibMark]  「文档名 or 成为作者吧」    [_]  [□]  [×]      │
-│ ········································································ ◀ Soft 2% box-shadow (no hairline)
+│ [data-tauri-drag-region — backdrop-filter blur(20px) saturate(140%)]  │
+│  [20px ForgeNibMark]  InkForge · 「文档名」          [_]  [□]  [×]    │
+│ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ ◀ Ember gradient   │
 └────────────────────────────────────────────────────────────────────────┘
    ↑ drag region (whole bar minus buttons)              ↑ no-drag controls
 ```
 
-macOS structure (28px inset):
+macOS structure (28px inset, traffic light spacer retained):
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -691,9 +693,18 @@ macOS structure (28px inset):
 
 ### 12.4 Logo 嵌入 Embedded Seal
 
-- Size: 14×14 (inline shared `<ForgeNibMark size="14" />`, no external request) — small footprint helps the chrome feel less imposing
+- Size: **20×20** on Windows / Linux Inkstone Glass titlebar (PR1 upgrade
+  from 14×14, in tandem with the 36px chrome height); 14×14 on macOS where
+  the 28px inset bar keeps the smaller footprint. Uses the shared inline
+  `<ForgeNibMark :size="20" interactive />` component.
 - Composition: Forge Nib geometry — Kiln rounded square + Graphite nib diamond + Vellum slit + Amber forge line. **No ◇ ornament row** at this size (would degrade to noise)
 - Padding: 0 (the titlebar acts as the container)
+- Hover (Inkstone Glass): seal scales 1.06 with a Kiln drop-shadow glow at
+  `var(--motion-base)` (180ms) / `var(--ease-out-quart)`. The
+  `interactive` prop on `ForgeNibMark.vue` enables this; the parent
+  `.ink-titlebar__seal` wrapper keeps `pointer-events: none` so the drag
+  region still hit-tests, and a `:global` selector lifts the hover
+  signal into the SVG class.
 
 ### 12.5 Title Text 标题文本
 
@@ -713,7 +724,16 @@ macOS structure (28px inset):
 | Maximize / Restore | `lucide-vue-next` Square (max) → Copy (restore) | 同上 | 同上 |
 | Close | `lucide-vue-next` X | 同上 | bg Kiln `#D95B3F` + white icon |
 
-- Button size: 46×32 (matches Win11 chrome conventions)
+- Button size: **50×36** in the Inkstone Glass chrome (PR1 upgrade from
+  46×32 — matches the new 36px chrome height). Win11's native chrome uses
+  46×32 at the standard density, but the Inkstone Glass titlebar runs 36px
+  to surface the ember gradient + EB Garamond italic doc title, and the
+  controls scale with it.
+- Hover transitions are token-driven:
+  `transition: background-color var(--motion-fast) var(--ease-out-quart),
+   color var(--motion-fast) var(--ease-out-quart);`
+- `:focus-visible` uses `box-shadow: inset var(--focus-ring)` — inset because
+  the controls hit the window edge and an outer ring would overflow.
 - Buttons MUST carry `data-tauri-drag-region="false"` so the drag-region opt-out is explicit (Tauri 1.x belt-and-suspenders even when buttons live in a sibling container)
 - The Electron-only `-webkit-app-region: no-drag` declaration is **not** used. Tauri WebView2/WKWebView honors the `data-tauri-drag-region` attribute instead.
 
@@ -1018,6 +1038,136 @@ heading weights outside the article body itself.
 
 ---
 
+## 16. Dark Mode Contract 暗色模式契约
+
+> Canonical source: `inkforge/src/styles/tokens.css`. Closeout from the PR3
+> visual-polish sweep — finalises the cross-surface dark-mode rules that the
+> Hub/Workstation/Settings/Welcome pages now obey via tokens instead of
+> hand-tuned per-component overrides.
+
+### 16.1 Design Intent 设计意图
+
+Dark mode is **not** a luma flip of light mode. The premium-app research (see
+`research/premium-writing-app-chrome.md` §4 anti-pattern #7) calls this out as
+the single most common "cheap" tell in cross-platform apps: invert the page
+luma but reuse the same shadow alpha and the same hairline colour, and the
+chrome dies under the dark field.
+
+InkForge's dark contract instead re-tunes three things at the token layer so
+every surface stays consistent:
+
+1. **Elevation shadow alpha is LIFTED**, not flipped. Dark surfaces need
+   *darker* (= more visible) shadows because there is less luma headroom
+   behind them. Anti-pattern #7 says: `0.06 → 0.4` for elev-1, `0.06 → 0.5`
+   for elev-2, `0.12 → 0.6` for elev-3.
+2. **Hairlines flip to a Vellum-tinted alpha** so they read against Char
+   backgrounds without becoming hard ink lines. Light `rgba(37,41,51,0.06)`
+   → dark `rgba(245,240,230,0.08)`. The `--hairline` token cascades; consumers
+   only ever write `var(--hairline)` (or `var(--hairline-light)` directly
+   when intentional).
+3. **Brand-locked surfaces keep their hand-tuned palette** but route their
+   shadows through `var(--elev-*)` so the alpha auto-flips. Examples that
+   PR3 migrated:
+   - HubView bento-card (`box-shadow: var(--elev-1)`)
+   - HubView article-card hover (`var(--elev-2)`)
+   - HubView template-market-card hover (`var(--elev-2)`)
+   - HubView insight-card (`var(--elev-1)`)
+   - HubView category-dropdown (`var(--elev-2)`)
+   - WorkstationView preview-device-frame (`var(--elev-2)`)
+   - WorkstationView panel-stage shell (`var(--elev-3)`)
+   - WorkstationView mode-toast (`var(--elev-3)`)
+   - WorkstationView stage-tab.active / panel-tab.active (`var(--elev-1)`)
+   - SettingsView sv-tab / sv-nav / sv-stat-card / sv-theme-card hover /
+     sv-platform-card hover / sv-provider-card hover (`var(--elev-1)`)
+
+   Intentional brand glows that DO NOT migrate (the colour IS the message —
+   the Kiln/Tempera tint must stay regardless of light/dark): the Hero card
+   ember glow (`HubView .card-hero`), Kiln CTA pillow shadows, native slider
+   thumb shadows, and the inspector pinned drop shadow (directional, not a
+   resting elevation).
+
+### 16.2 Token Behaviour 令牌行为
+
+```css
+:root {
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --elev-3: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --hairline-light: rgba(37, 41, 51, 0.06);
+  --hairline-dark:  rgba(245, 240, 230, 0.08);
+  --hairline:       var(--hairline-light);
+}
+
+:root[data-theme='dark'] {
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --hairline: var(--hairline-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
+    --hairline: var(--hairline-dark);
+  }
+}
+```
+
+Two-tier cascade:
+
+1. `:root[data-theme='dark']` — the explicit theme set by the Settings store
+   wins. Once the user picks dark, system preference is ignored.
+2. `@media (prefers-color-scheme: dark) :root:not([data-theme])` — the OS
+   preference fills in only when no explicit theme is set yet (e.g. the
+   splash window before the Settings store is even loaded; the loading
+   placeholder in `index.html`).
+
+Both branches output the same token values; the cascade is purely about who
+wins when both signal at once. The explicit attribute selector has higher
+specificity than the media query, so the Settings store always wins.
+
+### 16.3 Anti-pattern #7 Callout 错调红线
+
+> Dark mode shadows must use HIGHER alpha, NOT lower. A dark surface needs
+> MORE shadow to register, not less.
+
+Concretely:
+
+| Token | Light alpha | Dark alpha | Direction |
+|---|---|---|---|
+| `--elev-1` (resting) | 0.04 + 0.02 | 0.4 | LIFTED (~10×) |
+| `--elev-2` (hover/popover) | 0.06 + 0.04 | 0.5 | LIFTED |
+| `--elev-3` (modal/floating) | 0.12 + 0.06 | 0.6 | LIFTED |
+
+If a future contributor adds a dark-mode override that LOWERS the shadow
+alpha — `box-shadow: 0 1px 2px rgba(0,0,0,0.04)` in a
+`html[data-theme="dark"]` block — that is the regression to catch in code
+review.
+
+### 16.4 Migration Helper 迁移辅助
+
+When porting a hand-tuned dark shadow to tokens, prefer this decision tree:
+
+1. Is the shadow **brand-coloured** (Kiln tint, Tempera tint, Amber glow)?
+   → Keep the hand-tuned value. The colour IS the design intent.
+2. Is the shadow **directional / inset / asymmetric**? (e.g.
+   `-2px 0 12px` for a pinned right rail)
+   → Keep the hand-tuned value. `--elev-*` is symmetric resting elevation.
+3. Otherwise (neutral black-ink shadow):
+   → Replace with the matching `--elev-1/2/3`. The token's dark variant
+     already lifts the alpha; you don't need a separate dark override.
+
+### 16.5 Reduced-Motion Independence
+
+The dark contract operates on tokens that DO NOT cascade through
+`prefers-reduced-motion`. Shadow alpha is a visual layering concern and
+should not change with motion preference. Only the `--motion-*` ladder
+collapses under reduced motion (see §13.4).
+
+---
+
 *Last updated: 2026-05-28*
-*Version: 1.1*
+*Version: 1.2*
 *Author: InkForge Design System*

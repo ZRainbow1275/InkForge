@@ -3769,7 +3769,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   background: #B0BEC5;
   border-radius: 2px;
   opacity: 0;
-  transition: opacity 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
 }
 
 .edge-trigger.left::before {
@@ -3794,13 +3794,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-direction: column;
   border-right: 1px solid var(--hairline-light);
   overflow: hidden;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), flex-basis 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .panel {
-    transition: width 0.1s ease, min-width 0.1s ease, flex-basis 0.1s ease;
-  }
+  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), flex-basis var(--motion-slow) var(--ease-out-quart);
 }
 
 .panel:last-child {
@@ -3812,7 +3806,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: var(--workstation-manager-width, 280px);
   min-width: var(--workstation-manager-width, 280px);
   flex-shrink: 0;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .panel-manager.collapsed {
@@ -4257,11 +4251,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: 375px;
   max-width: 100%;
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--hairline-light);
   border-radius: 16px;
-  box-shadow:
-    0 12px 32px rgba(15, 23, 42, 0.08),
-    0 2px 6px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--elev-2);
   overflow: hidden;
 }
 
@@ -4319,7 +4311,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-shrink: 0;
   border-right: none;
   border-left: 1px solid var(--hairline-light);
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .inspector-resize-handle {
@@ -4472,7 +4464,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   background: #FFFFFF;
   color: #D32F2F;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(38, 50, 56, 0.10);
+  box-shadow: var(--elev-1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4598,7 +4590,7 @@ html[data-theme="dark"] .panel-tab.active {
   background: #FFFFFF;
   color: #D32F2F;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(38, 50, 56, 0.10);
+  box-shadow: var(--elev-1);
 }
 
 .stage-header .collapse-trigger {
@@ -4672,9 +4664,7 @@ html[data-theme="dark"] .panel-tab.active {
   border: 1px solid var(--hairline-light);
   padding: 46px 4px 22px;
   position: relative;
-  box-shadow:
-    0 12px 32px -8px rgba(38, 50, 56, 0.18),
-    0 2px 6px rgba(38, 50, 56, 0.06);
+  box-shadow: var(--elev-3);
   display: flex;
   flex-direction: column;
 }
@@ -5709,7 +5699,7 @@ html[data-theme="dark"] .panel-tab.active {
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.24);
+  box-shadow: var(--elev-3);
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
@@ -5717,7 +5707,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .mode-toast-enter-active,
 .mode-toast-leave-active {
-  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity var(--motion-base) var(--ease-out-quart), transform var(--motion-slow) var(--ease-out-quart);
 }
 
 .mode-toast-enter-from {

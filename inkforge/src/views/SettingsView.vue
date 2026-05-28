@@ -5904,7 +5904,10 @@ onUnmounted(() => {
               role="img"
               aria-label="InkForge"
             >
-              <ForgeNibMark :size="48" />
+              <ForgeNibMark
+                :size="48"
+                interactive
+              />
             </div>
             <div class="sv-about-hero-info">
               <h3 class="sv-about-name">
@@ -6697,7 +6700,7 @@ onUnmounted(() => {
   background: var(--bg-surface, #FFFFFF);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-nav-item {
@@ -6713,28 +6716,38 @@ onUnmounted(() => {
   font-weight: 500;
   color: var(--text-secondary, #607D8B);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart),
+              border-left-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
   text-align: left;
 }
 
 .sv-nav-item:hover {
-  background: #F5F5F5;
+  background: rgba(37, 41, 51, 0.04);
   color: var(--text-primary, #263238);
 }
 
+/* Ulysses pattern: selected row gets a Kiln left-edge accent bar.
+   No full-row fill; lets typography lead the active state. */
 .sv-nav-item.active {
-  background: var(--accent-primary-light, #FFEBEE);
+  background: transparent;
   color: var(--accent-primary, #D32F2F);
   border-left-color: var(--accent-primary, #D32F2F);
+}
+
+.sv-nav-item:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .sv-settings-search-panel {
   margin-bottom: 14px;
   padding: 12px;
   background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-settings-search-label {
@@ -6765,17 +6778,24 @@ onUnmounted(() => {
   width: 100%;
   padding: 8px 10px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 9px;
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .sv-settings-search-result:hover,
 .sv-settings-search-result.active {
   border-color: var(--accent-primary, #D32F2F);
   background: var(--accent-primary-light, #FFEBEE);
+}
+
+.sv-settings-search-result:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .sv-settings-search-result__label {
@@ -6808,20 +6828,27 @@ onUnmounted(() => {
   background: var(--bg-surface, #FFFFFF);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-tab-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  /* Use a clamped serif scale that anchors to var(--type-step-3) (34px) but
+     leaves room for the existing dense Settings page layout. */
+  font-size: clamp(20px, 2.4vw, var(--type-step-3));
+  font-weight: var(--type-weight-emphasis);
   color: var(--text-primary, #263238);
-  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin-bottom: 6px;
 }
 
 .sv-tab-desc {
-  font-size: 12px;
+  font-family: var(--font-sans);
+  font-size: var(--type-step-1);
   color: var(--text-secondary, #607D8B);
-  margin-bottom: 20px;
+  line-height: 1.5;
+  margin-bottom: 22px;
 }
 
 /* ─── Section ─── */
@@ -6830,15 +6857,17 @@ onUnmounted(() => {
 }
 
 .sv-section-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: var(--type-weight-emphasis);
   color: var(--text-primary, #263238);
+  letter-spacing: 0.02em;
   margin-bottom: 16px;
 }
 
 .sv-divider {
   height: 1px;
-  background: #F5F5F5;
+  background: var(--hairline-light);
   margin: 20px 0;
 }
 
@@ -6849,7 +6878,7 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid var(--hairline-light);
 }
 
 .sv-row:last-child {
@@ -6869,12 +6898,14 @@ onUnmounted(() => {
 }
 
 .sv-row-label {
+  font-family: var(--font-sans);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--type-weight-emphasis);
   color: var(--text-primary, #263238);
 }
 
 .sv-row-desc {
+  font-family: var(--font-sans);
   font-size: 12px;
   color: var(--text-muted, #90A4AE);
 }
@@ -6885,7 +6916,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid var(--hairline-light);
   background: transparent;
   border-left: none;
   border-right: none;
@@ -6953,8 +6984,8 @@ onUnmounted(() => {
   top: 2px;
   background: white;
   border-radius: 50%;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform var(--motion-base) var(--ease-out-quart);
+  box-shadow: var(--elev-1);
 }
 
 .sv-switch input:checked + .sv-switch-track {
@@ -7015,18 +7046,20 @@ onUnmounted(() => {
   height: 36px;
   padding: 0 12px;
   background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
   font-size: 13px;
   color: var(--text-primary, #263238);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
   outline: none;
 }
 
-.sv-select:focus {
-  border-color: var(--accent-primary, #D32F2F);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
+.sv-select:focus,
+.sv-select:focus-visible {
+  border-color: transparent;
+  box-shadow: var(--focus-ring);
 }
 
 /* ─── Input ─── */
@@ -7035,17 +7068,19 @@ onUnmounted(() => {
   height: 36px;
   padding: 0 12px;
   background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
   font-size: 13px;
   color: var(--text-primary, #263238);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
-.sv-input:focus {
-  border-color: var(--accent-primary, #D32F2F);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
+.sv-input:focus,
+.sv-input:focus-visible {
+  border-color: transparent;
+  box-shadow: var(--focus-ring);
 }
 
 .sv-textarea {
@@ -7053,19 +7088,21 @@ onUnmounted(() => {
   min-height: 88px;
   padding: 12px;
   background: var(--bg-surface, #FFFFFF);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-primary, #263238);
   resize: vertical;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
-.sv-textarea:focus {
-  border-color: var(--accent-primary, #D32F2F);
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
+.sv-textarea:focus,
+.sv-textarea:focus-visible {
+  border-color: transparent;
+  box-shadow: var(--focus-ring);
 }
 
 .sv-code-textarea {
@@ -7198,7 +7235,7 @@ onUnmounted(() => {
 
 .sv-theme-card:hover {
   border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-theme-card.selected {
@@ -7513,7 +7550,7 @@ onUnmounted(() => {
 
 .sv-platform-card:hover {
   border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-platform-card.selected {
@@ -7555,7 +7592,7 @@ onUnmounted(() => {
 
 .sv-provider-card:hover {
   border-color: var(--text-muted, #90A4AE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-1);
 }
 
 .sv-provider-card.selected {
@@ -7669,19 +7706,27 @@ onUnmounted(() => {
   gap: 8px;
   padding: 8px 16px;
   background: white;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   color: #37474F;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .sv-action-btn:hover {
   background: #FAFBFC;
   border-color: var(--accent-primary, #D32F2F);
   color: var(--accent-primary, #D32F2F);
+}
+
+.sv-action-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .sv-action-btn-sm {
@@ -7726,8 +7771,9 @@ onUnmounted(() => {
   gap: 4px;
   padding: 16px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
+  box-shadow: var(--elev-1);
 }
 
 .sv-stat-value {
@@ -7796,13 +7842,20 @@ onUnmounted(() => {
   font-weight: 600;
   color: var(--accent-primary, #D32F2F);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
 .sv-danger-btn:hover {
   background: var(--accent-primary, #D32F2F);
   color: white;
+}
+
+.sv-danger-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* ═══ Shared Enhancement Blocks ═══ */
@@ -7909,7 +7962,7 @@ onUnmounted(() => {
   gap: 6px;
   min-height: 118px;
   padding: 16px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 14px;
   background: #FAFBFC;
   color: var(--text-primary, #263238);
@@ -7965,7 +8018,7 @@ onUnmounted(() => {
   gap: 6px;
   padding: 14px 16px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
   cursor: pointer;
   text-align: left;
@@ -8010,7 +8063,7 @@ onUnmounted(() => {
   gap: 16px;
   padding: 14px 16px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
 }
 
@@ -8060,7 +8113,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
   background: #FAFBFC;
   min-width: 0;
@@ -8090,7 +8143,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: 10px 12px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   background: #FAFBFC;
   color: var(--text-primary, #263238);
@@ -8149,7 +8202,7 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   background: #FFFFFF;
   font-size: 13px;
@@ -8162,7 +8215,7 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 12px;
   background: #FFFFFF;
 }
@@ -8246,7 +8299,7 @@ details.sv-history-row summary::-webkit-details-marker {
   min-width: 92px;
   padding: 10px 12px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -8260,7 +8313,7 @@ details.sv-history-row summary::-webkit-details-marker {
 }
 
 .sv-shortcut-card {
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 14px;
   background: #FFFFFF;
   overflow: hidden;
@@ -8273,7 +8326,7 @@ details.sv-history-row summary::-webkit-details-marker {
   gap: 16px;
   padding: 16px 18px;
   background: #FAFBFC;
-  border-bottom: 1px solid #ECEFF1;
+  border-bottom: 1px solid var(--hairline-light);
 }
 
 .sv-shortcut-card__title {
@@ -8301,7 +8354,7 @@ details.sv-history-row summary::-webkit-details-marker {
   justify-content: space-between;
   gap: 20px;
   padding: 16px 18px;
-  border-bottom: 1px solid #F5F5F5;
+  border-bottom: 1px solid var(--hairline-light);
 }
 
 .sv-shortcut-item:last-child {
@@ -8558,7 +8611,7 @@ details.sv-history-row summary::-webkit-details-marker {
 .sv-tech-badge {
   padding: 6px 14px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
@@ -8603,7 +8656,7 @@ details.sv-history-row summary::-webkit-details-marker {
   gap: 10px;
   padding: 10px 14px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
 }
 
