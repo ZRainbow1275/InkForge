@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
+- **Total Sessions**: 14
 - **Last Active**: 2026-05-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~490 | Active |
+| `journal-1.md` | ~523 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-05-28 | Tauri e2e harness — real WebView2 binary verified 9/9 passing | `bf9bb2a` | `dev/visual-fixes` |
 | 13 | 2026-05-28 | Elevate visual to stunning — Inkstone Glass + client-wide polish (3 PRs) | `84a6e65`, `a924a4f`, `4037e44` | `dev/visual-fixes` |
 | 12 | 2026-05-28 | Fix titlebar drag/buttons + Forge Nib brand consistency | `e87f283` | `dev/visual-fixes` |
 | 11 | 2026-05-27 | Visual polish pass — logo / splash / loading / titlebar | `da5560bb` | `dev/visual-fixes` |

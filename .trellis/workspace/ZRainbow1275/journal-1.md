@@ -488,3 +488,36 @@ Fixed 3 regressions from prior visual-polish-pass: TitleBar drag (span children 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 14: Tauri e2e harness — real WebView2 binary verified 9/9 passing
+
+**Date**: 2026-05-28
+**Task**: Tauri e2e harness — real WebView2 binary verified 9/9 passing
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Stood up tauri-driver + msedgedriver + webdriverio e2e harness against real InkForge.exe binary. 9 specs cover TitleBar + ForgeNibMark + token cascade (motion/typography/easing/focus-ring) + theme cascade + IPC allowlist click round-trip. All 9 pass. Token assertions normalized for vite minification (180ms→.18s). Discovered root cause of token-empty: Tauri cargo binary embeds inkforge/dist at compile time; fresh pnpm build + cargo build required after visual changes. 9 PNG evidence in prompts/0528/tauri-e2e-evidence (1 real Tauri window + 8 playwright route×theme matrix). Replaces yesterday's static trellis-check gate with real e2e for future visual work.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `bf9bb2a` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
