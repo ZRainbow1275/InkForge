@@ -30,6 +30,7 @@ import {
 } from '@/services/custom-css'
 import { notifyAppReady } from '@/services/app-lifecycle/notifyAppReady'
 import TitleBar from '@/components/chrome/TitleBar.vue'
+import ViewTransition from '@/components/chrome/ViewTransition.vue'
 import './styles/tokens.css'
 
 /**
@@ -390,18 +391,7 @@ function handleDismiss(): void {
 
     <!-- Normal content -->
     <template v-else>
-      <router-view v-slot="{ Component, route }">
-        <Transition
-          :name="route.meta.transition || 'page-fade'"
-          mode="out-in"
-        >
-          <component
-            :is="Component"
-            :key="route.fullPath"
-            class="app-route-shell"
-          />
-        </Transition>
-      </router-view>
+      <ViewTransition />
 
       <WelcomeModal />
       <HelpCenter />
@@ -476,33 +466,6 @@ textarea:focus-visible,
     padding-bottom: 72px;
     box-sizing: border-box;
   }
-}
-
-.page-fade-enter-active,
-.page-fade-leave-active,
-.page-slide-left-enter-active,
-.page-slide-left-leave-active,
-.page-slide-right-enter-active,
-.page-slide-right-leave-active {
-  transition: opacity var(--duration-normal, 250ms) var(--ease-smooth, ease),
-    transform var(--duration-normal, 250ms) var(--ease-smooth, ease);
-}
-
-.page-fade-enter-from,
-.page-fade-leave-to {
-  opacity: 0;
-}
-
-.page-slide-left-enter-from,
-.page-slide-left-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.page-slide-right-enter-from,
-.page-slide-right-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
 }
 
 /* 全局减少动画 */

@@ -1995,7 +1995,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           role="img"
           aria-label="InkForge"
         >
-          <ForgeNibMark :size="28" />
+          <ForgeNibMark
+            :size="28"
+            interactive
+          />
         </div>
         <span class="header-brand-name">InkForge</span>
       </div>
@@ -3522,7 +3525,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   height: 52px;
   min-height: 52px;
   background: #FFFFFF;
-  border-bottom: 1px solid #ECEFF1;
+  border-bottom: 1px solid var(--hairline-light);
+  box-shadow: var(--elev-1);
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -3537,14 +3541,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 10px;
   padding-right: 16px;
-  border-right: 1px solid #ECEFF1;
+  border-right: 1px solid var(--hairline-light);
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
 .header-brand:hover {
-  opacity: 0.7;
+  opacity: 0.78;
 }
 
 .header-logo {
@@ -3558,8 +3562,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .header-brand-name {
-  font-size: 14px;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: var(--type-step-1);
+  font-weight: var(--type-weight-emphasis);
+  letter-spacing: 0.02em;
   color: #263238;
 }
 
@@ -3583,7 +3589,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   border-radius: 6px;
   min-width: 280px;
   max-width: 400px;
-  transition: background 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .header-title-input:hover {
@@ -3679,7 +3685,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 4px;
   padding: 3px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   background: #FAFBFC;
 }
@@ -3786,7 +3792,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .panel {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #E5E7EB;
+  border-right: 1px solid var(--hairline-light);
   overflow: hidden;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), flex-basis 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -3821,7 +3827,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   position: relative;
   flex: 1;
   min-width: 0;
-  border-right: 1px solid #E5E7EB;
+  border-right: 1px solid var(--hairline-light);
   container-type: inline-size;
 }
 
@@ -3887,7 +3893,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-direction: column;
   min-width: 280px;
   overflow: hidden;
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid var(--hairline-light);
   background: #FAFAFA;
   font-size: var(--split-right-font-size, 16px);
 }
@@ -3924,7 +3930,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   justify-content: space-between;
   gap: 12px;
   padding: 0 12px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--hairline-light);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
 }
@@ -3955,11 +3961,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 8px;
   background: #FFFFFF;
   color: #607D8B;
   cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .split-toolbar-btn:hover,
@@ -4115,7 +4124,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     min-width: 0 !important;
     flex: none;
     border-right: none;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid var(--hairline-light);
   }
 
   .panel-manager {
@@ -4200,7 +4209,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   justify-content: space-between;
   gap: 16px;
   padding: 18px 24px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--hairline-light);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
 }
@@ -4309,7 +4318,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-width: var(--workstation-inspector-width, 260px);
   flex-shrink: 0;
   border-right: none;
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid var(--hairline-light);
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
 }
 
@@ -4549,7 +4558,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 10px;
   height: 44px;
   padding: 0 12px;
-  border-bottom: 1px solid #ECEFF1;
+  border-bottom: 1px solid var(--hairline-light);
   flex-shrink: 0;
   background: transparent;
 }
@@ -4660,7 +4669,7 @@ html[data-theme="dark"] .panel-tab.active {
   min-height: 320px;
   background: #FAFAF7;
   border-radius: 28px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   padding: 46px 4px 22px;
   position: relative;
   box-shadow:
@@ -4947,7 +4956,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 8px;
   height: 36px;
   padding: 0 12px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--hairline-light);
   flex-shrink: 0;
 }
 
@@ -5068,7 +5077,7 @@ html[data-theme="dark"] .panel-tab.active {
   align-items: center;
   gap: 4px;
   padding: 8px 4px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 8px;
   background: #FFFFFF;
   cursor: pointer;
@@ -5309,7 +5318,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 2px;
   padding: 5px 8px;
   min-height: 34px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
   background: #FFFFFF;
   font-size: 11px;
@@ -5375,7 +5384,7 @@ html[data-theme="dark"] .panel-tab.active {
 /* 鈹€鈹€鈹€ 首行缩进鍒囨崲 鈹€鈹€鈹€ */
 .indent-toggle {
   padding: 4px 12px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 4px;
   background: #FFFFFF;
   color: #90A4AE;
@@ -5446,7 +5455,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .style-option {
   padding: 3px 8px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 4px;
   background: #FFFFFF;
   color: #90A4AE;
@@ -5471,7 +5480,7 @@ html[data-theme="dark"] .panel-tab.active {
 .stepper {
   display: flex;
   align-items: center;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hairline-light);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -5506,8 +5515,8 @@ html[data-theme="dark"] .panel-tab.active {
   font-size: 12px;
   font-weight: 500;
   color: #263238;
-  border-left: 1px solid #E5E7EB;
-  border-right: 1px solid #E5E7EB;
+  border-left: 1px solid var(--hairline-light);
+  border-right: 1px solid var(--hairline-light);
   min-width: 48px;
   text-align: center;
   line-height: 28px;

@@ -994,7 +994,10 @@ onMounted(async () => {
           role="img"
           aria-label="InkForge"
         >
-          <ForgeNibMark :size="36" />
+          <ForgeNibMark
+            :size="36"
+            interactive
+          />
         </div>
         <div class="brand-text">
           <h1>InkForge</h1>
@@ -2420,12 +2423,13 @@ onMounted(async () => {
 }
 
 .brand-text h1 {
-  font-size: 20px;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: var(--type-step-2);
+  font-weight: var(--type-weight-emphasis);
   color: #263238;
-  letter-spacing: -0.3px;
+  letter-spacing: 0.02em;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .version-tag {
@@ -2440,9 +2444,11 @@ onMounted(async () => {
 }
 
 .welcome-text {
+  font-family: var(--font-sans);
   font-size: 12px;
   color: #90A4AE;
   margin: 2px 0 0;
+  opacity: 0.85;
 }
 
 .header-actions {
@@ -2459,7 +2465,7 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
@@ -2499,18 +2505,20 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   color: #607D8B;
 }
 
 .icon-btn:hover {
   background: #FFFFFF;
-  border-color: #D32F2F;
-  color: #D32F2F;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-color: var(--hairline-light);
+  color: #263238;
+  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
 }
 
 .account-avatar-btn {
@@ -2557,22 +2565,24 @@ onMounted(async () => {
   padding: 0 8px 0 12px;
   min-width: 240px;
   background: #FFFFFF;
-  border: 1px solid #E0E0E0;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   cursor: text;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+              background-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .header-search-bar:hover {
-  border-color: rgba(211, 47, 47, 0.32);
-  background: #FFF8F8;
-  box-shadow: 0 1px 4px rgba(38, 50, 56, 0.05);
+  border-color: var(--hairline-light);
+  background: #FFFFFF;
+  box-shadow: var(--elev-1);
 }
 
 .header-search-bar:focus-within {
-  border-color: rgba(211, 47, 47, 0.55);
+  border-color: transparent;
   background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.16);
+  box-shadow: var(--focus-ring);
 }
 
 .header-search-bar.has-value {
@@ -2744,10 +2754,13 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 14px;
   padding: 18px 20px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
   animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
@@ -2767,9 +2780,9 @@ onMounted(async () => {
 
 /* 通用 hover 效果（Hero/Inspiration 除外） */
 .bento-card:not(.card-hero):not(.card-inspiration):not(.card-new):hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-  border-color: rgba(211, 47, 47, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
+  border-color: var(--hairline-light);
 }
 
 .bento-card:nth-child(1) { animation-delay: 0.05s; }
@@ -2856,7 +2869,7 @@ onMounted(async () => {
   padding: 8px 12px;
   border-radius: 999px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   color: #607D8B;
   font-size: 11px;
   font-weight: 600;
@@ -2880,18 +2893,21 @@ onMounted(async () => {
   width: 100%;
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   background: #FFFFFF;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .template-market-item:hover {
-  border-color: rgba(211, 47, 47, 0.32);
-  background: #FFF8F8;
+  border-color: var(--hairline-light);
+  background: #FFFFFF;
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(33, 43, 54, 0.06);
+  box-shadow: var(--elev-2);
 }
 
 .template-market-icon,
@@ -2951,7 +2967,7 @@ onMounted(async () => {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 14px;
   background: #FFFFFF;
   color: #263238;
@@ -3069,7 +3085,7 @@ onMounted(async () => {
 .productivity-signal {
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   background: #FAFBFC;
 }
 
@@ -3510,7 +3526,7 @@ onMounted(async () => {
   gap: 18px;
   padding: 22px 24px 20px;
   background: #FAFBFC;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   position: relative;
   overflow: hidden;
 }
@@ -3632,7 +3648,7 @@ onMounted(async () => {
   grid-template-columns: 1fr 1fr;
   gap: 10px 16px;
   padding-top: 14px;
-  border-top: 1px solid #ECEFF1;
+  border-top: 1px solid var(--hairline-light);
 }
 
 .stats-row {
@@ -3659,7 +3675,7 @@ onMounted(async () => {
 
 /* === 3. NEW PROJECT CARD — Editorial 简化 === */
 .card-new {
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
@@ -3989,13 +4005,13 @@ onMounted(async () => {
 /* Recent articles list at bottom of card-recent */
 .recent-articles-list {
   margin-top: 12px;
-  border-top: 1px solid #ECEFF1;
+  border-top: 1px solid var(--hairline-light);
   padding-top: 12px;
 }
 
 .recent-todo-list {
   margin-top: 12px;
-  border-top: 1px solid #ECEFF1;
+  border-top: 1px solid var(--hairline-light);
   padding-top: 12px;
 }
 
@@ -4089,7 +4105,7 @@ onMounted(async () => {
   gap: 6px;
   min-height: 36px;
   padding: 0 10px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   background: #FFFFFF;
   color: #455A64;
@@ -4236,7 +4252,7 @@ onMounted(async () => {
   background:
     radial-gradient(ellipse 320px 160px at 18% -8%, rgba(211, 47, 47, 0.05), transparent 70%),
     linear-gradient(180deg, #FFFEFB 0%, #FAF7F2 100%);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-left: 3px solid #D32F2F;
   color: #263238;
   display: flex;
@@ -4545,7 +4561,7 @@ onMounted(async () => {
 
 .filter-tab {
   padding: 6px 14px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.85);
   font-size: 12px;
@@ -4576,7 +4592,7 @@ onMounted(async () => {
   left: 0;
   min-width: 140px;
   background: white;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 10px;
   padding: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -4626,7 +4642,7 @@ onMounted(async () => {
   gap: 6px;
   padding: 6px 12px;
   background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 8px;
   color: #90A4AE;
   transition: border-color 0.15s ease;
@@ -4651,7 +4667,7 @@ onMounted(async () => {
 
 .sort-select {
   padding: 6px 10px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.85);
   font-size: 12px;
@@ -4681,11 +4697,14 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline-light);
   border-radius: 16px;
   margin-bottom: 24px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
   animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
@@ -4776,9 +4795,8 @@ onMounted(async () => {
 }
 
 .article-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-  border-color: rgba(211, 47, 47, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
 }
 
 .card-accent {

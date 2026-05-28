@@ -69,7 +69,10 @@ function handleEscape(): void {
             class="if-welcome__mark"
             aria-hidden="true"
           >
-            <ForgeNibMark :size="56" />
+            <ForgeNibMark
+              :size="56"
+              interactive
+            />
           </div>
 
           <template v-if="step === 'welcome'">
@@ -205,12 +208,12 @@ function handleEscape(): void {
   position: relative;
   width: min(560px, 100%);
   padding: 32px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border: 1px solid var(--hairline-light);
   border-radius: 28px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 251, 0.96)),
     #ffffff;
-  box-shadow: 0 24px 90px rgba(15, 23, 42, 0.28);
+  box-shadow: var(--elev-3);
   color: #0f172a;
 }
 
@@ -234,16 +237,18 @@ function handleEscape(): void {
 
 .if-welcome h2 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(28px, 6vw, 44px);
-  line-height: 1.05;
+  font-family: var(--font-serif);
+  font-size: var(--type-step-3);
+  font-weight: var(--type-weight-emphasis);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
 }
 
 .if-welcome__lead {
   margin: 18px 0 0;
   color: #475569;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--type-step-1);
+  line-height: 1.6;
 }
 
 .if-welcome__points,
@@ -260,7 +265,7 @@ function handleEscape(): void {
 
 .if-welcome__points span {
   padding: 8px 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--hairline-light);
   border-radius: 999px;
   background: #f8fafc;
   color: #334155;
@@ -311,11 +316,18 @@ function handleEscape(): void {
   display: grid;
   gap: 8px;
   padding: 18px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border: 1px solid var(--hairline-light);
   border-radius: 20px;
   background: #f8fafc;
   color: #0f172a;
   text-align: left;
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.if-welcome__path-card:hover {
+  box-shadow: var(--elev-2);
+  transform: translateY(-1px);
 }
 
 .if-welcome__path-card span {
@@ -339,13 +351,13 @@ function handleEscape(): void {
 .if-welcome__primary:focus-visible,
 .if-welcome__ghost:focus-visible,
 .if-welcome__path-card:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.35);
-  outline-offset: 3px;
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .if-welcome-fade-enter-active,
 .if-welcome-fade-leave-active {
-  transition: opacity 180ms ease;
+  transition: opacity var(--motion-slow) var(--ease-out-quart);
 }
 
 .if-welcome-fade-enter-from,
