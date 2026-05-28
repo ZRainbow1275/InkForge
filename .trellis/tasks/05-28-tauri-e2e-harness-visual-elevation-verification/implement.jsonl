@@ -1,0 +1,6 @@
+{"file": "docs/inkforge-brand-identity.md", "reason": "Source of truth for motion/elevation/typography/dark-mode tokens. Specs §§13–16 + §12 define values the e2e harness must assert (e.g. --motion-base=180ms, --type-step-2=22px, Kiln #D95B3F focus ring)."}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Project-wide quality bar for new test code — coverage, naming, isolation conventions."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Selector / data-attribute conventions for adding stable hooks where needed in components under test."}
+{"file": "inkforge/src/components/chrome/TitleBar.vue", "reason": "DOM structure for drag-region + 3 window-control assertions (data-tauri-drag-region true/false split)."}
+{"file": "inkforge/src/components/chrome/ForgeNibMark.vue", "reason": "Reusable brand-mark component — 5-site consistency assertion target (SVG geometry + interactive class)."}
+{"file": "inkforge/src/styles/tokens.css", "reason": "Token cascade definitions — e2e computed-style assertions read these directly via getComputedStyle on :root."}

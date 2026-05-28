@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/05-28-tauri-e2e-harness-visual-elevation-verification/prd.md", "reason": "Acceptance-criteria checklist (Goal + AC section) — every box must verify."}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Token values to confirm computed CSS matches doc (§§13–16, §12.4, §12.6)."}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Quality gate for the new tests folder — naming, isolation, no flakes."}
