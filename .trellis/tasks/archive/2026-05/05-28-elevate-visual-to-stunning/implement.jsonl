@@ -1,0 +1,7 @@
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/prd.md", "reason": "PRD: 3 locked decisions (Full Sweep / Restrained Premium / Rhythm Reset), diverge sweep, 3-PR plan, acceptance criteria"}
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/research/premium-writing-app-chrome.md", "reason": "9 app patterns + 5 InkForge-adopt patterns + 10 anti-patterns + motion token ladder — drives chrome + Hub/Workstation/Settings design"}
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/research/glassmorphism-cross-webview.md", "reason": "backdrop-filter @supports gate + rgba 0.94 fallback + WebView2/WKWebView/WebKitGTK compat — drives Inkstone Glass impl"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Palette + §§9-12 chrome/splash/dark-mode contracts; §§13-16 to be added by this task"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue 3 SFC + scoped style + global CSS var contract"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "lint/typecheck bar — 0 NEW warning"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Tauri Win/macOS branching — backdrop-filter, decorations, traffic light"}

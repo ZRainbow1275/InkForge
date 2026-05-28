@@ -1,0 +1,6 @@
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/prd.md", "reason": "Acceptance criteria to verify against — every checkbox"}
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/research/premium-writing-app-chrome.md", "reason": "10 anti-patterns checklist for review (hard borders, instant changes, mismatched radius, weight drift, luma flip)"}
+{"file": ".trellis/tasks/05-28-elevate-visual-to-stunning/research/glassmorphism-cross-webview.md", "reason": "Verify @supports gate + fallback present + no transparent-window regression"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "§§13-16 tokens / typography / elevation / dark mode contracts to be appended; §§9-12 not regressed"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "0 NEW lint/typecheck warnings"}
+{"file": ".trellis/spec/guides/cross-platform-thinking-guide.md", "reason": "Tauri cross-platform fallbacks honored"}
