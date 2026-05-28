@@ -453,3 +453,38 @@ Fixed 3 regressions from prior visual-polish-pass: TitleBar drag (span children 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 13: Elevate visual to stunning — Inkstone Glass + client-wide polish (3 PRs)
+
+**Date**: 2026-05-28
+**Task**: Elevate visual to stunning — Inkstone Glass + client-wide polish (3 PRs)
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+3-PR client-wide visual polish from 'not stunning enough' user feedback. PR1 (84a6e65): foundation tokens.css NEW (motion/elevation/hairline/focus-ring/typography/surface) + Inkstone Glass titlebar (36px + backdrop-filter blur(20px) saturate(140%) with @supports fallback + ember gradient bottom + left-anchor seal+wordmark + EB Garamond italic doc title + interactive ForgeNibMark seal hover scale 1.06). PR2 (a924a4f): Hub + Workstation + Welcome adopt tokens (elev-1 resting → elev-2 hover with translateY(-1px), hairline-light bulk migration 36 swaps total, One Accent rule applied) + NEW ViewTransition.vue cross-fade replacing parallax slides. PR3 (4037e44): SettingsView 12-tab token adoption + Ulysses-style left-edge Kiln nav accent + 7 focus-ring sites + spring curve cleanup (10 HubView + 5 WorkstationView migrated to single ease-out-quart) + 30 dark-mode shadow tokenisation (auto-lighter alpha via tokens.css) + brand identity §§12.4/12.6 backfill + §16 Dark Mode Contract appended. e87f283 drag/buttons/Forge Nib brand consistency preserved. ForgeNibMark interactive prop now in 5/5 sites.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `84a6e65` | (see git log) |
+| `a924a4f` | (see git log) |
+| `4037e44` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
