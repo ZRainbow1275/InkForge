@@ -436,7 +436,7 @@ defineExpose({
   align-items: flex-start;
   justify-content: center;
   padding-top: 15vh;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   backdrop-filter: blur(4px);
 }
 
@@ -446,11 +446,11 @@ defineExpose({
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--color-border, rgba(15, 23, 42, 0.12));
+  border: 1px solid var(--hairline);
   border-radius: 12px;
-  background: var(--color-bg-elevated, #fffaf0);
-  color: var(--color-text-primary, #17202a);
-  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.26);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--elev-3);
 }
 
 .cp-search-row {
@@ -460,11 +460,11 @@ defineExpose({
   gap: 10px;
   min-height: 52px;
   padding: 0 14px;
-  border-bottom: 1px solid var(--color-border, rgba(15, 23, 42, 0.12));
+  border-bottom: 1px solid var(--hairline);
 }
 
 .cp-search-icon {
-  color: var(--color-text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .cp-search-input {
@@ -477,7 +477,7 @@ defineExpose({
 }
 
 .cp-search-input::placeholder {
-  color: var(--color-text-tertiary, #94a3b8);
+  color: var(--text-muted);
 }
 
 .cp-close {
@@ -487,10 +487,22 @@ defineExpose({
   border: 0;
   border-radius: 8px;
   padding: 5px 8px;
-  background: var(--color-bg-muted, rgba(15, 23, 42, 0.06));
-  color: var(--color-text-secondary, #64748b);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font: 600 12px/1 ui-sans-serif, system-ui, sans-serif;
   cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
+}
+
+.cp-close:hover {
+  background: var(--ember-soft);
+  color: var(--ember);
+}
+
+.cp-close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .cp-help,
@@ -517,7 +529,7 @@ defineExpose({
   display: flex;
   align-items: center;
   padding: 0 8px;
-  color: var(--color-text-tertiary, #94a3b8);
+  color: var(--text-muted);
   font: 700 11px/1 ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -537,17 +549,23 @@ defineExpose({
   color: inherit;
   text-align: left;
   cursor: pointer;
-  animation: cp-result-in 60ms ease-out both;
+  animation: cp-result-in var(--motion-instant) var(--ease-out-quart) both;
   animation-delay: var(--cp-stagger-delay, 0ms);
 }
 
 .cp-item:hover,
 .cp-item.active {
-  background: var(--color-bg-hover, rgba(37, 99, 235, 0.1));
+  background: var(--ember-soft);
+}
+
+/* Active row gets a 2px ember rail on its leading edge (inset box-shadow keeps
+   it inside the rounded corner without shifting layout). */
+.cp-item.active {
+  box-shadow: inset 2px 0 0 var(--ember);
 }
 
 .cp-item.destructive {
-  color: var(--color-error, #b91c1c);
+  color: var(--danger);
 }
 
 .cp-item-icon {
@@ -568,7 +586,7 @@ defineExpose({
 
 .cp-item-subtitle {
   overflow: hidden;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--text-secondary);
   font: 500 12px/1.2 ui-sans-serif, system-ui, sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -577,25 +595,25 @@ defineExpose({
 .cp-shortcut {
   border-radius: 6px;
   padding: 4px 6px;
-  background: var(--color-bg-muted, rgba(15, 23, 42, 0.06));
-  color: var(--color-text-secondary, #64748b);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .cp-favorite {
-  color: var(--color-text-tertiary, #94a3b8);
+  color: var(--text-muted);
   opacity: 0.55;
 }
 
 .cp-favorite.active {
-  color: var(--color-accent, #b45309);
+  color: var(--ember);
   opacity: 1;
   fill: currentColor;
 }
 
 .cp-highlight {
   background: transparent;
-  color: var(--color-accent, #b45309);
+  color: var(--ember);
   font-weight: 800;
 }
 
@@ -605,13 +623,14 @@ defineExpose({
   margin: 12px;
   border-radius: 10px;
   padding: 12px;
-  background: var(--color-bg-muted, rgba(15, 23, 42, 0.06));
-  color: var(--color-text-secondary, #64748b);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font: 600 13px/1.4 ui-sans-serif, system-ui, sans-serif;
 }
 
 .cp-error {
-  color: var(--color-error, #b91c1c);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .cp-loading,
@@ -630,9 +649,9 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid var(--color-border, rgba(15, 23, 42, 0.1));
+  border-top: 1px solid var(--hairline);
   padding: 8px 14px;
-  color: var(--color-text-tertiary, #94a3b8);
+  color: var(--text-muted);
   font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -642,12 +661,18 @@ defineExpose({
   gap: 5px;
 }
 
+/* "↵ Run" affordance — the primary footer action gets an ember glyph so the
+   eye lands on the run hint. */
+.cp-footer span:first-child {
+  color: var(--ember);
+}
+
 .cp-overlay-enter-active {
-  transition: opacity 80ms ease-out;
+  transition: opacity var(--motion-instant) var(--ease-out-quart);
 }
 
 .cp-overlay-leave-active {
-  transition: opacity 60ms ease-in;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
 }
 
 .cp-overlay-enter-from,
@@ -656,11 +681,11 @@ defineExpose({
 }
 
 .cp-panel-enter-active {
-  transition: opacity 80ms ease-out, transform 80ms ease-out;
+  transition: opacity var(--motion-instant) var(--ease-out-quart), transform var(--motion-instant) var(--ease-out-quart);
 }
 
 .cp-panel-leave-active {
-  transition: opacity 60ms ease-in, transform 60ms ease-in;
+  transition: opacity var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .cp-panel-enter-from {

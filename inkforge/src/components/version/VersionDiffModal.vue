@@ -80,6 +80,10 @@ onUnmounted(() => {
               class="diff-title"
             >
               版本对比
+              <span
+                class="forge-line diff-title-line"
+                aria-hidden="true"
+              />
             </h2>
             <div class="diff-summary-badges">
               <span class="badge added">+{{ summary.addedCount }}</span>
@@ -193,7 +197,7 @@ onUnmounted(() => {
 .diff-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -211,7 +215,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--elev-3);
   animation: scaleIn 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -234,8 +238,15 @@ onUnmounted(() => {
 }
 
 .diff-title {
+  position: relative;
   font-size: 16px;
   font-weight: 700;
+}
+
+.diff-title-line {
+  position: absolute;
+  left: 0;
+  bottom: -7px;
 }
 
 .diff-summary-badges {
@@ -255,18 +266,18 @@ onUnmounted(() => {
 }
 
 .badge.added {
-  background: var(--success-light, #E8F5E9);
-  color: var(--success, #2E7D32);
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .badge.removed {
-  background: var(--error-light, #FFEBEE);
-  color: var(--error, #C62828);
+  background: var(--error-light);
+  color: var(--error);
 }
 
 .badge.unchanged {
-  background: var(--bg-rice-paper, #FAFBFC);
-  color: var(--text-muted, #90A4AE);
+  background: var(--bg-rice-paper);
+  color: var(--text-muted);
 }
 
 .close-btn {
@@ -370,13 +381,13 @@ onUnmounted(() => {
 }
 
 .diff-line.added {
-  background: rgba(46, 125, 50, 0.08);
-  border-left-color: var(--success, #2E7D32);
+  background: var(--success-light);
+  border-left-color: var(--success);
 }
 
 .diff-line.removed {
-  background: rgba(198, 40, 40, 0.08);
-  border-left-color: var(--error, #C62828);
+  background: var(--error-light);
+  border-left-color: var(--error);
 }
 
 .diff-line.unchanged {
@@ -384,15 +395,15 @@ onUnmounted(() => {
 }
 
 .diff-line:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-rice-paper);
 }
 
 .diff-line.added:hover {
-  background: rgba(46, 125, 50, 0.12);
+  background: var(--success-light);
 }
 
 .diff-line.removed:hover {
-  background: rgba(198, 40, 40, 0.12);
+  background: var(--error-light);
 }
 
 .line-marker {

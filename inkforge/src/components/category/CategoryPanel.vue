@@ -146,7 +146,10 @@ function cancelDelete() {
   padding: 10px 12px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    border-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .category-item:hover {
@@ -154,8 +157,9 @@ function cancelDelete() {
 }
 
 .category-item.active {
-  background: var(--color-primary);
-  color: white;
+  background: var(--ember-soft);
+  border-left-color: var(--ember);
+  color: var(--text-primary);
 }
 
 .category-item .icon {
@@ -183,8 +187,8 @@ function cancelDelete() {
 }
 
 .category-item.active .count {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--ember-soft);
+  color: var(--ember);
 }
 
 .add-btn {
@@ -200,13 +204,23 @@ function cancelDelete() {
   color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    background var(--motion-fast) var(--ease-out-quart);
 }
 
 .add-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
   background: var(--color-bg-secondary);
+}
+
+.add-btn:focus-visible,
+.delete-btn:focus-visible,
+.cancel-btn:focus-visible,
+.delete-confirm-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .delete-btn {
@@ -220,7 +234,8 @@ function cancelDelete() {
   border-radius: 4px;
   cursor: pointer;
   color: var(--color-text-secondary);
-  transition: all 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart);
 }
 
 .category-item:hover .delete-btn {
@@ -228,15 +243,15 @@ function cancelDelete() {
 }
 
 .delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 /* 删除确认模态框 */
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,7 +263,7 @@ function cancelDelete() {
   border-radius: 12px;
   padding: 24px;
   width: 320px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--elev-3);
 }
 
 .confirm-modal h3 {
@@ -286,13 +301,14 @@ function cancelDelete() {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
-  background: #ef4444;
+  background: var(--danger);
   color: white;
   cursor: pointer;
   font-size: 14px;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
 }
 
 .delete-confirm-btn:hover {
-  background: #dc2626;
+  opacity: 0.9;
 }
 </style>

@@ -120,8 +120,10 @@ export const PARSER_CONFIG = {
 export const FONT_STACKS = {
     /** 无衬线字体（默认） */
     sans: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif',
-    /** 衬线字体 */
-    serif: 'Georgia, "Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN", STSong, "Times New Roman", Times, serif',
+    /** 衬线字体 — CJK 字族优先，Latin 兜底。
+     *  原顺序把 Georgia 排首位，会让有 Georgia 的环境用 Latin 字面的"逐字符回退"
+     *  渲染中文，导致字号/字重错位（fidelity 任务 typography review v1 / v2 HIGH 项）。 */
+    serif: '"Source Han Serif SC", "Noto Serif SC", "Source Han Serif CN", STSong, Georgia, "Times New Roman", Times, serif',
     /** 楷体 */
     kai: 'KaiTi, STKaiti, "AR PL UKai CN", "KaiTi_GB2312", serif',
     /** 等宽字体 */

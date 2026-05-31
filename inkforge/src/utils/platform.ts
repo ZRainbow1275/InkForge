@@ -89,8 +89,12 @@ export async function getAppInfo(): Promise<AppInfo> {
 }
 
 /**
- * 类型安全地检查 window.__TAURI__ 是否存在
- * 避免与 @tauri-apps/api 或 vite-env.d.ts 中的 declare global 声明冲突
+ * 类型安全地检查当前是否处于 Tauri WebView 环境。
+ *
+ * Why: Tauri 1.4+ 默认 `withGlobalTauri: false`，不再注入 `window.__TAURI__`。
+ * 但 core.js / ipc.js 始终注入 `__TAURI_INVOKE__` / `__TAURI_IPC__`，
+ * 仅检测 `__TAURI__` / `__TAURI_INTERNALS__` 会在默认配置下漏判为 web，
+ * 导致 chrome 控件 v-if 不渲染。
  */
 function hasTauriGlobal(): boolean {
     if (typeof window === 'undefined') {
@@ -99,5 +103,9 @@ function hasTauriGlobal(): boolean {
 
     const runtimeWindow = window as unknown as Record<string, unknown>
     return runtimeWindow.__TAURI__ !== undefined ||
-        runtimeWindow.__TAURI_INTERNALS__ !== undefined
+        runtimeWindow.__TAURI_INTERNALS__ !== undefined ||
+        runtimeWindow.__TAURI_INVOKE__ !== undefined ||
+        runtimeWindow.__TAURI_IPC__ !== undefined ||
+        runtimeWindow.__TAURI_METADATA__ !== undefined ||
+        runtimeWindow.__TAURI_POST_MESSAGE__ !== undefined
 }

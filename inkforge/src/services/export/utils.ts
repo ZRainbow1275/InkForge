@@ -524,44 +524,64 @@ export function enhanceTableStyles(html: string, primaryColor: string = '#0066cc
   const tableBlocks = html.split(/<\/table>/gi)
   const closingTags = html.match(/<\/table>/gi) || []
 
+  // juice 在此函数之前已把 preset CSS 内联到 table/thead/th/td。
+  // 旧实现直接追加新的 style="..."，导致一个标签上挂两个 style 属性
+  // （HTML5 spec 只保留第一个；WeChat sanitizer 行为不可预测）。
+  // 现在合并：剥离已有 style="..." 的内容，与新增声明拼接后回写为单一属性，
+  // 让 enhanceTableStyles 提供的 padding / border-collapse 真正生效。
+  const appendStyle = (attrs: string, newStyle: string): string => {
+    let existing = ''
+    const cleanedAttrs = attrs.replace(/\s*style\s*=\s*"([^"]*)"/i, (_m, s: string) => {
+      existing = s
+      return ''
+    })
+    const trimmedExisting = existing.trim().replace(/;\s*$/, '')
+    const merged = trimmedExisting ? `${trimmedExisting};${newStyle}` : newStyle
+    return `${cleanedAttrs} style="${merged}"`
+  }
+
   const processedBlocks = tableBlocks.map((block, blockIndex) => {
     let processed = block
 
     // 处理 <table> 标签 — 添加容器包装实现圆角和阴影
     processed = processed.replace(
       /<table([^>]*)>/gi,
-      (_match, attrs) => {
-        return `<section style="margin:16px 0;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);"><table${attrs} style="border-collapse:collapse;width:100%;text-align:left;font-size:14px;">`
+      (_match, attrs: string) => {
+        const tableAttrs = appendStyle(attrs, 'border-collapse:collapse;width:100%;text-align:left;font-size:14px;')
+        return `<section style="margin:16px 0;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);"><table${tableAttrs}>`
       }
     )
 
     // 处理 <thead> — 主色背景、白色文字
     processed = processed.replace(
       /<thead([^>]*)>/gi,
-      `<thead$1 style="background:${primaryColor};color:#fff;font-weight:600;">`
+      (_m, attrs: string) =>
+        `<thead${appendStyle(attrs, `background:${primaryColor};color:#fff;font-weight:600;`)}>`,
     )
 
     // 处理 <th> — padding 和对齐
     processed = processed.replace(
       /<th([^>]*)>/gi,
-      '<th$1 style="padding:10px 14px;border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;text-align:left;">'
+      (_m, attrs: string) =>
+        `<th${appendStyle(attrs, 'padding:10px 14px;border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;text-align:left;')}>`,
     )
 
     // 处理 <tr> — 条纹行（每个表格独立计数）
     let rowIndex = 0
     processed = processed.replace(
       /<tr([^>]*)>/gi,
-      (_match, attrs) => {
+      (_match, attrs: string) => {
         rowIndex++
         const bgColor = rowIndex % 2 === 0 ? '#f8f9fa' : '#ffffff'
-        return `<tr${attrs} style="background:${bgColor};">`
+        return `<tr${appendStyle(attrs, `background:${bgColor};`)}>`
       }
     )
 
     // 处理 <td> — padding 和边框
     processed = processed.replace(
       /<td([^>]*)>/gi,
-      '<td$1 style="padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word;">'
+      (_m, attrs: string) =>
+        `<td${appendStyle(attrs, 'padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word;')}>`,
     )
 
     // 重新拼接 </table></section>（最后一个块不需要闭合标签）

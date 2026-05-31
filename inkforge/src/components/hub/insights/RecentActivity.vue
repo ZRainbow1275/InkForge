@@ -56,8 +56,8 @@ defineProps<{ activities: RecentActivityItem[] }>()
 <style scoped>
 .activity-list { display: grid; gap: 11px; margin-top: 14px; }
 .activity-row { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; }
-.activity-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: #D32F2F; background: rgba(211, 47, 47, 0.08); }
+.activity-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: var(--ember); background: var(--ember-soft); }
 .activity-copy strong, .activity-copy small { display: block; }
-.activity-copy strong { color: #263238; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.activity-copy small { margin-top: 2px; color: #78909C; font-size: 12px; }
+.activity-copy strong { color: var(--text-primary); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.activity-copy small { margin-top: 2px; color: var(--text-muted); font-size: 12px; }
 </style>

@@ -263,10 +263,10 @@ onBeforeUnmount(() => {
   min-width: 228px;
   max-width: 280px;
   padding: 7px;
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(31, 41, 55, 0.12);
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline);
   border-radius: 14px;
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+  box-shadow: var(--elev-3);
   backdrop-filter: blur(12px);
 }
 
@@ -278,7 +278,7 @@ onBeforeUnmount(() => {
 }
 
 .menu-group + .menu-group {
-  border-top: 1px solid rgba(31, 41, 55, 0.08);
+  border-top: 1px solid var(--hairline);
 }
 
 .editor-context-menu button {
@@ -288,19 +288,27 @@ onBeforeUnmount(() => {
   width: 100%;
   min-height: 32px;
   padding: 7px 9px;
-  color: #374151;
+  color: var(--text-secondary);
   font-size: 0.86rem;
   text-align: left;
   background: transparent;
   border: 0;
   border-radius: 9px;
   cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
-.editor-context-menu button:hover,
+.editor-context-menu button:hover {
+  color: var(--text-primary);
+  background: var(--bg-rice-paper);
+}
+
 .editor-context-menu button.active {
-  color: #d32f2f;
-  background: #fff1f2;
+  color: var(--ember);
+  background: var(--ember-soft);
+  box-shadow: inset 2px 0 0 var(--ember);
 }
 
 .editor-context-menu button span {

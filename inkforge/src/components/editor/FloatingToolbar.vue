@@ -21,7 +21,8 @@ import {
   Highlighter, Palette,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Superscript, Subscript,
-  Table, CheckSquare
+  Table, CheckSquare,
+  ArrowUpRight
 } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -633,6 +634,10 @@ defineExpose({ openLinkEditor })
           @click="confirmLink"
         >
           确定
+          <ArrowUpRight
+            :size="13"
+            class="ft-link-confirm-nib"
+          />
         </button>
         <button
           class="ft-link-cancel"
@@ -657,14 +662,12 @@ defineExpose({ openLinkEditor })
   justify-content: center;
   gap: 2px;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--bg-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--elev-2);
   pointer-events: auto;
   white-space: normal;
 }
@@ -679,18 +682,28 @@ defineExpose({ openLinkEditor })
   background: transparent;
   border-radius: 6px;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.55);
-  transition: all 0.1s ease;
+  color: var(--text-secondary);
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .ft-btn:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: rgba(0, 0, 0, 0.85);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 .ft-btn.active {
-  background: var(--accent-color, #D32F2F);
-  color: white;
+  background: var(--ember-soft);
+  color: var(--ember);
+  box-shadow: inset 0 -2px 0 var(--ember);
+}
+
+.ft-btn:focus-visible,
+.ft-color-swatch:focus-visible,
+.ft-color-reset:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 @media (max-width: 480px) {
@@ -708,7 +721,7 @@ defineExpose({ openLinkEditor })
 .ft-divider {
   width: 1px;
   height: 16px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--hairline);
   margin: 0 4px;
   flex-shrink: 0;
 }
@@ -730,14 +743,12 @@ defineExpose({ openLinkEditor })
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--bg-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--elev-2);
   white-space: nowrap;
   z-index: 110;
 }
@@ -745,15 +756,16 @@ defineExpose({ openLinkEditor })
 .ft-color-swatch {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--hairline);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart);
   padding: 0;
 }
 
 .ft-color-swatch:hover {
-  border-color: rgba(0, 0, 0, 0.4);
+  border-color: var(--text-secondary);
   transform: scale(1.15);
 }
 
@@ -761,20 +773,22 @@ defineExpose({ openLinkEditor })
   height: 20px;
   padding: 0 6px;
   margin-left: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--hairline);
   border-radius: 4px;
   background: transparent;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-muted);
   font-size: 11px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    border-color var(--motion-fast) var(--ease-out-quart);
   white-space: nowrap;
 }
 
 .ft-color-reset:hover {
-  color: rgba(0, 0, 0, 0.75);
-  border-color: rgba(0, 0, 0, 0.2);
-  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  background: var(--bg-rice-paper);
 }
 
 /* ---- 链接输入浮层 ---- */
@@ -784,29 +798,30 @@ defineExpose({ openLinkEditor })
   gap: 4px;
   padding: 4px 6px;
   margin-left: 4px;
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 1px solid var(--hairline);
 }
 
 .ft-link-field {
   width: 180px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--hairline);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.03);
-  color: rgba(0, 0, 0, 0.85);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
   font-size: 12px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .ft-link-field::placeholder {
-  color: rgba(0, 0, 0, 0.3);
+  color: var(--text-muted);
 }
 
 .ft-link-field:focus {
-  border-color: var(--accent-color, #D32F2F);
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+  border-color: var(--ember);
+  box-shadow: var(--focus-ring);
 }
 
 .ft-link-confirm,
@@ -817,26 +832,47 @@ defineExpose({ openLinkEditor })
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .ft-link-confirm {
-  background: var(--accent-color, #D32F2F);
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ember);
+  color: #fff;
+  box-shadow: var(--elev-1);
 }
 
 .ft-link-confirm:hover {
-  filter: brightness(1.1);
+  box-shadow: var(--glow-ember);
+  transform: translateY(-1px);
+}
+
+.ft-link-confirm-nib {
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.ft-link-confirm:hover .ft-link-confirm-nib {
+  transform: translate(2px, -2px);
+}
+
+.ft-link-confirm:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .ft-link-cancel {
   background: transparent;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-muted);
 }
 
 .ft-link-cancel:hover {
-  color: rgba(0, 0, 0, 0.75);
-  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+  background: var(--bg-rice-paper);
 }
 
 /* ---- Transition ---- */

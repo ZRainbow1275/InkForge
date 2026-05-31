@@ -429,6 +429,26 @@ textarea:focus-visible,
   border-radius: 4px;
 }
 
+/*
+ * Editor canvas exemption.
+ *
+ * The TipTap writing surface (`.ProseMirror`, a focusable contenteditable that
+ * carries a tabindex) otherwise matches the `[tabindex]:focus-visible` /
+ * focusable rule above and wraps the entire writing canvas in the loud Kiln
+ * red double-ring. The main writing surface is not a discrete control — it is
+ * the page — so it must NOT wear a keyboard-focus ring. Real buttons / links /
+ * form controls keep theirs (above). Placed AFTER the global rule so equal
+ * specificity resolves in this override's favour. The subtle
+ * `.editor-paper:focus-within` lift (EditorPanel.vue) stays untouched.
+ */
+.ProseMirror:focus-visible,
+.ProseMirror:focus,
+.editor-scroll [contenteditable]:focus-visible,
+.editor-scroll [contenteditable]:focus {
+  box-shadow: none;
+  outline: none;
+}
+
 #app {
   width: 100%;
   height: 100vh;

@@ -220,24 +220,27 @@ function openAddModal() {
 
 .article-card {
   padding: 16px;
-  border: 2px solid #2c3e50;
-  background: #fff;
+  border: 1px solid var(--hairline);
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart),
+    border-color var(--motion-fast) var(--ease-out-quart);
   position: relative;
-  /* Soviet Style: Hard edges, no radius */
 }
 
 .article-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 rgba(44, 62, 80, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--elev-1);
 }
 
 .article-card.active {
-  border-color: var(--color-primary);
-  box-shadow: 4px 4px 0 var(--color-primary);
-  transform: translate(-2px, -2px);
-  background: #fff; /* Keep white for contrast */
+  border-color: var(--hairline);
+  border-left-color: var(--ember);
+  box-shadow: var(--elev-1);
+  background: var(--bg-surface);
 }
 
 
@@ -285,7 +288,7 @@ function openAddModal() {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #f59e0b;
+  color: var(--warning);
   font-weight: 600;
 }
 
@@ -318,12 +321,20 @@ function openAddModal() {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: var(--color-primary);
+  background: var(--ember);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.add-btn:hover {
+  box-shadow: var(--glow-ember);
+  transform: translateY(-1px);
 }
 
 .fab {
@@ -333,19 +344,28 @@ function openAddModal() {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--ember);
   color: white;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
-  transition: all 0.2s ease;
+  box-shadow: var(--elev-2);
+  transition: box-shadow var(--motion-base) var(--ease-out-quart),
+    transform var(--motion-base) var(--ease-out-quart);
 }
 
 .fab:hover {
-  transform: scale(1.1);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-ember);
+}
+
+.add-btn:focus-visible,
+.fab:focus-visible,
+.delete-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* 解析状态 */
@@ -354,12 +374,13 @@ function openAddModal() {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: white;
-  border: 2px solid var(--color-primary);
-  color: var(--color-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--ember-border);
+  border-radius: var(--radius-medium);
+  color: var(--ember);
   font-size: 13px;
   font-weight: bold;
-  box-shadow: 4px 4px 0 rgba(0, 102, 204, 0.2);
+  box-shadow: var(--elev-1);
 }
 
 .parse-error {
@@ -367,12 +388,13 @@ function openAddModal() {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: white;
-  border: 2px solid #ef4444;
-  color: #ef4444;
+  background: var(--bg-surface);
+  border: 1px solid var(--error);
+  border-radius: var(--radius-medium);
+  color: var(--error);
   font-size: 13px;
   font-weight: bold;
-  box-shadow: 4px 4px 0 rgba(239, 68, 68, 0.2);
+  box-shadow: var(--elev-1);
 }
 
 .animate-spin {
@@ -391,7 +413,8 @@ function openAddModal() {
   border-radius: 4px;
   cursor: pointer;
   color: var(--color-text-secondary);
-  transition: all 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart);
   margin-left: auto;
 }
 
@@ -400,8 +423,8 @@ function openAddModal() {
 }
 
 .delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .source {

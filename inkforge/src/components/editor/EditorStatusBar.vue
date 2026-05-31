@@ -512,11 +512,12 @@ const writingGoalDetails = computed(() => {
               class="suggestion-item"
             >
               <svg
+                class="suggestion-icon suggestion-icon--warning"
                 width="12"
                 height="12"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#FF9800"
+                stroke="currentColor"
                 stroke-width="2"
               >
                 <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -540,11 +541,12 @@ const writingGoalDetails = computed(() => {
             class="suggestion-item suggestion-ok"
           >
             <svg
+              class="suggestion-icon"
               width="12"
               height="12"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#4CAF50"
+              stroke="currentColor"
               stroke-width="2"
             >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" />
@@ -565,10 +567,10 @@ const writingGoalDetails = computed(() => {
     gap: 24px;
     height: 32px;
     padding: 0 12px;
-    background: var(--color-surface, #FAFBFC);
-    border-top: 1px solid var(--color-border, #E5E7EB);
+    background: var(--bg-rice-paper);
+    border-top: 1px solid var(--hairline);
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: var(--text-muted);
     user-select: none;
     position: relative;
     flex-shrink: 0;
@@ -581,12 +583,12 @@ const writingGoalDetails = computed(() => {
     cursor: pointer;
     padding: 2px 4px;
     border-radius: 4px;
-    transition: background 0.15s;
+    transition: background-color var(--motion-fast) var(--ease-out-quart);
     flex: 0 0 auto;
 }
 
 .status-left:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--bg-hover);
 }
 
 .document-status-badge {
@@ -597,11 +599,13 @@ const writingGoalDetails = computed(() => {
     padding: 0 10px;
     border: 1px solid transparent;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
+    background: var(--bg-surface);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    transition: transform var(--motion-fast) var(--ease-out-quart),
+                border-color var(--motion-fast) var(--ease-out-quart),
+                background-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .document-status-badge:hover {
@@ -616,27 +620,29 @@ const writingGoalDetails = computed(() => {
 }
 
 .document-status-badge.status-draft {
-    background: rgba(53, 82, 65, 0.12);
-    color: #355241;
-    border-color: rgba(53, 82, 65, 0.18);
+    background: var(--success-light);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 32%, transparent);
 }
 
 .document-status-badge.status-new {
-    background: rgba(251, 192, 45, 0.16);
-    color: #8D6E00;
-    border-color: rgba(251, 192, 45, 0.26);
+    background: var(--warning-light);
+    color: var(--warning);
+    border-color: color-mix(in srgb, var(--warning) 38%, transparent);
 }
 
+/* "已读" 状态保留紫色点睛（无对应语义 token）；用 color-mix 派生 tint/边，
+   保持单一字面色源，暗色下亦不刺眼。 */
 .document-status-badge.status-read {
-    background: rgba(123, 31, 162, 0.12);
-    color: #7B1FA2;
-    border-color: rgba(123, 31, 162, 0.22);
+    background: color-mix(in srgb, #7B1FA2 14%, transparent);
+    color: #9C45C9;
+    border-color: color-mix(in srgb, #7B1FA2 30%, transparent);
 }
 
 .document-status-badge.status-processed {
-    background: rgba(46, 125, 50, 0.12);
-    color: #2E7D32;
-    border-color: rgba(46, 125, 50, 0.22);
+    background: var(--success-light);
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 32%, transparent);
 }
 
 .stat-item {
@@ -649,7 +655,7 @@ const writingGoalDetails = computed(() => {
 .stat-divider {
     width: 1px;
     height: 12px;
-    background: var(--color-border, #E5E7EB);
+    background: var(--hairline);
 }
 
 .status-center {
@@ -673,19 +679,21 @@ const writingGoalDetails = computed(() => {
     gap: 6px;
     height: 22px;
     padding: 0 10px;
-    border: 1px solid rgba(198, 40, 40, 0.18);
+    border: 1px solid var(--ember-border);
     border-radius: 999px;
-    background: rgba(255, 235, 238, 0.92);
-    color: #C62828;
+    background: var(--ember-soft);
+    color: var(--ember);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    transition: background-color var(--motion-fast) var(--ease-out-quart),
+                border-color var(--motion-fast) var(--ease-out-quart),
+                transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .goal-pill:hover {
-    border-color: rgba(198, 40, 40, 0.32);
-    background: rgba(255, 235, 238, 1);
+    border-color: var(--ember);
+    background: color-mix(in srgb, var(--ember) 16%, transparent);
     transform: translateY(-1px);
 }
 
@@ -718,10 +726,10 @@ const writingGoalDetails = computed(() => {
     gap: 4px;
     height: 22px;
     padding: 0 10px;
-    border: 1px solid var(--color-border, #E5E7EB);
+    border: 1px solid var(--hairline);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--color-text-secondary, #546E7A);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -733,9 +741,9 @@ const writingGoalDetails = computed(() => {
     align-items: center;
     gap: 4px;
     padding: 2px;
-    border: 1px solid var(--color-border, #E5E7EB);
+    border: 1px solid var(--hairline);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--bg-surface);
 }
 
 .width-btn,
@@ -748,15 +756,16 @@ const writingGoalDetails = computed(() => {
     border: none;
     border-radius: 999px;
     background: transparent;
-    color: var(--color-text-tertiary, #78909C);
+    color: var(--text-muted);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background-color var(--motion-fast) var(--ease-out-quart),
+                color var(--motion-fast) var(--ease-out-quart);
 }
 
 .width-btn:hover,
 .status-icon-btn:hover {
-    background: rgba(255, 235, 238, 0.92);
-    color: #C62828;
+    background: var(--ember-soft);
+    color: var(--ember);
 }
 
 .width-label {
@@ -765,7 +774,7 @@ const writingGoalDetails = computed(() => {
     font-size: 11px;
     font-weight: 700;
     text-align: center;
-    color: var(--color-text-secondary, #546E7A);
+    color: var(--text-secondary);
     white-space: nowrap;
 }
 
@@ -778,11 +787,11 @@ const writingGoalDetails = computed(() => {
 .render-time {
     font-family: 'SF Mono', 'Fira Code', monospace;
     font-size: 11px;
-    color: var(--color-text-quaternary, #B0B7C3);
+    color: var(--text-muted);
 }
 
 .save-status {
-    color: var(--color-text-secondary, #607D8B);
+    color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -792,19 +801,19 @@ const writingGoalDetails = computed(() => {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 0 0 4px var(--hairline);
 }
 
 .sync-dot.sync-syncing {
-    background: #F57C00;
+    background: var(--warning);
 }
 
 .sync-dot.sync-synced {
-    background: #2E7D32;
+    background: var(--success);
 }
 
 .sync-dot.sync-offline {
-    background: #90A4AE;
+    background: var(--text-muted);
 }
 
 /* 详细统计弹窗 */
@@ -813,10 +822,10 @@ const writingGoalDetails = computed(() => {
     bottom: 32px;
     left: 12px;
     width: 280px;
-    background: #FFFFFF;
-    border: 1px solid var(--color-border, #E5E7EB);
+    background: var(--bg-surface);
+    border: 1px solid var(--hairline);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--elev-2);
     padding: 16px;
     z-index: 100;
 }
@@ -832,21 +841,21 @@ const writingGoalDetails = computed(() => {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-text-primary, #1F2937);
+    color: var(--text-primary);
 }
 
 .detail-close {
     border: none;
     background: none;
     font-size: 18px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0;
     line-height: 1;
 }
 
 .detail-close:hover {
-    color: var(--color-text-primary, #1F2937);
+    color: var(--text-primary);
 }
 
 .detail-grid {
@@ -864,20 +873,20 @@ const writingGoalDetails = computed(() => {
 
 .detail-label {
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: var(--text-muted);
 }
 
 .detail-value {
     font-size: 12px;
     font-weight: 600;
-    color: var(--color-text-primary, #1F2937);
+    color: var(--text-primary);
     font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .goal-detail-section {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid var(--color-border, #E5E7EB);
+    border-top: 1px solid var(--hairline);
 }
 
 .goal-detail-header {
@@ -886,13 +895,13 @@ const writingGoalDetails = computed(() => {
     justify-content: space-between;
     margin-bottom: 8px;
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: var(--text-muted);
 }
 
 .goal-detail-link {
     border: none;
     background: none;
-    color: #C62828;
+    color: var(--ember);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
@@ -921,13 +930,13 @@ const writingGoalDetails = computed(() => {
 .goal-detail-percent {
     font-size: 12px;
     font-weight: 700;
-    color: #C62828;
+    color: var(--ember);
 }
 
 .readability-section {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid var(--color-border, #E5E7EB);
+    border-top: 1px solid var(--hairline);
 }
 
 .readability-header {
@@ -936,7 +945,7 @@ const writingGoalDetails = computed(() => {
     align-items: center;
     margin-bottom: 8px;
     font-size: 12px;
-    color: var(--color-text-tertiary, #9CA3AF);
+    color: var(--text-muted);
 }
 
 .readability-score {
@@ -955,7 +964,7 @@ const writingGoalDetails = computed(() => {
     align-items: flex-start;
     gap: 6px;
     font-size: 11px;
-    color: var(--color-text-secondary, #6B7280);
+    color: var(--text-secondary);
     line-height: 1.5;
 }
 
@@ -964,14 +973,21 @@ const writingGoalDetails = computed(() => {
     margin-top: 2px;
 }
 
+/* Warning glyph keeps its alert hue via the dark-aware --warning token
+   (the row text stays --text-secondary; only the icon is tinted). */
+.suggestion-icon--warning {
+    color: var(--warning);
+}
+
 .suggestion-ok {
-    color: #4CAF50;
+    color: var(--success);
 }
 
 /* 过渡动画 */
 .detail-fade-enter-active,
 .detail-fade-leave-active {
-    transition: all 0.2s ease;
+    transition: opacity var(--motion-base) var(--ease-out-quart),
+                transform var(--motion-base) var(--ease-out-quart);
 }
 
 .detail-fade-enter-from,
@@ -1040,23 +1056,10 @@ const writingGoalDetails = computed(() => {
     }
 }
 
-html.theme-dark .status-bar,
-html[data-theme="dark"] .status-bar {
-    background: var(--bg-surface-elevated);
-    border-top-color: var(--border);
-    color: var(--text-muted);
-}
-
-html.theme-dark .mode-tag,
-html.theme-dark .width-control,
-html.theme-dark .document-status-badge,
-html.theme-dark .detail-panel,
-html[data-theme="dark"] .mode-tag,
-html[data-theme="dark"] .width-control,
-html[data-theme="dark"] .document-status-badge,
-html[data-theme="dark"] .detail-panel {
-    background: var(--bg-elevated);
-    border-color: var(--border);
-}
+/* Dark overrides removed: .status-bar / .mode-tag / .width-control /
+   .document-status-badge / .detail-panel (and the new .goal-pill) now resolve
+   through dark-aware spine + ember tokens (--bg-rice-paper / --bg-surface /
+   --hairline / --text-muted / --ember*), so a separate dark block would only
+   risk drifting out of sync. */
 
 </style>

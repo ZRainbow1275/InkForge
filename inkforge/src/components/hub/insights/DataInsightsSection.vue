@@ -209,10 +209,10 @@ watch(() => props.articles.map(article => `${article.id}:${(article.tags ?? []).
   min-height: 0;
   padding: 14px 18px 12px 22px;
   border-radius: 18px 22px 18px 22px;
-  border: 1px solid rgba(207, 216, 220, 0.55);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 252, 253, 0.92) 100%);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 8px 24px rgba(38, 50, 56, 0.05);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  border: 1px solid var(--hairline);
+  background: var(--bg-surface);
+  box-shadow: var(--elev-1);
+  transition: transform var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -226,7 +226,7 @@ watch(() => props.articles.map(article => `${article.id}:${(article.tags ?? []).
   width: 3px;
   height: 22px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, #D32F2F 0%, #B71C1C 100%);
+  background: var(--ember);
   z-index: 1;
 }
 :deep(.insight-card)::after {
@@ -237,7 +237,7 @@ watch(() => props.articles.map(article => `${article.id}:${(article.tags ?? []).
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(211, 47, 47, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--ember-soft) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -248,7 +248,7 @@ watch(() => props.articles.map(article => `${article.id}:${(article.tags ?? []).
   top: -32px;
   right: auto;
   left: -32px;
-  background: radial-gradient(circle, rgba(21, 101, 192, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--ember-soft) 0%, transparent 70%);
 }
 .insights-row-three > :deep(.insight-card:nth-child(2)) {
   border-radius: 16px 28px 16px 28px;
@@ -260,55 +260,35 @@ watch(() => props.articles.map(article => `${article.id}:${(article.tags ?? []).
   border-radius: 22px 16px 32px 16px;
 }
 .insights-row-two > :deep(.insight-card:nth-child(2))::after {
-  background: radial-gradient(circle, rgba(245, 124, 0, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--ember-soft) 0%, transparent 70%);
 }
 :deep(.insight-card):hover {
-  transform: translateY(-2px);
-  border-color: rgba(211, 47, 47, 0.24);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 14px 36px rgba(38, 50, 56, 0.10);
+  transform: translateY(-1px);
+  border-color: var(--ember-border);
+  box-shadow: var(--elev-2);
 }
 :deep(.insight-card-head) { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-shrink: 0; }
 :deep(.insight-card-head.compact) { min-height: 38px; }
-:deep(.insight-card-head h3) { margin: 2px 0 0; color: #1A2730; font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+:deep(.insight-card-head h3) { margin: 2px 0 0; color: var(--text-primary); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
 :deep(.insight-card-head > span) {
   padding: 3px 9px;
   border-radius: 999px;
-  color: #B71C1C;
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.10), rgba(211, 47, 47, 0.04));
-  border: 1px solid rgba(211, 47, 47, 0.18);
+  color: var(--ember);
+  background: var(--ember-soft);
+  border: 1px solid var(--ember-border);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.3px;
 }
 :deep(.insight-eyebrow) {
   margin: 0;
-  color: #B71C1C;
+  color: var(--ember);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-html.theme-dark .data-insights-section :deep(.insight-card),
-html[data-theme="dark"] .data-insights-section :deep(.insight-card) {
-  background: linear-gradient(180deg, rgba(26, 34, 45, 0.96) 0%, rgba(19, 26, 35, 0.94) 100%);
-  border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.32);
-}
-html.theme-dark .data-insights-section :deep(.insight-card)::before,
-html[data-theme="dark"] .data-insights-section :deep(.insight-card)::before {
-  background: linear-gradient(180deg, #EF5350 0%, #B71C1C 100%);
-}
-html.theme-dark .data-insights-section :deep(.insight-card-head h3),
-html[data-theme="dark"] .data-insights-section :deep(.insight-card-head h3) { color: #ECEFF4; }
-html.theme-dark .data-insights-section :deep(.insight-card-head > span),
-html[data-theme="dark"] .data-insights-section :deep(.insight-card-head > span) {
-  color: #EF9A9A;
-  background: linear-gradient(135deg, rgba(239, 83, 80, 0.16), rgba(239, 83, 80, 0.06));
-  border-color: rgba(239, 83, 80, 0.32);
-}
-html.theme-dark .data-insights-section :deep(.insight-eyebrow),
-html[data-theme="dark"] .data-insights-section :deep(.insight-eyebrow) { color: #EF9A9A; }
 @media (max-width: 1200px) { .insights-row-one, .insights-row-three, .insights-row-two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 800px) { .insights-row-one, .insights-row-three, .insights-row-two { grid-template-columns: 1fr; } }
 </style>

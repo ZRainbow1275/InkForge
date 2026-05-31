@@ -102,16 +102,16 @@ function fontSizeFor(item: TagCloudItem): string {
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(120, 144, 156, 0.32) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .tag-cloud::-webkit-scrollbar { width: 6px; }
 .tag-cloud::-webkit-scrollbar-track { background: transparent; }
-.tag-cloud::-webkit-scrollbar-thumb { background: rgba(120, 144, 156, 0.28); border-radius: 999px; }
-.tag-cloud::-webkit-scrollbar-thumb:hover { background: rgba(211, 47, 47, 0.40); }
+.tag-cloud::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-round); }
+.tag-cloud::-webkit-scrollbar-thumb:hover { background: var(--ember-border); }
 .tag-cloud span {
   line-height: 1;
   font-weight: 700;
-  transition: transform 0.18s ease, opacity 0.18s ease;
+  transition: transform var(--motion-base) var(--ease-out-quart), opacity var(--motion-base) var(--ease-out-quart);
 }
 .tag-cloud span:hover { transform: scale(1.08); }
 .tag-cloud-empty {
@@ -135,16 +135,10 @@ function fontSizeFor(item: TagCloudItem): string {
   margin: 0;
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(207, 216, 220, 0.18);
-  color: #78909C;
+  background: var(--bg-rice-paper);
+  color: var(--text-muted);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.3px;
-}
-
-html.theme-dark .tag-empty-hint,
-html[data-theme="dark"] .tag-empty-hint {
-  background: rgba(255, 255, 255, 0.04);
-  color: #8590A0;
 }
 </style>

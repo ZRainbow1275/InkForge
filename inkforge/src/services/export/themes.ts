@@ -961,7 +961,7 @@ ${lifeRecipesExport.css}`,
 #nice p:first-of-type::first-letter { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-size: 3em; font-weight: 700; float: left; line-height: 0.85; margin: 0.05em 0.12em -0.05em 0; color: #4a3c5a; }
 #nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0.2em 0 1em; font-family: 'Source Han Serif SC', 'EB Garamond', Georgia, serif; }
 #nice h1::after { content: ''; display: block; width: 120px; height: 1px; background: #4a3c5a; margin: 0.5em auto 0; opacity: 0.4; }
-#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; letter-spacing: 0.03em; }
+#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-left: 0 !important; border-bottom: 2px double #4a3c5a; background: transparent !important; padding: 0 0 0.4em 0 !important; margin: 2em 0 1em 0; letter-spacing: 0.03em; }
 #nice h3 { color: #4a3c5a; font-weight: 600; font-size: 1.15em; font-style: italic; margin-top: 1.4em; }
 #nice strong { color: #4a3c5a; font-weight: 700; }
 #nice em { font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif; font-style: italic; color: #6b5a7a; }
@@ -978,7 +978,7 @@ ${elegantRecipesPreview.css}`,
 #nice { font-family: ${PERSONA_FONTS.academic.cjk}, ${PERSONA_FONTS.academic.latin}; background: #fafaf6; color: #2a2438; }
 #nice p { line-height: 1.95; margin-bottom: 1.2em; }
 #nice h1 { font-size: 2.2em; font-weight: 600; text-align: center; color: #2a2438; letter-spacing: 0.04em; margin: 0.2em 0 1em; }
-#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-bottom: 2px double #4a3c5a; padding-bottom: 0.4em; margin-top: 2em; letter-spacing: 0.03em; }
+#nice h2 { color: #4a3c5a; font-weight: 600; font-size: 1.4em; border-left: 0 !important; border-bottom: 2px double #4a3c5a; background: transparent !important; padding: 0 0 0.4em 0 !important; margin: 2em 0 1em 0; letter-spacing: 0.03em; }
 #nice h3 { color: #4a3c5a; font-weight: 600; font-size: 1.15em; font-style: italic; margin-top: 1.4em; }
 #nice strong { color: #4a3c5a; font-weight: 700; }
 #nice em { font-style: italic; color: #6b5a7a; }

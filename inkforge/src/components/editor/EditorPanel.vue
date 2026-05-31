@@ -868,7 +868,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
   position: relative;
   overflow: hidden;
 }
@@ -891,16 +891,16 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   background: var(--bg-surface, #FFFFFF);
   border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--elev-1);
   padding: 64px 72px;
   outline: none;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--motion-base) var(--ease-out-quart);
   align-self: flex-start;
   position: relative;
 }
 
 .editor-paper:focus-within {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-2);
 }
 
 .image-ingress-overlay {
@@ -911,22 +911,22 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #991b1b;
+  color: var(--ember);
   font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   pointer-events: none;
-  background: rgba(255, 247, 247, 0.82);
-  border: 2px dashed rgba(211, 47, 47, 0.44);
+  background: var(--bg-surface);
+  border: 2px dashed var(--ember-border);
   border-radius: 18px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1px var(--ember-soft);
   backdrop-filter: blur(6px);
 }
 
 .image-ingress-overlay.uploading {
-  color: #92400e;
-  background: rgba(255, 251, 235, 0.86);
-  border-color: rgba(217, 119, 6, 0.44);
+  color: var(--warning);
+  background: var(--bg-surface);
+  border-color: var(--warning);
 }
 
 .image-ingress-error {
@@ -939,12 +939,12 @@ onBeforeUnmount(() => {
   gap: 8px;
   max-width: min(420px, calc(100% - 36px));
   padding: 10px 12px;
-  color: #991b1b;
+  color: var(--error);
   font-size: 0.86rem;
-  background: rgba(254, 242, 242, 0.96);
-  border: 1px solid rgba(239, 68, 68, 0.24);
+  background: var(--error-light);
+  border: 1px solid var(--ember-border);
   border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(127, 29, 29, 0.14);
+  box-shadow: var(--elev-2);
 }
 
 /* ─── TipTap ProseMirror ─── */
@@ -962,14 +962,16 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: rgba(55, 71, 79, 0.42);
+  color: var(--text-muted);
   background: transparent;
   border: 0;
   border-radius: 6px;
   opacity: 0;
   cursor: grab;
   pointer-events: none;
-  transition: opacity 150ms ease, color 150ms ease, background 150ms ease;
+  transition: opacity var(--motion-base) var(--ease-out-quart),
+    color var(--motion-base) var(--ease-out-quart),
+    background var(--motion-base) var(--ease-out-quart);
 }
 
 .tiptap-content :deep(.block-drag-handle[data-visible="true"]) {
@@ -978,12 +980,12 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.block-drag-handle:hover) {
-  color: rgba(55, 71, 79, 0.82);
-  background: rgba(211, 47, 47, 0.07);
+  color: var(--text-secondary);
+  background: var(--ember-soft);
 }
 
 .tiptap-content :deep(.block-drag-handle:active) {
-  color: #D32F2F;
+  color: var(--ember);
   cursor: grabbing;
 }
 
@@ -994,9 +996,9 @@ onBeforeUnmount(() => {
 .tiptap-content :deep(.block-drag-insert-line) {
   height: 2px;
   margin: 6px 0;
-  background: #2563eb;
+  background: var(--ember);
   border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.16), 0 4px 12px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 0 0 1px var(--ember-soft), var(--glow-ember);
   pointer-events: none;
 }
 
@@ -1008,11 +1010,11 @@ onBeforeUnmount(() => {
   max-height: 220px;
   overflow: hidden;
   padding: 8px 12px;
-  color: #263238;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px dashed #B0BEC5;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px dashed var(--hairline);
   border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+  box-shadow: var(--elev-3);
   opacity: 0.78;
   pointer-events: none;
 }
@@ -1119,8 +1121,8 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.ProseMirror blockquote) {
-  border-left: 3px solid #B0BEC5;
-  background: #FAFAFA;
+  border-left: 3px solid var(--hairline);
+  background: var(--bg-rice-paper);
   padding: 12px 16px;
   margin: 16px 0;
   color: #607D8B;
@@ -1129,7 +1131,7 @@ onBeforeUnmount(() => {
 
 .tiptap-content :deep(.ProseMirror code) {
   font-family: 'JetBrains Mono', monospace;
-  background: #ECEFF1;
+  background: var(--bg-rice-paper);
   padding: 2px 5px;
   border-radius: 3px;
   font-size: 14px;
@@ -1170,7 +1172,7 @@ onBeforeUnmount(() => {
 .tiptap-content :deep(.ProseMirror hr) {
   border: none;
   height: 1px;
-  background: #ECEFF1;
+  background: var(--hairline);
   margin: 24px 0;
 }
 
@@ -1220,17 +1222,17 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: #90A4AE;
+  color: var(--text-muted);
 }
 
 .state-container.error {
-  color: #C62828;
+  color: var(--error);
 }
 
 /* ─── 滚动条 ─── */
 .editor-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(120, 144, 156, 0.32) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 .editor-scroll::-webkit-scrollbar {
@@ -1242,31 +1244,14 @@ onBeforeUnmount(() => {
 }
 
 .editor-scroll::-webkit-scrollbar-thumb {
-  background: rgba(120, 144, 156, 0.32);
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .editor-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(211, 47, 47, 0.42);
-  background-clip: padding-box;
-}
-
-:global(html.theme-dark) .editor-scroll,
-:global(html[data-theme="dark"]) .editor-scroll {
-  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
-}
-
-:global(html.theme-dark) .editor-scroll::-webkit-scrollbar-thumb,
-:global(html[data-theme="dark"]) .editor-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
-  background-clip: padding-box;
-}
-
-:global(html.theme-dark) .editor-scroll::-webkit-scrollbar-thumb:hover,
-:global(html[data-theme="dark"]) .editor-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(239, 83, 80, 0.42);
+  background: var(--ember-border);
   background-clip: padding-box;
 }
 
@@ -1282,7 +1267,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   min-width: 0;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 .source-pane {
@@ -1301,7 +1286,7 @@ onBeforeUnmount(() => {
 .source-pane :deep(.markdown-editor) {
   flex: 1;
   min-height: 0;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 /* ─── 动画 ─── */
@@ -1316,7 +1301,7 @@ onBeforeUnmount(() => {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(211, 47, 47, 0.34) transparent;
+  scrollbar-color: var(--ember-border) transparent;
 }
 
 .tiptap-content :deep(.ProseMirror .tableWrapper::-webkit-scrollbar) {
@@ -1324,7 +1309,7 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.ProseMirror .tableWrapper::-webkit-scrollbar-thumb) {
-  background: rgba(211, 47, 47, 0.34);
+  background: var(--ember-border);
   border-radius: 999px;
 }
 
@@ -1338,7 +1323,7 @@ onBeforeUnmount(() => {
   margin: 24px 0;
   overflow: hidden;
   border-radius: 4px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline);
 }
 
 .tiptap-content :deep(.ProseMirror .tableWrapper > table) {
@@ -1347,7 +1332,7 @@ onBeforeUnmount(() => {
 
 .tiptap-content :deep(.ProseMirror th),
 .tiptap-content :deep(.ProseMirror td) {
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline);
   padding: 8px 12px;
   text-align: left;
   vertical-align: top;
@@ -1355,22 +1340,22 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.ProseMirror th) {
-  background: #F5F5F5;
+  background: var(--bg-rice-paper);
   font-weight: 600;
   font-size: 0.95em;
-  color: #263238;
+  color: var(--text-primary);
 }
 
 .tiptap-content :deep(.ProseMirror td) {
-  background: #FFFFFF;
+  background: var(--bg-surface);
 }
 
 .tiptap-content :deep(.ProseMirror tr:nth-child(even) td) {
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 .tiptap-content :deep(.ProseMirror .selectedCell) {
-  background: rgba(211, 47, 47, 0.08);
+  background: var(--ember-soft);
 }
 
 .tiptap-content :deep(.ProseMirror .column-resize-handle) {
@@ -1379,7 +1364,7 @@ onBeforeUnmount(() => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #B0BEC5;
+  background: var(--text-muted);
   cursor: col-resize;
 }
 
@@ -1531,7 +1516,7 @@ onBeforeUnmount(() => {
 .tiptap-content :deep(.ProseMirror .ink-footnotes) {
   margin-top: 2em;
   padding-top: 1em;
-  border-top: 1px solid rgba(148, 163, 184, 0.36);
+  border-top: 1px solid var(--hairline);
   color: #475569;
 }
 
@@ -1555,15 +1540,15 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-content :deep(.ProseMirror .ink-academic-citation--unresolved) {
-  background: #fff7ed;
-  color: #b45309;
+  background: var(--warning-light);
+  color: var(--warning);
   border-bottom: 1px dashed currentColor;
 }
 
 .tiptap-content :deep(.ProseMirror .ink-bibliography) {
   margin-top: 2em;
   padding-top: 1em;
-  border-top: 1px solid rgba(59, 130, 246, 0.24);
+  border-top: 1px solid var(--hairline);
 }
 
 /* ─── 文字对齐 ─── */

@@ -43,6 +43,14 @@
     --surface-chrome-fallback-light: #F5F0E6;
     --surface-chrome-fallback-dark: #1A1D24;
 
+    /* ─── Scrim + Danger (dialog backdrop & destructive intent) ──────── */
+    /* --scrim: modal/palette backdrop dimming.
+       --danger / --danger-soft: destructive actions — semantically distinct
+       from --ember (brand live-accent); never reuse ember for "delete". */
+    --scrim: rgba(0, 0, 0, 0.4);
+    --danger: #C0392B;
+    --danger-soft: rgba(192, 57, 43, 0.10);
+
     /* ─── Type rhythm (vertical scale) ───────────────────────────────── */
     --type-step-1: 14px;
     --type-step-2: 22px;
@@ -65,6 +73,9 @@
     --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
     --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
     --hairline: var(--hairline-dark);
+    --scrim: rgba(0, 0, 0, 0.6);
+    --danger: #E5705F;
+    --danger-soft: rgba(229, 112, 95, 0.18);
 }
 
 /* OS-preference fallback — only when no explicit data-theme is set. */
@@ -74,6 +85,9 @@
         --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
         --elev-3: 0 16px 40px rgba(0, 0, 0, 0.6);
         --hairline: var(--hairline-dark);
+        --scrim: rgba(0, 0, 0, 0.6);
+        --danger: #E5705F;
+        --danger-soft: rgba(229, 112, 95, 0.18);
     }
 }
 

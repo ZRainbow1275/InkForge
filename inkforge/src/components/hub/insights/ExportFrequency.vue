@@ -52,8 +52,8 @@ const hasData = computed(() => props.items.some(item => item.count > 0))
 
 <style scoped>
 .export-list { display: grid; gap: 12px; margin-top: 14px; }
-.export-row { display: grid; grid-template-columns: 86px 1fr 34px; gap: 12px; align-items: center; color: #546E7A; font-size: 13px; }
-.export-meter { height: 10px; overflow: hidden; border-radius: 999px; background: #ECEFF1; }
+.export-row { display: grid; grid-template-columns: 86px 1fr 34px; gap: 12px; align-items: center; color: var(--text-secondary); font-size: 13px; }
+.export-meter { height: 10px; overflow: hidden; border-radius: 999px; background: var(--bg-rice-paper); }
 .export-meter span { display: block; height: 100%; border-radius: inherit; }
-.export-row strong { color: #263238; text-align: right; }
+.export-row strong { color: var(--text-primary); text-align: right; }
 </style>

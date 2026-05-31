@@ -1,129 +1,147 @@
 <script setup lang="ts">
-import { PenTool } from 'lucide-vue-next'
+import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 </script>
 
 <template>
   <div class="empty-state">
-    <div class="soviet-card">
-      <div class="icon-wrapper">
-        <PenTool
-          :size="48"
-          class="icon"
+    <div class="empty-compose">
+      <div class="empty-card">
+        <ForgeNibMark
+          :size="88"
+          :tier="256"
+          :reactive="false"
+          class="empty-mark"
         />
+        <h2 class="empty-title">
+          准备落墨
+        </h2>
+        <div
+          class="forge-line"
+          aria-hidden="true"
+        />
+        <p class="empty-instruction">
+          从左侧选择或新建一篇文章，开始你的创作。
+        </p>
+        <div class="empty-status">
+          <span
+            class="live-dot"
+            aria-hidden="true"
+          />
+          <span>等待选择文稿</span>
+        </div>
       </div>
-      
-      <h2 class="title">
-        准备写作
-      </h2>
-      <h3 class="subtitle">
-        写作就绪
-      </h3>
-      
-      <div class="divider" />
-      
-      <p class="instruction">
-        从左侧选择或新建一篇文章<br>
-        开始您的创作任务
-      </p>
-
-      <div class="status-badge">
-        <span>等待选择文稿</span>
+      <div
+        class="empty-colophon"
+        aria-hidden="true"
+      >
+        ◇ ◇ ◇
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* 静谧刊印 · 空状态中心件 — 让真实的 InkForge 标记在最空的屏幕上「自我锻造」。
+   全部走 token，因而天然获得暗色契约（旧版 #f5f5f5/#2c3e50/#c0392b 在暗色下
+   会刺眼发白）。垂直居中填满画布，下半部的空旷由 ◇◇◇ 落款收口。 */
 .empty-state {
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
-  background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
-  background-size: 20px 20px;
+  background: var(--bg-rice-paper);
+  padding: 24px;
 }
 
-.soviet-card {
-  width: min(400px, calc(100% - 32px));
-  box-sizing: border-box;
-  border: 2px solid #2c3e50;
-  padding: clamp(28px, 7vw, 40px) clamp(24px, 8vw, 60px);
-  background: #fff;
-  box-shadow: 8px 8px 0px rgba(44, 62, 80, 0.2);
+.empty-compose {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.empty-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  max-width: min(420px, calc(100% - 32px));
+  padding: clamp(28px, 7vw, 48px) clamp(24px, 8vw, 56px);
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xlarge);
+  box-shadow: var(--elev-2);
 }
 
-.icon-wrapper {
-  margin-bottom: 20px;
-  color: #c0392b; /* Soviet Red */
-  border: 2px solid #c0392b;
-  padding: 16px;
-  border-radius: 50%;
+.empty-mark {
+  margin-bottom: 18px;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #2c3e50;
+.empty-title {
   margin: 0;
-  letter-spacing: 2px;
+  font-family: var(--font-serif);
+  font-size: var(--type-step-2);
+  font-weight: var(--type-weight-emphasis);
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
 }
 
-.subtitle {
-  font-size: 12px;
-  font-weight: 700;
-  color: #7f8c8d;
-  margin: 8px 0 20px;
-  letter-spacing: 4px;
+/* Forge Line（品牌 §4.2）— 落墨一笔，挂载时画一次。token 驱动时长，
+   prefers-reduced-motion 下 --motion-slow→0ms 自动落到终态。 */
+.forge-line {
+  width: 72px;
+  height: 3px;
+  margin: 12px auto 20px;
+  background: var(--ember);
+  border-radius: 1.5px;
+  transform-origin: left center;
+  animation: forge-line var(--motion-slow) var(--ease-out-quart) both;
 }
 
-.divider {
-  width: 100%;
-  height: 2px;
-  background: #c0392b;
-  margin-bottom: 24px;
+@keyframes forge-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
-.instruction {
-  font-size: 16px;
-  color: #34495e;
+.empty-instruction {
+  margin: 0 0 22px;
+  font-size: var(--type-step-1);
   line-height: 1.6;
-  margin-bottom: 30px;
+  color: var(--text-secondary);
 }
 
-.status-badge {
-  background: #2c3e50;
-  color: #fff;
+.empty-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 5px 14px;
+  border-radius: var(--radius-round);
+  background: var(--ember-soft);
+  color: var(--ember);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: var(--type-weight-emphasis);
+  letter-spacing: 0.04em;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ember);
+}
+
+.empty-colophon {
+  color: var(--ember);
+  font-size: 16px;
+  letter-spacing: 0.5em;
+  opacity: 0.55;
+  user-select: none;
 }
 
 @media (max-width: 560px) {
   .empty-state {
     align-items: flex-start;
-    min-height: 520px;
-    height: auto;
-    padding: 36px 0;
-  }
-
-  .soviet-card {
-    margin: 0 auto;
-    box-shadow: 5px 5px 0 rgba(44, 62, 80, 0.16);
-  }
-
-  .title {
-    font-size: 26px;
-    letter-spacing: 0.08em;
-  }
-
-  .subtitle {
-    letter-spacing: 0.22em;
+    padding: 36px 16px;
   }
 }
 </style>

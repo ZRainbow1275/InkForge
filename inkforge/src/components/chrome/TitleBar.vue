@@ -15,7 +15,6 @@
  * Brand reference: docs/inkforge-brand-identity.md §§12-15.
  */
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Minus, Square, Copy, X } from 'lucide-vue-next'
 import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import { isTauriEnv } from '@/utils/platform'
 import {
@@ -138,6 +137,7 @@ onBeforeUnmount(() => {
       >
         <ForgeNibMark
           :size="14"
+          :tier="32"
           interactive
         />
       </span>
@@ -160,20 +160,11 @@ onBeforeUnmount(() => {
       >
         <ForgeNibMark
           :size="20"
+          :tier="32"
           interactive
         />
       </span>
       <span class="ink-titlebar__wordmark">InkForge</span>
-      <span
-        v-if="hasActiveDocument"
-        class="ink-titlebar__separator"
-        aria-hidden="true"
-      >·</span>
-      <span
-        v-if="hasActiveDocument"
-        class="ink-titlebar__title"
-        :title="trimmedDocTitle"
-      >{{ trimmedDocTitle }}</span>
     </div>
 
     <div
@@ -185,45 +176,84 @@ onBeforeUnmount(() => {
         class="ink-titlebar__btn"
         aria-label="最小化"
         title="最小化"
-        data-tauri-drag-region="false"
         @click="handleMinimize"
       >
-        <Minus
-          :size="14"
+        <svg
+          class="ink-titlebar__icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           stroke-width="1.6"
-        />
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
       </button>
       <button
         type="button"
         class="ink-titlebar__btn"
         :aria-label="maximized ? '还原' : '最大化'"
         :title="maximized ? '还原' : '最大化'"
-        data-tauri-drag-region="false"
         @click="handleToggleMaximize"
       >
-        <Copy
+        <svg
           v-if="maximized"
-          :size="14"
+          class="ink-titlebar__icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           stroke-width="1.6"
-        />
-        <Square
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="8" y="8" width="12" height="12" rx="1.5" />
+          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+        </svg>
+        <svg
           v-else
-          :size="13"
+          class="ink-titlebar__icon"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           stroke-width="1.6"
-        />
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+        </svg>
       </button>
       <button
         type="button"
         class="ink-titlebar__btn ink-titlebar__btn--close"
         aria-label="关闭"
         title="关闭"
-        data-tauri-drag-region="false"
         @click="handleClose"
       >
-        <X
-          :size="15"
+        <svg
+          class="ink-titlebar__icon"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           stroke-width="1.8"
-        />
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="6" y1="6" x2="18" y2="18" />
+          <line x1="6" y1="18" x2="18" y2="6" />
+        </svg>
       </button>
     </div>
   </header>
@@ -234,8 +264,10 @@ onBeforeUnmount(() => {
     --ink-titlebar-fg: var(--ink-text, #252933);
     --ink-titlebar-fg-muted: var(--ink-text-muted, #6E7580);
     --ink-titlebar-border: var(--ink-border, #DED7CA);
-    --ink-titlebar-accent: var(--ink-accent, #D95B3F);
-    --ink-titlebar-btn-hover-bg: rgba(217, 91, 63, 0.10);
+    /* Accent routed to the dark-aware --ember token (retires legacy #D95B3F /
+       #E8734F literals); hover wash uses --ember-soft so light/dark stay synced. */
+    --ink-titlebar-accent: var(--ember);
+    --ink-titlebar-btn-hover-bg: var(--ember-soft);
     /* Inkstone Glass: the chrome surface uses the @supports-gated translucent
        palette below. The fallback hex keeps the bar opaque on engines that
        cannot composite backdrop-filter (older WebKitGTK / SW rasterizer). */
@@ -270,10 +302,12 @@ onBeforeUnmount(() => {
     left: 0;
     right: 0;
     height: 1px;
+    /* color-mix keeps the gradient a faded --ember in BOTH themes, so the
+       hand-written dark override below is no longer needed. */
     background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(217, 91, 63, 0.25) 50%,
+        color-mix(in srgb, var(--ember) 25%, transparent) 50%,
         transparent 100%
     );
     pointer-events: none;
@@ -282,13 +316,17 @@ onBeforeUnmount(() => {
 /* Glass enhancement: any engine that supports backdrop-filter (or the
    -webkit- prefix) gets the translucent + blur surface; everyone else keeps
    the solid fallback declared above. Probing with blur(1px) per research. */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .ink-titlebar:not(.ink-titlebar--mac) {
-        background: var(--ink-titlebar-surface);
-        backdrop-filter: blur(20px) saturate(140%);
-        -webkit-backdrop-filter: blur(20px) saturate(140%);
-    }
-}
+/* NOTE: Inkstone Glass `backdrop-filter: blur(20px) saturate(140%)` removed
+   on Win/Linux chrome bar. WebView2's compositor culls flex-end children of
+   a backdrop-filter ancestor — the chrome controls (min / max / close) paint
+   transparent over the cream surface, hiding the buttons users need to
+   minimize the window. Why: the user-visible bug ("can't minimize") trumps
+   the visual treatment. The opaque cream/Vellum fallback already declared
+   above keeps the bar's Inkstone palette intact. How to apply: macOS keeps
+   its own native traffic-light chrome via `titleBarStyle: Overlay`, so the
+   blur there is provided by the system and we don't need CSS backdrop-filter
+   to begin with. Win/Linux now use the solid `--ink-titlebar-surface-fallback`
+   color throughout. */
 
 /* macOS: keep transparent so titleBarStyle:Overlay system chrome shows through.
    Drag region still spans the full bar; native traffic light renders above. */
@@ -373,13 +411,6 @@ onBeforeUnmount(() => {
     pointer-events: none;
 }
 
-.ink-titlebar__separator {
-    color: var(--ink-titlebar-accent);
-    opacity: 0.5;
-    font-style: normal;
-    pointer-events: none;
-}
-
 .ink-titlebar__title {
     overflow: hidden;
     white-space: nowrap;
@@ -396,20 +427,32 @@ onBeforeUnmount(() => {
     pointer-events: none;
 }
 
-/* Inkstone Glass doc title — slightly larger to anchor the brand strip. */
-.ink-titlebar__drag--pc .ink-titlebar__title {
-    font-size: 14px;
-    letter-spacing: 0.04em;
-}
-
+/* Win/Linux chrome controls cluster. Why: WebView2's compositor was culling
+   these flex-end children when the parent .ink-titlebar carried
+   backdrop-filter; lifting them to their own stacking context via
+   `isolation: isolate` + `transform: translateZ(0)` forces a dedicated
+   composited layer that the GPU paints reliably. `position: relative` keeps
+   the cluster inside the flex flow at the bar's right edge while still being
+   a positioned ancestor for the buttons. How to apply: any future
+   backdrop-filter restoration on the bar must keep this isolation in place. */
 .ink-titlebar__controls {
     flex: 0 0 auto;
     display: flex;
     align-items: stretch;
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .ink-titlebar__btn {
-    /* Restrained Premium controls: 50px wide, motion tokens for hover. */
+    /* Restrained Premium controls: 50px wide, motion tokens for hover.
+       Each button forces its own composited layer so WebView2 paints the
+       inline <svg> glyph instead of culling it. `isolation: isolate` +
+       `transform: translateZ(0)` + `will-change: transform` is the canonical
+       Chromium/WebView2 workaround for the flex-child-not-painting bug
+       under backdrop-filter ancestors. */
     width: 50px;
     height: var(--ink-titlebar-h, 36px);
     display: inline-flex;
@@ -421,11 +464,34 @@ onBeforeUnmount(() => {
     margin: 0;
     padding: 0;
     cursor: pointer;
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    transform: translateZ(0);
+    will-change: transform;
     transition: background-color var(--motion-fast, 120ms) var(--ease-out-quart, ease-out),
                 color var(--motion-fast, 120ms) var(--ease-out-quart, ease-out);
-    /* Tauri 1.x honors `data-tauri-drag-region="false"` per-button (set in
-       template). The Electron-only `-webkit-app-region: no-drag` is dead
-       code on Tauri WebView2/WKWebView and is intentionally not declared. */
+    /* Tauri 1.x core.js checks `e.target.hasAttribute('data-tauri-drag-region')`
+       — the attribute's PRESENCE triggers drag regardless of its value, so
+       writing `data-tauri-drag-region="false"` on buttons would still trap
+       mousedown and prevent the @click handler from firing. Buttons must NOT
+       carry the attribute at all. Only the parent `.ink-titlebar__drag` div
+       has it (and its child text spans use pointer-events:none so mousedown
+       on text still bubbles up to the drag region). */
+}
+
+/* Inline SVG glyphs inside controls must not capture mousedown — `e.target`
+   must be the button itself so the @click handler runs (and so the parent
+   button's lack of data-tauri-drag-region attribute means no spurious drag
+   fires). Why inline SVG instead of lucide-vue-next: WebView2's compositor
+   was culling lucide-rendered icons even when DOM said they had correct
+   bbox + stroke. Inline `<svg>` with explicit `stroke="currentColor"` and
+   stroke-linecap markup gives the GPU a concrete paint path to rasterize. */
+.ink-titlebar__btn svg,
+.ink-titlebar__icon {
+    pointer-events: none;
+    display: block;
+    flex-shrink: 0;
 }
 
 .ink-titlebar__btn:hover {
@@ -436,40 +502,34 @@ onBeforeUnmount(() => {
    spill past the chrome. Inset keeps the Kiln double-ring visible. */
 .ink-titlebar__btn:focus-visible {
     outline: none;
-    box-shadow: inset var(--focus-ring, 0 0 0 2px #D95B3F);
+    box-shadow: inset var(--focus-ring);
 }
 
 .ink-titlebar__btn--close:hover {
-    background: var(--ink-titlebar-accent);
-    color: #FFFFFF;
+    background: var(--ember);
+    color: var(--paper-warm);
 }
 
 .ink-titlebar__btn--close:focus-visible {
-    background: var(--ink-titlebar-accent);
-    color: #FFFFFF;
+    background: var(--ember);
+    color: var(--paper-warm);
     outline: none;
-    box-shadow: inset var(--focus-ring, 0 0 0 2px #D95B3F);
+    box-shadow: inset var(--focus-ring);
 }
 
 /* Dark mode contract: chrome flips when :root[data-theme="dark"] is set
    by the Settings store; also follow OS preference as a fallback. */
+/* Dark chrome contract: only the neutral spine (fg / border / surface) needs a
+   dark override now — the accent + hover wash route through --ember/--ember-soft
+   and the ::after gradient through color-mix(--ember), so all three are already
+   dark-aware and their previous hand-written overrides were deleted to keep
+   light/dark synced. */
 :global(:root[data-theme='dark']) .ink-titlebar {
     --ink-titlebar-fg: #E8E4DC;
     --ink-titlebar-fg-muted: #9B958D;
     --ink-titlebar-border: #3A3D44;
-    --ink-titlebar-accent: #E8734F;
-    --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
     --ink-titlebar-surface-fallback: var(--surface-chrome-fallback-dark, #1A1D24);
     --ink-titlebar-surface: var(--surface-chrome-dark, rgba(26, 29, 36, 0.84));
-}
-
-:global(:root[data-theme='dark']) .ink-titlebar::after {
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(232, 115, 79, 0.25) 50%,
-        transparent 100%
-    );
 }
 
 @media (prefers-color-scheme: dark) {
@@ -478,20 +538,8 @@ onBeforeUnmount(() => {
         --ink-titlebar-fg: #E8E4DC;
         --ink-titlebar-fg-muted: #9B958D;
         --ink-titlebar-border: #3A3D44;
-        --ink-titlebar-accent: #E8734F;
-        --ink-titlebar-btn-hover-bg: rgba(232, 115, 79, 0.16);
         --ink-titlebar-surface-fallback: var(--surface-chrome-fallback-dark, #1A1D24);
         --ink-titlebar-surface: var(--surface-chrome-dark, rgba(26, 29, 36, 0.84));
-    }
-
-    :global(:root:not([data-theme])) .ink-titlebar::after,
-    :global(:root[data-theme='system']) .ink-titlebar::after {
-        background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(232, 115, 79, 0.25) 50%,
-            transparent 100%
-        );
     }
 }
 </style>

@@ -5897,17 +5897,28 @@ onUnmounted(() => {
             应用信息与致谢
           </p>
 
-          <!-- Logo Card -->
+          <!-- Logo Card — full 印×笔 lockup composition per §9 -->
           <div class="sv-about-hero">
-            <div
-              class="sv-about-logo"
-              role="img"
-              aria-label="InkForge"
-            >
-              <ForgeNibMark
-                :size="48"
-                interactive
-              />
+            <div class="ink-logo-lockup ink-logo-lockup--hero">
+              <div
+                class="ink-logo-lockup__mark"
+                role="img"
+                aria-label="InkForge 墨铸"
+              >
+                <ForgeNibMark
+                  :size="160"
+                  :tier="1024"
+                  interactive
+                />
+              </div>
+              <div class="ink-logo-lockup__wordmark">
+                <span class="ink-logo-lockup__name">InkForge</span>
+                <span class="ink-logo-lockup__dot">·</span>
+                <span class="ink-logo-lockup__cn">墨铸</span>
+              </div>
+              <div class="ink-logo-lockup__tagline">
+                成为作者吧
+              </div>
             </div>
             <div class="sv-about-hero-info">
               <h3 class="sv-about-name">
@@ -8175,7 +8186,7 @@ onUnmounted(() => {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #D32F2F 0%, #FF8A65 100%);
+  background: var(--accent-primary);
 }
 
 .sv-meter__meta {
@@ -8204,7 +8215,7 @@ onUnmounted(() => {
   padding: 10px 12px;
   border: 1px solid var(--hairline-light);
   border-radius: 10px;
-  background: #FFFFFF;
+  background: var(--bg-surface, #FFFFFF);
   font-size: 13px;
   color: var(--text-secondary, #607D8B);
 }
@@ -8217,7 +8228,7 @@ onUnmounted(() => {
   padding: 12px 14px;
   border: 1px solid var(--hairline-light);
   border-radius: 12px;
-  background: #FFFFFF;
+  background: var(--bg-surface, #FFFFFF);
 }
 
 .sv-history-row__main {
@@ -8315,7 +8326,7 @@ details.sv-history-row summary::-webkit-details-marker {
 .sv-shortcut-card {
   border: 1px solid var(--hairline-light);
   border-radius: 14px;
-  background: #FFFFFF;
+  background: var(--bg-surface, #FFFFFF);
   overflow: hidden;
 }
 
@@ -8561,14 +8572,67 @@ details.sv-history-row summary::-webkit-details-marker {
   margin-bottom: 20px;
 }
 
-.sv-about-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+/* 印×笔 lockup composition — host-side wordmark per §9.
+   Mark is iconography only; Latin / 简体 wordmark + tagline composed here
+   using the app font stack so the SVG stays 0-font-dependency. */
+.ink-logo-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ink-logo-lockup__mark {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.ink-logo-lockup__wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  font-family: var(--font-serif, 'EB Garamond', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif);
+  font-size: 22px;
+  font-weight: var(--type-weight-emphasis, 600);
+  letter-spacing: 0.06em;
+  color: var(--ink-text, #252933);
+}
+
+.ink-logo-lockup__name {
+  font-family: 'EB Garamond', 'Crimson Pro', Georgia, serif;
+  font-weight: 600;
+}
+
+.ink-logo-lockup__dot {
+  color: var(--ink-accent, #D95B3F);
+  opacity: 0.78;
+  font-weight: 400;
+}
+
+.ink-logo-lockup__cn {
+  font-family: 'Source Han Serif SC', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.ink-logo-lockup__tagline {
+  font-family: 'Source Han Serif SC', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  color: var(--ink-text-muted, #6E7580);
+}
+
+:global(:root[data-theme='dark']) .ink-logo-lockup__wordmark {
+  color: #E8E4DC;
+}
+:global(:root[data-theme='dark']) .ink-logo-lockup__dot {
+  color: #E8734F;
+}
+:global(:root[data-theme='dark']) .ink-logo-lockup__tagline {
+  color: #9B958D;
 }
 
 .sv-about-hero-info {
@@ -8587,7 +8651,7 @@ details.sv-history-row summary::-webkit-details-marker {
 .sv-about-version {
   display: inline-block;
   padding: 2px 10px;
-  background: #F5F5F5;
+  background: var(--bg-rice-paper, #F5F5F5);
   border-radius: 20px;
   font-family: monospace;
   font-size: 13px;
@@ -8610,13 +8674,15 @@ details.sv-history-row summary::-webkit-details-marker {
 
 .sv-tech-badge {
   padding: 6px 14px;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper, #FAFBFC);
   border: 1px solid var(--hairline-light);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary, #607D8B);
-  transition: all 0.15s;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    background-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .sv-tech-badge:hover {
@@ -8655,7 +8721,7 @@ details.sv-history-row summary::-webkit-details-marker {
   align-items: baseline;
   gap: 10px;
   padding: 10px 14px;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper, #FAFBFC);
   border: 1px solid var(--hairline-light);
   border-radius: 6px;
 }
@@ -8663,7 +8729,7 @@ details.sv-history-row summary::-webkit-details-marker {
 .sv-credit-name {
   font-size: 13px;
   font-weight: 600;
-  color: #1565C0;
+  color: var(--text-primary, #1565C0);
 }
 
 .sv-credit-desc {

@@ -93,11 +93,12 @@ function handleBackdropClick(e: MouseEvent) {
         <!-- 搜索 -->
         <div class="search-bar">
           <svg
+            class="search-svg-icon"
             width="16"
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#9CA3AF"
+            stroke="currentColor"
             stroke-width="2"
           >
             <circle
@@ -203,6 +204,10 @@ function handleBackdropClick(e: MouseEvent) {
                     {{ selectedTemplate.description }}
                   </div>
                 </div>
+                <span
+                  class="forge-line preview-header-line"
+                  aria-hidden="true"
+                />
               </div>
               <pre class="preview-body">{{ selectedTemplate.body }}</pre>
             </template>
@@ -215,7 +220,7 @@ function handleBackdropClick(e: MouseEvent) {
                 height="48"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#D1D5DB"
+                stroke="currentColor"
                 stroke-width="1.5"
               >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -264,7 +269,7 @@ function handleBackdropClick(e: MouseEvent) {
 .template-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--scrim);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -276,9 +281,9 @@ function handleBackdropClick(e: MouseEvent) {
     width: 90vw;
     max-width: 860px;
     max-height: 80vh;
-    background: #FFFFFF;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    background: var(--bg-surface);
+    border-radius: var(--radius-large);
+    box-shadow: var(--elev-3);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -289,28 +294,33 @@ function handleBackdropClick(e: MouseEvent) {
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid var(--hairline);
 }
 
 .modal-header h3 {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
-    color: #1F2937;
+    color: var(--text-primary);
 }
 
 .close-btn {
     border: none;
     background: none;
     font-size: 22px;
-    color: #9CA3AF;
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0;
     line-height: 1;
 }
 
 .close-btn:hover {
-    color: #1F2937;
+    color: var(--text-primary);
+}
+
+.close-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
 .search-bar {
@@ -318,7 +328,12 @@ function handleBackdropClick(e: MouseEvent) {
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.search-svg-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .search-input {
@@ -326,12 +341,12 @@ function handleBackdropClick(e: MouseEvent) {
     border: none;
     outline: none;
     font-size: 14px;
-    color: #1F2937;
+    color: var(--text-primary);
     background: transparent;
 }
 
 .search-input::placeholder {
-    color: #9CA3AF;
+    color: var(--text-muted);
 }
 
 .modal-body {
@@ -345,7 +360,7 @@ function handleBackdropClick(e: MouseEvent) {
     flex: 1;
     overflow-y: auto;
     padding: 16px 20px;
-    border-right: 1px solid #E5E7EB;
+    border-right: 1px solid var(--hairline);
 }
 
 .category-group {
@@ -362,7 +377,7 @@ function handleBackdropClick(e: MouseEvent) {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #9CA3AF;
+    color: var(--text-muted);
 }
 
 .template-grid {
@@ -376,20 +391,23 @@ function handleBackdropClick(e: MouseEvent) {
     flex-direction: column;
     gap: 4px;
     padding: 12px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid var(--hairline);
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: border-color var(--motion-fast) var(--ease-out-quart),
+        background-color var(--motion-fast) var(--ease-out-quart),
+        box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .template-card:hover {
-    border-color: #D1D5DB;
-    background: #F9FAFB;
+    border-color: var(--text-muted);
+    background: var(--bg-rice-paper);
 }
 
 .template-card.selected {
-    border-color: #D32F2F;
-    background: rgba(211, 47, 47, 0.04);
+    border-color: var(--ember);
+    background: var(--ember-soft);
+    box-shadow: var(--elev-1);
 }
 
 .template-icon {
@@ -398,19 +416,19 @@ function handleBackdropClick(e: MouseEvent) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #D32F2F;
+    color: var(--ember);
     flex-shrink: 0;
 }
 
 .template-name {
     font-size: 13px;
     font-weight: 600;
-    color: #1F2937;
+    color: var(--text-primary);
 }
 
 .template-desc {
     font-size: 11px;
-    color: #9CA3AF;
+    color: var(--text-muted);
     line-height: 1.4;
 }
 
@@ -423,11 +441,18 @@ function handleBackdropClick(e: MouseEvent) {
 }
 
 .preview-header {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 16px 20px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.preview-header-line {
+    position: absolute;
+    left: 20px;
+    bottom: -1.5px;
 }
 
 .preview-icon {
@@ -436,19 +461,19 @@ function handleBackdropClick(e: MouseEvent) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #D32F2F;
+    color: var(--ember);
     flex-shrink: 0;
 }
 
 .preview-name {
     font-size: 14px;
     font-weight: 600;
-    color: #1F2937;
+    color: var(--text-primary);
 }
 
 .preview-desc {
     font-size: 12px;
-    color: #6B7280;
+    color: var(--text-secondary);
     margin-top: 2px;
 }
 
@@ -459,11 +484,11 @@ function handleBackdropClick(e: MouseEvent) {
     margin: 0;
     font-size: 12px;
     line-height: 1.6;
-    color: #374151;
+    color: var(--text-secondary);
     white-space: pre-wrap;
     word-wrap: break-word;
     font-family: 'SF Mono', 'Fira Code', monospace;
-    background: #FAFBFC;
+    background: var(--paper-warm);
 }
 
 .preview-empty {
@@ -473,19 +498,19 @@ function handleBackdropClick(e: MouseEvent) {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    color: #D1D5DB;
+    color: var(--text-muted);
 }
 
 .preview-empty p {
     margin: 0;
     font-size: 13px;
-    color: #9CA3AF;
+    color: var(--text-muted);
 }
 
 .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: #9CA3AF;
+    color: var(--text-muted);
     font-size: 13px;
 }
 
@@ -494,7 +519,7 @@ function handleBackdropClick(e: MouseEvent) {
     justify-content: flex-end;
     gap: 8px;
     padding: 12px 20px;
-    border-top: 1px solid #E5E7EB;
+    border-top: 1px solid var(--hairline);
 }
 
 .btn {
@@ -503,34 +528,41 @@ function handleBackdropClick(e: MouseEvent) {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color var(--motion-fast) var(--ease-out-quart),
+        border-color var(--motion-fast) var(--ease-out-quart),
+        color var(--motion-fast) var(--ease-out-quart),
+        transform var(--motion-fast) var(--ease-out-quart),
+        box-shadow var(--motion-fast) var(--ease-out-quart);
     border: 1px solid;
 }
 
 .btn-secondary {
-    background: #FFFFFF;
-    border-color: #D1D5DB;
-    color: #374151;
+    background: var(--bg-surface);
+    border-color: var(--hairline);
+    color: var(--text-secondary);
 }
 
 .btn-secondary:hover {
-    background: #F9FAFB;
+    background: var(--bg-rice-paper);
+    color: var(--text-primary);
 }
 
 .btn-primary {
-    background: #D32F2F;
-    border-color: #D32F2F;
+    background: var(--ember);
+    border-color: var(--ember);
     color: #FFFFFF;
+    box-shadow: var(--elev-1);
 }
 
-.btn-primary:hover {
-    background: #B71C1C;
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--glow-ember);
 }
 
 .btn-primary:disabled {
-    background: #E5E7EB;
-    border-color: #E5E7EB;
-    color: #9CA3AF;
+    background: var(--bg-rice-paper);
+    border-color: var(--hairline);
+    color: var(--text-muted);
     cursor: not-allowed;
 }
 </style>

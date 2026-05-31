@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Code quality bar — verifier checks against this"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Source of truth for §1/§2.4/§4.2 acceptance — verify Tempera primary + 不对称 + 东西桥接 satisfied; verify §9/§10 rewrites are internally consistent"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/premium-writing-tool-brand-marks.md", "reason": "Verify 5 Aha patterns active and 3 anti-patterns absent in shipped mark"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/modern-chinese-seal-design.md", "reason": "Verify 3 traps dodged (vermilion stamp / 水墨 splatter / KaiTi default) and 5 modernization tactics expressed"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/aha-trigger-visual-identity.md", "reason": "Verify cultural-blend + single-gesture + asymmetric-tension + material-tactile + living-state mechanisms all active in shipped mark"}

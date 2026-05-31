@@ -197,7 +197,11 @@ export function clampContentWidth(html: string, maxWidth: number = DEFAULT_MAX_W
 // Dark-mode metadata
 // ════════════════════════════════════════════════════════════════════
 
-const DARKMODE_TARGETS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'table', 'th', 'td']
+// Block-level elements + inline emphasis (`strong`, `em`) and `a`.
+// Inline tags carry the preset's primary color on body emphasis; without
+// dark-mode metadata, e.g. elegant's #4a3c5a on #1F1F1F drops below AA 4.5
+// contrast in WeChat 暗黑模式 (fidelity v2 typography review MEDIUM finding).
+const DARKMODE_TARGETS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'table', 'th', 'td', 'strong', 'em', 'a']
 
 function readStyleProp(style: string, prop: string): string | undefined {
   const re = new RegExp(`(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`, 'i')

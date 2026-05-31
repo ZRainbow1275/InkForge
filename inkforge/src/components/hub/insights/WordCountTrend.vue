@@ -57,11 +57,13 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
           >
             <stop
               offset="0%"
-              stop-color="rgba(211, 47, 47, 0.10)"
+              stop-color="var(--ember)"
+              stop-opacity="0.10"
             />
             <stop
               offset="100%"
-              stop-color="rgba(211, 47, 47, 0)"
+              stop-color="var(--ember)"
+              stop-opacity="0"
             />
           </linearGradient>
         </defs>
@@ -72,7 +74,8 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
         <path
           d="M0,90 C30,82 50,68 80,60 S130,42 160,52 S210,78 240,66 S275,40 280,34"
           fill="none"
-          stroke="rgba(211, 47, 47, 0.32)"
+          stroke="var(--ember)"
+          stroke-opacity="0.32"
           stroke-width="1.4"
           stroke-dasharray="5 4"
           stroke-linecap="round"
@@ -103,7 +106,7 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
   flex: 1;
   min-width: 6px;
   border-radius: 999px 999px 5px 5px;
-  background: linear-gradient(180deg, #D32F2F, #FFB4A8);
+  background: linear-gradient(180deg, var(--ember), color-mix(in srgb, var(--ember) 40%, transparent));
 }
 
 .trend-bars--placeholder {
@@ -129,20 +132,10 @@ const hasData = computed(() => totalWords.value >= 100 || activeDays.value >= 3)
   justify-content: center;
   gap: 8px;
   margin: 0;
-  color: #90A4AE;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.3px;
   pointer-events: none;
-}
-
-html.theme-dark .trend-curve path[fill*="url"],
-html[data-theme="dark"] .trend-curve path[fill*="url"] {
-  opacity: 0.7;
-}
-
-html.theme-dark .trend-empty-hint,
-html[data-theme="dark"] .trend-empty-hint {
-  color: #8590A0;
 }
 </style>

@@ -9,7 +9,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
-  ArrowRight,
+  ArrowUpRight,
   FileText,
   FolderPlus,
   Layers,
@@ -470,13 +470,16 @@ const recentArticlesForCard = computed(() => {
 
 /** 分类展示（最多3个，带颜色方案） */
 const displayCategories = computed(() => {
+  // 静谧刊印：从糖果色收敛为「染纸文件标签」——保留各分类的微弱色相（~8% alpha
+  // 浮在纸上），文字统一走墨色 token，hover 时浮现一道铸红余烬边。读起来像一摞
+  // 安静的卷宗，而非一排糖豆。
   const colorSchemes = [
-    { bg: '#E3F2FD', color: '#1565C0', hoverBorder: '#1565C0' },
-    { bg: '#FFF3E0', color: '#F57C00', hoverBorder: '#F57C00' },
-    { bg: '#E8F5E9', color: '#2E7D32', hoverBorder: '#2E7D32' },
-    { bg: '#F3E5F5', color: '#7B1FA2', hoverBorder: '#7B1FA2' },
-    { bg: '#FFEBEE', color: '#D32F2F', hoverBorder: '#D32F2F' },
-    { bg: '#E0F7FA', color: '#00695C', hoverBorder: '#00695C' },
+    { bg: 'rgba(21, 101, 192, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
+    { bg: 'rgba(245, 124, 0, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
+    { bg: 'rgba(46, 125, 50, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
+    { bg: 'rgba(123, 31, 162, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
+    { bg: 'rgba(201, 54, 44, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
+    { bg: 'rgba(0, 105, 92, 0.08)', color: 'var(--text-primary)', hoverBorder: 'var(--ember-border)' },
   ]
   return categoryStore.categories.slice(0, 3).map((cat, i) => ({
     ...cat,
@@ -996,6 +999,7 @@ onMounted(async () => {
         >
           <ForgeNibMark
             :size="36"
+            :tier="256"
             interactive
           />
         </div>
@@ -1178,7 +1182,7 @@ onMounted(async () => {
                   </span>
                   <strong>{{ continueWritingArticle?.title || '从空白开始新稿' }}</strong>
                 </span>
-                <ArrowRight
+                <ArrowUpRight
                   :size="14"
                   :stroke-width="2.4"
                 />
@@ -1472,30 +1476,20 @@ onMounted(async () => {
               @click.stop="showAddCategoryModal = true"
             >
               <svg
-                width="24"
-                height="24"
+                class="categories-empty-seal"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="1.5"
-                stroke-linecap="round"
                 stroke-linejoin="round"
-                style="color: #B0BEC5;"
+                aria-hidden="true"
               >
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                <line
-                  x1="12"
-                  y1="11"
-                  x2="12"
-                  y2="17"
-                /><line
-                  x1="9"
-                  y1="14"
-                  x2="15"
-                  y2="14"
-                />
+                <path d="M12 3 L21 12 L12 21 L3 12 Z" />
               </svg>
-              <span>点击创建第一个分类</span>
+              <span class="categories-empty-copy">为文字归档 — 先建一个分类</span>
+              <span class="categories-empty-cta">+ 新建分类</span>
             </div>
           </div>
         </div>
@@ -1564,12 +1558,16 @@ onMounted(async () => {
                 </div>
               </div>
             </template>
-            <p
+            <div
               v-else
               class="recent-empty"
             >
-              暂无文章
-            </p>
+              <div
+                class="recent-empty-rules"
+                aria-hidden="true"
+              />
+              这一页还空着，<br>你的第一篇会落在这里。
+            </div>
           </button>
           <!-- 最近编辑文章列表 -->
           <div
@@ -2303,7 +2301,7 @@ onMounted(async () => {
   scroll-snap-stop: always;
   height: 100vh;
   min-height: 100vh;
-  padding: 24px 88px 24px 32px; /* 右侧留出 SectionDots 空间 */
+  padding: 24px 88px 24px var(--space-large); /* 右侧留出 SectionDots 空间；左侧对齐 8px 栅格 */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -2389,7 +2387,7 @@ onMounted(async () => {
   align-items: center;
   max-width: calc(100vw - 96px);
   width: 100%;
-  margin: 0 auto 18px;
+  margin: 0 auto var(--space-medium);
   padding: 0;
   flex-shrink: 0;
 }
@@ -2418,7 +2416,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.15);
+  box-shadow: var(--elev-1);
   flex-shrink: 0;
 }
 
@@ -2438,7 +2436,7 @@ onMounted(async () => {
   color: #90A4AE;
   background: #F5F5F5;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   margin-left: 8px;
   vertical-align: middle;
 }
@@ -2466,7 +2464,7 @@ onMounted(async () => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--hairline-light);
-  border-radius: 20px;
+  border-radius: var(--radius-round);
   font-size: 12px;
   font-weight: 500;
   color: #607D8B;
@@ -2501,7 +2499,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -2526,23 +2524,23 @@ onMounted(async () => {
   height: 40px;
   padding: 0;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   background: transparent;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--motion-fast) var(--ease-out-quart), box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .account-avatar-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.12);
+  box-shadow: var(--elev-2);
 }
 
 .avatar {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   border: 2px solid #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--elev-1);
 }
 
 .avatar-fallback {
@@ -2566,7 +2564,7 @@ onMounted(async () => {
   min-width: 240px;
   background: #FFFFFF;
   border: 1px solid var(--hairline-light);
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   cursor: text;
   transition: border-color var(--motion-fast) var(--ease-out-quart),
               background-color var(--motion-fast) var(--ease-out-quart),
@@ -2592,7 +2590,7 @@ onMounted(async () => {
 .header-search-icon {
   flex-shrink: 0;
   color: #90A4AE;
-  transition: color 0.15s ease;
+  transition: color var(--motion-fast) var(--ease-out-quart);
 }
 
 .header-search-bar:hover .header-search-icon,
@@ -2644,7 +2642,7 @@ onMounted(async () => {
   background: rgba(96, 125, 139, 0.14);
   color: #607D8B;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart), color var(--motion-fast) var(--ease-out-quart);
 }
 
 .header-search-clear:hover {
@@ -2661,7 +2659,7 @@ onMounted(async () => {
   color: #90A4AE;
   background: #F5F5F5;
   border: 1px solid #E0E0E0;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   line-height: 1.2;
   flex-shrink: 0;
 }
@@ -2682,9 +2680,9 @@ onMounted(async () => {
   min-width: 228px;
   padding: 10px;
   border: 1px solid rgba(211, 47, 47, 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-xlarge);
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--elev-3);
   backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
@@ -2698,17 +2696,17 @@ onMounted(async () => {
   gap: 12px;
   padding: 10px 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-large);
   background: transparent;
   color: #263238;
   cursor: pointer;
   text-align: left;
-  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  transition: background var(--motion-base) var(--ease-out-quart), color var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
 }
 
 .quick-action-item:hover:not(:disabled) {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
   transform: translateY(-1px);
 }
 
@@ -2741,7 +2739,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1.4fr 0.7fr 1fr 1fr;
   grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
+  gap: var(--space-medium);
   flex: 1;
   min-height: 0;
   max-width: calc(100vw - 96px);
@@ -2751,12 +2749,10 @@ onMounted(async () => {
 }
 
 .bento-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--hairline-light);
-  border-radius: 14px;
-  padding: 18px 20px;
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-rice-paper));
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xlarge);
+  padding: var(--space-medium) 20px;
   box-shadow: var(--elev-1);
   transition: box-shadow var(--motion-fast) var(--ease-out-quart),
               transform var(--motion-fast) var(--ease-out-quart),
@@ -2782,7 +2778,7 @@ onMounted(async () => {
 .bento-card:not(.card-hero):not(.card-inspiration):not(.card-new):hover {
   transform: translateY(-1px);
   box-shadow: var(--elev-2);
-  border-color: var(--hairline-light);
+  border-color: var(--ember-border);
 }
 
 .bento-card:nth-child(1) { animation-delay: 0.05s; }
@@ -2799,7 +2795,7 @@ onMounted(async () => {
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-  gap: 20px;
+  gap: var(--space-medium);
   align-items: stretch;
   flex: 1;
   min-height: 0;
@@ -2808,10 +2804,10 @@ onMounted(async () => {
 .secondary-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-medium);
   min-height: 0;
   overflow: hidden;
-  padding: 18px 20px;
+  padding: var(--space-medium) 20px;
 }
 
 .secondary-card-head {
@@ -2823,8 +2819,8 @@ onMounted(async () => {
 
 .secondary-kicker {
   margin: 0 0 6px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.42px;
   text-transform: uppercase;
   color: #90A4AE;
@@ -2841,7 +2837,7 @@ onMounted(async () => {
 .secondary-badge {
   flex-shrink: 0;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   border: 1px solid #FAD4D8;
   background: #FFF5F5;
   color: #B71C1C;
@@ -2867,7 +2863,7 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: #FAFBFC;
   border: 1px solid var(--hairline-light);
   color: #607D8B;
@@ -2892,7 +2888,7 @@ onMounted(async () => {
   gap: 12px;
   width: 100%;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-xlarge);
   border: 1px solid var(--hairline-light);
   background: #FFFFFF;
   text-align: left;
@@ -2919,7 +2915,7 @@ onMounted(async () => {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   background: #FFF5F5;
   color: #D32F2F;
   border: 1px solid #FAD4D8;
@@ -2934,8 +2930,8 @@ onMounted(async () => {
 }
 
 .template-market-topline {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.4px;
   text-transform: uppercase;
   color: #B0BEC5;
@@ -2968,12 +2964,12 @@ onMounted(async () => {
   gap: 12px;
   padding: 14px 16px;
   border: 1px solid var(--hairline-light);
-  border-radius: 14px;
+  border-radius: var(--radius-xlarge);
   background: #FFFFFF;
   color: #263238;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart), background var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
   flex: 1 1 0;
   min-height: 60px;
   max-height: 96px;
@@ -3012,7 +3008,7 @@ onMounted(async () => {
 
 .workflow-progress-card {
   padding: 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-xlarge);
   background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F8 100%);
   border: 1px solid #FAD4D8;
 }
@@ -3026,7 +3022,7 @@ onMounted(async () => {
 
 .workflow-progress-kicker {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.36px;
   text-transform: uppercase;
   color: #90A4AE;
@@ -3044,7 +3040,7 @@ onMounted(async () => {
   width: 100%;
   height: 10px;
   margin-top: 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(211, 47, 47, 0.08);
   overflow: hidden;
 }
@@ -3055,7 +3051,7 @@ onMounted(async () => {
   min-width: 10px;
   border-radius: inherit;
   background: linear-gradient(90deg, #D32F2F 0%, #F0625D 100%);
-  transition: width 0.18s ease;
+  transition: width var(--motion-base) var(--ease-out-quart);
 }
 
 .workflow-progress-copy {
@@ -3084,7 +3080,7 @@ onMounted(async () => {
 
 .productivity-signal {
   padding: 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-xlarge);
   border: 1px solid var(--hairline-light);
   background: #FAFBFC;
 }
@@ -3128,12 +3124,12 @@ onMounted(async () => {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid rgba(207, 216, 220, 0.82);
-  border-radius: 12px;
+  border-radius: var(--radius-large);
   background: rgba(255, 255, 255, 0.82);
   color: #263238;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+  transition: border-color var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart), background var(--motion-base) var(--ease-out-quart);
 }
 
 .productivity-draft-item:hover {
@@ -3188,9 +3184,10 @@ onMounted(async () => {
 .card-hero {
   grid-column: span 2;
   grid-row: span 2;
-  background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
-  border: none;
-  color: #FFFFFF;
+  background: linear-gradient(168deg, var(--bg-surface) 0%, var(--paper-warm) 100%);
+  border: 1px solid var(--hairline);
+  color: var(--text-primary);
+  box-shadow: var(--elev-2);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -3201,11 +3198,11 @@ onMounted(async () => {
 
 .hero-decor {
   position: absolute;
-  top: -60%;
-  right: -25%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+  top: -55%;
+  right: -22%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, var(--ember-soft) 0%, transparent 70%);
   pointer-events: none;
   border-radius: 50%;
 }
@@ -3237,21 +3234,25 @@ onMounted(async () => {
   min-width: 220px;
   max-width: 300px;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid transparent;
+  border-radius: var(--radius-round);
+  background: var(--ember);
   color: #FFFFFF;
   cursor: pointer;
   text-align: left;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
 }
 
 .hero-continue-btn:hover {
-  border-color: rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.26);
   transform: translateY(-1px);
+  box-shadow: var(--glow-ember);
+}
+
+/* nib-arrow ↗ 发送手势：hover 时朝右上轻推 */
+.hero-continue-btn:hover svg:last-child {
+  transform: translate(2px, -2px);
+  transition: transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .hero-continue-btn:hover .hero-continue-kicker {
@@ -3260,8 +3261,7 @@ onMounted(async () => {
 
 .hero-continue-btn:focus-visible {
   outline: none;
-  border-color: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.32);
+  box-shadow: var(--focus-ring);
 }
 
 .hero-continue-copy {
@@ -3273,12 +3273,12 @@ onMounted(async () => {
 }
 
 .hero-continue-kicker {
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.78);
-  transition: color 0.18s ease;
+  transition: color var(--motion-base) var(--ease-out-quart);
 }
 
 .hero-continue-copy strong {
@@ -3293,19 +3293,38 @@ onMounted(async () => {
 }
 
 .hero-title {
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
-  font-size: 32px;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, var(--type-step-3));
+  font-weight: var(--type-weight-emphasis);
   margin: 0 0 4px;
-  line-height: 1.15;
-  color: #FFFFFF;
+  line-height: 1.25;
+  color: var(--text-primary);
   letter-spacing: 0.5px;
+  position: relative;
+}
+
+/* Forge Line（品牌 §4.2）— 标题下一道铸红刻线，挂载时画一次 */
+.hero-title::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin-top: 12px;
+  background: var(--ember);
+  border-radius: 1.5px;
+  transform-origin: left center;
+  animation: forge-line var(--motion-slow) var(--ease-out-quart) both;
+}
+
+@keyframes forge-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .hero-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.82);
-  margin: 0;
+  color: var(--text-secondary);
+  margin: 8px 0 0;
   font-weight: 500;
   letter-spacing: 0.3px;
 }
@@ -3322,24 +3341,26 @@ onMounted(async () => {
 
 .chart-bar {
   flex: 1;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 4px 4px 0 0;
-  transition: all var(--motion-slow) var(--ease-out-quart);
+  background: rgba(37, 41, 51, 0.08);
+  border-radius: var(--radius-small) var(--radius-small) 0 0;
+  transition: background var(--motion-slow) var(--ease-out-quart),
+              transform var(--motion-slow) var(--ease-out-quart);
   cursor: pointer;
   position: relative;
   min-height: 6%;
 }
 
 .chart-bar:hover {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(37, 41, 51, 0.16);
 }
 
+/* 今日 — 唯一的余烬点睛（ember = live） */
 .chart-bar.active {
-  background: #FFFFFF;
+  background: var(--ember);
 }
 
 .chart-bar.selected {
-  background: #FFE4E4;
+  background: var(--text-primary);
   transform: scaleX(1.08);
 }
 
@@ -3348,15 +3369,16 @@ onMounted(async () => {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%) scale(0.9);
-  background: #263238;
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-surface);
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
   opacity: 0;
-  transition: all var(--motion-base) var(--ease-out-quart);
+  transition: opacity var(--motion-base) var(--ease-out-quart),
+              transform var(--motion-base) var(--ease-out-quart);
   pointer-events: none;
 }
 
@@ -3373,7 +3395,7 @@ onMounted(async () => {
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--text-muted);
 }
 
 .chart-labels span {
@@ -3384,10 +3406,9 @@ onMounted(async () => {
 .hero-empty-state {
   margin-top: 14px;
   padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
+  border-radius: var(--radius-large);
+  background: var(--ember-soft);
+  border: 1px solid var(--ember-border);
 }
 
 .hero-empty-title {
@@ -3395,7 +3416,7 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.96);
+  color: var(--text-primary);
 }
 
 .hero-empty-actions {
@@ -3411,36 +3432,41 @@ onMounted(async () => {
   justify-content: center;
   gap: 6px;
   min-height: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #B71C1C;
+  border: 1px solid transparent;
+  border-radius: var(--radius-large);
+  background: var(--ember);
+  color: #FFFFFF;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--elev-1);
+  transition: transform var(--motion-fast) var(--ease-out-quart), box-shadow var(--motion-fast) var(--ease-out-quart), border-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .hero-empty-btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.4);
-  background: #FFFFFF;
+  box-shadow: var(--glow-ember);
 }
 
 .hero-empty-btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--hairline);
+  box-shadow: none;
 }
 
 .hero-empty-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--bg-rice-paper);
+  border-color: var(--ember-border);
+  color: var(--text-primary);
+  box-shadow: none;
 }
 
 /* Day articles expand */
 .day-articles {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid var(--hairline);
   position: relative;
   z-index: 1;
 }
@@ -3449,7 +3475,7 @@ onMounted(async () => {
   display: block;
   text-align: center;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   padding: 8px 0;
 }
 
@@ -3458,14 +3484,14 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   padding: 5px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart);
   gap: 8px;
 }
 
 .day-article-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(37, 41, 51, 0.06);
 }
 
 .day-article-title {
@@ -3475,36 +3501,38 @@ onMounted(async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 .day-article-status {
   font-size: 10px;
   font-weight: 600;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   flex-shrink: 0;
 }
 
 .day-article-status.status-done {
-  background: rgba(46, 125, 50, 0.3);
-  color: #C8E6C9;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .day-article-status.status-read {
-  background: rgba(21, 101, 192, 0.3);
-  color: #BBDEFB;
+  background: var(--accent-secondary-light);
+  color: var(--accent-secondary);
 }
 
 .day-article-status.status-draft {
-  background: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
+  border: 1px solid var(--hairline);
 }
 
 /* Expand transition */
 .expand-enter-active,
 .expand-leave-active {
-  transition: all var(--motion-slow) var(--ease-out-quart);
+  transition: max-height var(--motion-slow) var(--ease-out-quart),
+              opacity var(--motion-slow) var(--ease-out-quart);
   max-height: 200px;
   opacity: 1;
   overflow: hidden;
@@ -3523,8 +3551,8 @@ onMounted(async () => {
   grid-row: span 2;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: 18px;
-  padding: 22px 24px 20px;
+  gap: var(--space-medium);
+  padding: 22px 24px 20px; /* 围绕 92px 品牌数字微调的留白，保持品牌时刻 */
   background: #FAFBFC;
   border: 1px solid var(--hairline-light);
   position: relative;
@@ -3550,7 +3578,7 @@ onMounted(async () => {
 }
 
 .stats-mark {
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  font-family: var(--font-serif);
   font-size: 22px;
   font-weight: 400;
   color: rgba(211, 47, 47, 0.32);
@@ -3559,7 +3587,7 @@ onMounted(async () => {
 
 .stats-eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #607D8B;
@@ -3596,11 +3624,11 @@ onMounted(async () => {
 }
 
 .stats-primary-value {
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
-  font-size: 92px;
+  font-family: var(--font-serif);
+  font-size: 92px; /* deliberate oversized brand moment — kept off the scale on purpose */
   font-weight: 700;
   line-height: 0.92;
-  color: #263238;
+  color: var(--text-primary);
   letter-spacing: -3px;
   font-variant-numeric: tabular-nums;
 }
@@ -3634,7 +3662,7 @@ onMounted(async () => {
   border-radius: 2px;
   background: linear-gradient(180deg, #CFD8DC 0%, #B0BEC5 100%);
   opacity: 0.8;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--motion-base) var(--ease-out-quart);
 }
 
 .stats-spark-bar--today {
@@ -3680,13 +3708,13 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 18px 20px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: var(--space-medium) 20px;
+  transition: border-color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .card-new:hover {
-  border-color: #D32F2F;
-  box-shadow: 0 8px 24px rgba(38, 50, 56, 0.06);
+  border-color: var(--accent-primary);
+  box-shadow: var(--elev-2);
 }
 
 .new-card-head {
@@ -3697,14 +3725,14 @@ onMounted(async () => {
 
 .new-eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #607D8B;
 }
 
 .new-title {
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 700;
   color: #263238;
@@ -3734,13 +3762,13 @@ onMounted(async () => {
   gap: 6px;
   min-height: 38px;
   border: 1px solid #263238;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   background: #263238;
   color: #FFFFFF;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart), border-color var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .new-action-btn:hover:not(:disabled) {
@@ -3776,7 +3804,7 @@ onMounted(async () => {
   gap: 8px;
   padding: 12px;
   border: 1px solid rgba(211, 47, 47, 0.14);
-  border-radius: 14px;
+  border-radius: var(--radius-xlarge);
   background: rgba(255, 245, 246, 0.72);
 }
 
@@ -3791,7 +3819,7 @@ onMounted(async () => {
 .import-result-kicker {
   color: #8A1C1F;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3809,7 +3837,7 @@ onMounted(async () => {
   gap: 3px;
   min-height: 28px;
   padding: 4px 6px;
-  border-radius: 9px;
+  border-radius: var(--radius-medium);
   background: rgba(255, 255, 255, 0.76);
   color: #455A64;
   font-size: 11px;
@@ -3850,26 +3878,14 @@ onMounted(async () => {
   min-height: 180px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(176, 190, 197, 0.4) transparent;
-  transition: all var(--motion-slow) var(--ease-out-quart);
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  transition: box-shadow var(--motion-slow) var(--ease-out-quart),
+              transform var(--motion-slow) var(--ease-out-quart),
+              border-color var(--motion-slow) var(--ease-out-quart);
 }
 
-.card-recent::-webkit-scrollbar {
-  width: 6px;
-}
-
-.card-recent::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.card-recent::-webkit-scrollbar-thumb {
-  background: rgba(176, 190, 197, 0.35);
-  border-radius: 3px;
-}
-
-.card-recent::-webkit-scrollbar-thumb:hover {
-  background: rgba(176, 190, 197, 0.6);
-}
+/* Webkit scrollbar defers to the global 6px + theme-aware
+   var(--scrollbar-thumb) rule (design-system.css). */
 
 .card-recent .recent-main {
   flex: 0 0 auto;
@@ -3915,8 +3931,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: var(--type-weight-emphasis);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   color: #90A4AE;
@@ -3959,7 +3975,7 @@ onMounted(async () => {
   font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
 }
 
 .recent-status.status-done {
@@ -3987,7 +4003,8 @@ onMounted(async () => {
   justify-content: center;
   color: white;
   cursor: pointer;
-  transition: all var(--motion-base) var(--ease-out-quart);
+  transition: background var(--motion-base) var(--ease-out-quart),
+              transform var(--motion-base) var(--ease-out-quart);
 }
 
 .recent-main:hover .recent-open-btn {
@@ -3996,10 +4013,27 @@ onMounted(async () => {
 }
 
 .recent-empty {
-  font-size: 13px;
-  color: #90A4AE;
   margin: auto 0;
   text-align: center;
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 隐约的横格纸纹 — 等待落字的空页 */
+.recent-empty-rules {
+  height: 56px;
+  max-width: 220px;
+  margin: 0 auto 12px;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 13px,
+    var(--hairline) 13px,
+    var(--hairline) 14px
+  );
+  opacity: 0.7;
 }
 
 /* Recent articles list at bottom of card-recent */
@@ -4028,7 +4062,7 @@ onMounted(async () => {
   justify-content: center;
   min-width: 48px;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: #FFF3E0;
   color: #A15C00;
   font-size: 11px;
@@ -4037,7 +4071,7 @@ onMounted(async () => {
 
 .recent-articles-heading {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--type-weight-emphasis);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #B0BEC5;
@@ -4057,13 +4091,13 @@ onMounted(async () => {
   gap: 8px;
   padding: 6px 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   background: transparent;
   text-align: left;
   font-size: 13px;
   color: #607D8B;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart);
 }
 
 .recent-article-row:hover {
@@ -4106,13 +4140,13 @@ onMounted(async () => {
   min-height: 36px;
   padding: 0 10px;
   border: 1px solid var(--hairline-light);
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   background: #FFFFFF;
   color: #455A64;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart), color var(--motion-fast) var(--ease-out-quart), background var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .recent-create-btn:hover {
@@ -4145,7 +4179,7 @@ onMounted(async () => {
 .categories-title {
   font-size: 14px;
   font-weight: 700;
-  color: #263238;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -4163,7 +4197,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #2E7D32;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
 }
 
 .categories-add:hover {
@@ -4175,7 +4209,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #D32F2F;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
 }
 
 .categories-manage:hover {
@@ -4190,14 +4224,16 @@ onMounted(async () => {
 }
 
 .category-cell {
-  border-radius: 12px;
+  border-radius: var(--radius-large);
   padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
   border: 1px solid transparent;
-  transition: all var(--motion-fast) var(--ease-out-quart);
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
   cursor: pointer;
 }
 
@@ -4230,18 +4266,42 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  font-family: var(--font-serif);
   font-size: 13px;
-  color: #90A4AE;
+  color: var(--text-secondary);
   cursor: pointer;
-  border: 2px dashed #ECEFF1;
-  border-radius: 12px;
-  padding: 20px;
-  transition: all 0.2s ease;
+  border: 1px dashed var(--hairline);
+  background: var(--bg-rice-paper);
+  border-radius: var(--radius-large);
+  padding: 22px 20px;
+  transition: border-color var(--motion-base) var(--ease-out-quart),
+              color var(--motion-base) var(--ease-out-quart);
 }
 
 .categories-empty:hover {
-  border-color: #B0BEC5;
-  color: #607D8B;
+  border-color: var(--ember-border);
+  color: var(--text-primary);
+}
+
+.categories-empty-seal {
+  color: var(--ember);
+}
+
+.categories-empty-copy {
+  font-style: italic;
+}
+
+.categories-empty-cta {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: color var(--motion-fast) var(--ease-out-quart);
+}
+
+.categories-empty:hover .categories-empty-cta {
+  color: var(--ember);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* === 6. INSPIRATION CARD — 古典编辑风（占 col4 row2-3 填补 card-new 下方空白） === */
@@ -4250,11 +4310,11 @@ onMounted(async () => {
   grid-row: 2 / span 2;
   position: relative;
   background:
-    radial-gradient(ellipse 320px 160px at 18% -8%, rgba(211, 47, 47, 0.05), transparent 70%),
-    linear-gradient(180deg, #FFFEFB 0%, #FAF7F2 100%);
-  border: 1px solid var(--hairline-light);
-  border-left: 3px solid #D32F2F;
-  color: #263238;
+    radial-gradient(ellipse 320px 160px at 18% -8%, var(--ember-soft), transparent 70%),
+    linear-gradient(180deg, var(--bg-surface) 0%, var(--paper-warm) 100%);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--ember);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -4266,13 +4326,13 @@ onMounted(async () => {
 .card-inspiration::before {
   content: '"';
   position: absolute;
-  top: -32px;
+  bottom: -34px;
   left: 14px;
   font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Times New Roman', serif;
-  font-size: 180px;
+  font-size: 120px;
   font-weight: 400;
   line-height: 1;
-  color: rgba(211, 47, 47, 0.06);
+  color: var(--ember-soft);
   pointer-events: none;
   z-index: 0;
   letter-spacing: -8px;
@@ -4314,7 +4374,7 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 4px 10px 4px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(211, 47, 47, 0.18);
   backdrop-filter: blur(4px);
@@ -4326,7 +4386,7 @@ onMounted(async () => {
 }
 
 .inspiration-label {
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  font-family: var(--font-serif);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -4344,13 +4404,15 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background var(--motion-base) var(--ease-out-quart),
+              color var(--motion-base) var(--ease-out-quart),
+              border-color var(--motion-base) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
 .inspiration-refresh:hover:not(:disabled) {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
 }
 
 .inspiration-refresh:disabled {
@@ -4384,7 +4446,7 @@ onMounted(async () => {
 }
 
 .inspiration-author {
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--font-serif);
   font-size: 13px;
   font-weight: 600;
   color: #8B5A3C;
@@ -4415,7 +4477,7 @@ onMounted(async () => {
   background: transparent;
   border: none;
   box-shadow: none;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--motion-base) var(--ease-out-quart);
   opacity: 0.55;
 }
 
@@ -4438,7 +4500,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background var(--motion-base) var(--ease-out-quart),
+              color var(--motion-base) var(--ease-out-quart),
+              border-color var(--motion-base) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
@@ -4465,7 +4529,7 @@ onMounted(async () => {
 .inspiration-skeleton-line {
   position: relative;
   height: 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   background: linear-gradient(
     90deg,
     rgba(207, 216, 220, 0.28) 0%,
@@ -4496,7 +4560,7 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--type-weight-emphasis);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #B71C1C;
@@ -4545,7 +4609,7 @@ onMounted(async () => {
   z-index: 10;
   background: var(--bg-rice-paper, #FAFBFC);
   border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 /* 滚动到 sticky 状态时显示底边线 */
@@ -4562,24 +4626,26 @@ onMounted(async () => {
 .filter-tab {
   padding: 6px 14px;
   border: 1px solid var(--hairline-light);
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   background: rgba(255, 255, 255, 0.85);
   font-size: 12px;
   font-weight: 500;
   color: #607D8B;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .filter-tab:hover {
-  border-color: #D32F2F;
-  color: #D32F2F;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .filter-tab.active {
-  background: #D32F2F;
+  background: var(--accent-primary);
   color: white;
-  border-color: #D32F2F;
+  border-color: var(--accent-primary);
 }
 
 .filter-category-wrapper {
@@ -4593,9 +4659,9 @@ onMounted(async () => {
   min-width: 140px;
   background: white;
   border: 1px solid var(--hairline-light);
-  border-radius: 10px;
+  border-radius: var(--radius-large);
   padding: 4px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--elev-2);
   z-index: 20;
   animation: fadeInUp 0.2s ease;
 }
@@ -4605,18 +4671,18 @@ onMounted(async () => {
   font-size: 12px;
   color: #37474F;
   cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.1s ease;
+  border-radius: var(--radius-medium);
+  transition: background var(--motion-instant) var(--ease-out-quart);
 }
 
 .category-option:hover {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
 }
 
 .category-option.selected {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
   font-weight: 600;
 }
 
@@ -4643,13 +4709,13 @@ onMounted(async () => {
   padding: 6px 12px;
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid var(--hairline-light);
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   color: #90A4AE;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .search-box:focus-within {
-  border-color: #D32F2F;
+  border-color: var(--accent-primary);
 }
 
 .search-input {
@@ -4668,7 +4734,7 @@ onMounted(async () => {
 .sort-select {
   padding: 6px 10px;
   border: 1px solid var(--hairline-light);
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   background: rgba(255, 255, 255, 0.85);
   font-size: 12px;
   color: #607D8B;
@@ -4678,7 +4744,7 @@ onMounted(async () => {
 }
 
 .sort-select:focus {
-  border-color: #D32F2F;
+  border-color: var(--accent-primary);
 }
 
 /* =================================================================
@@ -4698,7 +4764,7 @@ onMounted(async () => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--hairline-light);
-  border-radius: 16px;
+  border-radius: var(--radius-xlarge);
   margin-bottom: 24px;
   cursor: pointer;
   box-shadow: var(--elev-1);
@@ -4744,7 +4810,7 @@ onMounted(async () => {
   top: 12px;
   left: 12px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(255, 255, 255, 0.9);
   color: #455A64;
   font-size: 11px;
@@ -4805,7 +4871,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 3px;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--radius-xlarge) var(--radius-xlarge) 0 0;
 }
 
 .card-tags {
@@ -4819,7 +4885,7 @@ onMounted(async () => {
   font-size: 10px;
   font-weight: 500;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
   background: #F5F5F5;
   color: #607D8B;
 }
@@ -4828,7 +4894,7 @@ onMounted(async () => {
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
 }
 
 .status-tag.status-draft {
@@ -4923,11 +4989,13 @@ onMounted(async () => {
   background: #D32F2F;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--motion-base) var(--ease-out-quart);
+  transition: background var(--motion-base) var(--ease-out-quart),
+              transform var(--motion-base) var(--ease-out-quart),
+              box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .empty-create-btn:hover {
@@ -5179,12 +5247,12 @@ onMounted(async () => {
   margin-top: 10px;
   padding: 0 12px;
   border: 1px solid rgba(51, 68, 79, 0.16);
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(255, 255, 255, 0.7);
   color: #263238;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  transition: background var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart);
 }
 
 .productivity-signal-link:hover {
@@ -5334,16 +5402,33 @@ html[data-theme="dark"] .card-new {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Hero 红色卡 — 暗色下用更深的红到酒红渐变，去掉刺眼感 */
+/* Hero 卡 — 暗色下同样是暖纸场（token 驱动），不再是红色刺眼大块 */
 html.theme-dark .card-hero,
 html[data-theme="dark"] .card-hero {
-  background: linear-gradient(135deg, #B71C1C 0%, #7F1212 100%);
-  box-shadow: 0 12px 40px rgba(127, 18, 18, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: linear-gradient(168deg, var(--bg-surface) 0%, var(--paper-warm) 100%);
+  border-color: var(--hairline);
+  box-shadow: var(--elev-2);
 }
 
 html.theme-dark .card-hero .hero-decor,
 html[data-theme="dark"] .card-hero .hero-decor {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--ember-soft) 0%, transparent 70%);
+}
+
+/* 暗色墨井：深色背景上需浅色墨条（深墨在深底上不可见）*/
+html.theme-dark .chart-bar,
+html[data-theme="dark"] .chart-bar {
+  background: rgba(245, 240, 230, 0.10);
+}
+
+html.theme-dark .chart-bar:hover,
+html[data-theme="dark"] .chart-bar:hover {
+  background: rgba(245, 240, 230, 0.18);
+}
+
+html.theme-dark .chart-bar.active,
+html[data-theme="dark"] .chart-bar.active {
+  background: var(--ember);
 }
 
 /* 灵感卡 */
@@ -5741,12 +5826,7 @@ html[data-theme="dark"] .article-search-input::placeholder {
   color: #8590A0;
 }
 
-/* 类别面板空状态 */
-html.theme-dark .categories-empty,
-html[data-theme="dark"] .categories-empty {
-  border-color: rgba(255, 255, 255, 0.10);
-  color: #8590A0;
-}
+/* 类别面板空状态 — 暗色由 token 自动适配（--hairline/--text-secondary/--bg-rice-paper），无需覆写 */
 
 /* === 灵感卡 setup/refresh 按钮 暗色补齐 === */
 html.theme-dark .inspiration-setup,

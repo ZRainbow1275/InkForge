@@ -248,10 +248,10 @@ onBeforeUnmount(detachListeners)
   align-items: center;
   gap: 4px;
   padding: 6px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(31, 41, 55, 0.12);
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline);
   border-radius: 12px;
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--elev-2);
   transform: translateX(-50%);
   backdrop-filter: blur(10px);
 }
@@ -264,26 +264,29 @@ onBeforeUnmount(detachListeners)
   min-width: 30px;
   height: 30px;
   padding: 0 7px;
-  color: #4b5563;
+  color: var(--text-secondary);
   background: transparent;
   border: 0;
   border-radius: 8px;
   cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .table-floating-toolbar button:hover {
-  color: #d32f2f;
-  background: #fff1f2;
+  color: var(--text-primary);
+  background: var(--bg-rice-paper);
 }
 
 .table-floating-toolbar button.danger:hover {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: var(--danger);
+  background: var(--danger-soft);
 }
 
 .toolbar-divider {
   width: 1px;
   height: 20px;
-  background: rgba(31, 41, 55, 0.12);
+  background: var(--hairline);
 }
 </style>

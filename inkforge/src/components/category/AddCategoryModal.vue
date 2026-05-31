@@ -134,7 +134,7 @@ watch(() => props.visible, (visible) => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +147,7 @@ watch(() => props.visible, (visible) => {
   max-width: 400px;
   background: var(--color-bg);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--elev-3);
   overflow: hidden;
 }
 
@@ -178,7 +178,8 @@ watch(() => props.visible, (visible) => {
   border-radius: 6px;
   cursor: pointer;
   color: var(--color-text-secondary);
-  transition: all 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart);
 }
 
 .close-btn:hover {
@@ -218,7 +219,8 @@ watch(() => props.visible, (visible) => {
   border-radius: 8px;
   background: var(--color-bg);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    background var(--motion-fast) var(--ease-out-quart);
 }
 
 .icon-btn svg {
@@ -232,8 +234,8 @@ watch(() => props.visible, (visible) => {
 }
 
 .icon-btn.active {
-  border-color: var(--color-primary);
-  background: rgba(0, 102, 204, 0.1);
+  border-color: var(--ember-border);
+  background: var(--ember-soft);
 }
 
 .form-input {
@@ -245,7 +247,7 @@ watch(() => props.visible, (visible) => {
   color: var(--color-text);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .form-input:focus {
@@ -266,7 +268,10 @@ watch(() => props.visible, (visible) => {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart),
+    opacity var(--motion-fast) var(--ease-out-quart);
 }
 
 .btn.cancel {
@@ -280,13 +285,20 @@ watch(() => props.visible, (visible) => {
 }
 
 .btn.confirm {
-  background: var(--color-primary);
+  background: var(--ember);
   border: none;
   color: white;
+  box-shadow: var(--elev-1);
 }
 
 .btn.confirm:hover:not(:disabled) {
-  opacity: 0.9;
+  box-shadow: var(--glow-ember);
+  transform: translateY(-1px);
+}
+
+.btn.confirm:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
 }
 
 .btn.confirm:disabled {

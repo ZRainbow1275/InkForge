@@ -501,8 +501,8 @@ import { computeDiff } from '@/composables/useVersionManager'
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: var(--accent-primary-light, #FFEBEE);
-  color: var(--accent-primary, #D32F2F);
+  background: var(--ember-soft);
+  color: var(--ember);
   font-size: 10px;
   font-weight: 700;
 }
@@ -574,23 +574,34 @@ import { computeDiff } from '@/composables/useVersionManager'
   padding: 7px 0;
   border: none;
   border-radius: 6px;
-  background: var(--accent-primary, #D32F2F);
+  background: var(--ember);
   color: white;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 150ms ease;
+  box-shadow: var(--elev-1);
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .save-btn:hover:not(:disabled) {
-  background: var(--accent-primary-dark, #B71C1C);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  box-shadow: var(--glow-ember);
 }
 
 .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.save-btn:focus-visible,
+.diff-toggle-btn:focus-visible,
+.diff-execute-btn:focus-visible,
+.confirm-cancel-btn:focus-visible,
+.confirm-ok-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .diff-toggle-btn {
@@ -628,7 +639,7 @@ import { computeDiff } from '@/composables/useVersionManager'
   padding: 6px 8px;
   background: var(--accent-secondary-light, #E3F2FD);
   border-radius: 6px;
-  border: 1px solid rgba(21, 101, 192, 0.15);
+  border: 1px solid var(--accent-secondary-light, #E3F2FD);
 }
 
 .diff-hint {
@@ -656,7 +667,8 @@ import { computeDiff } from '@/composables/useVersionManager'
 }
 
 .diff-execute-btn:hover:not(:disabled) {
-  background: #0D47A1;
+  background: var(--accent-secondary, #1565C0);
+  box-shadow: var(--elev-1);
 }
 
 .diff-execute-btn:disabled {
@@ -682,11 +694,11 @@ import { computeDiff } from '@/composables/useVersionManager'
 }
 
 .version-item:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--bg-rice-paper);
 }
 
 .version-item.active {
-  background: var(--accent-primary-light, #FFEBEE);
+  background: var(--ember-soft);
 }
 
 .version-item.diff-selected {
@@ -715,7 +727,7 @@ import { computeDiff } from '@/composables/useVersionManager'
 }
 
 .indicator-bar.current {
-  background: var(--accent-primary, #D32F2F);
+  background: var(--ember);
 }
 
 /* ─── 版本信息 ─────────────────────────────────────────── */
@@ -828,7 +840,7 @@ import { computeDiff } from '@/composables/useVersionManager'
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -841,7 +853,7 @@ import { computeDiff } from '@/composables/useVersionManager'
   border-radius: 12px;
   padding: 24px;
   width: 340px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--elev-3);
   text-align: center;
   animation: scaleIn 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -854,8 +866,8 @@ import { computeDiff } from '@/composables/useVersionManager'
   height: 44px;
   margin: 0 auto 12px;
   border-radius: 12px;
-  background: var(--accent-primary-light, #FFEBEE);
-  color: var(--accent-primary, #D32F2F);
+  background: var(--ember-soft);
+  color: var(--ember);
 }
 
 .confirm-title {
@@ -925,16 +937,19 @@ import { computeDiff } from '@/composables/useVersionManager'
   padding: 8px 0;
   border: none;
   border-radius: 8px;
-  background: var(--accent-primary, #D32F2F);
+  background: var(--ember);
   color: white;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 150ms ease;
+  box-shadow: var(--elev-1);
+  transition: transform var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .confirm-ok-btn:hover {
-  background: var(--accent-primary-dark, #B71C1C);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-ember);
 }
 
 /* ═══════════════════════════════════════════════════════════════════

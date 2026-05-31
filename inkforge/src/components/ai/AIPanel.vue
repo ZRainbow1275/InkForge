@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useAIStore } from '@/stores/ai'
 import { storeToRefs } from 'pinia'
-import { 
+import {
   Sparkles, FileText, Mic, Wand2, Expand, Minimize2, BookOpen,
-  RefreshCw, AlertCircle, CheckCircle, Loader2
+  RefreshCw, AlertCircle, CheckCircle, Loader2, ArrowUpRight
 } from 'lucide-vue-next'
 
 const aiStore = useAIStore()
@@ -62,6 +62,10 @@ function recheckStatus() {
       v-if="loading"
       class="ai-loading"
     >
+      <span
+        class="forge-line ai-loading__beat"
+        aria-hidden="true"
+      />
       <Loader2
         :size="20"
         class="animate-spin"
@@ -89,13 +93,17 @@ function recheckStatus() {
       </div>
       
       <div class="action-grid">
-        <button 
-          class="ai-btn"
+        <button
+          class="ai-btn ai-btn--primary"
           :disabled="!isAvailable || loading"
           @click="aiStore.generateArticleSummary()"
         >
           <Sparkles :size="16" />
           <span>生成摘要</span>
+          <ArrowUpRight
+            :size="14"
+            class="ai-btn__nib"
+          />
         </button>
         
         <button 
@@ -190,13 +198,22 @@ function recheckStatus() {
 }
 
 .ai-status.available {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: var(--success-light);
+  border: 1px solid var(--success);
 }
 
 .ai-status.unavailable {
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
+}
+
+/* 状态图标着色（dark-aware 语义令牌；保留原 class 名作钩子） */
+.text-green-500 {
+  color: var(--success);
+}
+
+.text-orange-500 {
+  color: var(--warning);
 }
 
 .status-indicator {
@@ -223,7 +240,8 @@ function recheckStatus() {
   border-radius: 4px;
   cursor: pointer;
   color: var(--color-text-secondary);
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+    color var(--motion-fast) var(--ease-out-quart);
 }
 
 .refresh-btn:hover {
@@ -236,10 +254,15 @@ function recheckStatus() {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: rgba(0, 102, 204, 0.1);
+  background: var(--ember-soft);
   border-radius: 6px;
   font-size: 13px;
-  color: var(--color-primary);
+  color: var(--ember);
+}
+
+.ai-loading__beat {
+  flex: 0 0 auto;
+  width: 28px;
 }
 
 .animate-spin {
@@ -251,10 +274,10 @@ function recheckStatus() {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--error-light);
   border-radius: 6px;
   font-size: 12px;
-  color: #ef4444;
+  color: var(--error);
 }
 
 .ai-actions h4 {
@@ -291,17 +314,54 @@ function recheckStatus() {
   background: var(--color-bg);
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.15s ease;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    background-color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart),
+    transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .ai-btn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  background: rgba(0, 102, 204, 0.05);
+  border-color: var(--ember-border);
+  background: var(--bg-rice-paper);
+  box-shadow: var(--elev-2);
+  transform: translateY(-1px);
 }
 
 .ai-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 主操作：铸红 CTA + 笔尖箭头 */
+.ai-btn--primary {
+  grid-column: 1 / -1;
+  justify-content: center;
+  border-color: transparent;
+  background: var(--ember);
+  color: #fff;
+  box-shadow: var(--elev-1);
+}
+
+.ai-btn--primary:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--ember);
+  box-shadow: var(--glow-ember);
+  transform: translateY(-1px);
+}
+
+.ai-btn__nib {
+  margin-left: auto;
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.ai-btn--primary:hover:not(:disabled) .ai-btn__nib {
+  transform: translate(2px, -2px);
+}
+
+.refresh-btn:focus-visible,
+.ai-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .ai-help {

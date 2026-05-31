@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowUpRight } from 'lucide-vue-next'
 import ForgeNibMark from '@/components/chrome/ForgeNibMark.vue'
 import { useFTUEStore } from '@/stores/ftue'
 import type { OnboardingPath } from '@/services/ftue/types'
@@ -71,6 +72,7 @@ function handleEscape(): void {
           >
             <ForgeNibMark
               :size="56"
+              :tier="256"
               interactive
             />
           </div>
@@ -105,7 +107,11 @@ function handleEscape(): void {
                 class="if-welcome__primary"
                 @click="showPathStep"
               >
-                开始使用 InkForge
+                <span>开始使用 InkForge</span>
+                <ArrowUpRight
+                  :size="16"
+                  class="if-welcome__nib"
+                />
               </button>
               <button
                 type="button"
@@ -198,9 +204,9 @@ function handleEscape(): void {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.16), transparent 34%),
-    radial-gradient(circle at 80% 10%, rgba(15, 23, 42, 0.22), transparent 28%),
-    rgba(15, 23, 42, 0.42);
+    radial-gradient(circle at 20% 20%, var(--ember-soft), transparent 34%),
+    radial-gradient(circle at 80% 10%, var(--scrim), transparent 28%),
+    var(--scrim);
   backdrop-filter: blur(14px);
 }
 
@@ -208,13 +214,11 @@ function handleEscape(): void {
   position: relative;
   width: min(560px, 100%);
   padding: 32px;
-  border: 1px solid var(--hairline-light);
+  border: 1px solid var(--hairline);
   border-radius: 28px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 251, 0.96)),
-    #ffffff;
+  background: var(--bg-surface);
   box-shadow: var(--elev-3);
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .if-welcome__mark {
@@ -228,7 +232,7 @@ function handleEscape(): void {
 
 .if-welcome__eyebrow {
   margin: 0 0 8px;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -246,7 +250,7 @@ function handleEscape(): void {
 
 .if-welcome__lead {
   margin: 18px 0 0;
-  color: #475569;
+  color: var(--text-secondary);
   font-size: var(--type-step-1);
   line-height: 1.6;
 }
@@ -265,10 +269,10 @@ function handleEscape(): void {
 
 .if-welcome__points span {
   padding: 8px 12px;
-  border: 1px solid var(--hairline-light);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
-  background: #f8fafc;
-  color: #334155;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -292,18 +296,29 @@ function handleEscape(): void {
 }
 
 .if-welcome__primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 18px;
   border-radius: 999px;
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--text-primary);
+  color: var(--bg-surface);
   font-weight: 700;
+}
+
+.if-welcome__nib {
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.if-welcome__primary:hover .if-welcome__nib {
+  transform: translate(2px, -2px);
 }
 
 .if-welcome__ghost {
   padding: 10px 12px;
   border-radius: 999px;
   background: transparent;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .if-welcome__path-grid {
@@ -316,10 +331,10 @@ function handleEscape(): void {
   display: grid;
   gap: 8px;
   padding: 18px;
-  border: 1px solid var(--hairline-light);
+  border: 1px solid var(--hairline);
   border-radius: 20px;
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
   text-align: left;
   transition: box-shadow var(--motion-fast) var(--ease-out-quart),
               transform var(--motion-fast) var(--ease-out-quart);
@@ -331,20 +346,20 @@ function handleEscape(): void {
 }
 
 .if-welcome__path-card span {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
 
 .if-welcome__path-card small {
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
 .if-welcome__error {
   margin: 18px 0 0;
-  color: #b91c1c;
+  color: var(--error);
   font-size: 13px;
 }
 

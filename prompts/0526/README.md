@@ -27,3 +27,16 @@ User 验收 Phase 2（commit ff4cc7e + 后续 dirty 改动）后发现：
 - npm run typecheck / lint / test 全绿
 - Tauri 手测三问题逐条达标（user 验收）
 - 不退化：现有 Phase 1+2 已落成果（dim/sentence/sidebar/slider）不丢
+
+---
+
+## 0527 续 — 后验收 3 问题（commit fbc1662 后 user Tauri 手测）
+
+| # | Issue | 文件夹 |
+|---|-------|--------|
+| 4 | 打字机 Tauri 退化（浏览器 E2E 全过但 Tauri 全无效） | `typewriter-tauri-regression/` |
+| 5 | 右侧预览框非真机尺寸 | `preview-device-size/` |
+| 6 | 移动排版每行 18-22 字 | `mobile-typography-chars/` |
+
+任务 5+6 强耦合（锁 375px 后字号自动达标），合 1 个 PR。
+任务 4 独立，等 user Tauri devtools 报告诊断分支后定向修。

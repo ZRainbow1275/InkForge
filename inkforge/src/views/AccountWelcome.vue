@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
   ArrowLeft,
+  ArrowUpRight,
   Briefcase,
   CheckCircle2,
   Download,
@@ -351,6 +352,11 @@ onMounted(async () => {
               :stroke-width="2.2"
             />
             <span>进入工作台</span>
+            <ArrowUpRight
+              :size="15"
+              :stroke-width="2.2"
+              class="nib-arrow"
+            />
           </button>
           <button
             type="button"
@@ -654,10 +660,9 @@ onMounted(async () => {
   min-height: 100vh;
   padding: 28px;
   background:
-    radial-gradient(circle at 14% 12%, rgba(211, 47, 47, 0.10), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(21, 101, 192, 0.08), transparent 30%),
-    linear-gradient(135deg, #FDFCFB 0%, #F6F3EE 100%);
-  color: #263238;
+    radial-gradient(circle at 14% 12%, var(--ember-soft), transparent 28%),
+    linear-gradient(135deg, var(--bg-surface, #FDFCFB) 0%, var(--paper-warm, #F6F3EE) 100%);
+  color: var(--text-primary, #263238);
 }
 
 .account-topbar {
@@ -682,23 +687,26 @@ onMounted(async () => {
   border: 0;
   cursor: pointer;
   font: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: transform var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart),
+    border-color var(--motion-fast) var(--ease-out-quart),
+    background-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .back-btn {
   padding: 10px 14px;
   border-radius: 999px;
-  color: #607D8B;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid #ECEFF1;
+  color: var(--text-secondary, #607D8B);
+  background: var(--bg-surface, rgba(255, 255, 255, 0.82));
+  border: 1px solid var(--hairline, #ECEFF1);
 }
 
 .back-btn:hover,
 .secondary-btn:hover,
 .ghost-btn:hover {
   transform: translateY(-1px);
-  border-color: #D32F2F;
-  color: #D32F2F;
+  border-color: var(--accent-primary, #D32F2F);
+  color: var(--accent-primary, #D32F2F);
 }
 
 .topbar-copy {
@@ -712,7 +720,7 @@ onMounted(async () => {
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #D32F2F;
+  color: var(--accent-primary, #D32F2F);
 }
 
 .topbar-copy h1 {
@@ -733,10 +741,10 @@ onMounted(async () => {
 .panel-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(224, 224, 224, 0.82);
+  border: 1px solid var(--hairline, rgba(224, 224, 224, 0.82));
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 18px 55px rgba(38, 50, 56, 0.08);
+  background: var(--bg-surface, rgba(255, 255, 255, 0.88));
+  box-shadow: var(--elev-3);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -757,7 +765,7 @@ onMounted(async () => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.10), transparent 46%);
+  background: linear-gradient(135deg, var(--ember-soft), transparent 46%);
 }
 
 .profile-avatar-wrap,
@@ -774,12 +782,12 @@ onMounted(async () => {
   width: 96px;
   height: 96px;
   padding: 0;
-  border: 3px solid #FFFFFF;
+  border: 3px solid var(--bg-surface, #FFFFFF);
   border-radius: 28px;
   overflow: hidden;
-  background: #D32F2F;
+  background: var(--accent-primary, #D32F2F);
   color: #FFFFFF;
-  box-shadow: 0 14px 32px rgba(211, 47, 47, 0.22);
+  box-shadow: var(--elev-2);
   cursor: pointer;
 }
 
@@ -809,7 +817,8 @@ onMounted(async () => {
   gap: 4px;
   padding: 4px 6px;
   border-radius: 999px;
-  background: rgba(38, 50, 56, 0.72);
+  background: var(--scrim, rgba(38, 50, 56, 0.72));
+  color: #FFFFFF;
   font-size: 11px;
   font-weight: 700;
 }
@@ -820,8 +829,8 @@ onMounted(async () => {
   gap: 6px;
   padding: 5px 10px;
   border-radius: 999px;
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light, #FFEBEE);
+  color: var(--accent-primary, #D32F2F);
   font-size: 12px;
   font-weight: 800;
 }
@@ -835,7 +844,7 @@ onMounted(async () => {
 .profile-email,
 .profile-bio {
   margin: 0;
-  color: #607D8B;
+  color: var(--text-secondary, #607D8B);
   line-height: 1.6;
 }
 
@@ -853,20 +862,20 @@ onMounted(async () => {
 .profile-meta-grid div {
   padding: 12px 10px;
   border-radius: 16px;
-  background: rgba(250, 251, 252, 0.9);
-  border: 1px solid #ECEFF1;
+  background: var(--bg-rice-paper, rgba(250, 251, 252, 0.9));
+  border: 1px solid var(--hairline, #ECEFF1);
 }
 
 .profile-meta-grid span {
   display: block;
   margin-bottom: 4px;
   font-size: 11px;
-  color: #90A4AE;
+  color: var(--text-muted, #90A4AE);
 }
 
 .profile-meta-grid strong {
   font-size: 12px;
-  color: #263238;
+  color: var(--text-primary, #263238);
 }
 
 .account-alert,
@@ -874,8 +883,8 @@ onMounted(async () => {
   width: 100%;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #FFF8E1;
-  color: #A15C00;
+  background: var(--warning-light, #FFF8E1);
+  color: var(--warning, #A15C00);
   font-size: 13px;
   text-align: left;
 }
@@ -901,21 +910,29 @@ onMounted(async () => {
 }
 
 .primary-btn {
-  background: #D32F2F;
+  background: var(--accent-primary, #D32F2F);
   color: #FFFFFF;
-  box-shadow: 0 10px 24px rgba(211, 47, 47, 0.18);
+  box-shadow: var(--elev-1);
 }
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(211, 47, 47, 0.24);
+  box-shadow: var(--glow-ember);
+}
+
+.nib-arrow {
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.primary-btn:hover:not(:disabled) .nib-arrow {
+  transform: translate(2px, -2px);
 }
 
 .secondary-btn,
 .ghost-btn {
-  background: #FFFFFF;
-  color: #607D8B;
-  border: 1px solid #ECEFF1;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--text-secondary, #607D8B);
+  border: 1px solid var(--hairline, #ECEFF1);
 }
 
 button:disabled {
@@ -950,7 +967,7 @@ button:disabled {
 .export-box p,
 .danger-box p {
   margin: 0;
-  color: #78909C;
+  color: var(--text-secondary, #78909C);
   line-height: 1.55;
   font-size: 13px;
 }
@@ -974,17 +991,17 @@ button:disabled {
   gap: 7px;
   font-size: 12px;
   font-weight: 800;
-  color: #607D8B;
+  color: var(--text-secondary, #607D8B);
 }
 
 .account-form input,
 .account-form textarea,
 .danger-box input {
   width: 100%;
-  border: 1px solid #E0E0E0;
+  border: 1px solid var(--hairline, #E0E0E0);
   border-radius: 12px;
-  background: #FFFFFF;
-  color: #263238;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--text-primary, #263238);
   font: inherit;
   padding: 10px 12px;
   outline: none;
@@ -993,8 +1010,8 @@ button:disabled {
 .account-form input:focus,
 .account-form textarea:focus,
 .danger-box input:focus {
-  border-color: #D32F2F;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+  border-color: var(--accent-primary, #D32F2F);
+  box-shadow: var(--focus-ring);
 }
 
 .full-row {
@@ -1022,9 +1039,9 @@ button:disabled {
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid #ECEFF1;
+  border: 1px solid var(--hairline, #ECEFF1);
   border-radius: 16px;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper, #FAFBFC);
 }
 
 .account-row {
@@ -1034,8 +1051,8 @@ button:disabled {
 }
 
 .account-row.active {
-  border-color: #D32F2F;
-  background: #FFEBEE;
+  border-color: var(--accent-primary, #D32F2F);
+  background: var(--accent-primary-light, #FFEBEE);
 }
 
 .row-avatar,
@@ -1047,7 +1064,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #D32F2F;
+  background: var(--accent-primary, #D32F2F);
   color: #FFFFFF;
   font-weight: 900;
 }
@@ -1061,7 +1078,7 @@ button:disabled {
 }
 
 .row-copy small {
-  color: #78909C;
+  color: var(--text-secondary, #78909C);
 }
 
 .active-pill,
@@ -1075,30 +1092,30 @@ button:disabled {
 }
 
 .active-pill {
-  background: #D32F2F;
+  background: var(--accent-primary, #D32F2F);
   color: #FFFFFF;
 }
 
 .switch-pill,
 .capability-card > span {
-  background: #ECEFF1;
-  color: #607D8B;
+  background: var(--hairline, #ECEFF1);
+  color: var(--text-secondary, #607D8B);
 }
 
 .create-inline {
   margin-top: 16px;
   padding: 16px;
   border-radius: 18px;
-  border: 1px dashed #D32F2F;
-  background: rgba(255, 235, 238, 0.35);
+  border: 1px dashed var(--accent-primary, #D32F2F);
+  background: var(--accent-primary-light, rgba(255, 235, 238, 0.35));
 }
 
 .icon-close {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #FFFFFF;
-  color: #607D8B;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--text-secondary, #607D8B);
 }
 
 .capability-card.disabled {
@@ -1119,8 +1136,8 @@ button:disabled {
 
 .danger-box {
   flex-wrap: wrap;
-  border-color: #FFCDD2;
-  background: #FFF8F8;
+  border-color: var(--danger, #FFCDD2);
+  background: var(--danger-soft, #FFF8F8);
 }
 
 .danger-box input {
@@ -1129,12 +1146,12 @@ button:disabled {
 
 .danger-btn {
   background: transparent;
-  color: #D32F2F;
-  border: 1px solid #D32F2F;
+  color: var(--danger, #D32F2F);
+  border: 1px solid var(--danger, #D32F2F);
 }
 
 .danger-btn:hover:not(:disabled) {
-  background: #D32F2F;
+  background: var(--danger, #D32F2F);
   color: #FFFFFF;
 }
 

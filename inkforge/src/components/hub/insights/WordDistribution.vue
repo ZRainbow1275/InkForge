@@ -43,7 +43,7 @@ const hasData = computed(() => props.buckets.some(bucket => bucket.count > 0))
             width="100"
             height="8"
             rx="4"
-            fill="#ECEFF1"
+            fill="var(--bg-rice-paper)"
           />
           <rect
             v-if="bucket.count > 0"
@@ -52,14 +52,14 @@ const hasData = computed(() => props.buckets.some(bucket => bucket.count > 0))
             :width="Math.max(6, Math.round(bucket.count / maxCount * 100))"
             height="8"
             rx="4"
-            fill="#D32F2F"
+            fill="var(--ember)"
           />
           <circle
             v-else
             cx="3"
             cy="5"
             r="1.6"
-            fill="#CFD8DC"
+            fill="var(--text-muted)"
           />
         </svg>
         <strong>{{ bucket.count }}</strong>
@@ -85,44 +85,15 @@ const hasData = computed(() => props.buckets.some(bucket => bucket.count > 0))
   align-content: start;
   padding-right: 6px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(120, 144, 156, 0.32) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .bucket-list::-webkit-scrollbar { width: 6px; }
 .bucket-list::-webkit-scrollbar-track { background: transparent; }
-.bucket-list::-webkit-scrollbar-thumb { background: rgba(120, 144, 156, 0.28); border-radius: 999px; }
-.bucket-list::-webkit-scrollbar-thumb:hover { background: rgba(211, 47, 47, 0.40); }
-.bucket-row { display: grid; grid-template-columns: 56px 1fr 28px; gap: 10px; align-items: center; color: #607D8B; font-size: 12px; transition: color 0.15s ease; }
+.bucket-list::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-round); }
+.bucket-list::-webkit-scrollbar-thumb:hover { background: var(--ember-border); }
+.bucket-row { display: grid; grid-template-columns: 56px 1fr 28px; gap: 10px; align-items: center; color: var(--text-secondary); font-size: 12px; transition: color var(--motion-fast) var(--ease-out-quart); }
 .bucket-row svg { width: 100%; height: 10px; }
-.bucket-row strong { text-align: right; color: #263238; font-variant-numeric: tabular-nums; font-size: 12px; }
-.bucket-row--empty { color: #B0BEC5; }
-.bucket-row--empty strong { color: #B0BEC5; }
-
-html.theme-dark .bucket-row,
-html[data-theme="dark"] .bucket-row {
-  color: #B5BFCC;
-}
-html.theme-dark .bucket-row strong,
-html[data-theme="dark"] .bucket-row strong {
-  color: #ECEFF4;
-}
-html.theme-dark .bucket-row svg rect:first-child,
-html[data-theme="dark"] .bucket-row svg rect:first-child {
-  fill: rgba(255, 255, 255, 0.06);
-}
-html.theme-dark .bucket-row svg rect:nth-child(2),
-html[data-theme="dark"] .bucket-row svg rect:nth-child(2) {
-  fill: #EF5350;
-}
-html.theme-dark .bucket-row svg circle,
-html[data-theme="dark"] .bucket-row svg circle {
-  fill: rgba(255, 255, 255, 0.18);
-}
-html.theme-dark .bucket-row--empty,
-html[data-theme="dark"] .bucket-row--empty {
-  color: rgba(181, 191, 204, 0.55);
-}
-html.theme-dark .bucket-row--empty strong,
-html[data-theme="dark"] .bucket-row--empty strong {
-  color: rgba(236, 239, 244, 0.5);
-}
+.bucket-row strong { text-align: right; color: var(--text-primary); font-variant-numeric: tabular-nums; font-size: 12px; }
+.bucket-row--empty { color: var(--text-muted); }
+.bucket-row--empty strong { color: var(--text-muted); }
 </style>

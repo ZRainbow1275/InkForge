@@ -60,8 +60,8 @@ const animatedPrimary = useCountUp(primaryMetricValue, 1000)
 .productivity-metric {
   padding: 11px 12px;
   border-radius: 14px;
-  background: rgba(250, 250, 250, 0.82);
-  border: 1px solid rgba(207, 216, 220, 0.72);
+  background: var(--bg-rice-paper);
+  border: 1px solid var(--hairline);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -71,7 +71,7 @@ const animatedPrimary = useCountUp(primaryMetricValue, 1000)
 }
 .productivity-metric span {
   display: block;
-  color: #78909C;
+  color: var(--text-muted);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -82,36 +82,18 @@ const animatedPrimary = useCountUp(primaryMetricValue, 1000)
 .productivity-metric strong {
   display: block;
   margin-top: 3px;
-  color: #263238;
+  color: var(--text-primary);
   font-size: 19px;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
 }
 .productivity-metric p {
   margin: 3px 0 0;
-  color: #607D8B;
+  color: var(--text-secondary);
   font-size: 11.5px;
   line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-html.theme-dark .productivity-metric,
-html[data-theme="dark"] .productivity-metric {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-html.theme-dark .productivity-metric span,
-html[data-theme="dark"] .productivity-metric span {
-  color: #8590A0;
-}
-html.theme-dark .productivity-metric strong,
-html[data-theme="dark"] .productivity-metric strong {
-  color: #ECEFF4;
-}
-html.theme-dark .productivity-metric p,
-html[data-theme="dark"] .productivity-metric p {
-  color: #B5BFCC;
 }
 </style>

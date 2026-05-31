@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide — Vue3 + TS conventions"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Vue SFC patterns — needed for ForgeNibMark.vue rewrite + 5 mount-site updates"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "File organization conventions for new SVG masters + Vue components"}
+{"file": "docs/inkforge-brand-identity.md", "reason": "Brand spec §1 personality / §2.4 cool-hot DNA / §4.1 hollow ornament / §4.2 不对称 / §9 Forge Nib / §10 motion — §9 + §10 will be rewritten in PR1"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/premium-writing-tool-brand-marks.md", "reason": "10-mark survey + 5 Aha patterns + 3 anti-patterns — design lock criteria"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/modern-chinese-seal-design.md", "reason": "观夏 horizontal tablet + 闻献 篆体 co-mark + 江小白 飞白 precedents — direct geometry references"}
+{"file": ".trellis/tasks/05-28-logo-chrome-aesthetic-re-tune-aha-factor-style-coherence/research/aha-trigger-visual-identity.md", "reason": "6 Aha mechanisms — cultural-blend + single-gesture + material-tactile applied to the locked design"}
