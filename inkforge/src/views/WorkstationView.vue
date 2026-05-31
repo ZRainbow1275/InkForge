@@ -66,6 +66,7 @@ import FocusSessionSummaryModal from '@/components/editor/FocusSessionSummaryMod
 import AssetManager from '@/components/asset/AssetManager.vue'
 import ExportModal from '@/components/export/ExportModal.vue'
 import TagBrowser from '@/components/tag-system/TagBrowser.vue'
+import AIChatPanel from '@/components/ai/AIChatPanel.vue'
 
 // 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
 // Router & Stores
@@ -1015,7 +1016,7 @@ function toggleTypewriterMode(): void {
 }
 
 // 鈹€鈹€鈹€ 宸︽爮 Tab 鈹€鈹€鈹€
-type ManagerTab = 'files' | 'versions' | 'outline' | 'tags'
+type ManagerTab = 'files' | 'versions' | 'outline' | 'tags' | 'ai'
 const managerTab = ref<ManagerTab>('files')
 
 // 鈹€鈹€鈹€ 鍙虫爮 Tab 鈹€鈹€鈹€锛堝凡鏀逛负婊氬姩寮?section锛屼笉鍐嶉渶瑕?tab 鍒囨崲锛?
@@ -1660,6 +1661,7 @@ function handleKeydown(e: KeyboardEvent) {
 
   const saveBinding = getShortcutBinding('save', 'Ctrl+S')
   const outlineBinding = getShortcutBinding('toggleOutline', 'Ctrl+Shift+O')
+  const aiChatBinding = getShortcutBinding('toggleAIChat', 'Ctrl+Shift+J')
   const focusBinding = getShortcutBinding('focusMode', 'F11')
   const typewriterBinding = getShortcutBinding('typewriterMode', 'F9')
   const splitViewBinding = getShortcutBinding('toggleSplitView', 'Ctrl+Shift+E')
@@ -1685,6 +1687,15 @@ function handleKeydown(e: KeyboardEvent) {
       managerCollapsed.value = false
     }
     managerTab.value = 'outline'
+    return
+  }
+
+  if (matchesShortcut(e, aiChatBinding)) {
+    e.preventDefault()
+    if (managerCollapsed.value) {
+      managerCollapsed.value = false
+    }
+    managerTab.value = 'ai'
     return
   }
 
@@ -1997,10 +2008,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
         >
           <ForgeNibMark
             :size="28"
+            :tier="64"
             interactive
           />
         </div>
-        <span class="header-brand-name">InkForge</span>
       </div>
 
       <!-- 鏍囬鍖?-->
@@ -2194,6 +2205,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
           @click="showExportModal = true"
         >
           <svg
+            class="publish-nib-arrow"
             width="14"
             height="14"
             viewBox="0 0 24 24"
@@ -2204,11 +2216,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
             stroke-linejoin="round"
           >
             <line
-              x1="22"
-              y1="2"
-              x2="11"
-              y2="13"
-            /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+              x1="7"
+              y1="17"
+              x2="17"
+              y2="7"
+            /><polyline points="7 7 17 7 17 17" />
           </svg>
           发布
         </button>
@@ -2431,6 +2443,25 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
                 </svg>
                 <span>标签</span>
               </button>
+              <button
+                class="panel-tab"
+                :class="{ active: managerTab === 'ai' }"
+                @click="managerTab = 'ai'"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>对话</span>
+              </button>
             </div>
 
             <!-- 鎶樺彔鎸夐挳 -->
@@ -2477,6 +2508,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
               class="tab-content"
             >
               <TagBrowser />
+            </div>
+            <div
+              v-show="managerTab === 'ai'"
+              class="tab-content"
+            >
+              <AIChatPanel :editor="outlineEditor" />
             </div>
           </div>
         </template>
@@ -3423,9 +3460,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
   overflow: hidden;
-  color: #263238;
+  color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
 }
 
@@ -3440,11 +3477,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   gap: 14px;
   margin: 10px 16px 0;
   padding: 12px 14px;
-  background: linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 100%);
-  border: 1px solid #FDBA74;
-  border-radius: 14px;
-  color: #7C2D12;
-  box-shadow: 0 10px 30px rgba(124, 45, 18, 0.08);
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-xlarge);
+  color: var(--text-primary);
+  box-shadow: var(--elev-2);
   z-index: 20;
 }
 
@@ -3455,9 +3492,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  color: #C2410C;
-  background: rgba(251, 146, 60, 0.18);
+  border-radius: var(--radius-large);
+  color: var(--warning);
+  background: var(--warning-light);
 }
 
 .recovery-banner-body {
@@ -3476,11 +3513,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .recovery-banner-warning {
-  color: #9A3412;
+  color: var(--warning);
 }
 
 .recovery-banner-error {
-  color: #B91C1C;
+  color: var(--error);
   font-weight: 600;
 }
 
@@ -3493,18 +3530,18 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .recovery-action {
   height: 30px;
   padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(194, 65, 12, 0.28);
-  background: rgba(255, 255, 255, 0.72);
-  color: #9A3412;
+  border-radius: var(--radius-round);
+  border: 1px solid var(--hairline);
+  background: var(--bg-surface);
+  color: var(--warning);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .recovery-action:hover:not(:disabled) {
-  background: #FFFFFF;
-  border-color: rgba(194, 65, 12, 0.48);
+  background: var(--bg-rice-paper);
+  border-color: var(--warning);
 }
 
 .recovery-action:disabled {
@@ -3513,19 +3550,20 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .recovery-action-primary {
-  background: #C2410C;
-  border-color: #C2410C;
+  background: var(--warning);
+  border-color: var(--warning);
   color: #FFFFFF;
 }
 
 .recovery-action-primary:hover:not(:disabled) {
-  background: #9A3412;
+  background: var(--warning);
+  filter: brightness(0.92);
 }
 .workstation-header {
   height: 52px;
   min-height: 52px;
-  background: #FFFFFF;
-  border-bottom: 1px solid var(--hairline-light);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--hairline);
   box-shadow: var(--elev-1);
   display: flex;
   align-items: center;
@@ -3541,7 +3579,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 10px;
   padding-right: 16px;
-  border-right: 1px solid var(--hairline-light);
+  border-right: 1px solid var(--hairline);
   cursor: pointer;
   transition: opacity var(--motion-fast) var(--ease-out-quart);
   flex-shrink: 0;
@@ -3561,14 +3599,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-shrink: 0;
 }
 
-.header-brand-name {
-  font-family: var(--font-serif);
-  font-size: var(--type-step-1);
-  font-weight: var(--type-weight-emphasis);
-  letter-spacing: 0.02em;
-  color: #263238;
-}
-
 /* 鈹€鈹€鈹€ 鏍囬鍖?鈹€鈹€鈹€ */
 .header-title {
   flex: 1;
@@ -3581,23 +3611,23 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .header-title-input {
   font-size: 14px;
   font-weight: 500;
-  color: #263238;
+  color: var(--text-primary);
   background: transparent;
   border: none;
   outline: none;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
   min-width: 280px;
   max-width: 400px;
   transition: background-color var(--motion-fast) var(--ease-out-quart);
 }
 
 .header-title-input:hover {
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 .header-title-input:focus {
-  background: #FFEBEE;
+  background: var(--accent-primary-light);
 }
 
 /* 鈹€鈹€鈹€ 淇濆瓨鐘舵€?Pill 鈹€鈹€鈹€ */
@@ -3606,12 +3636,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-round);
   font-size: 11px;
   font-weight: 500;
   flex-shrink: 0;
-  background: #F5F5F5;
-  color: #90A4AE;
+  background: var(--bg-rice-paper);
+  color: var(--text-muted);
 }
 
 .status-pill .status-dot {
@@ -3622,18 +3652,23 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .status-pill.saved {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .status-pill.unsaved {
-  background: #FFF3E0;
-  color: #F57C00;
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.status-pill.unsaved .status-dot {
+  background: var(--ember);
+  box-shadow: var(--glow-ember);
 }
 
 .status-pill.error {
-  background: #FFEBEE;
-  color: #C62828;
+  background: var(--error-light);
+  color: var(--error);
 }
 
 /* 鈹€鈹€鈹€ Header 鎿嶄綔鍖?鈹€鈹€鈹€ */
@@ -3650,28 +3685,36 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   border: none;
   background: transparent;
-  color: #90A4AE;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 .icon-btn:hover {
-  background: #FAFBFC;
-  color: #607D8B;
-  transform: scale(1.05);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
+  box-shadow: var(--elev-1);
+}
+
+.icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .icon-btn.active {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
 }
 
 .icon-btn.success {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .icon-btn:disabled {
@@ -3685,28 +3728,34 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 4px;
   padding: 3px;
-  border: 1px solid var(--hairline-light);
-  border-radius: 10px;
-  background: #FAFBFC;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-large);
+  background: var(--bg-rice-paper);
 }
 
 .layout-preset-btn {
   height: 28px;
   padding: 0 9px;
   border: none;
-  border-radius: 7px;
+  border-radius: var(--radius-medium);
   background: transparent;
-  color: #607D8B;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .layout-preset-btn:hover,
 .layout-preset-btn.active {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+}
+
+.layout-preset-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* 鈹€鈹€鈹€ 发布鎸夐挳 CTA 鈹€鈹€鈹€ */
@@ -3715,15 +3764,36 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
-  background: #D32F2F;
-  color: white;
+  background: var(--ember);
+  color: #FFFFFF;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.25);
+  transition: background-color var(--motion-base) var(--ease-out-quart),
+              color var(--motion-base) var(--ease-out-quart),
+              transform var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-base) var(--ease-out-quart);
+  box-shadow: var(--elev-1);
+}
+
+.publish-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--glow-ember);
+}
+
+.publish-btn:hover .publish-nib-arrow {
+  transform: translate(2px, -2px);
+}
+
+.publish-nib-arrow {
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+
+.publish-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
@@ -3766,7 +3836,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   transform: translateY(-50%);
   width: 3px;
   height: 48px;
-  background: #B0BEC5;
+  background: var(--text-muted);
   border-radius: 2px;
   opacity: 0;
   transition: opacity var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart);
@@ -3792,7 +3862,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 .panel {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--hairline-light);
+  border-right: 1px solid var(--hairline);
   overflow: hidden;
   transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), flex-basis var(--motion-slow) var(--ease-out-quart);
 }
@@ -3806,7 +3876,22 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: var(--workstation-manager-width, 280px);
   min-width: var(--workstation-manager-width, 280px);
   flex-shrink: 0;
-  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
+  /* OPEN feel = slow luxurious release (unchanged curve/duration) */
+  transition:
+    width var(--motion-slow) var(--ease-out-quart),
+    min-width var(--motion-slow) var(--ease-out-quart),
+    box-shadow var(--motion-base) var(--ease-out-quart);
+}
+
+/* Magnetic "seated" seam: a 1px inner ember hairline on the right edge that
+   fades in DELAYED by --motion-slow, i.e. exactly when the width-open finishes
+   → reads as the plate clicking into its dock. Only on the open state. */
+.panel-manager:not(.collapsed) {
+  box-shadow: inset -1px 0 0 0 var(--ember-border);
+  transition:
+    width var(--motion-slow) var(--ease-out-quart),
+    min-width var(--motion-slow) var(--ease-out-quart),
+    box-shadow var(--motion-base) var(--ease-out-quart) var(--motion-slow);
 }
 
 .panel-manager.collapsed {
@@ -3814,6 +3899,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-width: 12px;
   overflow: hidden;
   border-right: none;
+  box-shadow: none;
+  /* CLOSE feel = decisive snap-into-dock: shorter duration + iOS firm-arrival
+     curve. Ends EXACTLY at target (NO overshoot → editor never shoved). */
+  transition:
+    width var(--motion-base) cubic-bezier(0.32, 0.72, 0, 1),
+    min-width var(--motion-base) cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
 }
 
 /* 鈹€鈹€鈹€ 缂栬緫鍣ㄦ爮 鈹€鈹€鈹€ */
@@ -3821,7 +3913,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   position: relative;
   flex: 1;
   min-width: 0;
-  border-right: 1px solid var(--hairline-light);
+  border-right: 1px solid var(--hairline);
   container-type: inline-size;
 }
 
@@ -3832,7 +3924,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   pointer-events: none;
   z-index: 5;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--motion-slow) var(--ease-out-quart);
 }
 
 .focus-vignette .vignette-overlay {
@@ -3847,7 +3939,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .panel-editor--preview {
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 .editor-wrapper {
@@ -3861,7 +3953,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-height: 0;
   display: flex;
   overflow: hidden;
-  background: #FFFFFF;
+  background: var(--bg-surface);
 }
 
 .split-pane {
@@ -3887,8 +3979,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-direction: column;
   min-width: 280px;
   overflow: hidden;
-  border-left: 1px solid var(--hairline-light);
-  background: #FAFAFA;
+  border-left: 1px solid var(--hairline);
+  background: var(--bg-rice-paper);
   font-size: var(--split-right-font-size, 16px);
 }
 
@@ -3899,21 +3991,21 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   align-items: stretch;
   justify-content: center;
   cursor: col-resize;
-  background: linear-gradient(90deg, transparent 0, #E5E7EB 45%, #E5E7EB 55%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0, var(--hairline) 45%, var(--hairline) 55%, transparent 100%);
   outline: none;
 }
 
 .split-divider:hover,
 .split-divider:focus-visible {
-  background: linear-gradient(90deg, transparent 0, #B0BEC5 45%, #B0BEC5 55%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0, var(--ember-border) 45%, var(--ember-border) 55%, transparent 100%);
 }
 
 .split-divider-grip {
   width: 3px;
   margin: 12px 0;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: currentColor;
-  color: rgba(96, 125, 139, 0.35);
+  color: var(--text-muted);
 }
 
 .split-pane-toolbar {
@@ -3924,8 +4016,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   justify-content: space-between;
   gap: 12px;
   padding: 0 12px;
-  border-bottom: 1px solid var(--hairline-light);
-  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
 }
 
@@ -3934,11 +4026,11 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-direction: column;
   gap: 1px;
   font-size: 12px;
-  color: #263238;
+  color: var(--text-primary);
 }
 
 .split-pane-kicker {
-  color: #90A4AE;
+  color: var(--text-muted);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3955,10 +4047,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--hairline-light);
-  border-radius: 8px;
-  background: #FFFFFF;
-  color: #607D8B;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--motion-fast) var(--ease-out-quart),
               border-color var(--motion-fast) var(--ease-out-quart),
@@ -3967,9 +4059,14 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 
 .split-toolbar-btn:hover,
 .split-toolbar-btn.active {
-  border-color: #D32F2F;
-  color: #D32F2F;
-  background: #FFEBEE;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: var(--accent-primary-light);
+}
+
+.split-toolbar-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .split-preview-content {
@@ -3980,9 +4077,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background:
-    radial-gradient(circle at top left, rgba(211, 47, 47, 0.03), transparent 32%),
-    linear-gradient(180deg, #FAFBFC 0%, #F5F7F8 100%);
+  background: var(--paper-warm);
 }
 
 .split-preview-content :deep(.markdown-preview) {
@@ -4118,7 +4213,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
     min-width: 0 !important;
     flex: none;
     border-right: none;
-    border-bottom: 1px solid var(--hairline-light);
+    border-bottom: 1px solid var(--hairline);
   }
 
   .panel-manager {
@@ -4194,7 +4289,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  background: #FAFBFC;
+  background: var(--bg-rice-paper);
 }
 
 .preview-mode-header {
@@ -4203,8 +4298,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   justify-content: space-between;
   gap: 16px;
   padding: 18px 24px;
-  border-bottom: 1px solid var(--hairline-light);
-  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
 }
 
@@ -4212,13 +4307,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #24343D;
+  color: var(--text-primary);
 }
 
 .preview-mode-caption {
   margin: 4px 0 0;
   font-size: 12px;
-  color: #60717A;
+  color: var(--text-secondary);
 }
 
 .preview-mode-back {
@@ -4230,9 +4325,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-height: 0;
   overflow-y: auto;
   padding: 28px;
-  background:
-    radial-gradient(circle at top left, rgba(211, 47, 47, 0.04), transparent 28%),
-    linear-gradient(180deg, #FAFBFC 0%, #F5F7F8 100%);
+  background: var(--paper-warm);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -4250,10 +4343,10 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   flex-shrink: 0;
   width: 375px;
   max-width: 100%;
-  background: #FFFFFF;
-  border: 1px solid var(--hairline-light);
-  border-radius: 16px;
-  box-shadow: var(--elev-2);
+  background: var(--paper-warm);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xlarge);
+  box-shadow: var(--elev-3);
   overflow: hidden;
 }
 
@@ -4271,7 +4364,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: var(--workstation-stage-width, 400px);
   min-width: var(--workstation-stage-width, 400px);
   flex-shrink: 0;
-  transition: width 0.25s ease, min-width 0.25s ease;
+  transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart);
 }
 
 .panel-stage.collapsed {
@@ -4295,12 +4388,12 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: 4px;
   height: 100%;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart);
   border-radius: 2px;
 }
 
 .stage-collapsed-bar:hover .stage-collapsed-indicator {
-  background: #B0BEC5;
+  background: var(--text-muted);
 }
 
 /* 鈹€鈹€鈹€ 鍙虫爮 鈹€鈹€鈹€ */
@@ -4310,7 +4403,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   min-width: var(--workstation-inspector-width, 260px);
   flex-shrink: 0;
   border-right: none;
-  border-left: 1px solid var(--hairline-light);
+  border-left: 1px solid var(--hairline);
   transition: width var(--motion-slow) var(--ease-out-quart), min-width var(--motion-slow) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
@@ -4323,18 +4416,18 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   cursor: col-resize;
   z-index: 10;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart);
   touch-action: none;
   user-select: none;
 }
 
 .inspector-resize-handle:hover,
 .inspector-resize-handle.active {
-  background: rgba(211, 47, 47, 0.18);
+  background: var(--ember-soft);
 }
 
 .panel-inspector.pinned:not(.collapsed) {
-  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elev-2);
 }
 
 .panel-inspector.collapsed {
@@ -4361,13 +4454,68 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: 4px;
   height: 100%;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart);
   border-radius: 2px;
 }
 
-.inspector-collapsed-bar:hover .inspector-collapsed-indicator,
+.inspector-collapsed-bar:hover .inspector-collapsed-indicator {
+  background: var(--text-muted);
+}
+
+/* ── Manager collapsed bar: ember magnetic latch (manager-only; inspector keeps quiet grey) ── */
+
+/* Resting seam: a short, faintly-live ember nub — NOT full height, reads as a grabbable core. */
+.manager-collapsed-indicator {
+  width: 3px;
+  height: 28px;                 /* override shared height:100% — short centered core */
+  background: var(--ember);
+  opacity: 0.5;                 /* dormant glow — alive even docked, but quiet */
+  border-radius: 999px;
+  transform: translateX(0) scaleY(1);
+  transform-origin: center;
+  transition:
+    width var(--motion-base) var(--ease-bounce),
+    height var(--motion-base) var(--ease-bounce),
+    transform var(--motion-base) var(--ease-bounce),
+    opacity var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-base) var(--ease-out-quart);
+}
+
+/* Hover: the magnet wakes — pill thickens, lengthens, springs slightly TOWARD the editor,
+   and blooms with the dark-aware ember glow. Spring lives only on this 3-5px contained nub. */
 .manager-collapsed-bar:hover .manager-collapsed-indicator {
-  background: #B0BEC5;
+  width: 5px;
+  height: 44px;
+  opacity: 1;
+  background: var(--ember);
+  transform: translateX(1.5px) scaleY(1.05);   /* the "reach" — magnetic invite */
+  box-shadow: 0 0 0 1px var(--ember-border), var(--glow-ember);
+}
+
+/* Press: the latch clicks INWARD (recoil) — crisp instant feel, no laggy ease. */
+.manager-collapsed-bar:active .manager-collapsed-indicator {
+  transform: translateX(-1px) scaleY(0.9);
+  width: 6px;
+  box-shadow: 0 0 0 1px var(--ember), var(--glow-ember);
+  transition:
+    width var(--motion-instant) var(--ease-out-quart),
+    transform var(--motion-instant) var(--ease-out-quart),
+    box-shadow var(--motion-instant) var(--ease-out-quart);
+}
+
+/* Faint ember wash blooms across the 12px strip on hover so the WHOLE bar reads as
+   pressable — contained to 12px, pointer-events:none so it never eats the click. */
+.manager-collapsed-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--ember-soft), transparent);
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-out-quart);
+  pointer-events: none;
+}
+.manager-collapsed-bar:hover::before {
+  opacity: 1;                   /* --ember-soft is already a low-alpha token (.08/.16) */
 }
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
@@ -4384,16 +4532,17 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   width: 100%;
   height: 100%;
   cursor: pointer;
-  color: #90A4AE;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   user-select: none;
 }
 
 .collapsed-label:hover {
-  color: #D32F2F;
-  background: #FFEBEE;
+  color: var(--accent-primary);
+  background: var(--accent-primary-light);
 }
 
 .collapsed-label svg {
@@ -4417,8 +4566,8 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   display: flex;
   gap: 2px;
   padding: 4px;
-  background: rgba(207, 216, 220, 0.32);
-  border-radius: 999px;
+  background: var(--bg-rice-paper);
+  border-radius: var(--radius-round);
   align-items: stretch;
   flex: 1 1 auto;
   min-width: 0;
@@ -4435,9 +4584,9 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   padding: 9px 4px;
   font-size: 13px;
   font-weight: 500;
-  color: #607D8B;
+  color: var(--text-secondary);
   text-align: center;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -4445,7 +4594,7 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  transition: background var(--motion-base) var(--ease-out-quart), color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
 }
 
 .panel-tab :deep(svg) {
@@ -4456,13 +4605,13 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
 }
 
 .panel-tab:hover:not(.active) {
-  color: #455A64;
-  background: rgba(255, 255, 255, 0.5);
+  color: var(--text-primary);
+  background: var(--bg-surface);
 }
 
 .panel-tab.active {
-  background: #FFFFFF;
-  color: #D32F2F;
+  background: var(--bg-surface);
+  color: var(--ember);
   font-weight: 600;
   box-shadow: var(--elev-1);
 }
@@ -4471,29 +4620,6 @@ const workstationLayoutStyle = computed<Record<string, string>>(() => ({
   .panel-tab {
     transition: none;
   }
-}
-
-html.theme-dark .panel-tab-strip,
-html[data-theme="dark"] .panel-tab-strip {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-html.theme-dark .panel-tab,
-html[data-theme="dark"] .panel-tab {
-  color: #B0BEC5;
-}
-
-html.theme-dark .panel-tab:hover:not(.active),
-html[data-theme="dark"] .panel-tab:hover:not(.active) {
-  color: #ECEFF4;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-html.theme-dark .panel-tab.active,
-html[data-theme="dark"] .panel-tab.active {
-  background: rgba(255, 255, 255, 0.10);
-  color: #EF9A9A;
-  box-shadow: none;
 }
 
 .collapse-trigger {
@@ -4505,16 +4631,17 @@ html[data-theme="dark"] .panel-tab.active {
   margin-left: auto;
   border: none;
   background: transparent;
-  color: #CFD8DC;
+  color: var(--text-muted);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  border-radius: var(--radius-small);
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
 .collapse-trigger:hover {
-  background: #FFEBEE;
-  color: #D32F2F;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
 }
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
@@ -4540,6 +4667,49 @@ html[data-theme="dark"] .panel-tab.active {
   height: 100%;
 }
 
+@keyframes manager-settle-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);   /* content slides out of the docked left seam */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Tabs lead, body follows one instant-tick later = the magnetic "chain" the panel
+   pulls its contents out. Both translate only (GPU, no layout thrash, no editor move). */
+.panel-manager:not(.collapsed) .panel-tabs {
+  animation: manager-settle-in var(--motion-base) var(--ease-out-quart) both;
+}
+.panel-manager:not(.collapsed) .panel-body {
+  animation: manager-settle-in var(--motion-slow) var(--ease-out-quart) both;
+  animation-delay: var(--motion-instant);   /* 80ms stagger = the settle */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Kill the entrance animation outright → content appears at final state instantly. */
+  .panel-manager:not(.collapsed) .panel-tabs,
+  .panel-manager:not(.collapsed) .panel-body {
+    animation: none;
+  }
+  /* Null the spring transform/glow + any lingering delay so the latch & dock seam
+     snap to end-state with zero motion (universal !important zeroes duration only). */
+  .manager-collapsed-indicator,
+  .manager-collapsed-bar:hover .manager-collapsed-indicator,
+  .manager-collapsed-bar:active .manager-collapsed-indicator {
+    transition: none;
+    transform: none;
+  }
+  .manager-collapsed-bar::before {
+    transition: none;
+  }
+  .panel-manager:not(.collapsed) {
+    transition-delay: 0ms;   /* drop the docked-seam stall */
+  }
+}
+
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
    棰勮鏍?(Stage) 鈥?iPhone 璁惧妗嗛鏍?
    鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?*/
@@ -4550,7 +4720,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 10px;
   height: 44px;
   padding: 0 12px;
-  border-bottom: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline);
   flex-shrink: 0;
   background: transparent;
 }
@@ -4560,8 +4730,8 @@ html[data-theme="dark"] .panel-tab.active {
   display: flex;
   gap: 2px;
   flex: 1;
-  background: rgba(207, 216, 220, 0.24);
-  border-radius: 999px;
+  background: var(--bg-rice-paper);
+  border-radius: var(--radius-round);
   padding: 4px;
   overflow: hidden;
 }
@@ -4572,23 +4742,23 @@ html[data-theme="dark"] .panel-tab.active {
   padding: 6px 8px;
   border: none;
   background: transparent;
-  color: #607D8B;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 999px;
-  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  border-radius: var(--radius-round);
+  transition: background-color var(--motion-base) var(--ease-out-quart), color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart);
   text-align: center;
   white-space: nowrap;
 }
 
 .stage-tab:hover {
-  color: #37474F;
+  color: var(--text-primary);
 }
 
 .stage-tab.active {
-  background: #FFFFFF;
-  color: #D32F2F;
+  background: var(--bg-surface);
+  color: var(--accent-primary);
   font-weight: 600;
   box-shadow: var(--elev-1);
 }
@@ -4603,15 +4773,15 @@ html[data-theme="dark"] .panel-tab.active {
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: 999px;
-  color: #90A4AE;
+  border-radius: var(--radius-round);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart), color var(--motion-fast) var(--ease-out-quart);
 }
 
 .stage-header .collapse-trigger:hover {
-  background: rgba(207, 216, 220, 0.32);
-  color: #37474F;
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 /* ─── 预览面板「示例内容」徽章 ─── */
@@ -4621,9 +4791,9 @@ html[data-theme="dark"] .panel-tab.active {
   right: 12px;
   z-index: 3;
   padding: 2px 10px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
-  color: #607D8B;
+  border-radius: var(--radius-round);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font-size: 11px;
   line-height: 1.6;
   opacity: 0.78;
@@ -4649,7 +4819,7 @@ html[data-theme="dark"] .panel-tab.active {
   align-items: center;
   padding: 14px 4px 12px;
   gap: 12px;
-  background: linear-gradient(180deg, #F2F3F5 0%, #ECEEF0 100%);
+  background: var(--bg-rice-paper);
   overflow: hidden;
 }
 
@@ -4659,9 +4829,9 @@ html[data-theme="dark"] .panel-tab.active {
   max-width: 375px;
   flex: 1 1 0;
   min-height: 320px;
-  background: #FAFAF7;
+  background: var(--paper-warm);
   border-radius: 28px;
-  border: 1px solid var(--hairline-light);
+  border: 1px solid var(--hairline);
   padding: 46px 4px 22px;
   position: relative;
   box-shadow: var(--elev-3);
@@ -4716,14 +4886,14 @@ html[data-theme="dark"] .panel-tab.active {
 
 /* 灞忓箷鍐呭鍖?*/
 .device-screen {
-  background: #FFFFFF;
+  background: var(--bg-surface);
   border-radius: 18px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding: 12px 8px;
   position: relative;
-  box-shadow: inset 0 0 0 1px rgba(207, 216, 220, 0.32);
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 
 /* Home Indicator */
@@ -4734,7 +4904,7 @@ html[data-theme="dark"] .panel-tab.active {
   transform: translateX(-50%);
   width: 34px;
   height: 3px;
-  background: #CFD8DC;
+  background: var(--text-muted);
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -4745,12 +4915,12 @@ html[data-theme="dark"] .panel-tab.active {
 }
 
 .device-screen::-webkit-scrollbar-thumb {
-  background: rgba(38, 50, 56, 0.12);
+  background: var(--hairline);
   border-radius: 1px;
 }
 
 .device-screen::-webkit-scrollbar-thumb:hover {
-  background: rgba(38, 50, 56, 0.24);
+  background: var(--text-muted);
 }
 
 /* 鈹€鈹€鈹€ 棰勮鐘舵€?鈹€鈹€鈹€ */
@@ -4761,7 +4931,7 @@ html[data-theme="dark"] .panel-tab.active {
   justify-content: center;
   gap: 12px;
   min-height: 200px;
-  color: #90A4AE;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -4781,21 +4951,21 @@ html[data-theme="dark"] .panel-tab.active {
 }
 
 .preview-empty-icon {
-  color: #CFD8DC;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .preview-empty-title {
   font-size: 13px;
   font-weight: 500;
-  color: #90A4AE;
+  color: var(--text-muted);
   letter-spacing: 0.01em;
 }
 
 .preview-empty-hint {
   font-size: 12px;
   font-weight: 400;
-  color: #B0BEC5;
+  color: var(--text-muted);
   line-height: 1.5;
   max-width: 220px;
 }
@@ -4803,7 +4973,7 @@ html[data-theme="dark"] .panel-tab.active {
 .preview-content {
   font-size: 14px;
   line-height: 1.6;
-  color: #263238;
+  color: var(--text-primary);
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -4836,28 +5006,27 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 6px;
   height: 36px;
   padding: 0 14px;
-  border: 1px solid #D32F2F;
-  border-radius: 999px;
-  background: #D32F2F;
+  border: 1px solid var(--ember);
+  border-radius: var(--radius-round);
+  background: var(--ember);
   color: #FFFFFF;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 10px -4px rgba(211, 47, 47, 0.42);
-  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  box-shadow: var(--elev-1);
+  transition: background-color var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart), box-shadow var(--motion-base) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .stage-btn-primary:hover:not(:disabled) {
-  background: #C62828;
-  border-color: #C62828;
-  box-shadow: 0 6px 14px -4px rgba(211, 47, 47, 0.50);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-ember);
 }
 
 .stage-btn-primary:active:not(:disabled) {
   transform: translateY(0.5px);
-  box-shadow: 0 2px 6px -2px rgba(211, 47, 47, 0.40);
+  box-shadow: var(--elev-1);
 }
 
 .stage-btn-primary:disabled {
@@ -4867,9 +5036,9 @@ html[data-theme="dark"] .panel-tab.active {
 }
 
 .stage-btn-primary.success {
-  background: #2E7D32;
-  border-color: #2E7D32;
-  box-shadow: 0 4px 10px -4px rgba(46, 125, 50, 0.42);
+  background: var(--success);
+  border-color: var(--success);
+  box-shadow: var(--elev-1);
 }
 
 .stage-btn-secondary {
@@ -4879,22 +5048,22 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 6px;
   height: 36px;
   padding: 0 14px;
-  border: 1px solid #E0E0E0;
-  border-radius: 999px;
-  background: #FFFFFF;
-  color: #607D8B;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-round);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  transition: background-color var(--motion-base) var(--ease-out-quart), border-color var(--motion-base) var(--ease-out-quart), color var(--motion-base) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .stage-btn-secondary:hover:not(:disabled) {
-  border-color: #BDBDBD;
-  background: #FAFAFA;
-  color: #263238;
+  border-color: var(--text-muted);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 .stage-btn-secondary:active:not(:disabled) {
@@ -4909,20 +5078,20 @@ html[data-theme="dark"] .panel-tab.active {
 /* 在预览舞台底部把次按钮做成红色描边幽灵按钮，与主按钮形成色彩呼应 */
 .stage-actions .stage-btn-secondary {
   flex: 1 1 0;
-  border-color: rgba(211, 47, 47, 0.42);
+  border-color: var(--ember-border);
   background: transparent;
-  color: #D32F2F;
+  color: var(--ember);
 }
 
 .stage-actions .stage-btn-secondary:hover:not(:disabled) {
-  background: rgba(211, 47, 47, 0.06);
-  border-color: rgba(211, 47, 47, 0.62);
-  color: #C62828;
+  background: var(--ember-soft);
+  border-color: var(--ember);
+  color: var(--ember);
 }
 
 .stage-actions .stage-btn-secondary:disabled {
-  border-color: #E0E0E0;
-  color: #90A4AE;
+  border-color: var(--hairline);
+  color: var(--text-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4946,14 +5115,14 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 8px;
   height: 36px;
   padding: 0 12px;
-  border-bottom: 1px solid var(--hairline-light);
+  border-bottom: 1px solid var(--hairline);
   flex-shrink: 0;
 }
 
 .inspector-title {
   font-size: 12px;
   font-weight: 600;
-  color: #607D8B;
+  color: var(--text-secondary);
   flex: 1;
 }
 
@@ -4965,22 +5134,22 @@ html[data-theme="dark"] .panel-tab.active {
   justify-content: center;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-medium);
   background: transparent;
-  color: #90A4AE;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--motion-fast) var(--ease-out-quart), color var(--motion-fast) var(--ease-out-quart), border-color var(--motion-fast) var(--ease-out-quart), transform var(--motion-fast) var(--ease-out-quart);
 }
 
 .inspector-pin-btn:hover {
-  background: rgba(120, 144, 156, 0.1);
-  color: #546E7A;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
 }
 
 .inspector-pin-btn.active {
-  border-color: rgba(176, 190, 197, 0.6);
-  background: rgba(236, 239, 241, 0.85);
-  color: #455A64;
+  border-color: var(--hairline);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
   transform: rotate(-30deg);
 }
 
@@ -4992,7 +5161,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .inspector-section {
   padding: 16px;
-  border-bottom: 1px solid #F0F1F3;
+  border-bottom: 1px solid var(--hairline);
 }
 
 .inspector-section:last-child {
@@ -5005,7 +5174,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #607D8B;
+  color: var(--text-secondary);
   margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -5024,7 +5193,9 @@ html[data-theme="dark"] .panel-tab.active {
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              box-shadow var(--motion-fast) var(--ease-out-quart);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5033,12 +5204,12 @@ html[data-theme="dark"] .panel-tab.active {
 
 .accent-dot:hover {
   transform: scale(1.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--elev-2);
 }
 
 .accent-dot.active {
-  border-color: #263238;
-  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px currentColor;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px currentColor;
 }
 
 .inspector-link {
@@ -5067,27 +5238,29 @@ html[data-theme="dark"] .panel-tab.active {
   align-items: center;
   gap: 4px;
   padding: 8px 4px;
-  border: 1px solid var(--hairline-light);
-  border-radius: 8px;
-  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .font-family-btn:hover {
-  border-color: #CFD8DC;
-  background: #F5F5F5;
+  border-color: var(--text-muted);
+  background: var(--bg-rice-paper);
 }
 
 .font-family-btn.active {
   border-color: var(--accent-primary, #D32F2F);
-  background: #FFEBEE;
+  background: var(--accent-primary-light);
 }
 
 .font-family-preview {
   font-size: 18px;
   font-weight: 500;
-  color: #263238;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
@@ -5097,7 +5270,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .font-family-name {
   font-size: 10px;
-  color: #90A4AE;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
@@ -5121,7 +5294,7 @@ html[data-theme="dark"] .panel-tab.active {
 .inspector-empty-hint {
   text-align: center;
   padding: 16px 0;
-  color: #CFD8DC;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -5132,18 +5305,18 @@ html[data-theme="dark"] .panel-tab.active {
 .inspector-empty-sub {
   margin-top: 4px;
   font-size: 11px;
-  color: #E0E0E0;
+  color: var(--text-muted);
 }
 
 /* 鈹€鈹€鈹€ 引用链接鍒楄〃 鈹€鈹€鈹€ */
 .inspector-count {
   margin-left: auto;
-  background: #ECEFF1;
-  color: #607D8B;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   font-size: 10px;
   font-weight: 600;
   padding: 1px 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-medium);
   line-height: 1.4;
 }
 
@@ -5157,12 +5330,12 @@ html[data-theme="dark"] .panel-tab.active {
   display: flex;
   align-items: center;
   gap: 4px;
-  border-radius: 6px;
-  transition: background 0.15s;
+  border-radius: var(--radius-medium);
+  transition: background var(--motion-fast) var(--ease-out-quart);
 }
 
 .link-item:hover {
-  background: rgba(21, 101, 192, 0.04);
+  background: var(--accent-secondary-light);
 }
 
 .link-item-main {
@@ -5173,14 +5346,14 @@ html[data-theme="dark"] .panel-tab.active {
   flex: 1;
   min-width: 0;
   font-size: 12px;
-  color: #607D8B;
+  color: var(--text-secondary);
   text-decoration: none;
-  transition: color 0.15s;
+  transition: color var(--motion-fast) var(--ease-out-quart);
   overflow: hidden;
 }
 
 .link-item-main:hover {
-  color: #1565C0;
+  color: var(--accent-secondary);
 }
 
 .link-item-main svg {
@@ -5214,7 +5387,7 @@ html[data-theme="dark"] .panel-tab.active {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 10px;
-  color: #B0BEC5;
+  color: var(--text-muted);
   max-width: 100%;
 }
 
@@ -5226,20 +5399,21 @@ html[data-theme="dark"] .panel-tab.active {
   height: 24px;
   border: none;
   background: transparent;
-  color: #CFD8DC;
+  color: var(--text-muted);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s ease;
+  border-radius: var(--radius-small);
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   flex-shrink: 0;
 }
 
 .link-copy-btn:hover {
-  background: #ECEFF1;
-  color: #607D8B;
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
 }
 
 .link-copy-btn.copied {
-  color: #4CAF50;
+  color: var(--success);
 }
 
 /* 鈹€鈹€鈹€ 鎺掔増鍙傛暟婊戝潡鎺т欢 (useTypography) 鈹€鈹€鈹€ */
@@ -5251,13 +5425,13 @@ html[data-theme="dark"] .panel-tab.active {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #607D8B;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 
 .control-value {
   font-variant-numeric: tabular-nums;
-  color: #263238;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -5266,7 +5440,7 @@ html[data-theme="dark"] .panel-tab.active {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: #E5E7EB;
+  background: var(--hairline);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -5278,8 +5452,8 @@ html[data-theme="dark"] .panel-tab.active {
   height: 14px;
   border-radius: 50%;
   background: var(--accent-primary, #D32F2F);
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--bg-surface);
+  box-shadow: var(--elev-1);
   cursor: pointer;
 }
 
@@ -5288,7 +5462,7 @@ html[data-theme="dark"] .panel-tab.active {
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: #607D8B;
+  color: var(--text-secondary);
   padding: 6px 0;
   cursor: default;
 }
@@ -5308,25 +5482,27 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 2px;
   padding: 5px 8px;
   min-height: 34px;
-  border: 1px solid var(--hairline-light);
-  border-radius: 6px;
-  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-surface);
   font-size: 11px;
-  color: #607D8B;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   white-space: nowrap;
 }
 
 .preset-chip:hover {
-  border-color: #CFD8DC;
-  background: #F5F5F5;
-  color: #263238;
+  border-color: var(--text-muted);
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 .preset-chip.active {
   border-color: var(--accent-primary, #D32F2F);
-  background: #FFEBEE;
+  background: var(--accent-primary-light);
   color: var(--accent-primary, #D32F2F);
   font-weight: 500;
 }
@@ -5366,7 +5542,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .control-group label {
   font-size: 12px;
-  color: #607D8B;
+  color: var(--text-secondary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -5374,24 +5550,26 @@ html[data-theme="dark"] .panel-tab.active {
 /* 鈹€鈹€鈹€ 首行缩进鍒囨崲 鈹€鈹€鈹€ */
 .indent-toggle {
   padding: 4px 12px;
-  border: 1px solid var(--hairline-light);
-  border-radius: 4px;
-  background: #FFFFFF;
-  color: #90A4AE;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-small);
+  background: var(--bg-surface);
+  color: var(--text-muted);
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
   min-width: 48px;
   text-align: center;
 }
 
 .indent-toggle:hover {
-  border-color: #CFD8DC;
+  border-color: var(--text-muted);
 }
 
 .indent-toggle.active {
   border-color: var(--accent-primary, #D32F2F);
-  background: #FFEBEE;
+  background: var(--accent-primary-light);
   color: var(--accent-primary, #D32F2F);
   font-weight: 500;
 }
@@ -5410,7 +5588,7 @@ html[data-theme="dark"] .panel-tab.active {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: #E5E7EB;
+  background: var(--hairline);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -5422,14 +5600,14 @@ html[data-theme="dark"] .panel-tab.active {
   height: 14px;
   border-radius: 50%;
   background: var(--accent-primary, #D32F2F);
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--bg-surface);
+  box-shadow: var(--elev-1);
   cursor: pointer;
 }
 
 .range-value {
   font-size: 11px;
-  color: #90A4AE;
+  color: var(--text-muted);
   min-width: 36px;
   text-align: right;
   flex-shrink: 0;
@@ -5445,23 +5623,25 @@ html[data-theme="dark"] .panel-tab.active {
 
 .style-option {
   padding: 3px 8px;
-  border: 1px solid var(--hairline-light);
-  border-radius: 4px;
-  background: #FFFFFF;
-  color: #90A4AE;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-small);
+  background: var(--bg-surface);
+  color: var(--text-muted);
   font-size: 11px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              border-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .style-option:hover {
-  border-color: #CFD8DC;
-  color: #607D8B;
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .style-option.active {
   border-color: var(--accent-primary, #D32F2F);
-  background: #FFEBEE;
+  background: var(--accent-primary-light);
   color: var(--accent-primary, #D32F2F);
   font-weight: 500;
 }
@@ -5470,8 +5650,8 @@ html[data-theme="dark"] .panel-tab.active {
 .stepper {
   display: flex;
   align-items: center;
-  border: 1px solid var(--hairline-light);
-  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
   overflow: hidden;
 }
 
@@ -5482,17 +5662,18 @@ html[data-theme="dark"] .panel-tab.active {
   width: 28px;
   height: 28px;
   border: none;
-  background: #FFFFFF;
-  color: #607D8B;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color var(--motion-fast) var(--ease-out-quart),
+              color var(--motion-fast) var(--ease-out-quart);
 }
 
 .stepper-btn:hover:not(:disabled) {
-  background: #F5F5F5;
-  color: #263238;
+  background: var(--bg-rice-paper);
+  color: var(--text-primary);
 }
 
 .stepper-btn:disabled {
@@ -5504,9 +5685,9 @@ html[data-theme="dark"] .panel-tab.active {
   padding: 0 8px;
   font-size: 12px;
   font-weight: 500;
-  color: #263238;
-  border-left: 1px solid var(--hairline-light);
-  border-right: 1px solid var(--hairline-light);
+  color: var(--text-primary);
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
   min-width: 48px;
   text-align: center;
   line-height: 28px;
@@ -5517,10 +5698,10 @@ html[data-theme="dark"] .panel-tab.active {
 .font-preview {
   margin-top: 10px;
   padding: 10px 12px;
-  border: 1px solid #F0F1F3;
-  border-radius: 6px;
-  background: #FAFBFC;
-  color: #607D8B;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-medium);
+  background: var(--bg-rice-paper);
+  color: var(--text-secondary);
   word-break: break-word;
 }
 
@@ -5542,7 +5723,7 @@ html[data-theme="dark"] .panel-tab.active {
   pointer-events: none;
   z-index: 50;
   opacity: 0;
-  transition: opacity 0.5s;
+  transition: opacity var(--motion-slow) var(--ease-out-quart);
   background: radial-gradient(
     ellipse 80% 60% at 50% 50%,
     transparent 0%,
@@ -5582,7 +5763,7 @@ html[data-theme="dark"] .panel-tab.active {
   gap: 8px;
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(38, 50, 56, 0.18);
   color: #FFFFFF;
   font-size: 12px;
@@ -5590,7 +5771,7 @@ html[data-theme="dark"] .panel-tab.active {
   cursor: pointer;
   opacity: 0.3;
   backdrop-filter: blur(10px);
-  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  transition: opacity var(--motion-base) var(--ease-out-quart), transform var(--motion-base) var(--ease-out-quart), background var(--motion-base) var(--ease-out-quart);
 }
 
 .focus-exit-btn:hover {
@@ -5601,7 +5782,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .focus-exit-shortcut {
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(255, 255, 255, 0.16);
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 11px;
@@ -5629,7 +5810,7 @@ html[data-theme="dark"] .panel-tab.active {
 
 .focus-mode .workstation-header {
   opacity: 0.3;
-  transition: opacity 0.3s;
+  transition: opacity var(--motion-slow) var(--ease-out-quart);
 }
 
 .focus-mode .workstation-header:hover {
@@ -5647,30 +5828,10 @@ html[data-theme="dark"] .panel-tab.active {
    婊氬姩鏉?
    鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?*/
 
-.stage-body::-webkit-scrollbar,
-.panel-body::-webkit-scrollbar,
-.inspector-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.stage-body::-webkit-scrollbar-track,
-.panel-body::-webkit-scrollbar-track,
-.inspector-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.stage-body::-webkit-scrollbar-thumb,
-.panel-body::-webkit-scrollbar-thumb,
-.inspector-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-}
-
-.stage-body::-webkit-scrollbar-thumb:hover,
-.panel-body::-webkit-scrollbar-thumb:hover,
-.inspector-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
+/* Scrollbars on stage / panel / inspector defer to the global 6px rule
+   (design-system.css) + theme-aware var(--scrollbar-thumb). The previous
+   bespoke 4px rgba(0,0,0,.1) track was not dark-aware; removing it lets
+   these panels inherit the unified treatment. */
 
 /* 鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?
    Reduced Motion
@@ -5693,7 +5854,7 @@ html[data-theme="dark"] .panel-tab.active {
   transform: translateX(-50%);
   z-index: 1200;
   padding: 10px 18px;
-  border-radius: 999px;
+  border-radius: var(--radius-round);
   background: rgba(38, 50, 56, 0.92);
   color: #ffffff;
   font-size: 13px;

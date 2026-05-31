@@ -308,6 +308,73 @@ export const useAIStore = defineStore('ai', () => {
         }
     }
 
+    /**
+     * 流式多轮对话
+     * 复用现有 Provider 流式接口，支持完整的 ChatMessage 历史
+     * @param messages - 完整的对话消息列表（含 system / user / assistant 历史）
+     * @param onChunk - 每次收到新文本片段时的回调
+     * @param signal - 外部 AbortSignal（可选，用于上层取消）
+     * @returns 完整的回复文本
+     */
+    async function streamChat(
+        messages: ChatMessage[],
+        onChunk: (chunk: string) => void,
+        signal?: AbortSignal
+    ): Promise<string> {
+        if (!isAvailable.value || provider.value == null) {
+            throw new Error('AI 未配置或不可用')
+        }
+        checkThrottle()
+        const p = provider.value
+
+        const controller = new AbortController()
+        activeControllers.add(controller)
+
+        // 关联外部 signal：已中止则立即中止，否则监听中止事件
+        if (signal?.aborted) {
+            controller.abort()
+        } else {
+            signal?.addEventListener('abort', () => controller.abort())
+        }
+
+        isStreaming.value = true
+        loading.value = true
+        error.value = null
+
+        try {
+            lastRequestTime = Date.now()
+
+            const config = settingsStore.settings.ai
+            let full = ''
+
+            for await (const chunk of p.stream(messages, {
+                model: config.model,
+                maxTokens: config.maxTokens,
+                temperature: config.temperature,
+                signal: controller.signal,
+            })) {
+                full += chunk
+                onChunk(chunk)
+            }
+
+            return full
+        } catch (e) {
+            if (e instanceof Error && e.name === 'AbortError') {
+                error.value = '请求已取消'
+                throw e
+            }
+            const msg = e instanceof AppError
+                ? e.message
+                : (e instanceof Error ? e.message : '流式对话失败')
+            error.value = msg
+            throw e
+        } finally {
+            activeControllers.delete(controller)
+            isStreaming.value = false
+            loading.value = false
+        }
+    }
+
     // ─── AI 功能方法 ───
 
     /**
@@ -618,6 +685,7 @@ export const useAIStore = defineStore('ai', () => {
         generateTranscript,
         continueWriting,
         streamGenerate,
+        streamChat,
         testConnection,
 
         // ─── 通用生成 ───

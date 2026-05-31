@@ -109,6 +109,17 @@ describe('LayoutPersistenceService', () => {
     expect(record?.activeArticleId).toBe('article-b')
   })
 
+  it('round-trips the ai manager tab and self-corrects unknown tabs to files', async () => {
+    stubLayoutStateTable()
+    const service = new LayoutPersistenceService()
+
+    await service.save({ managerTab: 'ai' }, 'profile-ai', 'window-ai')
+    expect((await service.load('profile-ai', 'window-ai'))?.managerTab).toBe('ai')
+
+    await service.save({ managerTab: 'bogus' as never }, 'profile-ai', 'window-unknown')
+    expect((await service.load('profile-ai', 'window-unknown'))?.managerTab).toBe('files')
+  })
+
   it('migrates raw legacy rows during initialize and persists the normalized record', async () => {
     const { table } = stubLayoutStateTable()
     const service = new LayoutPersistenceService()

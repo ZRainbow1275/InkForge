@@ -5,7 +5,7 @@ export const LAYOUT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000
 
 export const EDITOR_MODE_VALUES = ['typora', 'source', 'preview'] as const
 export const EDITOR_WIDTH_VALUES = ['narrow', 'medium', 'wide', 'full'] as const
-export const MANAGER_TAB_VALUES = ['files', 'versions', 'outline', 'tags'] as const
+export const MANAGER_TAB_VALUES = ['files', 'versions', 'outline', 'tags', 'ai'] as const
 export const RIGHT_PANEL_MODE_VALUES = ['inspector', 'assets', 'export', 'writing-assist'] as const
 export const WORKSTATION_PANEL_VALUES = ['manager', 'stage', 'inspector'] as const
 
