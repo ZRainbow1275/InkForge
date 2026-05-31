@@ -90,13 +90,31 @@ InkForge 将原始 Markdown 锻造成精致排版——如矿石成钢，如墨�
 | 维度 | 市面常见 | InkForge |
 |---|---|---|
 | 主强调色 | 蓝 (#0066cc) / 红 (#E74C3C) / 紫 (#6B5B95) | **Kiln 朱砂赤陶** (#D95B3F) — 不是红、不是橙、不是珊瑚 |
-| 辅助色 | 灰 / 浅蓝 / 无 | **Tempera 铜绿** (#3B7A6B) — 与 Kiln 的冷热对比独一无二 |
+| 辅助色 | 灰 / 浅蓝 / 无 | **Tempera 铜绿** (#3B7A6B) — 文章正文内的冷暖呼吸 |
 | 金属感 | 商务金 (#B8860B) / 奢侈金 (#FFD700) | **Amber 黄铜** (#C19A56) — 更朴素、更匠人 |
 | 背景 | 纯白 (#FFF) / 冷灰 (#FAFAFA) | **Vellum 宣纸** (#F5F0E6) — 有温度的暖白 |
 | 文字色 | 纯黑 (#000) / 炭灰 (#333) | **Graphite 高碳钢** (#252933) — 带蓝底调的深色 |
 | 整体感 | 企业/学术/极简 | **匠人工坊** — 温暖而精确 |
 
-**Kiln + Tempera 的冷热对比**是 InkForge 品牌的视觉 DNA。市面上没有任何编辑器或内容平台使用这一组合。
+**Logo-mark DNA (Logo Concept 08, 2026-05-29)**: the **logo / brand-mark
+surfaces have their OWN five-color palette** — **墨黑 Ink Black `#1C1F23` ×
+铸红 Forged Red `#C9362C` × 灰 Grey `#6B6F76` × 浅灰 Light Grey `#E6E8EB` ×
+砚白 Paper `#F7F4EF`** (see §9.0). The 墨滴 · 笔锋 · 铁砧 mark narrates 墨×铸 as:
+墨 (Ink-Black ink-drop) + 铸 (Ink-Black forging anvil) + a Forged-Red ember
+(灵感) + a nib-arrow shooting ↗ (创作/发送/发布). This palette governs **logo /
+mark surfaces only** — the icon masters, `ForgeNibMark.vue`, favicon, splash,
+boot placeholder, and §9.
+
+**Article-side + broader-chrome DNA (unchanged)**: **Kiln `#D95B3F` × Tempera
+`#3B7A6B` 冷热对比** remains the Forge-Spectrum DNA for long-form reading
+surfaces (link hover, H3 headings, blockquote rules, cool ornaments) AND for
+the broader UI chrome / tokens (focus ring, accents). The Forge Spectrum
+(Graphite / Kiln / Tempera / Amber, §2.1) is intact; the logo palette is a
+parallel mark-specific system, not a replacement.
+
+简言之：**logo / mark = 墨黑×铸红×灰×浅灰×砚白 (墨滴·笔锋·铁砧)**，**article body +
+broader chrome = Forge Spectrum (Graphite / Kiln / Tempera / Amber)**。两套
+体系并存：logo 用 Logo Concept 08 专属五色，正文与 UI chrome 继续用锻造光谱。
 
 ---
 
@@ -404,74 +422,294 @@ const inkforgePreset: ExportPreset = {
 
 ---
 
-## 9. Logo Mark 标识 — Forge Nib (锻铸笔尖)
+## 9. Logo Mark 标识 — 墨滴 · 笔锋 · 铁砧 Mark
 
-> Version: 2026-05-28 redesign. Replaces the prior「铸」-character seal mark.
-> The prior design depended on a system CJK serif font fallback chain (Source
-> Han Serif SC → Noto Serif SC → Songti SC → STSong → SimSun), which produced
-> blurry/illegible raster icons at 16-32px and inconsistent cross-machine
-> results. Forge Nib is **pure geometry, 0 font dependency**.
+> Version: 2026-05-29 v5 redesign. Supersedes the prior 鼎 × 笔尖 × 方格 grid
+> mark (v4, "LOGO CONCEPT 06"), which the user retired because the 5×3 module
+> grid read muddy / unclear at small sizes (the #1 acceptance failure). The
+> user supplied a new approved concept sheet ("Logo Concept 08") and selected
+> this 墨滴 · 笔锋 · 铁砧 mark as the official InkForge logo.
+>
+> The v5 mark is a **vertically stacked, single-silhouette** mark that spells
+> 墨铸 / InkForge literally — ink being forged on an anvil. Narrative top→bottom:
+>
+> - **红珠 ember (灵感)** — a solid Forged-Red circle at the top: the spark of
+>   inspiration.
+> - **墨滴 ink-drop (墨)** — a black teardrop below the ember (sharp point at
+>   top, bulbous round bottom), sliced by a paper-colored diagonal gap.
+> - **笔锋箭头 nib-arrow (创作 / 发送 / 发布)** — a bold diagonal stroke that
+>   slices the lower-right of the drop and continues past it to an arrowhead
+>   pointing up-right (↗): the writing-and-publish gesture.
+> - **铁砧 anvil (铸 / Forge)** — a black forging-anvil base below the drop:
+>   the Forge made literal.
+>
+> This is a **clarity-first, bold-silhouette** mark. Where the retired 鼎-grid
+> packed many small modules that turned to mud at 16px, the new mark is a few
+> large, high-contrast shapes that survive 16px AND tell the 墨→铸 story at
+> 1024px. The slice + arrow are the second-look reward; the drop + anvil read
+> instantly.
+
+### 9.0 Logo Palette 标识专属色板
+
+The logo uses its OWN five-color palette (Logo Concept 08). This is the
+palette for **logo / mark surfaces only** — the app's article-side palette
+(§2, Forge Spectrum: Graphite / Kiln / Tempera / Amber) is unchanged and
+continues to govern body-copy, export themes, and the broader UI chrome.
+
+| Token | Hex | 角色 |
+|---|---|---|
+| **墨黑 Ink Black** | `#1C1F23` | ink-drop, anvil, nib-arrow — the forged mass |
+| **铸红 Forged Red** | `#C9362C` | ember + accents — the molten signal of inspiration |
+| **灰 Grey** | `#6B6F76` | secondary detail (rarely needed) |
+| **浅灰 Light Grey** | `#E6E8EB` | subtle fills |
+| **砚白 Paper** | `#F7F4EF` | background, slice gap, negative space — the page |
+
+Dark-mode lift: Forged Red `#C9362C` → `#E15A4E` on Char backgrounds for
+contrast on splash / boot placeholder wordmark separators.
+
+The retired v4 logo palette (`#1F1F1F` / `#A72A2A` / `#B28A5E` / `#F2F0EB`) is
+fully replaced across all logo surfaces by these tokens.
 
 ### 9.1 Design Intent 设计意图
 
-- **形 (Form)**: Kiln 朱砂方印 (rounded-square seal) + Graphite 菱形笔尖 (nib diamond) + Vellum 中线劈缝 (nib slit) + Amber 底锻线 (forge line)
-- **色 (Color)**: Kiln `#D95B3F` 朱砂底 (radialGradient `#E27654`→`#D95B3F`→`#B84A30`) + Graphite `#252933` 笔尖 + Vellum `#F5F0E6` 劈缝 + Amber linearGradient (`#D4B070`→`#C19A56`) 锻线
-- **叙 (Narrative)**: 「墨 + 铸」= ink cast into form。**Kiln 衬底 = 熔铸炉**, **Graphite 菱形 = 笔尖**, **Vellum 劈缝 = 钢笔金属切口**, **Amber 锻线 = 冷却中的金属火痕** — 完整翻译「Markdown → 精致排版」的锻造叙事
-- **唯一性 (Differentiation)**: 市面无任何 editor 使用「熔铸炉 + 笔尖 + 劈缝 + 锻线」四元几何组合, 也无任何 editor 用 Kiln 朱砂 × Graphite 高碳蓝灰冷热对比作为 app mark
-- **0 字体依赖**: 全部由 `rect` / `polygon` / `polyline` 构成, 任何机器 (CI runner, 无 CJK 字体的 Linux) raster 出来视觉一致
+- **形 (Form)**: a Forged-Red ember circle at the top + a black ink-drop
+  (teardrop) sliced by a paper-colored diagonal gap (carved via `<mask>`) + a
+  black nib-arrow stroke (shaft along the slice's upper edge + arrowhead
+  shooting ↗) + a black forging-anvil base (wide overhanging top slab, pinched
+  waist, flared trapezoidal foot) + (256+) a soft top-left highlight on the
+  drop + a warm contact shadow under the anvil + (1024-tier) a vertical sheen
+  gradient on the drop + a soft ember glow.
+- **色 (Color)**: Ink Black `#1C1F23` drop/arrow/anvil (primary mass) + Paper
+  `#F7F4EF` slice gap + negative space + Forged Red `#C9362C` ember +
+  (1024) ember-glow radial fade + drop-sheen linear gradient (`#2B2F35`→
+  `#1C1F23`→`#141619`) + anvil contact-shadow radial fade.
+- **叙 (Narrative)** — three design pillars:
+  - **墨滴 / 书写**: the ink-drop is 墨, the writing substance — thought made
+    into ink.
+  - **锻造 / 铁砧**: the anvil is 铸 (Forge) — the vessel on which the ink is
+    hammered into form.
+  - **发送 / 发布**: the nib-arrow shooting ↗ is the creative + publish
+    gesture — InkForge's cross-platform 发布 promise.
+- **唯一性 (Differentiation)**: No editor brand stacks an ink-drop on a
+  forging anvil with a publish-arrow slicing through. The cool-hot tension is
+  the Ink-Black mass + the single Forged-Red ember signal; the diagonal slice
+  + arrow give a dual reading (a calm ink-drop ⇄ a launching publish gesture).
+  The single-gesture economy + bold silhouette echo Bear / Cursor / Nike — one
+  clean primary read, one second-look reward.
+- **0 字体依赖**: All shapes are `path` / `circle` / `ellipse` / `mask` /
+  `linearGradient` / `radialGradient` primitives. No `<text>` element, no CJK
+  font reference, no Latin font reference inside the SVG, no `<polygon>`. The
+  墨铸 wordmark lives entirely in the host HTML (`.ink-logo-lockup__cn` /
+  `.ink-app-shell__wordmark-cn` text nodes), so cross-machine raster is
+  identical. Contract: `grep -c '<text' inkforge/src-tauri/icons/master-*.svg`
+  MUST return 0, and `grep -c '<polygon' ...` MUST return 0.
 
-### 9.2 SVG Master
+### 9.2 SVG Masters — Progressive 5-Tier
 
-- **Location**: `inkforge/src-tauri/icons/master.svg`
-- **viewBox**: 1024 × 1024
-- **Safe area padding**: ~22% (seal 位于 226..798，572×572)，防 Win11 squircle 自动圆角 / macOS rounded square 自动剪切到主体
-- **纯矢量, 纯 path/shape**:
-  - Kiln seal: `rect x=226 y=226 w=572 h=572 rx=72` fill=`url(#kilnGrad)`
-  - Inner hairline: `rect x=244 y=244 w=536 h=536 rx=58` stroke=`#F5F0E6` opacity=0.18 width=2
-  - Graphite nib diamond: `polygon points="512,312 680,512 512,712 344,512"` fill=`#252933`
-  - Bevel highlight: `polyline points="380,500 512,360"` stroke=`#F5F0E6` opacity=0.22 width=14 linecap=round
-  - Vellum nib slit: `rect x=506 y=380 w=12 h=260 rx=6` fill=`#F5F0E6`
-  - Amber forge line: `rect x=412 y=748 w=200 h=10 rx=5` fill=`url(#amberGrad)`
-- **装饰细节**: `radialGradient` 模拟熔铸光晕 + `linearGradient` 模拟金属锻线 + `feGaussianBlur` 外阴影 6px@28% alpha
-- **校验契约**: `grep -c '<text' inkforge/src-tauri/icons/master.svg` MUST return 0
+Five progressive masters cover every output size — clarity is the #1 goal, so
+each smaller tier sheds the finer detail that would turn to mud:
+
+| Master | Tier | Detail level | Location |
+|---|---|---|---|
+| `master-16.svg` | 1 | SOLID ink-drop (NO slice — too fine) + ember dot + bold simplified anvil; NO arrow | `src-tauri/icons/master-16.svg` |
+| `master-32.svg` | 2 | ink-drop + thin slice gap + short stub nib-arrow (simple triangular head) + ember dot + clearer anvil waist | `src-tauri/icons/master-32.svg` |
+| `master-64.svg` | 3 | full drop + slice + full arrowhead + ember + anvil overhang + 1px-equivalent drop highlight | `src-tauri/icons/master-64.svg` |
+| `master-256.svg` | 4 | full detail + soft top-left highlight on drop + ember highlight + soft contact shadow under anvil | `src-tauri/icons/master-256.svg` |
+| `master-1024.svg` | 5 (hero) | full mark + drop sheen gradient + ember glow + warm contact shadow | `src-tauri/icons/master-1024.svg` |
+
+All five share the same viewBox `0 0 1024 1024` and the same canonical mark
+geometry (centered, vertically stacked, slightly taller than wide).
+
+**Canonical geometry (shared across tiers, simplified downward)**:
+
+- **Ember**: `circle cx=512 cy≈178 r≈54` Forged Red `#C9362C` (r grows to 64
+  at tier 16 for small-raster presence).
+- **Ink-drop**: teardrop `path` with apex ≈ (512, 286) and bulbous bottom
+  ≈ y 614, half-width ≈ 112, symmetric about x=512, fill `#1C1F23` (or the
+  sheen gradient at tier 5).
+- **Slice**: a diagonal paper-colored band carved via `<mask>` (white keeps
+  the drop, a black `<path>` band ≈30° above horizontal removes the gap),
+  splitting the drop into an upper-left mass + a lower crescent.
+- **Nib-arrow**: a shaft `<path>` running along the slice's upper edge
+  (lower-left → upper-right) + an arrowhead `<path>` with tip ≈ (786, 292)
+  pointing up-right. Both fill `#1C1F23`. Authored as `<path>`, NOT polygon.
+- **Anvil**: a `<path>` with a wide overhanging top slab (x ≈ 296→730 at
+  y ≈ 700), a pinched waist, and a flared trapezoidal foot (bottom ≈ y 874),
+  symmetric about x=512, fill `#1C1F23`.
+
+**Validation contract**:
+
+- `grep -c '<text' inkforge/src-tauri/icons/master-*.svg` MUST return 0
+- `grep -c '<polygon' inkforge/src-tauri/icons/master-*.svg` MUST return 0
+- Each master MUST parse as well-formed XML
+- Each master MUST contain at least 2 `<path>` elements filled `#1C1F23`
+  (the drop + anvil; tiers 32+ add the arrow shaft + head) — Ink-Black body
+  acceptance gate
+- Each master MUST contain at least 1 element filled `#C9362C` (the Forged-Red
+  ember) — molten-signal presence gate
+- Tiers 32–1024 MUST contain at least 1 `<mask>` (or `<clipPath>`) carving the
+  slice negative space; tier 16 is exempt (solid drop, no slice)
+- NOTE: the old `inkBlackRects >= 3` (鼎-grid) gate is RETIRED — the v5 mark
+  has NO `<rect>` body modules. The body is now a few large `<path>` shapes.
 
 ### 9.3 Sizing Rules 尺寸策略
 
-| 用途 | size 范围 | 几何策略 |
+| 用途 | size 范围 | 几何策略 / Tier 选择 |
 |---|---|---|
-| App icon (Win/macOS/Linux) | 16 ~ 1024 | 完整 Forge Nib (master.svg)，22% 安全 padding 主体留中 |
-| Favicon (浏览器 tab) | 32 | 缩比 Forge Nib (`public/favicon.svg`)，~6% padding，去 hairline + bevel highlight |
-| Splash logo (居中印章) | 108 (CSS px) | 完整 Forge Nib (splash.html 内联)，0 padding，去 filter (CSS 提供 drop-shadow) |
-| TitleBar 内嵌 logo | 16 | 缩比 Forge Nib (TitleBar.vue 内联，与 favicon 同 32-viewBox)，0 padding |
-| `index.html` 启动占位 | 64 (CSS px) | 完整 Forge Nib 1024-viewBox，0 ◇ ornament，去 bevel highlight |
+| App icon raster ≤ 24px (favicon, Win taskbar small) | 16, 24 | Tier 1 (`master-16.svg`) — solid drop + ember + anvil |
+| App icon raster 25–48px (Win taskbar large, macOS dock @1x) | 32, 48 | Tier 2 (`master-32.svg`) — slice + stub arrow |
+| App icon raster 49–128px (Win Start tile, macOS dock @2x) | 64, 128 | Tier 3 (`master-64.svg`) — full arrowhead + highlight |
+| App icon raster 129+px (macOS icns 256–1024 slots, Linux PNG) | 256, 512, 1024, 2048 | Tier 4 (`master-256.svg`) — full detail + contact shadow |
+| In-app hero / About / WelcomeModal / splash | 256+ (CSS px) | Tier 5 (`master-1024.svg`) — adds drop sheen + ember glow |
 
-### 9.3.1 16/32px 退化策略
+**Why tier 5 IS suitable for in-app inline use only**: at 256×256 platform
+icon size, the sheen gradient + ember glow + soft contact shadow blur into the
+platform squircle mask edge and lose definition. Reserving tier 5 for in-app
+inline rendering (100+ CSS px, no platform crop) preserves the material aura
+as a hero-tier flourish. `build-icons.mjs` does NOT consume tier 5.
 
-- **16×16 raster**: 菱形 + 中线劈缝 + 底锻线全保留, bevel highlight scale 至 < 1px 视觉消失但不破坏轮廓
-- **favicon.svg / TitleBar 16px**: 同样的 32-viewBox 几何，hairline + bevel + filter 已删除，避免 1px 模糊伪影
+### 9.3.1 16/32px Survival Strategy 退化策略
+
+- **16×16 raster** (tier 1): The drop is SOLID (the slice gap turns to mud at
+  this scale), the ember is a clean dot, and the anvil is a bold simplified
+  silhouette. Reads unambiguously as "an ink-drop on an anvil." This is the
+  single biggest improvement over the retired 鼎-grid, which collapsed to a
+  black smudge at 16px.
+- **24×24 raster** (tier 1): identical strategy; ember + drop + anvil resolve
+  cleanly.
+- **32×32 raster** (tier 2): a thin slice gap + a short stub nib-arrow appear;
+  the anvil waist is defined.
+- **64×64 raster** (tier 3): the full arrowhead + the slice + a 1px drop
+  highlight all read.
+- **128+ raster** (tier 4): the soft top-left drop highlight + ember highlight
+  + contact shadow add material depth.
 
 ### 9.4 Platform Squircle Handling 平台圆角处理
 
-- **Windows 11**: 任务栏 / Start 自动 ~22% 圆角 crop，master 的 22% 安全 padding 确保主形 (菱形笔尖) 不被切到
-- **macOS Big Sur+**: 系统对 app icon 自动 squircle 包装 (圆角矩形 mask)，22% padding 同样适用
-- **Linux**: 各桌面环境 (GNOME / KDE / XFCE) 不统一；master 提供完整方形 + transparent 背景，DE 自行处理 mask
+The mark's bounding box is ~498px wide (drop/anvil) by ~710px tall (ember top
+to anvil foot) inside a 1024×1024 canvas — horizontal padding ~26% each side,
+vertical padding ~12% top and ~14% bottom — so platform squircle /
+Big-Sur-style icon masks never reach the mark. The arrowhead extends to
+x≈786 (right ~23% margin), clearing the crop.
+
+- **Windows 11**: Taskbar / Start auto-rounds icons; the centered stack sits
+  well inside the ~22% crop radius.
+- **macOS Big Sur+**: System wraps icons in a squircle mask; the mark reads
+  cleanly after the crop.
+- **Linux**: DE-specific masks are not uniform; the master ships full square
+  canvas with transparent background, DE crops at will.
 
 ### 9.5 Generated Asset Pipeline 资产生成管线
 
-- **Source**: `inkforge/src-tauri/icons/master.svg` (1024×1024 viewBox, Forge Nib)
+- **Sources**: 5 progressive masters in `inkforge/src-tauri/icons/master-{16,32,64,256,1024}.svg`
 - **Tool**: `inkforge/scripts/build-icons.mjs` (Node ESM + `sharp` + `png-to-ico`)
+- **Tier selection logic** (`masterForSize(size)` in build-icons.mjs):
+  - `size ≤ 24` → `master-16.svg`
+  - `24 < size ≤ 48` → `master-32.svg`
+  - `48 < size ≤ 128` → `master-64.svg`
+  - `size > 128` → `master-256.svg`
+  - `master-1024.svg` is intentionally NOT a raster source (reserved for
+    in-app inline use; see §9.3).
 - **Outputs**:
-  - **Win `.ico`** (multi-resolution 包): 16 / 24 / 32 / 48 / 64 / 128 / 256
+  - **Win `.ico`** (multi-resolution): 16 / 24 / 32 / 48 / 64 / 128 / 256
   - **macOS `.icns`** (8 entries): 16 / 32 / 64 / 128 / 256 / 512 / 1024 + 1024@2x (2048 actual)
   - **Linux PNG**: 32 / 64 / 128 / 256 / 512
   - **Tauri-named** (back-compat for `tauri.conf.json` bundle.icon): `32x32.png`, `128x128.png`, `128x128@2x.png`
-- **Derivation chain**: `master.svg` (1024) → `public/favicon.svg` (32, simplified) → TitleBar 内联 (32-viewBox, 16px CSS) → `public/splash.html` 内联 (572-cropped viewBox, 108px CSS) → `index.html` 内联 (1024-viewBox, 64px CSS) → raster `.ico` / `.icns` / `.png`
+- **Derivation chain**:
+  - `master-16.svg` → 16×16, 24×24 raster
+  - `master-32.svg` → 32×32, 48×48 raster, and `inkforge/public/favicon.svg` (favicon mirrors this tier)
+  - `master-64.svg` → 64×64, 128×128 raster
+  - `master-256.svg` → 256×256, 512×512, 1024×1024, 2048×2048 raster
+  - `master-1024.svg` → inline reference in Vue components (`ForgeNibMark.vue` hero variant) / `index.html` boot placeholder / `splash.html` static identity. `build-icons.mjs` does NOT consume this tier.
 - **Rebuild command**:
   ```bash
   cd inkforge && pnpm run icons:build
-  # 或: node scripts/build-icons.mjs
+  # or: node scripts/build-icons.mjs
   ```
-- **Idempotency**: 安全重跑，每次完整覆盖 `src-tauri/icons/` 输出。 跨机器 raster 一致 (无 CJK 字体依赖)。
+- **Idempotency**: Safe to re-run; each invocation fully overwrites
+  `src-tauri/icons/*.png` / `.ico` / `.icns`. Output bytes are deterministic
+  across machines because all masters are 0-font-dependency.
+
+### 9.6 Motion Spec 动效规范
+
+The mark has three living states beyond idle. All durations and easing
+reference the canonical token ladder in `inkforge/src/styles/tokens.css`
+(see §13).
+
+| State | Trigger | Effect | Duration / Easing |
+|---|---|---|---|
+| **Idle** | Default | Static, no transform, no glow | — |
+| **Hover** | `.forge-nib-mark--interactive:hover` (TitleBar seal, About page mark) | The whole mark warms via `filter: brightness(1.08) saturate(1.1)` — the Forged-Red ember warms up; no scale, no exterior aura | `var(--motion-base)` (180ms), `var(--ease-out-quart)` |
+| **Annealing** | `data-state="annealing"` attribute set 600ms by autosave event subscriber | The Forged-Red ember (`.forge-nib-mark__ember` + glow + highlight) pulses 100% → 125% brightness → 100% (single warmth flare narrating the 铸/cast moment) | 600ms total, `var(--ease-out-quart)` symmetric in/out |
+| **Launch** | Splash window draw — see §10 | Splash mark stamps down using EXISTING drop → squish → bleed sequence; the static identity inside the bleed is the mark from `master-1024.svg` | 800–880ms total (timing inherited from prior splash, NOT recalibrated) |
+
+**Removed from prior versions**:
+- The `transform: scale(1.06)` hover scale-up stays REMOVED. The mark warms
+  rather than bounces.
+- The exterior drop-shadow on hover stays REMOVED. The hero-tier contact
+  shadow + ember glow live only at tier 5 (static, not hover-triggered).
+
+**Reduced motion**: Per §13.4, `prefers-reduced-motion: reduce` cascades
+`var(--motion-base)` to 0ms, so the hover warmth becomes instant. The
+annealing pulse does not reference a motion token (its 600ms is a semantic
+warmth window), so it is killed explicitly under reduced motion. The splash
+drop / squish / bleed sequence is independently neutralized via
+`splash.html`'s `@media` block — see §10.5.
+
+### 9.7 Material Layer 立体材质层
+
+> The flat silhouette reads clean but the hero tiers add a restrained material
+> layer so the mark reads as a CAST object rather than a flat icon.
+
+#### 9.7.1 Material Intent 材质意图
+
+1. **Drop sheen** — at tier 5 the ink-drop is filled by a vertical
+   `linearGradient` (`#2B2F35` top → `#1C1F23` mid → `#141619` bottom), so the
+   drop catches a soft top highlight like a wet bead of ink.
+2. **Ember glow** — at tiers 4–5 a soft Forged-Red radial highlight warms the
+   ember (the molten signal of inspiration).
+3. **Contact shadow** — at tiers 4–5 a warm radial ellipse sits under the
+   anvil foot, grounding the mass.
+
+#### 9.7.2 Per-Tier Material Specification 分级材质规范
+
+| Tier | Slice | Arrow | Drop highlight | Ember | Anvil shadow |
+|---|---|---|---|---|---|
+| 16 | — (solid drop) | — | — | flat dot | — |
+| 32 | thin gap | stub + simple head | — | flat dot | — |
+| 64 | full gap | full head | 1px-equiv highlight path | flat dot | — |
+| 256 | full gap | full head | soft top-left highlight | dot + soft highlight | soft radial ellipse |
+| 1024 | full gap | full head | drop sheen gradient | dot + radial glow | warm radial ellipse |
+
+**Color tokens used**: `#1C1F23` Ink Black (drop / arrow / anvil / shadow),
+`#C9362C` Forged Red (ember), `#E66054` lighter red (ember glow / highlight),
+`#2B2F35`–`#141619` (drop sheen stops), `#F7F4EF` Paper (slice gap, revealed
+through the `<mask>`).
+
+#### 9.7.3 SVG Primitives Used 实现手法
+
+`circle` (ember + glow) + `path` (drop + arrow shaft + arrowhead + anvil +
+slice mask cut + drop highlight) + `ellipse` (contact shadow) + `mask` (slice
+negative space) + `linearGradient` (drop sheen) + `radialGradient` (ember glow
++ contact shadow). No `rect` body modules. No `filter`. No `polygon`.
+
+#### 9.7.4 Validation Contract 验证契约
+
+The material layer does NOT remove or alter the brand-mark structural
+primitives asserted by e2e:
+
+- `darkPaths >= 2` (`<path fill="#1C1F23">` drop + anvil [+ arrow]) — HOLDS at every tier.
+- `redAccents >= 1` (`#C9362C` ember) — HOLDS at every tier.
+- `nibSlice >= 1` (a `<mask>`/`clipPath` carving the slice) — HOLDS at tiers 32–1024.
+- `polygons === 0` (arrow authored as `<path>`) — HOLDS, ENFORCED.
+- Tier-1024 hero `paths >= 3` (drop + arrow shaft + arrowhead + anvil) +
+  `gradients >= 1` (sheen + ember glow + contact shadow) — HOLDS.
+
+All 11 e2e specs in `inkforge/tests/e2e/specs/visual.spec.cjs` pass after the
+brand-mark spec calibration (which retires the defunct 鼎-grid assertions —
+`inkBlackRects >= 3`, `rects >= 5`, `filters >= 1` — in favor of the new
+墨滴·笔锋·铁砧 ground-truth signals above — see the leading comment block in
+that spec for the full rationale).
 
 ---
 
@@ -481,37 +719,49 @@ const inkforgePreset: ExportPreset = {
 
 InkForge 启动 splash 是 **「双击 icon → 首屏可交互」全链路** 第一个品牌投射节点。市面 editor 多用纯色背景 + spinner 占位（Notion / Obsidian / Logseq），instant-but-anonymous。InkForge splash 走相反方向：动画短（≤ 800ms）但有「印章降落 + 墨痕渗透」的人文叙事，让用户在毫秒级时间内感知到产品的匠人气质。
 
-- **形 (Form)**: 居中印章 + wordmark + tagline 三层垂直布局
-- **色 (Color)**: Vellum `#F5F0E6` 仿宣纸底 + Kiln 印章 + Graphite 笔尖菱形 (Forge Nib) + Ash tagline
-- **叙 (Narrative)**: 「印章落下 → 盖印瞬间挤压 → 墨痕从印章边缘 8 方向渗透」— 把品牌名「墨铸」（ink cast into form）翻译为可视动画
+- **形 (Form)**: 居中 墨滴 · 笔锋 · 铁砧 mark + Latin wordmark + tagline 三层垂直布局; the static identity inside the bleed sequence is the §9 v5 墨滴·笔锋·铁砧 mark (`master-1024.svg`), not the prior 鼎 grid mark.
+- **色 (Color)**: Paper `#F7F4EF` 仿宣纸底 + Ink-Black `#1C1F23` ink-drop + anvil + nib-arrow + Forged-Red `#C9362C` ember + drop sheen gradient + ember glow + warm contact shadow + Ash tagline
+- **叙 (Narrative)**: 「mark 落下 → 盖印瞬间挤压 → Forged-Red 墨痕从 mark 边缘 8 方向渗透」— 把品牌名「墨铸」(ink forged into form) 翻译为可视动画. The Forged-Red 8-direction bleed echoes the ember — the same molten signal spreading outward.
 
 ### 10.2 Layout 布局
 
 ```
 ┌─────────────────────────────────────────┐
 │                                         │
+│                ●                        │  ← 108×108 墨滴·笔锋·铁砧 mark
+│               ◢◣      ↗                 │     (master-1024.svg 几何,
+│              ◢██◣  ╱                    │      Forged-Red ember ● +
+│              ███◤╱                      │      sliced Ink-Black ink-drop +
+│               ◥◤                        │      nib-arrow ↗ + forging anvil)
+│             ╱▔▔▔▔╲                      │
+│             ╲▁▁▁▁╱                      │
 │                                         │
-│              ╔══════════╗               │  ← 108×108 印章
-│              ║    ◆     ║               │     (master.svg Forge Nib 几何 -22% padding)
-│              ║   ──     ║               │     菱形 + Vellum 中线劈缝 + Amber 底锻线
-│              ╚══════════╝               │
-│                                         │
-│        InkForge · 墨铸                  │  ← wordmark
+│        InkForge · 墨铸                  │  ← wordmark (host HTML uses app font stack)
 │         成为作者吧                       │  ← tagline (italic, letter-spacing 0.25em)
-│                                         │
 │                                         │
 └─────────────────────────────────────────┘
                   520 × 340
 ```
 
+The mark is centered and slightly taller than wide (~498px wide × ~710px tall
+inside the 1024 canvas), so its 108×108 splash footprint is balanced. The
+top→bottom narrative — ember (灵感) → ink-drop (墨) → nib-arrow (发送) → anvil
+(铸) — leads the eye straight down to where the wordmark anchors beneath.
+
 ### 10.3 Animation Timing 动画时序
+
+Timing is **preserved as-is** across all logo redesigns (v1 Forge Nib →
+v2 印×笔 镇尺 lockup → v3 笔锋 + 火 single-gesture → v4 鼎 × 笔尖 × 方格 →
+v5 墨滴 · 笔锋 · 铁砧). Only the static identity inside the bleed sequence has
+changed; the drop/squish/bleed choreography below was tuned against the IPC
+handshake budget and the v5 mark inherits it intact.
 
 | 阶段 | 时间 | 元素 | 行为 |
 |---|---|---|---|
-| **0 → 300ms** | drop | 印章 | translateY(-40px) → 0 + scale(0.92) → 1.0，easing `cubic-bezier(0.16, 1, 0.3, 1)` |
-| **300 → 360ms** | squish | 印章 | scaleY(0.92) → 1.02 → 1.0，模拟「盖印瞬间的橡胶弹性」 |
+| **0 → 300ms** | drop | mark | translateY(-40px) → 0 + scale(0.92) → 1.0，easing `cubic-bezier(0.16, 1, 0.3, 1)` |
+| **300 → 360ms** | squish | mark | scaleY(0.92) → 1.02 → 1.0，模拟「盖印瞬间的橡胶弹性」 — the Ink-Black mass flexes; the Forged-Red ember stays static (the molten signal inside the cooler compression) |
 | **240 → 740ms** | rise | wordmark | translateY(8px) → 0 + opacity(0) → 1，250ms delay |
-| **360 → 800ms** | bleed | 8-direction ink | opacity(0) → 0.35 → 0，radial 渐变从印章 8 方向边缘扩散 |
+| **360 → 800ms** | bleed | 8-direction ink (Forged Red) | opacity(0) → 0.35 → 0，radial gradient spreading from the mark perimeter — the molten signal made visible as a transient halo (the same red signature the ember carries) |
 | **480 → 880ms** | fade | tagline | opacity(0) → 1，最后出现的元素 |
 
 **总时长**：约 800–880ms。后端 setup hook → splash 渲染 → onMounted → IPC `app_ready` 链路通常 ≤ 600ms，留约 200ms 让动画完成自然收尾再被 `close_splash_and_show_main` 关闭。
@@ -526,10 +776,12 @@ InkForge 启动 splash 是 **「双击 icon → 首屏可交互」全链路** �
 
 | Token | Light | Dark |
 |---|---|---|
-| 背景 | Vellum `#F5F0E6` | Char `#1A1D24` |
-| 文字 | Graphite `#252933` | `#E8E4DC` |
+| 背景 | Paper `#F7F4EF` | Char `#1A1D24` |
+| 文字 | Ink Black `#1C1F23` | `#E8E4DC` |
 | 辅文 | Ash `#6E7580` | Smoke `#9B958D` |
-| 印章 Kiln | `#D95B3F` | `#E8734F` (提亮以补暗底对比) |
+| mark body Ink Black | `#1C1F23` | `#1C1F23` (drop-shadow alpha lifts for legibility on Char bg) |
+| ember Forged Red | `#C9362C` | `#E15A4E` (提亮以补暗底对比) |
+| 8-direction bleed Forged Red | `#C9362C` @ peak alpha 0.35 | `#E15A4E` @ peak alpha 0.42 (compensates dark-mode shadow LIFT, per §16 anti-pattern #7) |
 
 ### 10.5 Reduced Motion 减少动画
 
@@ -540,7 +792,7 @@ InkForge 启动 splash 是 **「双击 icon → 首屏可交互」全链路** �
 - 所有 `transform` 被强制为 `none`
 - 8-方向墨痕 `.ink-bleed` 直接 `display: none`（裸露的 8 个圆点对静态画面无意义）
 
-结果：用户仍能看到完整的「印章 + wordmark + tagline」静态品牌印记，但无任何运动。
+结果：用户仍能看到完整的「ember + ink-drop + nib-arrow + anvil + wordmark + tagline」静态品牌印记，但无任何运动。The static 墨滴·笔锋·铁砧 mark (Forged-Red ember + sliced Ink-Black ink-drop + nib-arrow + forging anvil) is fully legible without animation — no part of the brand identity depends on movement.
 
 ### 10.6 IPC Handshake 协议
 
@@ -598,11 +850,11 @@ The inline placeholder rendered inside `index.html` `<div id="app">` is the
 **third moment** in the InkForge startup chain (after the Tauri splash window
 and just before the Vue app mounts and replaces it). It is the only visible
 artifact during full reload (F5 / devtools reload) inside the main window, so
-it must read as a continuation of the splash — same seal, same Vellum field,
+it must read as a continuation of the splash — same seal, same Paper field,
 same wordmark, same tagline narrative — but quieter and motion-restrained.
 
-- **形 (Form)**: 静态 Forge Nib 印章 (64×64, master.svg 几何) + 「InkForge · 墨铸」wordmark + 「正在准备墨砚...」caption
-- **色 (Color)**: Vellum `#F5F0E6` 底 + Kiln `#D95B3F` 印章 + Graphite `#252933` 笔尖菱形 + Vellum `#F5F0E6` 中线劈缝 + Amber `#C19A56` 底锻线 + Ash `#6E7580` wordmark + Smoke `#9B958D` caption
+- **形 (Form)**: 静态 墨滴 · 笔锋 · 铁砧 mark (140×140, mirrors `master-1024.svg` geometry) + 「InkForge · 墨铸」wordmark + 「正在准备墨砚...」caption
+- **色 (Color)**: Paper `#F7F4EF` 底 + Ink-Black `#1C1F23` ink-drop + anvil + nib-arrow + Forged-Red `#C9362C` ember + drop sheen + ember glow + warm contact shadow + Ink-Black `#1C1F23` wordmark + Smoke `#9B958D` caption
 - **声 (Voice)**: caption「正在准备墨砚...」延续匠人锻造叙事，比通用 "Loading..." 更有人格
 
 ### 11.2 Technical Contract 技术约束
@@ -633,7 +885,8 @@ ever set on `:root`, so the placeholder uses OS preference as the only
 signal). Dark palette:
 
 - Background → Char `#1A1D24`
-- Wordmark → Smoke `#9B958D`
+- Wordmark → `#E8E4DC` (light text on Char)
+- Wordmark separator dot → Forged Red lifted `#E15A4E`
 - Caption → Ash `#6E7580`
 - Seal drop-shadow alpha lifted to 0.55 for visibility on the dark field
 
@@ -734,7 +987,12 @@ macOS structure (28px inset, traffic light spacer retained):
    color var(--motion-fast) var(--ease-out-quart);`
 - `:focus-visible` uses `box-shadow: inset var(--focus-ring)` — inset because
   the controls hit the window edge and an outer ring would overflow.
-- Buttons MUST carry `data-tauri-drag-region="false"` so the drag-region opt-out is explicit (Tauri 1.x belt-and-suspenders even when buttons live in a sibling container)
+- Buttons MUST NOT carry `data-tauri-drag-region` in any form — Tauri 1.x
+  core.js drag handler tests with `hasAttribute()`, so the attribute's mere
+  presence (even with value `"false"`) traps mousedown and breaks `@click`.
+  Buttons live in a sibling container (`.ink-titlebar__controls`) that lacks
+  the attribute, so they default-correctly. Child Lucide SVG icons get
+  `pointer-events: none` so `e.target` of mousedown is always the button.
 - The Electron-only `-webkit-app-region: no-drag` declaration is **not** used. Tauri WebView2/WKWebView honors the `data-tauri-drag-region` attribute instead.
 
 ### 12.7 Dark Mode 暗色模式
@@ -779,7 +1037,15 @@ their top by `var(--ink-titlebar-height)` rather than hard-coding a number.
 
 - Do **not** render the titlebar inside a `router-view` slot — it must live in
   `App.vue` at the same level as the route shell so it survives transitions.
-- Do **not** put `data-tauri-drag-region` (without explicit `="false"`) on the window control buttons — that would make them draggable and unclickable. Buttons MUST carry `data-tauri-drag-region="false"` to opt out.
+- Do **not** put `data-tauri-drag-region` on the window control buttons in any
+  form — including `data-tauri-drag-region="false"`. Tauri 1.x core.js uses
+  `e.target.hasAttribute('data-tauri-drag-region')` which returns TRUE for
+  any value (including `"false"`), so the attribute's presence alone traps
+  mousedown and prevents the `@click` handler from firing. Buttons MUST OMIT
+  the attribute entirely. Only the parent `.ink-titlebar__drag` div carries
+  it; child Lucide SVG icons inside the buttons get `pointer-events: none`
+  so `e.target` of mousedown is always the button itself (which lacks the
+  attribute, so no drag fires).
 - Do **not** import lucide icons that are not already in the bundle just to
   vary the chrome — Minus / Square / Copy / X are sufficient.
 - Do **not** use Emoji as the seal or the buttons.
@@ -1168,6 +1434,8 @@ collapses under reduced motion (see §13.4).
 
 ---
 
-*Last updated: 2026-05-28*
-*Version: 1.2*
+*Last updated: 2026-05-29*
+*Version: 1.5*
 *Author: InkForge Design System*
+*v1.5 (2026-05-29): logo §9 fully rewritten again — the 鼎 × 笔尖 × 方格 grid mark (v4) was retired (read muddy/unclear at small sizes) and replaced with the user-approved 墨滴 · 笔锋 · 铁砧 mark (Logo Concept 08): a Forged-Red ember (灵感) atop a sliced Ink-Black ink-drop (墨), a nib-arrow shooting up-right (创作/发送/发布), over a forging anvil (铸/Forge) — clarity-first, bold-silhouette, surviving 16px. New logo-only 5-color palette (§9.0): 墨黑 #1C1F23 / 铸红 #C9362C / 灰 #6B6F76 / 浅灰 #E6E8EB / 砚白 #F7F4EF. §2.4 logo-mark DNA + §10–11 splash/boot recolored to the new palette; e2e brand-mark specs calibrated to the 墨滴·笔锋·铁砧 ground truth (darkPaths/redAccents/nibSlice replace the 鼎-grid rect assertions).*
+*v1.3 (2026-05-28): logo §9 rewritten — 印×笔 镇尺 lockup retired after three flag misreads (Sri Lanka / Sudan); replaced with 笔锋 + 火 single-gesture mark (tapered Graphite nib + Kiln ember in V-notch, no rectangular frame).*

@@ -49,6 +49,7 @@
       "window": {
         "all": false,
         "minimize": true,
+        "unminimize": true,
         "maximize": true,
         "unmaximize": true,
         "close": true,
@@ -86,13 +87,17 @@
       "shortDescription": "微信公众号排版编辑器",
       "targets": [
         "msi",
+        "nsis",
         "dmg",
         "app"
       ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "webviewInstallMode": {
+          "type": "offlineInstaller"
+        }
       }
     },
     "security": {

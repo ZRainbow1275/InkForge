@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 mark (hero tier)">
+  <title>InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 mark</title>
+  <desc>Hero tier: a vertically stacked mark — a Forged-Red ember (灵感) at the top, a black ink-drop (墨) below it sliced by a paper-colored diagonal gap, a black nib-arrow stroke (创作/发送) that runs along the upper side of the slice and extends past the drop to an up-right arrowhead, and a black forging-anvil (铸/Forge) base below. It spells 墨铸/InkForge — ink being forged on an anvil. Palette: Ink Black #1C1F23, Forged Red #C9362C, Grey #6B6F76, Light Grey #E6E8EB, Paper #F7F4EF. Hero tier adds a subtle sheen gradient on the drop, a warm contact shadow under the anvil, and a soft ember highlight. Mark sits on a transparent background. 0 font dependency.</desc>
+
+  <defs>
+    <!-- Subtle vertical sheen on the ink-drop (hero material cue) -->
+    <linearGradient id="dropSheen1024" x1="0" y1="0" x2="0.55" y2="1">
+      <stop offset="0%" stop-color="#2B2F35"/>
+      <stop offset="48%" stop-color="#1C1F23"/>
+      <stop offset="100%" stop-color="#141619"/>
+    </linearGradient>
+
+    <!-- Soft ember highlight glow -->
+    <radialGradient id="emberGlow1024" cx="42%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#E66054" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#C9362C" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#C9362C" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Warm contact shadow under the anvil foot -->
+    <radialGradient id="anvilShadow1024" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1C1F23" stop-opacity="0.22"/>
+      <stop offset="70%" stop-color="#1C1F23" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#1C1F23" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Slice mask: white keeps the drop, the black diagonal band carves the
+         paper-colored gap through the lower-right of the drop. -->
+    <mask id="dropSlice1024">
+      <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+      <!-- Diagonal paper gap (~30° above horizontal), lower-left → upper-right -->
+      <path d="M 352 612 L 690 415 L 726 477 L 388 674 Z" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <!-- ===== Contact shadow (behind the anvil) ===== -->
+  <ellipse cx="512" cy="872" rx="210" ry="30" fill="url(#anvilShadow1024)"/>
+
+  <!-- ===== 红珠 ember ===== -->
+  <circle cx="512" cy="178" r="54" fill="#C9362C"/>
+  <circle cx="512" cy="178" r="54" fill="url(#emberGlow1024)"/>
+
+  <!-- ===== 墨滴 ink-drop, sliced ===== -->
+  <!-- Teardrop: sharp apex at top (~y 288), bulbous round bottom (~y 612). -->
+  <path
+    d="M 512 286
+       C 556 360 624 430 624 506
+       C 624 568 574 614 512 614
+       C 450 614 400 568 400 506
+       C 400 430 468 360 512 286 Z"
+    fill="url(#dropSheen1024)"
+    mask="url(#dropSlice1024)"/>
+
+  <!-- ===== 笔锋箭头 nib-arrow stroke ===== -->
+  <!-- A single bold stroke: the shaft runs along the upper edge of the slice
+       gap (lower-left → upper-right) and continues past the drop's right edge
+       to a clean open arrowhead pointing up-right (↗). -->
+  <!-- Shaft -->
+  <path
+    d="M 380 654
+       L 700 459
+       L 676 503
+       L 396 678 Z"
+    fill="#1C1F23"/>
+  <!-- Arrowhead — tip at (786,292); a clean open ↗ chevron with two barbs -->
+  <path
+    d="M 786 292
+       L 618 360
+       L 668 388
+       L 700 374
+       L 690 432
+       L 720 480
+       L 786 292 Z"
+    fill="#1C1F23"/>
+
+  <!-- ===== 铁砧 anvil base ===== -->
+  <!-- Wide top slab with overhanging front edges, pinched waist, flared foot. -->
+  <path
+    d="M 296 672
+       Q 290 671 294 682
+       L 312 722
+       Q 322 742 358 744
+       L 472 744
+       L 472 766
+       Q 446 772 440 800
+       Q 434 826 422 838
+       L 374 856
+       Q 352 864 352 874
+       L 672 874
+       Q 672 864 650 856
+       L 602 838
+       Q 590 826 584 800
+       Q 578 772 552 766
+       L 552 744
+       L 666 744
+       Q 702 742 712 722
+       L 730 682
+       Q 734 671 728 672
+       Q 700 700 636 700
+       L 388 700
+       Q 324 700 296 672 Z"
+    fill="#1C1F23"/>
+</svg>

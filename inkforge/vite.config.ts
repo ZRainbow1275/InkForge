@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
@@ -276,6 +276,21 @@ function devCorsProxy(): Plugin {
 
 export default defineConfig({
     plugins: [vue(), devCorsProxy()],
+    test: {
+        // The Tauri WebView2 e2e harness (tests/e2e/specs/*.spec.cjs) is a
+        // mocha/webdriverio suite driven by `wdio` (see package.json
+        // "test:e2e"), NOT vitest. Vitest's default spec glob would otherwise
+        // collect those .cjs files and crash on the mocha `describe`/`before`
+        // globals. Keep vitest's built-in excludes and add the e2e tree.
+        exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+            'tests/e2e/**',
+        ],
+    },
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
@@ -308,6 +323,9 @@ export default defineConfig({
     server: {
         port: 3005,
         host: true,
+        watch: {
+            ignored: ['**/src-tauri/**'],
+        },
         headers: {
             'Content-Security-Policy': [
                 "default-src 'self'",

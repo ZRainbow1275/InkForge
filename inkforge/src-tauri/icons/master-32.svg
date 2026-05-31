@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 mark (32-tier)">
+  <title>InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 (40/48 raster)</title>
+  <desc>Tier 2 — mirrors src/components/chrome/ForgeNibMark.vue tier 32 verbatim: an ink-drop with a thin paper-colored slice, a short stub nib-arrow (shaft + head), a Forged-Red ember, and a forging-anvil base — the canonical 墨滴·笔锋·铁砧 logo with the nib-arrow restored at icon scale. Palette: Ink Black #1C1F23, Forged Red #C9362C, Paper #F7F4EF (slice gap). Transparent background. 0 font dependency.</desc>
+
+  <defs>
+    <mask id="dropSlice">
+      <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+      <path d="M 356 612 L 668 430 L 700 484 L 388 666 Z" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <!-- 红珠 ember -->
+  <circle cx="512" cy="184" r="58" fill="#C9362C"/>
+  <!-- 墨滴 ink-drop, sliced -->
+  <path d="M 512 290 C 556 362 622 430 622 504 C 622 566 572 612 512 612 C 452 612 402 566 402 504 C 402 430 468 362 512 290 Z" fill="#1C1F23" mask="url(#dropSlice)"/>
+  <!-- 笔锋箭头 nib-arrow shaft -->
+  <path d="M 392 648 L 684 466 L 660 514 L 408 672 Z" fill="#1C1F23"/>
+  <!-- 笔锋箭头 nib-arrow stub head -->
+  <path d="M 748 366 L 596 426 L 666 470 L 694 540 Z" fill="#1C1F23"/>
+  <!-- 铁砧 anvil base -->
+  <path d="M 300 676 Q 294 675 298 688 L 318 728 Q 328 748 364 750 L 472 750 L 472 770 Q 448 776 442 802 Q 436 826 424 838 L 378 856 Q 358 864 358 874 L 666 874 Q 666 864 646 856 L 600 838 Q 588 826 582 802 Q 576 776 552 770 L 552 750 L 660 750 Q 696 748 706 728 L 726 688 Q 730 675 724 676 Q 696 704 632 704 L 392 704 Q 328 704 300 676 Z" fill="#1C1F23"/>
+</svg>

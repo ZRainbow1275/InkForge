@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="InkForge 墨铸">
-  <title>InkForge 墨铸 — Forge Nib</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32" role="img" aria-label="InkForge 墨铸">
+  <title>InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 (32 raster)</title>
   <!--
-    Favicon variant of master.svg: small-viewBox scale (~6% padding), no hairline,
-    no bevel highlight, no shadow filter. Forge Nib geometry only — pure shape,
-    0 font dependency, optimized for 16-32px legibility.
+    Mirrors src-tauri/icons/master-32.svg geometry: a Forged-Red ember, an
+    ink-drop sliced by a thin paper gap, a short stub nib-arrow, and a
+    forging-anvil base. Palette: Ink Black #1C1F23, Forged Red #C9362C,
+    Paper #F7F4EF. 0 font dependency.
   -->
-  <rect x="4" y="4" width="24" height="24" rx="3" ry="3" fill="#D95B3F"/>
-  <polygon points="16,8 24,16 16,24 8,16" fill="#252933"/>
-  <rect x="15.5" y="10" width="1" height="12" rx="0.5" ry="0.5" fill="#F5F0E6"/>
-  <rect x="10" y="26" width="12" height="1" rx="0.5" ry="0.5" fill="#C19A56"/>
+  <defs>
+    <mask id="favDropSlice">
+      <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+      <path d="M 356 612 L 668 430 L 700 484 L 388 666 Z" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <circle cx="512" cy="184" r="58" fill="#C9362C"/>
+  <path
+    d="M 512 290 C 556 362 622 430 622 504 C 622 566 572 612 512 612 C 452 612 402 566 402 504 C 402 430 468 362 512 290 Z"
+    fill="#1C1F23"
+    mask="url(#favDropSlice)"/>
+  <path d="M 392 648 L 684 466 L 660 514 L 408 672 Z" fill="#1C1F23"/>
+  <path d="M 748 366 L 596 426 L 666 470 L 694 540 Z" fill="#1C1F23"/>
+  <path
+    d="M 300 676 Q 294 675 298 688 L 318 728 Q 328 748 364 750 L 472 750 L 472 770 Q 448 776 442 802 Q 436 826 424 838 L 378 856 Q 358 864 358 874 L 666 874 Q 666 864 646 856 L 600 838 Q 588 826 582 802 Q 576 776 552 770 L 552 750 L 660 750 Q 696 748 706 728 L 726 688 Q 730 675 724 676 Q 696 704 632 704 L 392 704 Q 328 704 300 676 Z"
+    fill="#1C1F23"/>
 </svg>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 mark (256-tier)">
+  <title>InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 (256/512 raster)</title>
+  <desc>Tier 4 — mirrors src/components/chrome/ForgeNibMark.vue tier 256 verbatim: full detail — a soft contact-shadow ellipse, a Forged-Red ember with a soft halo, a full sliced ink-drop with a soft top-left highlight, a full nib-arrow (shaft + arrowhead), and a forging-anvil base — the canonical 墨滴·笔锋·铁砧 logo with the nib-arrow restored. Palette: Ink Black #1C1F23, Forged Red #C9362C, ember-highlight #E66054, highlight grey #2B2F35, Paper #F7F4EF (slice gap). Transparent background. 0 font dependency.</desc>
+
+  <defs>
+    <radialGradient id="anvilShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1C1F23" stop-opacity="0.18"/>
+      <stop offset="70%" stop-color="#1C1F23" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#1C1F23" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="dropSlice">
+      <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+      <path d="M 352 612 L 690 415 L 726 477 L 388 674 Z" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <!-- Contact shadow -->
+  <ellipse cx="512" cy="872" rx="200" ry="26" fill="url(#anvilShadow)"/>
+  <!-- 红珠 ember -->
+  <circle cx="512" cy="178" r="54" fill="#C9362C"/>
+  <!-- Soft ember highlight -->
+  <circle cx="494" cy="160" r="18" fill="#E66054" opacity="0.5"/>
+  <!-- 墨滴 ink-drop, sliced -->
+  <path d="M 512 286 C 556 360 624 430 624 506 C 624 568 574 614 512 614 C 450 614 400 568 400 506 C 400 430 468 360 512 286 Z" fill="#1C1F23" mask="url(#dropSlice)"/>
+  <!-- Soft top-left drop highlight -->
+  <path d="M 512 300 C 484 348 452 396 446 452 C 470 410 496 360 512 320 Z" fill="#2B2F35" opacity="0.6" mask="url(#dropSlice)"/>
+  <!-- 笔锋箭头 nib-arrow shaft -->
+  <path d="M 380 654 L 700 459 L 676 503 L 396 678 Z" fill="#1C1F23"/>
+  <!-- 笔锋箭头 nib-arrow head -->
+  <path d="M 786 292 L 618 360 L 668 388 L 700 374 L 690 432 L 720 480 L 786 292 Z" fill="#1C1F23"/>
+  <!-- 铁砧 anvil base -->
+  <path d="M 296 672 Q 290 671 294 682 L 312 722 Q 322 742 358 744 L 472 744 L 472 766 Q 446 772 440 800 Q 434 826 422 838 L 374 856 Q 352 864 352 874 L 672 874 Q 672 864 650 856 L 602 838 Q 590 826 584 800 Q 578 772 552 766 L 552 744 L 666 744 Q 702 742 712 722 L 730 682 Q 734 671 728 672 Q 700 700 636 700 L 388 700 Q 324 700 296 672 Z" fill="#1C1F23"/>
+</svg>

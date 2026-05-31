@@ -11,6 +11,13 @@
        Seal animation: drop (0→300ms) → squish (300→360ms) → bleed (360→800ms).
        data-theme="dark" on :root takes precedence over prefers-color-scheme.
        prefers-reduced-motion disables all animations; static identity remains.
+
+       2026-05-29 swap: static mark identity inside the bleed sequence is now
+       the 墨滴 · 笔锋 · 铁砧 mark (mirrors src-tauri/icons/master-1024.svg
+       geometry) — Forged-Red ember + sliced ink-drop + nib-arrow + forging
+       anvil. The prior 鼎 × 笔尖 × 方格 grid mark was retired (read muddy at
+       small sizes). All drop/squish/bleed keyframe timings are PRESERVED
+       unchanged.
     ------------------------------------------------------------------ */
 
     :root {
@@ -21,19 +28,23 @@
       --motion-slow: 240ms;
       --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
 
-      --ink-vellum: #F5F0E6;
+      /* Logo-surface palette (Logo Concept 08): 墨滴 · 笔锋 · 铁砧 mark uses the
+         new official tokens. The splash is a logo surface, so it adopts
+         Paper/Ink-Black/Forged-Red. Drop/squish/bleed keyframe timings are
+         UNCHANGED. */
+      --ink-paper: #F7F4EF;
       --ink-char: #1A1D24;
-      --ink-graphite: #252933;
+      --ink-ink-black: #1C1F23;
       --ink-text-dark: #E8E4DC;
       --ink-ash: #6E7580;
       --ink-smoke: #9B958D;
-      --ink-kiln: #D95B3F;
-      --ink-kiln-dark: #E8734F;
-      --ink-amber: #C19A56;
-      --ink-bg: var(--ink-vellum);
-      --ink-text: var(--ink-graphite);
+      --ink-forged-red: #C9362C;
+      --ink-forged-red-dark: #E15A4E;
+      --ink-grey: #6B6F76;
+      --ink-bg: var(--ink-paper);
+      --ink-text: var(--ink-ink-black);
       --ink-muted: var(--ink-ash);
-      --ink-seal: var(--ink-kiln);
+      --ink-seal: var(--ink-forged-red);
     }
 
     /* prefers-color-scheme dark — only if no explicit data-theme set */
@@ -42,7 +53,7 @@
         --ink-bg: var(--ink-char);
         --ink-text: var(--ink-text-dark);
         --ink-muted: var(--ink-smoke);
-        --ink-seal: var(--ink-kiln-dark);
+        --ink-seal: var(--ink-forged-red-dark);
       }
     }
     /* Explicit data-theme from Rust setup hook wins */
@@ -50,13 +61,13 @@
       --ink-bg: var(--ink-char);
       --ink-text: var(--ink-text-dark);
       --ink-muted: var(--ink-smoke);
-      --ink-seal: var(--ink-kiln-dark);
+      --ink-seal: var(--ink-forged-red-dark);
     }
     :root[data-theme="light"] {
-      --ink-bg: var(--ink-vellum);
-      --ink-text: var(--ink-graphite);
+      --ink-bg: var(--ink-paper);
+      --ink-text: var(--ink-ink-black);
       --ink-muted: var(--ink-ash);
-      --ink-seal: var(--ink-kiln);
+      --ink-seal: var(--ink-forged-red);
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -111,7 +122,7 @@
       opacity: 0.5;
     }
 
-    /* 印章本体 — 复用 master.svg 的几何，去除外侧 22% padding */
+    /* 印章本体 — 墨滴 · 笔锋 · 铁砧 mark, drop→squish→bleed animation envelope */
     .ink-seal {
       position: relative;
       width: 108px;
@@ -124,7 +135,7 @@
       display: block;
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 6px 14px rgba(37, 41, 51, 0.18));
+      filter: drop-shadow(0 6px 14px rgba(28, 31, 35, 0.16));
     }
     :root[data-theme="dark"] .ink-seal svg,
     :root:not([data-theme="light"]) .ink-seal svg {
@@ -150,7 +161,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--ink-seal) 0%, rgba(217, 91, 63, 0) 70%);
+      background: radial-gradient(circle, var(--ink-seal) 0%, rgba(201, 54, 44, 0) 70%);
       opacity: 0.35;
       transform-origin: 0 0;
     }
@@ -259,36 +270,47 @@
 
     <div class="ink-seal" role="img" aria-label="InkForge 墨铸 印章">
       <!--
-        Reused from inkforge/src-tauri/icons/master.svg (Forge Nib geometry).
-        We trim the 22% safe padding (originally for Win11 squircle / macOS
-        rounded square auto-crop) by mapping the viewBox to the seal body
-        226..798 → 0..572. Filter omitted for splash render performance;
-        an outer drop-shadow is applied via CSS on .ink-seal svg.
+        墨滴 · 笔锋 · 铁砧 mark — mirrors src-tauri/icons/master-1024.svg geometry.
+        A Forged-Red ember (灵感) at the top, a black ink-drop (墨) sliced by a
+        paper-colored diagonal gap, a black nib-arrow stroke (创作/发送) shooting
+        up-right, and a black forging-anvil (铸/Forge) base. The mark sits on a
+        transparent background — no panel/card sheen behind it. Palette: Ink
+        Black #1C1F23, Forged Red #C9362C, Paper #F7F4EF. Drop/squish/bleed
+        keyframe timing is PRESERVED unchanged. 0 font dependency preserved.
       -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="226 226 572 572">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
         <defs>
-          <radialGradient id="splashKiln" cx="50%" cy="44%" r="62%">
-            <stop offset="0%" stop-color="#E27654" />
-            <stop offset="65%" stop-color="#D95B3F" />
-            <stop offset="100%" stop-color="#B84A30" />
-          </radialGradient>
-          <linearGradient id="splashAmber" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#D4B070" />
-            <stop offset="100%" stop-color="#C19A56" />
+          <linearGradient id="splashDropSheen" x1="0" y1="0" x2="0.55" y2="1">
+            <stop offset="0%" stop-color="#2B2F35"/>
+            <stop offset="48%" stop-color="#1C1F23"/>
+            <stop offset="100%" stop-color="#141619"/>
           </linearGradient>
+          <radialGradient id="splashEmberGlow" cx="42%" cy="38%" r="62%">
+            <stop offset="0%" stop-color="#E66054" stop-opacity="0.55"/>
+            <stop offset="55%" stop-color="#C9362C" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#C9362C" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="splashAnvilShadow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1C1F23" stop-opacity="0.22"/>
+            <stop offset="70%" stop-color="#1C1F23" stop-opacity="0.06"/>
+            <stop offset="100%" stop-color="#1C1F23" stop-opacity="0"/>
+          </radialGradient>
+          <mask id="splashDropSlice">
+            <rect x="0" y="0" width="1024" height="1024" fill="#FFFFFF"/>
+            <path d="M 352 612 L 690 415 L 726 477 L 388 674 Z" fill="#000000"/>
+          </mask>
         </defs>
-        <!-- Seal body (Kiln rounded square) -->
-        <rect x="226" y="226" width="572" height="572" rx="72" ry="72" fill="url(#splashKiln)" />
-        <!-- Inner stamped border -->
-        <rect x="244" y="244" width="536" height="536" rx="58" ry="58" fill="none" stroke="#F5F0E6" stroke-opacity="0.18" stroke-width="2" />
-        <!-- Forge Nib: Graphite diamond -->
-        <polygon points="512,312 680,512 512,712 344,512" fill="#252933" />
-        <!-- Bevel highlight on the upper-left edge -->
-        <polyline points="380,500 512,360" fill="none" stroke="#F5F0E6" stroke-opacity="0.22" stroke-width="14" stroke-linecap="round" />
-        <!-- Vellum nib slit -->
-        <rect x="506" y="380" width="12" height="260" rx="6" ry="6" fill="#F5F0E6" />
-        <!-- Amber forge line below seal -->
-        <rect x="412" y="748" width="200" height="10" rx="5" ry="5" fill="url(#splashAmber)" />
+        <ellipse cx="512" cy="872" rx="210" ry="30" fill="url(#splashAnvilShadow)"/>
+        <circle cx="512" cy="178" r="54" fill="#C9362C"/>
+        <circle cx="512" cy="178" r="54" fill="url(#splashEmberGlow)"/>
+        <path
+          d="M 512 286 C 556 360 624 430 624 506 C 624 568 574 614 512 614 C 450 614 400 568 400 506 C 400 430 468 360 512 286 Z"
+          fill="url(#splashDropSheen)" mask="url(#splashDropSlice)"/>
+        <path d="M 380 654 L 700 459 L 676 503 L 396 678 Z" fill="#1C1F23"/>
+        <path d="M 786 292 L 618 360 L 668 388 L 700 374 L 690 432 L 720 480 L 786 292 Z" fill="#1C1F23"/>
+        <path
+          d="M 296 672 Q 290 671 294 682 L 312 722 Q 322 742 358 744 L 472 744 L 472 766 Q 446 772 440 800 Q 434 826 422 838 L 374 856 Q 352 864 352 874 L 672 874 Q 672 864 650 856 L 602 838 Q 590 826 584 800 Q 578 772 552 766 L 552 744 L 666 744 Q 702 742 712 722 L 730 682 Q 734 671 728 672 Q 700 700 636 700 L 388 700 Q 324 700 296 672 Z"
+          fill="#1C1F23"/>
       </svg>
     </div>
 

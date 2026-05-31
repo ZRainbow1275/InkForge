@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="InkForge 墨铸 — 墨滴 · 笔锋 · 铁砧 mark (16-tier)">
+  <title>InkForge 墨铸 — 墨滴 · 铁砧 (16/24/32 raster)</title>
+  <desc>Tier 1 — mirrors src/components/chrome/ForgeNibMark.vue tier 16 verbatim: a solid ink-drop (no slice), a Forged-Red ember above, and a forging-anvil base — the canonical 墨滴·笔锋·铁砧 logo at its simplest tier (no slice, no nib-arrow at this scale). Palette: Ink Black #1C1F23, Forged Red #C9362C. Transparent background. 0 font dependency.</desc>
+
+  <!-- 红珠 ember -->
+  <circle cx="512" cy="196" r="64" fill="#C9362C"/>
+  <!-- 墨滴 solid ink-drop -->
+  <path d="M 512 296 C 560 374 632 448 632 526 C 632 592 578 640 512 640 C 446 640 392 592 392 526 C 392 448 464 374 512 296 Z" fill="#1C1F23"/>
+  <!-- 铁砧 anvil base -->
+  <path d="M 288 690 Q 282 689 287 704 L 308 746 Q 320 768 360 770 L 470 770 L 470 788 Q 444 794 438 820 Q 432 842 420 852 L 372 868 Q 350 876 350 886 L 674 886 Q 674 876 652 868 L 604 852 Q 592 842 586 820 Q 580 794 554 788 L 554 770 L 664 770 Q 704 768 716 746 L 737 704 Q 742 689 736 690 Q 704 720 632 720 L 392 720 Q 320 720 288 690 Z" fill="#1C1F23"/>
+</svg>
