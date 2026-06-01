@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import {
+  Award,
   BarChart3,
   BookOpen,
   Bot,
@@ -49,6 +50,10 @@ const exportIconMap: Record<string, IconComponent> = {
   'zhihu-academic': GraduationCap,
   'zhihu-tech': Code2,
   'zhihu-insight': PenLine,
+  // PR6 (R7): SVG 旗舰预设族 — 品牌门面图标（lucide, 无 emoji）
+  'flagship-kiln': Flame,
+  'flagship-tempera': BookOpen,
+  'flagship-amber': Award,
 }
 
 const exportIconAliases: Record<string, string> = {

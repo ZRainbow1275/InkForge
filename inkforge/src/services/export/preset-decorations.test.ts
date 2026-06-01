@@ -226,8 +226,9 @@ describe('migrated presets (thesis, legal, report, commentary, aigc)', () => {
     expect(typeof notesPreset?.decorate).toBe('function')
   })
 
-  it('themePresets array still has all 12 wechat presets', () => {
-    expect(themePresets).toHaveLength(12)
+  it('themePresets array has 15 wechat presets (12 base + 3 SVG flagship)', () => {
+    // PR6 (R7) appended flagship-kiln/tempera/amber; the original 12 are untouched.
+    expect(themePresets).toHaveLength(15)
   })
 })
 

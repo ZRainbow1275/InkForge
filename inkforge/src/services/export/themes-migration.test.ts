@@ -16,7 +16,14 @@ const WECHAT_IDS = [
   'life',
   'elegant',
   'tech',
+  // PR6 (R7): SVG 旗舰预设族 — 双轨 schema 同样合规
+  'flagship-kiln',
+  'flagship-tempera',
+  'flagship-amber',
 ]
+
+// 旗舰预设全量使用 svg-modules，视觉身份由 decorate 注入的 inline-SVG 承载
+const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-tempera', 'flagship-amber']
 
 const XHS_IDS = ['xhs-fresh', 'xhs-simple', 'xhs-warm', 'xhs-tech', 'xhs-nature']
 
@@ -24,7 +31,7 @@ const ZHIHU_IDS = ['zhihu-academic', 'zhihu-tech', 'zhihu-insight']
 
 const ALL_PERSONAS = ['academic', 'business', 'lifestyle', 'creative']
 
-describe('PR4 migration — all 12 wechat presets have dual-track schema', () => {
+describe('PR4 migration — all 15 wechat presets have dual-track schema', () => {
   for (const id of WECHAT_IDS) {
     describe(id, () => {
       const preset = getPresetById(id)
@@ -87,9 +94,47 @@ describe('PR4 migration — all 12 wechat presets have dual-track schema', () =>
     })
   }
 
-  it('themePresets array has 12 wechat presets', () => {
-    expect(themePresets).toHaveLength(12)
+  it('themePresets array has 15 wechat presets', () => {
+    expect(themePresets).toHaveLength(15)
   })
+})
+
+describe('PR6 (R7) — SVG flagship presets are brand-locked & SVG-driven', () => {
+  for (const id of FLAGSHIP_IDS) {
+    describe(id, () => {
+      const preset = getPresetById(id)
+
+      it('exists with the flagship- id prefix', () => {
+        expect(preset).toBeDefined()
+        expect(preset?.id.startsWith('flagship-')).toBe(true)
+      })
+
+      it('uses a non-empty 中文 name and description', () => {
+        expect(preset?.name?.length).toBeGreaterThan(0)
+        expect(preset?.description?.length).toBeGreaterThan(0)
+      })
+
+      it('icon maps to a lucide key (no emoji)', () => {
+        expect(preset?.icon).toBe(id)
+        // 不得是 emoji（旗舰图标走 iconography lucide 映射）
+        expect(preset?.icon).not.toMatch(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/u)
+      })
+
+      it('carries a brand hex primaryColor', () => {
+        expect(preset?.primaryColor).toMatch(/^#[0-9a-fA-F]{6}$/)
+      })
+
+      it('decorate injects inline SVG (data-ink-svg) for wechat', () => {
+        if (!preset?.decorate) throw new Error('decorate missing')
+        const out = preset.decorate(
+          '<h2>章节</h2><p>正文。</p><hr/><blockquote><p>引用。</p></blockquote>',
+          'wechat',
+        )
+        expect(out).toContain('data-ink-svg')
+        expect(out).toContain('<svg')
+      })
+    })
+  }
 })
 
 describe('PR4 migration — all 5 xhs presets have dual-track schema', () => {

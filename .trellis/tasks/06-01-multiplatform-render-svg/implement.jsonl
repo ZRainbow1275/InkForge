@@ -1,0 +1,7 @@
+{"file": "prompts/0601/SPEC.md", "reason": "实现契约：模块物理结构、数据模型、安全原子/校验器、注入集成点(file:line)、26 变体清单、冗余预设方案"}
+{"file": "prompts/0601/PRD.md", "reason": "需求 R1-R8 + 验收 AC1-AC10 + 7 段 PR 计划 + 风险缓解；实现期对齐目标"}
+{"file": "prompts/0601/research/codebase-export-pipeline.md", "reason": "导出管线全量测绘：decorate 注入点、postProcess/enforce/compliance 下游风险、OPAQUE_TAGS/ExportOptions/契约测试的精确改动点与行号"}
+{"file": "prompts/0601/research/wechat-svg-capabilities.md", "reason": "微信安全 SVG 子集铁律(SURVIVES/DIES/CONDITIONAL)：构造器与 wechat-safe 校验器的实现依据"}
+{"file": "prompts/0601/research/wechat-svg-typesetting-patterns.md", "reason": "可复用 SVG 模块分类 + 高级/不撞市面设计原则：模块族变体与视觉语言依据"}
+{"file": "prompts/0601/research/xhs-zhihu-cjk-typography.md", "reason": "小红书海报(3:4/1:1)/知乎 SVG-as-img 约束 + CJK 20-22 字/行可读性：raster.ts 与平台分支依据"}
+{"file": "prompts/0601/research/oss-md-architecture.md", "reason": "doocs/md·mdnice 集成模式(prefix/content/suffix 脚手架、juice 内联)：注入不重构的低风险接线依据"}

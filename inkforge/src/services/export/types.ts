@@ -5,6 +5,7 @@
  */
 
 import type { ExportPreset, PresetPersona, ExportTarget, FontSpec } from '@/types'
+import type { SvgInjectionPlan } from './svg-modules/inject'
 
 // ═══════════════════════════════════════════════════════════════════
 // 代码高亮主题
@@ -131,6 +132,16 @@ export interface ExportOptions {
   fontSize?: ExportFontSize
   /** 微信文章主题色覆盖，必须为 6 位 HEX 色值 */
   primaryColor?: string
+  /**
+   * 启用微信安全 inline-SVG 高级排版模块（svg-modules 注入）。
+   * 默认 undefined/false：完全保留现有行为，零回归（不注入任何 SVG）。
+   */
+  enableSvgModules?: boolean
+  /**
+   * SVG 模块注入计划（cover/headings/replaceHr/blockquote/endmark → 模块 id）。
+   * 仅当 enableSvgModules 为 true 时生效；缺省时不注入，保持现有导出行为不变。
+   */
+  svgInjectionPlan?: SvgInjectionPlan
 }
 
 /**

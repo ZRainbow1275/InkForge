@@ -51,7 +51,10 @@ interface HtmlSegment {
   value: string
 }
 
-const OPAQUE_TAGS = new Set(['code', 'pre', 'style', 'script'])
+// `svg` is opaque so injected SVG typesetting modules (svg-modules/) keep their
+// <text> content intact — applyCjkLatinSpacing must NOT insert U+202F thin spaces
+// inside an <svg> (it would corrupt glyph layout). See prompts/0601/SPEC.md §5.3.
+const OPAQUE_TAGS = new Set(['code', 'pre', 'style', 'script', 'svg'])
 
 /**
  * Split an HTML string into tag / text / opaque segments. Opaque segments are

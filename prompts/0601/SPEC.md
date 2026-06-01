@@ -1,0 +1,340 @@
+# SPEC — Inline-SVG 高级排版组件系统（实现契约）
+
+- **任务**：`.trellis/tasks/06-01-multiplatform-render-svg` · 基线 `dev/visual-fixes`
+- **配套**：`prompts/0601/PRD.md`、`prompts/0601/research/*.md`
+- **目标树**：`inkforge/`（活体）。所有路径以 `inkforge/src/...` 为根。
+- **铁律**：不重构主管线、不删除任何现有功能/组件；零 mock；全程 lucide、零 emoji。
+
+---
+
+## 1. 模块物理结构（新增，不动既有文件结构）
+
+```
+inkforge/src/services/export/svg-modules/
+├── index.ts            # 注册表 + composeSvgDecorate + 公共导出
+├── types.ts            # SvgThemeContext / SvgPalette / SvgModuleParams / SvgModuleSpec
+├── theme.ts            # 从 primaryColor+persona+品牌token 派生 SvgPalette
+├── primitives.ts       # 安全 SVG 原子构造器 + 脚手架 + section 包裹
+├── wechat-safe.ts      # 安全子集校验器（assertWechatSafe / sanitizeSvgForWechat）
+├── headers.ts          # R1.1 章节标题头（≥4 变体）
+├── dividers.ts         # R1.2 分隔线/装饰线（≥5 变体）
+├── quotes.ts           # R1.3 引用卡（≥4 变体）
+├── badges.ts           # R1.4 要点/数据徽章（≥3 变体）
+├── endmarks.ts         # R1.5 文末签名/结束标（≥3 变体）
+├── covers.ts           # R1.6 封面/导语 banner（≥3 变体）
+├── interactive.ts      # R1.7 SMIL 交互族（ClickSwitch/ScrollCards/FadeIn/SequenceFrame）
+├── raster.ts           # SVG→PNG（canvas）供小红书海报/知乎 SVG-as-img
+├── inject.ts           # decorate 钩子：扫描 HTML 锚点替换为 SVG 模块（幂等）
+└── __tests__/
+    ├── wechat-safe.test.ts
+    ├── theme.test.ts
+    ├── primitives.test.ts
+    ├── modules.snapshot.test.ts   # 每模块 × persona 快照 + safe 校验
+    ├── inject.test.ts             # 幂等 + 锚点替换 + 三平台分支
+    ├── interactive.test.ts        # SMIL 模式合规 + 静态兜底
+    └── raster.test.ts             # canvas 栅格化真实产图
+```
+
+既有文件**仅做加法式改动**（见 §5），不删函数、不改既有签名语义。
+
+---
+
+## 2. 数据模型（types.ts）
+
+```ts
+import type { PresetPersona, ExportTarget } from '@/types'
+
+export interface SvgPalette {
+  ink: string         // 正文/主文字色（深）
+  inkSoft: string     // 次文字 rgba
+  accent: string      // = preset.primaryColor
+  accentSoft: string  // 低透明度 accent（rgba，渐变/光晕替代）
+  paper: string       // 背景（亮）
+  paperWarm: string   // 品牌 --paper-warm
+  ember: string       // 品牌 --ember（每屏≤2 次铁律，模块层自律）
+  hairline: string    // 细线/分隔
+  onAccent: string    // accent 上的文字色（通常 #fff）
+}
+
+export interface SvgThemeContext {
+  primaryColor: string
+  persona: PresetPersona
+  accentColor?: string        // xhs/zhihu secondary
+  target: ExportTarget        // 'preview' | 'wechat' | 'xhs' | 'zhihu'
+  palette: SvgPalette
+  /** 是否允许 SMIL（preview/wechat 允许；xhs/zhihu 栅格化时取静态首帧） */
+  allowMotion: boolean
+}
+
+export interface SvgModuleParams {
+  theme: SvgThemeContext
+  text?: string
+  subtitle?: string
+  index?: number              // 编号徽章
+  items?: { title: string; body?: string }[]  // scroll/sequence
+  variant?: string            // 模块族内变体 id
+}
+
+export type SvgModuleRenderer = (p: SvgModuleParams) => string  // 返回安全 HTML 片段
+
+export type SvgModuleFamily =
+  | 'header' | 'divider' | 'quote' | 'badge' | 'endmark' | 'cover' | 'interactive'
+
+export interface SvgModuleSpec {
+  id: string                  // 全局唯一，用作 data-ink-svg 值
+  family: SvgModuleFamily
+  description: string
+  render: SvgModuleRenderer
+  interactive?: boolean       // 是否含 SMIL（需 allowMotion）
+  /** preview/wechat 直出 inline；xhs/zhihu 需 raster() 包成 <img> */
+  rasterizeOn?: ExportTarget[]  // 默认 ['xhs','zhihu']
+}
+```
+
+**约束**：`render` 返回值必须通过 `assertWechatSafe()`（开发期/测试期断言）。`SvgModuleParams.theme.target` 决定输出形态。
+
+---
+
+## 3. 调色板派生（theme.ts）
+
+```ts
+export function deriveSvgPalette(primaryColor: string, persona: PresetPersona, accentColor?: string): SvgPalette
+export function buildThemeContext(opts: {
+  primaryColor: string; persona: PresetPersona; target: ExportTarget; accentColor?: string
+}): SvgThemeContext
+```
+
+规则：
+- `accent = primaryColor`；`accentSoft = rgba(accent, 0.08~0.12)`（渐变/光晕替代，**不用 SVG 渐变**）。
+- `paper=#FFFFFF`、`paperWarm` 取品牌 `--paper-warm`（从 `docs/inkforge-brand-identity.md` 同步常量，不新造）。
+- `ember` 取品牌 `--ember`；模块层遵守**每屏 ≤2 次 ember** 自律（endmark/cover 各最多 1 处点缀）。
+- `ink=#1a1a1a`（与 `preset-fonts.ts` 一致）、`hairline=rgba(ink,0.12)`。
+- 颜色全部输出为 **hex 或 rgba**（微信安全；**禁止 `var()`**）。
+- persona 影响装饰密度与字体族（复用 `PERSONA_FONTS`，不新造字体）。
+
+`deriveSvgPalette` 必须是**纯函数**（同输入同输出，便于快照测试与幂等）。
+
+---
+
+## 4. 安全原子与校验器
+
+### 4.1 primitives.ts — 安全构造器（只产安全子集）
+
+```ts
+// 几何
+rect(attrs): string            // 支持 x/y/width/height/rx/ry/fill/stroke/stroke-width/opacity/transform(属性)
+circle(attrs): string
+path(d, attrs): string
+hairlineRule(opts): string     // = <rect height="1">，分隔线专用
+glow(cx,cy,r,colorSoft): string// 大半径低透明度 <circle>，替代 filter 光晕
+textLine(opts): string         // 单行 <text>（每视觉行一个），强制显式 fill + 设备字体
+diamondSig(opts): string       // ◇◇◇ 品牌签名（<path>/<rect> 旋转 45°）
+// 包裹与脚手架
+svgSection(opts): string       // <section style="...inline...;height:0?"> + <svg viewBox width="100%">
+hiddenFulltext(text): string   // 顶部隐藏全文 <p>（无障碍/SEO）
+mpStyleTrailer(): string       // 末尾 <p style="display:none"><mp-style-type data-value="10000"></mp-style-type></p>
+darkSafeBg(w,h,color): string  // 深色模块自有不透明背景 <rect>
+// SMIL（仅 interactive 用）
+smilAnimate(opts): string      // begin/dur/values/keyTimes/keySplines/calcMode/fill="freeze"/restart="never"
+smilSet(opts): string
+smilAnimateTransform(opts): string
+```
+
+**硬规则（编码进构造器）**：
+- 外层 `<svg>` 必带 `viewBox`、`width="100%"`，**绝不**设固定 px `width/height`。
+- 包裹一律 `<section>`，**绝不** `<div>`。
+- 颜色/样式只走表现属性或内联 `style`，**禁止** class、`<style>`、`var()`、`calc()`、`style` 内 `transform/transition/filter/animation`。
+- `transform` 只以 **XML 属性**形式（`transform="translate(..)"`），不以 `style="transform:.."`（后者被 `enforcePlatformCSS` 剥）。
+- 不产 `<defs>/<linearGradient>/<clipPath>/<mask>/<filter>/<use>/foreignObject/<image href>`。
+- 每个模块根节点带 `data-ink-svg="<moduleId>"` 幂等哨兵。
+
+### 4.2 wechat-safe.ts — 校验器
+
+```ts
+export interface SafeViolation { rule: string; detail: string }
+export function checkWechatSafe(svgHtml: string): SafeViolation[]   // 空数组=合规
+export function assertWechatSafe(svgHtml: string): void             // 测试/开发期抛错
+```
+
+检测项（违规即非空）：含 `class=`、`<style`、`var(`、`calc(`、`<div`、`foreignObject`、`<linearGradient|<radialGradient|<defs|<clipPath|<mask|<filter|<use|<symbol`、`url(#`、`style="[^"]*transform`、`@keyframes`、`<script`、外层 svg 固定 px `width="\d`、`xlink:href`、`begin="touchstart|mouseover`。
+> 该校验器是 AC9 的执行体，单测全模块输出零违规。
+
+---
+
+## 5. 注入集成（不重构主管线）
+
+### 5.1 inject.ts — decorate 钩子
+
+```ts
+export interface SvgInjectionPlan {
+  headings?: { level: 1|2|3; module: string }[]  // 标题→标题头模块
+  replaceHr?: string                              // <hr>→分隔线模块
+  blockquote?: string                             // blockquote→引用卡
+  endmark?: string                                // 文末追加结束标
+  cover?: string                                  // 文首插入封面/导语
+}
+
+/** 返回一个符合现有 decorate(html,target) 契约的函数 */
+export function composeSvgDecorate(plan: SvgInjectionPlan, theme: {
+  primaryColor: string; persona: PresetPersona; accentColor?: string
+}): (html: string, target: ExportTarget) => string
+```
+
+行为：
+- 扫描 HTML 锚点（`<h1-3>`/`<hr>`/`<blockquote>`/文档首尾）按 plan 替换/包裹为 SVG 模块。
+- **幂等**：替换前检测 `data-ink-svg`，已注入则跳过（哨兵在 DOMPurify 后注入，data-* 在我方管线存活）。
+- **目标分支**：`preview`/`wechat` → 直出 inline SVG；`xhs`/`zhihu` → `render()` 后经 `raster.ts` 包成 `<img src="data:image/png;base64,...">`（知乎可选 SVG data-URI）。
+- 与现有 `composeRecipes().decorate` 用 `chainDecorators(existing, svgDecorate)` 串联——**SVG 注入叠加在既有装饰之后，互不破坏**。
+
+### 5.2 接线 `preset-decorations.ts`（加法）
+- 新增导出，不改既有 9 recipe / 12 helper 的签名与行为。
+- 预设可在其 `decorate` 中 `chainDecorators(原有, composeSvgDecorate(plan, theme))`。
+
+### 5.3 微信管线保护（`platform-rules/wechat.ts`，加法）
+- `OPAQUE_TAGS`（@54）**新增 `svg`**（连同子树视为不透明），使 `applyCjkLatinSpacing` 不向 SVG `<text>` 注入 U+202F。需保证 `tokenize()` 对 `<svg>...</svg>` 整段跳过。
+- 不改 `clampContentWidth`/`injectDarkModeMetadata` 行为。
+
+### 5.4 契约测试调整（`platform-export-rendering.test.ts:222`）
+- 原断言 `not.toMatch(/<svg\b|<text\b|\sclass=/i)` 改为：
+  - 仍断言**无游离 Mermaid SVG**（无 `class="mermaid`、无未带 `data-ink-svg` 的 `<svg>`）；
+  - **允许**带 `data-ink-svg` 的有意 SVG；
+  - 仍断言全局无 `class=`（我方 SVG 不用 class）。
+- 新增用例：注入标题头/分隔线后，输出含 `data-ink-svg` 且 `checkWechatSafe()` 零违规。
+
+### 5.5 预览白名单（`MarkdownPreview.vue:35-38`，加法）
+`ADD_TAGS` 增 `animate/set/animateTransform`；`ADD_ATTR` 增 `begin/dur/values/keyTimes/keySplines/calcMode/repeatCount/repeatDur/restart/attributeName/attributeType/type/from/to/font-size/font-weight/font-family/opacity/rx/ry/pointer-events/style/data-ink-svg/text-anchor/dominant-baseline`。
+> 仅加白名单，不动既有安全策略；导出路径 DOMPurify 不变（SVG 在 decorate 后注入，绕过导出 DOMPurify，由 `wechat-safe` 把关）。
+
+### 5.6 预览保真增强（`preview-fidelity/*-mock.ts`，加法）
+三个 mock 在渲染预览时让 SVG 模块原样呈现（wechat-mock 直出 inline；xhs/zhihu-mock 呈现栅格 `<img>` 或安全 SVG）——**不删既有逻辑**，仅在管线末尾叠加 SVG 模块呈现。
+
+---
+
+## 6. 小红书海报 / 知乎适配（raster.ts）
+
+```ts
+export interface RasterOptions { width: number; height: number; scale?: number; background?: string }
+/** 真实 canvas 栅格化：SVG 字符串 → PNG dataURL（无 mock） */
+export async function rasterizeSvg(svgHtml: string, opts: RasterOptions): Promise<string>
+/** 小红书海报卡：封面 3:4(1080×1440) / 内容 1:1(1080×1080) */
+export async function renderXhsPosterCard(module: SvgModuleSpec, p: SvgModuleParams, ratio: '3:4'|'1:1'): Promise<string>
+```
+
+实现：
+- 浏览器/Tauri WebView 下用 `new Image()` 载入 `data:image/svg+xml;utf8,<svg>` → `canvas.drawImage` → `toDataURL('image/png')`。**真实渲染**，跨机用设备无关度量 + 安全边距。
+- 小红书：SVG 模块取静态首帧（`allowMotion=false`），栅格成海报图，经 `image-pipeline/` 资源流转（复用现有 `asset-resolver`/`dimension-extractor`）。
+- 知乎：装饰 SVG → `<img src=PNG dataURL alt="...">`（默认）或安全 SVG data-URI；正文 CSS-safe 增强（`zhihu.ts` 现有路径）。
+
+---
+
+## 7. 冗余预设（R7）
+
+### 7.1 现有 20 预设可选开关
+- `ExportOptions`（`services/export/types.ts:105-134`）**新增可选字段**（不破坏既有）：
+  ```ts
+  enableSvgModules?: boolean          // 默认 false → 现状零回归
+  svgInjectionPlan?: SvgInjectionPlan // 细粒度控制注入哪些模块
+  ```
+- 关闭时（默认）管线行为与今天完全一致（迁移测试守护）。
+
+### 7.2 新增「SVG 旗舰」预设族（微信 ≥3）
+- `flagship-kiln`（赤陶 Kiln，creative）、`flagship-tempera`（铜绿 Tempera，academic）、`flagship-amber`（黄铜 Amber，business）。
+- 全量使用 SVG 模块系统（标题头/分隔/引用卡/结束标/封面 + 至少一个 SMIL 交互），`primaryColor`/`fonts`/`persona` 取品牌色板。
+- 进 `themePresets[]`（追加，不改既有 12 个）；图标走 `iconography.ts`（新增 lucide 映射，禁 emoji）。
+- `themes-migration.test.ts` 扩展：旗舰预设双轨 schema 合规。
+
+---
+
+## 8. 模块变体清单（R1 细化，实现时按此交付）
+
+| 族 | 变体 id | 视觉 | 安全要点 |
+|----|---------|------|----------|
+| header | `header-badge-num` | 圆形编号 + 标题 + 细线 | circle+text+rect(1px) |
+| header | `header-bracket` | 方括号框标题 | path 折线 + text |
+| header | `header-ribbon` | 实色 ribbon 标题条 | rect + text + onAccent |
+| header | `header-vrule` | 左竖线 accent + 标题 | rect(竖) + text |
+| divider | `divider-grid` | 构成主义网格细线 | 多 rect(1px) |
+| divider | `divider-dots` | 点列 | 多 circle |
+| divider | `divider-fade` | opacity 渐隐线 | rect + opacity 梯度（多段实色，非渐变） |
+| divider | `divider-diamond` | ◇◇◇ 品牌签名线 | diamondSig + rect |
+| divider | `divider-forge` | Forge Line（品牌） | path + 低透明 glow |
+| quote | `quote-corner` | 「」角标卡 | path 角 + text/原文 |
+| quote | `quote-vbar` | 左竖条引用 | rect + 原 blockquote 内容 |
+| quote | `quote-mark` | 大引号 | path 引号 + text |
+| quote | `quote-card` | 卡片(box-shadow) | rect + box-shadow(微信支持) |
+| badge | `badge-num` | 圆形编号徽章 | circle + text |
+| badge | `badge-kpi` | KPI chip | rect(rx) + text×2 |
+| badge | `badge-tag` | 标签 | rect(rx) + text |
+| endmark | `endmark-fin` | 「全文完」+ ◇◇◇ | text + diamondSig |
+| endmark | `endmark-vessel` | vessel mark 锁版 | path(鼎×笔尖×方格) + text |
+| endmark | `endmark-rule` | 细线 + 署名 | rect + text |
+| cover | `cover-title` | 标题+副题+几何 | darkSafeBg + text×2 + 几何 |
+| cover | `cover-grid` | 构成主义网格封面 | 网格 rect + text |
+| cover | `cover-quote` | 导语式封面 | quote-mark + text |
+| interactive | `i-clickswitch` | 点击切换 A→B | SMIL animate opacity begin=click fill=freeze |
+| interactive | `i-scrollcards` | 横滑卡片 | section scroll-snap + 子卡 |
+| interactive | `i-fadein` | 入场淡入 | SMIL animate begin=0s |
+| interactive | `i-sequence` | 序列帧 | SMIL set/animate 多帧 |
+
+> vessel mark 几何复用品牌「鼎×笔尖×方格」定义（见 `feedback_logo_flag_trap`/`feedback_icon_brand_faithful` 记忆与 brand doc），**水平条纹构图禁用**（国旗陷阱）。
+
+---
+
+## 9. 测试策略（TDD + 冒烟 + e2e）
+
+### 9.1 单测（vitest，co-located）
+- `wechat-safe.test.ts`：正/负样本，每禁用构造命中违规。
+- `theme.test.ts`：`deriveSvgPalette` 纯函数性、rgba 合法、ember 自律。
+- `primitives.test.ts`：每构造器输出含必备属性、无禁用构造、viewBox 存在。
+- `modules.snapshot.test.ts`：26 变体 × 4 persona 快照；每条 `assertWechatSafe` 通过；含 `data-ink-svg`。
+- `inject.test.ts`：锚点替换正确；**幂等**（跑 2 次输出相同）；三平台分支（wechat=inline / xhs/zhihu=img）。
+- `interactive.test.ts`：SMIL 属性合规（fill=freeze/restart=never/begin∈{click,Ns,id.end}）；`allowMotion=false` 取静态首帧。
+- `raster.test.ts`：`rasterizeSvg` 真实产出 PNG dataURL（非空、`image/png`、尺寸正确）。
+- **回归**：既有 `platform-export-rendering`/`pipeline-cross-platform`/`preset-decorations`/`themes-migration` 全绿（仅按 §5.4 调整必要断言）。
+
+### 9.2 冒烟
+- `pnpm build`（串行，限 node 内存，避免 OOM）→ 构建通过。
+- 脚本级：对每个旗舰预设跑 `markdownToWechat(sample)` → `checkWechatSafe()` 零违规 + 含 SVG。
+
+### 9.3 e2e（`tests/e2e/`，tauri-driver 真二进制）
+- 探针 `probes/svg-render.cjs`：在真 Tauri 内渲染含 SVG 模块的预设，`getBoundingClientRect` 验证：
+  - 正文每行 ≈20-22 字（AC3，复用现有 375px 真机框探针法）。
+  - SVG 模块可见（width>0/height>0）、viewBox 生效、`width:100%` 自适应。
+  - SMIL 交互首帧存在；点击后状态变化（如可触发）。
+- 截图证据落 `prompts/0601/evidence/`（真机粘贴另需手动微信验证，留档）。
+
+### 9.4 兼容性
+- SVG 走 1.1 子集 + SMIL 标准；PC/预览静态兜底；跨 WebView2 版本验证（at least 当前 Win11 + 文档化最低版本）。
+
+---
+
+## 10. 实现顺序与 gitnexus 纪律
+
+按 PRD §9 的 PR1→PR7。每个改动符号**先 `gitnexus_impact({target, direction:"upstream"})`**，HIGH/CRITICAL 风险先告警；提交前 `gitnexus_detect_changes()` 核对范围。改既有符号（如 `OPAQUE_TAGS`、`ExportOptions`、契约测试）前必跑 impact。重命名走 `gitnexus_rename`。
+
+新增文件为主（低风险）；既有文件改动清单（加法）：
+- `platform-rules/wechat.ts`（OPAQUE_TAGS 加 svg）
+- `services/export/types.ts`（ExportOptions 加可选字段）
+- `themes.ts`（追加旗舰预设）
+- `preset-decorations.ts`（加导出/接线，不改既有）
+- `MarkdownPreview.vue`（预览白名单加白）
+- `preview-fidelity/*-mock.ts`（末尾叠加 SVG 呈现）
+- `iconography.ts`（旗舰预设图标映射，lucide）
+- 既有相关 `*.test.ts`（§5.4 断言放宽 + 新增用例）
+
+---
+
+## 11. 完成判据映射（对齐 PRD AC）
+
+| AC | 由谁证明 |
+|----|----------|
+| AC1 微信真机渲染 | e2e 探针 + 手动真机截图（evidence/） |
+| AC2 ≥7 族×persona 可复用 | modules.snapshot.test |
+| AC3 20-22 字/行 | e2e probes/svg-render |
+| AC4 零回归 | 全既有测试绿 + detect_changes |
+| AC5 SMIL+静态兜底 | interactive.test + e2e |
+| AC6 海报/SVG-as-img | raster.test + 冒烟 |
+| AC7 旗舰预设≥3 | themes-migration.test + 冒烟 |
+| AC8 全测试绿 | vitest + wdio + lint + typecheck |
+| AC9 safe 校验零违规 | wechat-safe.test + 冒烟 |
+| AC10 零 emoji | iconography 审查（lucide-only） |

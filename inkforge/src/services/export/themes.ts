@@ -21,6 +21,8 @@ import {
   decorateCommentaryH3Line,
   decorateCommentaryHrDiamond,
 } from './preset-decorations'
+import { composeSvgDecorate } from './svg-modules'
+import type { SvgInjectionPlan } from './svg-modules'
 
 // ─── PR3: persona+recipe composers for the 5 migrated presets ──────────
 // Each pair (preview + export) is generated once and reused inside the
@@ -69,6 +71,50 @@ const newsRecipesExport = composeRecipes(['large-quote', 'pull-quote-bordered', 
 
 const techRecipesPreview = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'preview' })
 const techRecipesExport = composeRecipes(['h2-block-ribbon', 'h3-vertical-accent'], { target: 'export' })
+
+// ─── PR6 (R7): SVG「旗舰」预设族 — 见 SPEC §7.2 ────────────────────────
+// 这三个预设全量使用 svg-modules inline-SVG 排版系统：封面 / 标题头 / 分隔 /
+// 引用卡 / 结束标，整体视觉身份由 SVG 承载（CSS 仅作 persona 底座 + 主色文本）。
+//
+// 品牌锁定（brand-locked）：旗舰预设的 SVG 使用预设固定的品牌色（赤陶 Kiln /
+// 铜绿 Tempera / 黄铜 Amber，见 docs/inkforge-brand-identity.md §2.1）作为设计
+// 意图。Inspector 的 primaryColor 覆盖只会重着色 CSS 部分（链接/标题色），
+// SVG 仍保留品牌身份。这是刻意的——旗舰=品牌门面，不随用户改色而散架。
+const FLAGSHIP_KILN = '#D95B3F'    // 炉火 · 朱砂 × 赤陶（Kiln，creative）
+const FLAGSHIP_TEMPERA = '#3B7A6B' // 冷却铜绿 · 时间与匠心（Tempera，academic）
+const FLAGSHIP_AMBER = '#C19A56'   // 熔铸黄铜 · 朴素匠人（Amber，business）
+
+const flagshipKilnPlan: SvgInjectionPlan = {
+  cover: 'cover-grid',
+  headings: [
+    { level: 2, module: 'header-ribbon' },
+    { level: 3, module: 'header-vrule' },
+  ],
+  replaceHr: 'divider-forge',
+  blockquote: 'quote-mark',
+  endmark: 'endmark-vessel',
+}
+
+const flagshipTemperaPlan: SvgInjectionPlan = {
+  cover: 'cover-title',
+  headings: [
+    { level: 2, module: 'header-bracket' },
+    { level: 3, module: 'header-vrule' },
+  ],
+  replaceHr: 'divider-diamond',
+  blockquote: 'quote-corner',
+  endmark: 'endmark-fin',
+}
+
+const flagshipAmberPlan: SvgInjectionPlan = {
+  cover: 'cover-title',
+  headings: [
+    { level: 2, module: 'header-vrule' },
+  ],
+  replaceHr: 'divider-grid',
+  blockquote: 'quote-vbar',
+  endmark: 'endmark-rule',
+}
 
 // highlight.js 代码主题样式 (atom-one-dark)
 export const codeThemeCSS = `
@@ -1057,6 +1103,111 @@ ${techRecipesExport.css}`,
       #nice p { margin-bottom: 1em; }
       #nice blockquote { border-left: 4px solid #6366f1; background: #f0f0ff; border-radius: 0 8px 8px 0; }
     `
+  },
+  // ─── PR6 (R7) SVG 旗舰预设族 — 全量 inline-SVG 排版（SPEC §7.2） ───────
+  // 视觉身份由 svg-modules 承载（封面/标题头/分隔/引用卡/结束标 + SMIL 交互）。
+  // CSS 仅提供 persona 底座（22em 行长锁 + 字体）与主色文本，故 previewCSS /
+  // exportCSS 复用 persona base CSS 加最小主色块即可，不再重复造装饰。
+  // 品牌锁定：decorate 内的 SVG 用预设固定品牌色（Inspector 改色只动 CSS 部分）。
+  //
+  // FLAGSHIP-KILN: 赤陶旗舰, creative, Kiln #D95B3F; cover-grid + ribbon/vrule
+  //                标题 + Forge 分隔 + 大引号 + vessel 结束标。
+  {
+    id: 'flagship-kiln',
+    name: '赤陶旗舰',
+    icon: 'flagship-kiln',
+    description: 'SVG 旗舰 · 赤陶炉火，构成主义',
+    theme: 'default',
+    fontFamily: 'sans-serif',
+    fontSize: '15px',
+    primaryColor: FLAGSHIP_KILN,
+    isUseIndent: false,
+    isUseJustify: false,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_KILN}; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
+#nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
+    exportCSS: `${creativeBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_KILN}; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
+#nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
+    // 品牌锁定：SVG 固定使用 Kiln 品牌色（见上方注释）。
+    decorate: composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+    customCSS: ''
+  },
+  // FLAGSHIP-TEMPERA: 铜绿旗舰, academic, Tempera #3B7A6B; cover-title +
+  //                   bracket/vrule 标题 + 菱形分隔 + 角标引用 + 全文完结束标。
+  {
+    id: 'flagship-tempera',
+    name: '铜绿旗舰',
+    icon: 'flagship-tempera',
+    description: 'SVG 旗舰 · 铜绿匠心，学术沉静',
+    theme: 'grace',
+    fontFamily: 'serif',
+    fontSize: '15px',
+    primaryColor: FLAGSHIP_TEMPERA,
+    isUseIndent: false,
+    isUseJustify: true,
+    persona: 'academic',
+    fonts: PERSONA_FONTS.academic,
+    previewCSS: `${academicBaseCSS}
+#nice { background: #ffffff; color: #2a2a2a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_TEMPERA}; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
+#nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
+    exportCSS: `${academicBaseCSS}
+#nice { background: #ffffff; color: #2a2a2a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_TEMPERA}; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
+#nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
+    // 品牌锁定：SVG 固定使用 Tempera 品牌色（见上方注释）。
+    decorate: composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
+    customCSS: ''
+  },
+  // FLAGSHIP-AMBER: 黄铜旗舰, business, Amber #C19A56; cover-title + vrule
+  //                 标题 + 网格分隔 + 左竖条引用 + 细线署名结束标。
+  {
+    id: 'flagship-amber',
+    name: '黄铜旗舰',
+    icon: 'flagship-amber',
+    description: 'SVG 旗舰 · 熔铸黄铜，商务克制',
+    theme: 'default',
+    fontFamily: 'sans-serif',
+    fontSize: '15px',
+    primaryColor: FLAGSHIP_AMBER,
+    isUseIndent: false,
+    isUseJustify: true,
+    persona: 'business',
+    fonts: PERSONA_FONTS.business,
+    previewCSS: `${businessBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_AMBER}; }
+#nice strong { color: ${FLAGSHIP_AMBER}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_AMBER}; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
+#nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
+    exportCSS: `${businessBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice h2, #nice h3 { color: ${FLAGSHIP_AMBER}; }
+#nice strong { color: ${FLAGSHIP_AMBER}; font-weight: 700; }
+#nice a { color: ${FLAGSHIP_AMBER}; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
+#nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
+    // 品牌锁定：SVG 固定使用 Amber 品牌色（见上方注释）。
+    decorate: composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
+    customCSS: ''
   }
 ]
 

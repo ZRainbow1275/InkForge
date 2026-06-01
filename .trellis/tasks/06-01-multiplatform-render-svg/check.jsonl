@@ -1,0 +1,4 @@
+{"file": "prompts/0601/SPEC.md", "reason": "验证依据：§9 测试策略(TDD/冒烟/e2e) + §10 gitnexus 纪律 + §11 AC 映射表"}
+{"file": "prompts/0601/PRD.md", "reason": "验收清单 AC1-AC10 + Definition of Done + Out of Scope(禁止删除/重构/mock)"}
+{"file": "prompts/0601/research/wechat-svg-capabilities.md", "reason": "WeChat-safe 校验基准：检查输出无 class/style-transform/var/calc/foreignObject/id-ref/外层固定px"}
+{"file": "prompts/0601/research/codebase-export-pipeline.md", "reason": "回归范围核对：既有 12+5+3 预设、9 recipe/12 helper、契约测试不被破坏"}

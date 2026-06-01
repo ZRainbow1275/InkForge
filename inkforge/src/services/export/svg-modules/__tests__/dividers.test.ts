@@ -1,0 +1,166 @@
+import { describe, it, expect } from 'vitest'
+import { dividerModules } from '../dividers'
+import { buildThemeContext } from '../theme'
+import { checkWechatSafe } from '../wechat-safe'
+import type { PresetPersona } from '@/types'
+
+const PRIMARY: Record<PresetPersona, string> = {
+  academic: '#5a4a3c',
+  business: '#004080',
+  lifestyle: '#a0522d',
+  creative: '#c0392b',
+}
+
+const PERSONAS: PresetPersona[] = ['academic', 'business', 'lifestyle', 'creative']
+
+describe('dividerModules registry', () => {
+  it('exports exactly 5 variants in the divider family with the expected ids', () => {
+    expect(dividerModules).toHaveLength(5)
+    expect(dividerModules.map((m) => m.id).sort()).toEqual(
+      ['divider-diamond', 'divider-dots', 'divider-fade', 'divider-forge', 'divider-grid'].sort(),
+    )
+    for (const m of dividerModules) {
+      expect(m.family).toBe('divider')
+      expect(typeof m.description).toBe('string')
+      expect(m.description.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('dividerModules × persona — wechat-safe & required scaffolding', () => {
+  for (const m of dividerModules) {
+    for (const persona of PERSONAS) {
+      it(`${m.id} / ${persona} renders zero wechat violations`, () => {
+        const theme = buildThemeContext({ primaryColor: PRIMARY[persona], persona, target: 'wechat' })
+        const out = m.render({ theme })
+
+        // 安全子集零违规
+        expect(checkWechatSafe(out)).toEqual([])
+
+        // 强制脚手架
+        expect(out).toContain(`data-ink-svg="${m.id}"`)
+        expect(out).toContain('viewBox=')
+        expect(out).toContain('width="100%"')
+
+        // 禁用结构
+        expect(out).not.toContain('<div')
+        expect(out).not.toContain('<linearGradient')
+        expect(out).not.toContain('<defs')
+        expect(out).not.toContain('<filter')
+        expect(out).not.toContain('url(#')
+
+        // 颜色取自 palette（hex 或 rgba），不出现 CSS var()
+        expect(out).not.toContain('var(--')
+      })
+    }
+  }
+})
+
+describe('divider-grid', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.business, persona: 'business', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-grid')!.render({ theme })
+
+  it('uses multiple hairline rects forming a grid', () => {
+    const rects = (out.match(/<rect /g) || []).length
+    // 基线 1 + 刻度 ≥ 5 + accent 长竖 1
+    expect(rects).toBeGreaterThanOrEqual(7)
+  })
+
+  it('includes accent color from theme on the long tick', () => {
+    expect(out).toContain(theme.palette.accent)
+  })
+})
+
+describe('divider-dots', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.lifestyle, persona: 'lifestyle', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-dots')!.render({ theme })
+
+  it('contains multiple <circle> elements (≥5 dots)', () => {
+    const circles = (out.match(/<circle /g) || []).length
+    expect(circles).toBeGreaterThanOrEqual(5)
+  })
+
+  it('center circle uses the accent color', () => {
+    expect(out).toContain(theme.palette.accent)
+  })
+})
+
+describe('divider-fade', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.academic, persona: 'academic', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-fade')!.render({ theme })
+
+  it('contains many <rect> segments (multi-step opacity fade, NOT a gradient)', () => {
+    const rects = (out.match(/<rect /g) || []).length
+    // 21 段中央最浓，两端淡到被过滤，应仍有 ≥7 段
+    expect(rects).toBeGreaterThanOrEqual(7)
+  })
+
+  it('NEVER emits <linearGradient>', () => {
+    expect(out).not.toContain('<linearGradient')
+  })
+
+  it('uses varied opacity values to fake the gradient', () => {
+    const opacities = new Set(out.match(/opacity="[\d.]+"/g) || [])
+    expect(opacities.size).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('divider-diamond', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.creative, persona: 'creative', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-diamond')!.render({ theme })
+
+  it('contains at least 3 <path> (the three brand diamonds)', () => {
+    const paths = (out.match(/<path /g) || []).length
+    expect(paths).toBeGreaterThanOrEqual(3)
+  })
+
+  it('diamonds are filled with the accent color', () => {
+    expect(out).toContain(theme.palette.accent)
+  })
+
+  it('has 2 hairline rect rules flanking the signature', () => {
+    const rects = (out.match(/<rect /g) || []).length
+    expect(rects).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('divider-forge', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.business, persona: 'business', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-forge')!.render({ theme })
+
+  it('uses ember exactly once (≤1 per module rule)', () => {
+    const ember = theme.palette.ember
+    // 在输出里出现的次数
+    const occurrences = out.split(ember).length - 1
+    expect(occurrences).toBe(1)
+  })
+
+  it('uses a low-opacity glow <circle> (no <filter>)', () => {
+    expect(out).toContain('<circle ')
+    expect(out).not.toContain('<filter')
+  })
+
+  it('has hairline rules on both sides', () => {
+    const rects = (out.match(/<rect /g) || []).length
+    expect(rects).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('optional centered label via p.text', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.business, persona: 'business', target: 'wechat' })
+
+  for (const m of dividerModules) {
+    it(`${m.id} renders the label when p.text is provided`, () => {
+      const out = m.render({ theme, text: 'INTERLUDE' })
+      expect(out).toContain('<text ')
+      expect(out).toContain('INTERLUDE')
+      expect(checkWechatSafe(out)).toEqual([])
+    })
+
+    it(`${m.id} omits <text> when p.text is empty/undefined`, () => {
+      const out = m.render({ theme })
+      // 默认不画 label → 不应含 <text
+      expect(out).not.toContain('<text ')
+    })
+  }
+})
