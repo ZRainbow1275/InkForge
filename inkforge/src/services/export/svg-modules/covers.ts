@@ -55,6 +55,11 @@ function splitLines(text: string, maxCharsPerLine: number, maxLines: number): st
   return lines
 }
 
+/** 依据可用 viewBox 宽度与字号估算每行最多 CJK 字符数（CJK≈1em；含字距）。 */
+function fitCharsPerLine(availableWidth: number, fontSize: number, letterSpacing = 0): number {
+  return Math.max(1, Math.floor(availableWidth / (fontSize + Math.max(0, letterSpacing))))
+}
+
 // ─── cover-title ──────────────────────────────────────────────────────────
 // 大标题封面：暖纸底 + 大标题 + 副标题 + 右下小菱形签名。
 // 留白克制、几何点缀仅作锚点；中性 persona 时也成立。
@@ -69,7 +74,8 @@ function renderCoverTitle(p: SvgModuleParams): string {
 
   // 主标题：单行（如过长可让上层提前裁剪；这里只画一行视觉首屏）
   // 字号 96 留白足够，subtitle 用 inkSoft（更低对比度）。
-  const titleLines = splitLines(title, 14, 2)
+  // 起点 x=80，左右各留 80 → 可用宽 = W − 80 − 80 = 920；每行字数随字号自适应（≈9）。
+  const titleLines = splitLines(title, fitCharsPerLine(W - 80 - 80, 96, 2), 2)
   const titleStartY = 270
   const titleLineH = 116
   const titleNodes = titleLines
@@ -167,7 +173,8 @@ function renderCoverGrid(p: SvgModuleParams): string {
   const accentDot = circle({ cx: markCx, cy: markCy, r: 8, fill: palette.accent })
 
   // 标题区（左对齐版心）
-  const titleLines = splitLines(title, 14, 2)
+  // 起点 x=padX+24，文字须落在网格内缘 padX+innerW 内 → 可用宽 = innerW − 24（≈896）；每行字数自适应（≈10）。
+  const titleLines = splitLines(title, fitCharsPerLine(innerW - 24, 84, 2), 2)
   const titleStartY = 310
   const titleLineH = 104
   const titleNodes = titleLines
@@ -234,8 +241,8 @@ function renderCoverQuote(p: SvgModuleParams): string {
   const quote1 = quoteBlock(quoteX, quoteY)
   const quote2 = quoteBlock(quoteX + blockW + gap, quoteY)
 
-  // 多行导语（≤4 行，每行 ~16 CJK 字符；超出 …）
-  const lines = splitLines(title, 16, 4)
+  // 多行导语（≤4 行；起点 x=140，左右各留 140 → 可用宽 = W − 140 − 140 = 800；每行 ~16 字，超出 …）
+  const lines = splitLines(title, fitCharsPerLine(W - 140 - 140, 48, 2), 4)
   const lineH = 70
   const textStartY = 300
   const textNodes = lines

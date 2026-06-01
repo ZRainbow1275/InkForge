@@ -226,6 +226,13 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 - **修复后端到端验证**：round 2+ `addArticle` **成功**（`articleId` 返回），SVG 全程跑通。
 - **数据安全（密钥持久化）铁证**：① `cmdkey /list` 见 `LegacyGeneric:target=com.inkforge.keychain:inkforge_master_key_v3.com.inkforge.keychain`（OS 级，跨重启/跨 WebView2 profile 存活）；② keyring set→get→delete→NoEntry 真凭据库探针；③ 7 个 `ensure-unlock.test.ts` 单测覆盖全分支。契约见 `.trellis/spec/backend/secure-keychain-unlock.md`。
 
+### 10.3 真实微信公众号后台「粘贴渲染」验证（Playwright 驱动真浏览器 + 用户扫码登录）
+在**真实公众号后台**（账号「高天方寒」，`mp.weixin.qq.com` 图文编辑器）经 Playwright 模拟**真实 paste 事件**（`text/html` 经 `DataTransfer`，触发微信 ProseMirror 自身 paste sanitizer）灌入 `flagship-kiln` 产物，并读回 sanitizer 实际保留的 DOM：
+- **inline SVG 穿透微信编辑器 paste sanitizer**：粘贴前 8 `<svg>` → 保留 **8**；`data-ink-svg` 8 → **8**；`<rect>` 22 / `<text>` 10 / `<path>` 11 全部保留；`<img>` 0（SVG 保持内联，无需降级栅格化）。**这从真实后台层面证明 inline-SVG 方案成立。**
+- **PC 编辑器可视化渲染**（实测此版编辑器**会**渲染 inline SVG，非 README 旧设想）：封面 `cover-grid`（网格 + ember 点 + 标题）、`divider-forge`（线 + 中心 ember）、`quote-mark` 大引号、文末 `endmark-vessel`（鼎×笔尖 + "InkForge·墨铸" 署名）均正确渲染；`flagship-tempera` 的 `cover-title`（96px 大标题）+ `quote-corner`（铜绿角括号）亦验证。证据截图见 `evidence/wechat-paste/wechat-*.png`。
+- **真机暴露并修复封面长标题溢出**：长标题「静谧刊印：当排版成为一种克制的力量」(17 字) 在 `cover-grid` 第一行排 14 字、字号 84、溢出 viewBox 122px。根因：`covers.ts` `splitLines` 的 `maxCharsPerLine` 硬编码 14、不随字号/可用宽度自适应。修复：新增 `fitCharsPerLine(availableW, fontSize, letterSpacing)`，三封面变体改按可用宽度推导每行字数（cover-title 9 / cover-grid 10 / cover-quote 16）。重生成产物后真机重粘验证：两封面变体 `coverMaxOverflowPx` 分别 −62 / −63（落在 viewBox 内，**不再溢出**），svg-modules 13 文件/264 测试绿（含新增溢出守卫）。
+- **唯一仍需用户手动**：微信「预览/群发到手机」要求先插一张封面缩略图（微信硬性要求，与正文无关）——手机真机渲染（SMIL 交互、最终 sanitizer）由用户完成最后一眼确认。
+
 ---
 
 ## 9. 结论

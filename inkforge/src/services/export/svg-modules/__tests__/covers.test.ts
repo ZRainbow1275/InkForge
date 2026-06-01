@@ -100,6 +100,80 @@ describe('cover-grid shape requirements', () => {
   })
 })
 
+// ─── 长标题不溢出 viewBox 右内缘（真机微信实测发现的回归守护） ──────────────
+// 背景：flagship-kiln 封面 17 字标题第一行排了 14 字溢出 viewBox 右边界被裁切。
+// 根因：splitLines 的 maxCharsPerLine 硬编码（14），不随字号/可用宽度自适应。
+// 修复后：每行字数 = floor(可用宽 / (字号 + 字距))，右缘 ≤ viewBox 右内缘。
+describe('cover long-title viewBox overflow guard', () => {
+  const theme = buildThemeContext({ primaryColor: primaryColors.creative, persona: 'creative', target: 'wechat' })
+  const LONG_TITLE = '静谧刊印：当排版成为一种克制的力量' // 17 CJK 字符
+
+  // 从一个 <text ...>内容</text> 节点抽取属性与内容文本
+  const parseTexts = (svg: string): { x: number; fontSize: number; letterSpacing: number; chars: number }[] => {
+    const out: { x: number; fontSize: number; letterSpacing: number; chars: number }[] = []
+    const re = /<text ([^>]*)>([^<]*)<\/text>/g
+    let mm: RegExpExecArray | null
+    while ((mm = re.exec(svg)) !== null) {
+      const attrStr = mm[1]
+      const content = mm[2]
+      const xm = /\bx="([\d.]+)"/.exec(attrStr)
+      const fsm = /font-size="([\d.]+)"/.exec(attrStr)
+      const lsm = /letter-spacing="([\d.]+)"/.exec(attrStr)
+      // 仅收集大字号标题节点（fontSize >= 80），跳过 subtitle/署名小字
+      const fontSize = fsm ? Number(fsm[1]) : 0
+      if (fontSize < 80) continue
+      out.push({
+        x: xm ? Number(xm[1]) : 0,
+        fontSize,
+        letterSpacing: lsm ? Number(lsm[1]) : 0,
+        chars: content.length,
+      })
+    }
+    return out
+  }
+
+  it('cover-title: each title line fits ≤9 chars and right edge ≤ 1000 (no overflow)', () => {
+    const m = coverModules.find((c) => c.id === 'cover-title')!
+    const out = m.render({ theme, text: LONG_TITLE, subtitle: SAMPLE_SUBTITLE })
+    const titles = parseTexts(out)
+    expect(titles.length).toBeGreaterThanOrEqual(1)
+    for (const t of titles) {
+      // 可用宽 = W − 80 − 80 = 920 → floor(920/98) = 9
+      expect(t.chars).toBeLessThanOrEqual(9)
+      // 估算右缘 = x + chars × (fontSize + letterSpacing) ≤ viewBox 右内缘（1080 − 80 = 1000）
+      const rightEdge = t.x + t.chars * (t.fontSize + t.letterSpacing)
+      expect(rightEdge).toBeLessThanOrEqual(1000)
+    }
+  })
+
+  it('cover-grid: each title line fits ≤10 chars and right edge ≤ 1000 (no overflow)', () => {
+    const m = coverModules.find((c) => c.id === 'cover-grid')!
+    const out = m.render({ theme, text: LONG_TITLE, subtitle: SAMPLE_SUBTITLE })
+    const titles = parseTexts(out)
+    expect(titles.length).toBeGreaterThanOrEqual(1)
+    for (const t of titles) {
+      // 可用宽 = innerW − 24 = 920 − 24 = 896 → floor(896/86) = 10
+      expect(t.chars).toBeLessThanOrEqual(10)
+      // 估算右缘 = x + chars × (fontSize + letterSpacing) ≤ viewBox 右内缘（padX + innerW = 80 + 920 = 1000）
+      const rightEdge = t.x + t.chars * (t.fontSize + t.letterSpacing)
+      expect(rightEdge).toBeLessThanOrEqual(1000)
+    }
+  })
+
+  it('cover-title / cover-grid: a 40-char title is still maxLines-truncated with … (ellipsis intact)', () => {
+    const huge = '一二三四五六七八九十'.repeat(4) // 40 CJK 字符
+    for (const id of ['cover-title', 'cover-grid'] as const) {
+      const m = coverModules.find((c) => c.id === id)!
+      const out = m.render({ theme, text: huge, subtitle: SAMPLE_SUBTITLE })
+      // 标题被 maxLines(=2) 截断 → 含省略号
+      expect(out).toContain('…')
+      // 大字号标题节点至多 2 行（maxLines），不会无限扩行
+      const titles = parseTexts(out)
+      expect(titles.length).toBeLessThanOrEqual(2)
+    }
+  })
+})
+
 describe('cover-quote shape requirements', () => {
   const m = coverModules.find((c) => c.id === 'cover-quote')!
   const theme = buildThemeContext({ primaryColor: primaryColors.creative, persona: 'creative', target: 'wechat' })
