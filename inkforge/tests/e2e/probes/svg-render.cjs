@@ -24,6 +24,11 @@
  * ExportModal preview (`.preview-render`). The Stage mini-phone preview uses a
  * mock renderer (`#wechat-article`, 677px) that does NOT inject SVG — so this
  * probe inspects the ExportModal, not the Stage.
+ *
+ * Seeding note: the Stage 全屏导出 button is disabled until an article is loaded
+ * (editor status 'ready'). Pinia is not on window, so we reach the live `article`
+ * store through Vue's runtime (#app.__vue_app__ → provides → pinia._s) and call
+ * the real addArticle + selectArticle, exactly like specs/svg-render.spec.cjs.
  */
 const os = require('os');
 const path = require('path');
@@ -47,21 +52,101 @@ const APP_BIN = path.resolve(
 
 const FLAGSHIP_NAMES = ['赤陶旗舰', '铜绿旗舰', '黄铜旗舰'];
 
+const SEED_TITLE = 'SVG 旗舰排版真机验证样稿';
+const SEED_MARKDOWN = [
+    '# SVG 旗舰排版真机验证样稿',
+    '',
+    '> 这是一段导语，用来触发封面与引用卡模块的真实注入流程。',
+    '',
+    '在墨铸的导出管线里，我们把高级排版编译成微信安全的内联矢量图形，',
+    '让标题、分隔线、引用卡与结束标都成为可复用的参数化组件。',
+    '',
+    '## 章节标题触发标题头模块',
+    '',
+    '正文继续展开，混排英文 The quick brown fox 与中文段落，验证字体对的协同表现。',
+    '',
+    '### 三级标题触发竖线标题头',
+    '',
+    '这一段是较长的中文正文，用于测量每行折行后的汉字数量是否落在二十到二十二字的舒适区间。',
+    '',
+    '---',
+    '',
+    '> “真实渲染、真实跑通、零模拟。” —— 墨铸团队',
+    '',
+    '末段补充更多中文内容，确保文末结束标模块能够正确追加到正文之后。',
+].join('\n');
+
 function sleep(ms) {
     return new Promise((r) => setTimeout(r, ms));
 }
 
+// Seed a real draft through the live Pinia `article` store (same bridge as the
+// graded spec). Returns { ok, articleId } | { ok:false, reason }.
+async function seedDraftViaPinia(browser, title, markdown) {
+    return browser.execute((seedTitle, seedBody) => {
+        function findPinia() {
+            const root = document.getElementById('app');
+            const app = root && root.__vue_app__;
+            if (!app || !app._context || !app._context.provides) return null;
+            const provides = app._context.provides;
+            for (const sym of Object.getOwnPropertySymbols(provides)) {
+                const candidate = provides[sym];
+                if (candidate && candidate._s && typeof candidate._s.get === 'function') {
+                    return candidate;
+                }
+            }
+            return null;
+        }
+        try {
+            const pinia = findPinia();
+            if (!pinia) return { ok: false, reason: 'PINIA-UNREACHABLE' };
+            const articleStore = pinia._s.get('article');
+            if (!articleStore || typeof articleStore.addArticle !== 'function') {
+                return { ok: false, reason: 'STORE-MISSING (article.addArticle)' };
+            }
+            return articleStore
+                .addArticle({
+                    title: seedTitle,
+                    sourceUrl: 'e2e://svg-render-seed/' + Date.now(),
+                    rawContent: seedBody,
+                })
+                .then((article) => {
+                    if (!article || !article.id) return { ok: false, reason: 'CREATE-FAILED' };
+                    articleStore.selectArticle(article.id);
+                    return { ok: true, articleId: article.id };
+                })
+                .catch((err) => ({ ok: false, reason: 'ADD-ARTICLE-THREW: ' + (err && err.message ? err.message : String(err)) }));
+        } catch (err) {
+            return { ok: false, reason: 'SEED-EXCEPTION: ' + (err && err.message ? err.message : String(err)) };
+        }
+    }, title, markdown);
+}
+
 async function reachWorkstationExport(browser) {
-    const onWorkstation = await browser.execute(
-        () => location.pathname.startsWith('/workstation'),
-    );
-    if (!onWorkstation) {
-        await browser.execute(() => {
+    // Land on workstation so the editor store is active.
+    await browser.execute(() => {
+        if (!location.pathname.startsWith('/workstation')) {
             window.history.pushState({}, '', '/workstation');
             window.dispatchEvent(new PopStateEvent('popstate'));
-        });
-        await sleep(1200);
+        }
+    });
+    await sleep(1000);
+
+    // Seed + select a real draft.
+    const seed = await seedDraftViaPinia(browser, SEED_TITLE, SEED_MARKDOWN);
+    if (!seed || !seed.ok) {
+        console.log('[probe] seeding failed:', seed && seed.reason);
+        return false;
     }
+    console.log('[probe] seeded draft:', seed.articleId);
+
+    // Navigate to /workstation?id=<id> so route selection keeps it active.
+    await browser.execute((id) => {
+        window.history.pushState({}, '', `/workstation?id=${encodeURIComponent(id)}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+    }, seed.articleId);
+    await sleep(1200);
+
     await browser.execute(() => {
         const bar = document.querySelector('.panel-stage .stage-collapsed-bar');
         if (bar) bar.click();
@@ -77,7 +162,7 @@ async function reachWorkstationExport(browser) {
                 });
                 return state === 'ready';
             },
-            { timeout: 12_000, interval: 400 },
+            { timeout: 15_000, interval: 400 },
         );
         return true;
     } catch {
@@ -141,7 +226,7 @@ function dumpPreviewGeometry(browser) {
                 : null;
             return {
                 moduleId: sec.getAttribute('data-ink-svg'),
-                viewBox: svg ? svg.getAttribute('viewBox') : null,
+                viewBox: svg ? (svg.getAttribute('viewBox') || svg.getAttribute('viewbox')) : null,
                 widthAttr: svg ? svg.getAttribute('width') : null,
                 secBox: secBox
                     ? { x: Math.round(secBox.x), y: Math.round(secBox.y), w: Math.round(secBox.width), h: Math.round(secBox.height) }
@@ -225,8 +310,9 @@ async function main() {
         console.log('[probe] workstation export reachable:', ready);
         if (!ready) {
             console.log(
-                '[probe] No article loaded → 全屏导出 disabled. Open/create a draft ' +
-                'first, then re-run. Nothing to dump.',
+                '[probe] Seeding a draft via the live Pinia store failed, or 全屏导出 ' +
+                'stayed disabled. See the [probe] seeding log above for the precise ' +
+                'reason. Nothing to dump.',
             );
             return;
         }

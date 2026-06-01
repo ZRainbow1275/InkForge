@@ -19,6 +19,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Error Handling](./error-handling.md) | Error types, handling strategies | Active |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns, export service capability contracts | Active |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | Active |
+| [Secure Keychain + Master-Key Unlock](./secure-keychain-unlock.md) | Tauri OS-keychain commands, boot-time auto-unlock, Tauri-env detection, key persistence | Active |
 
 ---
 

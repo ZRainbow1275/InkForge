@@ -4,8 +4,9 @@
  */
 
 import { logger } from '@/services/error'
+import { isTauriEnv, tauriInvoke } from '@/utils/platform'
 import { CRYPTO_CONFIG } from './config'
-import { getTauriInvoke, isTauriEnvironment } from './environment'
+import { isTauriEnvironment } from './environment'
 import type { WrappedMasterKey } from './types'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -215,11 +216,10 @@ export async function deleteKeysFromStore(): Promise<void> {
  * @param masterKeyData Base64 编码的主密钥
  */
 export async function saveMasterKeyToTauriKeychain(masterKeyData: string): Promise<boolean> {
-    const invoke = getTauriInvoke()
-    if (!invoke) return false
+    if (!isTauriEnv()) return false
 
     try {
-        await invoke('store_key', {
+        await tauriInvoke<void>('store_key', {
             keyId: `${CRYPTO_CONFIG.TAURI_KEYCHAIN_SERVICE}:${CRYPTO_CONFIG.MASTER_KEY_ID}`,
             keyData: masterKeyData
         })
@@ -236,17 +236,16 @@ export async function saveMasterKeyToTauriKeychain(masterKeyData: string): Promi
  * @returns Base64 编码的主密钥或 null
  */
 export async function loadMasterKeyFromTauriKeychain(): Promise<string | null> {
-    const invoke = getTauriInvoke()
-    if (!invoke) return null
+    if (!isTauriEnv()) return null
 
     try {
-        const keyData = await invoke('get_key', {
+        const keyData = await tauriInvoke<string | null>('get_key', {
             keyId: `${CRYPTO_CONFIG.TAURI_KEYCHAIN_SERVICE}:${CRYPTO_CONFIG.MASTER_KEY_ID}`
         })
         if (keyData) {
             logger.info('已从系统密钥链加载主密钥')
         }
-        return keyData
+        return keyData ?? null
     } catch (error) {
         logger.error('从系统密钥链加载失败', error)
         return null
@@ -257,11 +256,10 @@ export async function loadMasterKeyFromTauriKeychain(): Promise<string | null> {
  * 从 Tauri 系统密钥链删除主密钥
  */
 export async function deleteMasterKeyFromTauriKeychain(): Promise<boolean> {
-    const invoke = getTauriInvoke()
-    if (!invoke) return false
+    if (!isTauriEnv()) return false
 
     try {
-        await invoke('delete_key', {
+        await tauriInvoke<void>('delete_key', {
             keyId: `${CRYPTO_CONFIG.TAURI_KEYCHAIN_SERVICE}:${CRYPTO_CONFIG.MASTER_KEY_ID}`
         })
         logger.info('主密钥已从系统密钥链删除')

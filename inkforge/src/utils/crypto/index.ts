@@ -105,6 +105,7 @@ export {
     unwrapMasterKey,
     generateMasterKey,
     unlockWithPassword,
+    ensureMasterKeyUnlocked,
     changePassword,
     getMasterKey,
     exportMasterKey,

@@ -3,6 +3,7 @@
  */
 
 import { logger } from '@/services/error'
+import { isTauriEnv } from '@/utils/platform'
 import type { TauriInvoke, KeyOperationType } from './types'
 
 /**
@@ -39,9 +40,15 @@ export function ensureCryptoAvailable(): void {
 
 /**
  * 检测是否在 Tauri 环境中运行
+ *
+ * 委派给 `@/utils/platform` 的统一检测，避免「仅看 `window.__TAURI__`」的漏判：
+ * Tauri 1.x 默认 `withGlobalTauri: false` 不再注入 `window.__TAURI__`，
+ * 只注入 `__TAURI_INVOKE__` / `__TAURI_IPC__` 等。若此处仍只查 `__TAURI__`，
+ * prod 桌面构建会被误判为 web，导致主密钥永不走系统密钥链（与 storage.ts 的
+ * `isTauriEnv()` 判定不一致，是 mock 单测抓不到的运行时缺陷）。
  */
 export function isTauriEnvironment(): boolean {
-    return typeof window !== 'undefined' && '__TAURI__' in window
+    return isTauriEnv()
 }
 
 /**

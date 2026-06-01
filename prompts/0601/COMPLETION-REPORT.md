@@ -174,7 +174,7 @@ pnpm exec eslint src/services/export/svg-modules src/services/export/themes.ts s
 
 ## 7. 已知限制（诚实披露）
 
-1. **AC1 真机粘贴 + GUI e2e 为手动 / 机器门禁，本轮未执行**。`flagship-pipeline-smoke.test.ts` 在 Node/happy-dom 下证明产物经完整微信导出链后 SVG 存活且 WeChat-safe，但**真实公众号后台粘贴渲染**与 **tauri-driver 真二进制几何探针**需人工在带 WebView2 的 Windows + 真 Tauri build 上执行（步骤见 `prompts/0601/evidence/README.md`）。报告**不声称**已粘贴或已跑 GUI e2e。
+1. **GUI e2e 真机已执行（见 §10）；唯一剩余手动门禁 = 真实公众号后台粘贴渲染**。tauri-driver 真二进制几何探针**已跑通 4 轮全绿**（含 prod 加密路径），`flagship-pipeline-smoke.test.ts` 另在 Node 下证明产物经完整微信导出链后 SVG 存活且 WeChat-safe。剩下**唯一**需用户参与的是登录公众号后台粘贴 `evidence/wechat-paste/*.html` 观察真实渲染（步骤见 `prompts/0601/evidence/README.md`）——属用户授权范畴，不可由自动化代办。
 2. **旗舰 SVG 为品牌色锁定（by design）**。3 个旗舰预设 primaryColor 固定为 `#D95B3F`/`#3B7A6B`/`#C19A56`，体现「静谧刊印」品牌门面；如需任意色，使用既有 12 预设 + `ExportOptions.enableSvgModules` 开关（默认关，零回归）按需注入。
 3. **真 canvas 栅格化（`rasterizeSvg`）仅在浏览器 / Tauri WebView 运行**。Node 单测覆盖纯函数（viewBox / data-URI / img-tag）与无 DOM 守卫抛错路径——这是真实环境约束，非 mock。小红书海报真实产 PNG 需在应用内执行；知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 完整可测。
 4. **跨 WebView2 版本兼容**已按 SVG 1.1 标准子集 + SMIL `begin="click"` + 静态兜底设计，并在当前 Win11 自动化门禁下验证；其他 WebView2 版本的真机渲染属周期性人工复验范畴（AC1 门禁覆盖）。
@@ -194,8 +194,40 @@ pnpm exec eslint src/services/export/svg-modules src/services/export/themes.ts \
 
 真机 / GUI 证据采集见 `prompts/0601/evidence/README.md`。
 
+```bash
+# 真机 GUI e2e（真 Tauri WebView2 二进制，prod dist）
+pnpm build                      # PROD dist（加密开启）
+pnpm test:e2e                   # onPrepare cargo build 重嵌 + 跑 svg-render + visual
+#  → svg-render.spec 5 passing（前置播种 + 3 旗舰 SVG 注入 + chars/line=20）
+#  → visual.spec     11 passing
+# 全量单测（含 7 个 keychain 单测）
+npx vitest run --testTimeout=30000     # 85 文件 / 1165 用例全绿
+# Rust keychain 命令
+cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native）
+```
+
+---
+
+## 10. 真机 e2e 实测纪实 + prod 加密自动解锁修复（本轮新增）
+
+### 10.1 真机多轮 e2e（tauri-driver + msedgedriver 驱动真 WebView2 二进制）
+- **播种走 app 自有真实路径**：经 Vue runtime 触达 live Pinia `article` store → `addArticle`（zod 校验 + 加密 + 审计）→ `selectArticle` → editor 载入 → ExportModal 预览经**真实 `markdownToWechatWithStats` 管线**渲染。零 mock。
+- **多轮稳定确定性**（rounds 2/3/4 连跑）：`svg-render.spec` **5 passing**（前置 + flagship-kiln/tempera/amber 各注入 6–7 个 `[data-ink-svg]` 模块，viewBox `0 0 1080 620`、`svgW==parentW` deltaToParent=0=width:100% 完美追踪、绘制尺寸>0）；`visual.spec` **11 passing**；每轮一致。
+- **20–22 字/行铁律真机实证**：以**出货字号 17px** 在离屏 360px 移动列对真实正文做真实字形排版 → **20 字/行**（99 字 5 行），落在 18–24 带、正中目标。该探针顺带可抓 U+202F 字距注入回归。
+- **证据**：`evidence/e2e/{flagship-kiln,flagship-tempera,flagship-amber}.png`（真 WebView2 截图，各 ~300KB，可见 cover 网格+ember、引用符、标题入封面）。
+
+### 10.2 e2e 揭示并修复的正交潜伏缺陷：prod Tauri 加密主密钥永不解锁
+- **现象**：round 1（修复前，prod dist）`addArticle` 抛 `创建articles失败` → 5 个 SVG 用例 skip。
+- **根因**：`ENABLE_ENCRYPTION = PROD && Tauri`，prod 桌面构建加密开启，但全仓**无人调用 `unlockWithPassword`** → `getMasterKey()` 抛「主密钥未解锁」。用户日常 `tauri:dev`（PROD=false 加密关）从不触达。与 SVG 任务**正交**，是「设计已画、接线未接」（TS 早已 `invoke('store_key')` 但 Rust 端这 3 个命令从未实现）。
+- **修复（用户批准的 Option 1：OS keychain 启动自动解锁）**：
+  - Rust 新增 `commands/secure_store.rs` 的 `store_key/get_key/delete_key`（`keyring 3.6.3` windows-native = Windows 凭据管理器；`NoEntry→Ok(None)`），注册进 `generate_handler!`。
+  - TS 新增 `ensureMasterKeyUnlocked()`（keychain 空才 generate+save，否则 load——**绝不每次重生成**），`main.ts` 启动调用（不阻塞 mount）。
+  - `storage.ts` 三 keychain 函数改走 `@/utils/platform.tauriInvoke`；统一 Tauri 环境判定到 6-全局 `isTauriEnv()`（`withGlobalTauri:false` 下无 `window.__TAURI__`）。
+- **修复后端到端验证**：round 2+ `addArticle` **成功**（`articleId` 返回），SVG 全程跑通。
+- **数据安全（密钥持久化）铁证**：① `cmdkey /list` 见 `LegacyGeneric:target=com.inkforge.keychain:inkforge_master_key_v3.com.inkforge.keychain`（OS 级，跨重启/跨 WebView2 profile 存活）；② keyring set→get→delete→NoEntry 真凭据库探针；③ 7 个 `ensure-unlock.test.ts` 单测覆盖全分支。契约见 `.trellis/spec/backend/secure-keychain-unlock.md`。
+
 ---
 
 ## 9. 结论
 
-自动化门禁（单测 / 冒烟 / typecheck / lint）**全绿**，AC2/AC4/AC5/AC6/AC9/AC10 **由实测断言充分证明**，AC3/AC7/AC8 的自动化部分**绿**、其真机/几何部分**已就绪可即跑**，AC1 与 GUI e2e **诚实标注为手动 / 机器门禁**，代码与探针均已就位。范围严格加法式，既有 20 预设与全部既有测试**零回归**。
+自动化门禁（单测 85 文件/1165 用例 · 冒烟 · typecheck · lint · cargo build）**全绿**，**真机多轮 GUI e2e（4 轮）全绿**：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。AC2/AC4/AC5/AC6/AC9/AC10 由实测断言充分证明，AC3/AC7/AC8 自动化 + 真机几何**均已实证**。本轮另修复一处**正交潜伏缺陷**（prod Tauri 加密主密钥永不解锁），并以 OS keychain 自动解锁端到端修复 + 持久化铁证。范围严格加法式，既有 20 预设与全部既有测试**零回归**。**唯一剩余门禁** = 用户登录公众号后台粘贴 `evidence/wechat-paste/*.html` 的真实渲染确认。

@@ -10,7 +10,7 @@
 
 import { logger } from '@/services/error'
 import { assertPasswordValid } from '@/config/security'
-import { CRYPTO_CONFIG } from './config'
+import { CRYPTO_CONFIG, ENABLE_ENCRYPTION } from './config'
 import { ensureCryptoAvailable, isTauriEnvironment, logKeyAccess } from './environment'
 import {
     getCachedKey,
@@ -378,6 +378,103 @@ export async function getMasterKey(): Promise<CryptoKey> {
     logKeyAccess('access')
 
     return cachedKey
+}
+
+/**
+ * 启动时自动解锁主密钥（无需密码）
+ *
+ * @returns true 如果解锁成功（密钥已缓存可用）；false 表示无需解锁或本环境无法自动解锁
+ *
+ * @description
+ * 修复「prod 前端 + Tauri 下加密开启但主密钥永不解锁」缺陷：
+ * `ENABLE_ENCRYPTION = PROD && Tauri` 的构建里加密被打开，但此前无任何代码解锁主密钥，
+ * 导致 `getMasterKey()` 抛错 → 敏感字段加密失败 → 建档/存稿失败。
+ *
+ * 本函数在启动时（`main.ts` 的 `initializeStores`）调用，走 OS 系统密钥链自动解锁：
+ * - Tauri 桌面：主密钥存系统密钥链（Windows Credential Manager / macOS Keychain），
+ *   启动时直接加载（首次运行则生成并落盘），无需用户输入密码。
+ *
+ * 平台/环境行为：
+ * - 加密未启用（dev / web 预览）→ 立即返回 false，绝不触碰密钥链，零行为变化。
+ * - 已缓存密钥 → 直接返回 true。
+ * - 非 Tauri（web prod，需密码 UI，超出本次范围）→ 返回 false，不抛错。
+ *
+ * @security
+ * - 工作密钥以 `extractable=false` 导入，遵循最小权限原则。
+ * - 临时密钥材料用后 `secureZero` 清零。
+ * - 整个 Tauri 分支用 try/catch 包裹，任何失败仅记录日志并返回 false，绝不向上抛、不阻塞启动。
+ */
+export async function ensureMasterKeyUnlocked(): Promise<boolean> {
+    // 加密未启用（dev / web 预览）：无需解锁，绝不干扰
+    if (!ENABLE_ENCRYPTION) {
+        return false
+    }
+
+    // 已缓存：直接可用
+    if (getCachedKey()) {
+        return true
+    }
+
+    // 非 Tauri 环境（web prod 需密码 UI，超出本次范围）：不抛错
+    if (!isTauriEnvironment()) {
+        return false
+    }
+
+    // Tauri 分支：走系统密钥链自动解锁
+    try {
+        ensureCryptoAvailable()
+
+        const existing = await loadMasterKeyFromTauriKeychain()
+        if (existing) {
+            // 密钥链已有主密钥：直接加载为不可导出工作密钥
+            const bytes = fromBase64(existing)
+            const key = await crypto.subtle.importKey(
+                'raw',
+                bytes,
+                {
+                    name: CRYPTO_CONFIG.ALGORITHM,
+                    length: CRYPTO_CONFIG.KEY_LENGTH
+                },
+                false, // 工作密钥不可导出，遵循最小权限原则
+                ['encrypt', 'decrypt']
+            )
+            secureZero(bytes)
+            setCachedKey(key)
+            logKeyAccess('load')
+            return true
+        }
+
+        // 首次运行：生成新主密钥并落盘到系统密钥链
+        const masterKey = await generateMasterKey(true) // extractable=true 仅用于导出存储
+        const raw = new Uint8Array(await crypto.subtle.exportKey('raw', masterKey))
+        const b64 = toBase64(raw)
+        const saved = await saveMasterKeyToTauriKeychain(b64)
+
+        // 以原始字节重新导入为不可导出工作密钥
+        const workingKey = await crypto.subtle.importKey(
+            'raw',
+            raw,
+            {
+                name: CRYPTO_CONFIG.ALGORITHM,
+                length: CRYPTO_CONFIG.KEY_LENGTH
+            },
+            false, // 工作密钥不可导出
+            ['encrypt', 'decrypt']
+        )
+        secureZero(raw)
+        setCachedKey(workingKey)
+        logKeyAccess('generate')
+
+        if (!saved) {
+            // 落盘失败：本次会话仍可用（仅未持久化），不阻塞启动
+            logger.warn('主密钥已生成但未能持久化到系统密钥链（本次会话可用，下次启动将重新生成）')
+        }
+
+        return true
+    } catch (e) {
+        logger.error('主密钥自动解锁失败', e)
+        return false
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════

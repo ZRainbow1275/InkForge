@@ -89,6 +89,11 @@ export function composeSvgDecorate(
       accentColor: opts.accentColor,
     })
 
+    // 0. 在任何替换前，从「原始 html」抽取首个 <h1> 的标题文本（供封面回显真实标题）。
+    //    捕获放在最前，使后续 headings/hr/blockquote 替换不影响其取值。
+    const coverTitleMatch = /<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(html)
+    const coverTitle = coverTitleMatch ? extractText(coverTitleMatch[1]) : ''
+
     // 1. 标题 → 标题头模块（替换 <hN>…</hN>）
     if (plan.headings) {
       for (const h of plan.headings) {
@@ -121,11 +126,20 @@ export function composeSvgDecorate(
       }
     }
 
-    // 4. 文首封面（前插，data-ink-svg 哨兵防重复）
+    // 4. 文首封面（前插，data-ink-svg 哨兵防重复）。
+    //    封面回显文档真实 H1：把首个 <h1> 文本作为 cover 模块的 text；并移除被
+    //    消费的首个 <h1>，避免标题在「SVG 封面」与「普通标题」两处重复。
+    //    幂等：哨兵已存在则不再前插、也不再移除 h1（首跑后 h1 即已消失）。
     if (plan.cover) {
       const spec = getSvgModule(plan.cover)
       if (spec && !result.includes(`data-ink-svg="${plan.cover}"`)) {
-        result = emit(spec, { theme }, target, opts) + result
+        // 无 <h1> 时回退模块默认文案（不传 text，covers.ts 用其默认值）。
+        const params: SvgModuleParams = coverTitle ? { theme, text: coverTitle } : { theme }
+        // 仅在确实注入封面时，移除「首个」<h1>（只移一处，不动其余标题）。
+        if (coverTitle) {
+          result = result.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+        }
+        result = emit(spec, params, target, opts) + result
       }
     }
 

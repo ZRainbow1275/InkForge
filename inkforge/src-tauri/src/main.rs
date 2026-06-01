@@ -17,7 +17,7 @@ mod splash;
 use std::time::Duration;
 
 use commands::app_ready::SplashReadySignal;
-use commands::{app_ready, desktop, ollama, wechat, window};
+use commands::{app_ready, desktop, ollama, secure_store, wechat, window};
 use tauri::Manager;
 
 const SPLASH_FALLBACK_TIMEOUT: Duration = Duration::from_secs(3);
@@ -70,6 +70,9 @@ fn main() {
             wechat::wechat_upload_cover_image,
             wechat::wechat_create_draft,
             app_ready::app_ready,
+            secure_store::store_key,
+            secure_store::get_key,
+            secure_store::delete_key,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

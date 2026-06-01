@@ -67,6 +67,57 @@ describe('composeSvgDecorate (wechat target)', () => {
   })
 })
 
+describe('composeSvgDecorate (cover echoes real H1 title)', () => {
+  const HTML_WITH_H1 =
+    '<h1>真实标题 Real Title</h1>' +
+    '<h2 style="color:#000">第二章 标题 Section</h2>' +
+    '<p style="margin:1em 0">正文 paragraph 内容。</p>' +
+    '<hr/>' +
+    '<blockquote><p>这是一段被引用的文字 quote。</p></blockquote>' +
+    '<p>结尾段落。</p>'
+
+  const decorate = composeSvgDecorate(PLAN, OPTS)
+  const out = decorate(HTML_WITH_H1, 'wechat')
+
+  it('renders the real H1 text inside the cover module (not the module default 标题)', () => {
+    expect(out).toContain('data-ink-svg="cover-title"')
+    // cover-title 把标题切行渲染成 <text> 节点；首段文本应来自真实 H1。
+    expect(out).toContain('真实标题')
+  })
+
+  it('removes the consumed first <h1> from the output (no duplicated title)', () => {
+    expect(out).not.toContain('<h1')
+    // 真实标题不再以「普通标题」形态出现在 cover 之外（仅存于 cover 的 <svg> 内）。
+    const coverIdx = out.indexOf('data-ink-svg="cover-title"')
+    const coverEnd = out.indexOf('</svg></section>', coverIdx)
+    const afterCover = out.slice(coverEnd)
+    expect(afterCover).not.toContain('真实标题')
+  })
+
+  it('leaves the heading replacement (h2) unaffected by the h1 removal', () => {
+    expect(out).toContain('data-ink-svg="header-ribbon"')
+    expect(out).not.toContain('<h2')
+  })
+
+  it('whole cover-with-title output stays WeChat-safe', () => {
+    expect(checkWechatSafe(out)).toEqual([])
+  })
+
+  it('is idempotent with a real H1 (run twice == identical; h1 gone, cover not re-injected)', () => {
+    const out2 = decorate(out, 'wechat')
+    expect(out2).toBe(out)
+  })
+
+  it('falls back to module default when there is no <h1> (does not crash)', () => {
+    const noH1 = '<h2>仅二级标题</h2><p>正文。</p>'
+    const o = decorate(noH1, 'wechat')
+    expect(o).toContain('data-ink-svg="cover-title"')
+    // 无 H1 → 用 covers.ts 的默认文案「标题」。
+    expect(o).toContain('标题')
+    expect(o).toContain('正文')
+  })
+})
+
 describe('composeSvgDecorate (preview target inlines SVG)', () => {
   it('preview also injects inline SVG (WYSIWYG)', () => {
     const out = composeSvgDecorate(PLAN, OPTS)(SAMPLE_HTML, 'preview')

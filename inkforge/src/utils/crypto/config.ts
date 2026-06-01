@@ -7,7 +7,19 @@
  * - 生产环境 + Tauri 桌面应用：启用（通过系统密钥链管理主密钥）
  * - Web 预览/开发环境：关闭（当前 Web 端尚未接入密码解锁 UI，避免未初始化密钥阻塞真实文档写入）
  */
-const HAS_TAURI_RUNTIME = typeof window !== 'undefined' && ('__TAURI__' in window || '__TAURI_INTERNALS__' in window)
+// Tauri 1.x 默认 `withGlobalTauri: false` 不注入 `window.__TAURI__`，仅注入
+// `__TAURI_INVOKE__` / `__TAURI_IPC__` 等。仅检测 `__TAURI__`/`__TAURI_INTERNALS__`
+// 会在 prod 桌面构建漏判为 web，使 ENABLE_ENCRYPTION 永远为 false、加密永不启用。
+// 这里与 `@/utils/platform` 的 `hasTauriGlobal()` 全局集合保持一致（内联以避免
+// 引入会缓存检测结果的 detectPlatform，且 config 在极早期求值）。
+const HAS_TAURI_RUNTIME = typeof window !== 'undefined' && (
+    '__TAURI__' in window ||
+    '__TAURI_INTERNALS__' in window ||
+    '__TAURI_INVOKE__' in window ||
+    '__TAURI_IPC__' in window ||
+    '__TAURI_METADATA__' in window ||
+    '__TAURI_POST_MESSAGE__' in window
+)
 
 export const ENABLE_ENCRYPTION = import.meta.env.PROD && HAS_TAURI_RUNTIME
 

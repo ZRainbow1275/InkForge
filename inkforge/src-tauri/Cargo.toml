@@ -18,6 +18,7 @@ reqwest = { version = "0.11", features = ["json", "multipart"] }
 tokio = { version = "1", features = ["full"] }
 base64 = "0.22"
 dark-light = "1"
+keyring = { version = "3", features = ["windows-native", "apple-native", "sync-secret-service"] }
 
 [features]
 default = ["custom-protocol"]

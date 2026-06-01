@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import { logger } from './services/error'
 import { isTauriEnv } from '@/utils/platform'
+import { ensureMasterKeyUnlocked } from '@/utils/crypto'
 import {
     getCurrentProfileId,
     getOrCreateWindowId,
@@ -126,6 +127,16 @@ async function initializeStores() {
     }
 
     setupCleanupHandlers()
+
+    // 启动时自动解锁主密钥（仅 prod + Tauri 桌面生效，走系统密钥链）。
+    // 必须在各 store 初始化（含加密读写）之前完成，否则 prod 桌面构建建档/存稿会因
+    // 「主密钥未解锁」而失败。内部已 try/catch 并永不抛错，此处外层 try 仅作双保险，
+    // 任何失败都不得阻断后续 store 初始化与 app.mount。
+    try {
+        await ensureMasterKeyUnlocked()
+    } catch (e) {
+        logger.warn('主密钥自动解锁未完成（将以未加密回退或后续重试）', { error: e instanceof Error ? e.message : String(e) })
+    }
 
     await Promise.all([
         articleStore.initialize(),
