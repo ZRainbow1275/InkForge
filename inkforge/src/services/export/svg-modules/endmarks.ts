@@ -29,8 +29,11 @@ const VBW = 1080
 const VBH = 200
 const CX = VBW / 2
 
-/** CJK 设备字体栈 —— 与品牌色板一致，全程设备字体，不嵌字。 */
-const FONT_CJK = 'PingFang SC, Hiragino Sans GB, Microsoft Yahei, sans-serif'
+/**
+ * CJK 设备字体栈 —— 与品牌色板一致，全程设备字体，不嵌字。
+ * font-family 写进 SVG 表现属性（双引号包裹），多词字体名用单引号以免提前终止属性。
+ */
+const FONT_CJK = "'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif"
 
 // ─── endmark-fin ─────────────────────────────────────────────────────────
 function renderFin(p: SvgModuleParams): string {
@@ -55,8 +58,27 @@ function renderFin(p: SvgModuleParams): string {
 }
 
 // ─── endmark-vessel ──────────────────────────────────────────────────────
+
+/** vessel mark 几何参数：中心点 + 缩放（1 = 原始紧凑徽章尺度）。 */
+export interface VesselMarkOpts {
+  /** mark 中心 x */
+  cx: number
+  /** mark 中心 y */
+  cy: number
+  /** 缩放系数（默认 1，原始 ≈ 96px 高 viewBox 内的紧凑徽章） */
+  scale?: number
+  ink: string
+  accent: string
+  hairline: string
+  ember: string
+  /** 笔尖中缝色（通常 = paper，用于在 accent 笔尖上勾出裂线） */
+  paper: string
+}
+
 /**
  * 品牌 vessel mark：鼎(ding) × 笔尖(nib) × 方格(grid square)。
+ * 只返回 mark 的 SVG 几何片段（不含 <section>/<svg> 包裹，不含署名行），
+ * 供 endmark-vessel 与 footer 落款卡共享（DRY）。
  *
  * 构图（居中、紧凑徽章）：
  *   - 鼎：一只小型三足容器轮廓（path），含腹、口、双耳、三足。
@@ -65,125 +87,106 @@ function renderFin(p: SvgModuleParams): string {
  *   - 铸记：鼎肩一颗极小 ember 圆点（每模块 ≤1）。
  * 绝不堆叠成 3 条整宽水平 rect（国旗陷阱）。
  */
+export function renderVesselMark(o: VesselMarkOpts): string {
+  const { ink, accent, hairline, ember, paper } = o
+  const s = o.scale ?? 1
+  const mx = o.cx
+  const my = o.cy
+  // 缩放后的描边宽度，保持笔触比例。
+  const sw = (n: number) => Number((n * s).toFixed(3))
+
+  // 鼎主体轮廓（容器腹 + 口沿）。一笔 path 绘出口、肩、腹、底；用细描边表现金石感。
+  // 口宽 56，肩宽 76，腹宽 64，底宽 50。坐标全部相对中心 × scale。
+  const P = (dx: number, dy: number) => `${Number((mx + dx * s).toFixed(3))},${Number((my + dy * s).toFixed(3))}`
+  const dingPath = [
+    `M${P(-28, -28)}`,
+    `L${P(28, -28)}`,
+    `L${P(38, -22)}`,
+    `L${P(32, 8)}`,
+    `L${P(25, 22)}`,
+    `L${P(-25, 22)}`,
+    `L${P(-32, 8)}`,
+    `L${P(-38, -22)}`,
+    `Z`,
+  ].join(' ')
+
+  const earL = rect({
+    x: Number((mx - 44 * s).toFixed(3)),
+    y: Number((my - 36 * s).toFixed(3)),
+    width: sw(8),
+    height: sw(12),
+    rx: sw(2),
+    ry: sw(2),
+    fill: 'none',
+    stroke: ink,
+    strokeWidth: sw(1.6),
+  })
+  const earR = rect({
+    x: Number((mx + 36 * s).toFixed(3)),
+    y: Number((my - 36 * s).toFixed(3)),
+    width: sw(8),
+    height: sw(12),
+    rx: sw(2),
+    ry: sw(2),
+    fill: 'none',
+    stroke: ink,
+    strokeWidth: sw(1.6),
+  })
+
+  const legL = path(`M${P(-22, 22)} L${P(-26, 38)}`, { stroke: ink, strokeWidth: sw(1.8), strokeLinecap: 'round' })
+  const legM = path(`M${P(0, 22)} L${P(0, 38)}`, { stroke: ink, strokeWidth: sw(1.8), strokeLinecap: 'round' })
+  const legR = path(`M${P(22, 22)} L${P(26, 38)}`, { stroke: ink, strokeWidth: sw(1.8), strokeLinecap: 'round' })
+
+  const belt = path(`M${P(-18, -4)} L${P(18, -4)}`, { stroke: hairline, strokeWidth: sw(1) })
+
+  const nibPath = [`M${P(-5, -56)}`, `L${P(5, -56)}`, `L${P(2, -6)}`, `L${P(0, 2)}`, `L${P(-2, -6)}`, `Z`].join(' ')
+  const nibSlit = path(`M${P(0, -50)} L${P(0, -14)}`, { stroke: paper, strokeWidth: sw(0.8), opacity: 0.85 })
+
+  const grid = rect({
+    x: Number((mx - 8 * s).toFixed(3)),
+    y: Number((my + 44 * s).toFixed(3)),
+    width: sw(16),
+    height: sw(16),
+    fill: 'none',
+    stroke: ink,
+    strokeWidth: sw(1.4),
+  })
+  const gridCrossV = path(`M${P(0, 44)} L${P(0, 60)}`, { stroke: hairline, strokeWidth: sw(0.8) })
+  const gridCrossH = path(`M${P(-8, 52)} L${P(8, 52)}`, { stroke: hairline, strokeWidth: sw(0.8) })
+
+  const emberDot = `<circle cx="${Number((mx + 34 * s).toFixed(3))}" cy="${Number((my - 30 * s).toFixed(3))}" r="${sw(2.4)}" fill="${ember}" />`
+
+  const ding = path(dingPath, { fill: 'none', stroke: ink, strokeWidth: sw(1.8) })
+  const nib = path(nibPath, { fill: accent })
+
+  return (
+    ding + belt + earL + earR + legL + legM + legR + nib + nibSlit + grid + gridCrossV + gridCrossH + emberDot
+  )
+}
+
 function renderVessel(p: SvgModuleParams): string {
   const { palette } = p.theme
   const subtitle = p.subtitle ?? p.text ?? 'InkForge · 墨铸'
-  const ink = palette.ink
-  const accent = palette.accent
-  const hairline = palette.hairline
-  const ember = palette.ember
 
   // 徽章中心略偏上，让下方留出署名行空间。
-  const mx = CX
-  const my = 80 // mark center y
-
-  // 鼎主体轮廓（容器腹 + 口沿）。一笔 path 绘出口、肩、腹、底；用细描边表现金石感。
-  // 口宽 56，肩宽 76，腹宽 64，底宽 50。
-  const dingPath = [
-    `M${mx - 28},${my - 28}`, // 左口沿
-    `L${mx + 28},${my - 28}`, // 右口沿
-    `L${mx + 38},${my - 22}`, // 右肩外
-    `L${mx + 32},${my + 8}`, // 右腹收
-    `L${mx + 25},${my + 22}`, // 右底
-    `L${mx - 25},${my + 22}`, // 左底
-    `L${mx - 32},${my + 8}`,
-    `L${mx - 38},${my - 22}`,
-    `Z`,
-  ].join(' ')
-
-  // 鼎双耳：两个小弧（用闭合矩形+圆角近似，但避免横向条带感 —— 单独的小矩形）。
-  const earL = rect({
-    x: mx - 44,
-    y: my - 36,
-    width: 8,
-    height: 12,
-    rx: 2,
-    ry: 2,
-    fill: 'none',
-    stroke: ink,
-    strokeWidth: 1.6,
+  const mark = renderVesselMark({
+    cx: CX,
+    cy: 80,
+    scale: 1,
+    ink: palette.ink,
+    accent: palette.accent,
+    hairline: palette.hairline,
+    ember: palette.ember,
+    paper: palette.paper,
   })
-  const earR = rect({
-    x: mx + 36,
-    y: my - 36,
-    width: 8,
-    height: 12,
-    rx: 2,
-    ry: 2,
-    fill: 'none',
-    stroke: ink,
-    strokeWidth: 1.6,
-  })
-
-  // 三足：三条短斜线 path，左/中/右。
-  const legL = path(`M${mx - 22},${my + 22} L${mx - 26},${my + 38}`, {
-    stroke: ink,
-    strokeWidth: 1.8,
-    strokeLinecap: 'round',
-  })
-  const legM = path(`M${mx},${my + 22} L${mx},${my + 38}`, {
-    stroke: ink,
-    strokeWidth: 1.8,
-    strokeLinecap: 'round',
-  })
-  const legR = path(`M${mx + 22},${my + 22} L${mx + 26},${my + 38}`, {
-    stroke: ink,
-    strokeWidth: 1.8,
-    strokeLinecap: 'round',
-  })
-
-  // 鼎腹腰线（金石分铸感）—— 中段一段短弧/横向短笔，宽度 < 鼎腹宽度，避免国旗条带。
-  const beltD = `M${mx - 18},${my - 4} L${mx + 18},${my - 4}`
-  const belt = path(beltD, { stroke: hairline, strokeWidth: 1 })
-
-  // 笔尖：从鼎口正上方下沉的细长三角（尖端入腹）。
-  const nibPath = [
-    `M${mx - 5},${my - 56}`, // 笔尖左肩
-    `L${mx + 5},${my - 56}`, // 笔尖右肩
-    `L${mx + 2},${my - 6}`, // 入腹收口右
-    `L${mx},${my + 2}`, // 笔尖入腹底点
-    `L${mx - 2},${my - 6}`, // 入腹收口左
-    `Z`,
-  ].join(' ')
-
-  // 笔尖中缝（小裂线），单条短 path —— 不形成全宽水平条。
-  const nibSlit = path(`M${mx},${my - 50} L${mx},${my - 14}`, {
-    stroke: palette.paper,
-    strokeWidth: 0.8,
-    opacity: 0.85,
-  })
-
-  // 方格：鼎下方的小方块基座（grid square），居中。
-  const grid = rect({
-    x: mx - 8,
-    y: my + 44,
-    width: 16,
-    height: 16,
-    fill: 'none',
-    stroke: ink,
-    strokeWidth: 1.4,
-  })
-  // 方格内一小十字格，强化「方格」语意（短笔，不全宽）。
-  const gridCrossV = path(`M${mx},${my + 44} L${mx},${my + 60}`, {
-    stroke: hairline,
-    strokeWidth: 0.8,
-  })
-  const gridCrossH = path(`M${mx - 8},${my + 52} L${mx + 8},${my + 52}`, {
-    stroke: hairline,
-    strokeWidth: 0.8,
-  })
-
-  // 「铸」记 —— 鼎肩处一颗极小 ember 圆点（本模块唯一 ember 用量）。
-  const emberDot = `<circle cx="${mx + 34}" cy="${my - 30}" r="2.4" fill="${ember}" />`
 
   // 署名行 + 上方一段短细线作为压版尺。
-  const sigLineY = 150
   const sigLine = hairlineRule({
     x: CX - 90,
-    y: sigLineY,
+    y: 150,
     width: 180,
     height: 1,
-    fill: hairline,
+    fill: palette.hairline,
   })
   const sigText = textLine({
     x: CX,
@@ -196,25 +199,7 @@ function renderVessel(p: SvgModuleParams): string {
     letterSpacing: 4,
   })
 
-  const ding = path(dingPath, { fill: 'none', stroke: ink, strokeWidth: 1.8 })
-  const nib = path(nibPath, { fill: accent })
-
-  const body =
-    ding +
-    belt +
-    earL +
-    earR +
-    legL +
-    legM +
-    legR +
-    nib +
-    nibSlit +
-    grid +
-    gridCrossV +
-    gridCrossH +
-    emberDot +
-    sigLine +
-    sigText
+  const body = mark + sigLine + sigText
 
   return svgSection({ moduleId: 'endmark-vessel', viewBoxW: VBW, viewBoxH: VBH, body })
 }

@@ -21,7 +21,15 @@ import {
   decorateCommentaryH3Line,
   decorateCommentaryHrDiamond,
 } from './preset-decorations'
-import { composeSvgDecorate } from './svg-modules'
+import {
+  composeSvgDecorate,
+  deriveSvgPalette,
+  decorateFlagshipH2,
+  decorateFlagshipH3,
+  decorateFlagshipBlockquote,
+  decorateFlagshipLists,
+  decorateFlagshipFooterCard,
+} from './svg-modules'
 import type { SvgInjectionPlan } from './svg-modules'
 
 // ─── PR3: persona+recipe composers for the 5 migrated presets ──────────
@@ -84,37 +92,59 @@ const FLAGSHIP_KILN = '#D95B3F'    // 炉火 · 朱砂 × 赤陶（Kiln，creati
 const FLAGSHIP_TEMPERA = '#3B7A6B' // 冷却铜绿 · 时间与匠心（Tempera，academic）
 const FLAGSHIP_AMBER = '#C19A56'   // 熔铸黄铜 · 朴素匠人（Amber，business）
 
+// 旗舰 SVG plan 仅承载「纯图形」母题（封面 + 分隔线）。标题/引用/列表/落款卡
+// 改由 html-blocks.ts 的内联色块装饰器承载（文字活、可重排、最贴近真机）。
+// 26 个 SVG 模块仍全量注册——旗舰 plan 只是不再 wire 文字类模块。
 const flagshipKilnPlan: SvgInjectionPlan = {
   cover: 'cover-grid',
-  headings: [
-    { level: 2, module: 'header-ribbon' },
-    { level: 3, module: 'header-vrule' },
-  ],
   replaceHr: 'divider-forge',
-  blockquote: 'quote-mark',
-  endmark: 'endmark-vessel',
 }
 
 const flagshipTemperaPlan: SvgInjectionPlan = {
   cover: 'cover-title',
-  headings: [
-    { level: 2, module: 'header-bracket' },
-    { level: 3, module: 'header-vrule' },
-  ],
   replaceHr: 'divider-diamond',
-  blockquote: 'quote-corner',
-  endmark: 'endmark-fin',
 }
 
 const flagshipAmberPlan: SvgInjectionPlan = {
   cover: 'cover-title',
-  headings: [
-    { level: 2, module: 'header-vrule' },
-  ],
   replaceHr: 'divider-grid',
-  blockquote: 'quote-vbar',
-  endmark: 'endmark-rule',
 }
+
+// 旗舰内联色块装饰器用的品牌调色板（与 SVG 同源 deriveSvgPalette，保证 preview==export）。
+const kilnPalette = deriveSvgPalette(FLAGSHIP_KILN, 'creative')
+const temperaPalette = deriveSvgPalette(FLAGSHIP_TEMPERA, 'academic')
+const amberPalette = deriveSvgPalette(FLAGSHIP_AMBER, 'business')
+
+const FLAGSHIP_BRAND = { brand: '墨铸 · InkForge', tagline: '成为作者吧' }
+
+// 旗舰 decorate 链：SVG 图形（封面/分隔）先行，HTML 色块装饰器（标题/引用/列表）
+// 随后，落款卡最后追加。chainDecorators 已在上方 import。
+const flagshipKilnDecorate = chainDecorators(
+  composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+  decorateFlagshipH2(kilnPalette, { variant: 'kiln' }),
+  decorateFlagshipH3(kilnPalette),
+  decorateFlagshipBlockquote(kilnPalette),
+  decorateFlagshipLists(kilnPalette),
+  decorateFlagshipFooterCard(kilnPalette, FLAGSHIP_BRAND),
+)
+
+const flagshipTemperaDecorate = chainDecorators(
+  composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
+  decorateFlagshipH2(temperaPalette, { variant: 'tempera' }),
+  decorateFlagshipH3(temperaPalette),
+  decorateFlagshipBlockquote(temperaPalette),
+  decorateFlagshipLists(temperaPalette),
+  decorateFlagshipFooterCard(temperaPalette, FLAGSHIP_BRAND),
+)
+
+const flagshipAmberDecorate = chainDecorators(
+  composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
+  decorateFlagshipH2(amberPalette, { variant: 'amber' }),
+  decorateFlagshipH3(amberPalette),
+  decorateFlagshipBlockquote(amberPalette),
+  decorateFlagshipLists(amberPalette),
+  decorateFlagshipFooterCard(amberPalette, FLAGSHIP_BRAND),
+)
 
 // highlight.js 代码主题样式 (atom-one-dark)
 export const codeThemeCSS = `
@@ -1127,20 +1157,18 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_KILN}; }
-#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.12); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
 #nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
     exportCSS: `${creativeBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_KILN}; }
-#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.12); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
 #nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
-    // 品牌锁定：SVG 固定使用 Kiln 品牌色（见上方注释）。
-    decorate: composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+    // 品牌锁定：SVG 图形 + HTML 色块装饰器全用 Kiln 品牌色（见上方注释）。
+    decorate: flagshipKilnDecorate,
     customCSS: ''
   },
   // FLAGSHIP-TEMPERA: 铜绿旗舰, academic, Tempera #3B7A6B; cover-title +
@@ -1160,20 +1188,18 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.academic,
     previewCSS: `${academicBaseCSS}
 #nice { background: #ffffff; color: #2a2a2a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_TEMPERA}; }
-#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.10); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
 #nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
     exportCSS: `${academicBaseCSS}
 #nice { background: #ffffff; color: #2a2a2a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_TEMPERA}; }
-#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.10); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
 #nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
-    // 品牌锁定：SVG 固定使用 Tempera 品牌色（见上方注释）。
-    decorate: composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
+    // 品牌锁定：SVG 图形 + HTML 色块装饰器全用 Tempera 品牌色（见上方注释）。
+    decorate: flagshipTemperaDecorate,
     customCSS: ''
   },
   // FLAGSHIP-AMBER: 黄铜旗舰, business, Amber #C19A56; cover-title + vrule
@@ -1193,20 +1219,18 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.business,
     previewCSS: `${businessBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_AMBER}; }
-#nice strong { color: ${FLAGSHIP_AMBER}; font-weight: 700; }
-#nice a { color: ${FLAGSHIP_AMBER}; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
+#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.22); padding: 0 0.12em; border-radius: 3px; }
+#nice a { color: #8a6c2e; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
 #nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
     exportCSS: `${businessBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice h2, #nice h3 { color: ${FLAGSHIP_AMBER}; }
-#nice strong { color: ${FLAGSHIP_AMBER}; font-weight: 700; }
-#nice a { color: ${FLAGSHIP_AMBER}; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
+#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.22); padding: 0 0.12em; border-radius: 3px; }
+#nice a { color: #8a6c2e; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
 #nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
-    // 品牌锁定：SVG 固定使用 Amber 品牌色（见上方注释）。
-    decorate: composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
+    // 品牌锁定：SVG 图形 + HTML 色块装饰器全用 Amber 品牌色（见上方注释）。
+    decorate: flagshipAmberDecorate,
     customCSS: ''
   }
 ]

@@ -94,7 +94,7 @@ inline SVG; xhs body is plain-text/poster) via `raster.ts` (`hasDom()`-guarded c
 
 ## 5. Good / Base / Bad Cases
 
-- **Good**: flagship preset `decorate = composeSvgDecorate(plan, {primaryColor, persona})`; plan maps `h2→header-ribbon`, `hr→divider-diamond`, `blockquote→quote-vbar`, `endmark→endmark-vessel`; every emitted section passes `checkWechatSafe`.
+- **Good**: flagship preset `decorate = chainDecorators(composeSvgDecorate(plan,{primaryColor,persona}), decorateFlagshipH2/H3/Blockquote/Lists/FooterCard(palette))`; plan is now **graphics-only** `{ cover, replaceHr }` (cover banner + divider stay SVG), and every **text-bearing** node (H2/H3/blockquote/lists/footer) is emitted as an inline-styled HTML color block (see §8); every emitted `<section data-ink-svg>` still passes `checkWechatSafe`.
 - **Base**: a static module using only `<rect>/<text>/<circle>` + solid fills + `width="100%"`.
 - **Bad**: using `<linearGradient id="g">` + `fill="url(#g)"` (dies — WeChat strips `id`), or `style="transform:rotate(45deg)"` (stripped by `enforcePlatformCSS`), or a horizontal full-width-stripe vessel mark (brand "flag-trap", rejected — see `feedback_logo_flag_trap`).
 
@@ -136,3 +136,50 @@ return svgSection({ moduleId: 'header-ribbon', viewBoxW: 1080, viewBoxH: 180,
 > trigger it. The original 12 wechat + 5 xhs + 3 zhihu presets stay SVG-free. Flagship SVG
 > is **brand-color-locked** by design (the `decorate` closure captures the preset's brand
 > color; Inspector `primaryColor` override recolors CSS parts only, not the SVG identity).
+
+---
+
+## 8. HTML Block Layer (`svg-modules/html-blocks.ts`) — premium upgrade 2026-06-02
+
+**Why**: SVG `<text>` is single-line, non-reflowing, non-selectable and truncates long CJK
+titles; a flagship built purely from thin SVG line-art reads as "plain markdown + green lines"
+on a phone. Premium WeChat accounts get their "designed" look from **inline-styled SOLID-color
+HTML block containers** on live, reflowing text. WeChat's `postProcessForWechat` (wechat.ts
+~:928-963) **KEEPS** inline `color/background-color/background(solid)/border/border-left/
+border-radius/padding/margin/box-shadow(non-inset)/font-*/text-align/line-height/letter-spacing/
+display:inline-block/vertical-align` and **STRIPS** `class/id/<style>/var()/calc()/gradient/
+transform/transition/animation/filter/flex/grid/gap/clip-path/mask/box-shadow-inset/position:fixed`.
+
+**Architecture split**: SVG (`svgSection`) only for pure-graphic motifs (cover banner, dividers,
+decorative quote glyph, callout icons, vessel mark). **HTML blocks** for all text-bearing nodes.
+
+```ts
+// svg-modules/html-blocks.ts — factory decorators, chained AFTER composeSvgDecorate
+decorateFlagshipH2(palette, { variant: 'kiln'|'tempera'|'amber' })  // kiln=solid filled bar; tempera=01 number-chip + bottom accent rule; amber=left bar + "PART 0N" kicker. <h2>→<section><p>. counter resets per call.
+decorateFlagshipH3(palette)        // <h3>→ left accent bar + tint plate (quieter than H2)
+decorateFlagshipBlockquote(palette)// <blockquote>→ tinted QUOTE CARD (border-left + bg tint + big quote glyph + attribution); or CALLOUT box (icon + label) when first line matches 提示|注意|重点|警告|要点|Note|Tip|Warning. PRESERVES inner HTML (does NOT flatten to text).
+decorateFlagshipLists(palette)     // <ul>→ accent square markers; <ol>→ accent circular number chips (reset per <ol>)
+decorateFlagshipFooterCard(palette,{brand:'墨铸 · InkForge',tagline:'成为作者吧'}) // appended once: paperWarm card + vessel mark + brand + tagline + accent rule + 全文完
+```
+
+**Contracts** (enforced by `__tests__/html-blocks.test.ts`):
+- Idempotent via `data-ink-block="<id>"` sentinel (run twice == once); per-document counters
+  (H2 index, OL numbers) reset **inside** the returned closure, not at factory scope.
+- Inline styles only — NO `class`-dependent styling, gradient, `transform:` (NOTE: `text-transform:`
+  is allowed), flex/grid, `position:absolute`, `box-shadow ...inset`. Inline `<svg>` icons/marks use
+  the WeChat-safe subset (§3): solid fills + opacity, no defs/gradient/`url(#)`/`<use>`.
+- NO emoji as icons — inline SVG `<path>` or Unicode geometric punctuation only.
+- Run for **both** `preview` and `wechat` targets (inline HTML is WYSIWYG; do NOT skip preview).
+- Auto-contrast text on solid fills via `pickOnAccent` = white unless white-on-accent contrast
+  < `AA_LARGE (3.0)` → ink. (kiln/tempera→white, amber→ink.)
+
+**Per-preset differentiation** (not just recolor): kiln = boldest solid filled bars (creative);
+tempera = number-chip + hairline-rule, calm (academic); amber = left-bar + uppercase "PART" kicker,
+structured (business). Each has its own cover kicker chip (专栏/深读/洞察).
+
+**Real-WeChat survival (verified 2026-06-02)**: pasted regenerated `flagship-tempera.html` into the
+live mp.weixin.qq.com ProseMirror editor → 5 inline `<svg>`, 18 inline background blocks, 3
+border-left accents, 19 border-radius, footer brand, quote cards, number chips ALL survived the
+paste sanitizer and render in the PC editor. Evidence: `prompts/0601/evidence/premium-upgrade/`.
+Self-feedback loop: render real `markdownToWechat` artifact at 393px viewport (Playwright) → 20-22
+CJK chars/line confirmed; faithful to the user's real phone screenshots.

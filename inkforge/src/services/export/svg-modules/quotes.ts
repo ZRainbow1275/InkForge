@@ -67,7 +67,8 @@ const CANVAS_W = 1080
 const LINE_HEIGHT = 64
 const QUOTE_FONT = 38
 const SUBTITLE_FONT = 26
-const SAFE_FONT_STACK = '-apple-system, PingFang SC, Hiragino Sans GB, Source Han Serif SC, Songti SC, serif'
+// font-family 写进 SVG 表现属性（双引号包裹），多词字体名用单引号以免提前终止属性。
+const SAFE_FONT_STACK = "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Source Han Serif SC', 'Songti SC', serif"
 
 function computeHeight(lineCount: number): number {
   // base 160 (上下安全区 + attribution 区) + 每行 64

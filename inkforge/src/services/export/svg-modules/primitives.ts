@@ -24,7 +24,9 @@ export function escapeXml(s: string): string {
 function attrs(map: Record<string, AttrVal>): string {
   return Object.entries(map)
     .filter(([, v]) => v !== undefined && v !== '')
-    .map(([k, v]) => `${k}="${v}"`)
+    // 防御性：属性值由双引号包裹，任何内层双引号会提前终止属性 → 转义为 &quot;
+    // （SVG 表现属性值合法情况下绝不含 "；font-family 多词名应用单引号。）
+    .map(([k, v]) => `${k}="${String(v).replace(/"/g, '&quot;')}"`)
     .join(' ')
 }
 

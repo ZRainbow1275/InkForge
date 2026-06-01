@@ -24,8 +24,10 @@ const VBW = 1080
 const VBH = 140
 const CY = VBH / 2
 
-// 设备字体栈（CJK + Latin），与 research §1/text 行一致；不引入 web font
-const FONT_STACK = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif'
+// 设备字体栈（CJK + Latin），与 research §1/text 行一致；不引入 web font。
+// font-family 写进 SVG 表现属性（双引号包裹），内层多词字体名必须用单引号，
+// 否则双引号会提前终止属性（primitives.ts attrs() 不转义）。
+const FONT_STACK = "-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
 
 function safe(out: string): string {
   // 开发期/测试期硬断言：任何违规即抛错，CI 守护

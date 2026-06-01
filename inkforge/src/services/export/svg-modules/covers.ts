@@ -30,6 +30,13 @@ import type { SvgModuleParams, SvgModuleSpec } from './types'
 const W = 1080
 const H = 620
 
+/**
+ * 字体栈写进 SVG `font-family="…"` 表现属性（双引号包裹），内层多词字体名必须用
+ * 单引号，否则会提前终止属性（primitives.ts attrs() 不转义）。
+ */
+const COVER_FONT_SANS = "-apple-system, 'PingFang SC', 'Source Han Sans', sans-serif"
+const COVER_FONT_SERIF = "-apple-system, 'PingFang SC', 'Source Han Sans', 'Songti SC', serif"
+
 // ─── 文本切行（SVG <text> 不自动换行；按 CJK 字符数硬切） ────────────────
 
 /**
@@ -60,6 +67,57 @@ function fitCharsPerLine(availableWidth: number, fontSize: number, letterSpacing
   return Math.max(1, Math.floor(availableWidth / (fontSize + Math.max(0, letterSpacing))))
 }
 
+/** persona → 栏目 kicker 标签（杂志感「眉标」，短）。 */
+function personaKicker(persona: string): string {
+  switch (persona) {
+    case 'academic':
+      return '深读'
+    case 'business':
+      return '洞察'
+    case 'lifestyle':
+      return '生活'
+    case 'creative':
+    default:
+      return '专栏'
+  }
+}
+
+/**
+ * 填色圆角 kicker chip：accent 底 + onAccent 标签文字（杂志眉标）。
+ * 全 SVG 安全子集（rect rx + 单行 text）；x/y 为 chip 左上角。
+ */
+function kickerChip(opts: {
+  x: number
+  y: number
+  label: string
+  accent: string
+  onAccent: string
+  font: string
+  fontSize?: number
+}): string {
+  const fs = opts.fontSize ?? 30
+  const padX = 22
+  const padY = 14
+  const chars = Array.from(opts.label).length
+  // CJK ≈ 1em 宽，加左右内边距
+  const w = chars * fs + padX * 2
+  const h = fs + padY * 2
+  return (
+    rect({ x: opts.x, y: opts.y, width: w, height: h, rx: 8, ry: 8, fill: opts.accent }) +
+    textLine({
+      x: opts.x + w / 2,
+      y: opts.y + h / 2 + fs / 3,
+      text: opts.label,
+      fill: opts.onAccent,
+      fontSize: fs,
+      fontWeight: 600,
+      fontFamily: opts.font,
+      anchor: 'middle',
+      letterSpacing: 4,
+    })
+  )
+}
+
 // ─── cover-title ──────────────────────────────────────────────────────────
 // 大标题封面：暖纸底 + 大标题 + 副标题 + 右下小菱形签名。
 // 留白克制、几何点缀仅作锚点；中性 persona 时也成立。
@@ -68,9 +126,23 @@ function renderCoverTitle(p: SvgModuleParams): string {
   const title = (p.text ?? '').trim() || '标题'
   const subtitle = (p.subtitle ?? '').trim()
 
-  // 暖纸亮底（不依赖页面背景）+ 顶部细水平线作版心锚点
+  // 暖纸亮底（不依赖页面背景）
   const bg = darkSafeBg(W, H, palette.paperWarm)
-  const topRule = hairlineRule({ x: 80, y: 96, width: 200, height: 2, fill: palette.accent })
+  // 栏目 kicker chip（杂志眉标）—— 左上，给「设计过的」信号
+  const kicker = kickerChip({
+    x: 80,
+    y: 88,
+    label: personaKicker(p.theme.persona),
+    accent: palette.accent,
+    onAccent: palette.onAccent,
+    font: COVER_FONT_SANS,
+  })
+  // kicker 下方的短 accent 细线（与 kicker 呼应）
+  const topRule = hairlineRule({ x: 80, y: 178, width: 200, height: 2, fill: palette.accent })
+  // 克制留白纹理：右上角两道极低透明度 accent 细线（不抢戏，仅作纸面肌理）
+  const texture =
+    rect({ x: W - 320, y: 70, width: 240, height: 1, fill: palette.accent, opacity: 0.1 }) +
+    rect({ x: W - 260, y: 92, width: 180, height: 1, fill: palette.accent, opacity: 0.08 })
 
   // 主标题：单行（如过长可让上层提前裁剪；这里只画一行视觉首屏）
   // 字号 96 留白足够，subtitle 用 inkSoft（更低对比度）。
@@ -87,7 +159,7 @@ function renderCoverTitle(p: SvgModuleParams): string {
         fill: palette.ink,
         fontSize: 96,
         fontWeight: 700,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", sans-serif',
+        fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,
       }),
     )
@@ -101,7 +173,7 @@ function renderCoverTitle(p: SvgModuleParams): string {
         fill: palette.inkSoft,
         fontSize: 30,
         fontWeight: 400,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", sans-serif',
+        fontFamily: COVER_FONT_SANS,
         letterSpacing: 1,
       })
     : ''
@@ -115,7 +187,7 @@ function renderCoverTitle(p: SvgModuleParams): string {
     moduleId: 'cover-title',
     viewBoxW: W,
     viewBoxH: H,
-    body: bg + topRule + titleNodes + subtitleNode + diamondMark + bottomRule,
+    body: bg + texture + kicker + topRule + titleNodes + subtitleNode + diamondMark + bottomRule,
   })
 }
 
@@ -172,6 +244,16 @@ function renderCoverGrid(p: SvgModuleParams): string {
   const markCy = padY + 1 * rowStep
   const accentDot = circle({ cx: markCx, cy: markCy, r: 8, fill: palette.accent })
 
+  // 栏目 kicker chip（杂志眉标）—— 网格内左上，能量感封面也保留「设计过」信号
+  const kicker = kickerChip({
+    x: padX + 24,
+    y: padY + 28,
+    label: personaKicker(p.theme.persona),
+    accent: palette.accent,
+    onAccent: palette.onAccent,
+    font: COVER_FONT_SANS,
+  })
+
   // 标题区（左对齐版心）
   // 起点 x=padX+24，文字须落在网格内缘 padX+innerW 内 → 可用宽 = innerW − 24（≈896）；每行字数自适应（≈10）。
   const titleLines = splitLines(title, fitCharsPerLine(innerW - 24, 84, 2), 2)
@@ -186,7 +268,7 @@ function renderCoverGrid(p: SvgModuleParams): string {
         fill: palette.ink,
         fontSize: 84,
         fontWeight: 700,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", sans-serif',
+        fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,
       }),
     )
@@ -200,7 +282,7 @@ function renderCoverGrid(p: SvgModuleParams): string {
         fill: palette.inkSoft,
         fontSize: 28,
         fontWeight: 400,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", sans-serif',
+        fontFamily: COVER_FONT_SANS,
         letterSpacing: 1,
       })
     : ''
@@ -209,7 +291,7 @@ function renderCoverGrid(p: SvgModuleParams): string {
     moduleId: 'cover-grid',
     viewBoxW: W,
     viewBoxH: H,
-    body: bg + gridParts.join('') + accentDot + titleNodes + subtitleNode,
+    body: bg + gridParts.join('') + accentDot + kicker + titleNodes + subtitleNode,
   })
 }
 
@@ -254,7 +336,7 @@ function renderCoverQuote(p: SvgModuleParams): string {
         fill: palette.ink,
         fontSize: 48,
         fontWeight: 500,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", "Songti SC", serif',
+        fontFamily: COVER_FONT_SERIF,
         letterSpacing: 2,
       }),
     )
@@ -271,7 +353,7 @@ function renderCoverQuote(p: SvgModuleParams): string {
         fill: palette.inkSoft,
         fontSize: 26,
         fontWeight: 400,
-        fontFamily: '-apple-system, "PingFang SC", "Source Han Sans", sans-serif',
+        fontFamily: COVER_FONT_SANS,
         letterSpacing: 1,
       })
     : ''

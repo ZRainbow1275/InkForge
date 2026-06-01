@@ -32,6 +32,14 @@ export interface SvgPalette {
   hairline: string
   /** accent 之上的文字色（按对比度自动取白或墨） */
   onAccent: string
+  /** 卡片底板淡彩（rgba accent，creative/lifestyle 0.12 / 其余 0.08） */
+  accentTint: string
+  /** 较强淡彩（rgba accent 0.16），用于 callout/标题底板 */
+  accentTintStrong: string
+  /** 边框用 accent（rgba accent 0.30） */
+  accentBorder: string
+  /** 列表标记用 accent（rgba accent 0.26） */
+  accentMarker: string
 }
 
 export interface SvgThemeContext {

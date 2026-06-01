@@ -16,8 +16,12 @@
 import { svgSection, rect, circle, path, textLine, hairlineRule } from './primitives'
 import type { SvgModuleParams, SvgModuleSpec } from './types'
 
-/** CJK 显示字体栈（设备字体，无 web font 加载） */
-const CJK_DISPLAY = '-apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
+/**
+ * CJK 显示字体栈（设备字体，无 web font 加载）。
+ * 注意：font-family 写进 SVG 表现属性 `font-family="…"`（双引号包裹），内层多词
+ * 字体名必须用单引号，否则双引号会提前终止属性（primitives.ts attrs() 不转义）。
+ */
+const CJK_DISPLAY = "-apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
 
 // ─── header-badge-num ────────────────────────────────────────────────────────
 //   左圆形编号徽章 + 标题 + 标题下细线。

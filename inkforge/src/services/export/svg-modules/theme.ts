@@ -59,6 +59,30 @@ export function relativeLuminance(color: string): number {
   return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
 }
 
+/** WCAG 对比度（(L1+0.05)/(L2+0.05)）。 */
+function contrastRatio(a: number, b: number): number {
+  const hi = Math.max(a, b)
+  const lo = Math.min(a, b)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+/** WCAG 大字（≥18px 常规 / ≥14px 粗体）对比度门槛。填充条/chip 文字均为大字粗体。 */
+const AA_LARGE = 3.0
+
+/**
+ * accent 之上的文字色：**白优先**（保留实色填充条/chip 的编辑感冲击力），
+ * 仅当白-on-accent 对比度低于 AA 大字门槛 3.0 时才回退到墨。
+ *
+ * 设计一致性 + 可达性兼顾（单一 3.0 大字门槛，非每预设硬编码）：
+ *   - Kiln  #D95B3F：白 CR≈3.81 ≥ 3.0 → 白（实色红条上的醒目白字，最强处理）。
+ *   - Tempera #3B7A6B：白 CR≈5.02 → 白。
+ *   - Amber #C19A56：白 CR≈2.0 < 3.0 → 墨（白字连 AA 大字都不到，墨字 CR≈6.65）。
+ */
+function pickOnAccent(accentHex: string): string {
+  const whiteCr = contrastRatio(relativeLuminance('#ffffff'), relativeLuminance(accentHex))
+  return whiteCr >= AA_LARGE ? '#ffffff' : INK
+}
+
 export function deriveSvgPalette(
   primaryColor: string,
   persona: PresetPersona,
@@ -76,7 +100,12 @@ export function deriveSvgPalette(
     paperWarm: BRAND_TOKENS.paperWarmLight,
     ember: BRAND_TOKENS.emberLight,
     hairline: rgba(INK, 0.12),
-    onAccent: relativeLuminance(accent) < 0.5 ? '#ffffff' : INK,
+    onAccent: pickOnAccent(accent),
+    // HTML 色块装饰用淡彩（纯 rgba accent，绝不渐变；见 pattern-* 研究）
+    accentTint: rgba(accent, softAlpha),
+    accentTintStrong: rgba(accent, 0.16),
+    accentBorder: rgba(accent, 0.3),
+    accentMarker: rgba(accent, 0.26),
   }
 }
 

@@ -31,8 +31,13 @@ import type { ExportPreset, PresetPersona } from '@/types'
 interface FlagshipFixture {
   id: string
   persona: PresetPersona
-  /** 该 plan 注入后应出现的全部 data-ink-svg module id（cover→headings→hr→quote→endmark）。 */
+  /**
+   * 该 plan 注入后应出现的 SVG 图形 module id（仅「纯图形」母题：cover + divider）。
+   * 标题/引用/列表/落款已迁到 html-blocks 内联色块（见 expectedBlockIds）。
+   */
   expectedModuleIds: string[]
+  /** 内联 HTML 色块装饰器哨兵（标题/引用卡/列表/落款卡）。 */
+  expectedBlockIds: string[]
 }
 
 const FLAGSHIPS: FlagshipFixture[] = [
@@ -41,11 +46,14 @@ const FLAGSHIPS: FlagshipFixture[] = [
     persona: 'creative',
     expectedModuleIds: [
       'cover-grid', // plan.cover
-      'header-ribbon', // h2
-      'header-vrule', // h3
       'divider-forge', // hr
-      'quote-mark', // blockquote
-      'endmark-vessel', // endmark
+    ],
+    expectedBlockIds: [
+      'flagship-h2',
+      'flagship-h3',
+      'flagship-quote',
+      'flagship-ul',
+      'flagship-footer',
     ],
   },
   {
@@ -53,11 +61,14 @@ const FLAGSHIPS: FlagshipFixture[] = [
     persona: 'academic',
     expectedModuleIds: [
       'cover-title',
-      'header-bracket', // h2
-      'header-vrule', // h3
       'divider-diamond', // hr
-      'quote-corner', // blockquote
-      'endmark-fin',
+    ],
+    expectedBlockIds: [
+      'flagship-h2',
+      'flagship-h3',
+      'flagship-quote',
+      'flagship-ul',
+      'flagship-footer',
     ],
   },
   {
@@ -65,10 +76,14 @@ const FLAGSHIPS: FlagshipFixture[] = [
     persona: 'business',
     expectedModuleIds: [
       'cover-title',
-      'header-vrule', // h2 (amber 只配 h2)
       'divider-grid', // hr
-      'quote-vbar', // blockquote
-      'endmark-rule',
+    ],
+    expectedBlockIds: [
+      'flagship-h2',
+      'flagship-h3',
+      'flagship-quote',
+      'flagship-ul',
+      'flagship-footer',
     ],
   },
 ]
@@ -80,6 +95,7 @@ const REPRESENTATIVE_HTML =
   '<p>这是第一段中文正文内容，用于验证移动端二十到二十二字每行的排版铁律。</p>' +
   '<h3>第二节标题</h3>' +
   '<p>第二段正文继续测试中文断行与字距规则的稳定性表现。</p>' +
+  '<ul><li>无序列表项一</li><li>无序列表项二</li></ul>' +
   '<hr/>' +
   '<blockquote><p>这是一段被引用的文字内容，应被引用卡模块接管。</p></blockquote>' +
   '<p>结尾段落收束全文，确认正文不丢失。</p>'
@@ -125,12 +141,23 @@ describe('PR7 — flagship SVG pipeline smoke (real end-to-end, no mock)', () =>
         expect(result.html).toContain('<svg')
       })
 
-      it('injects EVERY expected module id from this plan (AC2/AC7)', () => {
+      it('injects EVERY expected SVG graphic module id from this plan (AC2/AC7)', () => {
         for (const moduleId of fixture.expectedModuleIds) {
           expect(result.html, `missing module ${moduleId} in ${fixture.id} output`).toContain(
             `data-ink-svg="${moduleId}"`,
           )
         }
+      })
+
+      it('injects EVERY expected HTML color-block id (premium upgrade, fixes 太素)', () => {
+        for (const blockId of fixture.expectedBlockIds) {
+          expect(result.html, `missing block ${blockId} in ${fixture.id} output`).toContain(
+            `data-ink-block="${blockId}"`,
+          )
+        }
+        // 旗舰输出不再把标题/引用渲成 SVG <text>（文字活、可重排）。
+        expect(result.html).not.toContain('data-ink-svg="header-')
+        expect(result.html).not.toContain('data-ink-svg="quote-')
       })
 
       it('every injected SVG section is WeChat-safe with zero violations (AC9)', () => {

@@ -21,6 +21,7 @@ export * from './primitives'
 export * from './wechat-safe'
 export * from './inject'
 export * from './raster'
+export * from './html-blocks'
 
 export { headerModules } from './headers'
 export { dividerModules } from './dividers'

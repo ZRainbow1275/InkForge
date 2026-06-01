@@ -50,6 +50,18 @@ describe('deriveSvgPalette', () => {
     expect(p.onAccent).toBe('#1a1a1a')
   })
 
+  // 白优先 + AA 大字门槛 3.0：实色填充条/chip 文字。三个旗舰预设的边界行为锁定，
+  // 保证「饱和实色条用醒目白字」的设计一致性，同时把白字达不到 AA 大字的中明度
+  // 暖色（Amber）回退到墨字（可达性）。非每预设硬编码，纯对比度门槛驱动。
+  it('flagship onAccent: white-preferred with a 3.0 AA-large floor', () => {
+    // Kiln #D95B3F：白 CR≈3.81 ≥ 3.0 → 白（最强处理保留白字冲击力）
+    expect(deriveSvgPalette('#D95B3F', 'creative').onAccent).toBe('#ffffff')
+    // Tempera #3B7A6B：白 CR≈5.02 → 白
+    expect(deriveSvgPalette('#3B7A6B', 'academic').onAccent).toBe('#ffffff')
+    // Amber #C19A56：白 CR≈2.0 < 3.0 → 墨（白字连 AA 大字都不到，墨 CR≈6.65）
+    expect(deriveSvgPalette('#C19A56', 'business').onAccent).toBe('#1a1a1a')
+  })
+
   it('persona affects accentSoft alpha (creative/lifestyle stronger)', () => {
     expect(deriveSvgPalette('#004080', 'academic').accentSoft).toContain('0.08')
     expect(deriveSvgPalette('#004080', 'business').accentSoft).toContain('0.08')

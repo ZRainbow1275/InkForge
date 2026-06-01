@@ -171,11 +171,27 @@ describe('emit flagship WeChat paste artifacts', () => {
 
       const { html, entry } = await runRealWechatPipeline(preset)
 
-      // 回归守护：旗舰 SVG 注入必须真实落在产物里。永远执行（与写盘无关）。
+      // 回归守护：旗舰 SVG 图形（封面/分隔）必须真实落在产物里。永远执行。
       expect(html, `${id}: 产物必须含 data-ink-svg 哨兵（pipeline=${entry}）`).toContain(
         'data-ink-svg',
       )
       expect(html, `${id}: 产物必须含至少一个 <svg（pipeline=${entry}）`).toMatch(/<svg\b/i)
+
+      // 高级 HTML 色块结构守护（用户「太素」修复后的新形态）：每份旗舰产物必须含
+      // 填充/淡彩 H2 色块 + 引用卡 + 文末落款卡，确保色块层未回归。
+      expect(html, `${id}: 必须含 flagship H2 色块（pipeline=${entry}）`).toContain(
+        'data-ink-block="flagship-h2"',
+      )
+      expect(html, `${id}: 必须含 flagship 引用卡（pipeline=${entry}）`).toMatch(
+        /data-ink-block="flagship-(quote|callout)"/,
+      )
+      // 列表标记色块（无序方块 / 有序圆形编号 chip）——「太素」修复的列表层守护。
+      expect(html, `${id}: 必须含 flagship 列表标记色块（pipeline=${entry}）`).toMatch(
+        /data-ink-block="flagship-(ul|ol)"/,
+      )
+      expect(html, `${id}: 必须含 flagship 文末落款卡（pipeline=${entry}）`).toContain(
+        'data-ink-block="flagship-footer"',
+      )
 
       if (!SHOULD_EMIT) continue
 
