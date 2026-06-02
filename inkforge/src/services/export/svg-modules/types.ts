@@ -20,6 +20,8 @@ export interface SvgPalette {
   inkSoft: string
   /** = preset.primaryColor（规范化为 #rrggbb） */
   accent: string
+  /** 满幅反白块/色带封面专用的深色 accent，白字 CR≥4.5（accent 朝黑加深而成） */
+  accentDeep: string
   /** 低透明度 accent（rgba）——渐变/光晕的安全替代 */
   accentSoft: string
   /** 背景（亮） */

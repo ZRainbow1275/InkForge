@@ -4,10 +4,20 @@ import {
   hexToRgb,
   rgba,
   relativeLuminance,
+  darkenForWhiteText,
   deriveSvgPalette,
   buildThemeContext,
   BRAND_TOKENS,
 } from '../theme'
+
+/** WCAG 对比度（与 theme.ts 内私有实现等价；测试自算 accentDeep 白字 CR）。 */
+function whiteContrast(hex: string): number {
+  const lw = relativeLuminance('#ffffff')
+  const lc = relativeLuminance(hex)
+  const hi = Math.max(lw, lc)
+  const lo = Math.min(lw, lc)
+  return (hi + 0.05) / (lo + 0.05)
+}
 
 describe('theme color utils', () => {
   it('normalizeHex expands shorthand and lowercases, falls back on bad input', () => {
@@ -71,6 +81,41 @@ describe('deriveSvgPalette', () => {
 
   it('is a pure function (same input → deep equal output)', () => {
     expect(deriveSvgPalette('#5a4a3c', 'academic')).toEqual(deriveSvgPalette('#5a4a3c', 'academic'))
+  })
+
+  // accentDeep：满幅反白块/色带封面专用深色 accent，白字 CR≥4.5（不硬编码 hex，
+  // 让算法算；只断言「白字 CR≥4.5」+「amber accentDeep≠accent」+ 确定性）。
+  it('accentDeep guarantees white-text CR ≥ 4.5 for all 3 flagships', () => {
+    for (const [primary, persona] of [
+      ['#D95B3F', 'creative'],
+      ['#3B7A6B', 'academic'],
+      ['#C19A56', 'business'],
+    ] as const) {
+      const p = deriveSvgPalette(primary, persona)
+      expect(whiteContrast(p.accentDeep)).toBeGreaterThanOrEqual(4.5)
+      // 6 位 hex（带 #）
+      expect(p.accentDeep).toMatch(/^#[0-9a-f]{6}$/)
+    }
+  })
+
+  it('amber accentDeep is darkened away from accent (white CR was below 4.5)', () => {
+    const amber = deriveSvgPalette('#C19A56', 'business')
+    expect(amber.accentDeep).not.toBe(amber.accent)
+    // kiln 白 CR 3.81 < 4.5 → 也必被加深
+    const kiln = deriveSvgPalette('#D95B3F', 'creative')
+    expect(kiln.accentDeep).not.toBe(kiln.accent)
+  })
+
+  it('tempera accentDeep stays equal to accent (white CR already ≥ 4.5, t=0)', () => {
+    const tempera = deriveSvgPalette('#3B7A6B', 'academic')
+    expect(tempera.accentDeep).toBe(tempera.accent)
+  })
+
+  it('darkenForWhiteText is deterministic (same input → same output)', () => {
+    expect(darkenForWhiteText('#C19A56')).toBe(darkenForWhiteText('#C19A56'))
+    expect(darkenForWhiteText('#D95B3F')).toBe(darkenForWhiteText('#D95B3F'))
+    // 已达标的色不变（白字 CR≥4.5 → t=0）
+    expect(darkenForWhiteText('#000000')).toBe('#000000')
   })
 })
 

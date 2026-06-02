@@ -65,18 +65,32 @@ describe('cover modules × persona — wechat-safe matrix', () => {
 })
 
 describe('cover-title shape requirements', () => {
-  it('includes a diamond accent (single <path>) and big-type title text', () => {
-    const m = coverModules.find((c) => c.id === 'cover-title')!
-    const theme = buildThemeContext({ primaryColor: primaryColors.business, persona: 'business', target: 'wechat' })
-    const out = m.render({ theme, text: SAMPLE_TEXT, subtitle: SAMPLE_SUBTITLE })
+  const m = coverModules.find((c) => c.id === 'cover-title')!
+  const theme = buildThemeContext({ primaryColor: primaryColors.business, persona: 'business', target: 'wechat' })
+  const out = m.render({ theme, text: SAMPLE_TEXT, subtitle: SAMPLE_SUBTITLE })
 
-    // 一个菱形签名 = 一个 <path>
-    const pathCount = (out.match(/<path /g) || []).length
-    expect(pathCount).toBeGreaterThanOrEqual(1)
+  it('includes a full-bleed band header + accent tab + big-type title', () => {
+    // 顶部满幅深色色带（accentDeep）+ 重 accent tab（粗短色块）
+    expect(out).toContain(`fill="${theme.palette.accentDeep}"`)
+    expect(out).toContain('width="96"') // accent tab 粗短色块
+    // 品牌报头 nameplate：墨铸 + MOZHU PRESS · SERIAL
+    expect(out).toContain('墨铸')
+    expect(out).toContain('MOZHU PRESS · SERIAL')
     // 标题文本可见
     expect(out).toContain('标题')
-    // 字号 96（big type）出现
-    expect(out).toContain('font-size="96"')
+    // 字号 100（重型杂志巨号）出现
+    expect(out).toContain('font-size="100"')
+  })
+
+  it('places a 篆刻方印 (seal with 墨/铸) at the corner + a double hairline rule', () => {
+    // 方印两字（除报头「墨铸」外，方印竖排两字也出现 → 墨/铸 各 ≥2 次）
+    expect((out.match(/墨/g) || []).length).toBeGreaterThanOrEqual(2)
+    expect((out.match(/铸/g) || []).length).toBeGreaterThanOrEqual(2)
+    // 方印内白描边（stroke=paper）
+    expect(out).toContain(`stroke="${theme.palette.paper}"`)
+    // 双细线规则：两条 hairline rect（fill=hairline）
+    const hairlineRects = (out.match(new RegExp(`<rect [^>]*fill="${theme.palette.hairline.replace(/[()]/g, '\\$&')}"`, 'g')) || []).length
+    expect(hairlineRects).toBeGreaterThanOrEqual(2)
   })
 })
 
@@ -85,18 +99,31 @@ describe('cover-grid shape requirements', () => {
   const theme = buildThemeContext({ primaryColor: primaryColors.academic, persona: 'academic', target: 'wechat' })
   const out = m.render({ theme, text: SAMPLE_TEXT, subtitle: SAMPLE_SUBTITLE })
 
-  it('contains multiple <rect> elements for the grid (hairlines + bg + frame)', () => {
+  it('is a full-bleed accentDeep solid cover with white grid residue', () => {
+    // 整封面深 accent 实色底（accentDeep）
+    expect(out).toContain(`fill="${theme.palette.accentDeep}"`)
+    // 白色低透明网格残迹（opacity=0.1 的白线 rect）
     const rectCount = (out.match(/<rect /g) || []).length
-    // 至少：1 bg + 5 竖线 + 3 横线 + 4 外框 = 13。给宽松下限 8。
-    expect(rectCount).toBeGreaterThanOrEqual(8)
+    // bg(1) + 4 网格残迹 + kicker chip(1) + 白 tab(1) = 7。给宽松下限 6。
+    expect(rectCount).toBeGreaterThanOrEqual(6)
+    expect(out).toContain('opacity="0.1"')
   })
 
-  it('contains an accent dot (circle) as grid intersection mark', () => {
+  it('contains a low-key white dot (circle) as grid intersection mark', () => {
     expect(out).toContain('<circle ')
   })
 
   it('contains the title text', () => {
     expect(out).toContain('标题')
+  })
+
+  it('has a white nameplate header + white 方印 (墨/铸 ≥2 each) on the colored ground', () => {
+    expect(out).toContain('墨铸')
+    expect(out).toContain('MOZHU PRESS · SERIAL')
+    // 白印：fill=paper 底 + accentDeep 印文（彩底白印）
+    expect(out).toContain(`stroke="${theme.palette.accentDeep}"`)
+    expect((out.match(/墨/g) || []).length).toBeGreaterThanOrEqual(2)
+    expect((out.match(/铸/g) || []).length).toBeGreaterThanOrEqual(2)
   })
 })
 

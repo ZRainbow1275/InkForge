@@ -30,6 +30,10 @@
 import type { ExportTarget } from '@/types'
 import type { SvgPalette } from './types'
 import { renderVesselMark } from './endmarks'
+import { renderSeal } from './primitives'
+
+/** serif 字体栈（方印印文用，宋体优先）。 */
+const SEAL_FONT = "'Songti SC', 'SimSun', serif"
 
 export type BlockDecorateFn = (html: string, target: ExportTarget) => string
 
@@ -46,23 +50,219 @@ function firstText(innerHtml: string): string {
 }
 
 // ════════════════════════════════════════════════════════════════════════
+// 构成主义几何母题（内联 <svg>）——方格 grid × 菱形 diamond，建立结构节奏（R3）
+//
+// 全部用 viewBox + 固定 px width/height + display:inline-block + vertical-align，
+// 只含 rect/path/line/text；无 class/defs/gradient/transform；非 emoji。
+// 与印章/鼎徽/versal/分隔菱形同源——把 H2/H3/引用/列表 重塑为墨铸专属母题。
+// ════════════════════════════════════════════════════════════════════════
+
+/**
+ * gridNumberSvg — 方格铸号：白描边方框 + 右上套准小方（registration tick）+ 反白号。
+ * 用于 H2 满幅 accentDeep 块内（反白白字）。viewBox 0 0 48 48，46×46。
+ */
+function gridNumberSvg(idx: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="46" height="46" ` +
+    `style="display:inline-block;vertical-align:middle;">` +
+    `<rect x="1.5" y="1.5" width="45" height="45" rx="4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" />` +
+    `<rect x="37" y="5" width="5" height="5" fill="#ffffff" />` +
+    `<text x="23" y="33" text-anchor="middle" font-size="25" font-weight="800" fill="#ffffff" ` +
+    `font-family="${HTML_FONT}">${idx}</text>` +
+    `</svg>`
+  )
+}
+
+/**
+ * gridSquareMark — 方格锚（2×2 细线方格：描边 + 内十字 + 左上实心朱文格）。
+ * 用于 H3 标题左侧锚记。viewBox 0 0 16 16，15×15。fill/stroke = accent。
+ */
+function gridSquareMark(accent: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="15" height="15" ` +
+    `style="display:inline-block;vertical-align:-2px;">` +
+    `<rect x="1" y="1" width="14" height="14" fill="none" stroke="${accent}" stroke-width="1.6" />` +
+    `<rect x="7.4" y="1" width="1.2" height="14" fill="${accent}" opacity="0.55" />` +
+    `<rect x="1" y="7.4" width="14" height="1.2" fill="${accent}" opacity="0.55" />` +
+    `<rect x="1" y="1" width="6.4" height="6.4" fill="${accent}" />` +
+    `</svg>`
+  )
+}
+
+/**
+ * diagonalCornerSvg — 左上斜角实色三角 + 内嵌白小方格（构成主义斜角）。
+ * 用于引用卡左上角。viewBox 0 0 30 30，26×26。
+ */
+function diagonalCornerSvg(accent: string, paper: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="26" height="26" ` +
+    `style="display:inline-block;vertical-align:top;">` +
+    `<path d="M0,0 L30,0 L0,30 Z" fill="${accent}" />` +
+    `<rect x="4" y="4" width="7" height="7" fill="${paper}" />` +
+    `</svg>`
+  )
+}
+
+/**
+ * diamondTerminalSvg — 实心 accent 菱形收尾签名（引文末尾，与分隔/colophon 菱形同源）。
+ * viewBox 0 0 16 16，12×12。菱形顶点 (8,2)(14,8)(8,14)(2,8)。
+ */
+function diamondTerminalSvg(accent: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" ` +
+    `style="display:inline-block;vertical-align:middle;">` +
+    `<path d="M8,2 L14,8 L8,14 L2,8 Z" fill="${accent}" />` +
+    `</svg>`
+  )
+}
+
+/**
+ * diamondMarkerSvg — UL 列表实心 accent 菱形标记（~9px），与引用收尾/分隔菱形统一。
+ * viewBox 0 0 12 12，9×9。
+ */
+function diamondMarkerSvg(accent: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="9" height="9" ` +
+    `style="display:inline-block;vertical-align:middle;margin-right:0.55em;">` +
+    `<path d="M6,1 L11,6 L6,11 L1,6 Z" fill="${accent}" />` +
+    `</svg>`
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Lede — 开篇正文首字下沉成 cast versal 方印（「以笔铸字」品牌母题，NEW R2）
+// ════════════════════════════════════════════════════════════════════════
+
+/** 计算 html 中所有 <blockquote>…</blockquote> 的 [start, end) 区间。 */
+function blockquoteRanges(html: string): Array<[number, number]> {
+  const ranges: Array<[number, number]> = []
+  const re = /<blockquote(\s[^>]*)?>[\s\S]*?<\/blockquote>/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html)) !== null) {
+    ranges.push([m.index, m.index + m[0].length])
+  }
+  return ranges
+}
+
+function isInsideRange(pos: number, ranges: Array<[number, number]>): boolean {
+  return ranges.some(([s, e]) => pos >= s && pos < e)
+}
+
+/**
+ * decorateFlagshipLede — 把开篇正文段首字铸成 versal cast initial（首字下沉方印）。
+ * **排在 chain 最前**（composeSvgDecorate 之后、H2/quote/list 之前）。
+ *
+ * 锁定规则（robust，避开阅读 meta + blockquote 内 <p>）：文档序中第一个 <p>…</p>，
+ * 满足全部：① 不在任何 <blockquote>…</blockquote> 区间内；② 不含 data-ink；
+ * ③ 纯文本长度 ≥ 24；④ 不匹配 /阅读|分钟|全文.*字/。只处理第一个命中段；
+ * 幂等哨兵 data-ink-block="flagship-lede"。
+ *
+ * 切字：跳过段内前导标签/空白，取第一个文本字符替换为 versal span + 该字，保留
+ * 其余 HTML（strong/em/code 不破坏）。
+ */
+export function decorateFlagshipLede(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-lede"')) return html
+
+    const ranges = blockquoteRanges(html)
+    const re = /<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi
+    let m: RegExpExecArray | null
+    while ((m = re.exec(html)) !== null) {
+      const full = m[0]
+      const attrs = m[1] ?? ''
+      const inner = m[2]
+      const start = m.index
+      // ① 跳过 blockquote 内 <p>
+      if (isInsideRange(start, ranges)) continue
+      // ② 跳过含 data-ink 的段（已被其它装饰器处理 / 阅读 meta 容器）
+      if (full.includes('data-ink')) continue
+      // ③ 纯文本长度 ≥ 24
+      const text = firstText(inner)
+      if (text.length < 24) continue
+      // ④ 跳过阅读 meta（阅读时长 / 字数）
+      if (/阅读|分钟|全文.*字/.test(text)) continue
+
+      // 命中：切首个文本字符（跳过前导标签/空白）。
+      const versal = buildLedeVersal(inner, palette)
+      if (!versal) continue
+      const replaced = `<p${attrs}>${versal}</p>`
+      return html.slice(0, start) + replaced + html.slice(start + full.length)
+    }
+    return html
+  }
+}
+
+/**
+ * 在 inner HTML 的「第一个文本字符」处切出 versal：跳过前导标签/空白，把首字符
+ * 替换为 versal span。失败（无文本字符）返回 null。
+ */
+function buildLedeVersal(inner: string, palette: SvgPalette): string | null {
+  // 逐字符扫描，跳过完整标签与空白，定位第一个可见文本字符。
+  let i = 0
+  let prefix = ''
+  while (i < inner.length) {
+    const ch = inner[i]
+    if (ch === '<') {
+      // 整段标签原样保留到 prefix
+      const close = inner.indexOf('>', i)
+      if (close === -1) return null
+      prefix += inner.slice(i, close + 1)
+      i = close + 1
+      continue
+    }
+    if (/\s/.test(ch)) {
+      prefix += ch
+      i += 1
+      continue
+    }
+    break
+  }
+  if (i >= inner.length) return null
+  // 处理可能的 HTML 实体（如 &amp;）——若首字符是实体起点，整体取作首字。
+  let firstChar: string
+  let restStart: number
+  if (inner[i] === '&') {
+    const semi = inner.indexOf(';', i)
+    if (semi !== -1 && semi - i <= 8) {
+      firstChar = inner.slice(i, semi + 1)
+      restStart = semi + 1
+    } else {
+      firstChar = inner[i]
+      restStart = i + 1
+    }
+  } else {
+    firstChar = inner[i]
+    restStart = i + 1
+  }
+  const versalSpan =
+    `<span data-ink-block="flagship-lede" style="display:inline-block;background-color:${palette.accentDeep};` +
+    `color:#ffffff;font-size:40px;font-weight:800;width:52px;height:52px;line-height:52px;` +
+    `text-align:center;border-radius:7px;margin:2px 12px 0 0;vertical-align:-9px;` +
+    `font-family:'Songti SC','SimSun',serif;">${firstChar}</span>`
+  return prefix + versalSpan + inner.slice(restStart)
+}
+
+// ════════════════════════════════════════════════════════════════════════
 // H2 — 三个旗舰各一种「色块」形态
 // ════════════════════════════════════════════════════════════════════════
 
 /**
- * decorateFlagshipH2 — 把 `<h2>…</h2>` 替换为色块标题（保留内部文字）。
- * 计数器在返回函数内部声明（每次文档调用从 0 起），保证幂等 + 编号正确。
+ * decorateFlagshipH2 — 把 `<h2>…</h2>` 替换为**构成主义满幅章节头**（R3）：保留 R1
+ * 满幅 accentDeep 实色块 + 反白（用户认可的「猛」），把内部从「巨号 + 标题」升级为
+ * 墨铸构成主义母题——**方格铸号 svg（白描边方框 + 套准小方 + 反白号）+ 反白标题 +
+ * 方格节奏基线（border-top 规则 + 3 个实/虚交替小方块）**。计数器在闭包内（每次
+ * 文档调用从 0 起），保证幂等 + 编号正确。
  *
- * 变体：
- *   - kiln    ：实色填充条（accent 底 + onAccent 文字 + 小前导序号）。
- *   - tempera ：序号 chip「01」(accent 底) + ink 标题 + 2px accent 底线。
- *   - amber   ：左 5px accent 竖条 + 小写 kicker「PART 0N」+ ink 标题。
+ * R3 统一三变体为同一构成主义形态（仅 accentDeep hue 不同）：移除 R2 的
+ * kiln/tempera/amber 三套编号差异。`opts.variant` 仅保留签名兼容（不再分流）。
+ *
+ * 白字始终安全：accentDeep 保证白字 CR≥4.5，直接用 #ffffff / rgba(255,255,255,a)。
  */
 export function decorateFlagshipH2(
   palette: SvgPalette,
-  opts: { variant: 'kiln' | 'tempera' | 'amber' },
+  _opts: { variant: 'kiln' | 'tempera' | 'amber' },
 ): BlockDecorateFn {
-  const { variant } = opts
   return (html: string, _target: ExportTarget): string => {
     if (!html) return html
     if (html.includes('data-ink-block="flagship-h2"')) return html
@@ -70,38 +270,28 @@ export function decorateFlagshipH2(
     return html.replace(/<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi, (_m, _attrs: string | undefined, inner: string) => {
       n += 1
       const idx = String(n).padStart(2, '0')
-      if (variant === 'kiln') {
-        // 实色填充条 + 前导序号（onAccent）。
-        const lead = `<span style="display:inline-block;font-size:0.7em;font-weight:700;letter-spacing:1px;color:${palette.onAccent};opacity:0.7;margin-right:0.7em;vertical-align:middle;">${idx}</span>`
-        return (
-          `<section data-ink-block="flagship-h2" style="margin:34px 0 18px;">` +
-          `<p style="margin:0;background-color:${palette.accent};color:${palette.onAccent};` +
-          `font-family:${HTML_FONT};font-size:19px;font-weight:700;letter-spacing:1px;` +
-          `line-height:1.5;padding:11px 18px;border-radius:4px;">${lead}<span style="vertical-align:middle;">${inner}</span></p>` +
-          `</section>`
-        )
-      }
-      if (variant === 'tempera') {
-        // 序号 chip + ink 标题 + accent 底线。学术克制。
-        const chip = `<span style="display:inline-block;background-color:${palette.accent};color:${palette.onAccent};` +
-          `font-size:15px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:4px;` +
-          `vertical-align:middle;margin-right:12px;">${idx}</span>`
-        return (
-          `<section data-ink-block="flagship-h2" style="margin:34px 0 18px;">` +
-          `<p style="margin:0;line-height:1.4;padding-bottom:0.35em;border-bottom:2px solid ${palette.accent};">` +
-          `${chip}<span style="color:${palette.ink};font-family:${HTML_FONT};font-size:19px;font-weight:600;` +
-          `letter-spacing:0.5px;vertical-align:middle;">${inner}</span></p>` +
-          `</section>`
-        )
-      }
-      // amber：左竖条 + 小写 kicker + ink 标题。商务编辑感。
-      const kicker = `<p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:2px;` +
-        `color:${palette.accent};line-height:1;font-family:${HTML_FONT};">PART ${idx}</p>`
+      // 方格铸号（内联 svg，左）
+      const numNode = gridNumberSvg(idx)
+      // 反白标题
+      const titleP =
+        `<p style="margin:12px 0 0;font-size:21px;font-weight:700;line-height:1.45;letter-spacing:0.5px;` +
+        `color:#ffffff;font-family:${HTML_FONT};">${inner}</p>`
+      // 方格节奏基线：border-top 规则 + 3 个实/虚交替小方块（第 2 个虚框）
+      const node = (solid: boolean): string =>
+        solid
+          ? `<span style="display:inline-block;width:7px;height:7px;margin-right:6px;vertical-align:middle;background-color:#ffffff;"></span>`
+          : `<span style="display:inline-block;width:7px;height:7px;margin-right:6px;vertical-align:middle;background-color:transparent;border:1px solid rgba(255,255,255,0.7);"></span>`
+      const rhythm =
+        `<p style="margin:14px 0 0;padding-top:10px;border-top:1px solid rgba(255,255,255,0.32);">` +
+        node(true) + node(false) + node(true) +
+        `</p>`
       return (
-        `<section data-ink-block="flagship-h2" style="margin:34px 0 18px;border-left:5px solid ${palette.accent};padding-left:0.7em;">` +
-        kicker +
-        `<p style="margin:0;color:${palette.ink};font-family:${HTML_FONT};font-size:19px;font-weight:700;` +
-        `letter-spacing:0.5px;line-height:1.4;">${inner}</p>` +
+        `<section data-ink-block="flagship-h2" style="margin:38px 0 22px;">` +
+        `<section style="background-color:${palette.accentDeep};border-radius:4px;padding:18px 20px;">` +
+        numNode +
+        titleP +
+        rhythm +
+        `</section>` +
         `</section>`
       )
     })
@@ -109,7 +299,7 @@ export function decorateFlagshipH2(
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// H3 — 左 3px accent 竖条 + ink 标题（三旗舰统一，弱于 H2）
+// H3 — 构成主义方格锚 + ink 标题 + 底线（R3，弃 R2 左条+淡底 plate）
 // ════════════════════════════════════════════════════════════════════════
 
 export function decorateFlagshipH3(palette: SvgPalette): BlockDecorateFn {
@@ -118,10 +308,11 @@ export function decorateFlagshipH3(palette: SvgPalette): BlockDecorateFn {
     if (html.includes('data-ink-block="flagship-h3"')) return html
     return html.replace(/<h3(\s[^>]*)?>([\s\S]*?)<\/h3>/gi, (_m, _attrs: string | undefined, inner: string) => {
       return (
-        `<section data-ink-block="flagship-h3" style="margin:26px 0 14px;border-left:3px solid ${palette.accent};` +
-        `background-color:${palette.accentTint};border-radius:0 4px 4px 0;padding:7px 14px;">` +
-        `<p style="margin:0;color:${palette.ink};font-family:${HTML_FONT};font-size:17px;font-weight:600;` +
-        `letter-spacing:0.5px;line-height:1.5;">${inner}</p>` +
+        `<section data-ink-block="flagship-h3" style="margin:28px 0 14px;padding-bottom:8px;` +
+        `border-bottom:1px solid ${palette.accentBorder};">` +
+        gridSquareMark(palette.accent) +
+        `<span style="margin-left:10px;color:${palette.ink};font-size:18px;font-weight:700;letter-spacing:0.5px;` +
+        `line-height:1.5;font-family:${HTML_FONT};vertical-align:middle;">${inner}</span>` +
         `</section>`
       )
     })
@@ -182,18 +373,6 @@ function detectCallout(text: string, palette: SvgPalette): CalloutKind | null {
 }
 
 /**
- * 大装饰引号 mark（左上水印），非 emoji，内联 SVG <path> 实色 + opacity。
- */
-function quoteGlyph(fill: string): string {
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90" width="44" height="33" ` +
-    `style="display:block;margin:0 0 2px;">` +
-    `<path d="M50,80 C50,45 70,24 104,24 L104,46 C86,46 76,56 76,72 L104,72 L104,84 L50,84 Z ` +
-    `M0,80 C0,45 20,24 54,24 L54,46 C36,46 26,56 26,72 L54,72 L54,84 L0,84 Z" fill="${fill}" opacity="0.16" /></svg>`
-  )
-}
-
-/**
  * decorateFlagshipBlockquote — 把 `<blockquote>…</blockquote>` 替换为 callout 框或
  * 引用卡。**保留内部 HTML**（不拍平成纯文本），文字活、可重排。
  */
@@ -207,8 +386,9 @@ export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn
       const text = firstText(inner)
       const callout = detectCallout(text, palette)
       if (callout) {
-        // CALLOUT 框：淡彩底 + 左 4px accent 竖条 + 图标 + 加粗标签行 + 正文。
-        const tint = callout.color === palette.accent ? palette.accentTint : rgbaFor(callout.color, 0.07)
+        // CALLOUT 框：淡彩底（加重 accentTintStrong）+ 左 5px accent 竖条 + 图标 +
+        // 加粗标签行 + 正文。warning 仍用 ember 低透明度底。
+        const tint = callout.color === palette.accent ? palette.accentTintStrong : rgbaFor(callout.color, 0.07)
         const labelRow =
           `<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:${callout.color};font-family:${HTML_FONT};">` +
           iconSvg(callout.icon, callout.color) +
@@ -218,23 +398,29 @@ export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn
         const bodyHtml = stripLeadKeyword(inner)
         return (
           `<section data-ink-block="flagship-callout" style="margin:24px 0;padding:14px 18px;` +
-          `border-left:4px solid ${callout.color};border-radius:8px;background-color:${tint};">` +
+          `border-left:5px solid ${callout.color};border-radius:8px;background-color:${tint};">` +
           labelRow +
           `<section style="margin:0;font-size:15px;line-height:1.85;color:${palette.ink};word-break:break-word;">${bodyHtml}</section>` +
           `</section>`
         )
       }
-      // QUOTE 卡：左 4px accent 竖条 + 淡彩底 + 大装饰引号水印 + 正文（+ 可选署名）。
+      // QUOTE 卡（R3 构成主义不对称块）：左 7px accent 条 + 左上斜角实色三角（内嵌
+      // 白小方格）+ 引文 + 菱形收尾签名（+ 可选署名文字）。弃 R2 对称卡 + 大引号。
       const { body: quoteBody, attribution } = splitAttribution(inner)
-      const attrNode = attribution
-        ? `<p style="margin:12px 0 0;text-align:right;font-size:13px;letter-spacing:0.04em;color:${palette.inkSoft};">— ${escapeHtmlText(attribution)}</p>`
+      const attrText = attribution
+        ? `<span style="margin-left:8px;font-size:13px;letter-spacing:0.04em;color:${palette.inkSoft};vertical-align:middle;">— ${escapeHtmlText(attribution)}</span>`
         : ''
+      const terminalRow =
+        `<p style="margin:12px 0 0;text-align:right;">` +
+        diamondTerminalSvg(palette.accent) +
+        attrText +
+        `</p>`
       return (
-        `<section data-ink-block="flagship-quote" style="margin:26px 0;padding:18px 22px;` +
-        `border-left:4px solid ${palette.accent};border-radius:8px;background-color:${palette.accentTint};">` +
-        quoteGlyph(palette.accent) +
-        `<section style="margin:0;font-size:16px;line-height:1.9;letter-spacing:0.04em;color:${palette.ink};word-break:break-word;">${quoteBody}</section>` +
-        attrNode +
+        `<section data-ink-block="flagship-quote" style="margin:26px 0;padding:16px 20px 14px;` +
+        `border-left:7px solid ${palette.accent};background-color:${palette.accentTint};border-radius:0 6px 6px 0;">` +
+        diagonalCornerSvg(palette.accent, palette.paper) +
+        `<section style="margin:6px 0 0;font-size:17px;line-height:1.95;letter-spacing:0.04em;color:${palette.ink};word-break:break-word;">${quoteBody}</section>` +
+        terminalRow +
         `</section>`
       )
     })
@@ -298,7 +484,7 @@ function rgbaFor(hex: string, alpha: number): string {
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// Lists — UL 方块标记 / OL 圆角编号 chip（品牌色）
+// Lists — UL 实心菱形标记 / OL 方格铸号风方形 chip（R3 构成主义母题）
 // ════════════════════════════════════════════════════════════════════════
 
 export function decorateFlagshipLists(palette: SvgPalette): BlockDecorateFn {
@@ -306,13 +492,15 @@ export function decorateFlagshipLists(palette: SvgPalette): BlockDecorateFn {
     if (!html) return html
     let result = html
 
-    // UL：list-style:none + 每个顶层 <li> 前置 accent 方块标记。
+    // UL：list-style:none + 每个顶层 <li> 前置实心 accent 菱形（与分隔/引用菱形统一）。
     if (!result.includes('data-ink-block="flagship-ul"')) {
       result = result.replace(/<ul(\s[^>]*)?>([\s\S]*?)<\/ul>/gi, (match, _ulAttrs: string | undefined, ulBody: string) => {
         if (ulBody.includes('data-ink-block="flagship-ul"')) return match
+        // 哨兵 data-ink-block 套在菱形 svg 外的 span 上（保持幂等检测点）。
         const marker =
-          `<span data-ink-block="flagship-ul" style="display:inline-block;width:7px;height:7px;` +
-          `background-color:${palette.accent};border-radius:1px;margin-right:0.6em;vertical-align:middle;"></span>`
+          `<span data-ink-block="flagship-ul" style="display:inline-block;vertical-align:middle;">` +
+          diamondMarkerSvg(palette.accent) +
+          `</span>`
         const processed = ulBody.replace(/<li(\s[^>]*)?>([\s\S]*?)<\/li>/gi, (_m, liAttrs: string | undefined, liInner: string) => {
           const la = liAttrs ?? ''
           return `<li${la} style="list-style:none;margin:8px 0;line-height:1.8;">${marker}<span style="vertical-align:middle;">${liInner}</span></li>`
@@ -321,7 +509,7 @@ export function decorateFlagshipLists(palette: SvgPalette): BlockDecorateFn {
       })
     }
 
-    // OL：每个 <li> 前置圆形品牌编号 chip（每个 <ol> 计数重置）。
+    // OL：每个 <li> 前置方格铸号风方形 chip（border-radius:3px 方 + 右上套准小白点）。
     if (!result.includes('data-ink-block="flagship-ol"')) {
       result = result.replace(/<ol(\s[^>]*)?>([\s\S]*?)<\/ol>/gi, (match, _olAttrs: string | undefined, olBody: string) => {
         if (olBody.includes('data-ink-block="flagship-ol"')) return match
@@ -329,10 +517,15 @@ export function decorateFlagshipLists(palette: SvgPalette): BlockDecorateFn {
         const processed = olBody.replace(/<li(\s[^>]*)?>([\s\S]*?)<\/li>/gi, (_m, liAttrs: string | undefined, liInner: string) => {
           liCounter += 1
           const la = liAttrs ?? ''
+          // 方格铸号：accent 底方块(radius 3) + 白号；右上角 1px 套准小白点（registration tick）。
+          const tick =
+            `<span style="display:inline-block;width:3px;height:3px;background-color:#ffffff;` +
+            `vertical-align:top;margin:2px 0 0 -7px;"></span>`
           const chip =
             `<span data-ink-block="flagship-ol" style="display:inline-block;min-width:22px;height:22px;` +
             `line-height:22px;text-align:center;background-color:${palette.accent};color:${palette.onAccent};` +
-            `font-size:13px;font-weight:600;border-radius:50%;margin-right:12px;vertical-align:middle;">${liCounter}</span>`
+            `font-size:13px;font-weight:700;border-radius:3px;margin-right:12px;vertical-align:middle;">${liCounter}</span>` +
+            tick
           return `<li${la} style="list-style:none;margin:10px 0;line-height:1.8;">${chip}<span style="vertical-align:middle;">${liInner}</span></li>`
         })
         return `<ol style="list-style:none;padding-left:0;margin:16px 0;">${processed}</ol>`
@@ -373,17 +566,31 @@ export function decorateFlagshipFooterCard(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="100%" style="display:block;">${markBody}</svg>` +
       `</section>`
 
+    // 双细线（两条上下叠，间距 4）。display:inline-block + 父 text-align:center 居中，
+    // 不用 margin:auto（postProcessForWechat 会把 `margin:16px auto` → `margin:16px 0`）。
+    const doubleRule =
+      `<section style="display:inline-block;width:64px;height:1px;margin:18px 0 0;background-color:${palette.accent};"></section>` +
+      `<section style="display:block;text-align:center;">` +
+      `<section style="display:inline-block;width:64px;height:1px;margin:4px 0 12px;background-color:${palette.accent};opacity:0.5;"></section>` +
+      `</section>`
+
+    // 「全文完」下方居中方印（小，accentDeep 底 + 白印文，品牌钢印）。
+    // 居中：父卡 text-align:center + 本节 display:inline-block（避开 margin:auto 被剥）。
+    const sealSvg =
+      `<section style="display:inline-block;width:64px;margin:14px 0 0;">` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" style="display:block;">` +
+      renderSeal({ cx: 32, cy: 32, size: 60, fill: palette.accentDeep, textColor: palette.paper, font: SEAL_FONT }) +
+      `</svg></section>`
+
     const card =
       `<section data-ink-block="flagship-footer" style="margin:36px 0 8px;padding:24px 20px;` +
       `background-color:${palette.paperWarm};border:1px solid ${palette.hairline};border-radius:14px;text-align:center;">` +
       markSvg +
       `<p style="margin:0;font-size:15px;font-weight:600;color:${palette.ink};letter-spacing:1px;font-family:${HTML_FONT};">${escapeHtmlText(brand)}</p>` +
       `<p style="margin:6px 0 0;font-size:13px;color:${palette.inkSoft};letter-spacing:1px;font-family:${HTML_FONT};">${escapeHtmlText(tagline)}</p>` +
-      // 短 accent 细线居中：用 display:inline-block + 父级 text-align:center 居中，
-      // 不用 margin:auto（postProcessForWechat 会把 `margin:16px auto` 改写成
-      // `margin:16px 0` → 居中失效、靠左）。
-      `<section style="display:inline-block;width:48px;height:2px;margin:16px 0 12px;background-color:${palette.accent};border-radius:1px;"></section>` +
+      doubleRule +
       `<p style="margin:0;font-size:12px;color:${palette.inkSoft};letter-spacing:4px;font-family:${HTML_FONT};">全文完</p>` +
+      sealSvg +
       `</section>`
 
     return html + card

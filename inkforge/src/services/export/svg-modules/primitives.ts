@@ -154,6 +154,67 @@ export function diamondSig(o: { cx: number; cy: number; r: number; fill: string;
   return [-1, 0, 1].map((i) => diamond(o.cx + i * gap, o.cy, o.r, o.fill)).join('')
 }
 
+// ─── 篆刻方印「墨铸」（金石印章，全篇最强品牌信号） ──────────────────────────
+
+/**
+ * 篆刻方印原语：圆角方实底 + 内白描边框 + 竖排两行反白印文（默认「墨铸」）。
+ * 纯微信安全子集（rect + text，无 emoji / 渐变 / defs / transform）。
+ *
+ * 构图：外圆角方 rect(实底 fill) → 内 inset 描边 rect(none + stroke textColor)
+ *      → 两字竖排两行（上下各偏中心 size*0.2，anchor=middle，serif 字体）。
+ */
+export function renderSeal(o: {
+  cx: number
+  cy: number
+  size: number
+  fill: string
+  textColor: string
+  font: string
+  chars?: [string, string]
+}): string {
+  const { cx, cy, size, fill, textColor, font } = o
+  const chars = o.chars ?? ['墨', '铸']
+  const half = size / 2
+  const inset = size * 0.09
+  const strokeW = size * 0.045
+  const fontSize = size * 0.36
+  const rowDy = size * 0.2
+  // 外圆角方实底
+  const base = rect({ x: cx - half, y: cy - half, width: size, height: size, rx: size * 0.16, ry: size * 0.16, fill })
+  // 内白描边框（inset，无填充）
+  const border = rect({
+    x: cx - half + inset,
+    y: cy - half + inset,
+    width: size - inset * 2,
+    height: size - inset * 2,
+    fill: 'none',
+    stroke: textColor,
+    strokeWidth: Number(strokeW.toFixed(2)),
+  })
+  // 竖排两行印文（上字 / 下字），y 基线含字高偏移补偿（+fontSize*0.34）
+  const topChar = textLine({
+    x: cx,
+    y: cy - rowDy + fontSize * 0.34,
+    text: chars[0],
+    fill: textColor,
+    fontSize: Number(fontSize.toFixed(2)),
+    fontWeight: 700,
+    fontFamily: font,
+    anchor: 'middle',
+  })
+  const bottomChar = textLine({
+    x: cx,
+    y: cy + rowDy + fontSize * 0.34,
+    text: chars[1],
+    fill: textColor,
+    fontSize: Number(fontSize.toFixed(2)),
+    fontWeight: 700,
+    fontFamily: font,
+    anchor: 'middle',
+  })
+  return base + border + topChar + bottomChar
+}
+
 // ─── 包裹与脚手架 ──────────────────────────────────────────────────────────
 
 export interface SvgSectionOpts {

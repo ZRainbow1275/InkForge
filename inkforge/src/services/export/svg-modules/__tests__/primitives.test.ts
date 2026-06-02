@@ -7,6 +7,7 @@ import {
   hairlineRule,
   textLine,
   diamondSig,
+  renderSeal,
   svgSection,
   hiddenFulltext,
   mpStyleTrailer,
@@ -16,6 +17,8 @@ import {
   smilAnimateTransform,
 } from '../primitives'
 import { assertWechatSafe, checkWechatSafe } from '../wechat-safe'
+
+const SEAL_FONT = "'Songti SC', 'SimSun', serif"
 
 describe('escapeXml', () => {
   it('escapes XML special chars', () => {
@@ -45,6 +48,47 @@ describe('shape builders', () => {
   it('diamondSig produces exactly 3 paths', () => {
     const s = diamondSig({ cx: 50, cy: 10, r: 4, fill: '#000000' })
     expect((s.match(/<path /g) || []).length).toBe(3)
+  })
+})
+
+describe('renderSeal — 篆刻方印「墨铸」', () => {
+  const seal = renderSeal({
+    cx: 100,
+    cy: 100,
+    size: 120,
+    fill: '#bf5037',
+    textColor: '#ffffff',
+    font: SEAL_FONT,
+  })
+
+  it('contains both default seal chars 墨 / 铸 (vertical two-line)', () => {
+    expect(seal).toContain('墨')
+    expect(seal).toContain('铸')
+    // 竖排两行 = 两个 <text>
+    expect((seal.match(/<text /g) || []).length).toBe(2)
+  })
+
+  it('uses solid rounded base + inset white-stroke border (rect only, no emoji/gradient)', () => {
+    // 实底 + 内描边 = 至少 2 个 <rect>
+    expect((seal.match(/<rect /g) || []).length).toBeGreaterThanOrEqual(2)
+    expect(seal).toContain('fill="#bf5037"')
+    expect(seal).toContain('stroke="#ffffff"')
+    expect(seal).toContain('rx=') // 圆角方
+    // 无 emoji / 渐变 / defs
+    expect(seal).not.toMatch(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/u)
+    expect(seal).not.toContain('<linearGradient')
+    expect(seal).not.toContain('<defs')
+  })
+
+  it('is wechat-safe (zero violations)', () => {
+    expect(checkWechatSafe(seal)).toEqual([])
+    expect(() => assertWechatSafe(seal)).not.toThrow()
+  })
+
+  it('accepts custom chars', () => {
+    const s = renderSeal({ cx: 50, cy: 50, size: 64, fill: '#000000', textColor: '#ffffff', font: SEAL_FONT, chars: ['印', '记'] })
+    expect(s).toContain('印')
+    expect(s).toContain('记')
   })
 })
 

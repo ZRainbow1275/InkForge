@@ -17,10 +17,10 @@
 import {
   circle,
   darkSafeBg,
-  diamond,
   hairlineRule,
   path,
   rect,
+  renderSeal,
   svgSection,
   textLine,
 } from './primitives'
@@ -119,8 +119,9 @@ function kickerChip(opts: {
 }
 
 // ─── cover-title ──────────────────────────────────────────────────────────
-// 大标题封面：暖纸底 + 大标题 + 副标题 + 右下小菱形签名。
-// 留白克制、几何点缀仅作锚点；中性 persona 时也成立。
+// 重型杂志感刊头封面（tempera + amber 用）：顶部满幅深 accent 色带（左 kicker +
+// 右「墨铸 / MOZHU PRESS · SERIAL」品牌报头）+ 暖纸面巨号标题 + 重 accent tab +
+// 双细线报头规则 + byline + 右下角篆刻方印。GQ实验室/三联级 + 墨铸金石品牌系统。
 function renderCoverTitle(p: SvgModuleParams): string {
   const { palette } = p.theme
   const title = (p.text ?? '').trim() || '标题'
@@ -128,28 +129,51 @@ function renderCoverTitle(p: SvgModuleParams): string {
 
   // 暖纸亮底（不依赖页面背景）
   const bg = darkSafeBg(W, H, palette.paperWarm)
-  // 栏目 kicker chip（杂志眉标）—— 左上，给「设计过的」信号
-  const kicker = kickerChip({
-    x: 80,
-    y: 88,
-    label: personaKicker(p.theme.persona),
-    accent: palette.accent,
-    onAccent: palette.onAccent,
-    font: COVER_FONT_SANS,
-  })
-  // kicker 下方的短 accent 细线（与 kicker 呼应）
-  const topRule = hairlineRule({ x: 80, y: 178, width: 200, height: 2, fill: palette.accent })
-  // 克制留白纹理：右上角两道极低透明度 accent 细线（不抢戏，仅作纸面肌理）
-  const texture =
-    rect({ x: W - 320, y: 70, width: 240, height: 1, fill: palette.accent, opacity: 0.1 }) +
-    rect({ x: W - 260, y: 92, width: 180, height: 1, fill: palette.accent, opacity: 0.08 })
 
-  // 主标题：单行（如过长可让上层提前裁剪；这里只画一行视觉首屏）
-  // 字号 96 留白足够，subtitle 用 inkSoft（更低对比度）。
-  // 起点 x=80，左右各留 80 → 可用宽 = W − 80 − 80 = 920；每行字数随字号自适应（≈9）。
-  const titleLines = splitLines(title, fitCharsPerLine(W - 80 - 80, 96, 2), 2)
-  const titleStartY = 270
-  const titleLineH = 116
+  // ─ 顶部满幅深色色带刊头（accentDeep 实色，能稳吃白字）─
+  const bandH = 140
+  const band = rect({ x: 0, y: 0, width: W, height: bandH, fill: palette.accentDeep })
+  const bandKicker = textLine({
+    x: 80,
+    y: 92,
+    text: personaKicker(p.theme.persona),
+    fill: palette.paper,
+    fontSize: 48,
+    fontWeight: 700,
+    fontFamily: COVER_FONT_SANS,
+    letterSpacing: 6,
+  })
+  // 右侧品牌报头（nameplate）：墨铸大字 + MOZHU PRESS · SERIAL 小字。
+  const namePlate = textLine({
+    x: 1000,
+    y: 74,
+    text: '墨铸',
+    fill: palette.paper,
+    fontSize: 36,
+    fontWeight: 700,
+    fontFamily: COVER_FONT_SERIF,
+    anchor: 'end',
+    letterSpacing: 4,
+  })
+  const namePlateSub = textLine({
+    x: 1000,
+    y: 108,
+    text: 'MOZHU PRESS · SERIAL',
+    fill: palette.paper,
+    fontSize: 20,
+    fontWeight: 600,
+    fontFamily: COVER_FONT_SANS,
+    anchor: 'end',
+    letterSpacing: 4,
+    opacity: 0.7,
+  })
+
+  // ─ 超大标题（纸面，字重 800）─
+  // 起点 x=80，左右各留 80 → 可用宽 = W − 160 = 920；fitCharsPerLine(920,100,2)=9。
+  // 2 行容 18 字，原 17 字标题完整不截断。
+  const titleLines = splitLines(title, fitCharsPerLine(W - 160, 100, 2), 2)
+  const titleStartY = 320
+  const titleLineH = 120
   const titleNodes = titleLines
     .map((line, idx) =>
       textLine({
@@ -157,141 +181,189 @@ function renderCoverTitle(p: SvgModuleParams): string {
         y: titleStartY + idx * titleLineH,
         text: line,
         fill: palette.ink,
-        fontSize: 96,
-        fontWeight: 700,
+        fontSize: 100,
+        fontWeight: 800,
         fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,
       }),
     )
     .join('')
 
-  const subtitleNode = subtitle
-    ? textLine({
-        x: 80,
-        y: titleStartY + titleLines.length * titleLineH + 56,
-        text: splitLines(subtitle, 28, 1)[0] ?? '',
-        fill: palette.inkSoft,
-        fontSize: 30,
-        fontWeight: 400,
-        fontFamily: COVER_FONT_SANS,
-        letterSpacing: 1,
-      })
-    : ''
+  // ─ 重 accent tab（标题末行下方的粗短色块，杂志味）─
+  const tabY = titleStartY + (titleLines.length - 1) * titleLineH + 28
+  const tab = rect({ x: 80, y: tabY, width: 96, height: 12, fill: palette.accent })
 
-  // 右下小菱形签名（单菱形 — 比 ◇◇◇ 更克制，符合「大气克制」）
-  const diamondMark = diamond(W - 110, H - 92, 14, palette.accent)
-  // 底部细规则线（版心收边）
-  const bottomRule = hairlineRule({ x: 80, y: H - 80, width: W - 160, height: 1, fill: palette.hairline })
+  // ─ 双细线报头规则（tab 之后，两条平行 hairline，间距 8）─
+  const ruleY = tabY + 40
+  const ruleW = W - 160
+  const doubleRule =
+    hairlineRule({ x: 80, y: ruleY, width: ruleW, fill: palette.hairline }) +
+    hairlineRule({ x: 80, y: ruleY + 8, width: ruleW, fill: palette.hairline })
+
+  // ─ byline（双线下方；左对齐，避开右下印章）─
+  const bylineText = subtitle || '文 / 墨铸'
+  const byline = textLine({
+    x: 80,
+    y: ruleY + 50,
+    text: splitLines(bylineText, 24, 1)[0] ?? '',
+    fill: palette.inkSoft,
+    fontSize: 28,
+    fontWeight: 400,
+    fontFamily: COVER_FONT_SANS,
+    letterSpacing: 1,
+  })
+
+  // ─ 右下角篆刻方印（accentDeep 底 + 白印文，全篇最强品牌信号）─
+  const seal = renderSeal({
+    cx: W - 120,
+    cy: H - 110,
+    size: 120,
+    fill: palette.accentDeep,
+    textColor: palette.paper,
+    font: COVER_FONT_SERIF,
+  })
 
   return svgSection({
     moduleId: 'cover-title',
     viewBoxW: W,
     viewBoxH: H,
-    body: bg + texture + kicker + topRule + titleNodes + subtitleNode + diamondMark + bottomRule,
+    body:
+      bg + band + bandKicker + namePlate + namePlateSub + titleNodes + tab + doubleRule + byline + seal,
   })
 }
 
 // ─── cover-grid ───────────────────────────────────────────────────────────
-// 构成主义网格封面：低密度细线网格 + 大标题 + 一个 accent 交点标记。
-// 网格做「纹理」而不抢戏 — 列 6、行 4，1px 描线，opacity 由 hairline 给。
+// 满幅实色封面（kiln 用，最猛）：整封面 accentDeep 深实色 + 白色低透明网格残迹
+// （保留构成主义身份）+ 白底 chip kicker（accentDeep 字，反差最大）+ 巨号白标题
+// + 白 tab。满幅深色彩底强吃白字（accentDeep 保证 CR≥4.5）。
 function renderCoverGrid(p: SvgModuleParams): string {
   const { palette } = p.theme
   const title = (p.text ?? '').trim() || '标题'
   const subtitle = (p.subtitle ?? '').trim()
 
-  const bg = darkSafeBg(W, H, palette.paper)
+  // 整封面深 accent 实色（暗黑模式免疫 + 白字基底）
+  const bg = darkSafeBg(W, H, palette.accentDeep)
 
-  // 网格：6 列竖线 + 4 行横线（不含外框），版心 80 内缩
   const padX = 80
-  const padY = 80
   const innerW = W - padX * 2
-  const innerH = H - padY * 2
-  const cols = 6
-  const rows = 4
-  const colStep = innerW / cols
-  const rowStep = innerH / rows
-  const gridParts: string[] = []
-  for (let c = 1; c < cols; c += 1) {
-    gridParts.push(
-      rect({
-        x: padX + c * colStep,
-        y: padY,
-        width: 1,
-        height: innerH,
-        fill: palette.hairline,
-      }),
-    )
-  }
-  for (let r = 1; r < rows; r += 1) {
-    gridParts.push(
-      rect({
-        x: padX,
-        y: padY + r * rowStep,
-        width: innerW,
-        height: 1,
-        fill: palette.hairline,
-      }),
-    )
-  }
-  // 外框（细一点的轮廓）：用 4 条 rect 而非单个 stroke rect（更可控）
-  gridParts.push(rect({ x: padX, y: padY, width: innerW, height: 1, fill: palette.hairline }))
-  gridParts.push(rect({ x: padX, y: padY + innerH, width: innerW, height: 1, fill: palette.hairline }))
-  gridParts.push(rect({ x: padX, y: padY, width: 1, height: innerH, fill: palette.hairline }))
-  gridParts.push(rect({ x: padX + innerW, y: padY, width: 1, height: innerH, fill: palette.hairline }))
 
-  // accent 交点标记（在第 2 列 × 第 2 行的交点）— 实心小圆，单点签名
-  const markCx = padX + 2 * colStep
-  const markCy = padY + 1 * rowStep
-  const accentDot = circle({ cx: markCx, cy: markCy, r: 8, fill: palette.accent })
+  // 白色低透明网格残迹（2 竖 + 2 横，不满铺，仅留构成主义肌理签名）
+  const whiteGrid = palette.paper
+  const gridParts: string[] = [
+    rect({ x: 360, y: 0, width: 1, height: H, fill: whiteGrid, opacity: 0.1 }),
+    rect({ x: 760, y: 0, width: 1, height: H, fill: whiteGrid, opacity: 0.1 }),
+    rect({ x: 0, y: 200, width: W, height: 1, fill: whiteGrid, opacity: 0.1 }),
+    rect({ x: 0, y: 460, width: W, height: 1, fill: whiteGrid, opacity: 0.1 }),
+  ]
 
-  // 栏目 kicker chip（杂志眉标）—— 网格内左上，能量感封面也保留「设计过」信号
+  // 低调白交点圆点（单点签名，替代原 accent 交点）
+  const accentDot = circle({ cx: 360, cy: 200, r: 8, fill: whiteGrid, opacity: 0.5 })
+
+  // 白底 chip + accentDeep 文字（彩底上反差最大）
   const kicker = kickerChip({
-    x: padX + 24,
-    y: padY + 28,
+    x: 80,
+    y: 80,
     label: personaKicker(p.theme.persona),
-    accent: palette.accent,
-    onAccent: palette.onAccent,
+    accent: palette.paper,
+    onAccent: palette.accentDeep,
     font: COVER_FONT_SANS,
   })
 
-  // 标题区（左对齐版心）
-  // 起点 x=padX+24，文字须落在网格内缘 padX+innerW 内 → 可用宽 = innerW − 24（≈896）；每行字数自适应（≈10）。
-  const titleLines = splitLines(title, fitCharsPerLine(innerW - 24, 84, 2), 2)
-  const titleStartY = 310
-  const titleLineH = 104
+  // 右侧白报头（nameplate）：墨铸 + MOZHU PRESS · SERIAL（全白字，彩底）。
+  const namePlate = textLine({
+    x: 1000,
+    y: 88,
+    text: '墨铸',
+    fill: palette.paper,
+    fontSize: 36,
+    fontWeight: 700,
+    fontFamily: COVER_FONT_SERIF,
+    anchor: 'end',
+    letterSpacing: 4,
+  })
+  const namePlateSub = textLine({
+    x: 1000,
+    y: 122,
+    text: 'MOZHU PRESS · SERIAL',
+    fill: palette.paper,
+    fontSize: 20,
+    fontWeight: 600,
+    fontFamily: COVER_FONT_SANS,
+    anchor: 'end',
+    letterSpacing: 4,
+    opacity: 0.7,
+  })
+
+  // 超大白标题（字重 800）。可用宽 = innerW = 920；fitCharsPerLine(920,100,2)=9。
+  const titleLines = splitLines(title, fitCharsPerLine(innerW, 100, 2), 2)
+  const titleStartY = 330
+  const titleLineH = 120
   const titleNodes = titleLines
     .map((line, idx) =>
       textLine({
-        x: padX + 24,
+        x: padX,
         y: titleStartY + idx * titleLineH,
         text: line,
-        fill: palette.ink,
-        fontSize: 84,
-        fontWeight: 700,
+        fill: palette.paper,
+        fontSize: 100,
+        fontWeight: 800,
         fontFamily: COVER_FONT_SANS,
         letterSpacing: 2,
       }),
     )
     .join('')
 
+  // 重 白 tab（标题末行下方）
+  const tabY = titleStartY + (titleLines.length - 1) * titleLineH + 28
+  const tab = rect({ x: padX, y: tabY, width: 96, height: 12, fill: palette.paper })
+
+  // 双细线报头规则（白 opacity 0.3，彩底报头质感）
+  const ruleY = tabY + 40
+  const ruleW = innerW
+  const doubleRule =
+    rect({ x: padX, y: ruleY, width: ruleW, height: 1, fill: palette.paper, opacity: 0.3 }) +
+    rect({ x: padX, y: ruleY + 8, width: ruleW, height: 1, fill: palette.paper, opacity: 0.3 })
+
   const subtitleNode = subtitle
     ? textLine({
-        x: padX + 24,
-        y: titleStartY + titleLines.length * titleLineH + 48,
-        text: splitLines(subtitle, 30, 1)[0] ?? '',
-        fill: palette.inkSoft,
+        x: padX,
+        y: ruleY + 50,
+        text: splitLines(subtitle, 24, 1)[0] ?? '',
+        fill: palette.paper,
         fontSize: 28,
         fontWeight: 400,
         fontFamily: COVER_FONT_SANS,
+        opacity: 0.85,
         letterSpacing: 1,
       })
     : ''
+
+  // 右下角白方印（彩底上白印反差最大：fill=paper, textColor=accentDeep）。
+  const seal = renderSeal({
+    cx: W - 120,
+    cy: H - 110,
+    size: 120,
+    fill: palette.paper,
+    textColor: palette.accentDeep,
+    font: COVER_FONT_SERIF,
+  })
 
   return svgSection({
     moduleId: 'cover-grid',
     viewBoxW: W,
     viewBoxH: H,
-    body: bg + gridParts.join('') + accentDot + kicker + titleNodes + subtitleNode,
+    body:
+      bg +
+      gridParts.join('') +
+      accentDot +
+      kicker +
+      namePlate +
+      namePlateSub +
+      titleNodes +
+      tab +
+      doubleRule +
+      subtitleNode +
+      seal,
   })
 }
 

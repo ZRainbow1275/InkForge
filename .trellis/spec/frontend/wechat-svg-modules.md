@@ -183,3 +183,43 @@ border-left accents, 19 border-radius, footer brand, quote cards, number chips A
 paste sanitizer and render in the PC editor. Evidence: `prompts/0601/evidence/premium-upgrade/`.
 Self-feedback loop: render real `markdownToWechat` artifact at 393px viewport (Playwright) → 20-22
 CJK chars/line confirmed; faithful to the user's real phone screenshots.
+
+## 9. Flagship Editorial System — R1→R3 evolution (2026-06-02)
+
+The §8 layer was refined over 3 rounds after the user judged it still "too plain / same as
+135编辑器" twice. Design specs: `.trellis/tasks/06-01-multiplatform-render-svg/research/impl-{bold-magazine-direction,brand-system-round2,constructivist-structure-round3}.md`.
+
+**R1 — Bold Magazine.** Added `SvgPalette.accentDeep` = `deriveSvgPalette` darkens accent (blend
+toward black, step 0.04) until white text CR ≥ 4.5, so **full-bleed white-reversed blocks always
+legible** (kiln `#bf5037`/4.75, tempera `#3b7a6b`/5.02 unchanged, amber `#8b6f3e`/4.73). H2 → full-
+bleed `accentDeep` block + giant reversed number. Covers → top full-bleed accent band masthead
+(`renderCoverTitle`) / full-color cover (`renderCoverGrid`, kiln). Title fontSize 100, weight 800,
+≥9 CJK/line, 2 lines, **no truncation guard** (17-char sample fits 18 cap).
+
+**R2 — 墨铸 brand system.** NEW `renderSeal({cx,cy,size,fill,textColor,font,chars=['墨','铸']})` in
+`primitives.ts` — 篆刻方印 (rounded-square fill + inset white border + vertical 2-char 印文). Used:
+cover bottom-right + footer colophon. Cover masthead nameplate: 「kicker · · · 墨铸 / MOZHU PRESS ·
+SERIAL」 + double hairline rule. NEW `decorateFlagshipLede(palette)` (chain FIRST) — opening
+paragraph first char → cast versal (accentDeep square, reversed white); targets first `<p>` that is
+**outside any `<blockquote>` range**, text ≥24 chars, not matching `/阅读|分钟|全文.*字/` (skips the
+reading-meta). `dividers.ts` divider-{diamond,grid,forge} bolded + brand motif. Footer → colophon
+(double rule + 全文完 + seal stamp). Flagship `#nice strong` highlight rgba 0.12→0.18 + `border-bottom`.
+
+**R3 — Constructivist structure (current).** H2/H3/quote/lists rebuilt with the brand grid×diamond
+geometry (recurring motif = "formed" identity, not generic colored bars). Inline-`<svg>` motif
+helpers in `html-blocks.ts`: `gridNumberSvg` (white-stroked square + registration tick + reversed
+number), `gridSquareMark` (2×2 grid: stroke + cross + filled top-left cell), `diagonalCornerSvg`
+(filled triangle + inset white square), `diamondTerminalSvg`, `diamondMarkerSvg`. New forms:
+- **H2** = full-bleed `accentDeep` block (kept bold) + **方格铸号** gridNumber + reversed heading +
+  **方格 rhythm baseline** (border-top rule + 3 filled/outline squares). Unified across presets (hue only).
+- **H3** = `gridSquareMark` anchor + ink heading + bottom hairline (dropped the tint plate).
+- **Blockquote QUOTE branch** = asymmetric constructivist block: 7px left accent bar + `diagonalCornerSvg`
+  top-left + larger quote text + `diamondTerminalSvg` end-mark (dropped the symmetric tinted card + 66 glyph).
+  **CALLOUT branch unchanged.**
+- **Lists**: UL → `diamondMarkerSvg`; OL chip → square (`border-radius:3px`) cast-number, not circle.
+
+**Verification (2026-06-02, R3)**: 869/869 export tests, vue-tsc + eslint clean. Real-WeChat paste
+recheck of `flagship-tempera.html` into live mp.weixin.qq.com editor → **14 inline `<svg>`, 11
+background blocks, 2 seals (墨/铸 ×2 each), MOZHU PRESS masthead, versal, 全文完 colophon, grid-numbers,
+diamonds ALL survived** the sanitizer and render; 0 gradient/var()/real-transform. Evidence:
+`prompts/0601/evidence/tune-0602/` (t3-seg1-4 @393px + realwechat-r3-editor-*).

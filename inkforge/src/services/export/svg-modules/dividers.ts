@@ -11,7 +11,7 @@
  * - 线条全部用 hairlineRule（1px rect），不用 <line>。
  * - 颜色一律取自 p.theme.palette（hex/rgba）；ember 每模块 ≤1 次。
  */
-import { circle, diamondSig, glow, hairlineRule, rect, svgSection, textLine } from './primitives'
+import { circle, diamond, glow, hairlineRule, rect, svgSection, textLine } from './primitives'
 import type { SvgModuleParams, SvgModuleSpec } from './types'
 
 // 视觉中心 & 标准 viewBox
@@ -36,33 +36,45 @@ function centeredLabel(text: string | undefined, y: number, fill: string): strin
 }
 
 // ─── divider-grid ─────────────────────────────────────────────────────────
-// 构成主义网格：一段水平基线 + 几根等距小竖线（刻度感）+ 一根突出长竖线。
+// 品牌母题（加重）：中央 2×2 方格（vessel mark 的方格母题）——accent 描边外框 +
+// 一格 accent 实心小方 + 内部十字细线 + 两侧 hairline 长线。一眼可辨的品牌分隔符。
 function renderGrid(p: SvgModuleParams): string {
-  const { hairline, ink, accent } = p.theme.palette
+  const { hairline, accent, accentSoft } = p.theme.palette
   const cy = VBH / 2
-  const baseW = 520
-  const baseX = (VBW - baseW) / 2
-  // 水平基线
-  const baseline = hairlineRule({ x: baseX, y: cy, width: baseW, fill: hairline })
-  // 刻度小竖线（间隔 80px，每根高 8）
-  const ticks: string[] = []
-  const tickGap = 80
-  const tickCount = Math.floor(baseW / tickGap) + 1
-  for (let i = 0; i < tickCount; i++) {
-    const x = baseX + i * tickGap
-    ticks.push(rect({ x, y: cy - 4, width: 1, height: 8, fill: ink, opacity: 0.35 }))
-  }
-  // 单根高亮长竖线（accent，偏中心右一格）
-  const longX = baseX + Math.floor(tickCount / 2) * tickGap
-  const longTick = rect({ x: longX, y: cy - 14, width: 1, height: 28, fill: accent })
+  const cx = VBW / 2
+  // 2×2 方格：外框边长 28，左上格填实心 accent，其余描边。
+  const box = 28
+  const cell = box / 2
+  const gx = cx - cell
+  const gy = cy - cell
+  const gridParts: string[] = [
+    // 左上格实心 accent（品牌焦点）
+    rect({ x: gx, y: gy, width: cell, height: cell, fill: accent }),
+    // 右下格淡彩 accentSoft（呼应）
+    rect({ x: gx + cell, y: gy + cell, width: cell, height: cell, fill: accentSoft }),
+    // 外框（4 边 1px accent 描边 → 4 条 rect）
+    rect({ x: gx, y: gy, width: box, height: 1, fill: accent }),
+    rect({ x: gx, y: gy + box, width: box, height: 1, fill: accent }),
+    rect({ x: gx, y: gy, width: 1, height: box, fill: accent }),
+    rect({ x: gx + box, y: gy, width: 1, height: box, fill: accent }),
+    // 内部十字细线（accent，分出 2×2）
+    rect({ x: gx + cell, y: gy, width: 1, height: box, fill: accent }),
+    rect({ x: gx, y: gy + cell, width: box, height: 1, fill: accent }),
+  ]
 
-  const label = centeredLabel(p.text, cy + 30, p.theme.palette.inkSoft)
+  // 两侧 hairline 长线
+  const margin = 48
+  const ruleW = 360
+  const ruleLeft = hairlineRule({ x: cx - margin - ruleW, y: cy, width: ruleW, fill: hairline })
+  const ruleRight = hairlineRule({ x: cx + margin, y: cy, width: ruleW, fill: hairline })
+
+  const label = centeredLabel(p.text, cy + 34, p.theme.palette.inkSoft)
 
   return svgSection({
     moduleId: 'divider-grid',
     viewBoxW: VBW,
     viewBoxH: VBH,
-    body: baseline + ticks.join('') + longTick + label,
+    body: ruleLeft + ruleRight + gridParts.join('') + label,
   })
 }
 
@@ -128,18 +140,25 @@ function renderFade(p: SvgModuleParams): string {
 }
 
 // ─── divider-diamond ──────────────────────────────────────────────────────
-// 品牌签名：◇◇◇（accent）+ 两侧 hairline。diamondSig 内部用 <path>。
+// 品牌签名（加重）：中央实心 accent 大菱形（R≈14）+ 左右各一枚 accentSoft 小菱形
+// （R≈8）+ 两侧 hairline 长线。一眼可辨的「墨铸」金石菱形分隔符。
 function renderDiamond(p: SvgModuleParams): string {
-  const { accent, hairline } = p.theme.palette
+  const { accent, accentSoft, hairline } = p.theme.palette
   const cy = VBH / 2
-  const r = 5
-  const sig = diamondSig({ cx: VBW / 2, cy, r, fill: accent, gap: r * 3 })
+  const cx = VBW / 2
+  const bigR = 14
+  const smallR = 8
+  const sideGap = 40 // 大菱形中心到小菱形中心
+  const centerBig = diamond(cx, cy, bigR, accent)
+  const sideLeft = diamond(cx - sideGap, cy, smallR, accentSoft)
+  const sideRight = diamond(cx + sideGap, cy, smallR, accentSoft)
+  const sig = sideLeft + centerBig + sideRight
 
-  // 三菱形的水平占位约 4r + 2*gap = 4*5 + 2*15 = 50 → 取 60 留呼吸
-  const sigHalfWidth = 60
-  const ruleW = 360
-  const leftX = VBW / 2 - sigHalfWidth - ruleW
-  const rightX = VBW / 2 + sigHalfWidth
+  // 三菱形占位约到 cx ± (sideGap + smallR) = ±48 → 取 72 留呼吸
+  const sigHalfWidth = 72
+  const ruleW = 340
+  const leftX = cx - sigHalfWidth - ruleW
+  const rightX = cx + sigHalfWidth
   const ruleLeft = hairlineRule({ x: leftX, y: cy, width: ruleW, fill: hairline })
   const ruleRight = hairlineRule({ x: rightX, y: cy, width: ruleW, fill: hairline })
 
@@ -161,12 +180,12 @@ function renderForge(p: SvgModuleParams): string {
   const cy = VBH / 2
   // 光晕：用 ember 系列的极低透明大圆。glow 原子需要软色 → 我们直接传一个 rgba。
   // 这里复用 accentSoft（与品牌色协调）作为软光基底；ember 自身只用一次（实心点）。
-  const halo = glow(VBW / 2, cy, 18, accentSoft)
-  // ember 实心点（每屏 ≤1 次自律：本模块全树只此一处用 ember）
-  const emberDot = circle({ cx: VBW / 2, cy, r: 3, fill: ember })
+  const halo = glow(VBW / 2, cy, 22, accentSoft)
+  // ember 实心点（加大；每屏 ≤1 次自律：本模块全树只此一处用 ember）
+  const emberDot = circle({ cx: VBW / 2, cy, r: 6, fill: ember })
 
   const ruleW = 380
-  const margin = 40 // 距中心
+  const margin = 48 // 距中心（随光晕加大略增）
   const ruleLeft = hairlineRule({ x: VBW / 2 - margin - ruleW, y: cy, width: ruleW, fill: hairline })
   const ruleRight = hairlineRule({ x: VBW / 2 + margin, y: cy, width: ruleW, fill: hairline })
 

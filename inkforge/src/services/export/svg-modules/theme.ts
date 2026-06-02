@@ -83,6 +83,35 @@ function pickOnAccent(accentHex: string): string {
   return whiteCr >= AA_LARGE ? '#ffffff' : INK
 }
 
+/**
+ * 把 accent 朝黑(#000)逐步混合，取**最小** t（0..0.8、step 0.04）使白字-on-混合色
+ * 的 WCAG 对比度 ≥ minWhiteCr（默认 4.5，正文白字门槛）。扫完仍不达标则取 t=0.8。
+ * 返回 6 位 hex（带 #）。
+ *
+ * 用途：满幅反白色块 / 色带封面需要「能稳吃 #fff 白字」的深色 accent。
+ * 例：amber #C19A56（白 CR≈2.0）→ 深棕铜；tempera #3B7A6B（白 CR≈5.02）→ t=0 不变。
+ *
+ * 纯函数（同输入同输出，快照稳定）。`blend(c,t)=Math.round(c*(1-t))`。
+ */
+export function darkenForWhiteText(hex: string, minWhiteCr = 4.5): string {
+  const { r, g, b } = hexToRgb(hex)
+  const whiteLum = relativeLuminance('#ffffff')
+  const blend = (c: number, t: number): number => Math.round(c * (1 - t))
+  const toHex = (n: number): string => n.toString(16).padStart(2, '0')
+  let chosen = 0.8
+  for (let t = 0; t <= 0.8 + 1e-9; t += 0.04) {
+    const rt = blend(r, t)
+    const gt = blend(g, t)
+    const bt = blend(b, t)
+    const blended = '#' + toHex(rt) + toHex(gt) + toHex(bt)
+    if (contrastRatio(whiteLum, relativeLuminance(blended)) >= minWhiteCr) {
+      chosen = t
+      break
+    }
+  }
+  return '#' + toHex(blend(r, chosen)) + toHex(blend(g, chosen)) + toHex(blend(b, chosen))
+}
+
 export function deriveSvgPalette(
   primaryColor: string,
   persona: PresetPersona,
@@ -95,6 +124,7 @@ export function deriveSvgPalette(
     ink: INK,
     inkSoft: rgba(INK, 0.55),
     accent,
+    accentDeep: darkenForWhiteText(accent),
     accentSoft: rgba(accent, softAlpha),
     paper: PAPER,
     paperWarm: BRAND_TOKENS.paperWarmLight,

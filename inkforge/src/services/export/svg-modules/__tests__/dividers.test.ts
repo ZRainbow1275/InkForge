@@ -109,18 +109,45 @@ describe('divider-diamond', () => {
   const theme = buildThemeContext({ primaryColor: PRIMARY.creative, persona: 'creative', target: 'wechat' })
   const out = dividerModules.find((m) => m.id === 'divider-diamond')!.render({ theme })
 
-  it('contains at least 3 <path> (the three brand diamonds)', () => {
+  it('contains at least 3 <path> (central big + 2 flanking small brand diamonds)', () => {
     const paths = (out.match(/<path /g) || []).length
     expect(paths).toBeGreaterThanOrEqual(3)
   })
 
-  it('diamonds are filled with the accent color', () => {
-    expect(out).toContain(theme.palette.accent)
+  it('central diamond uses solid accent; flanks use accentSoft (brand motif, heavier)', () => {
+    expect(out).toContain(`fill="${theme.palette.accent}"`)
+    expect(out).toContain(`fill="${theme.palette.accentSoft}"`)
   })
 
   it('has 2 hairline rect rules flanking the signature', () => {
     const rects = (out.match(/<rect /g) || []).length
     expect(rects).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('divider-grid (brand 2×2 motif)', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.business, persona: 'business', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-grid')!.render({ theme })
+
+  it('renders a 2×2 grid motif (accent solid cell + soft cell + frame/cross)', () => {
+    expect(out).toContain(`fill="${theme.palette.accent}"`)
+    expect(out).toContain(`fill="${theme.palette.accentSoft}"`)
+    // 多 rect（实心 2 格 + 外框 4 + 十字 2 + 两侧 hairline 2 = 10）
+    const rects = (out.match(/<rect /g) || []).length
+    expect(rects).toBeGreaterThanOrEqual(8)
+  })
+})
+
+describe('divider-forge (enlarged brand ember dot)', () => {
+  const theme = buildThemeContext({ primaryColor: PRIMARY.creative, persona: 'creative', target: 'wechat' })
+  const out = dividerModules.find((m) => m.id === 'divider-forge')!.render({ theme })
+
+  it('enlarges the ember dot (r=6) and accentSoft halo (r=22), ember still once', () => {
+    expect(out).toContain('r="6"')
+    expect(out).toContain('r="22"')
+    expect(out).toContain(`fill="${theme.palette.accentSoft}"`)
+    const occurrences = out.split(theme.palette.ember).length - 1
+    expect(occurrences).toBe(1)
   })
 })
 

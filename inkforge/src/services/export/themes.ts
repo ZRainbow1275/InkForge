@@ -24,6 +24,7 @@ import {
 import {
   composeSvgDecorate,
   deriveSvgPalette,
+  decorateFlagshipLede,
   decorateFlagshipH2,
   decorateFlagshipH3,
   decorateFlagshipBlockquote,
@@ -121,6 +122,7 @@ const FLAGSHIP_BRAND = { brand: '墨铸 · InkForge', tagline: '成为作者吧'
 // 随后，落款卡最后追加。chainDecorators 已在上方 import。
 const flagshipKilnDecorate = chainDecorators(
   composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+  decorateFlagshipLede(kilnPalette),
   decorateFlagshipH2(kilnPalette, { variant: 'kiln' }),
   decorateFlagshipH3(kilnPalette),
   decorateFlagshipBlockquote(kilnPalette),
@@ -130,6 +132,7 @@ const flagshipKilnDecorate = chainDecorators(
 
 const flagshipTemperaDecorate = chainDecorators(
   composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
+  decorateFlagshipLede(temperaPalette),
   decorateFlagshipH2(temperaPalette, { variant: 'tempera' }),
   decorateFlagshipH3(temperaPalette),
   decorateFlagshipBlockquote(temperaPalette),
@@ -139,6 +142,7 @@ const flagshipTemperaDecorate = chainDecorators(
 
 const flagshipAmberDecorate = chainDecorators(
   composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
+  decorateFlagshipLede(amberPalette),
   decorateFlagshipH2(amberPalette, { variant: 'amber' }),
   decorateFlagshipH3(amberPalette),
   decorateFlagshipBlockquote(amberPalette),
@@ -1157,13 +1161,13 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.creative,
     previewCSS: `${creativeBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.12); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.18); border-bottom: 2px solid rgba(217,91,63,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
 #nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
     exportCSS: `${creativeBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.12); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.18); border-bottom: 2px solid rgba(217,91,63,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
 #nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
@@ -1188,13 +1192,13 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.academic,
     previewCSS: `${academicBaseCSS}
 #nice { background: #ffffff; color: #2a2a2a; }
-#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.10); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.18); border-bottom: 2px solid rgba(59,122,107,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
 #nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
     exportCSS: `${academicBaseCSS}
 #nice { background: #ffffff; color: #2a2a2a; }
-#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.10); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: ${FLAGSHIP_TEMPERA}; font-weight: 700; background: rgba(59,122,107,0.18); border-bottom: 2px solid rgba(59,122,107,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: ${FLAGSHIP_TEMPERA}; border-bottom: 1px solid ${FLAGSHIP_TEMPERA}; text-decoration: none; }
 #nice code { background: rgba(59,122,107,0.08); color: ${FLAGSHIP_TEMPERA}; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_TEMPERA}; color: #fff; font-weight: 600; }`,
@@ -1219,13 +1223,13 @@ ${techRecipesExport.css}`,
     fonts: PERSONA_FONTS.business,
     previewCSS: `${businessBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.22); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.18); border-bottom: 2px solid rgba(193,154,86,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: #8a6c2e; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
 #nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
     exportCSS: `${businessBaseCSS}
 #nice { background: #ffffff; color: #1a1a1a; }
-#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.22); padding: 0 0.12em; border-radius: 3px; }
+#nice strong { color: #1a1a1a; font-weight: 700; background: rgba(193,154,86,0.18); border-bottom: 2px solid rgba(193,154,86,0.5); padding: 0 0.12em; border-radius: 3px; }
 #nice a { color: #8a6c2e; border-bottom: 1px solid ${FLAGSHIP_AMBER}; text-decoration: none; }
 #nice code { background: rgba(193,154,86,0.1); color: #8a6c2e; padding: 0.1em 0.35em; border-radius: 3px; }
 #nice table th { background: ${FLAGSHIP_AMBER}; color: #fff; font-weight: 700; }`,
