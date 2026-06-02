@@ -379,11 +379,39 @@ function detectCallout(text: string, palette: SvgPalette): CalloutKind | null {
 export function decorateFlagshipBlockquote(palette: SvgPalette): BlockDecorateFn {
   return (html: string, _target: ExportTarget): string => {
     if (!html) return html
-    if (html.includes('data-ink-block="flagship-quote"') || html.includes('data-ink-block="flagship-callout"')) {
+    if (
+      html.includes('data-ink-block="flagship-quote"') ||
+      html.includes('data-ink-block="flagship-callout"') ||
+      html.includes('data-ink-block="flagship-pullquote"')
+    ) {
       return html
     }
     return html.replace(/<blockquote(\s[^>]*)?>([\s\S]*?)<\/blockquote>/gi, (_m, _attrs: string | undefined, inner: string) => {
       const text = firstText(inner)
+      // 优先：金句大字卡（PULLQUOTE）— 满幅大字 feature 卡。
+      if (detectPullquote(text)) {
+        const bodyHtml = stripPullquoteLead(inner)
+        const card =
+          `<section data-ink-block="flagship-pullquote" style="margin:30px 0;padding:26px 22px;` +
+          `background-color:${palette.paperWarm};border-radius:10px;text-align:center;">` +
+          pullquoteGlyphSvg(palette.accent) +
+          `<section style="font-size:22px;font-weight:600;line-height:1.7;letter-spacing:0.04em;color:${palette.ink};` +
+          `font-family:${HTML_FONT};">${bodyHtml}</section>` +
+          `<p style="margin:14px 0 0;text-align:center;">` +
+          `<section style="display:inline-block;width:48px;height:1px;background-color:${palette.accent};margin:0 0 4px;"></section>` +
+          `</p>` +
+          `<p style="margin:0;text-align:center;">` +
+          `<section style="display:inline-block;width:48px;height:1px;background-color:${palette.accent};opacity:0.5;margin:0 0 10px;"></section>` +
+          `</p>` +
+          `<p style="margin:0;font-size:12px;color:${palette.inkSoft};letter-spacing:4px;font-family:${HTML_FONT};">` +
+          `墨铸` +
+          `<span style="margin:0 0 0 8px;vertical-align:middle;">` +
+          diamondTerminalSvg(palette.accent) +
+          `</span>` +
+          `</p>` +
+          `</section>`
+        return card
+      }
       const callout = detectCallout(text, palette)
       if (callout) {
         // CALLOUT 框：淡彩底（加重 accentTintStrong）+ 左 5px accent 竖条 + 图标 +
@@ -595,4 +623,328 @@ export function decorateFlagshipFooterCard(
 
     return html + card
   }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// R4 元素库 — 5 个 aha 元素（marker + 自动），全部沿用 R1-R3 母题
+// 方格 grid × 菱形 diamond × 印章 × 构成主义；零 emoji；幂等 data-ink-block。
+// ════════════════════════════════════════════════════════════════════════
+
+/** 小尺寸方格章号 svg（用于阅读条/目录行：白底版面 + accent 描边方框 + 反白号）。 */
+function gridSquareSmall(accent: string, size = 18): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="${size}" height="${size}" ` +
+    `style="display:inline-block;vertical-align:-3px;">` +
+    `<rect x="1" y="1" width="14" height="14" fill="none" stroke="${accent}" stroke-width="1.4" />` +
+    `<rect x="2.5" y="2.5" width="5.5" height="5.5" fill="${accent}" />` +
+    `</svg>`
+  )
+}
+
+/** 目录行用的方格小号（accent 描边方 + 反白号），width=26。 */
+function gridNumberSmall(accent: string, idx: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="26" height="26" ` +
+    `style="display:inline-block;vertical-align:middle;">` +
+    `<rect x="1.5" y="1.5" width="45" height="45" rx="4" fill="${accent}" stroke="${accent}" stroke-width="2" />` +
+    `<rect x="37" y="5" width="5" height="5" fill="#ffffff" />` +
+    `<text x="23" y="33" text-anchor="middle" font-size="25" font-weight="800" fill="#ffffff" ` +
+    `font-family="${HTML_FONT}">${idx}</text>` +
+    `</svg>`
+  )
+}
+
+/** 实心 accent 小菱形（阅读条/版心点缀分隔符）。viewBox 0 0 12 12，width=6。 */
+function diamondSep(accent: string): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="6" height="6" ` +
+    `style="display:inline-block;vertical-align:middle;margin:0 8px;">` +
+    `<path d="M6,1 L11,6 L6,11 L1,6 Z" fill="${accent}" />` +
+    `</svg>`
+  )
+}
+
+/** persona → 阅读条栏目名（kiln=专栏 / tempera=深读 / amber=洞察 / 其余=深读）。 */
+function readbarKicker(variant: 'kiln' | 'tempera' | 'amber' | string): string {
+  switch (variant) {
+    case 'kiln':
+      return '专栏'
+    case 'amber':
+      return '洞察'
+    case 'tempera':
+    default:
+      return '深读'
+  }
+}
+
+// ─── E1. 品牌阅读条 ──────────────────────────────────────────────────────
+/**
+ * decorateFlagshipReadingBar — 自动定位 wechat 管线 `buildReadingTimeHeader`
+ * 注入的裸阅读头（文本含 阅读+分钟+全文+字），提取字数 Y / 分钟 X，替换为品牌
+ * 阅读条（墨铸·persona栏目 ◆ 全文Y字 ◆ 约X分钟 ◆ 第01期 + 上下细线 + 方格 svg + 实心菱形 sep）。
+ * 找不到（enableReadingTime=false）则原样返回；幂等 data-ink-block="flagship-readbar"。
+ */
+export function decorateFlagshipReadingBar(
+  palette: SvgPalette,
+  opts?: { variant?: 'kiln' | 'tempera' | 'amber' },
+): BlockDecorateFn {
+  const kicker = readbarKicker(opts?.variant ?? 'tempera')
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-readbar"')) return html
+
+    // buildReadingTimeHeader 注入的是 <div style="...">…<span>阅读约 X 分钟</span>…<span>全文 Y 字</span>…</div>。
+    // 严格只匹配 <div>（真品形态）——避免误吞 <section id="nice"> 内层（会吞掉全文 body）。
+    // 关键词必须 4-of-4 全中（阅读+分钟+全文+字）以防误判。
+    const blockRe = /<div\b([^>]*)>([\s\S]*?)<\/div>/gi
+    let m: RegExpExecArray | null
+    while ((m = blockRe.exec(html)) !== null) {
+      const full = m[0]
+      const inner = m[2]
+      const text = firstText(inner)
+      const hits =
+        Number(/阅读/.test(text)) +
+        Number(/分钟/.test(text)) +
+        Number(/全文/.test(text)) +
+        Number(/字/.test(text))
+      if (hits < 4) continue
+      // 跳过已被其它装饰器处理的块。
+      if (full.includes('data-ink')) continue
+      // 提取数字。
+      const minMatch = /(\d+)\s*分钟/.exec(text)
+      const wordMatch = /全文\s*(\d+)\s*字/.exec(text)
+      if (!minMatch || !wordMatch) continue
+      const minutes = minMatch[1]
+      const words = wordMatch[1]
+
+      const sep = diamondSep(palette.accent)
+      const square = gridSquareSmall(palette.accent, 14)
+      const bar =
+        `<section data-ink-block="flagship-readbar" style="margin:0 0 24px;padding:9px 0;` +
+        `border-top:1px solid ${palette.accentBorder};border-bottom:1px solid ${palette.accentBorder};">` +
+        `<p style="margin:0;font-size:13px;color:${palette.inkSoft};letter-spacing:1px;font-family:${HTML_FONT};">` +
+        square +
+        `<span style="margin-left:8px;vertical-align:middle;">墨铸 · ${kicker}</span>` +
+        sep +
+        `<span style="vertical-align:middle;">全文 ${words} 字</span>` +
+        sep +
+        `<span style="vertical-align:middle;">约 ${minutes} 分钟</span>` +
+        sep +
+        `<span style="vertical-align:middle;">第 01 期</span>` +
+        `</p>` +
+        `</section>`
+      return html.slice(0, m.index) + bar + html.slice(m.index + full.length)
+    }
+    return html
+  }
+}
+
+// ─── E2. 篇目目录 ────────────────────────────────────────────────────────
+/**
+ * decorateFlagshipTOC — 按文档序收集 `<h2>…</h2>` 纯文本，编号 01..0N，
+ * 生成「本期目录」卡。插入到封面 section（首个 data-ink-svg="cover-…" 的 </section>）
+ * 之后；若有 readbar 则插其后。≤1 个 H2 不生成。幂等。
+ *
+ * chain 顺序：必须在 decorateFlagshipH2 之前（需读原始 `<h2>`）。
+ */
+export function decorateFlagshipTOC(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-toc"')) return html
+
+    // 收集原始 <h2>...</h2>（必须在 decorateFlagshipH2 之前，否则 H2 已被替换为
+    // <section data-ink-block="flagship-h2">…）。
+    const h2Re = /<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/gi
+    const titles: string[] = []
+    let h: RegExpExecArray | null
+    while ((h = h2Re.exec(html)) !== null) {
+      const t = firstText(h[2])
+      if (t) titles.push(t)
+    }
+    if (titles.length <= 1) return html
+
+    // 目录卡 HTML
+    const rows = titles
+      .map((title, i) => {
+        const idx = String(i + 1).padStart(2, '0')
+        return (
+          `<p style="margin:7px 0;font-size:15px;color:${palette.ink};line-height:1.5;font-family:${HTML_FONT};">` +
+          gridNumberSmall(palette.accent, idx) +
+          `<span style="margin-left:8px;vertical-align:middle;">${escapeHtmlText(title)}</span>` +
+          `</p>`
+        )
+      })
+      .join('')
+
+    const card =
+      `<section data-ink-block="flagship-toc" style="margin:22px 0;padding:16px 18px;` +
+      `background-color:${palette.accentTint};border-radius:8px;border-left:5px solid ${palette.accent};">` +
+      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;letter-spacing:3px;color:${palette.accent};` +
+      `font-family:${HTML_FONT};">本 期 目 录</p>` +
+      rows +
+      `</section>`
+
+    // 锚定插入位置：优先 readbar </section> 之后；否则 cover-* </section> 之后；
+    // 都没有则放最前。
+    const readbarIdx = html.indexOf('data-ink-block="flagship-readbar"')
+    if (readbarIdx !== -1) {
+      const close = html.indexOf('</section>', readbarIdx)
+      if (close !== -1) {
+        const insertAt = close + '</section>'.length
+        return html.slice(0, insertAt) + card + html.slice(insertAt)
+      }
+    }
+    // cover-* 哨兵（data-ink-svg="cover-…"）
+    const coverRe = /data-ink-svg="cover-[^"]*"/
+    const cm = coverRe.exec(html)
+    if (cm) {
+      const close = html.indexOf('</section>', cm.index)
+      if (close !== -1) {
+        const insertAt = close + '</section>'.length
+        return html.slice(0, insertAt) + card + html.slice(insertAt)
+      }
+    }
+    return card + html
+  }
+}
+
+// ─── E3. 金句大字卡（扩 decorateFlagshipBlockquote 的 PULLQUOTE 分支）─────
+// 见 decorateFlagshipBlockquote 内的 detectPullquote 路径。
+
+/** 探测 blockquote 首段是否为「金句」标记（金句 / 金句： / [金句]）。 */
+function detectPullquote(text: string): boolean {
+  return /^\s*\[?\s*金句\s*\]?\s*[:：]?/.test(text)
+}
+
+/** 去掉金句前缀（保留正文，HTML 结构尽量保留）。 */
+function stripPullquoteLead(innerHtml: string): string {
+  return innerHtml.replace(
+    /(<p[^>]*>)?\s*\[?\s*金句\s*\]?\s*[:：]?\s*/,
+    (_m, openP: string | undefined) => openP ?? '',
+  )
+}
+
+/** 装饰引号 svg（大号，用于 pullquote 顶部居中）。viewBox 0 0 64 64，width=64。 */
+function pullquoteGlyphSvg(accent: string): string {
+  // 引号字形：两枚弯月+点（构成主义抽象引号）。
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="36" ` +
+    `style="display:block;margin:0 auto 8px;">` +
+    `<path d="M14,10 C8,16 6,24 6,34 L18,34 L18,20 L10,20 C10,16 12,12 16,10 Z" fill="${accent}" opacity="0.85" />` +
+    `<path d="M46,10 C40,16 38,24 38,34 L50,34 L50,20 L42,20 C42,16 44,12 48,10 Z" fill="${accent}" opacity="0.85" />` +
+    `</svg>`
+  )
+}
+
+// ─── E4. 数据 callout（[数据] 大数字 | 标签 | 描述）───────────────────────
+/**
+ * decorateFlagshipStat — 匹配 `<p>[数据] …</p>`，解析 `|` 分段：
+ *   [数据] <大数字> | <标签> | <描述?>
+ * 替换为方格铸框大数字块（accent 实色大数字 + ink 标签 + inkSoft 描述）。
+ * 幂等 data-ink-block="flagship-stat"。
+ */
+export function decorateFlagshipStat(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-stat"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const m = /^\s*\[\s*数据\s*\]\s*(.+)$/.exec(text)
+      if (!m) return match
+      const segs = m[1].split('|').map((s) => s.trim()).filter(Boolean)
+      if (segs.length < 2) return match
+      const num = segs[0]
+      const label = segs[1]
+      const desc = segs[2] ?? ''
+      const descNode = desc
+        ? `<p style="margin:6px 0 0;font-size:13px;color:${palette.inkSoft};font-family:${HTML_FONT};line-height:1.6;">${escapeHtmlText(desc)}</p>`
+        : ''
+      const term =
+        `<p style="margin:8px 0 0;text-align:right;">` +
+        diamondTerminalSvg(palette.accent) +
+        `</p>`
+      return (
+        `<section data-ink-block="flagship-stat" style="margin:24px 0;padding:18px 20px;` +
+        `border:1px solid ${palette.accentBorder};border-radius:8px;background-color:${palette.accentTint};">` +
+        `<p style="margin:0;font-size:40px;font-weight:800;line-height:1.05;color:${palette.accent};` +
+        `letter-spacing:1px;font-family:${HTML_FONT};">${escapeHtmlText(num)}</p>` +
+        `<p style="margin:6px 0 0;font-size:15px;font-weight:700;color:${palette.ink};font-family:${HTML_FONT};">${escapeHtmlText(label)}</p>` +
+        descNode +
+        term +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── E5. 图片框（自动）────────────────────────────────────────────────────
+/**
+ * decorateFlagshipFigure — 把 `<img …>`（含被 `<p>` 包裹的）包成品牌图框：
+ * paperWarm 衬纸 + 圆角 + 1px hairline 边 + 若 alt 非空 → 题注行（含小方格 svg）。
+ * 真微信外链 img 需上传后才显示，本元素只负责设计；img 本身上传由作者完成。
+ * 幂等 data-ink-block="flagship-figure"。
+ */
+export function decorateFlagshipFigure(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-figure"')) return html
+
+    // 单次匹配：alternation 一次处理「<p> 包裹的单图」与「裸 <img>」两种形态——
+    // 杜绝旧版「pass1 包成 figure → pass2 在裸图扫描里再包一次」的双重包裹 bug。
+    // 捕获组 1 = <p>…<img …> 形态的 imgAttrs；捕获组 2 = 裸 <img …> 的 imgAttrs。
+    return html.replace(
+      /<p(?:\s[^>]*)?>\s*<img\b([^>]*?)\/?>\s*<\/p>|<img\b([^>]*?)\/?>/gi,
+      (_m, pImgAttrs: string | undefined, bareImgAttrs: string | undefined) => {
+        const imgAttrs = pImgAttrs ?? bareImgAttrs ?? ''
+        return buildFigureFrame(imgAttrs, palette)
+      },
+    )
+  }
+}
+
+function extractAlt(attrs: string): string {
+  const m = /alt\s*=\s*"([^"]*)"|alt\s*=\s*'([^']*)'/i.exec(attrs)
+  if (!m) return ''
+  return (m[1] ?? m[2] ?? '').trim()
+}
+
+function extractSrc(attrs: string): string {
+  const m = /src\s*=\s*"([^"]*)"|src\s*=\s*'([^']*)'/i.exec(attrs)
+  if (!m) return ''
+  return (m[1] ?? m[2] ?? '').trim()
+}
+
+/**
+ * 重建 img：**不原样拼接 imgAttrs**（旧版拼接 + 再追加 style 会产出重复 style 属性 +
+ * 残缺自闭合）；从 imgAttrs 解析出 src/alt，重建一个干净 `<img>` 节点，丢弃原 style/
+ * height 等脏属性，避免重复属性与坏闭合。
+ */
+function buildFigureFrame(imgAttrs: string, palette: SvgPalette): string {
+  const alt = extractAlt(imgAttrs)
+  const src = extractSrc(imgAttrs)
+  const altAttr = alt ? ` alt="${escapeHtmlAttr(alt)}"` : ''
+  const srcAttr = src ? ` src="${escapeHtmlAttr(src)}"` : ''
+  const styledImg = `<img${srcAttr}${altAttr} style="display:block;width:100%;border-radius:6px;" />`
+  const caption = alt
+    ? `<p style="margin:8px 4px 2px;font-size:13px;color:${palette.inkSoft};letter-spacing:0.5px;text-align:center;font-family:${HTML_FONT};">` +
+      gridSquareSmall(palette.accent, 12) +
+      `<span style="margin-left:6px;vertical-align:middle;">${escapeHtmlText(alt)}</span>` +
+      `</p>`
+    : ''
+  return (
+    `<section data-ink-block="flagship-figure" style="margin:24px 0;padding:8px;` +
+    `background-color:${palette.paperWarm};border:1px solid ${palette.hairline};border-radius:10px;">` +
+    styledImg +
+    caption +
+    `</section>`
+  )
+}
+
+/** 属性值转义（src/alt 写回 attribute 时，避免引号/`<>` 破坏标签）。 */
+function escapeHtmlAttr(s: string): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
 }

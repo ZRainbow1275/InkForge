@@ -30,6 +30,10 @@ import {
   decorateFlagshipBlockquote,
   decorateFlagshipLists,
   decorateFlagshipFooterCard,
+  decorateFlagshipReadingBar,
+  decorateFlagshipTOC,
+  decorateFlagshipStat,
+  decorateFlagshipFigure,
 } from './svg-modules'
 import type { SvgInjectionPlan } from './svg-modules'
 
@@ -120,9 +124,22 @@ const FLAGSHIP_BRAND = { brand: '墨铸 · InkForge', tagline: '成为作者吧'
 
 // 旗舰 decorate 链：SVG 图形（封面/分隔）先行，HTML 色块装饰器（标题/引用/列表）
 // 随后，落款卡最后追加。chainDecorators 已在上方 import。
+// R4 chain 顺序（与 R1-R3 协同）：
+//   1. composeSvgDecorate(SVG 图形：封面/分隔)
+//   2. decorateFlagshipReadingBar — 自动替换 buildReadingTimeHeader 注入的裸阅读头
+//      （定位裸 `<div>阅读约… 全文… 字</div>` 块，必须在 lede 之前否则 lede 会落上）
+//   3. decorateFlagshipLede — 开篇首字下沉 versal（跳过阅读 meta + blockquote 内 <p>）
+//   4. decorateFlagshipTOC — 按原始 <h2> 生成「本期目录」（必须在 H2 替换前）
+//   5. decorateFlagshipStat / decorateFlagshipFigure — 在 H2/列表替换前消费原始 <p>/<img>
+//   6. decorateFlagshipH2 / H3 / Blockquote(含 pullquote/callout/quote) / Lists
+//   7. decorateFlagshipFooterCard — 文末落款卡（append-once）
 const flagshipKilnDecorate = chainDecorators(
   composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+  decorateFlagshipReadingBar(kilnPalette, { variant: 'kiln' }),
+  decorateFlagshipStat(kilnPalette),
+  decorateFlagshipFigure(kilnPalette),
   decorateFlagshipLede(kilnPalette),
+  decorateFlagshipTOC(kilnPalette),
   decorateFlagshipH2(kilnPalette, { variant: 'kiln' }),
   decorateFlagshipH3(kilnPalette),
   decorateFlagshipBlockquote(kilnPalette),
@@ -132,7 +149,11 @@ const flagshipKilnDecorate = chainDecorators(
 
 const flagshipTemperaDecorate = chainDecorators(
   composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
+  decorateFlagshipReadingBar(temperaPalette, { variant: 'tempera' }),
+  decorateFlagshipStat(temperaPalette),
+  decorateFlagshipFigure(temperaPalette),
   decorateFlagshipLede(temperaPalette),
+  decorateFlagshipTOC(temperaPalette),
   decorateFlagshipH2(temperaPalette, { variant: 'tempera' }),
   decorateFlagshipH3(temperaPalette),
   decorateFlagshipBlockquote(temperaPalette),
@@ -142,7 +163,11 @@ const flagshipTemperaDecorate = chainDecorators(
 
 const flagshipAmberDecorate = chainDecorators(
   composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
+  decorateFlagshipReadingBar(amberPalette, { variant: 'amber' }),
+  decorateFlagshipStat(amberPalette),
+  decorateFlagshipFigure(amberPalette),
   decorateFlagshipLede(amberPalette),
+  decorateFlagshipTOC(amberPalette),
   decorateFlagshipH2(amberPalette, { variant: 'amber' }),
   decorateFlagshipH3(amberPalette),
   decorateFlagshipBlockquote(amberPalette),

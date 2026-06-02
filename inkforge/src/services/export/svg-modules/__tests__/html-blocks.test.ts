@@ -6,6 +6,10 @@ import {
   decorateFlagshipBlockquote,
   decorateFlagshipLists,
   decorateFlagshipFooterCard,
+  decorateFlagshipReadingBar,
+  decorateFlagshipTOC,
+  decorateFlagshipStat,
+  decorateFlagshipFigure,
 } from '../html-blocks'
 import { deriveSvgPalette } from '../theme'
 
@@ -290,5 +294,286 @@ describe('decorateFlagshipFooterCard', () => {
     expect(twice).toBe(once)
     // 卡片只出现一次
     expect(once.match(/data-ink-block="flagship-footer"/g)?.length).toBe(1)
+  })
+})
+
+// ════════════════════════════════════════════════════════════════════════
+// R4 — 5 个 aha 元素：阅读条 / 目录 / 金句 / 数据 / 图片框
+// ════════════════════════════════════════════════════════════════════════
+
+const READING_HEADER = `<div style="margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid #E8EAED;color:#8E959D;font-size:13px;letter-spacing:0.2px;line-height:1.6;">
+  <span>阅读约 5 分钟</span><span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px;"></span><span>全文 1200 字</span>
+</div>`
+
+describe('decorateFlagshipReadingBar — E1 品牌阅读条', () => {
+  it('replaces the bare reading-time header with a branded reading bar (字数 + 分钟 + persona栏目 + sep + 第 01 期)', () => {
+    const dec = decorateFlagshipReadingBar(tempera, { variant: 'tempera' })
+    const out = dec(`${READING_HEADER}<p>正文段落。</p>`, 'wechat')
+    expect(out).toContain('data-ink-block="flagship-readbar"')
+    // 提取的字数 / 分钟
+    expect(out).toContain('全文 1200 字')
+    expect(out).toContain('约 5 分钟')
+    // persona 栏目 (tempera → 深读)
+    expect(out).toContain('墨铸 · 深读')
+    // 第 01 期占位
+    expect(out).toContain('第 01 期')
+    // 上下细线（accentBorder）
+    expect(out).toContain(`border-top:1px solid ${tempera.accentBorder}`)
+    expect(out).toContain(`border-bottom:1px solid ${tempera.accentBorder}`)
+    // 菱形分隔符 svg
+    expect(out).toContain('viewBox="0 0 12 12"')
+    expect(out).toContain('d="M6,1 L11,6 L6,11 L1,6 Z"')
+    // 原裸阅读头 <div> 已被替换
+    expect(out).not.toContain('color:#8E959D')
+    expectNoForbidden(out)
+  })
+
+  it('kiln variant uses 专栏 kicker, amber uses 洞察', () => {
+    const kilnOut = decorateFlagshipReadingBar(kiln, { variant: 'kiln' })(READING_HEADER, 'wechat')
+    expect(kilnOut).toContain('墨铸 · 专栏')
+    const amberOut = decorateFlagshipReadingBar(amber, { variant: 'amber' })(READING_HEADER, 'wechat')
+    expect(amberOut).toContain('墨铸 · 洞察')
+  })
+
+  it('returns unchanged HTML when reading header is absent (enableReadingTime=false)', () => {
+    const dec = decorateFlagshipReadingBar(tempera, { variant: 'tempera' })
+    const input = '<p>没有阅读头的正文。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipReadingBar(kiln, { variant: 'kiln' })
+    const once = dec(`${READING_HEADER}<p>正文。</p>`, 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipTOC — E2 篇目目录', () => {
+  it('generates a TOC card listing all <h2> titles in order with grid-numbered rows', () => {
+    const dec = decorateFlagshipTOC(tempera)
+    const out = dec('<h2>第一节 标题</h2><p>...</p><h2>第二节 标题</h2><p>...</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-toc"')
+    expect(out).toContain('本 期 目 录')
+    expect(out).toContain('第一节 标题')
+    expect(out).toContain('第二节 标题')
+    // 方格小号（accent 底色版）
+    expect(out).toContain('viewBox="0 0 48 48"')
+    expect(out).toContain('>01</text>')
+    expect(out).toContain('>02</text>')
+    expectNoForbidden(out)
+  })
+
+  it('does NOT generate when there is only ≤1 <h2>', () => {
+    const dec = decorateFlagshipTOC(amber)
+    const out0 = dec('<h1>只一个</h1><p>...</p>', 'wechat')
+    expect(out0).not.toContain('flagship-toc')
+    const out1 = dec('<h2>唯一一节</h2><p>...</p>', 'wechat')
+    expect(out1).not.toContain('flagship-toc')
+  })
+
+  it('inserts after a cover SVG section (data-ink-svg="cover-*")', () => {
+    const dec = decorateFlagshipTOC(tempera)
+    const cover = '<section data-ink-svg="cover-title" style="margin:24px 0;"><svg viewBox="0 0 1080 620" width="100%"><rect width="1080" height="620" fill="#fff"/></svg></section>'
+    const out = dec(`${cover}<h2>A</h2><p>x</p><h2>B</h2>`, 'wechat')
+    // TOC 卡应在 cover 关闭后立刻出现，且在第一个 <h2> 之前
+    const tocSecIdx = out.indexOf('<section data-ink-block="flagship-toc"')
+    const coverEndIdx = out.indexOf('</section>') + '</section>'.length
+    const firstH2Idx = out.indexOf('<h2')
+    expect(tocSecIdx).toBeGreaterThan(0)
+    expect(tocSecIdx).toBe(coverEndIdx)
+    expect(tocSecIdx).toBeLessThan(firstH2Idx)
+  })
+
+  it('inserts after the reading bar when present', () => {
+    const dec = decorateFlagshipTOC(kiln)
+    const readbar = '<section data-ink-block="flagship-readbar"><p>...</p></section>'
+    const out = dec(`${readbar}<h2>A</h2><h2>B</h2>`, 'wechat')
+    const tocSecIdx = out.indexOf('<section data-ink-block="flagship-toc"')
+    const readbarEnd = out.indexOf('</section>', out.indexOf('flagship-readbar')) + '</section>'.length
+    expect(tocSecIdx).toBe(readbarEnd)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipTOC(tempera)
+    const once = dec('<h2>甲</h2><h2>乙</h2>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipBlockquote — E3 金句大字卡（PULLQUOTE 分支）', () => {
+  it('marker `金句：…` produces a centered feature card with big decorative quote svg + ink large text + 墨铸 + diamond', () => {
+    const dec = decorateFlagshipBlockquote(kiln)
+    const out = dec('<blockquote><p>金句：克制是版面的最高修辞。</p></blockquote>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-pullquote"')
+    // 满幅大字 feature 卡：paperWarm 底 + 居中
+    expect(out).toContain(`background-color:${kiln.paperWarm}`)
+    expect(out).toContain('text-align:center')
+    // 22px 居中正文
+    expect(out).toContain('font-size:22px')
+    // 大装饰引号 svg（pullquoteGlyphSvg）
+    expect(out).toContain('viewBox="0 0 64 64"')
+    // 「墨铸」品牌签名 + 收尾菱形 svg
+    expect(out).toContain('墨铸')
+    expect(out).toContain('d="M8,2 L14,8 L8,14 L2,8 Z"')
+    // 「金句：」前缀已被去掉，正文仍在
+    expect(out).toContain('克制是版面的最高修辞。')
+    expect(out).not.toMatch(/金句\s*[:：]/)
+    expectNoForbidden(out)
+  })
+
+  it('triggers on `[金句]` and `金句` (no colon) variants', () => {
+    const dec = decorateFlagshipBlockquote(amber)
+    const outA = dec('<blockquote><p>[金句]删繁就简三秋树。</p></blockquote>', 'wechat')
+    expect(outA).toContain('data-ink-block="flagship-pullquote"')
+    const outB = dec('<blockquote><p>金句 让笔画呼吸</p></blockquote>', 'wechat')
+    expect(outB).toContain('data-ink-block="flagship-pullquote"')
+  })
+
+  it('preserves CALLOUT branch (提示) — pullquote and callout do NOT collide', () => {
+    const dec = decorateFlagshipBlockquote(tempera)
+    const out = dec('<blockquote><p>提示：导出前先在真机预览。</p></blockquote>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-callout"')
+    expect(out).not.toContain('flagship-pullquote')
+  })
+
+  it('preserves plain QUOTE branch (R3 asymmetric block)', () => {
+    const dec = decorateFlagshipBlockquote(tempera)
+    const out = dec('<blockquote><p>真正高级的版面，懂得<strong>留白</strong>。</p></blockquote>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-quote"')
+    expect(out).not.toContain('flagship-pullquote')
+  })
+
+  it('pullquote is idempotent', () => {
+    const dec = decorateFlagshipBlockquote(kiln)
+    const once = dec('<blockquote><p>金句：呼吸即设计。</p></blockquote>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipStat — E4 数据大数字块', () => {
+  it('marker `<p>[数据] 大数字 | 标签 | 描述</p>` → grid-framed big-number stat block', () => {
+    const dec = decorateFlagshipStat(amber)
+    const out = dec('<p>[数据] 20-22 | 汉字/行 | 移动端竖屏舒适区间</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-stat"')
+    // 大数字 accent 实色（≠ accentDeep 反白；区别于 H2 满幅块）
+    expect(out).toContain(`color:${amber.accent}`)
+    expect(out).toContain('font-size:40px')
+    expect(out).toContain('20-22')
+    expect(out).toContain('汉字/行')
+    expect(out).toContain('移动端竖屏舒适区间')
+    // 方格铸框：accentBorder 描边 + accentTint 底
+    expect(out).toContain(`border:1px solid ${amber.accentBorder}`)
+    expect(out).toContain(`background-color:${amber.accentTint}`)
+    // 收尾菱形
+    expect(out).toContain('d="M8,2 L14,8 L8,14 L2,8 Z"')
+    expectNoForbidden(out)
+  })
+
+  it('marker with 2 segments (no description) still works', () => {
+    const dec = decorateFlagshipStat(kiln)
+    const out = dec('<p>[数据] 374 | 像素</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-stat"')
+    expect(out).toContain('374')
+    expect(out).toContain('像素')
+  })
+
+  it('non-marker `<p>` paragraphs are untouched', () => {
+    const dec = decorateFlagshipStat(tempera)
+    const input = '<p>普通的正文段落不含 marker。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipStat(amber)
+    const once = dec('<p>[数据] 22 | 字/行</p>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipFigure — E5 品牌图框', () => {
+  it('wraps a <p><img></p> figure in a paperWarm bordered frame with alt caption row containing grid svg', () => {
+    const dec = decorateFlagshipFigure(tempera)
+    const out = dec('<p><img src="https://example.com/x.png" alt="示意图：版心宽度示例"></p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-figure"')
+    // 恰好包裹 1 次（杜绝双重包裹 bug）
+    expect((out.match(/data-ink-block="flagship-figure"/g) || []).length).toBe(1)
+    // 题注 caption span 仅出现 1 次（alt 文本作为 caption 内容；alt 属性自身不算）
+    expect((out.match(/<span[^>]*vertical-align:middle;">示意图：版心宽度示例<\/span>/g) || []).length).toBe(1)
+    // paperWarm 衬纸 + hairline 边
+    expect(out).toContain(`background-color:${tempera.paperWarm}`)
+    expect(out).toContain(`border:1px solid ${tempera.hairline}`)
+    // img 补 style
+    expect(out).toContain('display:block;width:100%')
+    // src / alt 保留
+    expect(out).toContain('src="https://example.com/x.png"')
+    expect(out).toContain('alt="示意图：版心宽度示例"')
+    // 题注行（含 alt 文本 + 小方格 svg）
+    expect(out).toContain('viewBox="0 0 16 16"')
+    // img 标签合法：恰好一个 style="…"（无重复 style 属性 / 残缺自闭合）
+    const imgMatch = /<img\b[^>]*>/i.exec(out)
+    expect(imgMatch).toBeTruthy()
+    if (imgMatch) {
+      const imgTag = imgMatch[0]
+      expect((imgTag.match(/\sstyle\s*=/g) || []).length).toBe(1)
+      // 正确自闭合（无 ` /` 后再跟下一个属性）
+      expect(imgTag).not.toMatch(/\/\s+\w/)
+      // 旧版残留：原 imgAttrs 里的 height/原 style 不该再出现
+      expect(imgTag).not.toMatch(/\sheight\s*=/i)
+      expect(imgTag).not.toMatch(/max-width\s*:\s*100%/i)
+    }
+    expectNoForbidden(out)
+  })
+
+  it('wraps a bare <img> (no <p>) too — exactly once', () => {
+    const dec = decorateFlagshipFigure(kiln)
+    const out = dec('<img src="https://x.png" alt="x">', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-figure"')
+    expect((out.match(/data-ink-block="flagship-figure"/g) || []).length).toBe(1)
+    expect(out).toContain('alt="x"')
+    expect(out).toContain('src="https://x.png"')
+    // img 也只有 1 个 style
+    const imgMatch = /<img\b[^>]*>/i.exec(out)
+    expect(imgMatch).toBeTruthy()
+    if (imgMatch) {
+      expect((imgMatch[0].match(/\sstyle\s*=/g) || []).length).toBe(1)
+    }
+  })
+
+  it('img without alt: no caption row', () => {
+    const dec = decorateFlagshipFigure(amber)
+    const out = dec('<p><img src="x.png"></p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-figure"')
+    // 无 alt → 无题注 <p>
+    expect(out).not.toMatch(/<p[^>]*font-size:13px[^>]*>[^<]*</)
+  })
+
+  it('strips dirty pre-existing attrs (style/height) — single clean style on img', () => {
+    const dec = decorateFlagshipFigure(tempera)
+    // 模拟 enhanceImageWrappers 已写入 style/height 的真实输入
+    const dirty = '<p><img src="a.png" alt="A" style="max-width:100%;height:auto;margin:18px 0;" height="auto"></p>'
+    const out = dec(dirty, 'wechat')
+    const imgMatch = /<img\b[^>]*>/i.exec(out)
+    expect(imgMatch).toBeTruthy()
+    if (imgMatch) {
+      const imgTag = imgMatch[0]
+      expect((imgTag.match(/\sstyle\s*=/g) || []).length).toBe(1)
+      expect(imgTag).not.toMatch(/\sheight\s*=/i)
+      expect(imgTag).not.toMatch(/max-width\s*:\s*100%/i)
+      expect(imgTag).toContain('display:block;width:100%')
+    }
+  })
+
+  it('returns unchanged HTML when there is no <img>', () => {
+    const dec = decorateFlagshipFigure(tempera)
+    const input = '<p>没有图片。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipFigure(amber)
+    const once = dec('<p><img src="a.png" alt="A"></p>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+    // 二跑不应产出第二层 figure
+    expect((once.match(/data-ink-block="flagship-figure"/g) || []).length).toBe(1)
   })
 })
