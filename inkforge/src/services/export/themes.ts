@@ -34,6 +34,12 @@ import {
   decorateFlagshipTOC,
   decorateFlagshipStat,
   decorateFlagshipFigure,
+  decorateFlagshipBanner,
+  decorateFlagshipCompare,
+  decorateFlagshipTimeline,
+  decorateFlagshipGallery,
+  decorateFlagshipCitation,
+  decorateFlagshipStretch,
 } from './svg-modules'
 import type { SvgInjectionPlan } from './svg-modules'
 
@@ -124,19 +130,27 @@ const FLAGSHIP_BRAND = { brand: '墨铸 · InkForge', tagline: '成为作者吧'
 
 // 旗舰 decorate 链：SVG 图形（封面/分隔）先行，HTML 色块装饰器（标题/引用/列表）
 // 随后，落款卡最后追加。chainDecorators 已在上方 import。
-// R4 chain 顺序（与 R1-R3 协同）：
+// R5 chain 顺序（在 R4 基础上插入 5 个 HTML 色块 marker 元素 + 折叠 marker）：
 //   1. composeSvgDecorate(SVG 图形：封面/分隔)
 //   2. decorateFlagshipReadingBar — 自动替换 buildReadingTimeHeader 注入的裸阅读头
-//      （定位裸 `<div>阅读约… 全文… 字</div>` 块，必须在 lede 之前否则 lede 会落上）
-//   3. decorateFlagshipLede — 开篇首字下沉 versal（跳过阅读 meta + blockquote 内 <p>）
-//   4. decorateFlagshipTOC — 按原始 <h2> 生成「本期目录」（必须在 H2 替换前）
-//   5. decorateFlagshipStat / decorateFlagshipFigure — 在 H2/列表替换前消费原始 <p>/<img>
-//   6. decorateFlagshipH2 / H3 / Blockquote(含 pullquote/callout/quote) / Lists
-//   7. decorateFlagshipFooterCard — 文末落款卡（append-once）
+//   3. decorateFlagshipStat — `<p>[数据] …</p>` 大数字块（消费原 <p>，必须在 H2 前）
+//   4. R5 marker 元素（必须先于 Lede/TOC/H2/Lists，否则被 versal/标题误吃）：
+//      Banner → Compare → Timeline → Gallery → Citation → Stretch（折叠）
+//   5. decorateFlagshipFigure — 包 <img> 图框（消费原 <p><img></p>）
+//   6. decorateFlagshipLede — 开篇首字下沉 versal（跳过阅读 meta + blockquote 内 <p>）
+//   7. decorateFlagshipTOC — 按原始 <h2> 生成「本期目录」（必须在 H2 替换前）
+//   8. decorateFlagshipH2 / H3 / Blockquote / Lists
+//   9. decorateFlagshipFooterCard — 文末落款卡（append-once）
 const flagshipKilnDecorate = chainDecorators(
   composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
   decorateFlagshipReadingBar(kilnPalette, { variant: 'kiln' }),
   decorateFlagshipStat(kilnPalette),
+  decorateFlagshipBanner(kilnPalette),
+  decorateFlagshipCompare(kilnPalette),
+  decorateFlagshipTimeline(kilnPalette),
+  decorateFlagshipGallery(kilnPalette),
+  decorateFlagshipCitation(kilnPalette),
+  decorateFlagshipStretch(kilnPalette, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
   decorateFlagshipFigure(kilnPalette),
   decorateFlagshipLede(kilnPalette),
   decorateFlagshipTOC(kilnPalette),
@@ -151,6 +165,12 @@ const flagshipTemperaDecorate = chainDecorators(
   composeSvgDecorate(flagshipTemperaPlan, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
   decorateFlagshipReadingBar(temperaPalette, { variant: 'tempera' }),
   decorateFlagshipStat(temperaPalette),
+  decorateFlagshipBanner(temperaPalette),
+  decorateFlagshipCompare(temperaPalette),
+  decorateFlagshipTimeline(temperaPalette),
+  decorateFlagshipGallery(temperaPalette),
+  decorateFlagshipCitation(temperaPalette),
+  decorateFlagshipStretch(temperaPalette, { primaryColor: FLAGSHIP_TEMPERA, persona: 'academic' }),
   decorateFlagshipFigure(temperaPalette),
   decorateFlagshipLede(temperaPalette),
   decorateFlagshipTOC(temperaPalette),
@@ -165,6 +185,12 @@ const flagshipAmberDecorate = chainDecorators(
   composeSvgDecorate(flagshipAmberPlan, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
   decorateFlagshipReadingBar(amberPalette, { variant: 'amber' }),
   decorateFlagshipStat(amberPalette),
+  decorateFlagshipBanner(amberPalette),
+  decorateFlagshipCompare(amberPalette),
+  decorateFlagshipTimeline(amberPalette),
+  decorateFlagshipGallery(amberPalette),
+  decorateFlagshipCitation(amberPalette),
+  decorateFlagshipStretch(amberPalette, { primaryColor: FLAGSHIP_AMBER, persona: 'business' }),
   decorateFlagshipFigure(amberPalette),
   decorateFlagshipLede(amberPalette),
   decorateFlagshipTOC(amberPalette),

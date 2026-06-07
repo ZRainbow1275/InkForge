@@ -191,3 +191,55 @@ describe('optional centered label via p.text', () => {
     })
   }
 })
+
+describe('divider-forge — gated SMIL breathing on the ember dot (motion ON only)', () => {
+  const forge = dividerModules.find((m) => m.id === 'divider-forge')!
+
+  it('motion=true (wechat): wraps ember dot in <g> + opacity breathing animate (indefinite)', () => {
+    const theme = buildThemeContext({
+      primaryColor: PRIMARY.creative,
+      persona: 'creative',
+      target: 'wechat',
+    })
+    const out = forge.render({ theme })
+    // 呼吸 animate（循环、opacity、0s 起始、indefinite 循环）
+    expect(out).toMatch(/<animate[^>]+attributeName="opacity"/)
+    expect(out).toContain('values="0.55;1;0.55"')
+    expect(out).toContain('dur="3.2s"')
+    expect(out).toContain('begin="0s"')
+    expect(out).toContain('repeatCount="indefinite"')
+    // ember 出现仍只 1 次（同一颗点）
+    const occurrences = out.split(theme.palette.ember).length - 1
+    expect(occurrences).toBe(1)
+    // wechat-safe
+    expect(checkWechatSafe(out)).toEqual([])
+  })
+
+  it('motion=false (xhs): NO <animate>, output is unchanged from pre-motion baseline', () => {
+    const theme = buildThemeContext({
+      primaryColor: PRIMARY.creative,
+      persona: 'creative',
+      target: 'xhs',
+    })
+    const out = forge.render({ theme })
+    expect(out).not.toContain('<animate')
+    // 仍含 ember 点、光晕、两侧细线
+    expect(out).toContain('<circle ')
+    expect(out).toContain(theme.palette.ember)
+  })
+})
+
+describe('non-forge dividers stay byte-identical across motion states (zero regression)', () => {
+  const nonForge = dividerModules.filter((m) => m.id !== 'divider-forge')
+  const personas: PresetPersona[] = ['academic', 'business', 'lifestyle', 'creative']
+
+  for (const m of nonForge) {
+    for (const persona of personas) {
+      it(`${m.id} / ${persona}: wechat (motion=true) === xhs (motion=false) byte-for-byte`, () => {
+        const themeMotion = buildThemeContext({ primaryColor: PRIMARY[persona], persona, target: 'wechat' })
+        const themeStatic = buildThemeContext({ primaryColor: PRIMARY[persona], persona, target: 'xhs' })
+        expect(m.render({ theme: themeMotion })).toBe(m.render({ theme: themeStatic }))
+      })
+    }
+  }
+})

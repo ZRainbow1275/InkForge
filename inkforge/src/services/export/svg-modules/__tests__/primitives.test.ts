@@ -147,4 +147,24 @@ describe('SMIL builders', () => {
     expect(t).toContain('type="translate"')
     expect(() => assertWechatSafe(t)).not.toThrow()
   })
+
+  it('smilAnimate without id emits no id= attribute (chain-safe default)', () => {
+    const a = smilAnimate({ attributeName: 'opacity', values: '0;1', dur: '0.6s', begin: '0s' })
+    expect(a).not.toMatch(/\bid=/)
+  })
+
+  it('smilAnimate with id emits id="x" as first attr (chain enabler)', () => {
+    const a = smilAnimate({ id: 'seqA', attributeName: 'opacity', values: '0;1', dur: '0.6s', begin: '0s' })
+    expect(a).toContain('id="seqA"')
+    expect(() => assertWechatSafe(a)).not.toThrow()
+  })
+
+  it('smilSet/smilAnimateTransform also accept optional id', () => {
+    const s = smilSet({ id: 'sx', attributeName: 'opacity', to: '0', begin: 'click' })
+    expect(s).toContain('id="sx"')
+    const t = smilAnimateTransform({ id: 'tx', type: 'translate', values: '0,20;0,0', dur: '0.5s', begin: '0s' })
+    expect(t).toContain('id="tx"')
+    expect(() => assertWechatSafe(s)).not.toThrow()
+    expect(() => assertWechatSafe(t)).not.toThrow()
+  })
 })

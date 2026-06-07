@@ -262,6 +262,8 @@ export function darkSafeBg(w: number, h: number, color: string): string {
 // ─── SMIL（仅 interactive 族用；preview/wechat allowMotion 时） ────────────
 
 export interface SmilAnimateOpts {
+  /** 可选 id，用于 begin="<id>.end+Ns" 链式触发（研究 §9.1）；不传时 attrs 过滤 undefined，输出不变。 */
+  id?: string
   attributeName: string
   values: string
   dur: string
@@ -275,6 +277,7 @@ export interface SmilAnimateOpts {
 }
 export function smilAnimate(o: SmilAnimateOpts): string {
   return `<animate ${attrs({
+    id: o.id,
     attributeName: o.attributeName,
     values: o.values,
     dur: o.dur,
@@ -288,8 +291,9 @@ export function smilAnimate(o: SmilAnimateOpts): string {
   })} />`
 }
 
-export function smilSet(o: { attributeName: string; to: string; begin?: string; dur?: string }): string {
+export function smilSet(o: { id?: string; attributeName: string; to: string; begin?: string; dur?: string }): string {
   return `<set ${attrs({
+    id: o.id,
     attributeName: o.attributeName,
     to: o.to,
     begin: o.begin,
@@ -299,6 +303,7 @@ export function smilSet(o: { attributeName: string; to: string; begin?: string; 
 }
 
 export function smilAnimateTransform(o: {
+  id?: string
   type: 'translate' | 'scale' | 'rotate'
   values: string
   dur: string
@@ -308,6 +313,7 @@ export function smilAnimateTransform(o: {
   restart?: string
 }): string {
   return `<animateTransform ${attrs({
+    id: o.id,
     attributeName: 'transform',
     type: o.type,
     values: o.values,

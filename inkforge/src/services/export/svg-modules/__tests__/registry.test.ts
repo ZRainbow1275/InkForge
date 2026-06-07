@@ -18,8 +18,8 @@ const SAMPLE_COLORS: Record<PresetPersona, string> = {
 }
 
 describe('SVG module registry', () => {
-  it('contains all 26 modules (22 static PR2 + 4 interactive PR4)', () => {
-    expect(SVG_MODULES.length).toBe(26)
+  it('contains all 27 modules (22 static PR2 + 5 interactive PR4+R5)', () => {
+    expect(SVG_MODULES.length).toBe(27)
   })
 
   it('has unique module ids and a registry of matching size', () => {
@@ -28,14 +28,14 @@ describe('SVG module registry', () => {
     expect(Object.keys(SVG_MODULE_REGISTRY).length).toBe(SVG_MODULES.length)
   })
 
-  it('family counts match the SPEC §8 taxonomy', () => {
+  it('family counts match the SPEC §8 taxonomy (R5 adds i-stretch to interactive)', () => {
     expect(getSvgModulesByFamily('header').length).toBe(4)
     expect(getSvgModulesByFamily('divider').length).toBe(5)
     expect(getSvgModulesByFamily('quote').length).toBe(4)
     expect(getSvgModulesByFamily('badge').length).toBe(3)
     expect(getSvgModulesByFamily('endmark').length).toBe(3)
     expect(getSvgModulesByFamily('cover').length).toBe(3)
-    expect(getSvgModulesByFamily('interactive').length).toBe(4)
+    expect(getSvgModulesByFamily('interactive').length).toBe(5)
   })
 
   it('getSvgModule resolves by id', () => {

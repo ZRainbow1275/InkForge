@@ -22,6 +22,7 @@ import {
   textLine,
   hairlineRule,
   diamond,
+  path,
   svgSection,
   smilAnimate,
 } from './primitives'
@@ -222,8 +223,149 @@ function renderFadeIn(p: SvgModuleParams): string {
   return safe(svgSection({ moduleId: 'i-fadein', viewBoxW: W, viewBoxH: H, body }))
 }
 
+// ─── i-stretch ────────────────────────────────────────────────────────────
+// 点击展开折叠（点击揭示式，非高度塌缩 — 见研究 §2.2 / feasibility §2）：
+// header 始终可见（accentDeep 满条 + 标题 + 右侧雪佛龙 + 「点击展开」小字仅动态显示）；
+// content 区为完整正文；cover 盖层在 motion 时覆盖 content，begin="click" opacity 1→0
+// fill="freeze" restart="never" 揭示正文；透明热区接收点击。
+// 静态兜底（allowMotion=false）：完全展开、无 cover、无 SMIL。
+function renderStretch(p: SvgModuleParams): string {
+  const { palette } = p.theme
+  const motion = p.theme.allowMotion === true
+
+  const titleRaw = frameTitle(p, 0, '点击展开')
+  const titleLines = splitLines(titleRaw, 16, 1)
+  const titleText = titleLines[0] ?? titleRaw
+
+  const bodyRaw = p.items?.[0]?.body ?? p.subtitle ?? ''
+  const bodyLines = splitLines(bodyRaw, 18, 6)
+
+  const headerH = 132
+  const contentH = 64 + bodyLines.length * 46 + 28
+  const H = headerH + contentH
+
+  // ── Header（始终可见）：accentDeep 满条 + 白标题 + 右侧雪佛龙下三角 + 动态小字 ──
+  const headerBg = rect({
+    x: 0,
+    y: 0,
+    width: W,
+    height: headerH,
+    rx: 14,
+    ry: 14,
+    fill: palette.accentDeep,
+  })
+  const headerTitle = textLine({
+    x: 56,
+    y: 78,
+    text: titleText,
+    fill: '#ffffff',
+    fontSize: 46,
+    fontWeight: 700,
+    fontFamily: FONT_STACK,
+    anchor: 'start',
+    letterSpacing: 2,
+  })
+  // 雪佛龙下三角（path，非 emoji）
+  const chevronD = `M${W - 96},${56} L${W - 56},${56} L${W - 76},${84} Z`
+  const chevron = path(chevronD, { fill: '#ffffff', opacity: 0.9 })
+  // 「点击展开」小字（仅动态时显示）
+  const hint = motion
+    ? textLine({
+        x: W - 110,
+        y: 104,
+        text: '点击展开',
+        fill: 'rgba(255, 255, 255, 0.85)',
+        fontSize: 22,
+        fontWeight: 400,
+        fontFamily: FONT_STACK,
+        anchor: 'end',
+        letterSpacing: 2,
+      })
+    : ''
+  const header = headerBg + headerTitle + chevron + hint
+
+  // ── Content（header 下方，paperWarm 卡）──
+  const contentBg = rect({
+    x: 0,
+    y: headerH + 8,
+    width: W,
+    height: contentH - 8,
+    rx: 12,
+    ry: 12,
+    fill: palette.paperWarm,
+    stroke: palette.hairline,
+    strokeWidth: 1,
+  })
+  const bodyNodes = bodyLines
+    .map((line, i) =>
+      textLine({
+        x: 56,
+        y: headerH + 64 + i * 46,
+        text: line,
+        fill: palette.ink,
+        fontSize: 30,
+        fontWeight: 400,
+        fontFamily: FONT_STACK,
+        anchor: 'start',
+        letterSpacing: 1,
+      }),
+    )
+    .join('')
+  // 收尾菱形
+  const tailSig = diamond(W - 70, H - 46, 10, palette.accent)
+  const content = contentBg + bodyNodes + tailSig
+
+  let body: string
+  if (!motion) {
+    // 静态：完全展开、无 cover、无 SMIL
+    body = `<g opacity="1">${header}${content}</g>`
+  } else {
+    // Cover：不透明 paperWarm 覆盖 content + 居中省略提示 + opacity 1→0 + 透明热区
+    const coverBg = rect({
+      x: 0,
+      y: headerH + 8,
+      width: W,
+      height: contentH - 8,
+      rx: 12,
+      ry: 12,
+      fill: palette.paperWarm,
+    })
+    const coverCenterY = headerH + contentH / 2
+    const coverText = textLine({
+      x: W / 2,
+      y: coverCenterY,
+      text: '— 点击展开全文 —',
+      fill: palette.inkSoft,
+      fontSize: 28,
+      fontWeight: 400,
+      fontFamily: FONT_STACK,
+      anchor: 'middle',
+      letterSpacing: 2,
+    })
+    const coverAnim = smilAnimate({
+      attributeName: 'opacity',
+      values: '1;0',
+      dur: '0.4s',
+      begin: 'click',
+      fill: 'freeze',
+      restart: 'never',
+    })
+    // 全幅透明热区（最上层、本 g 内），pointer-events="visible"
+    const hot = rect({ x: 0, y: 0, width: W, height: H, fill: 'transparent' }).replace(
+      '/>',
+      ' pointer-events="visible" />',
+    )
+    body =
+      `<g opacity="1">${header}${content}</g>` +
+      `<g opacity="1">${coverBg}${coverText}${coverAnim}${hot}</g>`
+  }
+
+  return safe(svgSection({ moduleId: 'i-stretch', viewBoxW: W, viewBoxH: H, body }))
+}
+
 // ─── i-sequence ────────────────────────────────────────────────────────────
-// 序列帧：3 帧依次显示（begin 偏移 0s/1.2s/2.4s），用 <set> 切 opacity，链式循环。
+// 序列帧：3 帧依次显示（链式 begin："0s" → "seqA.end+1.2s" → "seqB.end+1.2s"），用
+// SMIL animate 切 opacity（discrete 阶跃）。研究 §9.5：链式 begin 比时钟同步更稳健。
 // 静态兜底：只画帧 1，无 SMIL。begin 只用 {Ns, id.end+Ns}（无 click/触摸触发器）。
 function renderSequence(p: SvgModuleParams): string {
   const { palette } = p.theme
@@ -246,8 +388,10 @@ function renderSequence(p: SvgModuleParams): string {
     return card + num + numRule + text
   }
 
-  // 三帧的 begin 偏移（每帧显示 ~1.2s）。一次性序列：用 begin="0s/1.2s/2.4s"。
-  const begins = ['0s', '1.2s', '2.4s']
+  // 三帧链式 begin：帧 0 自启 0s 并 id="seqA"；帧 1 begin="seqA.end+1.2s" id="seqB"；
+  // 帧 2 begin="seqB.end+1.2s"。hide 同步跟随下一帧的 show begin 表达式。
+  const showIds = ['seqA', 'seqB', undefined] as const
+  const showBegins = ['0s', 'seqA.end+1.2s', 'seqB.end+1.2s']
   const total = 3
 
   let body: string
@@ -260,9 +404,10 @@ function renderSequence(p: SvgModuleParams): string {
         const initial = i === 0 ? 1 : 0
         // 帧 i 在自己的窗口起点变为可见，在下一帧起点变为不可见（discrete 阶跃）。
         // 用 smilAnimate（带 fill="freeze" restart="never"）而非裸 <set>，让点击只触发一次且定住。
-        const showAt = begins[i]
-        const hideAt = begins[(i + 1) % total]
+        const showAt = showBegins[i]
+        const hideAt = showBegins[(i + 1) % total]
         const show = smilAnimate({
+          id: showIds[i],
           attributeName: 'opacity',
           values: `${initial};1`,
           keyTimes: '0;1',
@@ -321,8 +466,16 @@ export const interactiveModules: SvgModuleSpec[] = [
   {
     id: 'i-sequence',
     family: 'interactive',
-    description: '序列帧：3 帧用 SMIL <set> 按 begin=0s/1.2s/2.4s 依次切 opacity；静态取帧 1',
+    description: '序列帧：3 帧用 SMIL <animate> 链式 begin（seqA→seqB→…）依次切 opacity；静态取帧 1',
     render: renderSequence,
+    interactive: true,
+  },
+  {
+    id: 'i-stretch',
+    family: 'interactive',
+    description:
+      '点击展开折叠：双层 <g> + cover opacity SMIL（begin=click,freeze,never）；静态完全展开',
+    render: renderStretch,
     interactive: true,
   },
 ]
@@ -334,6 +487,7 @@ export {
   renderScrollCards,
   renderFadeIn,
   renderSequence,
+  renderStretch,
 }
 
 export const __interactiveRenderers = {
@@ -341,4 +495,5 @@ export const __interactiveRenderers = {
   renderScrollCards,
   renderFadeIn,
   renderSequence,
+  renderStretch,
 }

@@ -27,10 +27,12 @@
  * 所有装饰器：工厂式 `(palette, opts) => (html, target) => html`，幂等（哨兵），
  * 且 **preview 与 wechat 都执行**（内联 HTML 在两端渲染一致 = 真 WYSIWYG）。
  */
-import type { ExportTarget } from '@/types'
+import type { ExportTarget, PresetPersona } from '@/types'
 import type { SvgPalette } from './types'
 import { renderVesselMark } from './endmarks'
 import { renderSeal } from './primitives'
+import { buildThemeContext } from './theme'
+import { renderStretch } from './interactive'
 
 /** serif 字体栈（方印印文用，宋体优先）。 */
 const SEAL_FONT = "'Songti SC', 'SimSun', serif"
@@ -47,6 +49,21 @@ function firstText(innerHtml: string): string {
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+/**
+ * 解析 marker 段落：剥掉 `[元素]` 前缀后，按 `||` 切条目、条目内按 `|` 切字段。
+ * marker 内容按纯文本处理（不保留 HTML，避免 `|` / `||` 与 HTML 混淆）。
+ * 命中返回二维条目数组（每条目=字段数组）；未命中返回 null。
+ */
+function parseMarkerItems(text: string, tag: string): string[][] | null {
+  const re = new RegExp(`^\\s*\\[\\s*${tag}\\s*\\]\\s*([\\s\\S]+)$`)
+  const m = re.exec(text)
+  if (!m) return null
+  return m[1]
+    .split('||')
+    .map((seg) => seg.split('|').map((s) => s.trim()).filter(Boolean))
+    .filter((a) => a.length > 0)
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -947,4 +964,276 @@ function escapeHtmlAttr(s: string): string {
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// R5 元素库 — 5 个 HTML 色块装饰器 + 折叠 marker 接线
+// 统一 marker 语法 [元素] 字段 | 字段 || 项2字段 …，沿用 R1-R4 母题
+// （方格 / 菱形 / 印章 / accentDeep 满幅），preview+wechat 双轨，幂等 data-ink-block。
+// ════════════════════════════════════════════════════════════════════════
+
+/**
+ * 白色（onAccentDeep）小菱形 svg，居中显示在 banner 顶部。
+ * viewBox 0 0 16 16，width=14，display:block + margin:0 auto。
+ */
+function diamondCenterWhite(): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" ` +
+    `style="display:block;margin:0 auto 10px;">` +
+    `<path d="M8,2 L14,8 L8,14 L2,8 Z" fill="#ffffff" />` +
+    `</svg>`
+  )
+}
+
+// ─── B1. 强调横幅 ──────────────────────────────────────────────────────────
+/**
+ * decorateFlagshipBanner — marker `[横幅] 文字`：满幅 accentDeep 居中强调，
+ * 区别于 H2（H2 是左对齐编号章节头；横幅是居中金句式强调）。
+ *
+ * 仅取首条目首字段为正文；非命中段原样返回。幂等 data-ink-block="flagship-banner"。
+ */
+export function decorateFlagshipBanner(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-banner"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '横幅')
+      if (!items) return match
+      const content = items[0]?.[0] ?? ''
+      if (!content) return match
+      return (
+        `<section data-ink-block="flagship-banner" style="margin:30px 0;background-color:${palette.accentDeep};` +
+        `border-radius:8px;padding:26px 24px;text-align:center;">` +
+        diamondCenterWhite() +
+        `<p style="margin:0;font-size:21px;font-weight:800;line-height:1.65;letter-spacing:1.5px;` +
+        `color:#ffffff;font-family:${HTML_FONT};">${escapeHtmlText(content)}</p>` +
+        `<p style="margin:14px 0 0;text-align:center;">` +
+        `<section style="display:inline-block;width:54px;height:1px;background-color:rgba(255,255,255,0.6);"></section>` +
+        `</p>` +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── B2. 对比双栏 ──────────────────────────────────────────────────────────
+/**
+ * decorateFlagshipCompare — marker `[对比] 左标题 | 左内容 || 右标题 | 右内容`：
+ * 两 inline-block 列（非 flex），左 accentTint 实底（主张/正），右 accentBorder 描边
+ * + paper 底（对照/反）。需 ≥2 条目、各 ≥2 字段；否则原样返回。
+ *
+ * 移动端 393px 校验：47%+47%+6% margin = 100%，两列并排，font-size:0 消 inline-block 间隙。
+ * 幂等 data-ink-block="flagship-compare"。
+ */
+export function decorateFlagshipCompare(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-compare"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '对比')
+      if (!items || items.length < 2) return match
+      const left = items[0]
+      const right = items[1]
+      if (left.length < 2 || right.length < 2) return match
+      const leftTitle = escapeHtmlText(left[0])
+      const leftBody = escapeHtmlText(left[1])
+      const rightTitle = escapeHtmlText(right[0])
+      const rightBody = escapeHtmlText(right[1])
+      const leftCol =
+        `<section style="display:inline-block;width:47%;vertical-align:top;background-color:${palette.accentTint};` +
+        `border-radius:8px;padding:14px 14px;">` +
+        `<p style="margin:0 0 8px;font-size:15px;font-weight:700;color:${palette.accent};font-family:${HTML_FONT};">` +
+        gridSquareMark(palette.accent) +
+        `<span style="margin-left:6px;vertical-align:middle;">${leftTitle}</span>` +
+        `</p>` +
+        `<p style="margin:0;font-size:14px;line-height:1.75;color:${palette.ink};font-family:${HTML_FONT};">${leftBody}</p>` +
+        `</section>`
+      const rightCol =
+        `<section style="display:inline-block;width:47%;margin-left:6%;vertical-align:top;background-color:${palette.paper};` +
+        `border:1px solid ${palette.accentBorder};border-radius:8px;padding:13px 13px;">` +
+        `<p style="margin:0 0 8px;font-size:15px;font-weight:700;color:${palette.inkSoft};font-family:${HTML_FONT};">` +
+        gridSquareMark(palette.accent) +
+        `<span style="margin-left:6px;vertical-align:middle;">${rightTitle}</span>` +
+        `</p>` +
+        `<p style="margin:0;font-size:14px;line-height:1.75;color:${palette.ink};font-family:${HTML_FONT};">${rightBody}</p>` +
+        `</section>`
+      return (
+        `<section data-ink-block="flagship-compare" style="margin:24px 0;font-size:0;">` +
+        leftCol +
+        rightCol +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── B3. 时间线 / 步骤条 ──────────────────────────────────────────────────
+/**
+ * decorateFlagshipTimeline — marker `[时间线] 标题1 | 说明1 || 标题2 | 说明2 || …`：
+ * 竖向步骤条，每步左侧方格铸号 chip（accent 底 radius:3 白号 + 套准小白点），右侧
+ * inline-block 文本列带 border-left 当时间线轨。说明字段可空。
+ *
+ * 幂等 data-ink-block="flagship-timeline"。
+ */
+export function decorateFlagshipTimeline(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-timeline"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '时间线')
+      if (!items || items.length === 0) return match
+      const steps = items
+        .map((seg, i) => {
+          const idx = String(i + 1).padStart(2, '0')
+          const title = seg[0] ?? ''
+          const desc = seg[1] ?? ''
+          if (!title) return ''
+          const tick =
+            `<span style="display:inline-block;width:3px;height:3px;background-color:#ffffff;` +
+            `vertical-align:top;margin:2px 0 0 -7px;"></span>`
+          const chip =
+            `<span style="display:inline-block;min-width:24px;height:24px;line-height:24px;text-align:center;` +
+            `background-color:${palette.accent};color:${palette.onAccent};font-size:13px;font-weight:700;` +
+            `border-radius:3px;vertical-align:top;margin-right:12px;font-family:${HTML_FONT};">${idx}</span>` +
+            tick
+          const descNode = desc
+            ? `<p style="margin:4px 0 0;font-size:14px;line-height:1.7;color:${palette.inkSoft};font-family:${HTML_FONT};">${escapeHtmlText(desc)}</p>`
+            : ''
+          return (
+            `<section style="margin:0 0 14px;">` +
+            chip +
+            `<section style="display:inline-block;width:80%;vertical-align:top;border-left:2px solid ${palette.accentBorder};` +
+            `padding:0 0 6px 14px;">` +
+            `<p style="margin:0;font-size:16px;font-weight:700;color:${palette.ink};line-height:1.5;font-family:${HTML_FONT};">${escapeHtmlText(title)}</p>` +
+            descNode +
+            `</section>` +
+            `</section>`
+          )
+        })
+        .join('')
+      if (!steps) return match
+      return (
+        `<section data-ink-block="flagship-timeline" style="margin:24px 0;">` +
+        steps +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── B4. 横滑相册 ─────────────────────────────────────────────────────────
+/**
+ * decorateFlagshipGallery — marker `[相册] 卡标题1 | 卡内容1 || 卡标题2 | 卡内容2 || …`：
+ * 纯 CSS scroll-snap 轨（沿用 i-scrollcards 形态：overflow-x:auto + scroll-snap-type
+ * + white-space:nowrap，**不用 flex**），卡片 live HTML 文字，卡宽 80% 留露头。
+ *
+ * 需 ≥2 条目；否则原样返回。幂等 data-ink-block="flagship-gallery"。
+ */
+export function decorateFlagshipGallery(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-gallery"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '相册')
+      if (!items || items.length < 2) return match
+      const cards = items
+        .map((seg, i) => {
+          const idx = String(i + 1).padStart(2, '0')
+          const title = seg[0] ?? ''
+          const body = seg[1] ?? ''
+          if (!title) return ''
+          return (
+            `<section style="display:inline-block;white-space:normal;width:80%;margin-right:3%;scroll-snap-align:center;` +
+            `vertical-align:top;background-color:${palette.paperWarm};border:1px solid ${palette.hairline};border-radius:12px;padding:16px 16px;">` +
+            `<p style="margin:0;font-size:13px;font-weight:700;color:${palette.accent};letter-spacing:1px;font-family:${HTML_FONT};">` +
+            gridNumberSmall(palette.accent, idx) +
+            `<span style="margin-left:8px;vertical-align:middle;">${escapeHtmlText(title)}</span>` +
+            `</p>` +
+            `<p style="margin:10px 0 0;font-size:15px;line-height:1.8;color:${palette.ink};font-family:${HTML_FONT};">${escapeHtmlText(body)}</p>` +
+            `<p style="margin:10px 0 0;text-align:right;">${diamondTerminalSvg(palette.accent)}</p>` +
+            `</section>`
+          )
+        })
+        .join('')
+      if (!cards) return match
+      return (
+        `<section data-ink-block="flagship-gallery" style="margin:24px 0;overflow-x:auto;` +
+        `-webkit-overflow-scrolling:touch;white-space:nowrap;scroll-snap-type:x mandatory;-webkit-user-select:none;">` +
+        cards +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── B5. 出处 / 注释卡 ────────────────────────────────────────────────────
+/**
+ * decorateFlagshipCitation — marker `[出处] 引文 | 来源`：正式引文/脚注，小字号、
+ * 细左边线、右对齐来源署名。区别于 blockquote 引用卡（那是 `>` 行内引用的不对称构成块）。
+ * 来源字段可空。幂等 data-ink-block="flagship-citation"。
+ */
+export function decorateFlagshipCitation(palette: SvgPalette): BlockDecorateFn {
+  return (html: string, _target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-block="flagship-citation"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '出处')
+      if (!items || items.length === 0) return match
+      const seg = items[0]
+      const quote = seg[0] ?? ''
+      const source = seg[1] ?? ''
+      if (!quote) return match
+      const sourceNode = source
+        ? `<p style="margin:10px 0 0;font-size:12px;color:${palette.inkSoft};letter-spacing:0.5px;text-align:right;font-family:${HTML_FONT};">` +
+          `<span style="vertical-align:middle;">— ${escapeHtmlText(source)}</span>` +
+          diamondSep(palette.accent) +
+          `</p>`
+        : ''
+      return (
+        `<section data-ink-block="flagship-citation" style="margin:22px 0;padding:14px 18px;` +
+        `background-color:${palette.paperWarm};border-radius:8px;border-left:3px solid ${palette.accentBorder};">` +
+        `<p style="margin:0;font-size:14px;line-height:1.85;color:${palette.ink};font-family:${HTML_FONT};">${escapeHtmlText(quote)}</p>` +
+        sourceNode +
+        `</section>`
+      )
+    })
+  }
+}
+
+// ─── B6. 折叠 marker 接线 → i-stretch ─────────────────────────────────────
+/**
+ * decorateFlagshipStretch — marker `[折叠] 标题 | 内容`：调 i-stretch SMIL 折叠模块
+ * （点击揭示式，非高度塌缩）。opts.primaryColor + opts.persona 用于建 theme 取 allowMotion。
+ *
+ * preview/wechat → motion=true（含 cover + animate）；xhs/zhihu → motion=false（静态展开）。
+ * 幂等：i-stretch 自身 data-ink-svg="i-stretch" 哨兵。
+ */
+export function decorateFlagshipStretch(
+  _palette: SvgPalette,
+  opts: { primaryColor: string; persona: PresetPersona },
+): BlockDecorateFn {
+  return (html: string, target: ExportTarget): string => {
+    if (!html) return html
+    if (html.includes('data-ink-svg="i-stretch"')) return html
+    return html.replace(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/gi, (match, _attrs: string | undefined, inner: string) => {
+      const text = firstText(inner)
+      const items = parseMarkerItems(text, '折叠')
+      if (!items || items.length === 0) return match
+      const seg = items[0]
+      const title = seg[0] ?? ''
+      const body = seg[1] ?? ''
+      if (!title) return match
+      const theme = buildThemeContext({
+        primaryColor: opts.primaryColor,
+        persona: opts.persona,
+        target,
+      })
+      return renderStretch({ theme, text: title, items: [{ title, body }] })
+    })
+  }
 }

@@ -10,6 +10,12 @@ import {
   decorateFlagshipTOC,
   decorateFlagshipStat,
   decorateFlagshipFigure,
+  decorateFlagshipBanner,
+  decorateFlagshipCompare,
+  decorateFlagshipTimeline,
+  decorateFlagshipGallery,
+  decorateFlagshipCitation,
+  decorateFlagshipStretch,
 } from '../html-blocks'
 import { deriveSvgPalette } from '../theme'
 
@@ -575,5 +581,271 @@ describe('decorateFlagshipFigure — E5 品牌图框', () => {
     expect(dec(once, 'wechat')).toBe(once)
     // 二跑不应产出第二层 figure
     expect((once.match(/data-ink-block="flagship-figure"/g) || []).length).toBe(1)
+  })
+})
+
+// ════════════════════════════════════════════════════════════════════════
+// R5 — 6 marker 元素：横幅 / 对比 / 时间线 / 相册 / 出处 / 折叠
+// ════════════════════════════════════════════════════════════════════════
+
+describe('decorateFlagshipBanner — B1 强调横幅', () => {
+  it('marker `[横幅] 文字` → full-bleed accentDeep banner with centered white diamond + bold white text', () => {
+    const dec = decorateFlagshipBanner(kiln)
+    const out = dec('<p>[横幅] 工具的终点，是让创作回到表达本身。</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-banner"')
+    expect(out).toContain(`background-color:${kiln.accentDeep}`)
+    expect(out).toContain('text-align:center')
+    expect(out).toContain('color:#ffffff')
+    expect(out).toContain('font-size:21px')
+    expect(out).toContain('工具的终点，是让创作回到表达本身。')
+    // 白菱形 svg
+    expect(out).toContain('<svg')
+    expect(out).toContain('d="M8,2 L14,8 L8,14 L2,8 Z"')
+    expect(out).toContain('fill="#ffffff"')
+    expectNoForbidden(out)
+  })
+
+  it('non-marker `<p>` is untouched', () => {
+    const dec = decorateFlagshipBanner(tempera)
+    const input = '<p>普通段落。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('strips inline HTML from marker content (firstText flattens then escapeHtmlText)', () => {
+    const dec = decorateFlagshipBanner(amber)
+    const out = dec('<p>[横幅] <strong>不被信任</strong> 与正文</p>', 'wechat')
+    // marker content 走 firstText 拍平 → 不应保留 <strong> 标签也不应有字面 &lt;strong&gt;
+    const bannerIdx = out.indexOf('data-ink-block="flagship-banner"')
+    expect(bannerIdx).toBeGreaterThan(0)
+    const banner = out.slice(bannerIdx)
+    expect(banner).not.toContain('<strong>')
+    expect(banner).not.toContain('</strong>')
+    // 文本内容仍在
+    expect(banner).toContain('不被信任')
+    expect(banner).toContain('与正文')
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipBanner(kiln)
+    const once = dec('<p>[横幅] 工具的终点</p>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipCompare — B2 对比双栏', () => {
+  const input2 =
+    '<p>[对比] 模板工具 | 千篇一律的通用组件，换个颜色还是同一张脸 || 墨铸旗舰 | 方格×菱形×印章长出专属母题</p>'
+
+  it('two inline-block columns: left accentTint solid / right accentBorder framed, no flex', () => {
+    const dec = decorateFlagshipCompare(tempera)
+    const out = dec(input2, 'wechat')
+    expect(out).toContain('data-ink-block="flagship-compare"')
+    // 47% 宽度（两列并排）
+    expect((out.match(/width:47%/g) || []).length).toBe(2)
+    // font-size:0 抑制 inline-block 间隙
+    expect(out).toContain('font-size:0')
+    // 左 accentTint 实底
+    expect(out).toContain(`background-color:${tempera.accentTint}`)
+    // 右 accentBorder 描边 + paper 底
+    expect(out).toContain(`border:1px solid ${tempera.accentBorder}`)
+    expect(out).toContain(`background-color:${tempera.paper}`)
+    // 字段正确拆分 + escape
+    expect(out).toContain('模板工具')
+    expect(out).toContain('墨铸旗舰')
+    expect(out).toContain('千篇一律的通用组件，换个颜色还是同一张脸')
+    expect(out).toContain('方格×菱形×印章长出专属母题')
+    // 无 flex
+    expect(out).not.toMatch(/display\s*:\s*flex/i)
+    expectNoForbidden(out)
+  })
+
+  it('only 1 entry → returned unchanged', () => {
+    const dec = decorateFlagshipCompare(kiln)
+    const input = '<p>[对比] 只有左 | 只有左内容</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('entry without ≥2 fields → returned unchanged', () => {
+    const dec = decorateFlagshipCompare(amber)
+    const input = '<p>[对比] 只有标题 || 也只有标题</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipCompare(tempera)
+    const once = dec(input2, 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipTimeline — B3 时间线 / 步骤条', () => {
+  const input3 =
+    '<p>[时间线] 立意 | 先想清楚要对谁说什么 || 结构 | 用章节头与目录搭骨架 || 润色 | 金句、数据、图框点睛 || 成稿 | 一键导出公众号</p>'
+
+  it('vertical steps: grid-numbered chip + inline-block text col with border-left timeline rail', () => {
+    const dec = decorateFlagshipTimeline(kiln)
+    const out = dec(input3, 'wechat')
+    expect(out).toContain('data-ink-block="flagship-timeline"')
+    // 方格铸号 chip（accent 底 + radius:3 + 白号）
+    expect(out).toContain(`background-color:${kiln.accent}`)
+    expect(out).toContain('border-radius:3px')
+    // 4 步：01 / 02 / 03 / 04
+    expect(out).toContain('>01</span>')
+    expect(out).toContain('>02</span>')
+    expect(out).toContain('>03</span>')
+    expect(out).toContain('>04</span>')
+    // border-left 时间线轨
+    expect(out).toContain(`border-left:2px solid ${kiln.accentBorder}`)
+    // 字段
+    expect(out).toContain('立意')
+    expect(out).toContain('先想清楚要对谁说什么')
+    expect(out).toContain('成稿')
+    expectNoForbidden(out)
+  })
+
+  it('description field empty → only title row, no descNode', () => {
+    const dec = decorateFlagshipTimeline(tempera)
+    const out = dec('<p>[时间线] 只有标题</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-timeline"')
+    expect(out).toContain('只有标题')
+    // 无 desc 文本
+    expect(out).not.toMatch(/font-size:14px;line-height:1\.7/)
+  })
+
+  it('non-marker `<p>` untouched', () => {
+    const dec = decorateFlagshipTimeline(amber)
+    const input = '<p>没有 marker。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipTimeline(kiln)
+    const once = dec(input3, 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipGallery — B4 横滑相册', () => {
+  const input4 =
+    '<p>[相册] 封面 | 满幅色带刊头 + 篆刻方印 || 章节头 | 构成主义满幅反白 || 版权页 | vessel mark + 双线</p>'
+
+  it('CSS scroll-snap rail (overflow-x:auto + scroll-snap-type, NO flex) + 80% wide cards', () => {
+    const dec = decorateFlagshipGallery(tempera)
+    const out = dec(input4, 'wechat')
+    expect(out).toContain('data-ink-block="flagship-gallery"')
+    expect(out).toContain('overflow-x:auto')
+    expect(out).toContain('scroll-snap-type:x mandatory')
+    expect(out).toContain('white-space:nowrap')
+    // 卡宽 80% 留露头
+    const cardCount = (out.match(/width:80%/g) || []).length
+    expect(cardCount).toBe(3)
+    // 卡内 paperWarm + hairline
+    expect(out).toContain(`background-color:${tempera.paperWarm}`)
+    expect(out).toContain(`border:1px solid ${tempera.hairline}`)
+    // 序号 svg（方格 number small）
+    expect(out).toContain('>01</text>')
+    expect(out).toContain('>02</text>')
+    expect(out).toContain('>03</text>')
+    // 字段
+    expect(out).toContain('封面')
+    expect(out).toContain('vessel mark + 双线')
+    // **零 flex**
+    expect(out).not.toMatch(/display\s*:\s*flex/i)
+    expectNoForbidden(out)
+  })
+
+  it('<2 entries → returned unchanged', () => {
+    const dec = decorateFlagshipGallery(kiln)
+    const input = '<p>[相册] 只有一张 | 内容</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipGallery(amber)
+    const once = dec(input4, 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipCitation — B5 出处 / 注释卡', () => {
+  it('marker `[出处] 引文 | 来源` → left-line citation card + right-aligned source row', () => {
+    const dec = decorateFlagshipCitation(tempera)
+    const out = dec('<p>[出处] 克制不是寡淡，而是节制点缀的次数。 | 墨铸设计手记</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-citation"')
+    // 左 3px accentBorder 细线 + paperWarm 底
+    expect(out).toContain(`border-left:3px solid ${tempera.accentBorder}`)
+    expect(out).toContain(`background-color:${tempera.paperWarm}`)
+    // 引文
+    expect(out).toContain('克制不是寡淡，而是节制点缀的次数。')
+    // 来源右对齐 + dash
+    expect(out).toContain('text-align:right')
+    expect(out).toContain('— 墨铸设计手记')
+    // 菱形分隔 svg
+    expect(out).toContain('viewBox="0 0 12 12"')
+    expect(out).toContain('d="M6,1 L11,6 L6,11 L1,6 Z"')
+    expectNoForbidden(out)
+  })
+
+  it('source field empty → no source row', () => {
+    const dec = decorateFlagshipCitation(kiln)
+    const out = dec('<p>[出处] 引文一段</p>', 'wechat')
+    expect(out).toContain('data-ink-block="flagship-citation"')
+    expect(out).toContain('引文一段')
+    expect(out).not.toContain('text-align:right')
+  })
+
+  it('non-marker `<p>` untouched', () => {
+    const dec = decorateFlagshipCitation(amber)
+    const input = '<p>普通段落。</p>'
+    expect(dec(input, 'wechat')).toBe(input)
+  })
+
+  it('is idempotent', () => {
+    const dec = decorateFlagshipCitation(tempera)
+    const once = dec('<p>[出处] 引文 | 来源</p>', 'wechat')
+    expect(dec(once, 'wechat')).toBe(once)
+  })
+})
+
+describe('decorateFlagshipStretch — B6 折叠 marker 接线（i-stretch）', () => {
+  it('preview target: marker `[折叠] 标题 | 内容` → i-stretch SVG with cover + animate (motion=true)', () => {
+    const dec = decorateFlagshipStretch(kiln, { primaryColor: '#D95B3F', persona: 'creative' })
+    const out = dec('<p>[折叠] 为什么不用渐变？ | 微信 sanitizer 对 url(#id) 行为不可预测，全行业量产工具一致回避。</p>', 'preview')
+    expect(out).toContain('data-ink-svg="i-stretch"')
+    // motion=true → 含 cover SMIL animate
+    expect(out).toContain('<animate')
+    expect(out).toContain('begin="click"')
+    expect(out).toContain('fill="freeze"')
+    expect(out).toContain('restart="never"')
+    // 标题
+    expect(out).toContain('为什么不用渐变？')
+    expectNoForbidden(out)
+  })
+
+  it('wechat target: also motion=true (allowMotion = preview/wechat)', () => {
+    const dec = decorateFlagshipStretch(tempera, { primaryColor: '#3B7A6B', persona: 'academic' })
+    const out = dec('<p>[折叠] 标题 | 内容</p>', 'wechat')
+    expect(out).toContain('data-ink-svg="i-stretch"')
+    expect(out).toContain('<animate')
+  })
+
+  it('xhs target: motion=false → static, no animate, no cover', () => {
+    const dec = decorateFlagshipStretch(amber, { primaryColor: '#C19A56', persona: 'business' })
+    const out = dec('<p>[折叠] 标题 | 内容</p>', 'xhs')
+    expect(out).toContain('data-ink-svg="i-stretch"')
+    expect(out).not.toContain('<animate')
+    expect(out).not.toContain('begin="click"')
+  })
+
+  it('non-marker `<p>` untouched', () => {
+    const dec = decorateFlagshipStretch(kiln, { primaryColor: '#D95B3F', persona: 'creative' })
+    const input = '<p>普通段落。</p>'
+    expect(dec(input, 'preview')).toBe(input)
+  })
+
+  it('is idempotent (i-stretch self-sentinel)', () => {
+    const dec = decorateFlagshipStretch(tempera, { primaryColor: '#3B7A6B', persona: 'academic' })
+    const once = dec('<p>[折叠] 标题 | 内容</p>', 'preview')
+    expect(dec(once, 'preview')).toBe(once)
   })
 })

@@ -24,11 +24,11 @@ const RULES: SafeRule[] = [
   { rule: 'no-css-var', re: /var\(\s*--/i, detail: '微信不支持 CSS var()' },
   { rule: 'no-calc', re: /calc\(/i, detail: '微信内联 style 不支持 calc()' },
   { rule: 'no-div', re: /<div[\s>]/i, detail: '微信改写 <div>，须用 <section>' },
-  { rule: 'no-foreign-object', re: /<foreignObject[\s>]/i, detail: '微信过滤 foreignObject 内 HTML' },
+  { rule: 'no-foreign-object', re: /<foreignObject[\s>]/i, detail: '微信过滤 <foreignObject> 内部 HTML 子树（div/span/p）；内嵌另一个 <svg> 在 opensvg 等量产工具可工作，但本系统不依赖此模式，故全禁更简单' },
   {
     rule: 'no-id-referenced',
     re: /<(defs|linearGradient|radialGradient|clipPath|mask|filter|feGaussianBlur|feColorMatrix|use|symbol|pattern)[\s>]/i,
-    detail: '依赖 id 引用的元素在微信不可靠（微信剥 id）',
+    detail: '依赖 id 引用的元素（defs/渐变/clip/mask/filter/use/symbol/pattern）在微信 sanitizer 中行为不可预测，全行业量产回避；用半透明形状叠加 / rect rx 圆角 / 多 <text> 行 / rect 描边替代',
   },
   { rule: 'no-url-ref', re: /url\(\s*#/i, detail: 'fill="url(#id)" 依赖 id，微信剥 id 后失效' },
   {

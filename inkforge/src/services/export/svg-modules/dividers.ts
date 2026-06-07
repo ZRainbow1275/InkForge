@@ -11,7 +11,7 @@
  * - 线条全部用 hairlineRule（1px rect），不用 <line>。
  * - 颜色一律取自 p.theme.palette（hex/rgba）；ember 每模块 ≤1 次。
  */
-import { circle, diamond, glow, hairlineRule, rect, svgSection, textLine } from './primitives'
+import { circle, diamond, glow, hairlineRule, rect, smilAnimate, svgSection, textLine } from './primitives'
 import type { SvgModuleParams, SvgModuleSpec } from './types'
 
 // 视觉中心 & 标准 viewBox
@@ -182,7 +182,22 @@ function renderForge(p: SvgModuleParams): string {
   // 这里复用 accentSoft（与品牌色协调）作为软光基底；ember 自身只用一次（实心点）。
   const halo = glow(VBW / 2, cy, 22, accentSoft)
   // ember 实心点（加大；每屏 ≤1 次自律：本模块全树只此一处用 ember）
-  const emberDot = circle({ cx: VBW / 2, cy, r: 6, fill: ember })
+  const emberDotRaw = circle({ cx: VBW / 2, cy, r: 6, fill: ember })
+
+  // 一层克制的 SMIL 动效（gated by allowMotion）：仅在 motion=true 时给中央 ember 点
+  // 包一层 <g> + opacity 呼吸（values=0.55;1;0.55, dur=3.2s, begin=0s, repeatCount=indefinite）。
+  // allowMotion=false：输出与改动前逐字节一致（不包 <g>、不加 animate）。
+  // ember 呼吸不增加 ember 出现「次数」（同一颗点，只是 opacity 动）。
+  const motion = p.theme.allowMotion === true
+  const emberDot = motion
+    ? `<g>${emberDotRaw}${smilAnimate({
+        attributeName: 'opacity',
+        values: '0.55;1;0.55',
+        dur: '3.2s',
+        begin: '0s',
+        repeatCount: 'indefinite',
+      })}</g>`
+    : emberDotRaw
 
   const ruleW = 380
   const margin = 48 // 距中心（随光晕加大略增）
