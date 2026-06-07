@@ -4,6 +4,122 @@ Date: 2026-05-12
 Task: `.trellis/tasks/05-12-export-platform-rendering-real-capability-audit`
 Scope rule: preserve frontend content and visual Vue files.
 
+## Current Closeout Addendum - 2026-06-08
+
+This addendum supersedes the historical capability table below where later
+work changed the repository state. The older 2026-05-12 audit remains preserved
+as evidence of the original backend/service-only scope, but it is no longer the
+authoritative current-state classification for WeChat upload or platform quality
+rules.
+
+### Official Documentation Recheck
+
+Official WeChat documentation was rechecked on 2026-06-08 through `grok-search`
+direct page fetches:
+
+- `draft_add`: `https://developers.weixin.qq.com/doc/subscription/api/draftbox/draftmanage/api_draft_add.html`
+- `uploadImage`: `https://developers.weixin.qq.com/doc/subscription/api/material/permanent/api_uploadimage.html`
+- `addMaterial`: `https://developers.weixin.qq.com/doc/subscription/api/material/permanent/api_addmaterial.html`
+
+Current executable constraints confirmed from those pages:
+
+- `draft_add` must be called server-side, accepts HTML in `content`, strips JS,
+  filters external image URLs, requires article body images to come from the
+  "upload article content image" API, and limits `title` to 32 characters,
+  `author` to 16 characters, `digest` to 128 characters,
+  `content_source_url` to 1 KB, and `content` to fewer than 20,000 characters
+  and less than 1 MB. The page also still contains the known inconsistent
+  "2kb" wording for `content`; InkForge keeps the stricter locally testable
+  20,000-character and 1 MB boundary and treats the wording conflict as a
+  live-account confirmation item.
+- `uploadImage` for article-body images supports JPG/PNG only and requires the
+  image to be under 1 MB. It does not count against the permanent material
+  quota.
+- `addMaterial` for permanent image material supports bmp/png/jpeg/jpg/gif up
+  to 10 MB, returns `media_id`, and counts against the official account material
+  library quota.
+
+The current backend spec already records these contracts in
+`.trellis/spec/backend/quality-guidelines.md`, including server-side/Tauri
+credential boundaries, preflight-before-mutation ordering, byte-signature image
+validation, snake_case WeChat payload serialization, and explicit unsupported
+states.
+
+### Current Capability Classification
+
+| Path | Capability | Current status | Evidence |
+|---|---|---:|---|
+| `inkforge/src/services/export/wechat.ts` | WeChat pasteable HTML output, inline style post-processing, self-contained formula/text degradation, WeChat-safe decoration policy | real | `platform-export-rendering.test.ts`, full `src/services/export` suite, 06-08 browser desktop/mobile smoke |
+| `inkforge/src/services/export/platform-rules/wechat.ts` | WeChat spacing, width, dark-mode and official-editor compatibility transforms | real | `platform-rules/wechat.test.ts`, 06-08 quality detector regressions |
+| `inkforge/src/services/export/quality-detector.ts` | Platform quality detection, including WeChat official-editor risks, XHS decoration leakage, Zhihu decoration/SVG leakage | real | 06-08 additions for `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-text-align-logical`, `wechat-pre-ordinary-text`, `wechat-transparent-image-svg-overlay`, `wechat-svg-touchstart-only`, `wechat-important-style`, `xhs-wechat-decoration-leak`, `zhihu-wechat-decoration-leak`, and `zhihu-inline-svg` |
+| `inkforge/src/services/export/wechat-publish.ts` | WeChat Tauri publish bridge service: status probe, article image upload, cover material upload, image rewrite, draft creation, draft publish orchestration | real with credential-bound live boundary | Service validates missing Tauri runtime/credentials as unavailable, splits article vs cover image contracts, runs local preflight before mutation, and delegates live calls to Tauri commands. No live API success is claimed without credentials. |
+| `inkforge/src/services/export/image-pipeline/uploaders/wechat.ts` | WeChat image uploader implementation | real delegate, not stub | `WechatUploader.upload()` delegates to `uploadWechatArticleImage()`. The old `wechat-stub.ts` classification is stale. |
+| `inkforge/src/services/export/image-pipeline/uploaders/xhs-stub.ts` | Xiaohongshu image upload | stub | Throws `NotImplementedError`; no platform upload success is claimed. |
+| `inkforge/src/services/export/image-pipeline/uploaders/zhihu-stub.ts` | Zhihu image upload | stub | Throws `NotImplementedError`; no platform upload success is claimed. |
+| `inkforge/src/services/export/xiaohongshu-text.ts` | Xiaohongshu native plain-text output | real | `xhs.test.ts`, `citation-export.test.ts`, `pipeline-cross-platform.test.ts`, `platform-export-rendering.test.ts`; output contract forbids raw HTML/Markdown/SVG leakage. |
+| `inkforge/src/services/export/xiaohongshu.ts` | Xiaohongshu themed HTML preview | preview-only | Source comments and preview-fidelity tests classify native output as `markdownToXiaohongshuText`, not HTML. |
+| `inkforge/src/services/export/zhihu-markdown.ts` | Zhihu Markdown-compatible native output | real | `zhihu.test.ts`, `pipeline-cross-platform.test.ts`, `platform-export-rendering.test.ts`; formulas, code fences, tables, and unsupported blocks have deterministic handling. |
+| `inkforge/src/services/export/zhihu.ts` | Zhihu themed HTML preview | preview-only | Native publishing evidence comes from `markdownToZhihuClean`, not HTML preview. |
+| `docs/platform-rendering-rules/*` | Cross-platform market-practice rendering contracts | documentation source-of-truth | 06-08 task archived after docs/spec/test/browser verification; docs explicitly prevent copying 135/Xiumi private templates and forbid fake platform publishing. |
+
+### Acceptance Criteria Re-evaluation
+
+| Acceptance criterion | Current judgment | Evidence |
+|---|---:|---|
+| WeChat research exists with source links and repo implications | done | `research/wechat-rendering-rules-2026.md`, current docs under `docs/platform-rendering-rules/`, and 2026-06-08 official doc recheck above |
+| Xiaohongshu research exists with repo implications | done | `research/xiaohongshu-rendering-rules-2026.md`, `docs/platform-rendering-rules/xiaohongshu-rules.md` |
+| Zhihu research exists with repo implications | done | `research/zhihu-rendering-rules-2026.md`, `docs/platform-rendering-rules/zhihu-rules.md` |
+| Service capability audit distinguishes real/partial/preview-only/stub/stale | done | This addendum updates the stale WeChat uploader classification while preserving unsupported XHS/Zhihu upload stubs |
+| WeChat native output avoids `<style>`, class selectors, `katex-html`, JS URLs, CSS variables, and unsupported CSS dependencies | done locally | Covered by export suite and 06-08 platform rendering regressions; real WeChat editor paste/backend final preview remains a separate credential/account validation item |
+| Xiaohongshu native output is plain text without raw HTML/Markdown leakage | done locally | Native engine and tests classify rich visual output as image/long-image fallback, not body rich text |
+| Zhihu native output is Markdown-compatible | done locally | Native engine preserves clean Markdown and rejects WeChat decoration/SVG leakage |
+| WeChat upload integration does not claim success without real credentials/API contracts | done | Web runtime and missing credentials return unavailable/blocked; live calls require Tauri/server-side boundary |
+| Image width and formula downgrade behavior are enforced by output tests | done | Existing export suite plus 06-08 expanded regressions |
+| Non-mutating service-layer tests, lint, typecheck, GitNexus evidence are recorded | done after current rerun | See the 2026-06-08 verification section below |
+| Existing unrelated frontend visual dirty files are preserved | done | No Hub/Workstation visual files are used as this task's service-layer completion evidence |
+
+### Verification Rerun - 2026-06-08
+
+These checks were re-run after this addendum to validate the current repository
+state rather than the 2026-05-12 snapshot. Results:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+# passed: 1 file, 23 tests
+pnpm -C inkforge exec vitest run src/services/export --reporter=default
+# passed: 35 files, 954 tests
+pnpm -C inkforge exec eslint src/services/export --ext .ts --quiet
+# passed
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+# passed
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+# passed, Vite built in 33.16s
+npx gitnexus impact detectQuality -r InkForge --depth 3
+# LOW risk, 4 direct upstream dependents, 0 affected processes
+npx gitnexus detect-changes -r InkForge --scope all
+# low risk, 30 changed files / 6 symbols / 0 affected processes;
+# this includes pre-existing unrelated Trellis/Claude/AGENTS dirty files
+```
+
+The 06-08 multi-platform closeout had already passed the same export gates plus
+a 10-loop focused regression pass and desktop/mobile browser smoke. This task
+uses those results as cross-task evidence only for the rendering-rule changes
+that directly superseded the stale 05-12 audit; it does not count unrelated
+frontend visual edits as backend/service completion.
+
+### Honest Remaining Boundaries
+
+- WeChat real draft creation, image upload, cover material upload, and backend
+  preview cannot be marked passed without valid `WECHAT_APP_ID`,
+  `WECHAT_APP_SECRET`, account permissions, and a successful Tauri/server-side
+  live API run.
+- Xiaohongshu and Zhihu direct upload/publish remain unsupported in this service
+  layer. Their native export artifacts are real, but platform publishing is
+  `stub` / `unavailable`.
+- The 05-12 task can close as a service-layer real capability audit once the
+  verification commands above pass in the current worktree. It must not be used
+  to claim full live platform publishing.
+
 ## Objective Restated As Deliverables
 
 1. Continue from the previous Inkforge export-rendering work without changing frontend content.
