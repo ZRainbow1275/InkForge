@@ -104,6 +104,17 @@ git status --short --branch
     `prompts/0601/evidence/local-verification/inkforge-0601-tempera-mobile-local-2026-06-08-2026-06-07T22-12-49-640Z.png`,
     `prompts/0601/evidence/local-verification/inkforge-0601-kiln-mobile-local-2026-06-08-2026-06-07T22-13-44-111Z.png`,
     `prompts/0601/evidence/local-verification/inkforge-0601-amber-mobile-local-2026-06-08-2026-06-07T22-14-36-924Z.png`.
+- [x] 2026-06-08 `pnpm -C inkforge test:e2e`:
+  - `onPrepare` ran a real `cargo build --manifest-path=../../src-tauri/Cargo.toml`.
+  - WebView2 `148.0.3967.96` was driven through the real Tauri/WebView2 binary via
+    `tauri-driver.exe` and `msedgedriver.exe`.
+  - `svg-render.spec.cjs`: 5 tests passed, including seeded real draft setup, all
+    three flagship presets injecting responsive `[data-ink-svg]` modules into the
+    export preview, and the flagship body keeping a mobile-comfortable 20-22 CJK
+    chars/line rhythm.
+  - `visual.spec.cjs`: 11 tests passed for chrome, brand mark, tokens, and theme
+    cascade.
+  - Total: 2 spec files passed, 16 tests passed.
 
 ## Remaining Checks Before Commit
 
@@ -115,9 +126,10 @@ git status --short --branch
 - [x] Restore generated cache files if typecheck/build dirties them.
 - [x] Run final GitNexus detect changes and staged diff review.
 - [x] Commit only `06-01` R5 files; leave unrelated dirty files untouched.
-- [ ] Commit the 2026-06-08 local Playwright verification addendum and screenshots only;
-      keep QR/platform-preview candidate PNG files untracked until a separate sensitive
-      artifact review.
+- [x] Commit the 2026-06-08 local Playwright verification addendum and screenshots only.
+- [ ] Commit the 2026-06-08 Tauri e2e verification addendum and safe refreshed e2e
+      screenshots only; keep QR/platform-preview candidate PNG files untracked until a
+      separate sensitive artifact review.
 
 ## Honest Non-Goals For This Slice
 
