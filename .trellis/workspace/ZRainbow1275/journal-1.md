@@ -521,3 +521,36 @@ Stood up tauri-driver + msedgedriver + webdriverio e2e harness against real InkF
 ### Next Steps
 
 - None - task complete
+
+
+## Session 15: Multiplatform rendering rules closeout
+
+**Date**: 2026-06-08
+**Task**: Multiplatform rendering rules closeout
+**Branch**: `dev/visual-fixes`
+
+### Summary
+
+Documented WeChat/XHS/Zhihu rendering contracts, added export quality detectors and regression tests, completed browser and build validation.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `70f5622` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
