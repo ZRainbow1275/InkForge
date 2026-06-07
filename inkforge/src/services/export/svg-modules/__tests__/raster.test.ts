@@ -39,6 +39,22 @@ describe('buildSvgDataUri', () => {
     expect(decoded).not.toContain('width="100%"')
   })
 
+  it('从 data-ink-svg section 片段中抽取 SVG 文档再栅格化', () => {
+    const uri = buildSvgDataUri(
+      '<section data-ink-svg="cover-grid"><svg width="100%" viewBox="0 0 10 20"><rect width="10" height="20" fill="#fff"/></svg></section>',
+      100,
+      200,
+    )
+    const decoded = decodeURIComponent(uri.replace(/^data:image\/svg\+xml;charset=utf-8,/, ''))
+    expect(decoded).toMatch(/^<svg\b/)
+    expect(decoded).toContain('xmlns="http://www.w3.org/2000/svg"')
+    expect(decoded).toContain('width="100"')
+    expect(decoded).toContain('height="200"')
+    expect(decoded).toContain('viewBox="0 0 10 20"')
+    expect(decoded).toContain('<rect width="10" height="20" fill="#fff"/>')
+    expect(decoded).not.toContain('<section')
+  })
+
   it('无 <svg> 时用带 viewBox 的外壳包裹', () => {
     const uri = buildSvgDataUri('<g></g>', 50, 60)
     const decoded = decodeURIComponent(uri.replace(/^data:image\/svg\+xml;charset=utf-8,/, ''))

@@ -1,13 +1,15 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
-本目录存放 **AC1（微信真机粘贴渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint）已在 `prompts/0601/COMPLETION-REPORT.md` 中全绿留档，**不需在此重复**。
+本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
 ---
 
 ## A. 跑 tauri-driver 真二进制探针 / e2e（机器门禁）
+
+**当前状态（2026-06-08）**：已执行并通过。`pnpm -C inkforge test:e2e` 由 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests passed。证据截图已存 `prompts/0601/evidence/e2e/flagship-{kiln,tempera,amber}.png`。
 
 ### A0. 前置（探针与 spec 都**不自带 build**）
 
@@ -54,14 +56,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## B. 真机手动验证（微信公众号后台，AC1）
 
+**当前状态（2026-06-08）**：
+
+- 已完成：真实 `mp.weixin.qq.com` PC 图文编辑器粘贴验证。Playwright 触发真实 `text/html` paste 事件后，微信编辑器 paste sanitizer 保留 8 个 inline SVG / 8 个 `data-ink-svg`，并在 PC 编辑器中可视化渲染封面、分隔线、引用卡和文末结束标。
+- 已完成：PC 粘贴验证暴露的封面长标题溢出已修复，并通过重粘验证 `coverMaxOverflowPx` 为负值，标题落在 viewBox 内。
+- 未完成：微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式确认。该步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
+
 对**每个旗舰预设**（赤陶旗舰 / 铜绿旗舰 / 黄铜旗舰）执行：
 
 1. 启动真应用：`cd D:/Desktop/Inkforge/inkforge && pnpm tauri:dev`（或运行 A0 编译出的 `InkForge.exe`）。**手测一律走 Tauri，不要走浏览器/vite。**
 2. 打开/新建一篇含 **h2 / h3 标题 + 多段中文正文 + `---` 分隔线 + `>` 引用块** 的草稿（命中 cover / header / divider / quote / endmark 全部锚点）。
 3. Workstation → Stage 面板 →「全屏导出」打开 ExportModal → 平台选「微信」→ 选中该旗舰预设卡片。
 4. 确认 ExportModal 预览（`.preview-render`）出现 SVG 标题头 / 分隔线 / 引用卡 / 封面 / 文末结束标，且正文每行 ≈ 20–22 个汉字。
-5. 复制导出 HTML → 在**手机**上打开微信公众号后台编辑器 → 粘贴。
-6. 确认渲染：
+5. 复制导出 HTML → 在 **PC 浏览器**打开微信公众号后台图文编辑器正文区 → 粘贴。
+6. 插入/选择一张符合微信要求的封面缩略图，然后点「预览」，用**手机微信**扫码打开。
+7. 在手机微信里确认渲染：
    - 章节标题头（ribbon / bracket / vrule）显示，配色 = 该预设品牌色；
    - 分隔线（forge / diamond / grid）显示；
    - 引用卡（mark / corner / vbar）显示，原引用文字在内；
@@ -69,7 +78,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
    - 正文每行约 20–22 字（不被 SVG 撑破行宽）；
    - 暗黑模式下 SVG 不反色（自带不透明背景 rect）；
    - 无裸标签泄漏、无 `<style>`/class 残留。
-7. 手机截图存本目录，命名 `wechat-<presetId>-<日期>.png`（如 `wechat-flagship-kiln-20260601.png`）。
+8. 手机截图存本目录，命名 `wechat-<presetId>-mobile-<日期>.png`（如 `wechat-flagship-kiln-mobile-20260608.png`）。
 
 ---
 
@@ -78,9 +87,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ```
 [ ] probe-svg-render-<日期>.txt          # A1 探针 stdout（3 预设几何 + VERDICT）
 [ ] e2e-svg-render-<日期>.txt            # A2 wdio spec 结果
-[ ] wechat-flagship-kiln-<日期>.png      # B 真机：赤陶旗舰公众号渲染
-[ ] wechat-flagship-tempera-<日期>.png   # B 真机：铜绿旗舰公众号渲染
-[ ] wechat-flagship-amber-<日期>.png     # B 真机：黄铜旗舰公众号渲染
+[x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
+[x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
+[x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
+[x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
+[x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图
+[ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
+[ ] wechat-flagship-tempera-mobile-<日期>.png   # B 手机预览：铜绿旗舰公众号渲染
+[ ] wechat-flagship-amber-mobile-<日期>.png     # B 手机预览：黄铜旗舰公众号渲染
 [ ] charsperline-<presetId>-<日期>.png   # 可选：标尺/字数佐证 20-22 字/行（AC3）
 [ ] darkmode-<presetId>-<日期>.png       # 可选：暗黑模式不反色佐证
 ```
@@ -91,5 +105,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 本轮**自动化门禁全绿**（svg-modules 13/255、export 33/822、typecheck exit 0、lint exit 0）；A/B 两节为**手动 / 机器门禁**，本轮**未执行**，代码与探针均**已就绪可即跑**。
-- 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。海报真机产图证据可选附 `xhs-poster-<日期>.png`（在应用内导出小红书海报后截图）。
+- 最新自动化门禁、真实 Tauri e2e 和真实公众号后台 PC 粘贴已执行并通过；当前唯一剩余手动门禁是微信手机端扫码预览截图与 SMIL/暗黑模式确认。
+- 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。

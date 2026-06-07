@@ -190,16 +190,35 @@ git status --short --branch
   - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
     4 files passed, 64 tests passed.
   - `pnpm -C inkforge exec vitest run src/services/export --reporter=default`:
-    35 files passed, 956 tests passed.
+    latest rerun passed, 35 files, 957 tests.
   - `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`:
     passed.
   - `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`:
     passed.
   - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
   - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed,
-    latest rerun built in 39.98s.
+    latest rerun built in 30.91s.
   - `inkforge/tsconfig.tsbuildinfo` was restored after the typecheck/build
     generated-cache update and is intentionally not part of this commit.
+- [x] 2026-06-08 AC6 browser-canvas raster verification:
+  - Ran a real Vite + Playwright Chromium probe against the project module
+    `/src/services/export/svg-modules/index.ts`.
+  - The first browser attempt exposed a real bug: `renderXhsPosterCard()` passed
+    the module's `<section data-ink-svg>...<svg>...</svg></section>` wrapper into
+    `data:image/svg+xml`, causing `Image.onerror` and `rasterizeSvg: failed to load SVG image`.
+  - Fixed `buildSvgDataUri()` to extract the first `<svg>...</svg>` document from
+    wrapper HTML before injecting raster dimensions; bare SVG and raw shape fragments
+    remain supported.
+  - Added `raster.test.ts` coverage for `data-ink-svg` section input:
+    `pnpm -C inkforge exec vitest run src/services/export/svg-modules/__tests__/raster.test.ts --reporter=default`
+    passed, 1 file, 9 tests.
+  - Reran the browser probe successfully. Result:
+    `renderXhsPosterCard(cover-grid, "3:4")` produced `data:image/png;base64,`,
+    natural size 1080x1440, byte length 99114, SHA-256
+    `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`.
+  - Saved non-sensitive evidence under `prompts/0601/evidence/xhs-raster/` and
+    synchronized `prompts/0601/COMPLETION-REPORT.md` plus evidence README files
+    so AC6 no longer relies only on Node guard tests.
 
 ## Remaining Checks Before Commit
 
@@ -219,6 +238,8 @@ git status --short --branch
       only; leave unrelated Trellis/meta/tooling dirty files untouched.
 - [x] Commit the 2026-06-08 quality-detector rule enforcement slice only; leave
       unrelated dirty files and sensitive QR/platform-preview candidate PNG files untouched.
+- [x] Commit the 2026-06-08 AC6 browser-canvas raster fix and evidence only; leave
+      unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

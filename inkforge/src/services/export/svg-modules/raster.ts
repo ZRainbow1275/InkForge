@@ -35,8 +35,19 @@ export function posterViewBox(ratio: '3:4' | '1:1'): { width: number; height: nu
  * width+height；若没有 <svg>，则用一个带 viewBox 的 <svg> 包裹原始内容。
  */
 export function buildSvgDataUri(svgHtml: string, width: number, height: number): string {
-  const sized = injectSvgSize(String(svgHtml ?? ''), width, height)
+  const svgDocument = extractSvgDocument(String(svgHtml ?? ''))
+  const sized = injectSvgSize(svgDocument, width, height)
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(sized)
+}
+
+/**
+ * Module renderers usually return `<section data-ink-svg>...<svg>...</svg></section>`.
+ * Canvas image loading needs an SVG document root, not an HTML fragment, so raster targets
+ * extract the first SVG before sizing it. Bare SVG input and raw shape fragments remain valid.
+ */
+function extractSvgDocument(svgHtml: string): string {
+  const m = /<svg\b[\s\S]*?<\/svg>/i.exec(svgHtml)
+  return m?.[0] ?? svgHtml
 }
 
 /** 在最外层 <svg ...> 开标签上覆盖/注入 width/height；无 <svg> 时用 viewBox 包裹。 */
