@@ -88,6 +88,22 @@ git status --short --branch
 - [x] Untracked PNG files under `prompts/0601/evidence/wechat-paste/` were intentionally left
       unstaged because `wechat-preview-scan-qr.png` may contain QR/platform preview evidence
       that should not be committed without a separate sensitive-artifact review.
+- [x] 2026-06-08 Playwright local artifact probe:
+  - Opened `flagship-tempera.html` at desktop `1440x960`; `#nice` existed, text length
+    1202, 23 `data-ink-block` elements, 3 `data-ink-svg` sections, 35 inline SVGs,
+    and zero `<style>`, class attributes, forbidden SVG constructs, or fixed outer
+    SVG widths.
+  - Resized to mobile `390x844`; `document.body.scrollWidth=390`,
+    `document.documentElement.scrollWidth=390`, `#nice` width 366px, left/right margin
+    12px, paragraph font size 17px, and line-height 31.45px.
+  - Opened `flagship-kiln.html` and `flagship-amber.html` at `390x844`; both reported
+    `scrollWidth=390`, `#nice` width 366px, 23 blocks, 3 SVG sections, 35 inline SVGs,
+    and zero `<style>` / class / forbidden SVG / fixed outer SVG width findings.
+  - Saved local, non-sensitive screenshots:
+    `prompts/0601/evidence/local-verification/inkforge-0601-tempera-desktop-local-2026-06-08-2026-06-07T22-11-42-058Z.png`,
+    `prompts/0601/evidence/local-verification/inkforge-0601-tempera-mobile-local-2026-06-08-2026-06-07T22-12-49-640Z.png`,
+    `prompts/0601/evidence/local-verification/inkforge-0601-kiln-mobile-local-2026-06-08-2026-06-07T22-13-44-111Z.png`,
+    `prompts/0601/evidence/local-verification/inkforge-0601-amber-mobile-local-2026-06-08-2026-06-07T22-14-36-924Z.png`.
 
 ## Remaining Checks Before Commit
 
@@ -98,7 +114,10 @@ git status --short --branch
 - [x] Run production build.
 - [x] Restore generated cache files if typecheck/build dirties them.
 - [x] Run final GitNexus detect changes and staged diff review.
-- [ ] Commit only `06-01` R5 files; leave unrelated dirty files untouched.
+- [x] Commit only `06-01` R5 files; leave unrelated dirty files untouched.
+- [ ] Commit the 2026-06-08 local Playwright verification addendum and screenshots only;
+      keep QR/platform-preview candidate PNG files untracked until a separate sensitive
+      artifact review.
 
 ## Honest Non-Goals For This Slice
 
