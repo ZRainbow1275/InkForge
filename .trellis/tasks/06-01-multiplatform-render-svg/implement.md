@@ -161,6 +161,45 @@ git status --short --branch
     asset copying; proof hierarchy; plugin/sync/copy/publish states are separate;
     WeChat SVG interaction support levels; XHS manifest/count/reference consistency;
     Zhihu public HTTPS/platform-host image dependency and raw diagram fence handling.
+- [x] 2026-06-08 quality-detector rule enforcement slice:
+  - Implemented Xiaohongshu image-count/reference checks in
+    `inkforge/src/services/export/quality-detector.ts`:
+    `xhs-image-count-review` and `xhs-image-reference-mismatch`.
+  - Implemented Zhihu image-host/alt/diagram checks:
+    `zhihu-image-host-blocked`, `zhihu-image-alt-missing`, and
+    `zhihu-raw-diagram-fence`.
+  - Expanded special renderer code-fence handling from Mermaid-only to
+    Mermaid, Graphviz/DOT, PlantUML/PUML, and Vega/Vega-Lite so diagram
+    fences do not also trigger the generic unsupported-code-language warning.
+  - Added regression coverage in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- [x] 2026-06-08 quality-detector graph checks:
+  - `npx gitnexus impact detectZhihuIssues -r InkForge --depth 3`:
+    LOW, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+  - `npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3`:
+    LOW, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+  - `npx gitnexus impact detectRenderingCoreIssues -r InkForge --depth 3`:
+    LOW, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+  - `npx gitnexus impact detectQuality -r InkForge --depth 2`:
+    LOW, 4 directly impacted symbols, 0 affected processes.
+  - GitNexus MCP `detect_changes` returned `fetch failed` in this session;
+    local GitNexus CLI was used as the verification fallback.
+- [x] 2026-06-08 quality-detector verification:
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+    1 file passed, 25 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+    4 files passed, 64 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default`:
+    35 files passed, 956 tests passed.
+  - `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`:
+    passed.
+  - `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+    passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed,
+    latest rerun built in 39.98s.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after the typecheck/build
+    generated-cache update and is intentionally not part of this commit.
 
 ## Remaining Checks Before Commit
 
@@ -176,8 +215,10 @@ git status --short --branch
 - [x] Commit the 2026-06-08 Tauri e2e verification addendum and safe refreshed e2e
       screenshots only; keep QR/platform-preview candidate PNG files untracked until a
       separate sensitive artifact review.
-- [ ] Commit the 2026-06-08 market-rule documentation/spec refresh and agent CSV files
+- [x] Commit the 2026-06-08 market-rule documentation/spec refresh and agent CSV files
       only; leave unrelated Trellis/meta/tooling dirty files untouched.
+- [x] Commit the 2026-06-08 quality-detector rule enforcement slice only; leave
+      unrelated dirty files and sensitive QR/platform-preview candidate PNG files untouched.
 
 ## Honest Non-Goals For This Slice
 

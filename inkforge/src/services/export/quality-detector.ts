@@ -13,6 +13,18 @@
 import { SUPPORTED_CODE_LANGUAGES } from '@/extensions/codeLanguages'
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
 
+const XHS_IMAGE_COUNT_REVIEW_THRESHOLD = 18
+const DIAGRAM_FENCE_LANGUAGES = new Set([
+  'mermaid',
+  'graphviz',
+  'dot',
+  'plantuml',
+  'puml',
+  'vega',
+  'vega-lite',
+  'vegalite',
+])
+
 // ═══════════════════════════════════════════════════════════════════
 // 统一入口
 // ═══════════════════════════════════════════════════════════════════
@@ -140,8 +152,8 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
   }
 
   // 7. 检测 Mermaid 图表
-  const mermaidBlocks = markdown.match(/```mermaid/gi)
-  if (mermaidBlocks) {
+  const mermaidBlocks = markdown.match(/```mermaid/gi) ?? []
+  if (mermaidBlocks.length > 0) {
     addIssue(issues, {
       id: 'wechat-mermaid',
       severity: 'suggestion',
@@ -370,6 +382,8 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
       suggestion: '导出时会转为文字描述',
     })
   }
+
+  detectXhsImageReferenceIssues(markdown, issues)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -420,14 +434,24 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
     })
   }
 
-  // 3. 检测 Mermaid 图表
-  const mermaidBlocks = markdown.match(/```mermaid/gi)
-  if (mermaidBlocks) {
+  // 3. 检测 Mermaid / Graphviz / PlantUML / Vega 等图表围栏
+  const diagramFences = collectDiagramFenceLanguages(markdown)
+  const mermaidBlocks = diagramFences.filter(language => language === 'mermaid')
+  if (mermaidBlocks.length > 0) {
     addIssue(issues, {
       id: 'zhihu-mermaid',
       severity: 'warning',
       message: `发现 ${mermaidBlocks.length} 个 Mermaid 图表，知乎不支持 Mermaid 渲染`,
       suggestion: '建议将 Mermaid 图表截图后上传',
+    })
+  }
+  const otherDiagramFences = diagramFences.filter(language => language !== 'mermaid')
+  if (otherDiagramFences.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-raw-diagram-fence',
+      severity: 'warning',
+      message: `发现 ${otherDiagramFences.length} 个原始图表围栏（${[...new Set(otherDiagramFences)].join(', ')}）`,
+      suggestion: '知乎发布前应转为 PNG/JPG 并提供 alt/caption，或保留文字说明，不直接发布 raw diagram block',
     })
   }
 
@@ -494,6 +518,8 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
       suggestion: '导出时会自动清理 class 属性',
     })
   }
+
+  detectZhihuImageIssues(markdown, issues)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -553,7 +579,7 @@ const CODE_LANGUAGE_ALIASES: Record<string, string> = {
   kt: 'kotlin',
 }
 
-const SPECIAL_RENDERER_BLOCK_LANGUAGES = new Set(['mermaid'])
+const SPECIAL_RENDERER_BLOCK_LANGUAGES = DIAGRAM_FENCE_LANGUAGES
 
 function normalizeCodeLanguage(language: string): string {
   const normalized = language.trim().toLowerCase()
@@ -623,6 +649,149 @@ function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): vo
 // ═══════════════════════════════════════════════════════════════════
 // 辅助函数
 // ═══════════════════════════════════════════════════════════════════
+
+function detectXhsImageReferenceIssues(markdown: string, issues: QualityIssue[]): void {
+  const imageCount = collectMarkdownImages(markdown).length
+  if (imageCount > XHS_IMAGE_COUNT_REVIEW_THRESHOLD) {
+    addIssue(issues, {
+      id: 'xhs-image-count-review',
+      severity: 'warning',
+      message: `发现 ${imageCount} 张图片，超过当前小红书图文市场资料常见的 ${XHS_IMAGE_COUNT_REVIEW_THRESHOLD} 张上限`,
+      suggestion: '不要硬编码平台上限；发布前通过真实入口确认当前账号允许数量，并同步重建图片 manifest 与正文图号引用',
+    })
+  }
+
+  const references = collectXhsImageReferences(markdown)
+  if (references.length === 0) return
+
+  const invalidReferences = references.filter(ref => ref < 1 || (imageCount > 0 && ref > imageCount))
+  if (imageCount === 0 || invalidReferences.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-reference-mismatch',
+      severity: 'error',
+      message: imageCount === 0
+        ? `正文引用了 ${references.length} 个“见第 N 张图”，但源内容没有可计数图片`
+        : `正文引用的图片序号超出现有 ${imageCount} 张图片范围：${[...new Set(invalidReferences)].join(', ')}`,
+      suggestion: '新增、删除或重排图片后必须重建 manifest、正文“见第 N 张图”引用、封面页和导出文件列表',
+    })
+  }
+}
+
+function detectZhihuImageIssues(markdown: string, issues: QualityIssue[]): void {
+  const markdownImages = collectMarkdownImages(markdown)
+  const htmlImages = collectHtmlImages(markdown)
+  const blockedSources = [
+    ...markdownImages.map(image => image.src),
+    ...htmlImages.map(image => image.src),
+  ].filter(isBlockedZhihuImageSource)
+
+  if (blockedSources.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-host-blocked',
+      severity: 'error',
+      message: `发现 ${blockedSources.length} 个不适合作为知乎最终产物的图片地址`,
+      suggestion: '知乎最终 Markdown 图片必须使用稳定公开 HTTPS 地址，或真实知乎/目标发布入口上传后返回的平台图床地址；本地、blob/data、私网、http 和微信专用 CDN 必须重写或阻断',
+    })
+  }
+
+  const missingAlt = [
+    ...markdownImages.filter(image => !image.alt.trim()),
+    ...htmlImages.filter(image => !image.alt.trim()),
+  ]
+  if (missingAlt.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-alt-missing',
+      severity: 'warning',
+      message: `发现 ${missingAlt.length} 张图片缺少 alt 文本`,
+      suggestion: '知乎图片 fallback、公式图、表格图和图表图必须保留 alt；图片替代语义内容时还应保留 caption 或文字说明',
+    })
+  }
+}
+
+function collectDiagramFenceLanguages(markdown: string): string[] {
+  return Array.from(markdown.matchAll(/^```([^\s`]*)/gmi))
+    .map(match => normalizeCodeLanguage(match[1] ?? ''))
+    .filter(language => DIAGRAM_FENCE_LANGUAGES.has(language))
+}
+
+interface MarkdownImageRef {
+  alt: string
+  src: string
+}
+
+function collectMarkdownImages(markdown: string): MarkdownImageRef[] {
+  return Array.from(markdown.matchAll(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+["'][^)]*["'])?\)/g))
+    .map(match => ({
+      alt: match[1] ?? '',
+      src: match[2] ?? '',
+    }))
+}
+
+function collectHtmlImages(markdown: string): MarkdownImageRef[] {
+  return Array.from(markdown.matchAll(/<img\b[^>]*>/gi))
+    .map(match => ({
+      alt: getHtmlAttribute(match[0], 'alt'),
+      src: getHtmlAttribute(match[0], 'src'),
+    }))
+    .filter(image => image.src)
+}
+
+function getHtmlAttribute(tag: string, name: string): string {
+  const pattern = new RegExp(`${name}\\s*=\\s*(["'])(.*?)\\1`, 'i')
+  return tag.match(pattern)?.[2] ?? ''
+}
+
+function collectXhsImageReferences(markdown: string): number[] {
+  return Array.from(markdown.matchAll(/见第\s*([0-9一二三四五六七八九十]+)\s*张图/g))
+    .map(match => parseChineseOrArabicNumber(match[1] ?? ''))
+    .filter((value): value is number => value !== null)
+}
+
+function parseChineseOrArabicNumber(raw: string): number | null {
+  if (/^\d+$/.test(raw)) return parseInt(raw, 10)
+
+  const digitMap: Record<string, number> = {
+    零: 0,
+    一: 1,
+    二: 2,
+    三: 3,
+    四: 4,
+    五: 5,
+    六: 6,
+    七: 7,
+    八: 8,
+    九: 9,
+  }
+  if (raw === '十') return 10
+  if (raw.startsWith('十')) {
+    const ones = digitMap[raw.slice(1)] ?? 0
+    return 10 + ones
+  }
+  if (raw.endsWith('十')) {
+    const tens = digitMap[raw.slice(0, -1)]
+    return tens === undefined ? null : tens * 10
+  }
+  if (raw.includes('十')) {
+    const [tensRaw, onesRaw] = raw.split('十')
+    const tens = digitMap[tensRaw]
+    const ones = digitMap[onesRaw] ?? 0
+    return tens === undefined ? null : tens * 10 + ones
+  }
+
+  return digitMap[raw] ?? null
+}
+
+function isBlockedZhihuImageSource(src: string): boolean {
+  const normalized = src.trim()
+  const lower = normalized.toLowerCase()
+  if (!normalized) return true
+  if (/^(?:blob:|data:|file:)/i.test(normalized)) return true
+  if (/^(?:\.{1,2}\/|\/|[a-z]:\\|[a-z]:\/)/i.test(normalized)) return true
+  if (/^http:\/\//i.test(normalized)) return true
+  if (/^https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[0-1])\.)/i.test(normalized)) return true
+  if (/^https?:\/\/(?:mmbiz\.qpic\.cn|mmbiz\.qlogo\.cn|res\.wx\.qq\.com)\//i.test(normalized)) return true
+  return !lower.startsWith('https://')
+}
 
 /** 检测 LaTeX 语法错误（不匹配的 $） */
 function detectLatexErrors(text: string, issues: QualityIssue[]): void {

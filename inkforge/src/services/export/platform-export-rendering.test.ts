@@ -470,6 +470,48 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.issues.some(issue => issue.id === 'zhihu-inline-svg' && issue.severity === 'error')).toBe(true)
   })
 
+  it('flags stale Xiaohongshu image references and high image-count review', () => {
+    const images = Array.from({ length: 19 }, (_value, index) => `![第${index + 1}张](https://example.com/${index + 1}.png)`)
+    const report = detectQuality([
+      '# 小红书图片包',
+      '',
+      ...images,
+      '',
+      '正文请见第20张图。',
+    ].join('\n'), 'xiaohongshu')
+
+    expect(report.issues.some(issue => issue.id === 'xhs-image-count-review' && issue.severity === 'warning')).toBe(true)
+    expect(report.issues.some(issue => issue.id === 'xhs-image-reference-mismatch' && issue.severity === 'error')).toBe(true)
+  })
+
+  it('flags Zhihu unsafe image hosts, missing alt, and raw diagram fences', () => {
+    const report = detectQuality([
+      '# 知乎图片和图表检测',
+      '',
+      '![本地图](./images/local.png)',
+      '![](https://example.com/no-alt.png)',
+      '![临时图](blob:https://example.com/asset)',
+      '![内联图](data:image/png;base64,AAAA)',
+      '![微信图](https://mmbiz.qpic.cn/mmbiz_png/demo/640)',
+      '',
+      '```graphviz',
+      'digraph G { A -> B }',
+      '```',
+      '',
+      '```plantuml',
+      '@startuml',
+      'A -> B',
+      '@enduml',
+      '```',
+    ].join('\n'), 'zhihu')
+
+    const ids = report.issues.map(issue => issue.id)
+    expect(ids).toContain('zhihu-image-host-blocked')
+    expect(ids).toContain('zhihu-image-alt-missing')
+    expect(ids).toContain('zhihu-raw-diagram-fence')
+    expect(ids).not.toContain('render-code-language-unsupported')
+  })
+
   it('routes the unified native exporter to the correct real platform formats', async () => {
     const [wechat, xiaohongshu, zhihu] = await Promise.all([
       convertToNativeFormat(REAL_EXPORT_MARKDOWN, 'wechat', {
