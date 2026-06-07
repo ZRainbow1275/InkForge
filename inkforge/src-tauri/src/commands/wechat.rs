@@ -27,6 +27,7 @@ const WECHAT_DRAFT_CONTENT_SOURCE_URL_MAX_BYTES: usize = 1024;
 const WECHAT_ACCESS_TOKEN_DEFAULT_EXPIRES_IN_SECS: u64 = 7_200;
 const WECHAT_ACCESS_TOKEN_REFRESH_SKEW_SECS: u64 = 300;
 const WECHAT_ACCESS_TOKEN_MIN_TTL_SECS: u64 = 1;
+const WECHAT_ACCESS_TOKEN_ENDPOINT_ERRCODES: [i64; 3] = [40001, 40014, 42001];
 
 static WECHAT_ACCESS_TOKEN_CACHE: OnceLock<Mutex<Option<AccessTokenCacheEntry>>> = OnceLock::new();
 
@@ -107,7 +108,7 @@ pub struct WechatDraftArticle {
     only_fans_can_comment: Option<u8>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 struct WechatDraftArticlePayload {
     title: String,
     content: String,
@@ -178,7 +179,7 @@ struct DraftCreateApiResponse {
     errmsg: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct PreparedUpload {
     bytes: Vec<u8>,
     mime_type: String,
@@ -835,11 +836,21 @@ fn cache_access_token(
     access_token
 }
 
-#[cfg(test)]
-fn clear_access_token_cache_for_tests() {
+fn clear_access_token_cache() {
     if let Ok(mut guard) = access_token_cache().lock() {
         *guard = None;
     }
+}
+
+#[cfg(test)]
+fn clear_access_token_cache_for_tests() {
+    clear_access_token_cache();
+}
+
+fn is_access_token_endpoint_error(errcode: Option<i64>) -> bool {
+    errcode
+        .map(|code| WECHAT_ACCESS_TOKEN_ENDPOINT_ERRCODES.contains(&code))
+        .unwrap_or(false)
 }
 
 async fn fetch_access_token_uncached(
@@ -893,11 +904,11 @@ async fn fetch_access_token(client: &Client, config: &WechatApiConfig) -> Result
 async fn upload_multipart_image(
     client: &Client,
     url: Url,
-    prepared: PreparedUpload,
+    prepared: &PreparedUpload,
     operation: &str,
 ) -> Result<reqwest::Response, String> {
-    let part = multipart::Part::bytes(prepared.bytes)
-        .file_name(prepared.filename)
+    let part = multipart::Part::bytes(prepared.bytes.clone())
+        .file_name(prepared.filename.clone())
         .mime_str(&prepared.mime_type)
         .map_err(|error| format!("invalid mime type for {}: {}", operation, error))?;
 
@@ -1222,20 +1233,36 @@ pub async fn wechat_upload_article_image(
     })?;
     let client = build_client()?;
     let prepared = prepare_upload(&client, &input, WechatUploadKind::ArticleContentImage).await?;
-    let access_token = fetch_access_token(&client, &config).await?;
+    let mut access_token = fetch_access_token(&client, &config).await?;
 
     let response = upload_multipart_image(
         &client,
         build_wechat_url("media/uploadimg", &[("access_token", &access_token)])?,
-        prepared,
+        &prepared,
         "uploadimg",
     )
     .await?;
 
-    let payload: UploadImageResponse = response
+    let mut payload: UploadImageResponse = response
         .json()
         .await
         .map_err(|error| format_response_parse_error("uploadimg", error))?;
+
+    if is_access_token_endpoint_error(payload.errcode) {
+        clear_access_token_cache();
+        access_token = fetch_access_token(&client, &config).await?;
+        let retry_response = upload_multipart_image(
+            &client,
+            build_wechat_url("media/uploadimg", &[("access_token", &access_token)])?,
+            &prepared,
+            "uploadimg",
+        )
+        .await?;
+        payload = retry_response
+            .json()
+            .await
+            .map_err(|error| format_response_parse_error("uploadimg", error))?;
+    }
 
     ensure_no_api_error(payload.errcode, payload.errmsg, "uploadimg")?;
     let remote_url = payload
@@ -1258,7 +1285,7 @@ pub async fn wechat_upload_cover_image(
     })?;
     let client = build_client()?;
     let prepared = prepare_upload(&client, &input, WechatUploadKind::PermanentImage).await?;
-    let access_token = fetch_access_token(&client, &config).await?;
+    let mut access_token = fetch_access_token(&client, &config).await?;
 
     let response = upload_multipart_image(
         &client,
@@ -1266,15 +1293,34 @@ pub async fn wechat_upload_cover_image(
             "material/add_material",
             &[("access_token", &access_token), ("type", "image")],
         )?,
-        prepared,
+        &prepared,
         "add_material",
     )
     .await?;
 
-    let payload: MaterialUploadResponse = response
+    let mut payload: MaterialUploadResponse = response
         .json()
         .await
         .map_err(|error| format_response_parse_error("add_material", error))?;
+
+    if is_access_token_endpoint_error(payload.errcode) {
+        clear_access_token_cache();
+        access_token = fetch_access_token(&client, &config).await?;
+        let retry_response = upload_multipart_image(
+            &client,
+            build_wechat_url(
+                "material/add_material",
+                &[("access_token", &access_token), ("type", "image")],
+            )?,
+            &prepared,
+            "add_material",
+        )
+        .await?;
+        payload = retry_response
+            .json()
+            .await
+            .map_err(|error| format_response_parse_error("add_material", error))?;
+    }
 
     ensure_no_api_error(payload.errcode, payload.errmsg, "add_material")?;
 
@@ -1306,23 +1352,43 @@ pub async fn wechat_create_draft(
         )
     })?;
     let client = build_client()?;
-    let access_token = fetch_access_token(&client, &config).await?;
-    let payload = WechatDraftArticlePayload::from(&article);
+    let mut access_token = fetch_access_token(&client, &config).await?;
+    let draft_payload = WechatDraftArticlePayload::from(&article);
     let url = build_wechat_url("draft/add", &[("access_token", &access_token)])?;
 
     let response = client
         .post(url)
         .json(&serde_json::json!({
-            "articles": [payload],
+            "articles": [draft_payload.clone()],
         }))
         .send()
         .await
         .map_err(|error| format_request_error("draft/add", error))?;
 
-    let payload: DraftCreateApiResponse = response
+    let mut payload: DraftCreateApiResponse = response
         .json()
         .await
         .map_err(|error| format_response_parse_error("draft/add", error))?;
+
+    if is_access_token_endpoint_error(payload.errcode) {
+        clear_access_token_cache();
+        access_token = fetch_access_token(&client, &config).await?;
+        let retry_response = client
+            .post(build_wechat_url(
+                "draft/add",
+                &[("access_token", &access_token)],
+            )?)
+            .json(&serde_json::json!({
+                "articles": [draft_payload],
+            }))
+            .send()
+            .await
+            .map_err(|error| format_request_error("draft/add", error))?;
+        payload = retry_response
+            .json()
+            .await
+            .map_err(|error| format_response_parse_error("draft/add", error))?;
+    }
 
     ensure_no_api_error(payload.errcode, payload.errmsg, "draft/add")?;
 
@@ -1343,9 +1409,9 @@ mod tests {
         access_token_cache_ttl, build_wechat_url, cache_access_token, cached_access_token,
         clear_access_token_cache_for_tests, collect_env_file_candidates, ensure_no_api_error,
         ensure_remote_image_response_status, ensure_supported_wechat_image, extract_img_srcs,
-        is_wechat_image_url, load_env_file_values_from_candidates, parse_env_contents,
-        sanitize_env_value, validate_draft_article, validate_remote_image_url, WechatApiConfig,
-        WechatDraftArticle, WechatDraftArticlePayload, WechatUploadKind,
+        is_access_token_endpoint_error, is_wechat_image_url, load_env_file_values_from_candidates,
+        parse_env_contents, sanitize_env_value, validate_draft_article, validate_remote_image_url,
+        WechatApiConfig, WechatDraftArticle, WechatDraftArticlePayload, WechatUploadKind,
         WECHAT_ACCESS_TOKEN_MIN_TTL_SECS, WECHAT_ACCESS_TOKEN_REFRESH_SKEW_SECS,
         WECHAT_ARTICLE_CONTENT_MAX_BYTES, WECHAT_ARTICLE_CONTENT_MAX_CHARS,
         WECHAT_ARTICLE_IMAGE_MAX_BYTES, WECHAT_DRAFT_AUTHOR_MAX_CHARS,
@@ -1749,6 +1815,18 @@ mod tests {
     }
 
     #[test]
+    fn endpoint_token_error_codes_trigger_cache_refresh_retry() {
+        for code in [40001, 40014, 42001] {
+            assert!(is_access_token_endpoint_error(Some(code)), "{code}");
+        }
+
+        for code in [0, 40013, 41001] {
+            assert!(!is_access_token_endpoint_error(Some(code)), "{code}");
+        }
+        assert!(!is_access_token_endpoint_error(None));
+    }
+
+    #[test]
     fn access_token_cache_reuses_same_app_id_until_skewed_expiry() {
         clear_access_token_cache_for_tests();
         let config = WechatApiConfig {
@@ -1783,6 +1861,25 @@ mod tests {
         cache_access_token(&first, "token-first".to_string(), Some(7200), now);
 
         assert!(cached_access_token(&second, now + Duration::from_secs(60)).is_none());
+    }
+
+    #[test]
+    fn access_token_cache_can_be_cleared_after_endpoint_token_error() {
+        clear_access_token_cache_for_tests();
+        let config = WechatApiConfig {
+            app_id: "wx-clear".to_string(),
+            app_secret: "secret".to_string(),
+        };
+        let now = Instant::now();
+
+        cache_access_token(&config, "stale-token".to_string(), Some(7200), now);
+        assert_eq!(
+            cached_access_token(&config, now + Duration::from_secs(60)).as_deref(),
+            Some("stale-token")
+        );
+
+        clear_access_token_cache_for_tests();
+        assert!(cached_access_token(&config, now + Duration::from_secs(60)).is_none());
     }
 
     #[test]
