@@ -17,6 +17,19 @@ production tools (see `prompts/0601/research/wechat-svg-capabilities.md`). The k
 **WeChat strips `id` and `class` and `<style>` on paste/publish**, so any `id`-referenced
 construct breaks.
 
+2026-06 market/official-spec supplement:
+
+- Treat `docs/platform-rendering-rules/market-practices-catalog.md` as the cross-platform
+  rule catalog for 135/Xiumi/doocs/md lessons.
+- WeChat official editor guidance adds hard failure modes that must be respected by SVG and
+  HTML block authors: no fixed-width/height content containers, no `line-height:0` around
+  readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
+  in `<pre>`, no `text-align:start/end`, and no SVG animation trigger that only works on
+  `touchstart`.
+- Dark Mode: SVG text is not recolored by the platform algorithm in the same way as HTML text.
+  Text-bearing SVG must either be avoided or include an opaque background plus explicit
+  `fill`/`stroke` values with verified contrast. Prefer HTML blocks for reflowing text.
+
 ---
 
 ## 2. Signatures
@@ -67,6 +80,12 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
 - Gradients/glows → use **layered solid shapes with stepped opacity** (NOT SVG gradients).
 - Dark themes → bake an opaque background `<rect>` and give every `<text>` an explicit `fill`.
 - Every module root carries `data-ink-svg="<moduleId>"` (idempotency sentinel).
+- Interactive SVG remains opt-in. If an animation requires user input, do not rely on
+  `touchstart` alone; default modules should avoid DOM event handlers entirely. If the module
+  cannot be verified in a real WeChat editor/browser path, ship a raster fallback or mark the
+  capability `blocked`.
+- Do not use SVG as a hidden overlay on top of transparent `<img>` elements. That pattern can
+  prevent official-account authors from editing the underlying image after publishing.
 
 **Pipeline ordering (why injection works):** `preset.decorate(html, target)` runs in
 `wechat.ts` (~:1336) **after** the export DOMPurify (so injected SVG is NOT stripped) and
@@ -76,6 +95,14 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
 
 **Targets:** `preview`/`wechat` → inline SVG. `xhs`/`zhihu` → rasterized `<img>` (zhihu strips
 inline SVG; xhs body is plain-text/poster) via `raster.ts` (`hasDom()`-guarded canvas).
+
+Cross-platform target contract:
+
+- WeChat: inline HTML block + WeChat-safe SVG, then final-output compliance checks.
+- Xiaohongshu: plain text plus image/poster/long-image artifacts. Never leak inline SVG or
+  WeChat HTML into the publishable body.
+- Zhihu: clean Markdown. Remove WeChat-specific `<section data-ink-block>` and inline SVG
+  decorations; preserve semantic Markdown or image fallback.
 
 ---
 
@@ -107,6 +134,9 @@ inline SVG; xhs body is plain-text/poster) via `raster.ts` (`hasDom()`-guarded c
 - `svg-modules/__tests__/inject.test.ts` — anchor replacement, **idempotency** (decorate twice = identical), preview inline vs xhs/zhihu rasterize seam.
 - `services/export/__tests__/flagship-pipeline-smoke.test.ts` — real `convertToWechatWithStats` end-to-end: each flagship plan's module ids present, every `<section data-ink-svg>` block `checkWechatSafe===[]` AFTER full pipeline, idempotent, non-flagship preset emits **no** `data-ink-svg`/`<svg>`.
 - Assertion points: `data-ink-svg` present, outer `<svg>` has `width="100%"`+`viewBox`, zero safe violations, `generatePersonaBaseCSS` still has `min(22em` + `font-size: 17px` (20-22 CJK chars/line lock unchanged).
+- Platform leakage tests are required for every new family: XHS output must not contain
+  `<svg>`, `<section data-ink-block>`, HTML tags, or raw Markdown control leakage; Zhihu output
+  must not contain WeChat decorations or inline CSS dependency.
 
 ---
 

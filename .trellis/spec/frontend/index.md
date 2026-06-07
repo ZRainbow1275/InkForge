@@ -21,6 +21,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | Active |
 | [Type Safety](./type-safety.md) | Type patterns, validation | Active |
 | [WeChat-Safe SVG Modules](./wechat-svg-modules.md) | Inline-SVG typesetting subset, injection contract, opt-in flagship presets | Active |
+| [Flagship Element Catalog](./flagship-element-catalog.md) | Market-informed InkForge element families and flagship rule catalog | Active |
 
 ---
 
@@ -37,4 +38,4 @@ The goal is to help AI assistants and new team members understand how YOUR proje
 
 ---
 
-**Language**: All documentation should be written in **English**.
+**Language**: New spec additions should be written in **English** where practical. Existing Chinese project-specific rule files are valid source-of-truth when they already encode tested local contracts.

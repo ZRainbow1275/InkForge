@@ -160,6 +160,79 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
       suggestion: '导出时会降级为自包含公式文本；如需公式图片，请接入真实素材上传链路',
     })
   }
+
+  // 9. 微信官方编辑器规范：固定宽高、line-height:0、普通文本 pre、start/end 对齐等
+  detectWechatOfficialEditorSpecIssues(markdown, issues)
+}
+
+function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityIssue[]): void {
+  if (/line-height\s*:\s*0(?:px|em|rem|;|")/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-line-height-zero',
+      severity: 'warning',
+      message: '检测到 line-height:0，微信官方规范将其列为可读性和可见性风险',
+      suggestion: '不要用 line-height:0 包裹可读文本；改用结构化 section/p/span 和正常行高',
+    })
+  }
+
+  if (/<(?:section|div|p)\b[^>]*style=["'][^"']*(?:width|height)\s*:\s*\d{3,}px/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-fixed-container-size',
+      severity: 'warning',
+      message: '检测到正文容器固定宽高，可能破坏微信移动端响应式呈现',
+      suggestion: '正文容器使用 max-width、width:100% 或自然流布局；图片尺寸由导出器单独处理',
+    })
+  }
+
+  if (/text-align\s*:\s*(?:start|end)\b/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-text-align-logical',
+      severity: 'warning',
+      message: '检测到 text-align:start/end，不同终端表现可能不一致',
+      suggestion: '改用 left、center 或 right',
+    })
+  }
+
+  if (/<pre\b(?:(?!<\/pre>).)*<\/pre>/is.test(markdown)) {
+    const preBlocks = markdown.match(/<pre\b[\s\S]*?<\/pre>/gi) ?? []
+    const textPreBlocks = preBlocks.filter(block => !/<code[\s>]/i.test(block))
+    if (textPreBlocks.length > 0) {
+      addIssue(issues, {
+        id: 'wechat-pre-ordinary-text',
+        severity: 'warning',
+        message: `检测到 ${textPreBlocks.length} 个未包含 <code> 的 <pre> 块，普通段落不应使用 pre`,
+        suggestion: '普通正文使用 <p> 或 <section>；仅代码块保留 <pre><code>',
+      })
+    }
+  }
+
+  if (/<img\b[^>]*style=["'][^"']*opacity\s*:\s*0/i.test(markdown) && /<svg[\s>]/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-transparent-image-svg-overlay',
+      severity: 'warning',
+      message: '检测到透明图片叠加 SVG 的模式，发布后可能导致公众号后台无法编辑真实图片',
+      suggestion: '不要隐藏真实图片再用 SVG 背景替代；将图片作为真实 <img> 输出，SVG 只做装饰',
+    })
+  }
+
+  const touchstartOnlyAnimate = /<animate(?:Transform)?\b[^>]*\bbegin=["'][^"']*\btouchstart\b(?![^"']*\bclick\b)[^"']*["']/i
+  if (touchstartOnlyAnimate.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-svg-touchstart-only',
+      severity: 'warning',
+      message: '检测到 SVG 动画 begin 仅依赖 touchstart，PC 端微信编辑器可能无法触发',
+      suggestion: '互动 SVG 必须 opt-in 并真实验证；需要触发时至少覆盖 click，默认避免 DOM 事件处理器',
+    })
+  }
+
+  if (/!important\b/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'wechat-important-style',
+      severity: 'suggestion',
+      message: '检测到 !important，可能干扰微信公共样式和 Dark Mode 修正',
+      suggestion: '优先使用结构和明确 inline style，避免依赖 !important',
+    })
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -246,6 +319,15 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
+  if (/data-ink-(?:block|svg)=|<svg[\s>]/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'xhs-wechat-decoration-leak',
+      severity: 'error',
+      message: '检测到微信装饰块或 inline SVG，小红书正文不能承载微信富文本装饰',
+      suggestion: '导出时必须降级为纯文本、图片页或长图，不得粘贴微信 HTML/SVG',
+    })
+  }
+
   // 6. 检测链接
   const links = markdown.match(/\[([^\]]+)\]\([^)]+\)/g)
   if (links && links.length > 0) {
@@ -295,6 +377,24 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
 // ═══════════════════════════════════════════════════════════════════
 
 function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
+  if (/data-ink-(?:block|svg)=/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'zhihu-wechat-decoration-leak',
+      severity: 'error',
+      message: '检测到微信旗舰装饰块，知乎输出必须是 clean Markdown',
+      suggestion: '将微信标题卡、阅读条、金句卡、SVG 分隔符降级为 Markdown 语义或图片 fallback',
+    })
+  }
+
+  if (/<svg[\s>]/i.test(markdown)) {
+    addIssue(issues, {
+      id: 'zhihu-inline-svg',
+      severity: 'error',
+      message: '检测到 inline SVG，知乎正文不应依赖微信 SVG 装饰',
+      suggestion: '将 SVG 降级为 PNG/JPG 或删除装饰，仅保留 Markdown 语义',
+    })
+  }
+
   // 1. 检测残留 HTML 标签
   const htmlTags = markdown.match(/<(?!\/?\s*(?:br|hr|img)\s*\/?)[a-zA-Z][^>]*>/g)
   if (htmlTags && htmlTags.length > 0) {

@@ -8,6 +8,34 @@
 > 母题统一：方格 grid × 菱形 diamond × 印章 × 构成主义。零 emoji。**preview + wechat 双轨执行**。
 > 所有装饰器：`(palette, opts?) => (html, target) => html`，幂等（data-ink-block / data-ink-svg）。
 > 非旗舰预设零行为改动。
+>
+> 2026-06 market supplement: 135/Xiumi are reference systems for taxonomy and workflow only.
+> InkForge must not copy proprietary templates. New families should map into the catalog below,
+> preserve the `墨铸 / Quiet Press / flagship editorial` identity, and keep non-WeChat targets as
+> semantic Markdown/plain-text/image fallbacks.
+
+---
+
+## 0. 市场规则族映射
+
+| Rule group | Market reference | Flagship implementation boundary |
+|------------|------------------|----------------------------------|
+| `headline-system` | 135 标题/模板中心、秀米图文标题/自由布局 | H2/H3/cover only through existing decorator chain; no copied template geometry |
+| `body-system` | 一键排版、阅读头、正文参数修正 | `decorateFlagshipReadingBar`, lede, paragraph rhythm; no renderer replacement |
+| `card-system` | 引用、金句、数据、提示、对比 | `pullquote`, `callout`, `stat`; icon must be inline SVG path, never emoji |
+| `figure-system` | 图框、多图、长图、图片设计 | `decorateFlagshipFigure` and raster/long-image fallback; no hidden transparent image overlay |
+| `guide-system` | 关注、分享、文末、二维码、预览分享 | footer/colophon and publish checklist; no fake official-account widgets |
+| `interactive-system` | SVG 展开、切换、滑动、路径动画、区域触发 | opt-in only; must pass WeChat-safe validation plus real-editor verification or degrade |
+| `fallback-system` | 长图/PDF/视频、插件复制、多平台分发 | XHS image pages/long image, Zhihu clean Markdown, explicit `blocked` for missing credentials |
+
+Any new catalog element must declare:
+
+- trigger type.
+- WeChat artifact type: HTML block, WeChat-safe SVG, raster fallback, or publish checklist.
+- XHS artifact type: plain text, image page, long image, or unavailable.
+- Zhihu artifact type: Markdown semantic, image fallback, or unavailable.
+- safety validator and negative tests.
+- idempotency sentinel.
 
 ---
 

@@ -219,6 +219,28 @@ describe('platform native export rendering rules', () => {
     expect(report.issues.some(item => item.id === 'render-code-language-unsupported')).toBe(false)
   })
 
+  it('reports WeChat official editor structure risks before export', () => {
+    const report = detectQuality(
+      [
+        '<section style="width:1080px;line-height:0;text-align:start!important">',
+        '<pre>这是一段普通正文，不是代码块，不应该放在 pre 中。</pre>',
+        '<img src="https://example.com/a.png" style="opacity:0">',
+        '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="20"><animate attributeName="fill" begin="touchstart" values="#000;#fff"></animate></circle></svg>',
+        '</section>',
+      ].join(''),
+      'wechat'
+    )
+    const ids = report.issues.map(issue => issue.id)
+
+    expect(ids).toContain('wechat-line-height-zero')
+    expect(ids).toContain('wechat-fixed-container-size')
+    expect(ids).toContain('wechat-text-align-logical')
+    expect(ids).toContain('wechat-pre-ordinary-text')
+    expect(ids).toContain('wechat-transparent-image-svg-overlay')
+    expect(ids).toContain('wechat-svg-touchstart-only')
+    expect(ids).toContain('wechat-important-style')
+  })
+
   it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
     const result = convertToWechatWithStats(
       '<div class="mermaid-rendered" data-source="graph TD A[流程 A] --> B[流程 B]"><svg><style>#x{font-family:sans-serif}@keyframes edge{}</style><text>流程 A</text><text>流程 B</text></svg></div>',
@@ -430,6 +452,22 @@ describe('platform native export rendering rules', () => {
 
     const quality = detectQuality([REAL_EXPORT_MARKDOWN, '', '$$E=mc^2$$'].join(String.fromCharCode(10)), 'zhihu')
     expect(quality.issues.some(issue => issue.id === 'zhihu-latex-preview')).toBe(true)
+  })
+
+  it('blocks WeChat flagship decorations from XHS and Zhihu publishable outputs', () => {
+    const decorated = [
+      '<section data-ink-block="flagship-h2" style="background-color:#111;color:#fff">',
+      '<svg data-ink-svg="divider-grid" viewBox="0 0 100 20"><path d="M0 0h100v20H0z"></path></svg>',
+      '标题',
+      '</section>',
+    ].join('')
+
+    const xhs = detectQuality(decorated, 'xiaohongshu')
+    const zhihu = detectQuality(decorated, 'zhihu')
+
+    expect(xhs.issues.some(issue => issue.id === 'xhs-wechat-decoration-leak' && issue.severity === 'error')).toBe(true)
+    expect(zhihu.issues.some(issue => issue.id === 'zhihu-wechat-decoration-leak' && issue.severity === 'error')).toBe(true)
+    expect(zhihu.issues.some(issue => issue.id === 'zhihu-inline-svg' && issue.severity === 'error')).toBe(true)
   })
 
   it('routes the unified native exporter to the correct real platform formats', async () => {
