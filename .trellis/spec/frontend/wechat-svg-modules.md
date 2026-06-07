@@ -29,6 +29,17 @@ construct breaks.
 - Dark Mode: SVG text is not recolored by the platform algorithm in the same way as HTML text.
   Text-bearing SVG must either be avoided or include an opaque background plus explicit
   `fill`/`stroke` values with verified contrast. Prefer HTML blocks for reflowing text.
+- 2026-06-08 135/Xiumi real-browser learning adds taxonomy, not blanket capability:
+  click-reveal, click-show, click-switch, click-zoom, flip, popup, disappear, play/draw,
+  slide, carousel, long-press, fade-in, bullet text, region trigger, quiz/game, and
+  text-effect patterns are all market categories. InkForge may only implement them as
+  source-owned modules after this spec's safe-subset checks and real WeChat verification.
+  Xiumi-style actions/layers/free layout map to `layout-and-layer-system`; unsupported
+  absolute/free-canvas compositions degrade to raster/long-image with text backup.
+- Treat public claims that WeChat article SVG can rely on `<script>`, `onclick`/`onload`,
+  DOM event listeners, class selectors, `<style>`, external CSS, or remote resources as
+  conflicting/high-risk input. These constructs are forbidden in InkForge output even if a
+  market article demonstrates them in another editor context.
 
 ---
 
@@ -84,6 +95,13 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
   `touchstart` alone; default modules should avoid DOM event handlers entirely. If the module
   cannot be verified in a real WeChat editor/browser path, ship a raster fallback or mark the
   capability `blocked`.
+- Interaction support levels:
+  - `static-safe`: pure graphics, seals, dividers, icons, background motifs.
+  - `click-safe-candidate`: SMIL click/time sequencing using only the safe subset; requires
+    PC editor and mobile proof before it can be presented as available.
+  - `mobile-only-risk`: long-press/touch-only effects; default `blocked` with static fallback.
+  - `script-or-dom-event`: any script, `on*` attribute, listener, class/style dependency, or
+    external resource; always forbidden.
 - Do not use SVG as a hidden overlay on top of transparent `<img>` elements. That pattern can
   prevent official-account authors from editing the underlying image after publishing.
 

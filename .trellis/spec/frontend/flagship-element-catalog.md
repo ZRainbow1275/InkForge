@@ -27,6 +27,8 @@
 | `guide-system` | 关注、分享、文末、二维码、预览分享 | footer/colophon and publish checklist; no fake official-account widgets |
 | `interactive-system` | SVG 展开、切换、滑动、路径动画、区域触发 | opt-in only; must pass WeChat-safe validation plus real-editor verification or degrade |
 | `fallback-system` | 长图/PDF/视频、插件复制、多平台分发 | XHS image pages/long image, Zhihu clean Markdown, explicit `blocked` for missing credentials |
+| `editor-workflow-system` | 135/秀米导入、插入、一键排版、校对、复制、插件传输、同步草稿、预览分享 | UI may expose commands only through existing renderer/quality gates; artifact states are not interchangeable |
+| `layout-and-layer-system` | 秀米图层、定位、背景图、组件定位、多选对齐、SVG 图集 | WeChat output preserves readable DOM order; free canvas/layer overlap degrades to raster/long-image unless proven safe |
 
 Any new catalog element must declare:
 
@@ -36,6 +38,10 @@ Any new catalog element must declare:
 - Zhihu artifact type: Markdown semantic, image fallback, or unavailable.
 - safety validator and negative tests.
 - idempotency sentinel.
+- source/provenance when imported from an external editor artifact.
+- action state produced by UI commands: local-rendered, copied, plugin-transferred, synced-draft,
+  published, blocked, or unavailable.
+- layout report when the element uses background layers, z-order, hit areas, or raster fallback.
 
 ---
 
@@ -139,3 +145,11 @@ Any new catalog element must declare:
 | 「插入图片」 | `![{alt}]({url})` | E5 figure |
 
 （自动元素无需 UI 按钮：封面 / 分隔 / 阅读条 / 首字下沉 / H2/H3/列表 / 版权页 — 由 chain 自动应用。）
+
+### 6.1 市场工具化边界
+
+- 135/秀米的样式中心、模板中心、SVG 中心和图文编辑器只提供功能分类、工作流和质量门参考；不得导入、复刻或硬编码其模板几何、会员素材、私有 SVG 代码、品牌资产。
+- 「一键排版」按钮只能调用既有 flagship decorator chain、preset renderer 和 quality detector；不得绕过 `convertToWechatWithStats`、`checkWechatSafe`、XHS/Zhihu leakage checks 或 artifact manifest。
+- 「插件复制」「同步公众号」「生成长图/PDF/视频」是输出渠道，不是渲染成功证明。UI 必须区分本地 artifact、剪贴板复制、插件传输、草稿同步、发布完成与不可用状态。
+- 图层/自由布局/背景图/动作列表进入工具 UI 时，必须先声明目标平台：WeChat 使用 inline HTML/SVG 安全子集或图片 fallback，XHS 使用图片页/长图，Zhihu 使用 Markdown/图片 fallback。
+- 任何新按钮图标继续使用已安装图标库或 inline SVG path；不得使用 emoji 图标。

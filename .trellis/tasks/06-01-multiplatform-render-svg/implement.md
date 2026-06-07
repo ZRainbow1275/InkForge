@@ -115,6 +115,52 @@ git status --short --branch
   - `visual.spec.cjs`: 11 tests passed for chrome, brand mark, tokens, and theme
     cascade.
   - Total: 2 spec files passed, 16 tests passed.
+- [x] 2026-06-08 market editor learning refresh:
+  - 135 logged-in browser review covered editor categories (`导入`, `插入`, `主题色`,
+    `全文黑白`, `吸色`, `标题`, `正文`, `图文`, `引导`, `布局`, `节日`, `行业`, `小元素`,
+    `SVG`) plus SVG-center taxonomy (`点击展开`, `点击显示`, `点击切换`, `点击缩放`,
+    `点击翻转`, `点击弹出`, `点击放大`, `点击消失`, `点击播放`, `点击抽签`, `滑动展示`,
+    `图片轮播`, `长按显示`, `渐显展示`, `文字弹幕`, `区域触发`, `趣味游戏`, `互动答题`,
+    `文字特效`, `引导关注`).
+  - Xiumi logged-in browser review covered import/sync/plugin/long-image/PDF/video
+    workflow plus `动作`, `动作列表`, `提取动作`, `点击动作`, `背景图`, `图层`, `定位`,
+    `间距`, `字号`, `组件定位`, `页面对齐`, `多选对齐`, `SVG图集` and trigger/effect
+    families (`点击`, `单步点击`, `自动`, `长按`; `抽签`, `滚动切换`, `宫格式切换`,
+    `转动`, `翻转`, `序列帧`).
+  - No account page screenshot or QR/platform-preview artifact was committed from the
+    authenticated 135/Xiumi sessions.
+- [x] 2026-06-08 external source refresh:
+  - Exa confirmed the WeChat-compatible path remains inline style, `text/html`
+    clipboard/API payloads, strict no-script/no-event constraints, and public WeChat
+    draft/material image-host requirements.
+  - Exa confirmed 2026 market references for Xiaohongshu/Rednote still center on
+    3:4 vertical image pages and include up to 18 images per photo note in multiple
+    market guides; InkForge records this as configurable/checkable, not a hardcoded
+    eternal limit.
+  - Exa confirmed Zhihu authoring tools still revolve around clean Markdown, LaTeX,
+    Markdown tables, image upload/host rewriting, and Mermaid/diagram rasterization.
+  - Grok Search returned only one weak Markdown-tool source for the combined query,
+    so it was treated as supplementary and not used to loosen any rule.
+  - mdDocs/doocs.md search reinforced Markdown-to-WeChat editor workflow, image-bed,
+    theme, and clipboard references.
+- [x] 2026-06-08 sub-agent doc review:
+  - Spawned 4 lightweight review agents from
+    `research/market-rule-agent-input.csv`; all 4 reported through
+    `research/market-rule-agent-output.csv`.
+  - Agent findings drove the new `editor-workflow-system`, `layout-and-layer-system`,
+    artifact-state lifecycle, XHS image-count consistency, and Zhihu image-host/
+    diagram-fence/alt-caption clauses.
+- [x] 2026-06-08 docs/spec update:
+  - Updated `docs/platform-rendering-rules/market-practices-catalog.md`,
+    `docs/platform-rendering-rules/wechat-rules.md`,
+    `docs/platform-rendering-rules/xiaohongshu-rules.md`,
+    `docs/platform-rendering-rules/zhihu-rules.md`, `docs/微信渲染规则.md`,
+    `.trellis/spec/frontend/wechat-svg-modules.md`, and
+    `.trellis/spec/frontend/flagship-element-catalog.md`.
+  - Key rule additions: 135/Xiumi taxonomy as reference only; no proprietary template/
+    asset copying; proof hierarchy; plugin/sync/copy/publish states are separate;
+    WeChat SVG interaction support levels; XHS manifest/count/reference consistency;
+    Zhihu public HTTPS/platform-host image dependency and raw diagram fence handling.
 
 ## Remaining Checks Before Commit
 
@@ -127,9 +173,11 @@ git status --short --branch
 - [x] Run final GitNexus detect changes and staged diff review.
 - [x] Commit only `06-01` R5 files; leave unrelated dirty files untouched.
 - [x] Commit the 2026-06-08 local Playwright verification addendum and screenshots only.
-- [ ] Commit the 2026-06-08 Tauri e2e verification addendum and safe refreshed e2e
+- [x] Commit the 2026-06-08 Tauri e2e verification addendum and safe refreshed e2e
       screenshots only; keep QR/platform-preview candidate PNG files untracked until a
       separate sensitive artifact review.
+- [ ] Commit the 2026-06-08 market-rule documentation/spec refresh and agent CSV files
+      only; leave unrelated Trellis/meta/tooling dirty files untouched.
 
 ## Honest Non-Goals For This Slice
 

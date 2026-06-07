@@ -10,6 +10,14 @@
 | 图片 fallback | Mermaid、复杂图表、复杂公式、微信卡片降级 | 图片可访问，alt 文本明确 |
 | 发布前提示 | 公式、图片、表格、平台 HTML 支持不确定时 | 明确写入 quality report，不记为已发布成功 |
 
+### 1.1 图片 Host 依赖
+
+- 可发布 Markdown 图片必须使用稳定、公开、HTTPS 的图片地址，或由真实知乎/目标发布入口上传后返回的平台图床地址。
+- 禁止把本地路径、`blob:`、`data:`、私网/localhost 地址、临时预览 URL、微信专用 CDN 依赖直接写成最终成功产物。
+- 如果图片上传、URL 重写或可访问性检查不可用，发布状态必须是 `blocked` / `unavailable`，不能报告为成功。
+- 所有生成图片、fallback 图片、公式图片、表格图片、图表图片都必须有非空 alt 文本。
+- 当图片替代公式、表格或图表时，图片附近必须保留 caption 或文本 fallback，确保语义不因 rasterization 丢失。
+
 ## 二、Markdown 支持矩阵
 
 | 元素 | 默认策略 | 说明 |
@@ -27,7 +35,7 @@
 | 表格 | 保留 Markdown 表格 | 表格单元格内复杂 Markdown 需简化 |
 | LaTeX 行内公式 | 保留 `$...$`，发布前预览 | 不保证所有入口一致 |
 | LaTeX 块级公式 | 保留 `$$...$$`，发布前预览 | 预览失败时转图片 |
-| Mermaid/Graphviz | 转图片或说明 | 知乎不应接收 raw diagram block |
+| Mermaid/Graphviz/DOT/PlantUML/其他图表 fence | 转图片或说明 | 知乎不应接收 raw diagram block；检测不能只覆盖 `mermaid` |
 | HTML 标签 | 默认清理 | 少量平台可接受 HTML 不作为默认依赖 |
 | inline CSS | 清理 | 知乎输出不依赖 style |
 | 微信 block/SVG | 清理或降级 | 不允许 `data-ink-block`、`data-ink-svg` 泄漏 |
@@ -67,6 +75,13 @@
 - 表格单元格内的列表、代码、多段落需要简化为单行文本。
 - 宽表格可以转图片 fallback。
 
+### 4.4 图表与图片化内容
+
+- `mermaid`、`graphviz`、`dot`、`plantuml`、`vega` 等 raw diagram fences 不应直接进入知乎 publishable Markdown。
+- 默认策略是生成 PNG/JPG artifact，并用 alt/caption 说明原始图表含义。
+- 如果缺少可运行渲染器、图片上传目标或文件访问权限，输出 `blocked` / `unavailable`，并保留原始代码块作为本地草稿证据，不声明平台通过。
+- 图片 host 检测必须在 final Markdown 上执行，而不是只检查中间 artifact。
+
 ## 五、质量检测清单
 
 | 检测项 | 规则 | 结果 |
@@ -76,6 +91,9 @@
 | inline SVG 泄漏 | 出现 `<svg>` | 阻断；转图片 |
 | HTML 依赖 | 出现 `<section>`、复杂 `<div>` | 警告/清理 |
 | Mermaid | 出现 fenced `mermaid` | 警告；转图片 |
+| Raw diagram fence | 出现 fenced `graphviz`、`dot`、`plantuml`、`vega` 等图表语言 | 警告；转图片或说明 |
+| 图片 host | 出现本地路径、`blob:`、`data:`、私网/localhost、临时预览 URL 或微信专用 CDN 依赖 | 阻断/重写 |
+| 图片 alt/caption | fallback 图片缺少 alt，或替代公式/表格/图表时缺少 caption/text fallback | 阻断/警告 |
 | 公式括号 | `$` 数量不匹配 | 阻断 |
 | 图片可访问 | 远程图片不可达或本地文件缺失 | 阻断/警告 |
 | Markdown 表格 | 分隔线不合法 | 阻断 |
@@ -95,3 +113,12 @@
 - 覆盖微信装饰清理负例。
 - 验证输出无 HTML/SVG/CSS 依赖。
 - 没有真实知乎账号或发布权限时，只能报告本地 artifact 通过和平台发布 `blocked`。
+
+## 八、Source Index
+
+- VSCode-Zhihu marketplace reference: `https://marketplace.visualstudio.com/items?itemName=niudai.vscode-zhihu`
+- VSCode-Zhihu source reference: `https://github.com/niudai/VSCode-Zhihu`
+- md2zhihu source reference: `https://github.com/drmingdrmer/md2zhihu`
+- WPL-s Zhihu markdown compatibility reference: `https://github.com/jks-liu/WPL-s`
+- vscode-zhihu image-host changelog reference: `https://github.com/lvgithub/vscode-zhihu/blob/master/CHANGELOG.md`
+- zhihu-md image/formula converter reference: `https://pypi.org/project/zhihu-md/`

@@ -27,6 +27,10 @@
 - 常用导出尺寸：1080x1440、1242x1660 或同等 3:4 比例。
 - 图片页必须具备安全边距，标题和正文不得贴边。
 - 多页导出必须生成顺序和 manifest，避免发布顺序错位。
+- 不要把历史“最多 9 张图”硬编码为永久合同。2026 市场资料已出现“最多 18 张图片”的图文笔记说明；InkForge 应把平台上限作为可配置/可检查项，并在真实发布入口不可验证时写入 publish checklist。
+- 当图片页数量从 N 变为 M 时，必须同步重建 manifest、页面顺序、页码/标题、正文中的“见第 N 张图”引用和导出文件列表。
+- 删除或重排图片后，不得保留过期旧图、旧 manifest、旧封面引用或已失效正文图号。
+- manifest 数量、实际图片文件数量、正文图号引用数量不一致时，应阻断导出或标记 `unavailable`，不能继续报告成功。
 - 长图需要额外裁切检查，不能只看浏览器预览。
 
 ## 三、Markdown 到小红书转换
@@ -83,6 +87,8 @@
 | 段落过长 | 单段超过 5 行 | 警告；建议拆分 |
 | 正文过长 | 明显超过可读范围 | 警告；建议图片页/长图 |
 | 图片比例 | 非 3:4 或 1:1 | 警告 |
+| 图片数量一致性 | manifest 数量、实际文件数量、正文“见第 N 张图”引用或封面页不一致 | 阻断 |
+| 图片重编号 | 删除/新增/重排图片后仍出现旧页码、旧文件或旧封面引用 | 阻断 |
 | 图片裁切 | 标题/正文被裁切 | 阻断 |
 | 文件存在 | manifest 中图片不存在 | 阻断 |
 | 发布能力 | 无账号/无权限/未登录 | `blocked` / `unavailable` |
@@ -102,3 +108,11 @@
 - 对图片页/长图运行截图或导出文件存在性检查。
 - 浏览器移动视口验证不横向溢出。
 - 无真实小红书账号或发布权限时，只能报告本地 artifact 通过和平台发布 `blocked`。
+
+## 八、Source Index
+
+- Rednote / Xiaohongshu 3:4 cover market reference: `https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size`
+- Xiaohongshu 2026 image-size market reference: `https://focalflow.app/blog/xiaohongshu-image-guide-2026/`
+- Social media aspect-ratio market reference: `https://toolora.info/en/t/social-aspect-ratio-guide/`
+- Xiaohongshu 2026 format guide market reference: `https://www.travelofchina.com/how-to-post-on-xiaohongshu/`
+- Rednote content guideline market reference: `https://mktgplus.com/130/essential-faqs-for-international-brands-on-xiaohongshu-rednote`

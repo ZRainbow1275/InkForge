@@ -9,8 +9,10 @@
 | 来源 | 可借鉴内容 | InkForge 处理方式 |
 | --- | --- | --- |
 | 135 编辑器登录页/工作台实机观察 | 样式中心、模板中心、SVG 样式、SVG 效果、公众号长图、一键排版、校对、剪贴板、预览分享、同步公众号 | 抽象为元素族、检查项和导出路径，不复制模板 |
+| 135 编辑器 2026-06-08 登录态实机复核 | 编辑器内导航含导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG；SVG 中心含点击展开/显示/切换/缩放/翻转/弹出/放大/消失/播放/抽签、滑动展示、图片轮播、长按显示、渐显展示、文字弹幕、区域触发、趣味游戏、互动答题、文字特效、引导关注 | 进入 `interactive-system`、`editor-workflow-system` 和 `layout-and-layer-system`，仅记录 taxonomy |
 | 135 公开 SVG 教程 | SVG 需要区分复制到编辑器与复制到微信后台的出口，复杂效果可通过 HTML/代码入口插入 | WeChat output contract 增加 `copy-to-editor`、`copy-to-wechat`、`plugin/sync` 三类出口 |
 | 秀米登录页/图文编辑器实机观察 | 图文排版、H5、图片设计、SVG 图集、滑动、点击展开、路径动画、自由布局、图层、长图/PDF/视频出口 | 将互动 SVG、自由布局、长图/PDF 降级写成规则，非默认输出 |
+| 秀米 2026-06-08 登录态实机复核 | 导入 Word/Excel/Markdown、导入公众号文章、生成长图/PDF/视频、生成贴纸图文、一键排版、同步公众号、插件复制、继续复制粘贴；组件侧含主题色、标题、卡片、图片、布局、SVG、组件；属性侧含动作/动作列表/提取动作、点击动作、背景图、图层、定位、间距、字号、组件定位、页面对齐、多选对齐、SVG 图集 | 补充导入、动作、插件/同步、图层/自由布局、artifact 状态生命周期 |
 | 秀米公开插件/教程资料 | 插件复制可降低 SVG 格式丢失；长图导出是微信以外平台的重要桥 | XHS 默认把富样式转成图片/长图/海报，不伪造正文富文本 |
 | 微信公众平台编辑器插件开发规范 | 固定宽高、`line-height:0`、透明图片叠 SVG、`pre` 包普通段落、深色模式、SVG `begin` 触发等风险 | 更新 WeChat hard blockers 和 quality detector 期望 |
 | doocs/md 文档和 OSS Markdown 编辑器 | Markdown parser、sanitize、theme、CSS inline、clipboard `text/html`、图片上传、链接脚注 | 保留现有 InkForge 管线，强化最终输出后检测 |
@@ -167,6 +169,81 @@ Zhihu:
 - 无凭据、无上传权限、平台限制时返回 `blocked` / `unavailable`，不得返回 `success`。
 - 任何图片化输出必须提供可读性检查、尺寸检查、裁切检查和文件存在性检查。
 
+### 3.8 `editor-workflow-system`
+
+用途：导入、清洗、一键排版、校对、复制、插件传输、同步草稿、预览分享、导出、发布前检查。
+
+市场映射：
+
+- 135：导入、插入、主题色、全文黑白、吸色、一键排版、文本校对、剪切板、预览分享、同步公众号。
+- 秀米：导入 Word/Excel/Markdown、导入公众号文章、一键排版、插件复制、继续复制粘贴、同步公众号/微博、生成长图/PDF/视频。
+- doocs/md / OSS：Markdown 源优先，预览 DOM 复制时进行 CSS 内联，最终通过 `text/html` 剪贴板或平台 API 输出。
+
+InkForge 合同：
+
+- `imported` 只是输入状态，不等于可信内容。任何外部 HTML/SVG/图片包都必须记录来源类型、运行 sanitize/schema validation、拒绝 unsupported construct，并保留 provenance/audit note。
+- `one-click-typeset` 只能调用现有 renderer / preset / quality detector，不得新建绕过管线的模板拼接路径。
+- `copy-to-editor`、`copy-to-wechat`、`plugin-transfer`、`sync-draft`、`published` 是不同 artifact state。前一状态成功不得推断后一状态成功。
+- `plugin-transfer` 是传输渠道，不是平台渲染证明。插件/同步路径必须有传输前安全检查、传输后格式丢失检测和不可用 fallback。
+- `sync-draft` / `published` 必须经过真实凭据、账号授权、权限、接口返回和平台预览确认；任一缺失时输出 `blocked` / `unavailable`。
+- `preview-share` 只能证明本地或托管预览可见，不证明微信/小红书/知乎最终渲染。
+- `export-long-image`、`export-pdf`、`export-video` 是 fallback artifact，不得伪装为平台正文富文本。
+
+### 3.9 `layout-and-layer-system`
+
+用途：秀米式自由布局、图层、背景、触发区、命中区、分屏/拼图、长图分段、poster canvas。
+
+布局 primitive taxonomy：
+
+| Primitive | WeChat | XHS | Zhihu |
+| --- | --- | --- | --- |
+| flow layout | inline HTML block | plain text / image page | Markdown |
+| split / two-column | table/table-cell or stacked blocks | image page | Markdown table or stacked paragraphs |
+| mosaic / image grid | real images with inline style, or raster fallback | image page / carousel images | Markdown images or raster collage |
+| free canvas / poster | raster fallback or strictly verified SVG/HTML subset | 3:4 image page / long image | image fallback |
+| long-image sections | image artifact + manifest | primary rich-output route | image fallback only |
+| interactive region | opt-in WeChat-safe SVG with real verification | unavailable; use image/video | unavailable; use image/link/text |
+
+Layering rules:
+
+- WeChat HTML output must preserve readable DOM order. Visual layering must not make text inaccessible to selection, copy, screen reading, or Dark Mode review.
+- Unsupported absolute/free-layout compositions degrade to raster/long-image with text backup.
+- Background images must not hide editable images or meaningful text. If background is used, foreground text needs explicit contrast and mobile crop checks.
+- Hit areas and trigger regions must be visible or documented. Invisible overlays are only allowed inside a verified WeChat-safe SVG module and must have a static fallback.
+- Z-order, locked layers, and overlapping regions require a per-artifact layout report: visible order, DOM order, text fallback, crop/overflow status, and platform target.
+
+### 3.10 Market Observation Coverage Trace
+
+| Observation category | Current InkForge rule target | Status |
+| --- | --- | --- |
+| style center / style blocks | `headline-system`, `body-system`, `card-system` | normative |
+| template center / sample templates | no-copy boundary, persona/theme presets | taxonomy only |
+| SVG style/effect/templates | `interactive-system`, `wechat-svg-modules` | normative with real-verification gate |
+| long image / PDF / video | `fallback-system`, XHS image page/long image | normative artifact fallback |
+| import Word/Excel/Markdown/article | `editor-workflow-system` | normative ingress validation |
+| export / copy / preview share | `editor-workflow-system` | normative artifact-state lifecycle |
+| plugin copy / sync | `editor-workflow-system` | credential/channel-gated |
+| actions / extracted actions | `interactive-system`, `layout-and-layer-system` | opt-in only |
+| layers / free layout / z-order | `layout-and-layer-system` | raster fallback unless proven safe |
+| layout / component positioning | `layout-and-layer-system` | platform-specific mapping |
+
+### 3.11 Source Conflict And Proof Hierarchy
+
+Market editors and public tutorials often demonstrate effects in their own authoring surface. InkForge must resolve conflicts in this order:
+
+1. Platform official docs and API contracts.
+2. InkForge real artifacts and real platform/editor evidence under `prompts/0601/evidence/`.
+3. Project validators and tests such as `checkWechatSafe`, XHS leakage checks, Zhihu Markdown checks, and artifact manifest checks.
+4. Logged-in 135/Xiumi/browser observations as taxonomy and workflow references only.
+5. Public blogs, examples, and OSS projects as implementation ideas only.
+
+Conflict rules:
+
+- A source that relies on `<script>`, event attributes, DOM listeners, class selectors, `<style>`, external CSS, or external SVG/image resources cannot loosen the WeChat output contract.
+- A source that shows plugin copy, preview share, or draft sync cannot prove final publish rendering without credentialed platform confirmation.
+- A source that shows free layout/layers cannot bypass DOM readability, Dark Mode, mobile overflow, and fallback checks.
+- If two sources disagree on platform limits, use configurable limits and a publish checklist until the live platform can verify the current account.
+
 ## 4. WeChat Hard Rules
 
 ### 4.1 HTML inline style
@@ -255,9 +332,19 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 ## 6. Source Index
 
 - WeChat official editor plugin specification: `https://developers.weixin.qq.com/doc/subscription/guide/product/plugin_spec.html`
+- WeChat official draft API index: `https://developers.weixin.qq.com/doc/offiaccount/Draft_Box/Add_draft.html`
+- WeChat official material API index: `https://developers.weixin.qq.com/doc/offiaccount/Asset_Management/Adding_Permanent_Assets.html`
 - 135 SVG export tutorial: `https://www.135editor.com/books/chapter/1/410`
 - 135 SVG insertion tutorial: `https://www.135editor.com/geo/gongzhonghaopaiban/1516/`
+- 135 SVG center real-browser entry: `https://www.135editor.com/svg-center.html`
+- 135 editor real-browser entry: `https://www.135editor.com/beautify_editor.html`
 - Xiumi official site: `https://xiumi.us/`
+- Xiumi paper editor real-browser entry: `https://xiumi.us/studio/v5/paper`
+- doocs/md official editor: `https://md.doocs.org/`
+- doocs/md source: `https://github.com/doocs/md`
+- WeWrite WeChat constraints reference: `https://github.com/oaker-io/wewrite/blob/main/references/wechat-constraints.md`
+- VerySmallWoods WeChat markdown copy/paste architecture reference: `https://www.verysmallwoods.com/blog/20260119-wechat-markdown-copy-paste`
+- netpi WeChat SVG interaction research reference: `https://github.com/netpi/wechat-layout`
 - Xiumi Chrome extension listing: Chrome Web Store `fifkoliiibjdpcdfcknjjcpnahhnihid`
 - doocs/md docs: `https://md.doocs.org/` and `https://github.com/doocs/md`
 - InkForge real WeChat evidence: `prompts/0601/evidence/`
