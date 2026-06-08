@@ -8,6 +8,8 @@ artifact exists and proves the exact platform state.
 
 - `https://mp.weixin.qq.com/` was rechecked through Playwright in this session.
 - Current page state: login / QR-login entry, title `微信公众平台`.
+- 2026-06-08 latest DOM probe still reported `hasEditorApi=false`, `contenteditable=0`,
+  `ProseMirror=0`, `svg=0`, `textarea=0`, and `input=5`.
 - Result: no authenticated WeChat article editor was available, so no new `flagship-amber`
   PC paste proof or mobile-preview proof was collected.
 
@@ -19,6 +21,7 @@ artifact exists and proves the exact platform state.
 | SVG module + flagship artifact tests | `svg-modules-refresh-20260608.txt`: 15 files / 383 tests passed | complete |
 | Prior Tauri/WebView2 e2e | `e2e-svg-render-20260608-083022.txt`, `e2e/flagship-{kiln,tempera,amber}.png` | complete for local/Tauri e2e only |
 | Prior XHS browser canvas raster proof | `xhs-raster/xhs-raster-cover-grid-browser-*.png` and README | complete |
+| Current XHS raw Markdown leakage gate | `xhs-markdown-gate-refresh-20260608.txt`: 4 files / 67 tests and export suite / 960 tests passed | complete |
 
 ## WeChat Platform Gates
 
@@ -51,4 +54,3 @@ artifact exists and proves the exact platform state.
 3. Save a non-sensitive local crop proving `flagship-amber` SVG blocks survived PC paste.
 4. Configure a cover thumbnail, open phone WeChat preview, and capture the three mobile
    screenshots plus Dark Mode and interaction evidence.
-

@@ -338,6 +338,42 @@ git status --short --branch
     Vitest, typecheck, and build were used as the fallback.
   - Evidence file:
     `prompts/0601/evidence/quality-gate-hardening-20260608.txt`.
+- [x] 2026-06-08 XHS markdown-gate refresh:
+  - Rechecked `https://mp.weixin.qq.com/` through Playwright. The active page still
+    reported the login / QR-login entry, title `微信公众平台`, `hasEditorApi=false`,
+    `contenteditable=0`, `ProseMirror=0`, `svg=0`, `textarea=0`, and `input=5`.
+    No `flagship-amber` paste, mobile preview, SMIL/click, Dark Mode, cover-thumbnail,
+    sync, scheduled-send, or publish evidence was claimed.
+  - Implemented `xhs-markdown-control-leak` in
+    `inkforge/src/services/export/quality-detector.ts` so raw Markdown controls that
+    Xiaohongshu body text cannot carry are `error` blockers: ATX headings, bold/italic
+    markers, raw image syntax, blockquote markers, Markdown table separators, and
+    fenced-code markers. Hashtag-only Xiaohongshu topic text remains allowed.
+  - Updated regression coverage in
+    `inkforge/src/services/export/platform-export-rendering.test.ts` and the
+    cross-platform Xiaohongshu boundary test in
+    `inkforge/src/services/export/__tests__/pipeline-cross-platform.test.ts`.
+  - Impact checks:
+    `npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3` passed with
+    LOW risk, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+    `npx gitnexus impact detectQuality -r InkForge --depth 2` passed with LOW risk,
+    4 directly impacted symbols, 0 affected processes.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 28 tests.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 67 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 960 tests.
+    `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts --quiet`
+    and `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built
+    in 29.15s.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied it and is
+    intentionally not part of this slice.
+  - Evidence file:
+    `prompts/0601/evidence/xhs-markdown-gate-refresh-20260608.txt`.
 
 ## Remaining Checks Before Commit
 
@@ -366,6 +402,8 @@ git status --short --branch
 - [x] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 quality-gate hardening refresh only; leave unrelated dirty files
+      and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 XHS markdown-gate refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice

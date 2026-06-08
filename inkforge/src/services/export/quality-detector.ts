@@ -342,7 +342,10 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 6. 检测链接
+  // 6. 检测 raw Markdown 控制符泄漏
+  detectXhsMarkdownControlLeakage(markdown, issues)
+
+  // 7. 检测链接
   const links = markdown.match(/\[([^\]]+)\]\([^)]+\)/g)
   if (links && links.length > 0) {
     addIssue(issues, {
@@ -353,7 +356,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 7. 检测表格
+  // 8. 检测表格
   if (/\|[^\n]+\|/.test(markdown) && /\|[-: ]+\|/.test(markdown)) {
     addIssue(issues, {
       id: 'xhs-table',
@@ -363,7 +366,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 8. 检测代码块
+  // 9. 检测代码块
   const codeBlocks = markdown.match(/```[\s\S]*?```/g)
   if (codeBlocks && codeBlocks.length > 0) {
     addIssue(issues, {
@@ -374,7 +377,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
-  // 9. 检测 LaTeX 公式
+  // 10. 检测 LaTeX 公式
   const latexBlocks = markdown.match(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g)
   if (latexBlocks) {
     addIssue(issues, {
@@ -721,6 +724,30 @@ function detectXhsImageArtifactIssues(markdown: string, issues: QualityIssue[]):
       severity: 'error',
       message: `发现非 JPG/PNG 图片格式：${unsupportedFormats.join(', ')}`,
       suggestion: '小红书图片页默认只放行 JPG/PNG；SVG/WebP/GIF/HEIC/AVIF 等必须先通过真实转换器生成可预览 artifact，再进入发布清单',
+    })
+  }
+}
+
+function detectXhsMarkdownControlLeakage(markdown: string, issues: QualityIssue[]): void {
+  const leakedControls = [
+    [/^#{1,6}\s+\S/m, 'heading'],
+    [/\*\*[^*\n][\s\S]*?[^*\n]\*\*/, 'bold'],
+    [/(?:^|\s)_[^_\n][^_\n]+_(?:\s|$)/, 'italic'],
+    [/!\[[^\]]*\]\([^)]+\)/, 'image'],
+    [/^>\s+\S/m, 'quote'],
+    [/^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/m, 'table-separator'],
+    [/```/, 'fenced-code'],
+  ] as const
+  const detected = leakedControls
+    .filter(([pattern]) => pattern.test(markdown))
+    .map(([, label]) => label)
+
+  if (detected.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-markdown-control-leak',
+      severity: 'error',
+      message: `检测到小红书正文不可直接承载的 Markdown 控制符：${detected.join(', ')}`,
+      suggestion: '小红书正文必须是纯文本；标题、加粗、引用、图片和表格等 Markdown 控制符应由导出器清理为文本说明或图片页/长图 artifact',
     })
   }
 }

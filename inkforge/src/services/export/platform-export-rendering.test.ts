@@ -515,6 +515,34 @@ describe('platform native export rendering rules', () => {
     expect(report.passed).toBe(false)
   })
 
+  it('blocks raw Markdown controls from Xiaohongshu publishable text without rejecting hashtags', () => {
+    const report = detectQuality([
+      '# 小红书纯文本合同',
+      '',
+      '**重点** 不能直接粘贴为富文本。',
+      '> 引用也需要转为普通说明。',
+      '![示意图](https://example.com/a.png)',
+      '',
+      '| 渠道 | 规则 |',
+      '| --- | --- |',
+      '| 小红书 | 纯文本 |',
+      '',
+      '#InkForge #写作工具',
+    ].join('\n'), 'xiaohongshu')
+
+    const issue = report.issues.find(item => item.id === 'xhs-markdown-control-leak')
+    expect(issue?.severity).toBe('error')
+    expect(issue?.message).toContain('heading')
+    expect(issue?.message).toContain('bold')
+    expect(issue?.message).toContain('image')
+    expect(issue?.message).toContain('quote')
+    expect(issue?.message).toContain('table-separator')
+    expect(report.passed).toBe(false)
+
+    const hashtagOnly = detectQuality('今天继续打磨排版规则。\n\n#InkForge #写作工具', 'xiaohongshu')
+    expect(hashtagOnly.issues.some(item => item.id === 'xhs-markdown-control-leak')).toBe(false)
+  })
+
   it('flags Zhihu unsafe image hosts, missing alt, and raw diagram fences', () => {
     const report = detectQuality([
       '# 知乎图片和图表检测',

@@ -1,0 +1,120 @@
+Xiaohongshu Markdown Gate Refresh — 2026-06-08
+
+Scope
+
+- Rechecked the live WeChat Public Platform page through Playwright.
+- Implemented the Xiaohongshu raw-Markdown-control leakage gate in `quality-detector.ts`.
+- Added regression coverage in `platform-export-rendering.test.ts` and updated the cross-platform pipeline boundary test.
+- No browser screenshots, QR images, account artifacts, or private browser artifacts are included in this evidence file.
+
+WeChat Platform Recheck
+
+Playwright navigation:
+
+```js
+await page.goto('https://mp.weixin.qq.com/')
+```
+
+DOM probe result:
+
+- `href`: `https://mp.weixin.qq.com/`
+- `title`: `微信公众平台`
+- `readyState`: `complete`
+- body text begins with login / QR-login entry text.
+- `hasEditorApi`: `false`
+- `contenteditable` count: `0`
+- `ProseMirror` count: `0`
+- `svg` count: `0`
+- `textarea` count: `0`
+- `input` count: `5`
+
+Conclusion:
+
+- The page is still the login / QR-login entry.
+- No authenticated WeChat article editor was available in this pass.
+- No `flagship-amber` PC paste, mobile preview, SMIL/click, Dark Mode, cover-thumbnail, sync, scheduled-send, or publish evidence is claimed.
+
+Implemented Machine Gate
+
+- Added `xhs-markdown-control-leak` as an `error` in `detectXiaohongshuIssues()`.
+- The detector blocks raw Markdown controls that Xiaohongshu publishable body text cannot directly carry:
+  - ATX heading markers such as `# Title`
+  - bold markers such as `**text**`
+  - italic underscore markers
+  - raw Markdown image syntax
+  - blockquote markers
+  - Markdown table separator rows
+  - fenced-code markers
+- Hashtag-only Xiaohongshu topic text such as `#InkForge #写作工具` is intentionally not blocked.
+
+Impact Checks
+
+```bash
+npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3
+npx gitnexus impact detectQuality -r InkForge --depth 2
+```
+
+Results:
+
+- `detectXiaohongshuIssues`: LOW risk, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+- `detectQuality`: LOW risk, 4 directly impacted symbols, 0 affected processes.
+
+Verification Commands
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+```
+
+Result:
+
+- 1 file passed
+- 28 tests passed
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+```
+
+Result:
+
+- 4 files passed
+- 67 tests passed
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export --reporter=default
+```
+
+Result:
+
+- 35 files passed
+- 960 tests passed
+
+```bash
+pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts --quiet
+pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+```
+
+Result:
+
+- passed
+
+```bash
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+```
+
+Result:
+
+- passed
+
+```bash
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+```
+
+Result:
+
+- passed
+- Vite built in 29.15s
+
+Generated Cache
+
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied it.
+- It is intentionally not part of this slice.

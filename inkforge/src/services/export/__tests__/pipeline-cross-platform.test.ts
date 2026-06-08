@@ -219,7 +219,7 @@ describe('cross-platform pipeline — Xiaohongshu', () => {
     const errorIds = report.issues.filter((i) => i.severity === 'error').map((i) => i.id)
     // eslint-disable-next-line no-console
     console.log(`[xhs detectQuality errors] = ${JSON.stringify(errorIds)}`)
-    const allowed = new Set(['xhs-char-limit', 'xhs-html-tags'])
+    const allowed = new Set(['xhs-char-limit', 'xhs-html-tags', 'xhs-markdown-control-leak'])
     expect(errorIds.every((id) => allowed.has(id))).toBe(true)
   })
 })
