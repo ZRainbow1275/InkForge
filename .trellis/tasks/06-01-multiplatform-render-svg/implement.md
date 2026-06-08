@@ -265,6 +265,41 @@ git status --short --branch
   - Added `prompts/0601/evidence/platform-gate-matrix-20260608.md` to map machine gates,
     PC paste gates, and still-missing WeChat mobile / Dark Mode / SMIL / cover-thumbnail
     evidence without claiming completion.
+- [x] 2026-06-08 overnight market-rule hardening pass:
+  - Rechecked WeChat through Playwright DOM extraction. `https://mp.weixin.qq.com/` still
+    reported the login / QR-login entry and title `微信公众平台`, so no authenticated article
+    editor, `flagship-amber` paste, mobile preview, Dark Mode, SMIL, or cover-thumbnail gate
+    was claimed.
+  - Rechecked 135 `beautify_editor.html` through a real browser. Current editor taxonomy now
+    includes toolbar-level parameters such as default font, clear format, format brush, font
+    size, bold/italic/underline/delete line, text/background color, alignment, first-line
+    indent, paragraph spacing, line/letter spacing, side padding, image upload, quote,
+    auto-typeset, vertical writing, search/replace, link, Word-image upload, AI polish/generate,
+    full-screen, text shadow, text border, Dark Mode switch, paragraph lineHeight/fontSize/
+    textIndent/padding, plus credentialed states such as authorized account, scheduled send,
+    watermark, full-text format, and team management.
+  - Rechecked Xiumi `studio/v5#/paper/for/new/cube/0` through a real browser. Current editor
+    taxonomy includes sync-to-official-account, sync-to-Weibo draft, plugin copy, copy/paste
+    fallback, Word/Excel/Markdown import, official-account article import, long-image/PDF/video
+    export, one-click layout, Markdown anchor mapping, action list/extracted actions, background
+    image height risk, z-order/layers, component positioning, copy-to-WeChat, WeChat preview
+    authentication, and comment-permission gates.
+  - Fetched WeChat official subscription plugin docs with Exa. They confirm official hard
+    blockers for transparent images hidden under SVG backgrounds, `line-height:0`, fixed
+    width/height content containers, `text-align:start/end`, ordinary prose inside `<pre>`,
+    touchstart-only SVG `begin`, Dark Mode SVG contrast, article-structure verification, and
+    cover-setting JSAPI boundaries.
+  - Spawned 3 lightweight documentation QA agents from
+    `research/market-rule-overnight-agent-input.csv`; all 3 completed and wrote
+    `research/market-rule-overnight-agent-output.csv`. Actionable findings were merged into
+    `.trellis/spec/frontend/wechat-svg-modules.md`, `docs/platform-rendering-rules/market-practices-catalog.md`,
+    `docs/platform-rendering-rules/wechat-rules.md`, `docs/platform-rendering-rules/xiaohongshu-rules.md`,
+    `docs/platform-rendering-rules/zhihu-rules.md`, and `docs/微信渲染规则.md`.
+  - Key additions: official WeChat hard blockers in spec error/test matrix; `currentColor`
+    Dark Mode conditions; PC paste evidence boundary on older real-WeChat paragraphs; XHS
+    configurable ratio/dimensions/format/max-bytes/page-count checks and weak-source rejection;
+    Zhihu residual HTML, code-language, and complex-table checks; 135/Xiumi toolbar, Markdown
+    anchor, permission, z-order, background-size, preview, sync, and cover-thumbnail gates.
 
 ## Remaining Checks Before Commit
 
@@ -290,6 +325,8 @@ git status --short --branch
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 focused verification logs and platform gate matrix only; leave
       unrelated dirty files and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
+      leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

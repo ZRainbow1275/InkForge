@@ -65,7 +65,9 @@
 ### 4.2 代码
 
 - 保留 fenced code block。
-- 语言标签尽量使用常见标识，如 `typescript`、`python`、`bash`、`json`。
+- 语言标签应使用常见标识，如 `typescript`、`python`、`bash`、`json`。当源文档、
+  frontmatter、代码高亮元数据或文件扩展名能确定语言时，转换器必须补全或规范化标签；
+  无法确定时保留空标签并在 quality report 里记录。
 - 不内联 highlight.js 样式。
 - 超长代码行给出可读性警告。
 
@@ -73,7 +75,8 @@
 
 - 默认保留 Markdown 表格。
 - 表格单元格内的列表、代码、多段落需要简化为单行文本。
-- 宽表格可以转图片 fallback。
+- 宽表格、嵌套列表/代码/多段落单元格或跨平台预览失败的复杂表格必须简化为单行语义表格，
+  或转图片 fallback 并保留 alt/caption；不得以残留 HTML table/CSS 依赖宣称成功。
 
 ### 4.4 图表与图片化内容
 
@@ -89,7 +92,7 @@
 | 微信 HTML 泄漏 | 出现 `data-ink-block`、`data-ink-svg`、`mpvoice`、`mpvideo` | 阻断 |
 | inline style 泄漏 | 出现 `style=` | 阻断或清理 |
 | inline SVG 泄漏 | 出现 `<svg>` | 阻断；转图片 |
-| HTML 依赖 | 出现 `<section>`、复杂 `<div>` | 警告/清理 |
+| HTML 依赖 | final publishable Markdown 仍出现 `<section>`、复杂 `<div>`、style/class 依赖或微信 wrapper | 阻断；清理/降级后再验收 |
 | Mermaid | 出现 fenced `mermaid` | 警告；转图片 |
 | Raw diagram fence | 出现 fenced `graphviz`、`dot`、`plantuml`、`vega` 等图表语言 | 警告；转图片或说明 |
 | 图片 host | 出现本地路径、`blob:`、`data:`、私网/localhost、临时预览 URL 或微信专用 CDN 依赖 | 阻断/重写 |
@@ -97,6 +100,8 @@
 | 公式括号 | `$` 数量不匹配 | 阻断 |
 | 图片可访问 | 远程图片不可达或本地文件缺失 | 阻断/警告 |
 | Markdown 表格 | 分隔线不合法 | 阻断 |
+| 复杂表格 | 多段落/列表/代码单元格、过宽列、HTML table 依赖 | 阻断；简化或图片 fallback |
+| 代码语言标签 | 源信息可推断语言但 fenced code 未标注 | 警告；自动补全/规范化 |
 | 超长代码行 | 单行超过 120 字符 | 建议 |
 
 ## 六、市场实践映射

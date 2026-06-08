@@ -39,8 +39,10 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 | 135：样式中心、模板中心、标题/正文/图文/引导/布局/节日/行业/小元素/SVG 分类 | 进入元素族 catalog；只作为 trigger、persona、quality detector 的 taxonomy |
 | 135：点击展开/显示/切换/缩放/翻转/弹出/播放/抽签、滑动展示、图片轮播、长按显示、文字弹幕、区域触发、互动答题等 SVG taxonomy | 进入 `interactive-system` 候选；默认 `blocked`，只有通过 WeChat-safe SVG 校验和真实微信编辑器/移动端验证后才可标记可用 |
 | 135 SVG 中心：多处效果标注“仅支持手机端触发” | 进入 `mobile-only-risk`；PC 后台粘贴和本地 e2e 只能证明结构/保留/桌面可视化，不能替代手机微信触发证据 |
+| 135 当前编辑器：字号、行距、字距、首行缩进、段前/段后、两侧边距、文字/背景色、文字阴影/边框、竖排、全文黑白/深色模式开关、Word 图片上传、AI 润色/生成等工具栏参数 | 进入 toolbar-parameter taxonomy；InkForge 只能映射为现有 preset/settings/quality detector/checklist，不创建绕过 `convertToWechatWithStats` 的第二套排版器 |
 | 秀米：导入 Word/Excel/Markdown、导入公众号文章、一键排版、插件复制、继续复制粘贴、同步公众号 | 进入 artifact state machine：`imported`、`local-rendered`、`copy-to-editor`、`copy-to-wechat`、`plugin-transfer`、`sync-draft`、`published`，各状态独立验收 |
 | 秀米：动作/动作列表/提取动作、点击动作、图层、定位、背景图、组件定位、多选对齐、SVG 图集 | 映射为 `layout-and-layer-system`；微信正文必须保持 DOM 可读顺序，绝对/自由布局默认降级为图片/长图 |
+| 秀米：Markdown 锚点映射、同步后预览、留言权限、背景图高度风险、复制到微信 | Markdown anchors 只映射语义元素；同步后预览和留言需要微信认证/账号权限；背景图、z-order、复制到微信都需要平台预览和布局报告 |
 | 秀米：生成长图/PDF/视频、贴纸图文 | 作为 fallback artifact，不作为微信公众号正文富文本成功证明 |
 
 交互 SVG 分级：
@@ -119,7 +121,7 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 | 背景 | `background-color`, `background` | `background-color:#f7f7f7;` |
 | 边框 | `border`, `border-radius`, `box-shadow` | `border-radius:4px;` |
 | 装饰 | `text-decoration`, `opacity` | `text-decoration:underline;` |
-| 尺寸 | `width`, `height`, `max-width`, `min-width` | `max-width:100%;` |
+| 尺寸 | 响应式/媒体归一化尺寸：`max-width`, `min-width`, `height:auto`, 图片归一化、SVG 内部几何 | `max-width:100%; height:auto;`；正文/卡片/标题等可读容器禁止 fixed width/fixed height 撑版 |
 | 交互 | `pointer-events` | `pointer-events:none;` |
 | 溢出 | `overflow`, `overflow-x`, `overflow-y` | `overflow:hidden;` |
 | 定位 | 不推荐 | 使用结构顺序、margin、table-cell 替代 |
@@ -138,6 +140,18 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 - `line-height:0`, fixed `width` / `height` — 会触发微信官方结构/可见性风险
 - `text-align:start/end` — 终端表现不稳定
 - `!important` — 破坏平台公共样式和 Dark Mode 修正
+- `caret-color: transparent` 或等价透明光标 — 会破坏编辑器定位体验
+- `opacity:0` 真实图片 + SVG/background 覆盖 — 发布后会导致公众号后台无法修改真实图片
+
+### 官方编辑器 API 与结构验证
+
+- 微信插件规范提供 `verify_article_structure` 风格的文章结构验证接口思路。InkForge 的最终 HTML
+  质量门应把 width/height/line-height/opacity/pre/text-align/begin 等官方坏例视为平台阻断项，
+  即使单个 SVG 片段通过 `checkWechatSafe`。
+- `mp_editor_set_content`、`mp_editor_insert_html` 和剪贴板 `text/html` 都只是输入/插入通道；
+  成功插入不等于移动端预览、Dark Mode、封面缩略图、同步或发布成功。
+- `mp_editor_change_cover` 说明封面裁切是独立编辑器能力。封面图、2.35:1 / 1:1 裁切和手机预览入口
+  必须单独留证，不能由正文粘贴通过推断。
 
 ---
 

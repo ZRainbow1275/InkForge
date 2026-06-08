@@ -25,6 +25,9 @@
 
 - 推荐图片比例：3:4 优先，1:1 可选。
 - 常用导出尺寸：1080x1440、1242x1660 或同等 3:4 比例。
+- 默认图片格式检查：JPG/PNG 优先；其他格式必须有明确转换器、预览证据和发布入口确认。
+- 默认图片大小检查：当前市场资料常见上限为 20MB。InkForge 将它作为 configurable/checkable
+  limit 和 publish checklist 项，账号版本或平台灰度不可验证时不得硬编码为永久常量。
 - 图片页必须具备安全边距，标题和正文不得贴边。
 - 多页导出必须生成顺序和 manifest，避免发布顺序错位。
 - 不要把历史“最多 9 张图”硬编码为永久合同。2026 市场资料已出现“最多 18 张图片”的图文笔记说明；InkForge 应把平台上限作为可配置/可检查项，并在真实发布入口不可验证时写入 publish checklist。
@@ -87,7 +90,10 @@
 | 段落过长 | 单段超过 5 行 | 警告；建议拆分 |
 | 正文过长 | 明显超过可读范围 | 警告；建议图片页/长图 |
 | 图片比例 | 非 3:4 或 1:1 | 警告 |
+| 图片格式 | 不在当前配置允许格式内，或未经过转换器落成 JPG/PNG 等可发布格式 | 阻断 / `unavailable` |
+| 图片大小 | 超过当前配置的 max bytes（默认可用市场值 20MB 初始化，但须可调整） | 阻断 / `unavailable` |
 | 图片数量一致性 | manifest 数量、实际文件数量、正文“见第 N 张图”引用或封面页不一致 | 阻断 |
+| 图片数量上限 | 超过当前配置的 page-count limit（市场值如 18 图只能作为默认/清单项） | 阻断 / publish checklist |
 | 图片重编号 | 删除/新增/重排图片后仍出现旧页码、旧文件或旧封面引用 | 阻断 |
 | 图片裁切 | 标题/正文被裁切 | 阻断 |
 | 文件存在 | manifest 中图片不存在 | 阻断 |
@@ -113,6 +119,10 @@
 ## 八、Source Index
 
 > 3:4、1080x1440、1242x1660、最多 18 图等均来自 2026 市场资料和当前可见入口经验，账号版本、地区、灰度发布和平台策略可能变动。InkForge 必须把这些值作为 configurable/checkable limit 与 publish checklist 项，而不是硬编码为永久常量。
+
+弱来源冲突规则：搜索摘要或第三方文章若声称小红书正文支持 basic HTML、inline SVG、
+Markdown 控制符或 135/秀米响应式 wrapper，不得据此放宽“纯文本 + 图片页/海报/长图”合同。
+只有真实小红书发布入口、账号权限和最终预览证据能改变 publishable body 规则。
 
 - Rednote / Xiaohongshu 3:4 cover market reference: `https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size`
 - Xiaohongshu 2026 image-size market reference: `https://focalflow.app/blog/xiaohongshu-image-guide-2026/`

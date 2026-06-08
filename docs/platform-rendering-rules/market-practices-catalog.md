@@ -11,11 +11,13 @@
 | 135 编辑器登录页/工作台实机观察 | 样式中心、模板中心、SVG 样式、SVG 效果、公众号长图、一键排版、校对、剪贴板、预览分享、同步公众号 | 抽象为元素族、检查项和导出路径，不复制模板 |
 | 135 编辑器 2026-06-08 登录态实机复核 | 编辑器内导航含导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG；SVG 中心含点击展开/显示/切换/缩放/翻转/弹出/放大/消失/播放/抽签、滑动展示、图片轮播、长按显示、渐显展示、文字弹幕、区域触发、趣味游戏、互动答题、文字特效、引导关注 | 进入 `interactive-system`、`editor-workflow-system` 和 `layout-and-layer-system`，仅记录 taxonomy |
 | 135 编辑器 2026-06-08 二次实机复核 | `beautify_editor.html` 可见样式/模板/SVG编辑器/AI排版/一键排版/我的文章/我的图片/剪切板/公众号长图，以及导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG、复制使用、快速保存、保存同步、预览分享、同步公众号；`svg-center.html` 明确列出点击、滑动、轮播、长按、区域触发等 SVG taxonomy，且多处标注“仅支持手机端触发” | 强化 artifact-state lifecycle 和移动端门禁；PC 后台粘贴只能证明 paste sanitizer/桌面编辑器渲染，不证明手机端触发、暗黑模式或发布成功 |
+| 135 编辑器 2026-06-08 当前编辑器复核 | 工具栏可见默认字体、清除格式、格式刷、字号、粗斜下划线/删除线、文字/背景色、对齐、首行缩进、段前/段后、行距、字距、两侧边距、单图/多图上传、引用、全文自动排版、竖排、查询替换、链接、Word 图片上传、AI 润色/生成、全屏、文字阴影/边框、深色模式开关、段落 lineHeight/fontSize/textIndent/padding 等参数；账号菜单含授权公众号、定时群发、水印设置、全文格式、团队管理 | 补强 `editor-workflow-system` 的 toolbar-parameter taxonomy、Dark Mode preview gate、credentialed publishing states；InkForge 只能把这些转成自有规则、检查项或不可用状态 |
 | 135 编辑器 2026-06-08 公开首页实机复核 | 首页明确把经典排版、AI 排版、SVG 动效、AI 生图、团队多人使用、AI 产品矩阵、公众号专属插件、多平台分发、企业内容中台、系统插件集成、开放接口、私有化部署、授权公众号、定时群发、全文格式、水印设置、团队管理列为产品/账号工作流入口 | 补强 `editor-workflow-system` 的 artifact-state、credential-gate、team-permission 和 enterprise-integration 规则；不得把插件/同步/接口入口视作当前发布成功证明 |
 | 135 公开 SVG 教程 | SVG 需要区分复制到编辑器与复制到微信后台的出口，复杂效果可通过 HTML/代码入口插入 | WeChat output contract 增加 `copy-to-editor`、`copy-to-wechat`、`plugin/sync` 三类出口 |
 | 秀米登录页/图文编辑器实机观察 | 图文排版、H5、图片设计、SVG 图集、滑动、点击展开、路径动画、自由布局、图层、长图/PDF/视频出口 | 将互动 SVG、自由布局、长图/PDF 降级写成规则，非默认输出 |
 | 秀米 2026-06-08 登录态实机复核 | 导入 Word/Excel/Markdown、导入公众号文章、生成长图/PDF/视频、生成贴纸图文、一键排版、同步公众号、插件复制、继续复制粘贴；组件侧含主题色、标题、卡片、图片、布局、SVG、组件；属性侧含动作/动作列表/提取动作、点击动作、背景图、图层、定位、间距、字号、组件定位、页面对齐、多选对齐、SVG 图集 | 补充导入、动作、插件/同步、图层/自由布局、artifact 状态生命周期 |
 | 秀米 2026-06-08 图文编辑器二次实机复核 | `studio/v5#/paper/for/new/cube/0` 可见打开、预览、保存、导出、更多、增强模式、基础格式字号/行距/字距、图文模板、图片素材、图文收藏、剪贴板、我的图库、团队素材、音视频、样刊模板、主题色、标题、卡片、图片、布局、SVG、组件 | 强化 authoring surface / material library / canvas / preview / save / export / platform preview 分层；增强媒体、团队素材和音视频属于独立能力或清单项，不是文章渲染成功证明 |
+| 秀米 2026-06-08 当前编辑器复核 | `studio/v5` 可见同步到公众号/微博草稿箱、通过插件复制、继续复制粘贴、导入 Word/Excel/Markdown、导入公众号文章、生成长图/PDF/视频、一键排版、Markdown 锚点映射（主标题/次标题/三级标题/图片/引用/分割线/顶部签名/底部签名）、动作/动作列表/提取动作、背景图、定位、图层/z-order、组件定位、复制到微信；同步后预览需微信认证，留言需公众号权限，背景图高度超过 4000 会造成安卓显示风险 | 补强 `editor-workflow-system` 的 Markdown anchor map、permission gate、platform preview gate，以及 `layout-and-layer-system` 的 background-size/crop/z-order report |
 | 秀米 2026-06-08 公开首页实机复核 | 官网 v13.4.8 将图文排版、H5 制作、图片设计作为三条主线，并显式提供我的秀米、教程培训、团队功能、手机版、秀米插件、第三方对接、新建图文/H5/设计、挑选风格排版/秀/设计入口 | 将 InkForge 的平台规则分成 article、interactive-page、design-image 三种 artifact family；当前任务只承诺 article/export 渲染，不伪装 H5 或设计器能力 |
 | 秀米公开插件/教程资料 | 插件复制可降低 SVG 格式丢失；长图导出是微信以外平台的重要桥 | XHS 默认把富样式转成图片/长图/海报，不伪造正文富文本 |
 | 微信公众平台编辑器插件开发规范 | 固定宽高、`line-height:0`、透明图片叠 SVG、`pre` 包普通段落、深色模式、SVG `begin` 触发等风险 | 更新 WeChat hard blockers 和 quality detector 期望 |
@@ -122,6 +124,9 @@ XHS:
 - 默认 3:4 竖图优先，支持 1:1。
 - 多张图片需要顺序、标题和安全边距检查。
 - 导出图片页时必须检查文字不被裁切。
+- Raster exports must carry configurable ratio, dimensions, format, max bytes, max page count,
+  manifest order, cover, and body-reference checks. Market values such as 1080x1440, JPG/PNG,
+  20MB, and 18 images are defaults/checklist inputs, not eternal constants.
 
 Zhihu:
 
@@ -261,6 +266,9 @@ Conflict rules:
 - A source that shows plugin copy, preview share, or draft sync cannot prove final publish rendering without credentialed platform confirmation.
 - A source that shows PC editor paste success cannot prove mobile WeChat rendering, click/SMIL interaction, Dark Mode, cover-thumbnail acceptance, scheduled send, or publish success.
 - A source that shows free layout/layers cannot bypass DOM readability, Dark Mode, mobile overflow, and fallback checks.
+- A search summary or market page claiming XHS accepts basic HTML, inline SVG, Markdown control
+  syntax, or third-party editor responsive wrappers cannot loosen the XHS pure-text + raster
+  artifact contract unless backed by reachable primary/live platform evidence.
 - If two sources disagree on platform limits, use configurable limits and a publish checklist until the live platform can verify the current account.
 - Do not adopt search summaries that contain unverifiable product names, version numbers,
   percentages, or "official report" references without a reachable primary source. 2026-06-08
@@ -316,6 +324,8 @@ Conflict rules:
 - `line-height:0`
 - `text-align:start/end`
 - `!important`
+- `caret-color: rgba(...,0)` or equivalent invisible-caret edits in authoring surfaces
+- `opacity:0` on editable real images while an SVG/background image is shown in their place
 
 ### 4.2 SVG subset
 
@@ -336,6 +346,8 @@ Conflict rules:
 - external `<image href>`
 - script/event handler
 - SVG used to hide/replace editable images in a way that prevents official-account editing
+- text-bearing SVG without an opaque background, `currentColor` wrapper color, or explicit
+  fill/stroke contrast proof for Dark Mode
 
 ### 4.3 Dark Mode
 

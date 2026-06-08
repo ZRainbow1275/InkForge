@@ -1,0 +1,106 @@
+2026-06-08 overnight market-rule hardening evidence
+
+Scope:
+- Continued task: .trellis/tasks/06-01-multiplatform-render-svg/
+- Purpose: fold the latest real-browser 135/Xiumi observations, WeChat official plugin spec
+  constraints, and cross-platform XHS/Zhihu rule conflicts into InkForge docs/spec.
+- No account screenshots, private browser artifacts, or backend/private pages are stored here.
+
+Real-browser state checks:
+
+1. WeChat Public Platform
+- URL checked through Playwright DOM extraction: https://mp.weixin.qq.com/
+- Title: 微信公众平台
+- Current state: login / QR-login entry.
+- Result: no authenticated article editor was available. No flagship-amber PC paste, mobile
+  preview, Dark Mode, SMIL/click, cover-thumbnail, sync, scheduled-send, or publish proof was
+  claimed.
+
+2. 135 editor
+- URL checked through Playwright DOM extraction:
+  https://www.135editor.com/beautify_editor.html
+- Title: 135编辑器官网-AI微信排版编辑器-微信公众号图文排版工具，好用素材多
+- Observed taxonomy:
+  default font, clear format, format brush, font size, bold/italic/underline/delete line,
+  text/background color, alignment, first-line indent, paragraph spacing, line/letter spacing,
+  side padding, single/multiple image upload, quote, full-document auto-typeset, vertical
+  writing, search/replace, link, Word-image upload, AI polish/generate, full-screen, text
+  shadow, text border, Dark Mode switch, paragraph lineHeight/fontSize/textIndent/padding,
+  authorized account, scheduled send, watermark setting, full-text format, and team management.
+- Rule result:
+  taxonomy only; no 135 template, member asset, private SVG code, or account artifact was copied.
+
+3. Xiumi editor
+- URL checked through Playwright DOM extraction:
+  https://xiumi.us/studio/v5#/paper/for/new/cube/0
+- Title: 图文: (无标题) | 秀米XIUMI
+- Observed taxonomy:
+  open, preview, save, export, sync to official account, sync to Weibo draft, plugin copy,
+  copy/paste fallback, import Word/Excel/Markdown, import official-account article, collect
+  images, long-image/PDF/video export, one-click layout, Markdown anchor mapping for title /
+  subtitle / third-level title / image / quote / divider / top signature / bottom signature,
+  action list, extracted actions, background image, z-order/layers, component positioning,
+  copy-to-WeChat, WeChat preview authentication, comment-permission gate, and background-image
+  height risk.
+- Rule result:
+  editor workflow and layout/layer taxonomy only. Sync, plugin copy, preview share, and
+  authenticated preview are separate credentialed states, not rendering proof.
+
+External source checks:
+
+1. WeChat official subscription docs fetched with Exa:
+- https://developers.weixin.qq.com/doc/subscription/guide/product/plugin_spec.html
+- https://developers.weixin.qq.com/doc/subscription/guide/product/mp_editor_jsapi.html
+- Confirmed hard blockers / boundaries:
+  transparent img hidden under SVG background, line-height:0, fixed width/height content
+  containers, text-align:start/end, ordinary prose inside pre, touchstart-only SVG begin,
+  Dark Mode SVG contrast requirements, article-structure verification, mp_editor_set_content /
+  mp_editor_insert_html insertion boundaries, and mp_editor_change_cover cover-crop boundary.
+
+2. Grok Search weak conflict check:
+- Query: 2026 微信公众号 图文 编辑器 SVG 排版 样式 内联 SVG 粘贴 135编辑器 秀米 微信公众号 小红书 知乎 Markdown 排版 最佳实践
+- Returned weak claims such as XHS supporting basic HTML and third-party wrappers being
+  automatically responsive.
+- Rule result:
+  treated as weak conflict input only; it did not loosen WeChat-safe or XHS pure-text/raster
+  contracts.
+
+3. Exa XHS/Zhihu source refresh:
+- XHS market sources again pointed to 3:4 / 1080x1440 style defaults, JPG/PNG-style image
+  artifacts, common 20MB references, and market claims around up to 18 images.
+- Zhihu OSS/editor references reinforced clean Markdown, LaTeX, code language labels, image
+  upload/host rewrite, Mermaid/Graphviz/diagram rasterization, table simplification, and HTML
+  filtering.
+- Rule result:
+  XHS values remain configurable/checkable defaults, not eternal hardcoded constants. Zhihu
+  output must remain clean Markdown or image fallback with accessible hosted images.
+
+Sub-agent review:
+- Input CSV: .trellis/tasks/06-01-multiplatform-render-svg/research/market-rule-overnight-agent-input.csv
+- Output CSV: .trellis/tasks/06-01-multiplatform-render-svg/research/market-rule-overnight-agent-output.csv
+- Workers: 3 completed, 0 failed.
+- Usable findings:
+  wechat_official and cross_platform produced actionable gaps and recommended edits.
+- market_editors returned no usable structured findings beyond the observations already captured
+  by the main browser pass.
+
+Docs/spec updated:
+- .trellis/spec/frontend/wechat-svg-modules.md
+- docs/platform-rendering-rules/market-practices-catalog.md
+- docs/platform-rendering-rules/wechat-rules.md
+- docs/platform-rendering-rules/xiaohongshu-rules.md
+- docs/platform-rendering-rules/zhihu-rules.md
+- docs/微信渲染规则.md
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Result: 4 files passed, 64 tests passed.
+- pnpm -C inkforge exec vitest run src/services/export/svg-modules src/services/export/__tests__/emit-flagship-artifacts.test.ts --reporter=default
+  Result: 15 files passed, 383 tests passed.
+
+Still-open gates:
+- flagship-amber authenticated WeChat PC editor paste.
+- flagship-kiln / flagship-tempera / flagship-amber mobile WeChat preview.
+- mobile WeChat SMIL/click before/after proof.
+- mobile WeChat Dark Mode proof.
+- cover thumbnail / preview entry proof.

@@ -28,7 +28,9 @@ construct breaks.
   `touchstart`.
 - Dark Mode: SVG text is not recolored by the platform algorithm in the same way as HTML text.
   Text-bearing SVG must either be avoided or include an opaque background plus explicit
-  `fill`/`stroke` values with verified contrast. Prefer HTML blocks for reflowing text.
+  `fill`/`stroke` values with verified contrast. `currentColor` is allowed only when the
+  wrapping HTML sets an explicit color and the module has verified contrast in normal and
+  mobile Dark Mode. Prefer HTML blocks for reflowing text.
 - 2026-06-08 135/Xiumi real-browser learning adds taxonomy, not blanket capability:
   click-reveal, click-show, click-switch, click-zoom, flip, popup, disappear, play/draw,
   slide, carousel, long-press, fade-in, bullet text, region trigger, quiz/game, and
@@ -128,14 +130,18 @@ Cross-platform target contract:
 - WeChat: inline HTML block + WeChat-safe SVG, then final-output compliance checks.
 - Xiaohongshu: plain text plus image/poster/long-image artifacts. Never leak inline SVG or
   WeChat HTML into the publishable body. Any image-page or long-image route must validate
-  manifest count, actual file count, cover page, page ordering, and every body reference such
-  as `see image N` before it can be reported as exportable.
+  manifest count, actual file count, cover page, page ordering, configured ratio/dimensions,
+  configured format, configured max bytes, configured max page count, and every body reference
+  such as `see image N` before it can be reported as exportable. Market values such as
+  1080x1440, JPG/PNG, 20MB, and 18 images are current defaults/checklist inputs, not eternal
+  hardcoded platform constants.
 - Zhihu: clean Markdown. Remove WeChat-specific `<section data-ink-block>` and inline SVG
   decorations; preserve semantic Markdown or image fallback. Final Markdown must block local
   paths, `blob:`, `data:`, private-network/localhost URLs, temporary preview URLs, and
   WeChat-only CDN dependencies. Raw diagram fences (`mermaid`, `graphviz`, `dot`, `plantuml`,
   `puml`, `vega`, `vega-lite`, `vegalite`) must be rasterized with alt/caption or marked
-  `blocked` / `unavailable`.
+  `blocked` / `unavailable`. Residual WeChat wrappers, style/class-dependent HTML, and
+  complex tables that cannot stay semantic must be cleaned, simplified, rasterized, or blocked.
 
 ---
 
@@ -147,6 +153,9 @@ Cross-platform target contract:
 | `render()` emits `<defs>/<linearGradient>/<clipPath>/<mask>/<filter>/<use>` or `url(#)` | flagged (id-referenced, WeChat-fragile) |
 | outer `<svg width="1080">` (fixed px) | flagged `no-fixed-svg-width`; use `width="100%"` + viewBox |
 | SMIL `begin="touchstart"` | flagged `no-bad-smil-trigger`; use `begin="click"` |
+| final HTML hides an editable `<img>` with `opacity:0` and overlays an SVG/background image | platform-rule FATAL; do not report as WeChat-safe even if the SVG fragment itself passes |
+| final HTML wraps readable text in `line-height:0` or fixed width/height content containers | platform-rule FATAL; use normal flow, responsive widths, and visible line-height |
+| final HTML uses ordinary prose inside `<pre>` or `text-align:start/end` | platform-rule FATAL; convert to paragraphs/sections and `left/center/right/justify` |
 | `OPAQUE_TAGS` missing `'svg'` | U+202F injected into `<text>` → glyph corruption (regression) |
 | `enableSvgModules` undefined/false AND non-flagship preset | NO injection — current behavior preserved (zero regression) |
 
@@ -171,11 +180,13 @@ Cross-platform target contract:
   `<svg>`, `<section data-ink-block>`, HTML tags, or raw Markdown control leakage; Zhihu output
   must not contain WeChat decorations or inline CSS dependency.
 - XHS negative tests must include image manifest/page-count/reference mismatch, stale cover
-  references after reorder/delete, and missing image files. These are blockers, not style
-  warnings.
+  references after reorder/delete, missing image files, unsupported format, oversized artifact,
+  and configured page-count limit violation. These are blockers, not style warnings.
 - Zhihu negative tests must include blocked image hosts (`file:`, local paths, `blob:`, `data:`,
   localhost/private IPs, temporary preview URLs, and WeChat CDN), missing alt text on fallback
-  images, and raw diagram fences for Mermaid/Graphviz/DOT/PlantUML/PUML/Vega/Vega-Lite.
+  images, raw diagram fences for Mermaid/Graphviz/DOT/PlantUML/PUML/Vega/Vega-Lite, residual
+  HTML after cleanup, unlabeled fenced code blocks when the source language is knowable, and
+  complex table fallback requirements.
 
 ---
 
@@ -251,7 +262,10 @@ live mp.weixin.qq.com ProseMirror editor → 5 inline `<svg>`, 18 inline backgro
 border-left accents, 19 border-radius, footer brand, quote cards, number chips ALL survived the
 paste sanitizer and render in the PC editor. Evidence: `prompts/0601/evidence/premium-upgrade/`.
 Self-feedback loop: render real `markdownToWechat` artifact at 393px viewport (Playwright) → 20-22
-CJK chars/line confirmed; faithful to the user's real phone screenshots.
+CJK chars/line confirmed; faithful to the user's real phone screenshots. This is historical PC
+editor paste evidence only. It is not current 2026-06-08 authenticated editor proof, mobile WeChat
+preview proof, Dark Mode proof, cover-thumbnail proof, sync proof, or publish proof; see
+`prompts/0601/evidence/platform-gate-matrix-20260608.md`.
 
 ## 9. Flagship Editorial System — R1→R3 evolution (2026-06-02)
 
@@ -291,4 +305,6 @@ number), `gridSquareMark` (2×2 grid: stroke + cross + filled top-left cell), `d
 recheck of `flagship-tempera.html` into live mp.weixin.qq.com editor → **14 inline `<svg>`, 11
 background blocks, 2 seals (墨/铸 ×2 each), MOZHU PRESS masthead, versal, 全文完 colophon, grid-numbers,
 diamonds ALL survived** the sanitizer and render; 0 gradient/var()/real-transform. Evidence:
-`prompts/0601/evidence/tune-0602/` (t3-seg1-4 @393px + realwechat-r3-editor-*).
+`prompts/0601/evidence/tune-0602/` (t3-seg1-4 @393px + realwechat-r3-editor-*). This remains
+historical PC editor paste evidence only; it must not be cited as mobile, Dark Mode, cover,
+sync, scheduled-send, or publish proof.
