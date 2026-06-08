@@ -1,0 +1,25 @@
+
+ RUN  v4.1.5 D:/Desktop/Inkforge/inkforge
+
+ ✓ src/services/export/svg-modules/__tests__/wechat-safe.test.ts (18 tests) 13ms
+ ✓ src/services/export/svg-modules/__tests__/theme.test.ts (15 tests) 14ms
+ ✓ src/services/export/svg-modules/__tests__/raster.test.ts (9 tests) 12ms
+ ✓ src/services/export/svg-modules/__tests__/primitives.test.ts (19 tests) 15ms
+ ✓ src/services/export/svg-modules/__tests__/headers.test.ts (23 tests) 17ms
+ ✓ src/services/export/svg-modules/__tests__/quotes.test.ts (27 tests) 22ms
+ ✓ src/services/export/svg-modules/__tests__/badges.test.ts (17 tests) 25ms
+ ✓ src/services/export/svg-modules/__tests__/covers.test.ts (24 tests) 21ms
+ ✓ src/services/export/svg-modules/__tests__/endmarks.test.ts (17 tests) 15ms
+ ✓ src/services/export/svg-modules/__tests__/dividers.test.ts (64 tests) 31ms
+ ✓ src/services/export/svg-modules/__tests__/interactive.test.ts (58 tests) 39ms
+ ✓ src/services/export/svg-modules/__tests__/html-blocks.test.ts (69 tests) 34ms
+ ✓ src/services/export/svg-modules/__tests__/inject.test.ts (17 tests) 10ms
+ ✓ src/services/export/svg-modules/__tests__/registry.test.ts (5 tests) 30ms
+ ✓ src/services/export/__tests__/emit-flagship-artifacts.test.ts (1 test) 404ms
+     ✓ renders the 3 flagship presets through the real pipeline and (optionally) writes paste-ready HTML  403ms
+
+ Test Files  15 passed (15)
+      Tests  383 passed (383)
+   Start at  10:48:52
+   Duration  1.80s (transform 3.14s, setup 0ms, import 4.14s, tests 702ms, environment 434ms)
+

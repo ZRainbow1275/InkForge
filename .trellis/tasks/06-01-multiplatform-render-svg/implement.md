@@ -252,6 +252,19 @@ git status --short --branch
     `docs/platform-rendering-rules/wechat-rules.md`, `docs/微信渲染规则.md`, and
     `.trellis/spec/frontend/wechat-svg-modules.md` so PC paste, mobile trigger, Dark Mode,
     cover-thumbnail, sync, and publish proof remain distinct.
+- [x] 2026-06-08 focused verification refresh after platform gate follow-up:
+  - Rechecked `https://mp.weixin.qq.com/` through Playwright. The active page remained the
+    WeChat Public Platform login/QR-login entry, so no `flagship-amber` PC paste or mobile
+    preview evidence could be collected in this pass.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed: 4 files, 64 tests. Log:
+    `prompts/0601/evidence/focused-export-refresh-20260608.txt`.
+  - `pnpm -C inkforge exec vitest run src/services/export/svg-modules src/services/export/__tests__/emit-flagship-artifacts.test.ts --reporter=default`
+    passed: 15 files, 383 tests. Log:
+    `prompts/0601/evidence/svg-modules-refresh-20260608.txt`.
+  - Added `prompts/0601/evidence/platform-gate-matrix-20260608.md` to map machine gates,
+    PC paste gates, and still-missing WeChat mobile / Dark Mode / SMIL / cover-thumbnail
+    evidence without claiming completion.
 
 ## Remaining Checks Before Commit
 
@@ -275,6 +288,8 @@ git status --short --branch
       unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 follow-up market-learning and platform-gate documentation only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 focused verification logs and platform gate matrix only; leave
+      unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

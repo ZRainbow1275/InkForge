@@ -14,7 +14,11 @@
 `cargo-build-refresh-20260608-082813.txt`（`cargo build -p inkforge` dev profile 9.15s）、
 `probe-svg-render-20260608-082919.txt`（A1 诊断探针）、
 `e2e-svg-render-20260608-083022.txt`（A2 正式 e2e）、
-`market-source-refresh-20260608.txt`（135/Xiumi/Exa/Grok 市场来源刷新）。`pnpm -C inkforge test:e2e` 由
+`market-source-refresh-20260608.txt`（135/Xiumi/Exa/Grok 市场来源刷新）。
+2026-06-08 后续 focused 机器门禁刷新已新增：
+`focused-export-refresh-20260608.txt`（4 files / 64 tests passed）、
+`svg-modules-refresh-20260608.txt`（15 files / 383 tests passed）、
+`platform-gate-matrix-20260608.md`（当前平台门禁缺口矩阵）。`pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
 passed。证据截图已存 `prompts/0601/evidence/e2e/flagship-{kiln,tempera,amber}.png`。
@@ -105,6 +109,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] probe-svg-render-20260608-082919.txt # A1 探针 stdout；SVG 几何 OK，chars/line 诊断提示见上文
 [x] e2e-svg-render-20260608-083022.txt   # A2 wdio spec：2 spec files / 16 tests passed
 [x] market-source-refresh-20260608.txt   # 市场来源刷新：135/Xiumi/Exa/Grok，非敏感文本证据
+[x] focused-export-refresh-20260608.txt  # focused 导出测试：4 files / 64 tests passed
+[x] svg-modules-refresh-20260608.txt     # SVG 模块 + 旗舰产物 emitter：15 files / 383 tests passed
+[x] platform-gate-matrix-20260608.md     # 当前平台门禁矩阵：机器门禁完成，WeChat 手机/amber 门禁仍缺
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
