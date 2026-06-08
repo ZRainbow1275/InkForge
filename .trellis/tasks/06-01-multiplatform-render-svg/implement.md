@@ -288,7 +288,7 @@ git status --short --branch
       unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 follow-up market-learning and platform-gate documentation only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 focused verification logs and platform gate matrix only; leave
+- [x] Commit the 2026-06-08 focused verification logs and platform gate matrix only; leave
       unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
