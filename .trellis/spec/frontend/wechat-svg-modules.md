@@ -28,6 +28,14 @@ construct breaks.
   `evaluateStyleChoiceAvailability()` proves the current evidence floor is satisfied, while
   `getPlatformStyleApplicationReport()` proves the choice maps to an existing InkForge preset
   or export option that actually changes output. Available-but-unmapped choices stay read-only.
+- Runtime evidence must also expose proof requirements through
+  `getEvidenceProofRequirements()` and `getStyleChoiceProofRequirements()`. These helpers are a
+  checklist layer, not an availability shortcut. For example, `pc-editor-paste` requires the exact
+  artifact, a safe disposable draft or cleanup path, a real PC paste/channel event, PC DOM readback,
+  and sensitive-artifact hygiene; `mobile-preview` separately requires phone readback, phone
+  screenshot evidence, Dark Mode inspection, and cover-thumbnail inspection. `published` is
+  cross-platform and proves final platform preview/publish inspection only; WeChat phone proof must
+  remain a separate `mobile-preview` label.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
@@ -197,6 +205,10 @@ Evidence labels for UI state:
   authenticated WeChat PC editor page in the required `inkforge-0601` profile. The visible title
   and body `.ProseMirror` editors were readable, but the current body contained an existing
   platform audio card, so no paste/readback test was attempted.
+- A follow-up read-only CloakBrowser probe observed `#js_add_appmsg` / `data-action="add"` for
+  adding another article in the current multi-article draft. It was not clicked: without a
+  disposable draft, a verified cleanup path, and exact artifact readiness, this action can mutate
+  the real draft structure and cannot satisfy `safe-disposable-draft`.
 - This evidence upgrades only `authenticated-editor-reachable` and `pc-editor-dom-readable`.
   These labels rank below `unit-tested`, `local-browser`, `pc-editor-paste`, `mobile-preview`,
   `credentialed-sync`, and `published`; they must not make any style choice selectable or

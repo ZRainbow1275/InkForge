@@ -14,6 +14,34 @@ export type StyleEvidenceLabel =
   | 'credentialed-sync'
   | 'published'
 
+export type StyleProofRequirementId =
+  | 'catalog-source'
+  | 'market-applied-dom-readback'
+  | 'no-proprietary-template-source'
+  | 'authenticated-editor-url'
+  | 'pc-editor-dom-readback'
+  | 'unit-test-coverage'
+  | 'local-browser-rendering'
+  | 'exact-artifact'
+  | 'safe-disposable-draft'
+  | 'pc-editor-paste-event'
+  | 'phone-preview-readback'
+  | 'phone-screenshot'
+  | 'dark-mode-check'
+  | 'cover-thumbnail-check'
+  | 'credentialed-channel-response'
+  | 'sync-readback'
+  | 'published-url-or-platform-preview'
+  | 'public-image-host'
+  | 'xhs-artifact-manifest'
+  | 'no-sensitive-artifact'
+
+export interface StyleProofRequirement {
+  id: StyleProofRequirementId
+  label: string
+  description: string
+}
+
 export type StyleVisualStrength = 'low' | 'medium' | 'medium-high' | 'high'
 export type StyleMotionLevel = 'none' | 'static' | 'click-candidate' | 'mobile-only'
 
@@ -108,6 +136,149 @@ const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'credentialed-sync': 6,
   published: 7,
 }
+
+export const STYLE_PROOF_REQUIREMENTS = [
+  {
+    id: 'catalog-source',
+    label: 'cataloged source',
+    description: 'The style or platform behavior is documented as a source rule only.',
+  },
+  {
+    id: 'market-applied-dom-readback',
+    label: 'market editor applied DOM readback',
+    description: 'A concrete market editor element was applied visually and its DOM/controls were read.',
+  },
+  {
+    id: 'no-proprietary-template-source',
+    label: 'no proprietary template source',
+    description: 'No third-party template source, paid asset, private SVG, account data, or CDN dependency is copied.',
+  },
+  {
+    id: 'authenticated-editor-url',
+    label: 'authenticated editor URL',
+    description: 'The real target editor URL is reachable in the required authenticated browser profile.',
+  },
+  {
+    id: 'pc-editor-dom-readback',
+    label: 'PC editor DOM readback',
+    description: 'The real PC editor title/body DOM is readable and visually confirmed.',
+  },
+  {
+    id: 'unit-test-coverage',
+    label: 'unit test coverage',
+    description: 'Focused tests cover the renderer, detector, fallback, or catalog contract.',
+  },
+  {
+    id: 'local-browser-rendering',
+    label: 'local browser rendering',
+    description: 'A real local browser or Tauri/WebView run proves visibility, sizing, and no overflow.',
+  },
+  {
+    id: 'exact-artifact',
+    label: 'exact artifact',
+    description: 'The same exported InkForge artifact, preset, and channel under review are used as proof.',
+  },
+  {
+    id: 'safe-disposable-draft',
+    label: 'safe disposable draft',
+    description: 'The target platform draft is disposable or has a verified cleanup path before mutation.',
+  },
+  {
+    id: 'pc-editor-paste-event',
+    label: 'PC editor paste event',
+    description: 'The exact artifact is inserted through the real PC editor paste/channel path.',
+  },
+  {
+    id: 'phone-preview-readback',
+    label: 'phone preview readback',
+    description: 'Phone preview shows the exact artifact after platform sanitizer and preview rendering.',
+  },
+  {
+    id: 'phone-screenshot',
+    label: 'phone screenshot',
+    description: 'A phone-side screenshot or equivalent inspected preview evidence is captured safely.',
+  },
+  {
+    id: 'dark-mode-check',
+    label: 'Dark Mode check',
+    description: 'Phone Dark Mode contrast and SVG/background behavior are inspected for the exact artifact.',
+  },
+  {
+    id: 'cover-thumbnail-check',
+    label: 'cover thumbnail check',
+    description: 'Cover crop, thumbnail, and article card presentation are inspected separately.',
+  },
+  {
+    id: 'credentialed-channel-response',
+    label: 'credentialed channel response',
+    description: 'A real credentialed sync, plugin, upload, or API channel returns a successful response.',
+  },
+  {
+    id: 'sync-readback',
+    label: 'sync readback',
+    description: 'The synced draft/material is read back from the target platform, not inferred from request success.',
+  },
+  {
+    id: 'published-url-or-platform-preview',
+    label: 'published or platform preview',
+    description: 'A final platform preview, publish result, or published page is inspected for the exact artifact.',
+  },
+  {
+    id: 'public-image-host',
+    label: 'public image host',
+    description: 'Image fallback URLs are public HTTPS or platform-hosted, with alt/caption context.',
+  },
+  {
+    id: 'xhs-artifact-manifest',
+    label: 'XHS artifact manifest',
+    description: 'Image page, long-image, cover, count, order, ratio, and reference manifest are consistent.',
+  },
+  {
+    id: 'no-sensitive-artifact',
+    label: 'no sensitive artifact',
+    description: 'Cookies, credential strings, QR codes, local profile paths, account IDs, HTTP archives, and captured images are redacted or kept local.',
+  },
+] as const satisfies readonly StyleProofRequirement[]
+
+const STYLE_PROOF_REQUIREMENT_BY_ID = new Map<StyleProofRequirementId, StyleProofRequirement>(
+  STYLE_PROOF_REQUIREMENTS.map(requirement => [requirement.id, requirement]),
+)
+
+const EVIDENCE_PROOF_REQUIREMENT_IDS = {
+  'doc-only': ['catalog-source'],
+  'applied-editor-element': ['market-applied-dom-readback', 'no-proprietary-template-source'],
+  'authenticated-editor-reachable': ['authenticated-editor-url', 'no-sensitive-artifact'],
+  'pc-editor-dom-readable': ['authenticated-editor-url', 'pc-editor-dom-readback', 'no-sensitive-artifact'],
+  'unit-tested': ['unit-test-coverage'],
+  'local-browser': ['unit-test-coverage', 'local-browser-rendering'],
+  'pc-editor-paste': [
+    'exact-artifact',
+    'safe-disposable-draft',
+    'pc-editor-paste-event',
+    'pc-editor-dom-readback',
+    'no-sensitive-artifact',
+  ],
+  'mobile-preview': [
+    'exact-artifact',
+    'phone-preview-readback',
+    'phone-screenshot',
+    'dark-mode-check',
+    'cover-thumbnail-check',
+    'no-sensitive-artifact',
+  ],
+  'credentialed-sync': [
+    'credentialed-channel-response',
+    'sync-readback',
+    'public-image-host',
+    'xhs-artifact-manifest',
+    'no-sensitive-artifact',
+  ],
+  published: [
+    'exact-artifact',
+    'published-url-or-platform-preview',
+    'no-sensitive-artifact',
+  ],
+} as const satisfies Record<StyleEvidenceLabel, readonly StyleProofRequirementId[]>
 
 export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
   wechat: ['unit-tested', 'local-browser'],
@@ -720,6 +891,31 @@ export function getBestEvidence(labels: readonly StyleEvidenceLabel[]): StyleEvi
   return labels.reduce<StyleEvidenceLabel>((best, label) =>
     EVIDENCE_RANK[label] > EVIDENCE_RANK[best] ? label : best,
   labels[0])
+}
+
+export function getEvidenceProofRequirements(label: StyleEvidenceLabel): readonly StyleProofRequirement[] {
+  return EVIDENCE_PROOF_REQUIREMENT_IDS[label]
+    .map(requirementId => {
+      const requirement = STYLE_PROOF_REQUIREMENT_BY_ID.get(requirementId)
+      if (!requirement) throw new Error(`Unknown style proof requirement: ${requirementId}`)
+      return requirement
+    })
+}
+
+export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): readonly StyleProofRequirement[] {
+  const requirementIds = new Set<StyleProofRequirementId>()
+
+  for (const label of [choice.evidenceFloor, ...choice.publishEvidence]) {
+    for (const requirementId of EVIDENCE_PROOF_REQUIREMENT_IDS[label]) {
+      requirementIds.add(requirementId)
+    }
+  }
+
+  return Array.from(requirementIds, requirementId => {
+    const requirement = STYLE_PROOF_REQUIREMENT_BY_ID.get(requirementId)
+    if (!requirement) throw new Error(`Unknown style proof requirement: ${requirementId}`)
+    return requirement
+  })
 }
 
 export function evaluateStyleChoiceAvailability(

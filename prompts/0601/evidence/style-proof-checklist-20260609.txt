@@ -1,0 +1,102 @@
+# Style proof checklist runtime evidence - 2026-06-09
+
+Scope:
+
+- Task: `.trellis/tasks/06-01-multiplatform-render-svg`
+- Runtime files:
+  - `inkforge/src/services/export/style-catalog.ts`
+  - `inkforge/src/services/export/index.ts`
+  - `inkforge/src/services/export/platform-export-rendering.test.ts`
+- This slice records proof requirements for evidence labels. It does not claim new WeChat paste,
+  mobile preview, credentialed sync, scheduled send, or publish success.
+
+CloakBrowser read-only platform boundary:
+
+- Browser rule: CloakBrowser only; no Playwright was used for this slice.
+- Profile: `inkforge-0601`.
+- The authenticated WeChat PC editor remained reachable. The sanitized active path was
+  `https://mp.weixin.qq.com/cgi-bin/appmsg`; raw query parameters were not recorded.
+- The page title was `公众号`.
+- A read-only DOM probe observed the current draft's `#js_add_appmsg` / `data-action="add"`
+  entry for adding another article in the multi-article draft. Its visible text was
+  `增加一条 新建内容`; its measured box was 83x20.
+- Two top-level `.ProseMirror` editors were visible and contenteditable. The title editor was
+  578x30. The body editor was 586x598 and contained one real `data-pluginname="insertaudio"`
+  plugin card.
+- Visible workflow buttons included `继续保存`, `发表`, `预览`, and `保存为草稿`; none were clicked.
+- That control was not clicked. It can mutate the real draft structure and is not a safe paste
+  surface without a disposable draft, cleanup proof, and exact artifact readiness.
+- No editor JSAPI mutator, paste, save, preview, publish, sync, or add-article action was run.
+- A local-only CloakBrowser image was captured for visual inspection and left in the local
+  capture directory. It is not committed because authenticated editor captured images require
+  separate redaction review.
+
+Executable proof requirements added:
+
+- `STYLE_PROOF_REQUIREMENTS`
+- `getEvidenceProofRequirements(label)`
+- `getStyleChoiceProofRequirements(choice)`
+
+Key mapped requirements:
+
+- `pc-editor-paste` requires:
+  - `exact-artifact`
+  - `safe-disposable-draft`
+  - `pc-editor-paste-event`
+  - `pc-editor-dom-readback`
+  - `no-sensitive-artifact`
+- `mobile-preview` requires:
+  - `exact-artifact`
+  - `phone-preview-readback`
+  - `phone-screenshot`
+  - `dark-mode-check`
+  - `cover-thumbnail-check`
+  - `no-sensitive-artifact`
+- `published` requires:
+  - `exact-artifact`
+  - `published-url-or-platform-preview`
+  - `no-sensitive-artifact`
+
+Important boundary:
+
+- The proof checklist is not an availability shortcut.
+- `wechat-flagship-amber` remains `blocked` even when the helper lists its missing
+  `pc-editor-paste`, `mobile-preview`, and `published` proof requirements.
+- The generic `published` label is cross-platform. It does not automatically include WeChat
+  phone preview; WeChat phone rendering remains a separate `mobile-preview` label.
+
+Graph and focused verification:
+
+- `npx gitnexus analyze`: completed successfully, repository indexed with 25,886 nodes,
+  40,787 edges, 795 clusters, and 300 flows.
+- GitNexus MCP impact after index refresh:
+  - `File:inkforge/src/services/export/style-catalog.ts`: LOW risk, direct dependent
+    `index.ts`, depth-2 test `platform-export-rendering.test.ts`, 0 affected processes.
+  - `File:inkforge/src/services/export/index.ts`: LOW risk, direct dependent
+    `platform-export-rendering.test.ts`, 0 affected processes.
+  - `File:inkforge/src/services/export/platform-export-rendering.test.ts`: LOW risk,
+    0 affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 39 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed, 4 files / 78 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 35 files / 972 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` executed through Git Bash:
+  passed, Vite built in 38.93s.
+- The first build attempt used Bash-style `NODE_OPTIONS=...` in the default PowerShell shell and
+  failed before the build started. The corrected Git Bash command above is the valid build result.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck dirtied the generated cache.
+
+Sensitive artifact hygiene:
+
+- No token, cookie, HAR, QR, browser profile, account screenshot, authenticated URL, or raw
+  platform DOM dump is stored in this file.
+- Local CloakBrowser captured images, if any, remain outside committed evidence unless separately
+  reviewed and redacted.

@@ -1003,6 +1003,48 @@ git status --short --branch
 - Added evidence summary:
   `prompts/0601/evidence/zhihu-svg-image-fallback-preview-20260609.txt`.
 
+### 2026-06-09 style proof checklist runtime slice
+
+- Added executable proof requirements to `inkforge/src/services/export/style-catalog.ts`:
+  `STYLE_PROOF_REQUIREMENTS`, `getEvidenceProofRequirements()`, and
+  `getStyleChoiceProofRequirements()`.
+- Re-exported the proof requirement API through `inkforge/src/services/export/index.ts`.
+- Focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts` proves:
+  - `pc-editor-paste` requires exact artifact, safe disposable draft, real PC paste/channel event,
+    PC DOM readback, and sensitive-artifact hygiene.
+  - `mobile-preview` requires phone readback/screenshot, Dark Mode check, cover-thumbnail check,
+    and sensitive-artifact hygiene.
+  - `published` stays cross-platform and does not automatically imply WeChat phone preview.
+  - `wechat-flagship-amber` remains `blocked` even when the helper lists its missing proof
+    requirements.
+- CloakBrowser-only follow-up:
+  - Profile `inkforge-0601`; no Playwright.
+  - A read-only WeChat editor probe observed `#js_add_appmsg` / `data-action="add"` for adding
+    another article in the current multi-article draft.
+  - The control was not clicked because it can mutate the real draft structure and there is no
+    verified disposable draft or cleanup proof for this artifact.
+- Verification so far:
+  - `npx gitnexus analyze` refreshed the index successfully.
+  - GitNexus MCP impact for `style-catalog.ts`, `index.ts`, and
+    `platform-export-rendering.test.ts` returned LOW risk and 0 affected processes.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 39 tests.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 78 tests.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+    passed, 35 files / 972 tests.
+  - `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    passed.
+  - `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed through Git Bash,
+    Vite built in 38.93s. The first PowerShell-shell attempt failed before build start because
+    Bash-style env assignment is not valid in PowerShell.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck dirtied the generated cache.
+- Evidence summary:
+  `prompts/0601/evidence/style-proof-checklist-20260609.txt`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

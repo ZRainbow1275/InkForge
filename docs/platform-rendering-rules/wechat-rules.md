@@ -12,6 +12,14 @@ Executable choice source: `inkforge/src/services/export/style-catalog.ts` contai
 style availability catalog for WeChat/XHS/Zhihu. UI controls and export reports should use that
 catalog rather than hard-coding this document's tables.
 
+Executable proof checklist source: the same catalog exposes `getEvidenceProofRequirements()` and
+`getStyleChoiceProofRequirements()`. Availability and proof are intentionally separate: a style can
+remain `blocked` even when its missing proof checklist is known. `pc-editor-paste` requires an exact
+InkForge artifact, safe disposable draft/cleanup proof, a real PC paste or channel event, PC DOM
+readback, and sensitive-artifact hygiene. `mobile-preview` requires phone-side readback/screenshot,
+Dark Mode inspection, and cover-thumbnail inspection. `published` is cross-platform final preview or
+publish inspection; it does not automatically satisfy WeChat phone preview.
+
 ### 0.1 产物类型
 
 | 产物 | 默认用途 | 要求 |
@@ -101,6 +109,7 @@ catalog rather than hard-coding this document's tables.
 - `pc-editor-paste` 只证明当前微信 PC 后台粘贴 sanitizer 和桌面编辑器保留/渲染路径；不得外推为手机最终渲染、SMIL/点击触发、暗黑模式、封面缩略图或发布成功。
 - 如果 `text/html` 剪贴板中含富 HTML/SVG，但微信编辑器读回只有纯文本，该渠道必须记录为 `blocked`。`flagship-amber` 在 2026-06-08 的普通 `Control+V` 路径就是此状态。
 - 2026-06-09 CloakBrowser `inkforge-0601` 只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
+- 同一只读复核还观察到当前真实草稿存在 `#js_add_appmsg` / `data-action="add"` 的“增加一条/新建内容”入口；该入口会改变多图文草稿结构，未在没有 disposable draft 和 cleanup proof 的情况下点击，不能作为安全粘贴测试入口。
 
 ### 0.4 禁止项
 

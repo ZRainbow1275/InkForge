@@ -11,6 +11,7 @@ import {
   evaluateStyleChoiceAvailability,
   getDefaultPreset,
   getDefaultStyleEvidence,
+  getEvidenceProofRequirements,
   getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
@@ -18,6 +19,7 @@ import {
   getStyleChoiceApplication,
   getStyleChoiceById,
   getStyleChoiceCatalog,
+  getStyleChoiceProofRequirements,
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
@@ -151,6 +153,66 @@ describe('platform native export rendering rules', () => {
       'zhihu-image-host-blocked',
       'zhihu-image-alt-missing',
       'zhihu-image-caption-missing',
+    ]))
+  })
+
+  it('maps evidence labels to explicit proof requirements without changing availability gates', () => {
+    const pcPasteRequirementIds = getEvidenceProofRequirements('pc-editor-paste').map(requirement => requirement.id)
+    expect(pcPasteRequirementIds).toEqual([
+      'exact-artifact',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'pc-editor-dom-readback',
+      'no-sensitive-artifact',
+    ])
+
+    const mobilePreviewRequirementIds = getEvidenceProofRequirements('mobile-preview').map(requirement => requirement.id)
+    expect(mobilePreviewRequirementIds).toEqual([
+      'exact-artifact',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'no-sensitive-artifact',
+    ])
+
+    expect(getEvidenceProofRequirements('published').map(requirement => requirement.id)).toEqual([
+      'exact-artifact',
+      'published-url-or-platform-preview',
+      'no-sensitive-artifact',
+    ])
+
+    const amber = getStyleChoiceById('wechat-flagship-amber')
+    expect(amber).toBeDefined()
+    if (!amber) return
+
+    const amberRequirementIds = getStyleChoiceProofRequirements(amber).map(requirement => requirement.id)
+    expect(amberRequirementIds).toEqual(expect.arrayContaining([
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'published-url-or-platform-preview',
+    ]))
+    expect(amberRequirementIds.filter(requirementId => requirementId === 'exact-artifact')).toHaveLength(1)
+    expect(amberRequirementIds.filter(requirementId => requirementId === 'no-sensitive-artifact')).toHaveLength(1)
+
+    const amberAvailability = evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview', 'published'])
+    expect(amberAvailability.usable).toBe(false)
+    expect(amberAvailability.status).toBe('blocked')
+    expect(amberAvailability.reason).toContain('plain text')
+
+    const xhsCleanText = getStyleChoiceById('xhs-clean-text')
+    expect(xhsCleanText).toBeDefined()
+    if (!xhsCleanText) return
+
+    const xhsRequirementIds = getStyleChoiceProofRequirements(xhsCleanText).map(requirement => requirement.id)
+    expect(xhsRequirementIds).not.toContain('phone-preview-readback')
+    expect(xhsRequirementIds).toEqual(expect.arrayContaining([
+      'unit-test-coverage',
+      'published-url-or-platform-preview',
     ]))
   })
 
