@@ -1,0 +1,107 @@
+Quality Gate Hardening Refresh — 2026-06-08
+
+Scope
+
+- Implemented platform-rule blockers in `inkforge/src/services/export/quality-detector.ts`.
+- Added regression coverage in `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- No WeChat account screenshots, QR images, browser profiles, or private browser artifacts are included in this evidence file.
+
+Implemented Machine Gates
+
+- WeChat official editor hard blockers now fail the quality report instead of remaining warning-only:
+  - `wechat-line-height-zero`
+  - `wechat-fixed-container-size`
+  - `wechat-text-align-logical`
+  - `wechat-pre-ordinary-text`
+  - `wechat-transparent-image-svg-overlay`
+  - `wechat-svg-touchstart-only`
+- Xiaohongshu image artifact preflight now blocks unsupported image formats and default page-count-limit violations:
+  - `xhs-image-format-unsupported`
+  - `xhs-image-page-count-limit`
+- Zhihu clean-Markdown preflight now blocks residual HTML dependencies and complex table fallbacks, and warns when code language is inferable but missing:
+  - `zhihu-html-dependency`
+  - `zhihu-complex-table`
+  - `render-code-language-inferred`
+
+Impact Checks
+
+- `npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3`
+  - risk: LOW
+  - impacted symbols: 5
+  - direct dependents: 1
+  - affected processes: 0
+- `npx gitnexus impact detectZhihuIssues -r InkForge --depth 3`
+  - risk: LOW
+  - impacted symbols: 5
+  - direct dependents: 1
+  - affected processes: 0
+- `npx gitnexus impact detectRenderingCoreIssues -r InkForge --depth 3`
+  - risk: LOW
+  - impacted symbols: 5
+  - direct dependents: 1
+  - affected processes: 0
+- `npx gitnexus impact detectQuality -r InkForge --depth 2`
+  - risk: LOW
+  - directly impacted symbols: 4
+  - affected processes: 0
+
+Verification Commands
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+```
+
+Result:
+
+- 1 file passed
+- 27 tests passed
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+```
+
+Result:
+
+- 4 files passed
+- 66 tests passed
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export --reporter=default
+```
+
+Result:
+
+- 35 files passed
+- 959 tests passed
+
+```bash
+pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+```
+
+Result:
+
+- passed
+
+```bash
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+```
+
+Result:
+
+- passed
+
+```bash
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+```
+
+Result:
+
+- passed
+- Vite built in 36.78s
+
+Tool / Platform Limits
+
+- Serena activation for `D:/Desktop/Inkforge` failed because no Serena project was registered in this session. The implementation used GitNexus CLI impact checks, focused diffs, TypeScript strict checks, ESLint, and Vitest/build gates as the fallback.
+- The current WeChat platform gate remains unchanged: fresh `flagship-amber` PC paste, mobile WeChat preview, mobile SMIL/click, Dark Mode, cover-thumbnail, sync, and publish proof still require a real authenticated WeChat article editor plus phone preview evidence.
+- This evidence does not claim completion of those credentialed/mobile WeChat gates.

@@ -232,6 +232,7 @@ describe('platform native export rendering rules', () => {
     )
     const ids = report.issues.map(issue => issue.id)
 
+    expect(report.passed).toBe(false)
     expect(ids).toContain('wechat-line-height-zero')
     expect(ids).toContain('wechat-fixed-container-size')
     expect(ids).toContain('wechat-text-align-logical')
@@ -239,6 +240,14 @@ describe('platform native export rendering rules', () => {
     expect(ids).toContain('wechat-transparent-image-svg-overlay')
     expect(ids).toContain('wechat-svg-touchstart-only')
     expect(ids).toContain('wechat-important-style')
+    expect(report.issues.filter(issue => [
+      'wechat-line-height-zero',
+      'wechat-fixed-container-size',
+      'wechat-text-align-logical',
+      'wechat-pre-ordinary-text',
+      'wechat-transparent-image-svg-overlay',
+      'wechat-svg-touchstart-only',
+    ].includes(issue.id)).every(issue => issue.severity === 'error')).toBe(true)
   })
 
   it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
@@ -481,7 +490,29 @@ describe('platform native export rendering rules', () => {
     ].join('\n'), 'xiaohongshu')
 
     expect(report.issues.some(issue => issue.id === 'xhs-image-count-review' && issue.severity === 'warning')).toBe(true)
+    expect(report.issues.some(issue => issue.id === 'xhs-image-page-count-limit' && issue.severity === 'error')).toBe(true)
     expect(report.issues.some(issue => issue.id === 'xhs-image-reference-mismatch' && issue.severity === 'error')).toBe(true)
+    expect(report.passed).toBe(false)
+  })
+
+  it('blocks unsupported Xiaohongshu image artifact formats before reporting publishability', () => {
+    const report = detectQuality([
+      '# 小红书图片格式检测',
+      '',
+      '![动图](https://example.com/a.gif)',
+      '![矢量图](https://example.com/b.svg?version=1)',
+      '![下一代格式](https://example.com/c.webp)',
+      '![内联图](data:image/avif;base64,AAAA)',
+      '![可放行图](https://example.com/d.png)',
+    ].join('\n'), 'xiaohongshu')
+
+    const issue = report.issues.find(item => item.id === 'xhs-image-format-unsupported')
+    expect(issue?.severity).toBe('error')
+    expect(issue?.message).toContain('gif')
+    expect(issue?.message).toContain('svg')
+    expect(issue?.message).toContain('webp')
+    expect(issue?.message).toContain('avif')
+    expect(report.passed).toBe(false)
   })
 
   it('flags Zhihu unsafe image hosts, missing alt, and raw diagram fences', () => {
@@ -510,6 +541,32 @@ describe('platform native export rendering rules', () => {
     expect(ids).toContain('zhihu-image-alt-missing')
     expect(ids).toContain('zhihu-raw-diagram-fence')
     expect(ids).not.toContain('render-code-language-unsupported')
+  })
+
+  it('blocks Zhihu residual HTML dependencies, complex tables, and inferable unlabeled code', () => {
+    const report = detectQuality([
+      '# 知乎 clean Markdown 检测',
+      '',
+      '<section style="background:#fff" data-ink-block="flagship-h2">标题卡</section>',
+      '<table style="width:100%"><tr><td><pre><code>const x = 1</code></pre></td></tr></table>',
+      '',
+      '| A | B | C | D | E | F | G |',
+      '| --- | --- | --- | --- | --- | --- | --- |',
+      '| 1 | 2 | 3 | 4 | 5 | 6 | `code` |',
+      '',
+      '```',
+      'const title: string = "clean markdown"',
+      'export const ready = true',
+      '```',
+    ].join('\n'), 'zhihu')
+
+    const ids = report.issues.map(issue => issue.id)
+    expect(ids).toContain('zhihu-html-dependency')
+    expect(ids).toContain('zhihu-complex-table')
+    expect(ids).toContain('render-code-language-inferred')
+    expect(report.issues.some(issue => issue.id === 'zhihu-html-dependency' && issue.severity === 'error')).toBe(true)
+    expect(report.issues.some(issue => issue.id === 'zhihu-complex-table' && issue.severity === 'error')).toBe(true)
+    expect(report.passed).toBe(false)
   })
 
   it('routes the unified native exporter to the correct real platform formats', async () => {

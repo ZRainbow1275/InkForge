@@ -300,6 +300,44 @@ git status --short --branch
     configurable ratio/dimensions/format/max-bytes/page-count checks and weak-source rejection;
     Zhihu residual HTML, code-language, and complex-table checks; 135/Xiumi toolbar, Markdown
     anchor, permission, z-order, background-size, preview, sync, and cover-thumbnail gates.
+- [x] 2026-06-08 quality-gate hardening refresh:
+  - Upgraded WeChat official editor hard blockers in
+    `inkforge/src/services/export/quality-detector.ts` from warning-only quality hints to
+    `error` blockers where the spec marks them platform-rule FATAL:
+    `line-height:0`, fixed readable container width/height, `text-align:start/end`,
+    ordinary prose in `<pre>`, transparent image plus SVG overlay, and touchstart-only
+    SVG animation triggers.
+  - Added Xiaohongshu image artifact preflight blockers:
+    unsupported image formats (`xhs-image-format-unsupported`) and default page-count-limit
+    violation (`xhs-image-page-count-limit`). The detector still records the current
+    market value as configurable/checkable and does not claim actual file-byte or publish
+    entry validation without a manifest/publishing boundary.
+  - Added Zhihu clean-Markdown blockers and warnings:
+    residual HTML/CSS/WeChat wrapper dependencies (`zhihu-html-dependency`), complex
+    HTML/Markdown table fallbacks (`zhihu-complex-table`), and inferable-but-missing
+    code fence language warnings (`render-code-language-inferred`).
+  - Added regression coverage in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`; focused count is now
+    27 tests and the cross-platform focused suite is now 66 tests.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 27 tests.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 66 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 959 tests.
+    `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    and `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built
+    in 36.78s.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the
+    generated cache and is intentionally not part of this slice.
+  - Serena activation for `D:/Desktop/Inkforge` failed because no Serena project was
+    registered in this session; GitNexus CLI impact checks, focused diffs, ESLint,
+    Vitest, typecheck, and build were used as the fallback.
+  - Evidence file:
+    `prompts/0601/evidence/quality-gate-hardening-20260608.txt`.
 
 ## Remaining Checks Before Commit
 
@@ -327,6 +365,8 @@ git status --short --branch
       unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 quality-gate hardening refresh only; leave unrelated dirty files
+      and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

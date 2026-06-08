@@ -13,7 +13,9 @@
 import { SUPPORTED_CODE_LANGUAGES } from '@/extensions/codeLanguages'
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
 
-const XHS_IMAGE_COUNT_REVIEW_THRESHOLD = 18
+const XHS_IMAGE_PAGE_COUNT_LIMIT = 18
+const XHS_IMAGE_COUNT_REVIEW_THRESHOLD = XHS_IMAGE_PAGE_COUNT_LIMIT
+const XHS_ALLOWED_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png'])
 const DIAGRAM_FENCE_LANGUAGES = new Set([
   'mermaid',
   'graphviz',
@@ -181,7 +183,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
   if (/line-height\s*:\s*0(?:px|em|rem|;|")/i.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-line-height-zero',
-      severity: 'warning',
+      severity: 'error',
       message: '检测到 line-height:0，微信官方规范将其列为可读性和可见性风险',
       suggestion: '不要用 line-height:0 包裹可读文本；改用结构化 section/p/span 和正常行高',
     })
@@ -190,7 +192,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
   if (/<(?:section|div|p)\b[^>]*style=["'][^"']*(?:width|height)\s*:\s*\d{3,}px/i.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-fixed-container-size',
-      severity: 'warning',
+      severity: 'error',
       message: '检测到正文容器固定宽高，可能破坏微信移动端响应式呈现',
       suggestion: '正文容器使用 max-width、width:100% 或自然流布局；图片尺寸由导出器单独处理',
     })
@@ -199,7 +201,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
   if (/text-align\s*:\s*(?:start|end)\b/i.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-text-align-logical',
-      severity: 'warning',
+      severity: 'error',
       message: '检测到 text-align:start/end，不同终端表现可能不一致',
       suggestion: '改用 left、center 或 right',
     })
@@ -211,7 +213,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
     if (textPreBlocks.length > 0) {
       addIssue(issues, {
         id: 'wechat-pre-ordinary-text',
-        severity: 'warning',
+        severity: 'error',
         message: `检测到 ${textPreBlocks.length} 个未包含 <code> 的 <pre> 块，普通段落不应使用 pre`,
         suggestion: '普通正文使用 <p> 或 <section>；仅代码块保留 <pre><code>',
       })
@@ -221,7 +223,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
   if (/<img\b[^>]*style=["'][^"']*opacity\s*:\s*0/i.test(markdown) && /<svg[\s>]/i.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-transparent-image-svg-overlay',
-      severity: 'warning',
+      severity: 'error',
       message: '检测到透明图片叠加 SVG 的模式，发布后可能导致公众号后台无法编辑真实图片',
       suggestion: '不要隐藏真实图片再用 SVG 背景替代；将图片作为真实 <img> 输出，SVG 只做装饰',
     })
@@ -231,7 +233,7 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
   if (touchstartOnlyAnimate.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-svg-touchstart-only',
-      severity: 'warning',
+      severity: 'error',
       message: '检测到 SVG 动画 begin 仅依赖 touchstart，PC 端微信编辑器可能无法触发',
       suggestion: '互动 SVG 必须 opt-in 并真实验证；需要触发时至少覆盖 click，默认避免 DOM 事件处理器',
     })
@@ -384,6 +386,7 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
   }
 
   detectXhsImageReferenceIssues(markdown, issues)
+  detectXhsImageArtifactIssues(markdown, issues)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -391,12 +394,12 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
 // ═══════════════════════════════════════════════════════════════════
 
 function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
-  if (/data-ink-(?:block|svg)=/i.test(markdown)) {
+  if (/data-ink-(?:block|svg)=|<mp(?:voice|video)\b/i.test(markdown)) {
     addIssue(issues, {
       id: 'zhihu-wechat-decoration-leak',
       severity: 'error',
-      message: '检测到微信旗舰装饰块，知乎输出必须是 clean Markdown',
-      suggestion: '将微信标题卡、阅读条、金句卡、SVG 分隔符降级为 Markdown 语义或图片 fallback',
+      message: '检测到微信旗舰装饰块或微信专属媒体标签，知乎输出必须是 clean Markdown',
+      suggestion: '将微信标题卡、阅读条、金句卡、SVG 分隔符和专属媒体组件降级为 Markdown 语义或图片 fallback',
     })
   }
 
@@ -433,6 +436,9 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
       suggestion: '导出时会自动清理内联样式',
     })
   }
+
+  detectZhihuResidualHtmlDependencyIssues(markdown, issues)
+  detectZhihuComplexTableIssues(markdown, issues)
 
   // 3. 检测 Mermaid / Graphviz / PlantUML / Vega 等图表围栏
   const diagramFences = collectDiagramFenceLanguages(markdown)
@@ -587,14 +593,20 @@ function normalizeCodeLanguage(language: string): string {
 }
 
 function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): void {
-  const codeBlocks = Array.from(markdown.matchAll(/^```([^\s`]*)/gm))
-  const unlabeledBlocks = codeBlocks.filter(match => !match[1]).length
+  const codeBlocks = collectFencedCodeBlocks(markdown)
+  const unlabeledBlocks = codeBlocks.filter(block => !block.language).length
   const unsupportedLanguages = Array.from(new Set(
     codeBlocks
-      .map(match => normalizeCodeLanguage(match[1] ?? ''))
+      .map(block => normalizeCodeLanguage(block.language))
       .filter(language => language
         && !SPECIAL_RENDERER_BLOCK_LANGUAGES.has(language)
         && !(SUPPORTED_CODE_LANGUAGES as readonly string[]).includes(language)),
+  ))
+  const inferredUnlabeledLanguages = Array.from(new Set(
+    codeBlocks
+      .filter(block => !block.language)
+      .map(block => inferCodeBlockLanguage(block.code))
+      .filter((language): language is string => Boolean(language)),
   ))
 
   if (unlabeledBlocks > 0) {
@@ -603,6 +615,15 @@ function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): vo
       severity: 'suggestion',
       message: `发现 ${unlabeledBlocks} 个未声明语言的代码块`,
       suggestion: '为代码块补充语言名，可启用语言标签与稳定语法高亮',
+    })
+  }
+
+  if (inferredUnlabeledLanguages.length > 0) {
+    addIssue(issues, {
+      id: 'render-code-language-inferred',
+      severity: 'warning',
+      message: `发现可推断但未声明语言的代码块: ${inferredUnlabeledLanguages.join(', ')}`,
+      suggestion: '当源文档、代码内容或扩展名能确定语言时，导出前应补全 fenced code language，避免知乎等平台高亮失效',
     })
   }
 
@@ -659,6 +680,12 @@ function detectXhsImageReferenceIssues(markdown: string, issues: QualityIssue[])
       message: `发现 ${imageCount} 张图片，超过当前小红书图文市场资料常见的 ${XHS_IMAGE_COUNT_REVIEW_THRESHOLD} 张上限`,
       suggestion: '不要硬编码平台上限；发布前通过真实入口确认当前账号允许数量，并同步重建图片 manifest 与正文图号引用',
     })
+    addIssue(issues, {
+      id: 'xhs-image-page-count-limit',
+      severity: 'error',
+      message: `发现 ${imageCount} 张图片，超过当前默认小红书图片页检查上限 ${XHS_IMAGE_PAGE_COUNT_LIMIT}`,
+      suggestion: '将页面上限作为可配置发布清单项；超过默认上限时必须由真实发布入口确认或拆分为长图/多篇内容',
+    })
   }
 
   const references = collectXhsImageReferences(markdown)
@@ -673,6 +700,27 @@ function detectXhsImageReferenceIssues(markdown: string, issues: QualityIssue[])
         ? `正文引用了 ${references.length} 个“见第 N 张图”，但源内容没有可计数图片`
         : `正文引用的图片序号超出现有 ${imageCount} 张图片范围：${[...new Set(invalidReferences)].join(', ')}`,
       suggestion: '新增、删除或重排图片后必须重建 manifest、正文“见第 N 张图”引用、封面页和导出文件列表',
+    })
+  }
+}
+
+function detectXhsImageArtifactIssues(markdown: string, issues: QualityIssue[]): void {
+  const images = [
+    ...collectMarkdownImages(markdown),
+    ...collectHtmlImages(markdown),
+  ]
+  const unsupportedFormats = Array.from(new Set(
+    images
+      .map(image => detectImageFormat(image.src))
+      .filter((format): format is string => format !== null && !XHS_ALLOWED_IMAGE_FORMATS.has(format)),
+  ))
+
+  if (unsupportedFormats.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-format-unsupported',
+      severity: 'error',
+      message: `发现非 JPG/PNG 图片格式：${unsupportedFormats.join(', ')}`,
+      suggestion: '小红书图片页默认只放行 JPG/PNG；SVG/WebP/GIF/HEIC/AVIF 等必须先通过真实转换器生成可预览 artifact，再进入发布清单',
     })
   }
 }
@@ -708,6 +756,51 @@ function detectZhihuImageIssues(markdown: string, issues: QualityIssue[]): void 
   }
 }
 
+function detectZhihuResidualHtmlDependencyIssues(markdown: string, issues: QualityIssue[]): void {
+  const htmlDependencyTags = Array.from(markdown.matchAll(/<[a-zA-Z][^>]*>/g))
+    .map(match => match[0])
+    .filter(tag => {
+      const name = tag.match(/^<\s*([a-zA-Z0-9-]+)/)?.[1]?.toLowerCase() ?? ''
+      if (name === 'img' && isAllowedZhihuEquationImgTag(tag)) return false
+      if (['section', 'div', 'article', 'aside', 'figure', 'figcaption'].includes(name)) return true
+      if (/^mp(?:voice|video)$/.test(name)) return true
+      return /\s(?:style|class)=|data-ink-(?:block|svg)=/i.test(tag)
+    })
+
+  if (htmlDependencyTags.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-html-dependency',
+      severity: 'error',
+      message: `检测到 ${htmlDependencyTags.length} 个依赖 HTML/CSS/微信包装的节点`,
+      suggestion: '知乎最终 Markdown 不能依赖 section/div、style/class、微信 wrapper 或微信专属媒体标签；请清理为语义 Markdown 或图片 fallback',
+    })
+  }
+}
+
+function detectZhihuComplexTableIssues(markdown: string, issues: QualityIssue[]): void {
+  const htmlTables = markdown.match(/<table\b[\s\S]*?<\/table>/gi) ?? []
+  const complexHtmlTables = htmlTables.filter(table =>
+    /\s(?:style|class|rowspan|colspan)=/i.test(table)
+    || /<(?:section|div|p|ul|ol|pre|code)\b/i.test(table),
+  )
+  const markdownTables = collectMarkdownTableBlocks(markdown)
+  const complexMarkdownTables = markdownTables.filter(table => {
+    const columnCount = countMarkdownTableColumns(table)
+    return columnCount > 6
+      || /<br\s*\/?>|<(?:section|div|p|ul|ol|pre|code)\b|`[^`]+`/i.test(table)
+  })
+  const total = complexHtmlTables.length + complexMarkdownTables.length
+
+  if (total > 0) {
+    addIssue(issues, {
+      id: 'zhihu-complex-table',
+      severity: 'error',
+      message: `检测到 ${total} 个复杂表格，可能无法作为知乎 clean Markdown 稳定发布`,
+      suggestion: '将多段落/列表/代码单元格、宽表格或依赖 HTML 属性的表格简化为语义 Markdown 表格，或图片化并保留 alt/caption',
+    })
+  }
+}
+
 function collectDiagramFenceLanguages(markdown: string): string[] {
   return Array.from(markdown.matchAll(/^```([^\s`]*)/gmi))
     .map(match => normalizeCodeLanguage(match[1] ?? ''))
@@ -717,6 +810,19 @@ function collectDiagramFenceLanguages(markdown: string): string[] {
 interface MarkdownImageRef {
   alt: string
   src: string
+}
+
+interface FencedCodeBlock {
+  language: string
+  code: string
+}
+
+function collectFencedCodeBlocks(markdown: string): FencedCodeBlock[] {
+  return Array.from(markdown.matchAll(/^```([^\s`]*)[^\n]*\n([\s\S]*?)^```/gm))
+    .map(match => ({
+      language: match[1] ?? '',
+      code: match[2] ?? '',
+    }))
 }
 
 function collectMarkdownImages(markdown: string): MarkdownImageRef[] {
@@ -734,6 +840,75 @@ function collectHtmlImages(markdown: string): MarkdownImageRef[] {
       src: getHtmlAttribute(match[0], 'src'),
     }))
     .filter(image => image.src)
+}
+
+function detectImageFormat(src: string): string | null {
+  const normalized = src.trim().toLowerCase()
+  const dataFormat = normalized.match(/^data:image\/([a-z0-9.+-]+)/i)?.[1]
+  if (dataFormat) return normalizeImageFormat(dataFormat)
+
+  const pathWithoutQuery = normalized.split(/[?#]/, 1)[0]
+  const ext = pathWithoutQuery.match(/\.([a-z0-9]+)$/i)?.[1]
+  return ext ? normalizeImageFormat(ext) : null
+}
+
+function normalizeImageFormat(format: string): string {
+  const normalized = format.toLowerCase()
+  if (normalized === 'jpg' || normalized === 'jpeg') return normalized
+  if (normalized === 'svg+xml') return 'svg'
+  return normalized
+}
+
+function isAllowedZhihuEquationImgTag(tag: string): boolean {
+  return /^<img\b/i.test(tag)
+    && /\bclass=["']ee_img tr_noresize["']/i.test(tag)
+    && /\beeimg=["']?1["']?/i.test(tag)
+}
+
+function collectMarkdownTableBlocks(markdown: string): string[] {
+  const lines = markdown.split('\n')
+  const blocks: string[] = []
+  const separatorPattern = /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!separatorPattern.test(lines[i])) continue
+
+    let start = i - 1
+    while (start > 0 && lines[start - 1].includes('|') && lines[start - 1].trim()) {
+      start--
+    }
+
+    let end = i + 1
+    while (end < lines.length && lines[end].includes('|') && lines[end].trim()) {
+      end++
+    }
+
+    blocks.push(lines.slice(start, end).join('\n'))
+    i = end
+  }
+
+  return blocks
+}
+
+function countMarkdownTableColumns(table: string): number {
+  const header = table.split('\n').find(line => line.includes('|')) ?? ''
+  const trimmed = header.trim().replace(/^\|/, '').replace(/\|$/, '')
+  return trimmed ? trimmed.split('|').length : 0
+}
+
+function inferCodeBlockLanguage(code: string): string | null {
+  const trimmed = code.trim()
+  if (!trimmed) return null
+  const looksLikeJsonContainer = (trimmed.startsWith('{') && trimmed.endsWith('}'))
+    || (trimmed.startsWith('[') && trimmed.endsWith(']'))
+  if (looksLikeJsonContainer && /"[^"]+"\s*:/.test(trimmed)) return 'json'
+  if (/\b(?:import|export)\b[\s\S]*\bfrom\b|\b(?:const|let|interface|type)\s+\w+|:\s*(?:string|number|boolean)\b/.test(trimmed)) {
+    return 'typescript'
+  }
+  if (/^\s*(?:def|class)\s+\w+|^\s*from\s+\w+\s+import\b|^\s*import\s+\w+/m.test(trimmed)) return 'python'
+  if (/\bSELECT\b[\s\S]+\bFROM\b|\bINSERT\s+INTO\b|\bUPDATE\b[\s\S]+\bSET\b/i.test(trimmed)) return 'sql'
+  if (/^\s*(?:curl|npm|pnpm|git|docker|cd|export)\b/m.test(trimmed)) return 'shell'
+  return null
 }
 
 function getHtmlAttribute(tag: string, name: string): string {
