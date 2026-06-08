@@ -126,6 +126,16 @@ instead of duplicating this document's matrix.
 | 代码语言标签 | 源信息可推断语言但 fenced code 未标注 | 警告；自动补全/规范化 |
 | 超长代码行 | 单行超过 120 字符 | 建议 |
 
+### 5.1 InkForge 预览与发布边界
+
+- InkForge 的本地 Zhihu preview-fidelity 可以使用 `data:image/svg+xml` 作为
+  `section[data-ink-svg]` 的临时 image fallback，以便作者看到 SVG 装饰的大致视觉结果。
+- 该预览 fallback 不是可发布证明。最终知乎 Markdown 仍必须阻断本地、`blob:`、`data:`、
+  localhost/private、临时预览 URL、微信 CDN 或缺少 alt/caption 的图片，直到存在真实 public
+  HTTPS / platform-host 上传或重写证据。
+- 预览层不得透传 InkForge inline SVG；应转成 `<img data-ink-svg ...>` 或在无法生成图片时
+  移除装饰并保留语义 Markdown。
+
 ## 六、市场实践映射
 
 | 来源 | 规则 |

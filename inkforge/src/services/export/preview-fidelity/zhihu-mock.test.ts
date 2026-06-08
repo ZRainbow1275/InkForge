@@ -67,6 +67,27 @@ describe('renderZhihuMockHtml — tables (fidelity preserves)', () => {
   })
 })
 
+describe('renderZhihuMockHtml — InkForge SVG fallback', () => {
+  it('converts data-ink-svg inline modules into image fallback instead of leaking inline SVG', () => {
+    const injectedSvg = [
+      '<section data-ink-svg="divider-grid" style="display:block">',
+      '<svg viewBox="0 0 1080 60" width="100%" xmlns="http://www.w3.org/2000/svg">',
+      '<rect x="0" y="0" width="1080" height="60" fill="#fff"></rect>',
+      '<animate attributeName="opacity" begin="0s" dur="0.4s" from="0" to="1" fill="freeze"></animate>',
+      '</svg>',
+      '</section>',
+    ].join('')
+
+    const html = renderZhihuMockHtml({ markdown: `# 标题\n\n${injectedSvg}\n\n正文` })
+
+    expect(html).toContain('<img data-ink-svg="divider-grid"')
+    expect(html).toContain('src="data:image/svg+xml;charset=utf-8,')
+    expect(html).toContain('alt="InkForge divider-grid image fallback"')
+    expect(html).not.toContain('<svg viewBox="0 0 1080 60"')
+    expect(html).not.toContain('<animate attributeName="opacity"')
+  })
+})
+
 describe('renderZhihuMockHtml — preset switching', () => {
   it('uses academic primary #1565C0 by default', () => {
     const html = renderZhihuMockHtml({ markdown: '# x' })

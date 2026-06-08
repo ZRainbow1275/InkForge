@@ -939,6 +939,59 @@ git status --short --branch
   this slice does not claim current WeChat mobile preview, SMIL/click animation, Dark Mode,
   cover thumbnail, credentialed sync, scheduled-send, or publish proof.
 
+### 2026-06-09 Zhihu SVG image fallback preview fidelity slice
+
+- Tightened the Zhihu preview-fidelity contract so `renderZhihuMockHtml()` converts
+  `section[data-ink-svg]` inline SVG modules into `<img data-ink-svg ...>` image fallback
+  before returning preview HTML.
+- The preview now remains visual while matching the platform rule that Zhihu publishable
+  Markdown must not depend on inline SVG. This strengthens AC6's Zhihu SVG-as-img evidence
+  without claiming public image hosting, upload, credentialed sync, or publish success.
+- Implemented the fallback with existing source-owned raster helpers:
+  `buildSvgDataUri()` extracts and sizes the SVG document, and `svgToImgTag()` emits the
+  responsive image fallback with the existing `data-ink-svg` sentinel.
+- Updated `svg-modules-fidelity.test.ts` from "Zhihu preserves inline SVG" to "Zhihu converts
+  inline SVG modules to image fallback", and added direct `zhihu-mock.test.ts` coverage.
+- Impact checks before editing:
+  GitNexus impact for `renderZhihuMockHtml` returned LOW risk, 2 direct test dependents, and
+  0 affected processes. GitNexus impact for
+  `File:inkforge/src/services/export/preview-fidelity/zhihu-mock.ts` returned LOW risk,
+  direct imports in `usePreviewRenderer.ts`, `zhihu-mock.test.ts`, and
+  `svg-modules-fidelity.test.ts`, and 0 affected processes.
+- Serena remained unavailable in this workspace (`No active project`, known projects `[]`),
+  so the edit used current file reads, GitNexus impact, and a narrow patch fallback.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/preview-fidelity/zhihu-mock.test.ts src/services/export/preview-fidelity/svg-modules-fidelity.test.ts src/composables/usePreviewRenderer.test.ts --reporter=default`
+  passed, 3 files / 20 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/preview-fidelity src/composables/usePreviewRenderer.test.ts --reporter=default`
+  passed, 4 files / 31 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed, 1 file / 38 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed, 35 files / 971 tests.
+  `pnpm -C inkforge exec eslint src/services/export/preview-fidelity/zhihu-mock.ts src/services/export/preview-fidelity/zhihu-mock.test.ts src/services/export/preview-fidelity/svg-modules-fidelity.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built in
+  31.75s.
+  `inkforge/tsconfig.tsbuildinfo` was restored after the production build dirtied the generated
+  cache.
+  `git diff --check -- inkforge/src/services/export/preview-fidelity/zhihu-mock.ts inkforge/src/services/export/preview-fidelity/zhihu-mock.test.ts inkforge/src/services/export/preview-fidelity/svg-modules-fidelity.test.ts`
+  passed with only normal Windows LF-to-CRLF warnings.
+  GitNexus index was refreshed with `npx gitnexus analyze`; MCP impact for
+  `renderZhihuMockHtml` and `File:inkforge/src/services/export/preview-fidelity/zhihu-mock.ts`
+  returned LOW risk and 0 affected processes.
+  CloakBrowser visual check (profile `inkforge-0601`, no Playwright) opened the real local app,
+  opened ExportModal from a real Workstation draft, confirmed Zhihu `4/7` availability and no
+  horizontal overflow, then used a temporary DOM sandbox with the real Vite module import to
+  verify an injected `section[data-ink-svg]` becomes a visible `img[data-ink-svg]` fallback
+  (`naturalWidth=1080`, `naturalHeight=60`, no inline SVG or `<animate>` leakage). The sandbox
+  was removed and the screenshot was saved only under the local CloakBrowser screenshot
+  directory.
+- Added evidence summary:
+  `prompts/0601/evidence/zhihu-svg-image-fallback-preview-20260609.txt`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

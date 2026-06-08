@@ -151,4 +151,4 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
 - 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本，因此当前剩余手动门禁是：为 amber 明确验证一个能保留富 HTML/SVG 的真实渠道、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
-- 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。
+- 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。2026-06-09 已补强知乎 preview-fidelity：`renderZhihuMockHtml()` 会把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` image fallback，并由 focused Vitest 覆盖。该本地预览证据不等于知乎 public host、上传、同步或发布成功。

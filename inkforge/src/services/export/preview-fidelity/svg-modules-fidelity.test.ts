@@ -3,12 +3,12 @@
  *
  * 背景：composeSvgDecorate(...) 在 wechat/xhs/zhihu 导出管线 DOMPurify 之后注入
  * 带 `data-ink-svg` 哨兵的 inline SVG。preview-fidelity mock 是独立的「保真预览」
- * 通道，必须让这些 SVG 模块原样呈现（不被 mock 的后处理改写/剥离）。
+ * 通道，必须让这些 SVG 模块按目标平台契约呈现，而不是被无声剥离。
  *
- * 本测试不修改 mock 行为，仅证明 mock 对注入 SVG 透明：
+ * 本测试锁定各平台 preview mock 对注入 SVG 的预览契约：
  *   - wechat-mock：直接包裹 content.html，inline SVG 原样保留。
- *   - zhihu-mock：marked 透传原始 HTML 块，applyInlineThemeAccents 的裸标签
- *     正则（<h1>/<blockquote>/…）不命中带属性的 <section>/<svg>，SVG 存活。
+ *   - zhihu-mock：把带 `data-ink-svg` 的 inline SVG 模块转成 image fallback，
+ *     避免预览暗示知乎发布路径可接受 inline SVG。
  */
 import { describe, it, expect } from 'vitest'
 import { renderWechatMockHtml } from './wechat-mock'
@@ -38,14 +38,15 @@ describe('preview-fidelity — 注入式 SVG 模块存活（PR6）', () => {
     expect(html).toMatch(/wechat-mock-body[^>]*>[\s\S]*data-ink-svg="header-ribbon"/)
   })
 
-  it('zhihu-mock 透传原始 HTML 中的 SVG 模块（applyInlineThemeAccents 不破坏）', () => {
+  it('zhihu-mock converts injected inline SVG modules to image fallback', () => {
     // markdown 中以原始 HTML 块嵌入注入 SVG（与 xhs/zhihu 栅格化前的 inline 形态一致）
     const md = `# 标题\n\n${INJECTED_SVG}\n\n正文段落`
     const html = renderZhihuMockHtml({ markdown: md })
     expect(html).toContain('data-ink-svg="header-ribbon"')
-    expect(html).toContain('width="100%"')
-    expect(html).toContain('<animate attributeName="opacity"')
-    // SVG 内的 <text> 不应被 h1/blockquote 主色正则改写
-    expect(html).toContain('章节标题')
+    expect(html).toContain('<img data-ink-svg="header-ribbon"')
+    expect(html).toContain('src="data:image/svg+xml;charset=utf-8,')
+    expect(html).toContain('alt="InkForge header-ribbon image fallback"')
+    expect(html).not.toContain('<svg viewBox="0 0 600 80"')
+    expect(html).not.toContain('<animate attributeName="opacity"')
   })
 })

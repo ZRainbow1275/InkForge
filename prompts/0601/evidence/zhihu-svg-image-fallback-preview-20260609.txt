@@ -1,0 +1,136 @@
+# 2026-06-09 Zhihu SVG Image Fallback Preview Evidence
+
+Scope:
+
+- Task: `.trellis/tasks/06-01-multiplatform-render-svg/`
+- Slice: Zhihu preview-fidelity fallback for InkForge inline SVG modules.
+- Goal contribution: strengthen AC6's Zhihu SVG-as-img evidence without claiming
+  public image hosting, upload, credentialed sync, or publish success.
+
+## Change
+
+`renderZhihuMockHtml()` now converts InkForge inline SVG modules into image fallback before
+the Zhihu preview HTML is returned.
+
+Input shape:
+
+```html
+<section data-ink-svg="divider-grid">
+  <svg viewBox="0 0 1080 60" width="100%">...</svg>
+</section>
+```
+
+Preview output shape:
+
+```html
+<img
+  data-ink-svg="divider-grid"
+  src="data:image/svg+xml;charset=utf-8,..."
+  alt="InkForge divider-grid image fallback"
+  style="width:100%;height:auto;display:block;"
+>
+```
+
+The preview therefore stays visual, but it no longer implies that Zhihu accepts inline SVG
+in the publishable Markdown path.
+
+## Contract
+
+- WeChat preview/export may keep safe inline SVG.
+- Zhihu preview must show InkForge SVG motifs as image fallback.
+- Zhihu final Markdown must still block local, `blob:`, `data:`, localhost/private,
+  temporary preview, or WeChat-CDN image URLs until a public HTTPS/platform-host upload
+  path exists with alt/caption semantics.
+- This slice does not claim Zhihu upload, public host rewrite, credentialed sync, or publish.
+
+## Verification
+
+GitNexus:
+
+- `npx gitnexus analyze`: refreshed the InkForge index before final checks.
+- `gitnexus impact renderZhihuMockHtml`: LOW risk, 2 direct test dependents, 0 affected
+  processes.
+- `gitnexus impact File:inkforge/src/services/export/preview-fidelity/zhihu-mock.ts`:
+  LOW risk, direct imports in `usePreviewRenderer.ts`, `zhihu-mock.test.ts`, and
+  `svg-modules-fidelity.test.ts`, 0 affected processes.
+
+Focused Vitest:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/preview-fidelity/zhihu-mock.test.ts src/services/export/preview-fidelity/svg-modules-fidelity.test.ts src/composables/usePreviewRenderer.test.ts --reporter=default
+```
+
+Result: passed, 3 files / 20 tests.
+
+Preview-fidelity suite:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/preview-fidelity src/composables/usePreviewRenderer.test.ts --reporter=default
+```
+
+Result: passed, 4 files / 31 tests.
+
+Platform rendering focused suite:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+```
+
+Result: passed, 1 file / 38 tests.
+
+Full export suite:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+```
+
+Result: passed, 35 files / 971 tests.
+
+Focused ESLint:
+
+```bash
+pnpm -C inkforge exec eslint src/services/export/preview-fidelity/zhihu-mock.ts src/services/export/preview-fidelity/zhihu-mock.test.ts src/services/export/preview-fidelity/svg-modules-fidelity.test.ts --quiet
+```
+
+Result: passed.
+
+Export-scope ESLint:
+
+```bash
+pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+```
+
+Result: passed.
+
+Typecheck and build:
+
+```bash
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+```
+
+Result: both passed. Build transformed 4644 modules and completed in 31.75s.
+`inkforge/tsconfig.tsbuildinfo` was restored after the build dirtied the generated cache.
+
+Diff check:
+
+```bash
+git diff --check -- inkforge/src/services/export/preview-fidelity/zhihu-mock.ts inkforge/src/services/export/preview-fidelity/zhihu-mock.test.ts inkforge/src/services/export/preview-fidelity/svg-modules-fidelity.test.ts docs/platform-rendering-rules/zhihu-rules.md prompts/0601/COMPLETION-REPORT.md prompts/0601/evidence/README.md .trellis/tasks/06-01-multiplatform-render-svg/implement.md prompts/0601/evidence/zhihu-svg-image-fallback-preview-20260609.txt
+```
+
+Result: passed with only normal Windows LF-to-CRLF warnings.
+
+CloakBrowser visual check:
+
+- Profile: `inkforge-0601`.
+- Real local app: `http://127.0.0.1:3005/`.
+- ExportModal opened from a real Workstation draft; Zhihu style catalog stayed `4/7`, with
+  image-fallback and public-upload choices blocked/unavailable as expected.
+- Current draft had no SVG modules, so the live Zhihu preview had no `data-ink-svg` fallback
+  image. A temporary DOM sandbox used the real Vite module import
+  `/src/services/export/preview-fidelity/zhihu-mock.ts` and removed itself after the probe.
+- Probe result: `htmlHasImgFallback=true`, `htmlHasInlineSvg=false`, `htmlHasAnimate=false`,
+  fallback image `naturalWidth=1080`, `naturalHeight=60`, visible width 279px, and
+  `fallbackImgCount=1` inside `#zhihu-answer`.
+- Body/document horizontal overflow remained `0`.
+- Screenshot saved locally only under the CloakBrowser screenshot directory and not staged.

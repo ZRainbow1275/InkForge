@@ -8,6 +8,7 @@
  *   - LaTeX 在 fidelity 中始终强制以 zhihu equation 端点 img 呈现
  *   - 代码块按 marked 输出再注入语言徽章
  *   - GFM 表格保留（fidelity 不接 export 的 fallback 降级）
+ *   - InkForge inline SVG modules are shown as image fallbacks, not inline SVG
  *   - 末尾追加 watermark 提醒"知乎 web 编辑器会过滤大部分 CSS"
  *
  * 本模块 self-contained：
@@ -19,6 +20,7 @@
 
 import { marked } from 'marked'
 import { convertLatexToEquationImg } from '../platform-rules/zhihu'
+import { buildSvgDataUri, svgToImgTag } from '../svg-modules/raster'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 类型
@@ -145,7 +147,12 @@ export function renderZhihuMockHtml(
   // Step 3: 注入代码块语言徽章
   const htmlWithBadges = showCodeLanguageBadge ? injectCodeLanguageBadges(rawHtml) : rawHtml
 
-  // Step 4: 包装为 zhihu-mock 容器 + 内联主题样式
+  // Step 4: Convert any InkForge inline SVG module into a Zhihu-style image
+  // fallback. Preview stays visual, but it no longer implies that Zhihu accepts
+  // inline SVG in the publishable Markdown path.
+  const htmlWithSvgFallbacks = replaceInkSvgModulesWithImageFallback(htmlWithBadges)
+
+  // Step 5: 包装为 zhihu-mock 容器 + 内联主题样式
   const containerStyle = [
     `font-family:${tokens.fontFamily}`,
     `font-size:${tokens.fontSize}`,
@@ -157,12 +164,12 @@ export function renderZhihuMockHtml(
     `--zhihu-mock-primary:${tokens.primaryColor}`,
   ].join(';')
 
-  const themedHtml = applyInlineThemeAccents(htmlWithBadges, tokens.primaryColor)
+  const themedHtml = applyInlineThemeAccents(htmlWithSvgFallbacks, tokens.primaryColor)
 
-  // Step 5: watermark
+  // Step 6: watermark
   const watermark = `<div class="zhihu-mock-watermark" style="margin-top:24px;padding:8px 12px;font-size:12px;color:#888;border-top:1px dashed #e5e5e5;text-align:center;">预览 · 知乎 web 编辑器会过滤大部分 CSS</div>`
 
-  // Step 6: preset themeCSS — scoped to `#zhihu-answer`. Injected before body
+  // Step 7: preset themeCSS — scoped to `#zhihu-answer`. Injected before body
   // so cascade order favors mock inline styles only when no preset rule matches.
   const themeStyle = renderThemeStyle(options?.themeCSS)
 
@@ -182,6 +189,51 @@ function renderThemeStyle(css: string | undefined): string {
   const rescoped = css.replace(/#nice\b/g, '#zhihu-answer')
   const safe = rescoped.replace(/<\/style/gi, '<\\/style')
   return `<style data-preset-theme="zhihu-answer">${safe}</style>`
+}
+
+function replaceInkSvgModulesWithImageFallback(html: string): string {
+  return html.replace(
+    /<section\b(?=[^>]*\bdata-ink-svg=(["'])([^"']+)\1)[^>]*>[\s\S]*?<svg\b[\s\S]*?<\/svg>[\s\S]*?<\/section>/gi,
+    (sectionHtml: string, _quote: string, rawModuleId: string) => {
+      const moduleId = normalizeInkSvgModuleId(rawModuleId)
+      const { width, height } = inferSvgImageSize(sectionHtml)
+      const dataUri = buildSvgDataUri(sectionHtml, width, height)
+      return svgToImgTag(dataUri, moduleId, `InkForge ${moduleId} image fallback`)
+    }
+  )
+}
+
+function normalizeInkSvgModuleId(rawModuleId: string): string {
+  return rawModuleId.replace(/[^a-z0-9_-]/gi, '') || 'svg-module'
+}
+
+function inferSvgImageSize(svgHtml: string): { width: number; height: number } {
+  const viewBox = /<svg\b[^>]*\bviewBox\s*=\s*["']\s*[-.\d]+\s+[-.\d]+\s+([-.\d]+)\s+([-.\d]+)\s*["']/i.exec(svgHtml)
+  if (viewBox) {
+    const viewBoxWidth = Number(viewBox[1])
+    const viewBoxHeight = Number(viewBox[2])
+    if (Number.isFinite(viewBoxWidth) && viewBoxWidth > 0 && Number.isFinite(viewBoxHeight) && viewBoxHeight > 0) {
+      return {
+        width: 1080,
+        height: Math.max(1, Math.round((1080 * viewBoxHeight) / viewBoxWidth)),
+      }
+    }
+  }
+
+  const explicitWidth = /<svg\b[^>]*\bwidth\s*=\s*["'](\d+(?:\.\d+)?)["']/i.exec(svgHtml)
+  const explicitHeight = /<svg\b[^>]*\bheight\s*=\s*["'](\d+(?:\.\d+)?)["']/i.exec(svgHtml)
+  if (explicitWidth && explicitHeight) {
+    const width = Number(explicitWidth[1])
+    const height = Number(explicitHeight[1])
+    if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+      return {
+        width: 1080,
+        height: Math.max(1, Math.round((1080 * height) / width)),
+      }
+    }
+  }
+
+  return { width: 1080, height: 360 }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
