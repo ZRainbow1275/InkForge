@@ -365,7 +365,7 @@ git status --short --branch
       unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 quality-gate hardening refresh only; leave unrelated dirty files
+- [x] Commit the 2026-06-08 quality-gate hardening refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
