@@ -13,6 +13,11 @@
 > InkForge must not copy proprietary templates. New families should map into the catalog below,
 > preserve the `墨铸 / Quiet Press / flagship editorial` identity, and keep non-WeChat targets as
 > semantic Markdown/plain-text/image fallbacks.
+>
+> Runtime catalog: `inkforge/src/services/export/style-catalog.ts` is the typed availability
+> surface for user-selectable style choices. This document describes the element families; the
+> runtime catalog decides whether a style is available, blocked, or unavailable for a platform
+> based on current evidence.
 
 ---
 
@@ -161,6 +166,9 @@ Any new catalog element must declare:
 - XHS 图片页/长图必须生成 manifest、页码/封面/正文引用一致性报告和裁切报告；任何数量、文件、引用不一致都应阻断导出或标记 `unavailable`。
 - Zhihu 图片 fallback 必须是 public HTTPS/platform-host URL 且有 alt/caption；本地、`blob:`、`data:`、localhost/private IP、临时预览 URL、微信专用 CDN 或 raw diagram fence 必须阻断、图片化或标记 `blocked`。
 - 任何新按钮图标继续使用已安装图标库或 inline SVG path；不得使用 emoji 图标。
+- `flagship-amber` 当前在 runtime catalog 中保持 `blocked`：2026-06-08 真实微信普通
+  `text/html` 剪贴板粘贴已证明它会降级为纯文本。若后续采用插件传输、开发者工具 HTML
+  替换或授权同步，必须用新的 channel evidence 单独升级，不得复用普通剪贴板结论。
 
 ### 6.2 用户样式选择 UI 合同
 

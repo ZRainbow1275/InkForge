@@ -22,7 +22,9 @@
 `market-rule-overnight-refresh-20260608.txt`（135/Xiumi 当前实机复核、微信官方插件规范、
 XHS/Zhihu 弱来源冲突、agent 复审和聚焦测试）、
 `quality-gate-hardening-20260608.txt`（WeChat/XHS/Zhihu 质量门禁阻断规则实现与验证）、
-`xhs-markdown-gate-refresh-20260608.txt`（微信登录态复核 + 小红书 raw Markdown 控制符阻断门禁）。
+`xhs-markdown-gate-refresh-20260608.txt`（微信登录态复核 + 小红书 raw Markdown 控制符阻断门禁）、
+`style-catalog-amber-paste-refresh-20260608.txt`（可执行样式选择 catalog + `flagship-amber`
+普通剪贴板富 HTML 粘贴降级为纯文本的真实微信证据）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -120,12 +122,13 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-rule-overnight-refresh-20260608.txt # 当前市场规则硬化：135/Xiumi/WeChat official/XHS/Zhihu/agent 复审
 [x] quality-gate-hardening-20260608.txt # 当前质量门禁实现：WeChat/XHS/Zhihu 阻断规则 + tests/lint/typecheck/build
 [x] xhs-markdown-gate-refresh-20260608.txt # 当前质量门禁实现：XHS raw Markdown 控制符阻断 + WeChat 登录态复核
+[x] style-catalog-amber-paste-refresh-20260608.txt # 当前规则实现：style-catalog typed choices + amber paste blocked proof
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
 [x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
 [x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
-[ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰单独粘贴补证
+[ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰富文本/SVG 粘贴补证；普通剪贴板路径已失败，需明确替代渠道
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
 [ ] wechat-flagship-tempera-mobile-<日期>.png   # B 手机预览：铜绿旗舰公众号渲染
 [ ] wechat-flagship-amber-mobile-<日期>.png     # B 手机预览：黄铜旗舰公众号渲染
@@ -142,5 +145,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。当前剩余手动门禁是 amber PC 后台粘贴补证、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
+- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本，因此当前剩余手动门禁是：为 amber 明确验证一个能保留富 HTML/SVG 的真实渠道、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。

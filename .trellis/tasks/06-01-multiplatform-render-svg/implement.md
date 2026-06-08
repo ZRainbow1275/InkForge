@@ -491,6 +491,76 @@ git status --short --branch
     this slice does not claim new WeChat PC editor paste, WeChat phone preview,
     SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
     scheduled-send, or publish success.
+- [x] 2026-06-08 style-choice catalog and amber ordinary-paste retry:
+  - Added `inkforge/src/services/export/style-catalog.ts` as the executable mirror of the
+    user-selectable style matrix documented in `docs/platform-rendering-rules/`.
+    It records platform, rule group, content blocks, visual strength, motion level, output
+    artifact, fallback, status, evidence floor, publish evidence, blockers, and detector
+    blocker ids for WeChat/XHS/Zhihu choices.
+  - Exported the catalog API from `inkforge/src/services/export/index.ts`:
+    `getStyleChoiceCatalog`, `getPlatformStyleChoices`, `getStyleChoiceById`,
+    `evaluateStyleChoiceAvailability`, `isEvidenceAtLeast`, and `getBestEvidence`.
+  - Added catalog contract tests in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`.
+  - Real WeChat `flagship-amber` retry:
+    authenticated `.ProseMirror` editor was reachable. The exact `flagship-amber.html`
+    artifact was written to the browser clipboard as `text/html` / `text/plain`;
+    clipboard artifact stats were `dataInkSvg=3`, `svg=35`, `dataInkBlock=23`,
+    `styleTag=0`, `scriptTag=0`, `classAttr=0`. After real `Control+A` / `Control+V`,
+    editor readback was plain text only: `dataInkSvg=0`, `dataInkBlock=0`, `svg=0`,
+    `styleAttr=0`, `classAttr=0`. Therefore ordinary clipboard paste remains blocked
+    for `flagship-amber`.
+  - Rechecked 135 real browser pages:
+    `beautify_editor.html` exposed style/template/SVG editor/AI layout/one-click layout,
+    import/insert/theme/full-black-white/color-pick/title/body/image-text/guide/layout/
+    festival/industry/small-element/SVG, copy/save/sync/preview workflow actions.
+    `svg-center.html` exposed click, switch, zoom, flip, popup, play/draw, slide, carousel,
+    long-press, fade, bullet text, region trigger, quiz/game, text effect, and follow-guide
+    taxonomy, with multiple `仅支持手机端触发` labels.
+  - Rechecked Xiumi real browser page:
+    `studio/v5#/paper/for/new/cube/0` exposed open/preview/save/export, enhanced media mode,
+    base typography, templates/materials/clipboard/gallery/team material/audio-video, theme,
+    title, card, image, layout, SVG, and component groups.
+  - Exa refresh reinforced 135's separate SVG routes (plugin paste, developer-tool HTML
+    replacement, authorized sync), Xiumi plugin/sync/API as credentialed transfer states,
+    XHS 3:4/image-count/configurable guidance, and Zhihu Markdown/image-upload/diagram
+    fallback patterns. Grok Search returned weak third-party WeChat sources and was used only
+    as conflict evidence.
+  - Focused test first exposed that an existing Mermaid Markdown degradation test exceeds
+    Vitest's 5000ms default timeout on this machine. The assertion stayed unchanged and the
+    test now has an explicit 30000ms timeout.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 34 tests.
+  - Final verification refresh:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 73 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 966 tests.
+    `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    passed.
+    `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`
+    passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+    passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+    passed, Vite built in about 1m 7s.
+    `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated
+    cache.
+    `npx gitnexus impact detectQuality -r InkForge --depth 2`
+    returned LOW risk, 4 direct dependents, 0 affected processes. Before post-commit indexing,
+    direct impact checks for new catalog symbols returned `Target not found`; after
+    `npx gitnexus analyze`, both `getStyleChoiceCatalog` and
+    `evaluateStyleChoiceAvailability` resolve with LOW risk and 0 affected processes.
+    `npx gitnexus detect-changes -r InkForge --scope all`
+    returned low risk, 0 affected processes; the report includes unrelated existing dirty files,
+    so staged review remains path-specific.
+  - Evidence file:
+    `prompts/0601/evidence/style-catalog-amber-paste-refresh-20260608.txt`.
+  - Honest boundary:
+    this slice does not claim `flagship-amber` PC rich paste success, WeChat phone preview,
+    SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
+    scheduled-send, or publish success.
 
 ## Remaining Checks Before Commit
 
@@ -526,6 +596,8 @@ git status --short --branch
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 completion audit and cross-platform readability/semantic gates
       refresh only; leave unrelated dirty files and QR/platform-preview candidates untouched.
+- [x] Commit the 2026-06-08 style-choice catalog and amber ordinary-paste retry docs/spec/code
+      only; leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

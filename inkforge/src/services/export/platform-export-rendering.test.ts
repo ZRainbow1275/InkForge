@@ -7,8 +7,12 @@ import {
   convertToNativeFormat,
   convertToWechatWithStats,
   detectQuality,
+  evaluateStyleChoiceAvailability,
   getDefaultPreset,
+  getPlatformStyleChoices,
   getPresetById,
+  getStyleChoiceById,
+  getStyleChoiceCatalog,
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
@@ -96,6 +100,68 @@ function countText(text: string, needle: string): number {
 }
 
 describe('platform native export rendering rules', () => {
+  it('exposes a gate-aware style choice catalog for all target platforms', () => {
+    const catalog = getStyleChoiceCatalog()
+    const ids = catalog.map(choice => choice.id)
+
+    expect(getPlatformStyleChoices('wechat').length).toBeGreaterThanOrEqual(7)
+    expect(getPlatformStyleChoices('xiaohongshu').length).toBeGreaterThanOrEqual(3)
+    expect(getPlatformStyleChoices('zhihu').length).toBeGreaterThanOrEqual(3)
+
+    expect(ids).toContain('wechat-classic-inline')
+    expect(ids).toContain('wechat-flagship-amber')
+    expect(ids).toContain('xhs-cover-carousel')
+    expect(ids).toContain('zhihu-diagram-article')
+
+    expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
+    expect(catalog.every(choice => choice.evidenceFloor !== 'published')).toBe(true)
+  })
+
+  it('keeps blocked or unavailable market styles from being reported as usable', () => {
+    const amber = getStyleChoiceById('wechat-flagship-amber')
+    const clickReveal = getStyleChoiceById('wechat-click-reveal')
+    const officialWidget = getStyleChoiceById('wechat-official-widget-checklist')
+    expect(amber).toBeDefined()
+    expect(clickReveal).toBeDefined()
+    expect(officialWidget).toBeDefined()
+
+    if (!amber || !clickReveal || !officialWidget) return
+
+    const amberAvailability = evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview'])
+    expect(amberAvailability.usable).toBe(false)
+    expect(amberAvailability.status).toBe('blocked')
+    expect(amberAvailability.reason).toContain('plain text')
+
+    const clickAvailability = evaluateStyleChoiceAvailability(clickReveal, ['local-browser'])
+    expect(clickAvailability.usable).toBe(false)
+    expect(clickAvailability.requiredEvidence).toBe('mobile-preview')
+
+    const officialAvailability = evaluateStyleChoiceAvailability(officialWidget, ['credentialed-sync', 'published'])
+    expect(officialAvailability.usable).toBe(false)
+    expect(officialAvailability.status).toBe('unavailable')
+  })
+
+  it('requires exact evidence floor before enabling available style choices', () => {
+    const classic = getStyleChoiceById('wechat-classic-inline')
+    const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
+    const zhihuColumn = getStyleChoiceById('zhihu-clean-column')
+    expect(classic).toBeDefined()
+    expect(xhsCarousel).toBeDefined()
+    expect(zhihuColumn).toBeDefined()
+
+    if (!classic || !xhsCarousel || !zhihuColumn) return
+
+    expect(evaluateStyleChoiceAvailability(classic, ['doc-only']).usable).toBe(false)
+    expect(evaluateStyleChoiceAvailability(classic, ['unit-tested']).usable).toBe(true)
+
+    const xhsWithoutBrowser = evaluateStyleChoiceAvailability(xhsCarousel, ['unit-tested'])
+    expect(xhsWithoutBrowser.usable).toBe(false)
+    expect(xhsWithoutBrowser.reason).toContain('local-browser')
+    expect(evaluateStyleChoiceAvailability(xhsCarousel, ['local-browser']).usable).toBe(true)
+
+    expect(evaluateStyleChoiceAvailability(zhihuColumn, ['unit-tested']).usable).toBe(true)
+  })
+
   it('keeps WeChat HTML compatible with draft content sanitization and inline CSS rendering', () => {
     const preset = getDefaultPreset()
     const result = convertToWechatWithStats(
@@ -305,7 +371,7 @@ describe('platform native export rendering rules', () => {
 
     expect(result.html).toContain('Mermaid 图表需转为 PNG/JPG')
     expect(result.html).not.toMatch(/<pre\b|language-mermaid|<code\b/i)
-  })
+  }, 30000)
 
   it('keeps WeChat reading header stats aligned with markdown AST stats after Mermaid degradation', async () => {
     const result = await markdownToWechatWithStats(

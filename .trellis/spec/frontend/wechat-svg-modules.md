@@ -21,6 +21,9 @@ construct breaks.
 
 - Treat `docs/platform-rendering-rules/market-practices-catalog.md` as the cross-platform
   rule catalog for 135/Xiumi/doocs/md lessons.
+- Treat `inkforge/src/services/export/style-catalog.ts` as the executable mirror of the
+  user-selectable style matrix. UI/export-report code should consume its typed choices and
+  availability evaluator instead of forking doc-only tables.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
@@ -47,6 +50,11 @@ construct breaks.
   DOM event listeners, class selectors, `<style>`, external CSS, or remote resources as
   conflicting/high-risk input. These constructs are forbidden in InkForge output even if a
   market article demonstrates them in another editor context.
+- 2026-06-08 `flagship-amber` ordinary clipboard proof: the exact rich artifact was written to
+  the browser clipboard as `text/html` (`data-ink-svg=3`, `svg=35`), but authenticated WeChat
+  `.ProseMirror` readback after real `Control+V` was plain text only (`data-ink-svg=0`,
+  `svg=0`, no inline styles). The ordinary clipboard channel is therefore `blocked` for amber
+  until a separately named channel is proven.
 
 ---
 

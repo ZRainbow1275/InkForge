@@ -47,11 +47,20 @@
 
 InkForge 的样式丰富度必须作为“可选规则”暴露给用户，而不是把市场模板照搬成固定输出。每个可选项都需要同时声明平台、内容块、输出形态、降级策略和证据标签。
 
+Executable mirror:
+
+- `inkforge/src/services/export/style-catalog.ts` is the typed runtime catalog for this table.
+- Future UI/export-report code should read `getPlatformStyleChoices()` and
+  `evaluateStyleChoiceAvailability()` instead of duplicating these docs in component state.
+- Docs may describe additional `doc-only` ideas, but user-visible availability must come from
+  the executable catalog and current evidence labels.
+
 | Choice id | 平台 | 内容块 | 样式族 | 视觉强度 | 动效 | 主输出 | 降级 | 最低证据标签 | 阻断条件 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `wechat-quiet-editorial` | 微信 | 全文 | 静谧刊印 / Quiet Press | medium | none | inline HTML block + safe SVG divider | 普通 inline HTML | `unit-tested` | `<style>`、class/id 依赖、unsupported CSS |
 | `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | 墨铸 flagship creative | high | optional SMIL candidate | inline HTML block + safe SVG | static-safe SVG 或 raster fallback | `local-browser`；对外宣传互动需 `mobile-preview` | PC paste、手机触发、Dark Mode 任一未证实时不得标记为发布可用 |
 | `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | calm editorial | medium | none / click-safe candidate | inline HTML block + safe SVG | plain inline section | `local-browser` | 可读容器固定宽高、`line-height:0`、普通文本 `<pre>` |
+| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | business editorial | medium-high | static | inline HTML block + safe SVG | static HTML fallback | `pc-editor-paste` | 2026-06-08 普通剪贴板富 HTML/SVG 粘贴在真实微信 PC 编辑器中降级为纯文本 |
 | `wechat-interaction-lab` | 微信 | 点击展开、切换、滑动、轮播、区域触发 | interactive-system | high | opt-in only | WeChat-safe SVG candidate | static fallback / raster fallback | `pc-editor-paste` + `mobile-preview` | 仅 `touchstart`、脚本、事件属性、外链资源、手机端无证据 |
 | `wechat-publish-component-checklist` | 微信 | 小程序卡片、视频号、投票、音频、名片 | guide-system | n/a | n/a | publish checklist | blocked/unavailable | `credentialed-sync` 或 `published` | 无真实账号权限、接口返回或后台组件证据 |
 | `xhs-clean-note` | 小红书 | 正文 | pure text note | low | none | 纯文本 | 拆段/短句 | `unit-tested` | HTML、SVG、Markdown 控制符泄漏 |
@@ -66,6 +75,7 @@ InkForge 的样式丰富度必须作为“可选规则”暴露给用户，而�
 - 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
 - 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
 - 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。
+- `wechat-flagship-amber` 当前在 executable catalog 中为 `blocked`。普通剪贴板路径失败不代表本地渲染失败，但它阻止该样式被标记为“微信 PC 富文本粘贴可用”。
 
 ## 3. InkForge Rule Catalog
 
@@ -327,6 +337,9 @@ Evidence retention rules:
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A WeChat PC editor paste can prove current PC sanitizer retention, not SMIL/click behavior on mobile.
+- A WeChat PC editor paste failure must also be recorded as evidence. If the clipboard artifact
+  was rich HTML but the editor readback is plain text, mark that exact channel `blocked` instead
+  of retrying until a local artifact is mistaken for platform proof.
 
 ### 3.13 InkForge Original Style Offering Trace
 
@@ -338,6 +351,7 @@ This trace maps existing InkForge style assets to user-facing choices so future 
 | `flagship-kiln` | Bold creative flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | High-contrast editorial; no copied market geometry |
 | `flagship-tempera` | Calm academic flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | Long-form reading rhythm and directory/card emphasis |
 | `flagship-amber` | Structured business flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | PC/mobile WeChat proof must be refreshed before claiming platform availability |
+| `style-catalog.ts` | Gate-aware style availability catalog | WeChat / XHS / Zhihu | `unit-tested` | Runtime mirror of this matrix; do not fork it in UI code |
 | SVG static modules | Divider, seal, cover geometry | WeChat inline; XHS/Zhihu image fallback | `unit-tested` | Safe subset only |
 | SVG interactive modules | Click/candidate interaction | WeChat opt-in | `unit-tested`; availability requires `mobile-preview` | Default blocked for mobile-only/touch-only patterns |
 | XHS raster pipeline | Cover, carousel, long image | XHS | `local-browser` after canvas probe | Needs manifest/format/count/crop checks |

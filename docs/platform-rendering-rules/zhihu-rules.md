@@ -10,6 +10,10 @@
 | 图片 fallback | Mermaid、复杂图表、复杂公式、微信卡片降级 | 图片可访问，alt 文本明确 |
 | 发布前提示 | 公式、图片、表格、平台 HTML 支持不确定时 | 明确写入 quality report，不记为已发布成功 |
 
+Executable choice source: `inkforge/src/services/export/style-catalog.ts` mirrors the user-facing
+Zhihu style choices. UI/export-report code should read `getPlatformStyleChoices('zhihu')`
+instead of duplicating this document's matrix.
+
 ### 1.1 图片 Host 依赖
 
 - 可发布 Markdown 图片必须使用稳定、公开、HTTPS 的图片地址，或由真实知乎/目标发布入口上传后返回的平台图床地址。

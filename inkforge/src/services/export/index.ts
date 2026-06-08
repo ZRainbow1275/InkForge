@@ -57,6 +57,17 @@ export type {
   NativeExportResult,
 } from './types'
 
+export type {
+  PlatformStyleChoice,
+  StyleArtifactType,
+  StyleChoiceAvailability,
+  StyleChoiceStatus,
+  StyleEvidenceLabel,
+  StyleMotionLevel,
+  StyleRuleGroup,
+  StyleVisualStrength,
+} from './style-catalog'
+
 // 主题相关导出
 export {
   themePresets,
@@ -149,6 +160,16 @@ export {
   quickCheck,
   filterIssues,
 } from './quality-detector'
+
+export {
+  PLATFORM_STYLE_CHOICES,
+  evaluateStyleChoiceAvailability,
+  getBestEvidence,
+  getPlatformStyleChoices,
+  getStyleChoiceById,
+  getStyleChoiceCatalog,
+  isEvidenceAtLeast,
+} from './style-catalog'
 
 // 共享排版
 export {

@@ -1,0 +1,248 @@
+InkForge 06-01 style catalog and amber paste refresh, 2026-06-08
+
+Scope:
+- New executable style-choice catalog for WeChat / Xiaohongshu / Zhihu export rules.
+- Real WeChat Public Platform `flagship-amber` paste retry.
+- 135/Xiumi live-browser taxonomy refresh.
+- External source refresh through Exa and Grok Search.
+
+Sensitive-data boundary:
+- No screenshots were saved in this refresh.
+- No QR code, cookie, token, browser profile, HAR, account id, or backend image was written.
+- WeChat URLs were redacted before recording. The browser session itself is not evidence for
+  publish, mobile preview, sync, scheduled send, or public release.
+
+1. WeChat `flagship-amber` PC editor paste retry
+
+Browser state:
+- Page title: `公众号`.
+- Authenticated article editor was reachable and contained `.ProseMirror`.
+- URL was the WeChat article editor with `token=REDACTED`.
+
+Before retry:
+- The editor already contained `flagship-amber` text from the previous retry, but DOM readback
+  proved it was plain text only:
+  - `textLength=1227`
+  - `htmlLength=1237`
+  - `dataInkSvg=0`
+  - `dataInkBlock=0`
+  - `svg=0`
+  - `styleAttr=0`
+  - `classAttr=0`
+
+Clipboard artifact:
+- Served `prompts/0601/evidence/wechat-paste/flagship-amber.html` from a temporary local
+  `127.0.0.1:43901` server.
+- Wrote the exact artifact body to browser clipboard as both `text/html` and `text/plain`
+  using `ClipboardItem`.
+- Clipboard write result: `ok`.
+- Artifact body stats before paste:
+  - `bodyHtmlBytes=40070`
+  - `bodyTextLength=1282`
+  - `dataInkSvg=3`
+  - `svg=35`
+  - `dataInkBlock=23`
+  - `styleTag=0`
+  - `scriptTag=0`
+  - `classAttr=0`
+
+Real paste path:
+- Focused `.ProseMirror`.
+- Sent real keyboard `Control+A`.
+- Sent real keyboard `Control+V`.
+- Read editor DOM after WeChat processed the paste.
+
+After retry:
+- The WeChat editor again reduced the artifact to plain text:
+  - `textLength=1227`
+  - `htmlLength=1237`
+  - `dataInkSvg=0`
+  - `dataInkBlock=0`
+  - `svg=0`
+  - `rect=0`
+  - `path=0`
+  - `svg text=0`
+  - `styleAttr=0`
+  - `styleTag=0`
+  - `scriptTag=0`
+  - `classAttr=0`
+  - `unsupportedSvg=0`
+  - `fixedOuterSvgWidth=0`
+
+Conclusion:
+- This pass does not prove `flagship-amber` PC rich paste success.
+- It proves the opposite for the ordinary clipboard path available in this session: the exact
+  rich HTML artifact was on the clipboard, but WeChat readback contained plain text only.
+- `flagship-amber` remains `blocked` for PC editor paste unless a different real channel is
+  verified, such as platform-specific plugin transfer, developer-tool HTML replacement, or
+  credentialed sync. Any such channel must still separately prove mobile preview, Dark Mode,
+  cover thumbnail, SMIL/click behavior, and publish state.
+- The temporary local server was stopped after the retry.
+
+2. Executable style-choice catalog
+
+Implemented:
+- `inkforge/src/services/export/style-catalog.ts`
+- `inkforge/src/services/export/index.ts` exports the catalog APIs.
+- `inkforge/src/services/export/platform-export-rendering.test.ts` covers catalog contracts.
+
+Catalog APIs:
+- `getStyleChoiceCatalog()`
+- `getPlatformStyleChoices(platform)`
+- `getStyleChoiceById(choiceId)`
+- `evaluateStyleChoiceAvailability(choice, evidence)`
+- `isEvidenceAtLeast(actual, required)`
+- `getBestEvidence(labels)`
+
+Catalog contract:
+- Each style choice records platform, rule group, content blocks, visual strength, motion
+  level, primary output, fallback output, current status, evidence floor, publish evidence,
+  blockers, and detector blocker ids.
+- `wechat-flagship-amber` is deliberately `blocked` because this refresh proved ordinary
+  WeChat PC clipboard paste degrades it to plain text.
+- `wechat-click-reveal` stays `blocked` until real mobile WeChat before/after evidence exists.
+- `wechat-official-widget-checklist` stays `unavailable` without real credential/API/editor
+  state.
+- XHS high-visual choices route to image pages or long images, never rich body HTML.
+- Zhihu high-visual choices route to clean Markdown or public-image fallback, never WeChat
+  wrappers or inline CSS dependency.
+
+Focused verification:
+- First focused run exposed an existing timing issue in the Mermaid Markdown test:
+  `routes WeChat markdown Mermaid through readable placeholder instead of code block output`
+  exceeded Vitest's default 5000ms timeout.
+- The test is a real lazy-rendering path and took around 9.8 seconds after rerun. Its
+  assertions were not weakened; the test timeout was made explicit at 30000ms.
+- Final focused command:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+- Result:
+  `1 file passed, 34 tests passed`.
+
+Final verification refresh:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - Result: `4 files passed, 73 tests passed`.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+  - Result: `35 files passed, 966 tests passed`.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - Result: passed with no output.
+- `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`
+  - Result: passed with no output.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - Result: passed with no output.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - Result: passed; Vite built in about 1m 7s.
+- `git diff --check` on the slice paths:
+  - Result: passed.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated
+  cache.
+
+GitNexus:
+- Before post-commit indexing, new symbols were not in the current GitNexus index yet, so direct
+  impact checks for `getStyleChoiceCatalog` and `evaluateStyleChoiceAvailability` returned
+  `Target not found`.
+- Existing shared quality entry impact was checked:
+  `npx gitnexus impact detectQuality -r InkForge --depth 2`
+  returned LOW risk, 4 direct dependents, 0 affected processes.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` returned low risk with
+  0 affected processes. The report includes unrelated existing dirty files, so staged review
+  remains path-specific.
+- Post-commit `npx gitnexus analyze` refreshed the index successfully:
+  `25,707 nodes`, `40,471 edges`, `783 clusters`, `300 flows`.
+- After indexing, `npx gitnexus impact getStyleChoiceCatalog -r InkForge --depth 3` and
+  `npx gitnexus impact evaluateStyleChoiceAvailability -r InkForge --depth 3` both resolve
+  with LOW risk, 0 direct dependents, and 0 affected processes.
+
+3. 135 real-browser refresh
+
+135 editor workspace:
+- URL: `https://www.135editor.com/beautify_editor.html`
+- Title: `135编辑器官网-AI微信排版编辑器-微信公众号图文排版工具，好用素材多`
+- Visible taxonomy included:
+  - `样式`, `模板`, `SVG编辑器`, `AI排版`, `一键排版`, `我的文章`, `我的图片`,
+    `剪切板`, `AI配图`, `135AI工具`, `运营工具`, `在线作图`, `公众号长图`
+  - `导入`, `插入`, `主题色`, `全文黑白`, `吸色`, `标题`, `正文`, `图文`,
+    `引导`, `布局`, `节日`, `行业`, `小元素`, `SVG`
+  - `复制使用`, `快速保存`, `保存同步`, `预览分享`, `同步公众号`
+
+135 SVG center:
+- URL: `https://www.135editor.com/svg-center.html`
+- Title: `2026公众号样式大全_微信排版素材_支持一键秒刷-135编辑器`
+- Visible SVG taxonomy included:
+  - `点击展开`, `点击显示`, `点击切换`, `点击缩放`, `点击翻转`, `点击弹出`,
+    `点击放大`, `点击消失`, `点击播放`, `点击抽签`, `滑动展示`, `图片轮播`,
+    `长按显示`, `渐显展示`, `文字弹幕`, `区域触发`, `趣味游戏`, `互动答题`,
+    `文字特效`, `引导关注`
+- Multiple sample labels included `仅支持手机端触发`.
+
+Rule outcome:
+- 135 remains a taxonomy and workflow reference.
+- Mobile-only SVG effects remain `mobile-only-risk` / `blocked` until phone WeChat proof exists.
+- 135 copy/sync/plugin/developer-tool paths are separate channels and cannot be merged into
+  ordinary clipboard paste, mobile preview, Dark Mode, cover thumbnail, or publish proof.
+
+4. Xiumi real-browser refresh
+
+Xiumi paper editor:
+- URL: `https://xiumi.us/studio/v5#/paper/for/new/cube/0`
+- Title: `图文: (无标题) | 秀米XIUMI`
+- Visible taxonomy included:
+  - top actions: `打开`, `预览`, `保存`, `导出`, `更多`
+  - enhanced media mode: `开启音乐视频等增强模式`
+  - base format: `字号 16`, `行间距 1.6`, `字间距 0`, `默认图`
+  - material tabs: `图文模板`, `图片素材`, `图文收藏`, `剪贴板`, `我的图库`,
+    `团队素材`, `音视频`, `样刊模板`
+  - element groups: `主题色`, `标题`, `卡片`, `图片`, `布局`, `SVG`, `组件`
+
+Rule outcome:
+- Xiumi reinforces authoring surface / material library / canvas / preview / save / export
+  separation.
+- Enhanced media, H5, design, plugin, sync, and API flows are distinct artifact families or
+  credentialed workflow states. They are not article-rendering proof unless each target gate is
+  independently verified.
+
+5. External source refresh
+
+Exa useful results:
+- 135 official FAQ and tutorial pages describe SVG copy/sync routes:
+  - authorized sync to WeChat.
+  - platform-specific code copy buttons.
+  - plugin paste.
+  - developer-tool `Edit as HTML` replacement.
+  Rule outcome: ordinary clipboard paste is only one channel; `copy-to-editor`,
+  `copy-to-wechat`, plugin transfer, developer-tool replacement, and credentialed sync must
+  remain separate evidence labels.
+- 135 2026 SVG tutorials reinforce region trigger, click reveal, click switch, carousel, and
+  mobile interaction taxonomy.
+- Xiumi Chrome Web Store listing says the plugin can reduce ordinary copy/paste format loss for
+  some SVG functions, reinforcing plugin-transfer as a separate channel.
+- Xiumi sync API docs describe binding, HTTPS, image transfer, HTML transfer, authorization
+  header verification, and image URL replacement. This reinforces credentialed sync/API as a
+  different state from local export.
+- XHS/Rednote market sources reinforced 3:4 vertical images, 1080px width, 1080x1440 style
+  defaults, configurable carousel counts, and page-count guidance variance.
+- Zhihu tooling sources reinforced Markdown, image upload/public hosts, formula/table/diagram
+  image fallback, Mermaid/Graphviz rasterization, and table-cell Markdown simplification.
+
+Grok Search:
+- Query: `WeChat Official Account editor SVG article CSS inline style limitations 2026 Weixin markdown editor`
+- Sources returned were weak third-party pages and a generic guide. The answer repeated the
+  conservative pattern that WeChat sanitizes CSS/SVG heavily, but did not provide a primary
+  whitelist.
+- Rule outcome: useful as conflict evidence only; it does not loosen any InkForge rule.
+
+6. Remaining gates
+
+Still not proven:
+- `flagship-amber` PC rich paste through a channel that preserves SVG/HTML in WeChat editor.
+- Three flagship phone WeChat previews.
+- SMIL/click mobile before/after behavior.
+- Mobile Dark Mode.
+- Cover thumbnail / preview entry.
+- Credentialed sync, scheduled send, and publish.
+
+Next safe actions:
+- Keep `flagship-amber` style availability `blocked` in the executable catalog.
+- If testing a non-ordinary clipboard channel, record the exact channel and read back non-sensitive
+  DOM counts. Do not equate that with phone preview or publish.
+- Continue expanding XHS/Zhihu artifact manifest and image-host gates through focused tests and
+  real browser artifacts.

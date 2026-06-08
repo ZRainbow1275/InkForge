@@ -8,6 +8,10 @@
 
 InkForge 的微信公众号产物必须是可粘贴的 `inline-style HTML`；只有在真实授权、插件或 API 路径验证后，才可标记为可同步。产物可选包含经过校验的 WeChat-safe inline SVG 与 inline HTML block。市场工具经验只转化为规则和元素族，不复制 135/秀米模板。
 
+Executable choice source: `inkforge/src/services/export/style-catalog.ts` contains the runtime
+style availability catalog for WeChat/XHS/Zhihu. UI controls and export reports should use that
+catalog rather than hard-coding this document's tables.
+
 ### 0.1 产物类型
 
 | 产物 | 默认用途 | 要求 |
@@ -59,6 +63,7 @@ InkForge 的微信公众号产物必须是可粘贴的 `inline-style HTML`；只
 - `sync-draft` 成功不等于发布成功。
 - `published` 必须由真实账号、授权、接口/后台返回、平台预览和必要的手机端检查共同证明。
 - `pc-editor-paste` 只证明当前微信 PC 后台粘贴 sanitizer 和桌面编辑器保留/渲染路径；不得外推为手机最终渲染、SMIL/点击触发、暗黑模式、封面缩略图或发布成功。
+- 如果 `text/html` 剪贴板中含富 HTML/SVG，但微信编辑器读回只有纯文本，该渠道必须记录为 `blocked`。`flagship-amber` 在 2026-06-08 的普通 `Control+V` 路径就是此状态。
 
 ### 0.4 禁止项
 
@@ -78,6 +83,7 @@ InkForge 的微信公众号产物必须是可粘贴的 `inline-style HTML`；只
 | `wechat-quiet-press` | 长文、评论、报告 | HTML block + 少量几何 SVG | enabled for flagship | `local-browser` | 移除 SVG，仅保留 HTML 色块 |
 | `wechat-cover-seal-divider` | 封面、分隔、落款 | WeChat-safe static SVG | opt-in | `unit-tested` + `local-browser` | PNG/JPG 或普通分隔线 |
 | `wechat-card-rich` | 金句、数据、对比、时间线 | inline HTML card | opt-in | `unit-tested` | 普通引用/列表/段落 |
+| `wechat-flagship-amber` | 商业结构稿、对比、时间线 | WeChat-safe SVG + HTML block | blocked | `pc-editor-paste` still missing | 普通剪贴板路径已在 2026-06-08 真实编辑器中降级为纯文本；需插件/HTML 替换/授权同步等明确渠道另证 |
 | `wechat-click-reveal` | 点击展开、切换、序列帧 | SMIL candidate SVG | blocked by default | `pc-editor-paste` + `mobile-preview` | static-safe SVG 或长图 |
 | `wechat-mobile-only-effect` | 长按、touch-only、区域触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 静态图 / 图片页 |
 | `wechat-official-widget` | 小程序卡片、视频号、投票、音频 | publish checklist / official editor component | unavailable without credential | `credentialed-sync` 或 `published` | 手动发布清单 |

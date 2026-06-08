@@ -11,6 +11,10 @@
 | 封面/海报 | 承载标题和核心卖点 | 大标题、短副标题、品牌识别 | 二维码、外链、侵权素材、过密小字 |
 | 长图 | 承载长文或报告式内容 | 分段、分页、章节锚点、导出清单 | 未检查裁切、过大文件、隐藏滚动内容 |
 
+Executable choice source: `inkforge/src/services/export/style-catalog.ts` mirrors the user-facing
+XHS style choices. UI/export-report code should read `getPlatformStyleChoices('xiaohongshu')`
+instead of duplicating this document's matrix.
+
 ## 二、平台边界
 
 ### 2.1 正文边界
