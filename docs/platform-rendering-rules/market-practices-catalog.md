@@ -27,6 +27,7 @@
 | `prompts/0601/` 本机实测 | WeChat-safe SVG 子集、HTML 色块层、旗舰系统真实微信 paste 存活证据 | 作为 InkForge 最高优先级实证规则 |
 | 微信公众平台 2026-06-08 二次状态复核 | `mp.weixin.qq.com` 当前停留在登录/扫码入口，未进入已认证图文编辑器 | 本轮未产生 `flagship-amber` PC 粘贴证据；所有手机微信预览、SMIL、暗黑模式、封面缩略图门禁仍保持未完成 |
 | 2026-06-08 public source hygiene refresh | Grok/Exa 公开检索复核了微信 inline-style/clipboard、XHS 3:4/image-page、Zhihu Markdown/image fallback 方向；其中部分结果带弱来源或不可核验的统计/上限说法 | 只保留与现有规则一致且可落成检测项的部分；无可核验来源的百分比、固定上限、平台能力升级不得写入 runtime catalog |
+| 2026-06-08 135/Xiumi logged-in Playwright taxonomy refresh | 135 当前编辑器确认 toolbar 参数、样式族、SVG/长图、复制/保存/同步/预览、深色模式、授权公众号/定时群发/团队权限；秀米当前图文编辑器确认导入 Word/Excel/Markdown、导入公众号文章、同步/插件/复制、生成长图/PDF/视频、动作/图层/背景图/定位、SVG 图集、4000px 背景图安卓风险、公众号认证/留言权限 | 作为 `editor-workflow-system` 与 `layout-and-layer-system` 的当前实机 taxonomy 证据；未执行同步、复制、预览、导出或发布，不升级任何 runtime availability |
 
 ### 1.2 不进入实现的内容
 
@@ -481,6 +482,8 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 - doocs/md docs: `https://md.doocs.org/` and `https://github.com/doocs/md`
 - InkForge real WeChat evidence: `prompts/0601/evidence/`
 - InkForge market-rule agent output: `.trellis/tasks/06-01-multiplatform-render-svg/research/market-rule-agent-output.csv`
+- InkForge logged-in market editor taxonomy evidence:
+  `prompts/0601/evidence/market-editor-live-taxonomy-refresh-20260608.txt`
 - InkForge real PC paste evidence path: `prompts/0601/evidence/wechat-paste/`
 - InkForge real XHS browser raster evidence path: `prompts/0601/evidence/xhs-raster/`
 - InkForge WeChat SVG spec: `.trellis/spec/frontend/wechat-svg-modules.md`

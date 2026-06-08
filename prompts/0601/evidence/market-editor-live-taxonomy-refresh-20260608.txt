@@ -1,0 +1,67 @@
+# Market Editor Live Taxonomy Refresh - 2026-06-08
+
+Scope:
+- Read-only Playwright refresh of logged-in 135 Editor and Xiumi article editor surfaces.
+- No screenshot was saved.
+- No credential value, browser profile, HAR, account identifier, platform scan artifact, or
+  private material was exported.
+- No copy, sync, preview, publish, import, long-image/PDF/video export, or official-account
+  action was executed.
+
+135 Editor:
+- URL checked: `https://www.135editor.com/beautify_editor.html`
+- DOM/title signal: `135编辑器官网-AI微信排版编辑器-微信公众号图文排版工具，好用素材多`
+- Current taxonomy confirmed:
+  - editor workflow: `导入`, `插入`, `一键排版`, `复制`, `保存`, `同步`, `预览`, `公众号长图`
+  - toolbar controls: default font, clear format, format brush, font size, bold, italic,
+    underline, delete line, text/background color, alignment, first-line indent, paragraph
+    spacing, line spacing, letter spacing, side padding, image upload, quote, link, Word-image
+    upload, AI polish/generate, fullscreen writing mode
+  - style families: title, body, image-text, guide, layout, festival, industry, small element,
+    SVG
+  - platform/permission states: authorized official account, scheduled send, watermark,
+    full-text format, team management
+  - preview states: 5.5-inch plus, 5.5-inch, 5-inch and below, dark-mode preview, temporary
+    preview/share link
+- Engineering conclusion:
+  - 135 remains a taxonomy/workflow reference, not source code or template input.
+  - `copy`, `save`, `sync`, `preview`, `authorized-account`, and `scheduled-send` must remain
+    separate artifact states in InkForge.
+  - Dark Mode preview is an evidence target, not proof that InkForge SVG text is safe on phone
+    WeChat.
+
+Xiumi:
+- URL checked: `https://xiumi.us/studio/v5#/paper/for/new/cube/0`
+- DOM/title signal: `图文: (无标题) | 秀米XIUMI`
+- Current taxonomy confirmed:
+  - workflow: open, preview, save, export, more, sync to official account, sync to Weibo draft,
+    plugin copy, copy/paste fallback, import Word/Excel/Markdown, import official-account
+    article, create new article, duplicate article, collect images, generate long image/PDF/
+    video, one-click layout, set as sample
+  - permission gates: sync preview requires WeChat certification; comment options require
+    official-account comment permission; plugin/sync paths are separate from copy/paste
+  - material groups: theme color, title, card, image, layout, SVG, component, article template,
+    image material, favorites, clipboard, personal gallery, team material, audio/video,
+    sample template
+  - SVG/action families: carousel, click reveal, path animation, draw/lottery, fun slide,
+    transition, branch transition, slide trigger, parallax, click switch, flip, zoom, quiz,
+    bullet text, click show, click change image, click open, click disappear, click popup,
+    click zoom, click print, click jump, click play, long-press switch, region trigger, click
+    drop, click plus auto
+  - layout/layer controls: background image, background repeat, background color, transparency,
+    positioning, z-order, spacing, line spacing, letter spacing, page margin, scaling, component
+    positioning, page alignment, multi-select alignment, advanced width/height/X/Y position
+  - mobile risk: background image height over 4000 can fail on Android phones; some media cover
+    interactions require plugin/sync upload; images can be too tall to click reliably
+- Engineering conclusion:
+  - Xiumi confirms InkForge's `editor-workflow-system` and `layout-and-layer-system` separation.
+  - Action/SVG families remain taxonomy unless InkForge owns the renderer and has real platform
+    proof.
+  - Free layout, z-order, backgrounds, media covers, and large background images require
+    layout reports and raster/long-image fallback, not raw WeChat HTML assumptions.
+
+Result:
+- Existing docs/spec rules are consistent with the current visible editor surfaces.
+- Runtime style availability was not upgraded.
+- Still missing: fresh WeChat phone preview, mobile Dark Mode, SMIL/click before/after, cover
+  thumbnail, credentialed sync, scheduled-send, and publish proof.

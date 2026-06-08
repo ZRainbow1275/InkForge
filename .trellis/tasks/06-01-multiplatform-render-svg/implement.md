@@ -668,6 +668,25 @@ git status --short --branch
     formula/diagram raster fallback, and table simplification rules.
   - Updated `docs/platform-rendering-rules/market-practices-catalog.md` with source-hygiene
     notes and additional source index entries. No runtime availability was upgraded.
+- [x] 2026-06-08 logged-in 135/Xiumi taxonomy refresh:
+  - Used Playwright visible-text and DOM probes only; no screenshot, credential material,
+    browser profile, account export, sync, copy, preview, or publish action was saved or
+    executed.
+  - 135 `beautify_editor.html` confirmed current toolbar/style/workflow taxonomy:
+    import/insert/theme/full-black-white/color-pick, title/body/image-text/guide/layout/
+    festival/industry/small-element/SVG, one-click layout, copy/save/sync/preview, dark-mode
+    preview, long-image, AI tools, authorized account, scheduled send, full-text format,
+    watermark, and team management.
+  - Xiumi `studio/v5#/paper/for/new/cube/0` confirmed current workflow and layout/action
+    taxonomy: import Word/Excel/Markdown, official-account article import, sync/plugin/copy
+    paths, long-image/PDF/video export family, theme/title/card/image/layout/SVG/component
+    groups, action list/extract action, click/auto/long-press triggers, background image,
+    layer/z-order, positioning, alignment, SVG gallery, and mobile/permission caveats such as
+    4000px background-image Android risk plus WeChat certification/comment-permission gates.
+  - Updated `docs/platform-rendering-rules/market-practices-catalog.md` and added evidence:
+    `prompts/0601/evidence/market-editor-live-taxonomy-refresh-20260608.txt`.
+  - No runtime catalog availability was upgraded because no exact platform publish or phone
+    preview evidence was produced.
 
 ## Remaining Checks Before Commit
 
