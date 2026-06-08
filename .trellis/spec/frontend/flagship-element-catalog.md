@@ -187,6 +187,9 @@ that implies every market effect is available.
 
 Implementation rules:
 
+- ExportModal may surface the catalog as a read-only capability panel and preflight row via
+  `getPlatformStyleAvailabilityReport()`. It must not duplicate catalog constants in the
+  component, and it must not let blocked/unavailable choices look selectable.
 - Available WeChat choices must pass the WeChat detector before copy. Choices that trigger
   `wechat-event-handler`, `wechat-unsupported-css`, `wechat-unsafe-svg-construct`, or
   `wechat-katex-html` are hard-blocked.

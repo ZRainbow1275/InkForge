@@ -52,6 +52,9 @@ Executable mirror:
 - `inkforge/src/services/export/style-catalog.ts` is the typed runtime catalog for this table.
 - Future UI/export-report code should read `getPlatformStyleChoices()` and
   `evaluateStyleChoiceAvailability()` instead of duplicating these docs in component state.
+- `getPlatformStyleAvailabilityReport()` is the runtime summary for ExportModal preflight and
+  style-capability display. UI counts must come from this report, not from doc tables or local
+  component constants.
 - Docs may describe additional `doc-only` ideas, but user-visible availability must come from
   the executable catalog and current evidence labels.
 
@@ -72,6 +75,8 @@ Executable mirror:
 选择规则：
 
 - 默认给用户展示当前平台可真实支持的样式，不把 `blocked` 或 `unavailable` 样式伪装为可用。
+- ExportModal 的“样式能力”面板是只读能力面板：展示 choice、证据门槛、fallback、可用/受限/
+  不可用状态和预检计数；它不能在没有真实 renderer / artifact / evidence 升级时变成可点击模板库。
 - 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
 - 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
 - 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。

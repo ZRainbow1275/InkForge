@@ -561,6 +561,65 @@ git status --short --branch
     this slice does not claim `flagship-amber` PC rich paste success, WeChat phone preview,
     SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
     scheduled-send, or publish success.
+- [x] 2026-06-08 ExportModal style capability gate UI slice:
+  - Added `getDefaultStyleEvidence()` and `getPlatformStyleAvailabilityReport()` in
+    `inkforge/src/services/export/style-catalog.ts` so platform style availability has a
+    single runtime summary for UI and tests.
+  - Exported the report API from `inkforge/src/services/export/index.ts`.
+  - Added catalog summary contract coverage in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`; focused count is now
+    35 tests and the cross-platform focused suite is now 74 tests.
+  - Added a read-only `样式能力` panel and `样式能力目录` preflight row to
+    `inkforge/src/components/export/ExportModal.vue`. The panel shows choice status,
+    rule group, output artifact, visual strength, motion, required evidence, current best
+    evidence, blockers, and fallback. It does not add selectable fake templates or promote
+    blocked/unavailable choices.
+  - Updated `docs/platform-rendering-rules/market-practices-catalog.md` and
+    `.trellis/spec/frontend/flagship-element-catalog.md` to require ExportModal/report UI to
+    consume `getPlatformStyleAvailabilityReport()` rather than duplicating doc tables.
+  - Impact checks:
+    `npx gitnexus impact "Function:inkforge/src/components/export/ExportModal.vue:preflightRows" -r InkForge --depth 3`
+    returned LOW risk, 0 affected processes.
+    `npx gitnexus impact getPlatformStyleAvailabilityReport -r InkForge --depth 3`
+    returned `Target not found` because the new symbol is not indexed yet; the existing
+    catalog anchors and full tests/build were used as fallback until post-commit indexing.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 35 tests.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 74 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 967 tests.
+    `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --quiet`
+    passed.
+    `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`
+    and `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet` passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built
+    in 54.61s.
+    `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated
+    cache.
+  - Real browser smoke:
+    started `pnpm -C inkforge dev --host 127.0.0.1 --port 3005`, opened the real app through
+    Playwright Chromium, created a real blank local draft through UI, opened ExportModal, and
+    verified WeChat style capability counts `4/7` with 7 cards. `wechat-flagship-amber` and
+    `wechat-click-reveal` stayed `blocked`; official widget checklist stayed `unavailable`.
+    Switched platforms and verified Xiaohongshu `2/3` and Zhihu `2/3`.
+    Resized to `390x844`; document/body scroll width stayed 390, modal width was 374, cards
+    had no detected horizontal overflow.
+    Filled the real editor with a short Markdown draft through `.ProseMirror`, waited for
+    `已同步 · 已保存`, reopened ExportModal, and verified non-empty Zhihu and WeChat exports:
+    preflight reported real Markdown input, generated style/native artifacts, quality
+    detection `0` errors, and style catalog counts remained gate-correct.
+    Cleared prior external-site console noise and observed 0 fresh local console errors.
+    Stopped the temporary dev server; `curl -I http://127.0.0.1:3005/` then failed to connect,
+    confirming no local Vite session remained.
+  - Evidence file:
+    `prompts/0601/evidence/style-catalog-exportmodal-ui-refresh-20260608.txt`.
+  - Honest boundary:
+    this slice does not claim new WeChat PC rich paste success, WeChat phone preview,
+    SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
+    scheduled-send, or publish success.
 
 ## Remaining Checks Before Commit
 
@@ -598,6 +657,8 @@ git status --short --branch
       refresh only; leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 style-choice catalog and amber ordinary-paste retry docs/spec/code
       only; leave unrelated dirty files and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 ExportModal style capability gate UI slice only; leave unrelated
+      dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

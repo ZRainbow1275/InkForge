@@ -1,0 +1,77 @@
+InkForge 06-01 ExportModal style capability gate UI refresh
+Date: 2026-06-08
+Scope: read-only style capability report and ExportModal display for WeChat, Xiaohongshu, and Zhihu.
+
+Code changes
+- Added runtime report API:
+  - DEFAULT_STYLE_EVIDENCE_BY_PLATFORM
+  - getDefaultStyleEvidence(platform)
+  - getPlatformStyleAvailabilityReport(platform, evidence?)
+- Exported the report API from src/services/export/index.ts.
+- Added a read-only ExportModal style capability panel and preflight row.
+- Added platform availability report tests.
+- Updated docs/spec so ExportModal must consume the executable catalog instead of duplicating doc-only style tables.
+
+Graph / impact
+- npx gitnexus impact "Function:inkforge/src/components/export/ExportModal.vue:preflightRows" -r InkForge --depth 3
+  Result: LOW risk, 0 affected processes.
+- npx gitnexus impact getPlatformStyleAvailabilityReport -r InkForge --depth 3
+  Result: Target not found because the new symbol is not indexed yet. Verification used focused tests, full export tests, lint, typecheck, build, and browser smoke as fallback until post-commit indexing.
+
+Automated verification
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file / 35 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Result: passed, 4 files / 74 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default
+  Result: passed, 35 files / 967 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, Vite built in 54.61s.
+- inkforge/tsconfig.tsbuildinfo was restored after vue-tsc/build dirtied the generated cache.
+
+Real browser smoke
+- Started: pnpm -C inkforge dev --host 127.0.0.1 --port 3005
+- Browser: Playwright Chromium, first desktop 1440x960, then mobile 390x844.
+- Opened http://127.0.0.1:3005/ and created a real local blank draft through the UI. No IndexedDB/localStorage mock writes were used.
+- Opened ExportModal through the real Workstation "导出" toolbar button.
+- Initial blank-draft check:
+  - WeChat summary: "微信公众号 当前可用 4/7".
+  - WeChat cards: 7 total.
+  - Available: Classic WeChat inline preset, Quiet Press editorial blocks, Kiln creative flagship, Tempera academic flagship.
+  - Blocked: Amber business flagship, Click reveal SVG candidate.
+  - Unavailable: Official widget publish checklist.
+  - Xiaohongshu summary after platform switch: "小红书 当前可用 2/3".
+  - Zhihu summary after platform switch: "知乎 当前可用 2/3".
+- Mobile 390x844 measurement:
+  - document.documentElement.scrollWidth: 390.
+  - document.body.scrollWidth: 390.
+  - modal rect width: 374.
+  - style-choice card max width: 332.
+  - card overflow findings: [].
+- Non-empty real-draft check:
+  - Filled the real .ProseMirror editor with a short Markdown draft through Playwright fill.
+  - Waited until the Workstation status showed "已同步 · 已保存".
+  - Reopened ExportModal.
+  - Zhihu preflight reported real Markdown input, generated style/native artifacts, quality detection 0 errors, and style catalog "可用 2/3；受限 1；不可用 0".
+  - WeChat preflight reported real Markdown input, generated style/native artifacts, quality detection 0 errors, platform native HTML artifact, and style catalog "可用 4/7；受限 2；不可用 1".
+  - WeChat preview contained the real draft text and did not show "暂无内容可预览".
+- Console:
+  - Prior logs contained unrelated external-site noise from WeChat/135/Xiumi pages.
+  - After clearing logs on the local InkForge page, fresh local console error query returned no matching error logs.
+- Cleanup:
+  - Closed Playwright browser.
+  - Stopped temporary Vite dev server.
+  - curl -I http://127.0.0.1:3005/ then failed to connect, confirming no leftover dev server.
+
+Honest boundary
+- This evidence proves local ExportModal rendering, platform switching, mobile layout, and runtime-catalog gate display.
+- It does not prove WeChat PC rich paste success, WeChat phone preview, SMIL/click behavior, Dark Mode, cover thumbnail, credentialed sync, scheduled send, or publish success.
+- 135 and Xiumi remain taxonomy/workflow references only; no proprietary template, asset, account data, or private SVG code was copied.

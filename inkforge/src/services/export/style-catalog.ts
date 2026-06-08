@@ -63,6 +63,18 @@ export interface StyleChoiceAvailability {
   reason: string
 }
 
+export interface PlatformStyleAvailabilityReport {
+  platform: Platform
+  evidence: readonly StyleEvidenceLabel[]
+  choices: readonly StyleChoiceAvailability[]
+  stats: {
+    total: number
+    usable: number
+    blocked: number
+    unavailable: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'unit-tested': 1,
@@ -72,6 +84,12 @@ const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'credentialed-sync': 5,
   published: 6,
 }
+
+export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
+  wechat: ['unit-tested', 'local-browser'],
+  xiaohongshu: ['unit-tested', 'local-browser'],
+  zhihu: ['unit-tested'],
+} as const satisfies Record<Platform, readonly StyleEvidenceLabel[]>
 
 export const PLATFORM_STYLE_CHOICES = [
   {
@@ -296,6 +314,10 @@ export function getStyleChoiceById(choiceId: string): PlatformStyleChoice | unde
   return PLATFORM_STYLE_CHOICES.find(choice => choice.id === choiceId)
 }
 
+export function getDefaultStyleEvidence(platform: Platform): readonly StyleEvidenceLabel[] {
+  return DEFAULT_STYLE_EVIDENCE_BY_PLATFORM[platform]
+}
+
 export function isEvidenceAtLeast(actual: StyleEvidenceLabel, required: StyleEvidenceLabel): boolean {
   return EVIDENCE_RANK[actual] >= EVIDENCE_RANK[required]
 }
@@ -343,5 +365,25 @@ export function evaluateStyleChoiceAvailability(
     requiredEvidence: choice.evidenceFloor,
     bestEvidence,
     reason: 'style choice has enough evidence for its current artifact state',
+  }
+}
+
+export function getPlatformStyleAvailabilityReport(
+  platform: Platform,
+  evidence: readonly StyleEvidenceLabel[] = getDefaultStyleEvidence(platform),
+): PlatformStyleAvailabilityReport {
+  const choices = getPlatformStyleChoices(platform)
+    .map(choice => evaluateStyleChoiceAvailability(choice, evidence))
+
+  return {
+    platform,
+    evidence,
+    choices,
+    stats: {
+      total: choices.length,
+      usable: choices.filter(choice => choice.usable).length,
+      blocked: choices.filter(choice => choice.status === 'blocked').length,
+      unavailable: choices.filter(choice => choice.status === 'unavailable').length,
+    },
   }
 }

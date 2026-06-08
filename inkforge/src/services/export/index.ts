@@ -64,6 +64,7 @@ export type {
   StyleChoiceStatus,
   StyleEvidenceLabel,
   StyleMotionLevel,
+  PlatformStyleAvailabilityReport,
   StyleRuleGroup,
   StyleVisualStrength,
 } from './style-catalog'
@@ -163,8 +164,11 @@ export {
 
 export {
   PLATFORM_STYLE_CHOICES,
+  DEFAULT_STYLE_EVIDENCE_BY_PLATFORM,
   evaluateStyleChoiceAvailability,
   getBestEvidence,
+  getDefaultStyleEvidence,
+  getPlatformStyleAvailabilityReport,
   getPlatformStyleChoices,
   getStyleChoiceById,
   getStyleChoiceCatalog,

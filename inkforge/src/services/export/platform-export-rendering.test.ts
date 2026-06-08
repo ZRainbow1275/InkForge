@@ -9,7 +9,9 @@ import {
   detectQuality,
   evaluateStyleChoiceAvailability,
   getDefaultPreset,
+  getDefaultStyleEvidence,
   getPlatformStyleChoices,
+  getPlatformStyleAvailabilityReport,
   getPresetById,
   getStyleChoiceById,
   getStyleChoiceCatalog,
@@ -160,6 +162,24 @@ describe('platform native export rendering rules', () => {
     expect(evaluateStyleChoiceAvailability(xhsCarousel, ['local-browser']).usable).toBe(true)
 
     expect(evaluateStyleChoiceAvailability(zhihuColumn, ['unit-tested']).usable).toBe(true)
+  })
+
+  it('summarizes platform style availability without promoting blocked choices', () => {
+    const wechatReport = getPlatformStyleAvailabilityReport('wechat')
+    const xhsReport = getPlatformStyleAvailabilityReport('xiaohongshu')
+    const zhihuReport = getPlatformStyleAvailabilityReport('zhihu')
+
+    expect(getDefaultStyleEvidence('wechat')).toContain('local-browser')
+    expect(wechatReport.stats.total).toBe(getPlatformStyleChoices('wechat').length)
+    expect(wechatReport.stats.usable).toBeGreaterThan(0)
+    expect(wechatReport.stats.blocked).toBeGreaterThan(0)
+    expect(wechatReport.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.usable).toBe(false)
+
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')?.usable).toBe(true)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-long-report')?.usable).toBe(false)
+
+    expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-clean-column')?.usable).toBe(true)
+    expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-diagram-article')?.usable).toBe(false)
   })
 
   it('keeps WeChat HTML compatible with draft content sanitization and inline CSS rendering', () => {

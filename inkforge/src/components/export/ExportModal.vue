@@ -9,6 +9,7 @@ import {
   convertToNativeFormat, copyTextToClipboard,
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
+  getPlatformStyleAvailabilityReport,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -17,7 +18,9 @@ import type {
   Platform, ExportOptions, ExportStats,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
   WechatPublishStatus, WechatDraftPublishResult,
-  ExportFontFamily, ExportFontSize
+  ExportFontFamily, ExportFontSize,
+  StyleArtifactType, StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
+  StyleMotionLevel, StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -102,6 +105,18 @@ interface PublishIntegrationStatus {
   detail: string
 }
 
+interface StyleChoiceDisplay {
+  availability: StyleChoiceAvailability
+  statusClass: string
+  statusLabel: string
+  outputLabel: string
+  strengthLabel: string
+  motionLabel: string
+  ruleGroupLabel: string
+  evidenceLabel: string
+  detail: string
+}
+
 // ─── Props / Emits ───────────────────────────────────────
 const props = defineProps<{
   visible: boolean
@@ -143,6 +158,106 @@ const currentPresets = computed((): PresetDisplay[] => {
     description: 'description' in p ? (p as ExportPreset).description : undefined,
   }))
 })
+
+const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
+
+const styleCatalogPreflightRow = computed<PreflightRow>(() => {
+  const report = styleAvailabilityReport.value
+  const limitedCount = report.stats.blocked + report.stats.unavailable
+
+  return {
+    key: 'style-catalog',
+    label: '样式能力目录',
+    state: report.stats.usable > 0 ? limitedCount > 0 ? 'warning' : 'ready' : 'blocked',
+    detail: `可用 ${report.stats.usable}/${report.stats.total}；受限 ${report.stats.blocked}；不可用 ${report.stats.unavailable}`,
+  }
+})
+
+const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
+  styleAvailabilityReport.value.choices.map(availability => ({
+    availability,
+    statusClass: `style-choice-${availability.status}`,
+    statusLabel: styleStatusLabel(availability.status, availability.usable),
+    outputLabel: styleArtifactLabel(availability.choice.primaryOutput),
+    strengthLabel: styleStrengthLabel(availability.choice.visualStrength),
+    motionLabel: styleMotionLabel(availability.choice.motion),
+    ruleGroupLabel: styleRuleGroupLabel(availability.choice.ruleGroup),
+    evidenceLabel: styleEvidenceLabel(availability.requiredEvidence),
+    detail: availability.usable
+      ? `当前证据 ${availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'}，fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`
+      : `${availability.reason}；fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`,
+  })),
+)
+
+function styleStatusLabel(status: StyleChoiceStatus, usable: boolean): string {
+  if (usable) return '可用'
+  if (status === 'unavailable') return '不可用'
+  return '受限'
+}
+
+function styleEvidenceLabel(label: StyleEvidenceLabel): string {
+  const labels: Record<StyleEvidenceLabel, string> = {
+    'doc-only': '文档',
+    'unit-tested': '单测',
+    'local-browser': '本机浏览器',
+    'pc-editor-paste': 'PC 编辑器',
+    'mobile-preview': '手机预览',
+    'credentialed-sync': '授权同步',
+    published: '已发布',
+  }
+  return labels[label]
+}
+
+function styleArtifactLabel(type: StyleArtifactType): string {
+  const labels: Record<StyleArtifactType, string> = {
+    'inline-html': 'Inline HTML',
+    'wechat-safe-svg': '安全 SVG',
+    'plain-text': '纯文本',
+    'image-page': '图片页',
+    'long-image': '长图',
+    'clean-markdown': 'Markdown',
+    'image-fallback': '图片降级',
+    'publish-checklist': '发布清单',
+    'static-fallback': '静态降级',
+    unavailable: '不可用',
+  }
+  return labels[type]
+}
+
+function styleStrengthLabel(strength: StyleVisualStrength): string {
+  const labels: Record<StyleVisualStrength, string> = {
+    low: '低',
+    medium: '中',
+    'medium-high': '中高',
+    high: '高',
+  }
+  return labels[strength]
+}
+
+function styleMotionLabel(motion: StyleMotionLevel): string {
+  const labels: Record<StyleMotionLevel, string> = {
+    none: '无动效',
+    static: '静态',
+    'click-candidate': '点击候选',
+    'mobile-only': '手机风险',
+  }
+  return labels[motion]
+}
+
+function styleRuleGroupLabel(group: StyleRuleGroup): string {
+  const labels: Record<StyleRuleGroup, string> = {
+    'headline-system': '标题体系',
+    'body-system': '正文体系',
+    'card-system': '卡片体系',
+    'figure-system': '图像体系',
+    'guide-system': '引导体系',
+    'interactive-system': '交互体系',
+    'fallback-system': '降级体系',
+    'editor-workflow-system': '编辑工作流',
+    'layout-and-layer-system': '图层布局',
+  }
+  return labels[group]
+}
 
 function selectPreset(id: string) {
   platformPresetIds.value[selectedPlatform.value] = id
@@ -402,6 +517,7 @@ const preflightRows = computed<PreflightRow[]>(() => {
         ? `错误 ${qualityReport.value.stats.errors}，警告 ${qualityReport.value.stats.warnings}，建议 ${qualityReport.value.stats.suggestions}`
         : '等待质量检测结果',
     },
+    styleCatalogPreflightRow.value,
     {
       key: 'clipboard',
       label: '剪贴板权限',
@@ -763,6 +879,40 @@ onUnmounted(() => {
                       :style="{ backgroundColor: preset.primaryColor }"
                     />
                   </button>
+                </div>
+              </div>
+
+              <!-- Style Capability Catalog -->
+              <div class="ctrl-section style-catalog-area">
+                <div class="section-label">
+                  样式能力
+                </div>
+                <div class="style-catalog-summary">
+                  <span>{{ platformInfo.name }} 当前可用 {{ styleAvailabilityReport.stats.usable }}/{{ styleAvailabilityReport.stats.total }}</span>
+                  <span>证据门禁由 runtime catalog 决定</span>
+                </div>
+                <div class="style-choice-list">
+                  <div
+                    v-for="row in styleChoiceRows"
+                    :key="row.availability.choice.id"
+                    class="style-choice-card"
+                    :class="row.statusClass"
+                  >
+                    <div class="style-choice-head">
+                      <span class="style-choice-name">{{ row.availability.choice.label }}</span>
+                      <span class="style-choice-status">{{ row.statusLabel }}</span>
+                    </div>
+                    <div class="style-choice-meta">
+                      <span>{{ row.ruleGroupLabel }}</span>
+                      <span>{{ row.outputLabel }}</span>
+                      <span>{{ row.strengthLabel }}</span>
+                      <span>{{ row.motionLabel }}</span>
+                      <span>需 {{ row.evidenceLabel }}</span>
+                    </div>
+                    <p class="style-choice-detail">
+                      {{ row.detail }}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1507,6 +1657,90 @@ onUnmounted(() => {
   height: 4px;
   border-radius: 0 0 11px 11px;
   margin-top: 4px;
+}
+
+/* ── Style capability catalog ── */
+.style-catalog-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.style-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.style-choice-card {
+  padding: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--bg-rice-paper);
+}
+
+.style-choice-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.style-choice-name {
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.style-choice-status {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--success-light);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.style-choice-blocked .style-choice-status {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.style-choice-unavailable .style-choice-status {
+  background: var(--error-light);
+  color: var(--error);
+}
+
+.style-choice-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.style-choice-meta span {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.style-choice-detail {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 /* ── Export Options ── */
