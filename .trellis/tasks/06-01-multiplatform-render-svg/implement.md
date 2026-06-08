@@ -374,6 +374,69 @@ git status --short --branch
     intentionally not part of this slice.
   - Evidence file:
     `prompts/0601/evidence/xhs-markdown-gate-refresh-20260608.txt`.
+- [x] 2026-06-08 selectable style matrix and WeChat hard-risk gate refresh:
+  - Added user-selectable style matrix and evidence label schema to
+    `docs/platform-rendering-rules/market-practices-catalog.md`.
+  - Added platform-specific choice matrices to
+    `docs/platform-rendering-rules/wechat-rules.md`,
+    `docs/platform-rendering-rules/xiaohongshu-rules.md`, and
+    `docs/platform-rendering-rules/zhihu-rules.md`.
+  - Updated `.trellis/spec/frontend/wechat-svg-modules.md` with selectable interaction
+    levels, evidence labels, and platform style parity.
+  - Updated `.trellis/spec/frontend/flagship-element-catalog.md` with the future UI
+    style-selection contract: platform segmented control, style family menu, visual
+    strength, motion toggle, evidence badge, fallback selector, and credentialed publish/sync
+    command states.
+  - Updated `docs/微信渲染规则.md` to clarify the current InkForge reading rhythm contract:
+    16-17px, 1.7-1.9 line-height, and 20-22 CJK chars/line as the active mobile target;
+    the historical 14-16px / 25-28 chars table remains only historical context.
+  - Added WeChat hard-risk detector ids in
+    `inkforge/src/services/export/quality-detector.ts`:
+    `wechat-event-handler`, `wechat-class-id-dependency`, `wechat-unsupported-css`,
+    `wechat-unsafe-svg-construct`, and `wechat-katex-html`.
+  - Added regression coverage in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`; focused count is now
+    29 tests and the cross-platform focused suite is now 68 tests.
+  - External source refresh:
+    WeChat official plugin spec reinforced opacity-hidden image/SVG, `line-height:0`,
+    fixed width/height, `text-align:start/end`, touchstart-only begin, ordinary prose in
+    `<pre>`, SVG/Dark Mode, and `!important` risks. 135/Xiumi references reinforced
+    copy/editor/plugin/sync/publish as separate artifact states. XHS and Zhihu references
+    reinforced configurable image defaults and clean Markdown/image-host contracts.
+  - QA agents:
+    spawned 2 lightweight rows in
+    `research/style-matrix-quality-refresh-agent-input.csv`; the WeChat quality-gate reviewer
+    passed, while the docs row returned empty JSON and was not used as evidence. Spawned a
+    follow-up docs QA row in `research/style-matrix-doc-agent-input.csv`; it returned a
+    concern on the wording `可粘贴/可同步`, which was corrected so sync is conditional on real
+    authorization/plugin/API proof.
+  - Impact checks:
+    `npx gitnexus impact detectWechatIssues -r InkForge --depth 3` passed with LOW risk,
+    5 impacted symbols, 1 direct dependent, 0 affected processes.
+    `npx gitnexus impact detectQuality -r InkForge --depth 2` passed with LOW risk,
+    4 directly impacted symbols, 0 affected processes.
+    `npx gitnexus impact detectWechatOfficialEditorSpecIssues -r InkForge --depth 3`
+    could not find that unexported helper symbol, so `detectWechatIssues` and `detectQuality`
+    were used as effective impact anchors.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 29 tests.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 68 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 961 tests.
+    `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    and `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built
+    in 33.34s.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated
+    cache and is intentionally not part of this slice.
+  - Evidence file:
+    `prompts/0601/evidence/style-matrix-quality-refresh-20260608.txt`.
+  - Honest boundary:
+    this slice does not claim fresh WeChat phone preview, SMIL/click trigger proof, Dark Mode
+    proof, cover-thumbnail proof, credentialed sync, scheduled-send, or publish success.
 
 ## Remaining Checks Before Commit
 
@@ -405,6 +468,8 @@ git status --short --branch
       and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 XHS markdown-gate refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 selectable style matrix and WeChat hard-risk gate refresh only;
+      leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

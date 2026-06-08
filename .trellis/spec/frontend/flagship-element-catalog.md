@@ -161,3 +161,30 @@ Any new catalog element must declare:
 - XHS 图片页/长图必须生成 manifest、页码/封面/正文引用一致性报告和裁切报告；任何数量、文件、引用不一致都应阻断导出或标记 `unavailable`。
 - Zhihu 图片 fallback 必须是 public HTTPS/platform-host URL 且有 alt/caption；本地、`blob:`、`data:`、localhost/private IP、临时预览 URL、微信专用 CDN 或 raw diagram fence 必须阻断、图片化或标记 `blocked`。
 - 任何新按钮图标继续使用已安装图标库或 inline SVG path；不得使用 emoji 图标。
+
+### 6.2 用户样式选择 UI 合同
+
+The UI for future style selection must be a gate-aware control surface, not a template gallery
+that implies every market effect is available.
+
+| UI control | Data it must carry | Allowed states | Required action |
+|------------|--------------------|----------------|-----------------|
+| Platform segmented control | `wechat` / `xiaohongshu` / `zhihu` | selected | Re-run quality detection after every switch |
+| Style family menu | rule group and choice id | available / blocked / unavailable | Hide or disable unsupported platform styles |
+| Visual strength control | low / medium / high | available when renderer exists | Keep source text editable; high strength may route to image artifact |
+| Motion toggle | none / static / click candidate / mobile-only | disabled by default for risky items | Require static fallback and evidence label before enabling |
+| Evidence badge | `doc-only` through `published` | read-only | Never upgrade without exact artifact proof |
+| Fallback selector | inline HTML / static SVG / raster / long-image / checklist | required for risky styles | Persist fallback in export options/report |
+| Publish/sync command | copy / plugin / sync / publish | credentialed or blocked | Verify account/permission and keep channel states separate |
+
+Implementation rules:
+
+- Available WeChat choices must pass the WeChat detector before copy. Choices that trigger
+  `wechat-event-handler`, `wechat-unsupported-css`, `wechat-unsafe-svg-construct`, or
+  `wechat-katex-html` are hard-blocked.
+- XHS choices can never write rich HTML/SVG into the body. High-visual choices must point to
+  image pages, posters, or long images with manifest checks.
+- Zhihu choices can never depend on WeChat wrappers or inline CSS. High-visual choices must
+  become semantic Markdown or public-host image fallback with alt/caption.
+- UI icons use installed icon libraries or source-owned inline SVG paths. Text labels may use
+  Chinese platform terms, but visual icons must not be emoji.

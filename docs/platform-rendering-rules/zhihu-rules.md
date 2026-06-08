@@ -40,6 +40,22 @@
 | inline CSS | 清理 | 知乎输出不依赖 style |
 | 微信 block/SVG | 清理或降级 | 不允许 `data-ink-block`、`data-ink-svg` 泄漏 |
 
+### 2.1 知乎语义风格矩阵
+
+| Choice id | 用途 | 样式来源 | 输出 | 默认证据 | 阻断条件 |
+| --- | --- | --- | --- | --- | --- |
+| `zhihu-clean-column` | 专栏长文 | 标题、段落、引用、列表、代码 | clean Markdown | `unit-tested` | 残留 HTML/CSS/微信 wrapper |
+| `zhihu-academic` | 学术/技术文章 | LaTeX、脚注、表格、代码语言 | Markdown + formula preview checklist | `unit-tested` | `$` 不匹配、公式无法预览且无图片 fallback |
+| `zhihu-diagram-article` | 含流程图/架构图文章 | Mermaid/Graphviz/PlantUML/Vega 图片化 | Markdown image + alt/caption | `local-browser` after raster proof | raw diagram fence、图片 host 不可发布 |
+| `zhihu-data-table` | 数据表、复杂表格 | Markdown 表格或图片 fallback | Markdown table / image | `unit-tested` | 复杂 HTML table、宽表格未简化、alt/caption 缺失 |
+| `zhihu-wechat-adapted` | 微信稿迁移知乎 | 语义降级 | Markdown semantic blocks | `unit-tested` | `data-ink-*`、inline SVG、style/class 依赖 |
+
+实施要求：
+
+- “样式丰富”优先表现为结构清晰、代码语言标注、公式/图表可解释、图片 alt/caption 完整，而不是导入微信 CSS。
+- 图片 fallback 必须是 public HTTPS 或真实知乎上传后的平台图床；本地、`blob:`、`data:`、私网、微信 CDN 一律不能作为最终成功产物。
+- 无真实知乎账号或上传权限时，图片/发布能力标记为 `blocked` / `unavailable`，不得把本地 Markdown 通过外推成发布成功。
+
 ## 三、微信装饰降级规则
 
 | 微信元素 | 知乎输出 |

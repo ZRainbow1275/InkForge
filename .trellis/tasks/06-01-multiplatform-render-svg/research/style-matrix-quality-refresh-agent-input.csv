@@ -1,0 +1,3 @@
+id,focus
+docs-style-matrix,"Review the 2026-06-08 InkForge docs/spec additions for selectable style matrix, evidence labels, and platform boundaries. Verify they do not claim WeChat mobile preview, publish success, or copied 135/Xiumi templates."
+wechat-quality-gates,"Review the 2026-06-08 WeChat quality detector additions and focused tests. Verify issue ids map to documented WeChat forbidden constructs and do not change export rendering behavior."

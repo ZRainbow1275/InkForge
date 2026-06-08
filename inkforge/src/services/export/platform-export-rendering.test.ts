@@ -250,6 +250,38 @@ describe('platform native export rendering rules', () => {
     ].includes(issue.id)).every(issue => issue.severity === 'error')).toBe(true)
   })
 
+  it('blocks generic WeChat unsafe HTML CSS SVG and formula runtime dependencies', () => {
+    const report = detectQuality(
+      [
+        '<section id="layout" class="grid-shell" onclick="openPanel()" style="display:grid;gap:12px;position:absolute;filter:blur(1px);transition:all .2s;transform:scale(1);background:linear-gradient(#fff,#eee);width:100%;height:auto">',
+        '<svg viewBox="0 0 100 100">',
+        '<defs><linearGradient id="g"><stop offset="0%" stop-color="#fff"></stop></linearGradient></defs>',
+        '<clipPath id="clip"><rect width="100" height="100"></rect></clipPath>',
+        '<mask id="m"><rect width="100" height="100"></rect></mask>',
+        '<filter id="shadow"><feDropShadow dx="1" dy="1"></feDropShadow></filter>',
+        '<use href="#shape"></use>',
+        '<rect fill="url(#g)" width="100" height="100"></rect>',
+        '<image href="https://example.com/a.png" width="100" height="100"></image>',
+        '</svg>',
+        '<span class="katex-html"><math><annotation encoding="application/x-tex">E=mc^2</annotation></math></span>',
+        '</section>',
+      ].join(''),
+      'wechat'
+    )
+    const ids = report.issues.map(issue => issue.id)
+
+    expect(report.passed).toBe(false)
+    expect(ids).toContain('wechat-event-handler')
+    expect(ids).toContain('wechat-class-id-dependency')
+    expect(ids).toContain('wechat-unsupported-css')
+    expect(ids).toContain('wechat-unsafe-svg-construct')
+    expect(ids).toContain('wechat-katex-html')
+    expect(report.issues.find(issue => issue.id === 'wechat-unsupported-css')?.severity).toBe('error')
+    expect(report.issues.find(issue => issue.id === 'wechat-unsafe-svg-construct')?.severity).toBe('error')
+    expect(report.issues.find(issue => issue.id === 'wechat-katex-html')?.severity).toBe('error')
+    expect(report.issues.find(issue => issue.id === 'wechat-class-id-dependency')?.severity).toBe('warning')
+  })
+
   it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
     const result = convertToWechatWithStats(
       '<div class="mermaid-rendered" data-source="graph TD A[流程 A] --> B[流程 B]"><svg><style>#x{font-family:sans-serif}@keyframes edge{}</style><text>流程 A</text><text>流程 B</text></svg></div>',

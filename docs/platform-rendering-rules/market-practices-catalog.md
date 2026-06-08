@@ -43,6 +43,30 @@
 | 小红书 | 纯文本 + 图片/海报/长图 | 正文低、图片高 | 3:4 图片页、长图、封面卡 | raw HTML、raw Markdown 控制符、超长段落、假富文本正文 |
 | 知乎 | clean Markdown | Markdown 语义中高 | 图片化公式/图表、清理微信装饰 | 微信 `<section data-ink-block>`、inline SVG 装饰、CSS 依赖、不可解释的 HTML 泄漏 |
 
+## 2A. 用户可选样式矩阵总览
+
+InkForge 的样式丰富度必须作为“可选规则”暴露给用户，而不是把市场模板照搬成固定输出。每个可选项都需要同时声明平台、内容块、输出形态、降级策略和证据标签。
+
+| Choice id | 平台 | 内容块 | 样式族 | 视觉强度 | 动效 | 主输出 | 降级 | 最低证据标签 | 阻断条件 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `wechat-quiet-editorial` | 微信 | 全文 | 静谧刊印 / Quiet Press | medium | none | inline HTML block + safe SVG divider | 普通 inline HTML | `unit-tested` | `<style>`、class/id 依赖、unsupported CSS |
+| `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | 墨铸 flagship creative | high | optional SMIL candidate | inline HTML block + safe SVG | static-safe SVG 或 raster fallback | `local-browser`；对外宣传互动需 `mobile-preview` | PC paste、手机触发、Dark Mode 任一未证实时不得标记为发布可用 |
+| `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | calm editorial | medium | none / click-safe candidate | inline HTML block + safe SVG | plain inline section | `local-browser` | 可读容器固定宽高、`line-height:0`、普通文本 `<pre>` |
+| `wechat-interaction-lab` | 微信 | 点击展开、切换、滑动、轮播、区域触发 | interactive-system | high | opt-in only | WeChat-safe SVG candidate | static fallback / raster fallback | `pc-editor-paste` + `mobile-preview` | 仅 `touchstart`、脚本、事件属性、外链资源、手机端无证据 |
+| `wechat-publish-component-checklist` | 微信 | 小程序卡片、视频号、投票、音频、名片 | guide-system | n/a | n/a | publish checklist | blocked/unavailable | `credentialed-sync` 或 `published` | 无真实账号权限、接口返回或后台组件证据 |
+| `xhs-clean-note` | 小红书 | 正文 | pure text note | low | none | 纯文本 | 拆段/短句 | `unit-tested` | HTML、SVG、Markdown 控制符泄漏 |
+| `xhs-cover-carousel` | 小红书 | 封面、多页图文 | image-page / poster | high | none | 3:4 图片页 + manifest | 长图或拆篇 | `local-browser`；发布需真实入口 | manifest 数量、文件数、正文“见第 N 张图”不一致，格式/数量/大小未过关 |
+| `xhs-report-long-image` | 小红书 | 长文、表格、步骤 | long-image | medium | none | 长图 artifact | 多页图片 | `local-browser` | 裁切、横向溢出、资源不可加载 |
+| `zhihu-clean-article` | 知乎 | 专栏/回答正文 | clean Markdown | medium | none | Markdown | 简化表格/清理 HTML | `unit-tested` | 微信包装、inline CSS、HTML 依赖 |
+| `zhihu-diagram-formula-fallback` | 知乎 | 公式、图表、复杂表格 | image fallback | medium | none | Markdown + public HTTPS image | blocked/unavailable | `local-browser`；发布需图片上传证据 | 本地/`blob:`/`data:`/私网/微信 CDN、alt/caption 缺失 |
+
+选择规则：
+
+- 默认给用户展示当前平台可真实支持的样式，不把 `blocked` 或 `unavailable` 样式伪装为可用。
+- 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
+- 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
+- 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。
+
 ## 3. InkForge Rule Catalog
 
 ### 3.1 `headline-system`
@@ -278,6 +302,46 @@ Conflict rules:
   pages. The 2026-06-08 Exa refresh corroborated 135's official AI/SVG/multi-platform taxonomy
   and the Chrome Web Store listing for the Xiumi plugin; it did not prove final WeChat mobile
   rendering.
+
+### 3.12 Evidence Label Schema
+
+Every style option, export artifact, and completion report must use one of these evidence labels.
+Labels are cumulative only when the exact same artifact has passed the lower gate; do not infer a
+higher label from a different artifact or platform.
+
+| Label | Meaning | Acceptable evidence | Must not imply |
+| --- | --- | --- | --- |
+| `doc-only` | Rule is documented but not executable yet | docs/spec entry with source and fallback | any runtime safety |
+| `unit-tested` | Detector/converter behavior is covered in focused tests | Vitest output and asserted issue/artifact IDs | browser rendering or platform paste |
+| `local-browser` | Artifact rendered in a local browser or Tauri/WebView2 path | Playwright/browser probe, screenshot, console/overflow checks | platform sanitizer survival |
+| `pc-editor-paste` | Artifact pasted into a real PC platform editor and read back | authenticated editor DOM/visual evidence without secrets | mobile rendering, Dark Mode, sync, publish |
+| `mobile-preview` | Artifact verified in target mobile preview | phone preview before/after screenshots or measured behavior | publish success |
+| `credentialed-sync` | Real account/authorized sync created a draft/material | API/backend/editor evidence with sensitive data redacted | final published rendering |
+| `published` | Real platform publish completed and was inspected | public URL or authorized final preview evidence | future platform stability |
+| `blocked` | Work is gated by missing permission, account, hardware, or platform behavior | exact blocker and next verifiable action | failure of local renderer |
+| `unavailable` | Platform contract forbids or cannot support the feature | rule citation and fallback path | a bug to be fixed by styling |
+
+Evidence retention rules:
+
+- Authenticated screenshots, QR codes, cookies, tokens, HAR, browser profiles, and account data are sensitive artifacts. They are not committed unless separately reviewed and redacted.
+- A test log can prove `unit-tested`, not `pc-editor-paste`.
+- A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
+- A WeChat PC editor paste can prove current PC sanitizer retention, not SMIL/click behavior on mobile.
+
+### 3.13 InkForge Original Style Offering Trace
+
+This trace maps existing InkForge style assets to user-facing choices so future additions remain additive.
+
+| Existing InkForge asset | User-facing choice | Platforms | Evidence floor | Notes |
+| --- | --- | --- | --- | --- |
+| Original 12 WeChat presets | Classic WeChat presets | WeChat | `unit-tested` / prior `local-browser` evidence when rerun | Must remain behaviorally unchanged; no forced SVG injection |
+| `flagship-kiln` | Bold creative flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | High-contrast editorial; no copied market geometry |
+| `flagship-tempera` | Calm academic flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | Long-form reading rhythm and directory/card emphasis |
+| `flagship-amber` | Structured business flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | PC/mobile WeChat proof must be refreshed before claiming platform availability |
+| SVG static modules | Divider, seal, cover geometry | WeChat inline; XHS/Zhihu image fallback | `unit-tested` | Safe subset only |
+| SVG interactive modules | Click/candidate interaction | WeChat opt-in | `unit-tested`; availability requires `mobile-preview` | Default blocked for mobile-only/touch-only patterns |
+| XHS raster pipeline | Cover, carousel, long image | XHS | `local-browser` after canvas probe | Needs manifest/format/count/crop checks |
+| Zhihu clean Markdown converter | Article/answer Markdown | Zhihu | `unit-tested` | Images and diagrams need upload/public-host evidence |
 
 ## 4. WeChat Hard Rules
 

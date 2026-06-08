@@ -79,6 +79,23 @@
 - 不使用二维码、联系方式、外链水印或未经授权素材。
 - 文本对比度必须在移动端缩略图下可读。
 
+### 4.4 图片页样式矩阵
+
+| Choice id | 用途 | 视觉强度 | 输出 | 默认证据 | 阻断条件 |
+| --- | --- | --- | --- | --- | --- |
+| `xhs-clean-text` | 日常笔记正文 | low | 纯文本 | `unit-tested` | HTML/SVG/Markdown 控制符泄漏 |
+| `xhs-cover-hook` | 首图封面、标题钩子 | high | 3:4 cover image | `local-browser` | 标题裁切、对比不足、manifest 缺失 |
+| `xhs-carousel-steps` | 教程、清单、方法论 | medium-high | 多页图片 + 顺序 manifest | `local-browser` | 页数、文件数、正文“见第 N 张图”不一致 |
+| `xhs-data-card` | 数据、表格、对比 | medium | 图片页或长图 | `local-browser` | 低分辨率、过密小字、格式非 JPG/PNG 且未转换 |
+| `xhs-long-report` | 长文、报告、图文混排 | medium | 长图 artifact | `local-browser` | 裁切、横向溢出、资源不可加载 |
+
+实施要求：
+
+- 3:4、1080x1440、1242x1660、18 图、20MB 等都是配置默认值和发布清单输入，不是永久硬编码。
+- 每个图片页导出必须带 manifest：页码、文件名、尺寸、比例、格式、cover 标记、正文引用状态和裁切状态。
+- 用户可选“高视觉强度”时，正文仍是纯文本；视觉丰富度只进入图片页、封面、海报或长图。
+- 没有真实小红书发布入口时，只能报告本地图片 artifact 通过，不能报告平台发布通过。
+
 ## 五、质量检测清单
 
 | 检测项 | 规则 | 结果 |

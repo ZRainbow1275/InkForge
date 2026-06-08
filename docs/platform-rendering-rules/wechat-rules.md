@@ -6,7 +6,7 @@
 
 ## 零、最终输出合同
 
-InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style HTML`，并可选包含经过校验的 WeChat-safe inline SVG 与 inline HTML block。市场工具经验只转化为规则和元素族，不复制 135/秀米模板。
+InkForge 的微信公众号产物必须是可粘贴的 `inline-style HTML`；只有在真实授权、插件或 API 路径验证后，才可标记为可同步。产物可选包含经过校验的 WeChat-safe inline SVG 与 inline HTML block。市场工具经验只转化为规则和元素族，不复制 135/秀米模板。
 
 ### 0.1 产物类型
 
@@ -69,6 +69,20 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 - 不把普通段落放进 `<pre>`。
 - 不用 `position:absolute/fixed`、`flex/grid/gap`、animation/transition/filter。
 - 不把无凭据同步/发布/上传标记为通过。
+
+### 0.5 微信用户可选样式矩阵
+
+| Choice id | 适用内容 | 输出形态 | 默认状态 | 必要证据 | 不通过时降级 |
+| --- | --- | --- | --- | --- | --- |
+| `wechat-classic-inline` | 原 12 微信预设 | inline-style HTML | enabled | `unit-tested` + focused export tests | 保留基础 inline HTML |
+| `wechat-quiet-press` | 长文、评论、报告 | HTML block + 少量几何 SVG | enabled for flagship | `local-browser` | 移除 SVG，仅保留 HTML 色块 |
+| `wechat-cover-seal-divider` | 封面、分隔、落款 | WeChat-safe static SVG | opt-in | `unit-tested` + `local-browser` | PNG/JPG 或普通分隔线 |
+| `wechat-card-rich` | 金句、数据、对比、时间线 | inline HTML card | opt-in | `unit-tested` | 普通引用/列表/段落 |
+| `wechat-click-reveal` | 点击展开、切换、序列帧 | SMIL candidate SVG | blocked by default | `pc-editor-paste` + `mobile-preview` | static-safe SVG 或长图 |
+| `wechat-mobile-only-effect` | 长按、touch-only、区域触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 静态图 / 图片页 |
+| `wechat-official-widget` | 小程序卡片、视频号、投票、音频 | publish checklist / official editor component | unavailable without credential | `credentialed-sync` 或 `published` | 手动发布清单 |
+
+用户看到的“可用”必须对应当前证据等级。`blocked` 项可以显示为实验/清单项，但按钮不得导出为成功状态。
 
 ---
 

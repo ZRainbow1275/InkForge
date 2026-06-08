@@ -1,0 +1,112 @@
+InkForge 06-01 style matrix and WeChat quality gate refresh
+Date: 2026-06-08
+Scope: docs/spec selectable style rules plus low-risk WeChat quality detector gates.
+
+Authentication / platform evidence boundary
+-------------------------------------------
+- This slice did not collect a new WeChat article-editor paste, phone preview, Dark Mode,
+  cover-thumbnail, sync, scheduled-send, or publish proof.
+- Existing authenticated 135/Xiumi/WeChat observations remain taxonomy and workflow references
+  only. They are not treated as permission to copy templates or as proof of final WeChat mobile
+  rendering.
+- No authenticated screenshots, QR codes, cookies, browser profiles, HAR files, account data,
+  tokens, or platform preview images were staged by this slice.
+
+External source refresh
+-----------------------
+- WeChat official plugin spec was refreshed through Exa and Grok fetch:
+  https://developers.weixin.qq.com/doc/subscription/guide/product/plugin_spec.html
+  The source reinforces hard risks for opacity-hidden images under SVG, line-height:0,
+  fixed width/height, text-align:start/end, touchstart-only SVG begin, ordinary prose in pre,
+  SVG/Dark Mode contrast, and !important.
+- 135 official/public tutorials were refreshed:
+  https://www.135plat.com/books/chapter/1/410
+  https://www.135editor.com/essences/10271.html
+  https://www.135editor.com/geo/weixinbianjiqi/1460/
+  These support separate copy-to-editor, copy-to-wechat, plugin, sync, preview, and mobile
+  proof states. They do not prove InkForge mobile WeChat rendering.
+- Xiumi plugin/sync references were refreshed:
+  https://chromewebstore.google.com/detail/fifkoliiibjdpcdfcknjjcpnahhnihid
+  https://ent.xiumius.cn/
+  These support plugin/sync as credentialed transfer states, not final rendering proof.
+- Xiaohongshu/Rednote market references were refreshed:
+  https://www.travelofchina.com/how-to-post-on-xiaohongshu/
+  https://hashmeta.com/blog/xiaohongshu-carousel-post-tips-maximum-engagement-guide-for-brands/
+  https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size
+  Values such as 3:4, 1080px width, 1242x1660, 18 images, and 20MB remain configurable checklist
+  defaults, not permanent hardcoded platform constants.
+- Zhihu Markdown/image references were refreshed:
+  https://github.com/drmingdrmer/md2zhihu/
+  https://github.com/zimya/zhihu_obsidian
+  https://github.com/niudai/VSCode-Zhihu
+  These support clean Markdown, image upload/host rewriting, LaTeX preview, and Mermaid/diagram
+  raster fallback rather than WeChat HTML/SVG carryover.
+
+Docs/spec updates
+-----------------
+- Added a user-selectable style matrix and evidence label schema to:
+  docs/platform-rendering-rules/market-practices-catalog.md
+- Added platform-local style-choice matrices to:
+  docs/platform-rendering-rules/wechat-rules.md
+  docs/platform-rendering-rules/xiaohongshu-rules.md
+  docs/platform-rendering-rules/zhihu-rules.md
+- Added selectable interaction/evidence and platform style parity contracts to:
+  .trellis/spec/frontend/wechat-svg-modules.md
+- Added the future UI style-selection contract to:
+  .trellis/spec/frontend/flagship-element-catalog.md
+- Added the current InkForge mobile reading rhythm contract after the historical typography
+  table in docs/微信渲染规则.md.
+
+Detector/test updates
+---------------------
+- Added WeChat quality detector issue ids in inkforge/src/services/export/quality-detector.ts:
+  - wechat-event-handler
+  - wechat-class-id-dependency
+  - wechat-unsupported-css
+  - wechat-unsafe-svg-construct
+  - wechat-katex-html
+- Added regression coverage in inkforge/src/services/export/platform-export-rendering.test.ts.
+- These checks only affect quality reporting before export. This slice did not modify
+  convertToWechatWithStats, markdownToWechatWithStats, postProcessForWechat, or the render
+  pipeline.
+
+Graph and agent review
+----------------------
+- npx gitnexus impact detectWechatIssues -r InkForge --depth 3:
+  LOW risk, 5 impacted symbols, 1 direct dependent, 0 affected processes.
+- npx gitnexus impact detectQuality -r InkForge --depth 2:
+  LOW risk, 4 directly impacted symbols, 0 affected processes.
+- npx gitnexus impact detectWechatOfficialEditorSpecIssues -r InkForge --depth 3:
+  GitNexus CLI could not find this unexported helper symbol; detectWechatIssues and detectQuality
+  were used as the effective impact anchors.
+- Spawned 2 lightweight QA rows in style-matrix-quality-refresh-agent-input.csv.
+  The WeChat quality-gate reviewer passed. The docs row returned empty JSON, so it was not used
+  as substantive evidence.
+- Spawned 1 follow-up docs QA row in style-matrix-doc-agent-input.csv.
+  It returned concern on the phrase "可粘贴/可同步"; the wording was corrected to make sync
+  conditional on real authorization/plugin/API proof.
+
+Verification commands
+---------------------
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Passed: 1 file, 29 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Passed: 4 files, 68 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default
+  Passed: 35 files, 961 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Passed.
+- pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+  Passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Passed: Vite built in 33.34s.
+- inkforge/tsconfig.tsbuildinfo was restored after typecheck/build dirtied the generated cache.
+
+Honest remaining boundary
+-------------------------
+- This slice improves user-choice documentation and automated quality gates.
+- It does not close the broader 06-01 task because fresh WeChat phone preview, SMIL/click
+  trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync, and publish proof
+  remain separate evidence gates.

@@ -116,6 +116,28 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
 - Do not use SVG as a hidden overlay on top of transparent `<img>` elements. That pattern can
   prevent official-account authors from editing the underlying image after publishing.
 
+Selectable interaction matrix:
+
+| Choice id | Support level | Allowed output | Required proof before user-visible availability | Fallback |
+|-----------|---------------|----------------|-------------------------------------------------|----------|
+| `static-seal-divider` | `static-safe` | solid-fill inline SVG | `unit-tested` + local browser overflow/console probe | plain HTML divider |
+| `cover-geometry` | `static-safe` | responsive cover SVG with explicit text fill/background | `unit-tested` + local browser mobile probe | raster cover |
+| `click-reveal` | `click-safe-candidate` | SMIL `begin="click"` / time sequencing only | PC WeChat editor paste plus phone preview before/after | expanded static block |
+| `carousel-switch` | `click-safe-candidate` | source-owned safe SVG sequence | PC paste plus mobile preview, no script/event/class dependency | image sequence / long image |
+| `long-press` | `mobile-only-risk` | none by default | phone preview only; PC evidence cannot promote it | static image |
+| `scripted-effect` | `script-or-dom-event` | forbidden | unavailable | no output |
+
+Evidence labels for UI state:
+
+- `doc-only`: cataloged but not executable.
+- `unit-tested`: detector/converter tests prove structure only.
+- `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
+- `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact.
+- `mobile-preview`: phone preview proved final mobile visibility/interaction/Dark Mode target.
+- `credentialed-sync`: real account sync created draft/material, still not publish proof.
+- `published`: final platform publish/preview was inspected.
+- `blocked` / `unavailable`: show blocker and fallback, never report success.
+
 **Pipeline ordering (why injection works):** `preset.decorate(html, target)` runs in
 `wechat.ts` (~:1336) **after** the export DOMPurify (so injected SVG is NOT stripped) and
 **before** `postProcessForWechat` / `enforcePlatformCSS` / `wechatComplianceTransform`.
@@ -142,6 +164,16 @@ Cross-platform target contract:
   `puml`, `vega`, `vega-lite`, `vegalite`) must be rasterized with alt/caption or marked
   `blocked` / `unavailable`. Residual WeChat wrappers, style/class-dependent HTML, and
   complex tables that cannot stay semantic must be cleaned, simplified, rasterized, or blocked.
+
+Platform style parity matrix:
+
+| Source style family | WeChat | Xiaohongshu | Zhihu |
+|---------------------|--------|-------------|-------|
+| headline/card/body HTML blocks | inline style HTML | plain text summary or image page | Markdown headings/quotes/lists |
+| static SVG motifs | inline WeChat-safe SVG | raster image page / removed from body | image fallback / removed from Markdown |
+| interactive SVG | opt-in candidate with mobile proof | unavailable; use image/video/long image | unavailable; use image/link/text |
+| free layout/layers/backgrounds | safe inline flow or raster fallback | primary as image artifact | image fallback only |
+| formulas/diagrams/tables | text/SVG/PNG fallback with WeChat checks | image page/long image or text summary | clean Markdown or public image fallback |
 
 ---
 

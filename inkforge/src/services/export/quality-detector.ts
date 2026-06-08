@@ -180,6 +180,10 @@ function detectWechatIssues(markdown: string, issues: QualityIssue[]): void {
 }
 
 function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityIssue[]): void {
+  const markupScan = markdown
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`]+`/g, '')
+
   if (/line-height\s*:\s*0(?:px|em|rem|;|")/i.test(markdown)) {
     addIssue(issues, {
       id: 'wechat-line-height-zero',
@@ -236,6 +240,81 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
       severity: 'error',
       message: '检测到 SVG 动画 begin 仅依赖 touchstart，PC 端微信编辑器可能无法触发',
       suggestion: '互动 SVG 必须 opt-in 并真实验证；需要触发时至少覆盖 click，默认避免 DOM 事件处理器',
+    })
+  }
+
+  if (/<[a-zA-Z][^>]*\son[a-z]+\s*=/i.test(markupScan)) {
+    addIssue(issues, {
+      id: 'wechat-event-handler',
+      severity: 'error',
+      message: '检测到 HTML 事件处理器属性，微信正文输出不得依赖 DOM 事件',
+      suggestion: '移除 onclick/onload 等 on* 属性；互动只能走 opt-in 的 WeChat-safe SVG 子集并保留静态 fallback',
+    })
+  }
+
+  if (/<[a-zA-Z][^>]*\s(?:class|id)\s*=/i.test(markupScan)) {
+    addIssue(issues, {
+      id: 'wechat-class-id-dependency',
+      severity: 'warning',
+      message: '检测到 class/id 属性，微信粘贴链会剥离或改写这些依赖',
+      suggestion: '最终微信 HTML 不应依赖 class/id selector；将样式内联到元素并用 data-* 仅作审计哨兵',
+    })
+  }
+
+  const unsupportedCssRules = [
+    [/display\s*:\s*(?:flex|grid)\b/i, 'display:flex/grid'],
+    [/\bgap\s*:/i, 'gap'],
+    [/\bposition\s*:\s*(?:absolute|fixed|sticky)\b/i, 'position:absolute/fixed/sticky'],
+    [/\b(?:backdrop-)?filter\s*:/i, 'filter/backdrop-filter'],
+    [/\banimation(?:-[\w-]+)?\s*:/i, 'animation'],
+    [/\btransition(?:-[\w-]+)?\s*:/i, 'transition'],
+    [/\b(?:linear|radial)-gradient\s*\(/i, 'gradient'],
+    [/\bcalc\s*\(/i, 'calc'],
+    [/\bvar\s*\(/i, 'var'],
+    [/\btransform\s*:/i, 'style-transform'],
+  ] as const
+  const unsupportedCssFindings = unsupportedCssRules
+    .filter(([pattern]) => pattern.test(markupScan))
+    .map(([, label]) => label)
+  if (unsupportedCssFindings.length > 0) {
+    addIssue(issues, {
+      id: 'wechat-unsupported-css',
+      severity: 'error',
+      message: `检测到微信高风险 CSS：${unsupportedCssFindings.join(', ')}`,
+      suggestion: '改用自然流、inline-block/table/table-cell、纯色背景、显式尺寸归一化或 raster fallback',
+    })
+  }
+
+  const unsafeSvgRules = [
+    [/<foreignObject\b/i, 'foreignObject'],
+    [/<defs\b/i, 'defs'],
+    [/<(?:linearGradient|radialGradient)\b/i, 'gradient'],
+    [/<clipPath\b/i, 'clipPath'],
+    [/<mask\b/i, 'mask'],
+    [/<filter\b/i, 'filter'],
+    [/<use\b/i, 'use'],
+    [/\burl\(#/i, 'url(#...)'],
+    [/<image\b[^>]*(?:\bhref|xlink:href)\s*=/i, 'external image href'],
+    [/\bxlink:href\s*=/i, 'xlink:href'],
+  ] as const
+  const unsafeSvgFindings = unsafeSvgRules
+    .filter(([pattern]) => pattern.test(markupScan))
+    .map(([, label]) => label)
+  if (unsafeSvgFindings.length > 0) {
+    addIssue(issues, {
+      id: 'wechat-unsafe-svg-construct',
+      severity: 'error',
+      message: `检测到 WeChat-safe SVG 子集外构造：${[...new Set(unsafeSvgFindings)].join(', ')}`,
+      suggestion: '重写为 solid fill/stroke 的 inline SVG 基础图形，或转为图片/长图 fallback',
+    })
+  }
+
+  if (/(?:katex-html|<math\b|<annotation\b|MathJax)/i.test(markupScan)) {
+    addIssue(issues, {
+      id: 'wechat-katex-html',
+      severity: 'error',
+      message: '检测到 KaTeX/MathJax/MathML HTML，微信最终输出不能依赖公式运行时或样式类',
+      suggestion: '公式应降级为可读文本、WeChat-safe SVG 或 PNG/JPG 公式图片，并在发布前重新检测',
     })
   }
 
