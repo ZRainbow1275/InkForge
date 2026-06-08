@@ -89,6 +89,18 @@ publish inspection; it does not automatically satisfy WeChat phone preview.
 - 全文背景高度超过 4000px 的风险仍按移动端/Android layout gate 处理。
 - 免费试用、购买提示、Vue/Ant DOM、私有 SVG 源码和素材要求只作为规则参考，不进入 InkForge 实现。
 
+三平台 runtime 残留阻断：
+
+- 2026-06-09 起，`inkforge/src/services/export/quality-detector.ts` 会把 135/秀米 authoring
+  residue 作为导出前错误处理。微信 issue id 为 `wechat-market-editor-residue`。
+- 阻断对象包括 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN 图片源、
+  `.tn-page/.tn-comp/.tn-cell/.tn-cell-group/.tn-comp-pin`、`tn-*` authoring 属性、`ng-click` /
+  `ng-style` / `ng-repeat` 等创作态属性和秀米素材源。
+- 普通正文提到“135编辑器”“秀米”不会触发该错误；必须出现结构性 HTML、authoring metadata
+  或第三方素材依赖才会阻断。
+- 阻断后的安全路径是重写为 InkForge 自有 inline HTML、WeChat-safe SVG、image manifest、
+  layout report 或 raster fallback；不得保留市场 class/id/data、第三方 CDN、私有 SVG 或会员素材。
+
 交互 SVG 分级：
 
 - `static-safe`：只含图形装饰、分隔符、印章、几何图标；可按默认 SVG 校验进入微信输出。

@@ -37,6 +37,11 @@ token、账号 ID、模板代码或私有素材）。
 必须有 exact artifact、safe disposable draft、真实 PC paste/channel event、PC DOM readback 和敏感
 证据隔离；`mobile-preview` 单独要求手机读回/截图、Dark Mode 和封面缩略图检查；同次 CloakBrowser
 只读复核观察到 `#js_add_appmsg` 会改变真实多图文草稿结构，因此未点击）。
+`market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
+质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
+focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
+tests passed，ESLint/vue-tsc/build exit 0，CloakBrowser local visual check done；不含截图路径、
+账号数据、模板源码或私有素材）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -138,6 +143,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-element-probe-20260608.txt # 本轮只读浏览器元素探针 + CloakBrowser applied-element rerun：WeChat 后台 + 135/Xiumi taxonomy/应用元素规则
 [x] wechat-editor-authenticated-readable-20260609.txt # 当前微信后台：CloakBrowser 登录态编辑器可达且 DOM 可读；不含粘贴/预览/保存/发布
 [x] style-proof-checklist-20260609.txt # 当前规则实现：evidence label -> proof requirement 清单；safe draft/phone/Dark Mode/cover gates 独立
+[x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图

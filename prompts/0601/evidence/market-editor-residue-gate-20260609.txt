@@ -1,0 +1,139 @@
+# 2026-06-09 market-editor residue gate
+
+Scope:
+
+- Task: `.trellis/tasks/06-01-multiplatform-render-svg`
+- Branch: `dev/visual-fixes`
+- Browser rule: market editor probing used CloakBrowser only; no Playwright was used in this refresh.
+- Profile rule: user-specified `inkforge-0601` profile was preserved.
+
+Fresh CloakBrowser facts used as rule inputs:
+
+1. WeChat Official Account PC editor
+   - Authenticated editor was reachable.
+   - Title/body `.ProseMirror` editors were DOM-readable.
+   - The visible body already contained a real platform audio card.
+   - No paste, save, preview, publish, sync, or draft-structure mutation was attempted.
+   - This remains `authenticated-editor-reachable` and `pc-editor-dom-readable` only.
+
+2. 135 normal editor applied style
+   - A concrete free style was clicked and visibly inserted into the central UEditor iframe.
+   - The inserted editor DOM included many `section` nodes, inline styles, image slots, small SVG/image motifs, and 135 authoring markers.
+   - Learnable ideas: title/body rhythm, image ratio metadata, paragraph cadence, geometric motif vocabulary.
+   - Blocked/runtime rewrite targets: `_135editor`, `135brush`, `135bg`, `data-tools`, `data-id`, market CDN images, flex, style transform, gradient, and `!important`.
+
+3. 135 SVG editor applied trial effect
+   - A visible free-trial SVG effect was clicked and rendered into the central canvas.
+   - The observed canvas contained effect-builder blocks, image placeholders, full-background controls, ordering/spacing controls, and motion/action implications.
+   - Treat as effect skeleton, image-slot manifest, trigger-zone manifest, motion schema, layout report, and mobile-preview gate.
+   - Do not copy private SVG/template source or paid/trial material.
+
+4. Xiumi editor SVG/category probe
+   - The editor exposed article-template, image-material, collection, clipboard, gallery, team material, audio/video, title/card/image/layout/SVG/component categories.
+   - Xiumi structures are authoring component trees such as `.tn-comp`, `.tn-cell`, and `.tn-page`.
+   - Treat as taxonomy, layer/action/image-slot schema, and fallback input only.
+   - Do not copy `.tn-*` component trees or third-party material sources into InkForge output.
+
+Implementation:
+
+- File changed: `inkforge/src/services/export/quality-detector.ts`
+- New runtime issue ids:
+  - `wechat-market-editor-residue`
+  - `xhs-market-editor-residue`
+  - `zhihu-market-editor-residue`
+- The detector blocks structural market residues only:
+  - 135 authoring classes and ids: `_135editor`, `135brush`, `135bg`
+  - `data-tools="135编辑器"`
+  - copied numeric 135 market style ids when attached to a 135 market block
+  - 135 market image sources
+  - Xiumi `.tn-*` authoring classes and `tn-*` attributes
+  - `ng-click`, `ng-style`, `ng-repeat`, and related authoring attributes
+  - Xiumi market image sources
+- Plain prose mentioning "135编辑器" or "秀米" does not trigger this gate.
+- The suggested repair path is source-owned InkForge inline HTML/SVG, image manifest, layout report, clean Markdown, plain text, or raster/long-image fallback depending on platform.
+
+Focused validation:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+```
+
+Result:
+
+- 1 test file passed
+- 42 tests passed
+
+```bash
+pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+```
+
+Result:
+
+- exit 0
+
+Broader validation:
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+```
+
+Result:
+
+- 4 test files passed
+- 81 tests passed
+
+```bash
+pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+```
+
+Result:
+
+- both exit 0
+
+```bash
+pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+```
+
+Result:
+
+- 35 test files passed
+- 975 tests passed
+
+```bash
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+```
+
+Result:
+
+- exit 0
+- Vite built in 35.29s
+
+CloakBrowser visual check:
+
+- Started local Vite at `http://127.0.0.1:3005/`.
+- Navigated the current CloakBrowser page to the local app.
+- Home page:
+  - title: `InkForge - 首页`
+  - no emoji detected in `document.body.innerText`
+  - 36 visible buttons/interactive entries were DOM-readable
+  - screenshot captured in local runtime storage and not committed
+- Workstation:
+  - route: `/workstation?id=...`
+  - title: `InkForge - 工作站`
+  - `.ProseMirror`: 1
+  - `contenteditable=true`: 1
+  - export/publish entry present
+  - screenshot captured in local runtime storage and not committed
+- Export panel:
+  - `.export-panel` rect: 900 x 768 at 1440 x 960 viewport
+  - `horizontalOverflowCount`: 0
+  - `zeroSizedControlCount`: 0
+  - `Amber business flagship`, click/mobile-only/carousel and credentialed checklist entries were disabled when blocked/unavailable
+  - screenshot captured in local runtime storage and not committed
+
+Evidence hygiene:
+
+- CloakBrowser visual captures were stored only in local runtime storage and are not committed here.
+- This file intentionally contains no browser authentication artifacts, account identifiers, local runtime paths, request captures, platform draft URLs, or private template source.
+- This gate does not upgrade WeChat PC paste, mobile preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send, or publish status.

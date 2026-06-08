@@ -28,6 +28,11 @@
 > learning: click a concrete 135/Xiumi style/effect, visually confirm the central editor/canvas
 > changed, then read DOM/controls. Applied elements can inform InkForge-owned rules, but cannot
 > become copied templates or available platform capabilities by themselves.
+>
+> 2026-06-09 runtime residue gate: `quality-detector.ts` now emits platform-specific errors for
+> copied 135/Xiumi authoring residue. Future flagship elements or toolbar buttons must not ship
+> `_135editor`, `135brush`, `135bg`, `data-tools="135编辑器"`, `.tn-*`, `tn-*`/`ng-*` authoring
+> attributes, or third-party market image sources into WeChat/XHS/Zhihu outputs.
 
 ---
 
@@ -195,6 +200,9 @@ Evidence gate:
 - `platform-published` requires the same InkForge artifact to pass the real target channel.
 - Applied 135/Xiumi evidence never bypasses `convertToWechatWithStats`, `checkWechatSafe`,
   style catalog availability, XHS manifest checks, or Zhihu Markdown leakage checks.
+- Applied 135/Xiumi evidence also never bypasses market residue detection. A new element is not
+  shippable until `detectQuality()` is clean for the target platform or reports a deliberate,
+  user-visible blocked/unavailable fallback state.
 
 135 ordinary styles:
 
@@ -275,10 +283,12 @@ Implementation rules:
   credentialed distribution setup, not final publish success.
 - Available WeChat choices must pass the WeChat detector before copy. Choices that trigger
   `wechat-event-handler`, `wechat-unsupported-css`, `wechat-unsafe-svg-construct`, or
-  `wechat-katex-html` are hard-blocked.
+  `wechat-katex-html`, or `wechat-market-editor-residue` are hard-blocked.
 - XHS choices can never write rich HTML/SVG into the body. High-visual choices must point to
-  image pages, posters, or long images with manifest checks.
+  image pages, posters, or long images with manifest checks. `xhs-market-editor-residue` is always
+  a hard blocker for publishable body text.
 - Zhihu choices can never depend on WeChat wrappers or inline CSS. High-visual choices must
   become semantic Markdown or public-host image fallback with alt/caption.
+  `zhihu-market-editor-residue` is always a hard blocker.
 - UI icons use installed icon libraries or source-owned inline SVG paths. Text labels may use
   Chinese platform terms, but visual icons must not be emoji.

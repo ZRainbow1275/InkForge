@@ -81,6 +81,16 @@ const WECHAT_PRESET_IDS = [
   'tech',
 ] as const
 
+const MARKET_EDITOR_RESIDUE_HTML = [
+  '<section class="_135editor" data-tools="135编辑器" data-id="173488">',
+  '<section class="135brush" style="display:flex;background:linear-gradient(#fff,#eee);transform:rotate(5deg)">市场标题</section>',
+  '<img src="https://bcn.135editor.com/files/demo.png" data-w="900" data-ratio="1.2">',
+  '</section>',
+  '<section class="tn-comp-pin tn-comp-style-pin" ng-click="tplLib.onTemplateClicked($event, tpl)">',
+  '<div class="tn-cell tn-cell-image" tn-cell-type="image"><img src="//statics.xiumi.us/mat/i/demo.jpg"></div>',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -568,6 +578,18 @@ describe('platform native export rendering rules', () => {
     expect(report.issues.find(issue => issue.id === 'wechat-class-id-dependency')?.severity).toBe('warning')
   })
 
+  it('blocks copied 135 and Xiumi authoring residues from WeChat output', () => {
+    const report = detectQuality(MARKET_EDITOR_RESIDUE_HTML, 'wechat')
+    const issue = report.issues.find(item => item.id === 'wechat-market-editor-residue')
+
+    expect(report.passed).toBe(false)
+    expect(issue?.severity).toBe('error')
+    expect(issue?.message).toContain('135 class/id authoring residue')
+    expect(issue?.message).toContain('Xiumi tn-* authoring tree')
+    expect(issue?.suggestion).toContain('InkForge 自有')
+    expect(report.issues.some(item => item.id === 'wechat-unsupported-css' && item.severity === 'error')).toBe(true)
+  })
+
   it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
     const result = convertToWechatWithStats(
       '<div class="mermaid-rendered" data-source="graph TD A[流程 A] --> B[流程 B]"><svg><style>#x{font-family:sans-serif}@keyframes edge{}</style><text>流程 A</text><text>流程 B</text></svg></div>',
@@ -795,6 +817,27 @@ describe('platform native export rendering rules', () => {
     expect(xhs.issues.some(issue => issue.id === 'xhs-wechat-decoration-leak' && issue.severity === 'error')).toBe(true)
     expect(zhihu.issues.some(issue => issue.id === 'zhihu-wechat-decoration-leak' && issue.severity === 'error')).toBe(true)
     expect(zhihu.issues.some(issue => issue.id === 'zhihu-inline-svg' && issue.severity === 'error')).toBe(true)
+  })
+
+  it('blocks copied market editor residues from Xiaohongshu and Zhihu publishable outputs', () => {
+    const xhs = detectQuality(MARKET_EDITOR_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_RESIDUE_HTML, 'zhihu')
+
+    expect(xhs.issues.some(issue => issue.id === 'xhs-market-editor-residue' && issue.severity === 'error')).toBe(true)
+    expect(xhs.issues.some(issue => issue.id === 'xhs-html-tags' && issue.severity === 'error')).toBe(true)
+    expect(xhs.passed).toBe(false)
+
+    expect(zhihu.issues.some(issue => issue.id === 'zhihu-market-editor-residue' && issue.severity === 'error')).toBe(true)
+    expect(zhihu.issues.some(issue => issue.id === 'zhihu-html-dependency' && issue.severity === 'error')).toBe(true)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('does not treat plain prose about market editors as copied residue', () => {
+    const prose = '135编辑器、秀米和微信公众号后台只是排版规则参考来源，InkForge 不复制模板源码、会员素材或账号数据。'
+
+    expect(detectQuality(prose, 'wechat').issues.some(issue => issue.id === 'wechat-market-editor-residue')).toBe(false)
+    expect(detectQuality(prose, 'xiaohongshu').issues.some(issue => issue.id === 'xhs-market-editor-residue')).toBe(false)
+    expect(detectQuality(prose, 'zhihu').issues.some(issue => issue.id === 'zhihu-market-editor-residue')).toBe(false)
   })
 
   it('flags stale Xiaohongshu image references and high image-count review', () => {

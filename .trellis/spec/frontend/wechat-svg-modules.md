@@ -83,6 +83,12 @@ construct breaks.
   `.tn-*`, private SVG source, Vue/Ant DOM, trial/paid material, copied layout geometry, or third-
   party image CDN dependencies into runtime modules. Convert them into InkForge-owned HTML/SVG
   primitives, manifest fields, fallback states, and validator rules.
+- 2026-06-09 runtime gate: the export quality detector now turns that no-copy boundary into
+  platform errors. `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
+  `zhihu-market-editor-residue` block 135/Xiumi authoring classes, `data-tools`, copied numeric
+  market style ids, `tn-*`/`ng-*` authoring attributes, and third-party market image sources.
+  Plain prose that merely mentions 135/Xiumi is allowed. This gate is unit-tested and must stay
+  separate from WeChat paste/mobile/sync/publish proof labels.
 - Editor-side block insertion is part of the SVG/H5 safety contract. `SlashCommands`,
   `SnippetExpansion`, and future market marker/tool buttons must route block content through
   `inkforge/src/extensions/BlockBoundaryInsertion.ts` so source-owned cards/SVG/H5 placeholders

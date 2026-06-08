@@ -30,6 +30,40 @@ const DIAGRAM_FENCE_LANGUAGES = new Set([
   'vega-lite',
   'vegalite',
 ])
+const MARKET_EDITOR_RESIDUE_RULES = [
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:_135editor|135brush|135bg)[^"']*["']/i,
+    label: '135 class/id authoring residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\bdata-tools\s*=\s*["']135编辑器["']/i,
+    label: '135 data-tools marker',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:\bdata-id\s*=\s*["']\d{3,}["'][^>]*(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])|(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])[^>]*\bdata-id\s*=\s*["']\d{3,}["'])/i,
+    label: '135 numeric style id on copied market block',
+  },
+  {
+    pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:135editor\.com|bcn\.135editor\.com)\b/i,
+    label: '135 third-party image source',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,
+    label: 'Xiumi tn-* authoring tree',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,
+    label: 'Xiumi tn-* attribute',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\bng-(?:click|style|repeat|class|show|if|switch|bind)[\w-]*\s*=/i,
+    label: 'Angular/Vue authoring attribute',
+  },
+  {
+    pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,
+    label: 'Xiumi third-party image source',
+  },
+] as const
 
 // ═══════════════════════════════════════════════════════════════════
 // 统一入口
@@ -62,6 +96,7 @@ export function detectQuality(markdown: string, platform: Platform): QualityRepo
   }
 
   // 通用检测
+  detectMarketEditorResidues(markdown, platform, issues)
   detectCommonIssues(markdown, platform, issues)
   detectRenderingCoreIssues(markdown, issues)
 
@@ -760,6 +795,57 @@ function detectRenderingCoreIssues(markdown: string, issues: QualityIssue[]): vo
 // ═══════════════════════════════════════════════════════════════════
 // 辅助函数
 // ═══════════════════════════════════════════════════════════════════
+
+function detectMarketEditorResidues(markdown: string, platform: Platform, issues: QualityIssue[]): void {
+  const residues = collectMarketEditorResidues(markdown)
+  if (residues.length === 0) return
+
+  addIssue(issues, {
+    id: getMarketResidueIssueId(platform),
+    severity: 'error',
+    message: `检测到市场编辑器模板/创作态残留：${residues.join(', ')}`,
+    suggestion: getMarketResidueSuggestion(platform),
+  })
+}
+
+function collectMarketEditorResidues(markdown: string): string[] {
+  const scan = stripCodeForTextScans(markdown)
+  return Array.from(new Set(
+    MARKET_EDITOR_RESIDUE_RULES
+      .filter(rule => rule.pattern.test(scan))
+      .map(rule => rule.label),
+  ))
+}
+
+function getMarketResidueIssueId(platform: Platform): string {
+  switch (platform) {
+    case 'wechat':
+      return 'wechat-market-editor-residue'
+    case 'xiaohongshu':
+      return 'xhs-market-editor-residue'
+    case 'zhihu':
+      return 'zhihu-market-editor-residue'
+    default: {
+      const _exhaustiveCheck: never = platform
+      return _exhaustiveCheck
+    }
+  }
+}
+
+function getMarketResidueSuggestion(platform: Platform): string {
+  switch (platform) {
+    case 'wechat':
+      return '135/秀米结构只能作为规则输入；请重写为 InkForge 自有 inline HTML、WeChat-safe SVG、image manifest、layout report 或 raster fallback，不保留市场 class/id/data、authoring 属性或第三方 CDN。'
+    case 'xiaohongshu':
+      return '小红书正文不能承载市场编辑器 HTML/SVG；请降级为纯文本、图片页或长图 artifact，并重建图片 manifest 与正文图号引用。'
+    case 'zhihu':
+      return '知乎最终产物必须是 clean Markdown 或公开 HTTPS 图片 fallback；请清理 135/秀米 authoring DOM、style/class 依赖和第三方素材源。'
+    default: {
+      const _exhaustiveCheck: never = platform
+      return _exhaustiveCheck
+    }
+  }
+}
 
 function detectXhsImageReferenceIssues(markdown: string, issues: QualityIssue[]): void {
   const imageCount = collectMarkdownImages(markdown).length
