@@ -15,7 +15,11 @@ import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from
 
 const XHS_IMAGE_PAGE_COUNT_LIMIT = 18
 const XHS_IMAGE_COUNT_REVIEW_THRESHOLD = XHS_IMAGE_PAGE_COUNT_LIMIT
+const XHS_HASHTAG_REVIEW_LIMIT = 10
+const XHS_LIST_ITEM_REVIEW_LIMIT = 7
+const XHS_LONG_LINE_REVIEW_LIMIT = 120
 const XHS_ALLOWED_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png'])
+const ZHIHU_SEMANTIC_IMAGE_ALT_PATTERN = /(?:公式|方程|图表|流程|架构|表格|数据|统计|截图|示意|diagram|chart|graph|mermaid|plantuml|vega|equation|formula|table|architecture|flow)/i
 const DIAGRAM_FENCE_LANGUAGES = new Set([
   'mermaid',
   'graphviz',
@@ -383,6 +387,8 @@ function detectXiaohongshuIssues(markdown: string, issues: QualityIssue[]): void
     })
   }
 
+  detectXhsPlainTextReadabilityIssues(markdown, issues)
+
   // 4. 装饰层次检测
   const markerCount = countDecorativeMarkers(plainText)
   const markerDensity = charCount > 0 ? markerCount / charCount * 100 : 0
@@ -520,6 +526,7 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
   }
 
   detectZhihuResidualHtmlDependencyIssues(markdown, issues)
+  detectZhihuInvalidTableSeparatorIssues(markdown, issues)
   detectZhihuComplexTableIssues(markdown, issues)
 
   // 3. 检测 Mermaid / Graphviz / PlantUML / Vega 等图表围栏
@@ -608,6 +615,7 @@ function detectZhihuIssues(markdown: string, issues: QualityIssue[]): void {
   }
 
   detectZhihuImageIssues(markdown, issues)
+  detectZhihuImageCaptionIssues(markdown, issues)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -807,6 +815,38 @@ function detectXhsImageArtifactIssues(markdown: string, issues: QualityIssue[]):
   }
 }
 
+function detectXhsPlainTextReadabilityIssues(markdown: string, issues: QualityIssue[]): void {
+  const hashtags = collectXhsHashtags(markdown)
+  if (hashtags.length > XHS_HASHTAG_REVIEW_LIMIT) {
+    addIssue(issues, {
+      id: 'xhs-hashtag-count',
+      severity: 'warning',
+      message: `发现 ${hashtags.length} 个话题标签，超过小红书正文建议上限 ${XHS_HASHTAG_REVIEW_LIMIT}`,
+      suggestion: '保留 3-8 个高度相关话题；超过 10 个时容易稀释主题，发布前应按当前账号入口复核',
+    })
+  }
+
+  const maxListRun = countMaxPlainTextListRun(markdown)
+  if (maxListRun > XHS_LIST_ITEM_REVIEW_LIMIT) {
+    addIssue(issues, {
+      id: 'xhs-list-length',
+      severity: 'warning',
+      message: `发现连续 ${maxListRun} 项列表，超过小红书正文建议的 ${XHS_LIST_ITEM_REVIEW_LIMIT} 项`,
+      suggestion: '把长清单拆成多段，或转为图片页/长图以保持手机端扫读节奏',
+    })
+  }
+
+  const longLineCount = countXhsLongPlainTextLines(markdown)
+  if (longLineCount > 0) {
+    addIssue(issues, {
+      id: 'xhs-long-line',
+      severity: 'warning',
+      message: `发现 ${longLineCount} 行纯文本超过 ${XHS_LONG_LINE_REVIEW_LIMIT} 字`,
+      suggestion: '小红书正文应主动换行和拆段；URL、代码或长句建议转为图片页、搜索关键词或文字摘要',
+    })
+  }
+}
+
 function detectXhsMarkdownControlLeakage(markdown: string, issues: QualityIssue[]): void {
   const leakedControls = [
     [/^#{1,6}\s+\S/m, 'heading'],
@@ -827,6 +867,18 @@ function detectXhsMarkdownControlLeakage(markdown: string, issues: QualityIssue[
       severity: 'error',
       message: `检测到小红书正文不可直接承载的 Markdown 控制符：${detected.join(', ')}`,
       suggestion: '小红书正文必须是纯文本；标题、加粗、引用、图片和表格等 Markdown 控制符应由导出器清理为文本说明或图片页/长图 artifact',
+    })
+  }
+}
+
+function detectZhihuInvalidTableSeparatorIssues(markdown: string, issues: QualityIssue[]): void {
+  const invalidLines = collectInvalidMarkdownTableSeparatorLines(markdown)
+  if (invalidLines.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-table-separator-invalid',
+      severity: 'error',
+      message: `检测到 ${invalidLines.length} 个不合法的 Markdown 表格分隔行`,
+      suggestion: `表格分隔行必须与表头列数一致，且每列至少使用 ---；请修正第 ${invalidLines.join(', ')} 行后再导出知乎`,
     })
   }
 }
@@ -858,6 +910,21 @@ function detectZhihuImageIssues(markdown: string, issues: QualityIssue[]): void 
       severity: 'warning',
       message: `发现 ${missingAlt.length} 张图片缺少 alt 文本`,
       suggestion: '知乎图片 fallback、公式图、表格图和图表图必须保留 alt；图片替代语义内容时还应保留 caption 或文字说明',
+    })
+  }
+}
+
+function detectZhihuImageCaptionIssues(markdown: string, issues: QualityIssue[]): void {
+  const semanticImages = collectImageRefsWithLine(markdown)
+    .filter(image => ZHIHU_SEMANTIC_IMAGE_ALT_PATTERN.test(image.alt))
+    .filter(image => !hasNearbyZhihuCaption(markdown, image.lineIndex))
+
+  if (semanticImages.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-caption-missing',
+      severity: 'warning',
+      message: `发现 ${semanticImages.length} 张公式/图表/表格类图片缺少邻近 caption 或文字说明`,
+      suggestion: '知乎图片 fallback 应同时提供 alt 与 caption/text fallback，确保公式、表格或图表图片化后仍可理解',
     })
   }
 }
@@ -998,8 +1065,33 @@ function collectMarkdownTableBlocks(markdown: string): string[] {
 
 function countMarkdownTableColumns(table: string): number {
   const header = table.split('\n').find(line => line.includes('|')) ?? ''
-  const trimmed = header.trim().replace(/^\|/, '').replace(/\|$/, '')
+  return countMarkdownTableLineColumns(header)
+}
+
+function countMarkdownTableLineColumns(line: string): number {
+  const trimmed = line.trim().replace(/^\|/, '').replace(/\|$/, '')
   return trimmed ? trimmed.split('|').length : 0
+}
+
+function collectInvalidMarkdownTableSeparatorLines(markdown: string): number[] {
+  const lines = stripFencedCodeBlocksPreservingLines(markdown).split('\n')
+  const separatorLikePattern = /^\s*\|?\s*:?-{1,}:?\s*(?:\|\s*:?-{1,}:?\s*)+\|?\s*$/
+  const validSeparatorPattern = /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/
+  const invalidLines: number[] = []
+
+  for (let i = 1; i < lines.length; i++) {
+    const separator = lines[i]
+    const header = lines[i - 1]
+    if (!header.includes('|') || !separatorLikePattern.test(separator)) continue
+
+    const headerColumnCount = countMarkdownTableLineColumns(header)
+    const separatorColumnCount = countMarkdownTableLineColumns(separator)
+    if (!validSeparatorPattern.test(separator) || headerColumnCount !== separatorColumnCount) {
+      invalidLines.push(i + 1)
+    }
+  }
+
+  return invalidLines
 }
 
 function inferCodeBlockLanguage(code: string): string | null {
@@ -1020,6 +1112,91 @@ function inferCodeBlockLanguage(code: string): string | null {
 function getHtmlAttribute(tag: string, name: string): string {
   const pattern = new RegExp(`${name}\\s*=\\s*(["'])(.*?)\\1`, 'i')
   return tag.match(pattern)?.[2] ?? ''
+}
+
+interface ImageRefWithLine extends MarkdownImageRef {
+  lineIndex: number
+}
+
+function collectImageRefsWithLine(markdown: string): ImageRefWithLine[] {
+  const lines = markdown.split('\n')
+  const images: ImageRefWithLine[] = []
+
+  lines.forEach((line, lineIndex) => {
+    for (const match of line.matchAll(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+["'][^)]*["'])?\)/g)) {
+      images.push({
+        alt: match[1] ?? '',
+        src: match[2] ?? '',
+        lineIndex,
+      })
+    }
+
+    for (const match of line.matchAll(/<img\b[^>]*>/gi)) {
+      const src = getHtmlAttribute(match[0], 'src')
+      if (!src) continue
+      images.push({
+        alt: getHtmlAttribute(match[0], 'alt'),
+        src,
+        lineIndex,
+      })
+    }
+  })
+
+  return images
+}
+
+function hasNearbyZhihuCaption(markdown: string, imageLineIndex: number): boolean {
+  const lines = markdown.split('\n')
+  const captionPattern = /^(?:图|表|公式|说明|注|备注|caption|figure|table)\s*[\d一二三四五六七八九十A-Za-z.-]*\s*[:：.、-]/i
+  for (const offset of [-2, -1, 1, 2]) {
+    const line = lines[imageLineIndex + offset]?.trim()
+    if (!line || /!\[[^\]]*\]\([^)]+\)|<img\b/i.test(line)) continue
+    if (captionPattern.test(line) || /(?:图注|表注|公式说明|图表说明|文字说明|text fallback)/i.test(line)) {
+      return true
+    }
+  }
+  return false
+}
+
+function stripCodeForTextScans(markdown: string): string {
+  return stripFencedCodeBlocksPreservingLines(markdown).replace(/`[^`]+`/g, '')
+}
+
+function stripFencedCodeBlocksPreservingLines(markdown: string): string {
+  return markdown.replace(/```[\s\S]*?```/g, block => block.replace(/[^\n]/g, ''))
+}
+
+function collectXhsHashtags(markdown: string): string[] {
+  return Array.from(stripCodeForTextScans(markdown).matchAll(/(^|[\s,，。；;、])#([\p{L}\p{N}_-]{1,30})(?=$|[\s,，。；;、.!?！？])/gu))
+    .map(match => match[2] ?? '')
+}
+
+function countMaxPlainTextListRun(markdown: string): number {
+  const lines = stripCodeForTextScans(markdown).split('\n')
+  let maxRun = 0
+  let currentRun = 0
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed) continue
+
+    if (/^(?:[-*+]\s+\S|\d{1,2}[.)、]\s*\S|[（(]\d{1,2}[）)]\s*\S|\[(?:要点|提示|清单|步骤)\])/.test(trimmed)) {
+      currentRun += 1
+      maxRun = Math.max(maxRun, currentRun)
+    } else {
+      currentRun = 0
+    }
+  }
+
+  return maxRun
+}
+
+function countXhsLongPlainTextLines(markdown: string): number {
+  return stripCodeForTextScans(markdown)
+    .split('\n')
+    .map(line => stripMarkdownSyntax(line).trim())
+    .filter(line => line.length > XHS_LONG_LINE_REVIEW_LIMIT)
+    .length
 }
 
 function collectXhsImageReferences(markdown: string): number[] {

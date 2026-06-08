@@ -1,0 +1,80 @@
+# Completion Quality Gates Refresh — 2026-06-08
+
+Scope:
+- `.trellis/tasks/06-01-multiplatform-render-svg`
+- XHS readability gates
+- Zhihu table/image semantic gates
+- completion audit evidence matrix
+
+External source refresh:
+- Exa search: `2026 Xiaohongshu Rednote post hashtag best practices image carousel limit list length readability guide`
+  - TravelOfChina 2026 guide reinforced up to 18 photo-note images, 1242x1660 / 3:4, title around 20 chars, 200-1000 body chars, and up to 10 hashtags.
+  - Hashmeta and SEO references differed on ideal hashtag count, commonly recommending 3-5, 5-8, or up to 10 depending on strategy.
+  - Rule outcome: keep `xhs-hashtag-count` as warning above 10, not a hard blocker; keep platform limits configurable/checkable.
+- Exa search: `Zhihu markdown table image alt caption formula diagram publishing markdown editor tool best practices md2zhihu`
+  - md2zhihu references reinforced uploaded/public image assets, LaTeX/table/mermaid/graphviz conversion, and table-cell Markdown simplification.
+  - VSCode-Zhihu references reinforced Markdown/LaTeX writing, Mermaid-to-image support, image upload, and table handling.
+  - Rule outcome: block invalid Markdown table separators; warn when formula/diagram/table images lack nearby caption/text fallback.
+
+GitNexus impact checks:
+- `npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3`
+  - LOW, impactedCount=5, direct=1, processes_affected=0.
+- `npx gitnexus impact detectZhihuIssues -r InkForge --depth 3`
+  - LOW, impactedCount=5, direct=1, processes_affected=0.
+- `npx gitnexus impact detectQuality -r InkForge --depth 2`
+  - LOW, impactedCount=4, direct=4, processes_affected=0.
+
+Implemented rule IDs:
+- XHS readability warnings:
+  - `xhs-hashtag-count`
+  - `xhs-list-length`
+  - `xhs-long-line`
+- Zhihu semantic gates:
+  - `zhihu-table-separator-invalid` (`error`)
+  - `zhihu-image-caption-missing` (`warning`)
+
+Docs/spec updates:
+- `prompts/0601/evidence/completion-audit-20260608.md`
+  - Added evidence-driven PRD/DoD status matrix.
+  - Keeps WeChat mobile preview, SMIL/click, Dark Mode, cover-thumbnail, sync, scheduled-send, publish, and `flagship-amber` PC paste gates blocked/incomplete until exact platform evidence exists.
+- `docs/platform-rendering-rules/xiaohongshu-rules.md`
+  - Added hashtag overload, long list, and overlong plain-text-line checks to quality checklist.
+- `.trellis/spec/frontend/wechat-svg-modules.md`
+  - Added XHS readability and Zhihu invalid-table/caption negative-test requirements.
+- `docs/platform-rendering-rules/zhihu-rules.md`
+  - Existing table-separator and image alt/caption checklist remained aligned with the new detector IDs.
+
+Agent review:
+- Spawned 3 lightweight review rows from:
+  `.trellis/tasks/06-01-multiplatform-render-svg/research/completion-quality-agent-input.csv`
+- Output:
+  `.trellis/tasks/06-01-multiplatform-render-svg/research/completion-quality-agent-output.csv`
+- Completion-audit reviewer returned `pass` and confirmed the audit separates machine evidence, PC paste, mobile preview, Dark Mode, SMIL/click, sync, and publish gates.
+- XHS and Zhihu rows returned empty JSON and were not used as substantive evidence.
+- Action taken from useful agent finding: tightened "proven after verification" wording in the completion audit.
+
+Verification commands:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - 1 file passed, 31 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - 4 files passed, 70 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+  - 35 files passed, 963 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - passed.
+- `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`
+  - passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - passed, Vite built in 28.92s.
+
+Generated-cache handling:
+- `inkforge/tsconfig.tsbuildinfo` was dirtied by typecheck/build and restored with:
+  `git -c safe.directory=D:/Desktop/Inkforge restore -- inkforge/tsconfig.tsbuildinfo`
+- The generated cache is intentionally not part of this slice.
+
+Honest platform boundary:
+- This refresh does not claim new WeChat PC editor paste proof.
+- This refresh does not claim WeChat phone preview, SMIL/click trigger, Dark Mode, cover-thumbnail, credentialed sync, scheduled-send, or publish proof.
+- Sensitive untracked WeChat candidate images under `prompts/0601/evidence/wechat-paste/` remain unstaged.

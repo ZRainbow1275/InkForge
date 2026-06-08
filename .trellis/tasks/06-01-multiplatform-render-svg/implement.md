@@ -437,6 +437,60 @@ git status --short --branch
   - Honest boundary:
     this slice does not claim fresh WeChat phone preview, SMIL/click trigger proof, Dark Mode
     proof, cover-thumbnail proof, credentialed sync, scheduled-send, or publish success.
+- [x] 2026-06-08 completion audit and cross-platform readability/semantic gates refresh:
+  - Added `prompts/0601/evidence/completion-audit-20260608.md`, mapping PRD/DoD gates to
+    exact evidence levels and keeping WeChat mobile preview, SMIL/click, Dark Mode,
+    cover-thumbnail, sync, scheduled-send, publish, and `flagship-amber` PC paste gates
+    incomplete/blocked until exact platform evidence exists.
+  - Added Xiaohongshu readability warning gates in
+    `inkforge/src/services/export/quality-detector.ts`:
+    `xhs-hashtag-count`, `xhs-list-length`, and `xhs-long-line`.
+  - Added Zhihu semantic quality gates:
+    `zhihu-table-separator-invalid` as an error for invalid Markdown table separators, and
+    `zhihu-image-caption-missing` as a warning when formula/diagram/table image fallbacks
+    lack nearby caption or text explanation.
+  - Updated `.trellis/spec/frontend/wechat-svg-modules.md` and
+    `docs/platform-rendering-rules/xiaohongshu-rules.md` to record the new quality gates.
+    `docs/platform-rendering-rules/zhihu-rules.md` already contained matching checklist
+    language for invalid table separators and image alt/caption.
+  - External refresh:
+    Exa XHS sources reinforced 3:4/18-image/default sizing and hashtag guidance variance
+    (`3-5`, `5-8`, or up to `10` depending on source), so hashtag/list/long-line gates are
+    warnings, not blockers. Exa Zhihu sources reinforced uploaded/public image assets,
+    LaTeX/table/diagram conversion, and table-cell Markdown simplification.
+  - QA agents:
+    spawned 3 lightweight rows in
+    `research/completion-quality-agent-input.csv`; the completion-audit reviewer returned
+    `pass` and confirmed the audit separates machine evidence, PC paste, mobile preview,
+    Dark Mode, SMIL/click, sync, and publish gates. XHS/Zhihu rows returned empty JSON and
+    were not used as substantive evidence.
+  - Impact checks:
+    `npx gitnexus impact detectXiaohongshuIssues -r InkForge --depth 3` passed with LOW risk,
+    5 impacted symbols, 1 direct dependent, 0 affected processes.
+    `npx gitnexus impact detectZhihuIssues -r InkForge --depth 3` passed with LOW risk,
+    5 impacted symbols, 1 direct dependent, 0 affected processes.
+    `npx gitnexus impact detectQuality -r InkForge --depth 2` passed with LOW risk,
+    4 directly impacted symbols, 0 affected processes.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 31 tests.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+    passed, 4 files / 70 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default`
+    passed, 35 files / 963 tests.
+    `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    and `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built
+    in 28.92s.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied it and is
+    intentionally not part of this slice.
+  - Evidence file:
+    `prompts/0601/evidence/completion-quality-gates-20260608.txt`.
+  - Honest boundary:
+    this slice does not claim new WeChat PC editor paste, WeChat phone preview,
+    SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
+    scheduled-send, or publish success.
 
 ## Remaining Checks Before Commit
 
@@ -468,8 +522,10 @@ git status --short --branch
       and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 XHS markdown-gate refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 selectable style matrix and WeChat hard-risk gate refresh only;
+- [x] Commit the 2026-06-08 selectable style matrix and WeChat hard-risk gate refresh only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
+- [x] Commit the 2026-06-08 completion audit and cross-platform readability/semantic gates
+      refresh only; leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

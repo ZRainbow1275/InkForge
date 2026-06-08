@@ -213,12 +213,16 @@ Platform style parity matrix:
   must not contain WeChat decorations or inline CSS dependency.
 - XHS negative tests must include image manifest/page-count/reference mismatch, stale cover
   references after reorder/delete, missing image files, unsupported format, oversized artifact,
-  and configured page-count limit violation. These are blockers, not style warnings.
+  configured page-count limit violation, raw Markdown leakage, hashtag overload, long plain-text
+  list runs, and overlong plain-text lines. Manifest/page/format mismatches are blockers;
+  hashtag, list, and line-length findings are readability warnings because market guidance
+  differs by category and account.
 - Zhihu negative tests must include blocked image hosts (`file:`, local paths, `blob:`, `data:`,
   localhost/private IPs, temporary preview URLs, and WeChat CDN), missing alt text on fallback
   images, raw diagram fences for Mermaid/Graphviz/DOT/PlantUML/PUML/Vega/Vega-Lite, residual
-  HTML after cleanup, unlabeled fenced code blocks when the source language is knowable, and
-  complex table fallback requirements.
+  HTML after cleanup, invalid Markdown table separators, semantic formula/diagram/table image
+  fallbacks without nearby caption/text explanation, unlabeled fenced code blocks when the source
+  language is knowable, and complex table fallback requirements.
 
 ---
 

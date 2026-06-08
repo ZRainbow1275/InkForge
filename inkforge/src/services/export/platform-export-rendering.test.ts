@@ -575,6 +575,36 @@ describe('platform native export rendering rules', () => {
     expect(hashtagOnly.issues.some(item => item.id === 'xhs-markdown-control-leak')).toBe(false)
   })
 
+  it('warns on Xiaohongshu hashtag overload, long lists, and long plain-text lines', () => {
+    const report = detectQuality([
+      '小红书扫读检测',
+      '',
+      '#InkForge #微信公众号 #排版 #写作工具 #长图 #封面 #图文 #笔记 #设计 #知识 #效率',
+      '',
+      '1. 第一项',
+      '2. 第二项',
+      '3. 第三项',
+      '4. 第四项',
+      '5. 第五项',
+      '6. 第六项',
+      '7. 第七项',
+      '8. 第八项',
+      '',
+      '这是一行故意写得非常长的小红书纯文本内容，用来验证导出质量检测器会提示作者主动拆段换行，避免在手机端出现难以扫读的整行长句，同时也提示 URL 或代码内容应该进入图片页、搜索关键词或文字摘要而不是直接堆在正文里面，并且需要额外补充足够多的正文片段来稳定超过一百二十字门槛。',
+    ].join('\n'), 'xiaohongshu')
+
+    const ids = report.issues.map(issue => issue.id)
+    expect(ids).toContain('xhs-hashtag-count')
+    expect(ids).toContain('xhs-list-length')
+    expect(ids).toContain('xhs-long-line')
+    expect(report.issues.filter(issue => [
+      'xhs-hashtag-count',
+      'xhs-list-length',
+      'xhs-long-line',
+    ].includes(issue.id)).every(issue => issue.severity === 'warning')).toBe(true)
+    expect(report.issues.some(item => item.id === 'xhs-markdown-control-leak')).toBe(false)
+  })
+
   it('flags Zhihu unsafe image hosts, missing alt, and raw diagram fences', () => {
     const report = detectQuality([
       '# 知乎图片和图表检测',
@@ -626,6 +656,29 @@ describe('platform native export rendering rules', () => {
     expect(ids).toContain('render-code-language-inferred')
     expect(report.issues.some(issue => issue.id === 'zhihu-html-dependency' && issue.severity === 'error')).toBe(true)
     expect(report.issues.some(issue => issue.id === 'zhihu-complex-table' && issue.severity === 'error')).toBe(true)
+    expect(report.passed).toBe(false)
+  })
+
+  it('blocks invalid Zhihu markdown table separators and warns when semantic images miss captions', () => {
+    const report = detectQuality([
+      '# 知乎表格与图片语义检测',
+      '',
+      '| 列 A | 列 B | 列 C |',
+      '| --- | - | --- |',
+      '| 1 | 2 | 3 |',
+      '',
+      '![架构图](https://example.com/arch.png)',
+      '',
+      '![公式图](https://example.com/formula.png)',
+      '公式说明：该图展示 E=mc^2 的等价关系。',
+    ].join('\n'), 'zhihu')
+
+    const ids = report.issues.map(issue => issue.id)
+    expect(ids).toContain('zhihu-table-separator-invalid')
+    expect(ids).toContain('zhihu-image-caption-missing')
+    expect(report.issues.find(issue => issue.id === 'zhihu-table-separator-invalid')?.severity).toBe('error')
+    expect(report.issues.find(issue => issue.id === 'zhihu-image-caption-missing')?.severity).toBe('warning')
+    expect(report.issues.find(issue => issue.id === 'zhihu-image-caption-missing')?.message).toContain('1 张')
     expect(report.passed).toBe(false)
   })
 
