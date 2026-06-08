@@ -196,6 +196,7 @@ function styleStatusLabel(status: StyleChoiceStatus, usable: boolean): string {
 function styleEvidenceLabel(label: StyleEvidenceLabel): string {
   const labels: Record<StyleEvidenceLabel, string> = {
     'doc-only': '文档',
+    'applied-editor-element': '已应用元素',
     'unit-tested': '单测',
     'local-browser': '本机浏览器',
     'pc-editor-paste': 'PC 编辑器',

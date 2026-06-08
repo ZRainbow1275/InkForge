@@ -4,6 +4,7 @@ export type StyleChoiceStatus = 'available' | 'blocked' | 'unavailable'
 
 export type StyleEvidenceLabel =
   | 'doc-only'
+  | 'applied-editor-element'
   | 'unit-tested'
   | 'local-browser'
   | 'pc-editor-paste'
@@ -77,12 +78,13 @@ export interface PlatformStyleAvailabilityReport {
 
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
-  'unit-tested': 1,
-  'local-browser': 2,
-  'pc-editor-paste': 3,
-  'mobile-preview': 4,
-  'credentialed-sync': 5,
-  published: 6,
+  'applied-editor-element': 1,
+  'unit-tested': 2,
+  'local-browser': 3,
+  'pc-editor-paste': 4,
+  'mobile-preview': 5,
+  'credentialed-sync': 6,
+  published: 7,
 }
 
 export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {

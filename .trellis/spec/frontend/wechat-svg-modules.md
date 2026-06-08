@@ -60,6 +60,22 @@ construct breaks.
   It is valid taxonomy/workflow evidence only. It does not upgrade WeChat paste, mobile preview,
   Dark Mode, sync, cover-thumbnail, scheduled-send, or publish availability without exact
   artifact proof in the runtime catalog.
+- 2026-06-08 CloakBrowser applied-element rerun in the same evidence file adds a stronger
+  market-learning gate. A future SVG/layout rule may cite 135/Xiumi only when the probe clicked
+  a concrete style/effect, visually confirmed the central editor/canvas changed, and then read
+  DOM/parameter controls. This gate is `applied-editor-element`: it proves authoring structure,
+  image slots, layout risks, motion parameters, and insertion risks, but still does not prove
+  WeChat mobile rendering, Dark Mode, plugin transfer, sync, scheduled send, or publish. Do not
+  use Playwright for this market-editor probing path while the user has required CloakBrowser.
+- Applied 135/Xiumi elements are schema inputs, not templates. Do not import `section._135editor`,
+  `.tn-*`, private SVG source, Vue/Ant DOM, trial/paid material, copied layout geometry, or third-
+  party image CDN dependencies into runtime modules. Convert them into InkForge-owned HTML/SVG
+  primitives, manifest fields, fallback states, and validator rules.
+- Editor-side block insertion is part of the SVG/H5 safety contract. `SlashCommands`,
+  `SnippetExpansion`, and future market marker/tool buttons must route block content through
+  `inkforge/src/extensions/BlockBoundaryInsertion.ts` so source-owned cards/SVG/H5 placeholders
+  are inserted as top-level siblings. Raw `insertContent()` is reserved for inline text or
+  commands that intentionally modify the current block.
 
 ---
 
@@ -128,6 +144,19 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
     external resource; always forbidden.
 - Do not use SVG as a hidden overlay on top of transparent `<img>` elements. That pattern can
   prevent official-account authors from editing the underlying image after publishing.
+- Applied market effect schema:
+  - 135 SVG builder image slots such as `封面图`, `元素图`, and `底层片` map to an InkForge
+    image-slot manifest with role, required dimensions/ratio, source provenance, upload/local
+    availability, and fallback image.
+  - Motion parameters such as `动画时长`, `放大时长`, `展开时长`, `元素缩小比例`, and movement
+    direction map to typed motion schema. Direction must be an enum, not raw UI text.
+  - Expanded-content controls such as `去缝隙`, `上移`, `下移`, `间距`, `复制`, and `删除`
+    imply block ordering, spacing, gap-removal, and static-expanded fallback contracts.
+  - Xiumi SVG gallery/action samples may have `svg:0` in the applied editor DOM. Treat them as
+    image-slot/layer/action artifacts until InkForge owns a safe SVG implementation.
+  - Any free-layout/layer/background/hit-area effect must produce a layout report with visual
+    order, DOM order, text fallback, crop/overflow status, trigger-area status, and target
+    platform.
 
 Selectable interaction matrix:
 
@@ -143,6 +172,9 @@ Selectable interaction matrix:
 Evidence labels for UI state:
 
 - `doc-only`: cataloged but not executable.
+- `applied-editor-element`: a concrete 135/Xiumi style/effect was clicked, visibly applied in
+  the central editor/canvas, and DOM/controls were read. This proves market authoring structure
+  and rewrite/fallback requirements only; it does not satisfy `unit-tested` or platform proof.
 - `unit-tested`: detector/converter tests prove structure only.
 - `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
 - `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact.

@@ -28,6 +28,7 @@
 | 微信公众平台 2026-06-08 二次状态复核 | `mp.weixin.qq.com` 当前停留在登录/扫码入口，未进入已认证图文编辑器 | 本轮未产生 `flagship-amber` PC 粘贴证据；所有手机微信预览、SMIL、暗黑模式、封面缩略图门禁仍保持未完成 |
 | 2026-06-08 public source hygiene refresh | Grok/Exa 公开检索复核了微信 inline-style/clipboard、XHS 3:4/image-page、Zhihu Markdown/image fallback 方向；其中部分结果带弱来源或不可核验的统计/上限说法 | 只保留与现有规则一致且可落成检测项的部分；无可核验来源的百分比、固定上限、平台能力升级不得写入 runtime catalog |
 | 2026-06-08 135/Xiumi logged-in Playwright taxonomy refresh | 135 当前编辑器确认 toolbar 参数、样式族、SVG/长图、复制/保存/同步/预览、深色模式、授权公众号/定时群发/团队权限；秀米当前图文编辑器确认导入 Word/Excel/Markdown、导入公众号文章、同步/插件/复制、生成长图/PDF/视频、动作/图层/背景图/定位、SVG 图集、4000px 背景图安卓风险、公众号认证/留言权限 | 作为 `editor-workflow-system` 与 `layout-and-layer-system` 的当前实机 taxonomy 证据；未执行同步、复制、预览、导出或发布，不升级任何 runtime availability |
+| 2026-06-08 CloakBrowser applied-element rerun | 使用 `inkforge-0601` profile，仅用 CloakBrowser 在 135 普通编辑器、135 SVG 编辑器、秀米图文编辑器中点击免费样式/SVG 效果，确认中间编辑区/画布真实出现内容后读取 DOM | 作为 `applied-editor-element` 证据：可转化为 InkForge 规则、布局风险、插入风险、manifest/schema/fallback 要求；不复制模板源码、私有 SVG、会员素材或账号数据，也不升级为 WeChat mobile/published 证据 |
 
 ### 1.2 不进入实现的内容
 
@@ -36,6 +37,45 @@
 - 不把无账号权限的微信、小红书、知乎同步/发布标记为成功。
 - 不用 HTML 伪造微信后台原生组件，如小程序卡片、投票、视频号、音频、公众号名片。
 - 不使用 emoji 作为 InkForge UI 图标；平台用户内容如原文自带表情可以保留，但系统图标必须使用 `lucide-vue-next` 或 inline SVG。
+
+### 1.3 Applied Element Evidence Gate
+
+市场编辑器学习必须区分三种状态：
+
+| State | 证明了什么 | 不能证明什么 |
+| --- | --- | --- |
+| `market-template-listing` | 左侧列表、素材库、公开页存在某类样式或效果 | 样式实际插入、DOM 结构、微信粘贴、手机端触发、发布 |
+| `applied-editor-element` | 点击样式/效果后，中间编辑区/画布真实出现内容，并能读取当前编辑器 DOM | 微信最终 sanitizer、手机预览、Dark Mode、封面缩略图、插件/同步、发布 |
+| `platform-published` | 真实平台账号/预览/发布链路对同一 artifact 通过 | 未来平台稳定性或其他账号/渠道天然通过 |
+
+有效市场学习流程：
+
+1. 在市场编辑器中点击具体样式或 SVG 效果。
+2. 视觉确认中间编辑区或 SVG 画布真的新增/改变了内容。
+3. 读取当前编辑区域 DOM、样式属性、素材槽、参数面板和风险构造。
+4. 只提炼 InkForge 自有规则、schema、fallback 和 quality gate。
+5. 不复制第三方模板源码、平台私有 SVG、会员素材、账号信息、cookie、HAR 或截图。
+
+2026-06-08 CloakBrowser rerun 的可执行结论：
+
+- 135 普通样式插入后常见 `section._135editor`、`data-tools`、`data-id`、`135brush`、
+  `135bg`、inline style、small SVG/image motif、`data-width`/`data-ratio`/`data-w` 图片元数据、
+  `line-height:1.75em`、`letter-spacing:1.5px`。InkForge 可以学习节奏和结构，但必须剥离
+  class/id/data metadata、第三方 CDN、flex、transform、gradient、`!important` 等依赖。
+- 135 普通编辑器会把新样式插入到当前光标所在位置；如果光标在已有样式卡内部，视觉上会出现重叠和挤压。InkForge 的工具栏/marker 插入必须使用幂等哨兵和 block-boundary insertion guard。
+- InkForge runtime guard lives in `inkforge/src/extensions/BlockBoundaryInsertion.ts`.
+  Toolbar/slash/snippet code that inserts a card, callout, details block, market marker, or
+  future SVG/H5-style block must route through this helper instead of raw `insertContent()`.
+  Text snippets may remain inline, but `type: "block"` snippets and block JSON/HTML should
+  replace an empty command paragraph or insert after the current top-level block.
+- 135 SVG 编辑器是 effect builder：免费试用效果在画布中生成 block，并在右侧暴露 cover/element/bottom image slots、motion timing、scale、direction、expanded-content background、gap removal、block ordering/spacing controls。InkForge 应建 source-owned effect skeleton、image-slot manifest、trigger-zone manifest、motion parameter schema 和 mobile preview gate。
+- 秀米 `.tn-page/.tn-comp/.tn-cell` 是 authoring component tree。普通图文卡和 `SVG图集/图集滚动`
+  可能没有 literal `<svg>`，而是图片槽、图层、动作、contenteditable cell、flex/free-layout state。
+  InkForge 必须转为 readable DOM order、inline HTML block、image manifest、raster/long-image fallback
+  和 layout report。
+
+These rules supersede taxonomy-only learning for future market probes. A later agent must not
+claim a 135/Xiumi rule was learned unless the applied-element chain above is recorded.
 
 ## 2. 平台输出合同
 
@@ -308,6 +348,10 @@ Layering rules:
 | layers / free layout / z-order | `layout-and-layer-system` | raster fallback unless proven safe |
 | layout / component positioning | `layout-and-layer-system` | platform-specific mapping |
 | AI image-and-text staged pipeline | Redink / 渲染AI XHS generator | conceptual only; no code/prompt/template reuse |
+| applied 135 free title/image-text styles | `headline-system`, `figure-system`, `card-system`, `editor-workflow-system` | normative rewrite rule: learn section rhythm, image metadata, and paragraph cadence; strip third-party metadata/class/id/flex/transform/gradient |
+| applied 135 insertion overlap | `editor-workflow-system`, future editor toolbar/marker actions | block-boundary insertion guard required; cursor-inside-card insertions must be prevented or repaired |
+| applied 135 SVG trial effect builder | `interactive-system`, `layout-and-layer-system`, `fallback-system` | effect skeleton + image-slot manifest + trigger/motion schema + mobile preview gate; no private template copy |
+| applied Xiumi SVG gallery/title samples | `interactive-system`, `layout-and-layer-system`, `headline-system` | authoring component tree only; convert to readable DOM order, own inline HTML/SVG/raster fallback, and layout report |
 
 ### 3.11 Source Conflict And Proof Hierarchy
 
@@ -325,6 +369,9 @@ Conflict rules:
 - A source that shows plugin copy, preview share, or draft sync cannot prove final publish rendering without credentialed platform confirmation.
 - A source that shows PC editor paste success cannot prove mobile WeChat rendering, click/SMIL interaction, Dark Mode, cover-thumbnail acceptance, scheduled send, or publish success.
 - A source that shows free layout/layers cannot bypass DOM readability, Dark Mode, mobile overflow, and fallback checks.
+- A source that only shows a template/effect listing cannot prove the applied DOM. A source that
+  shows an applied 135/Xiumi editor element still cannot prove WeChat sanitizer, mobile preview,
+  plugin transfer, sync, scheduled send, or publish.
 - A search summary or market page claiming XHS accepts basic HTML, inline SVG, Markdown control
   syntax, or third-party editor responsive wrappers cannot loosen the XHS pure-text + raster
   artifact contract unless backed by reachable primary/live platform evidence.
@@ -347,6 +394,7 @@ higher label from a different artifact or platform.
 | Label | Meaning | Acceptable evidence | Must not imply |
 | --- | --- | --- | --- |
 | `doc-only` | Rule is documented but not executable yet | docs/spec entry with source and fallback | any runtime safety |
+| `applied-editor-element` | A concrete market style/effect was clicked, visually applied in the central editor/canvas, and DOM/controls were read | CloakBrowser evidence with no template/source/account material committed | InkForge detector behavior, local rendering, platform paste, mobile preview, sync, publish |
 | `unit-tested` | Detector/converter behavior is covered in focused tests | Vitest output and asserted issue/artifact IDs | browser rendering or platform paste |
 | `local-browser` | Artifact rendered in a local browser or Tauri/WebView2 path | Playwright/browser probe, screenshot, console/overflow checks | platform sanitizer survival |
 | `pc-editor-paste` | Artifact pasted into a real PC platform editor and read back | authenticated editor DOM/visual evidence without secrets | mobile rendering, Dark Mode, sync, publish |
@@ -361,6 +409,9 @@ Evidence retention rules:
 - Authenticated screenshots, QR codes, cookies, tokens, HAR, browser profiles, and account data are sensitive artifacts. They are not committed unless separately reviewed and redacted.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
+- A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,
+  insertion risks, image-slot/layout/motion requirements, and rewrite/fallback needs. It still
+  cannot prove WeChat final mobile rendering.
 - A WeChat PC editor paste can prove current PC sanitizer retention, not SMIL/click behavior on mobile.
 - A WeChat PC editor paste failure must also be recorded as evidence. If the clipboard artifact
   was rich HTML but the editor readback is plain text, mark that exact channel `blocked` instead
@@ -502,6 +553,8 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 - InkForge market-rule agent output: `.trellis/tasks/06-01-multiplatform-render-svg/research/market-rule-agent-output.csv`
 - InkForge logged-in market editor taxonomy evidence:
   `prompts/0601/evidence/market-editor-live-taxonomy-refresh-20260608.txt`
+- InkForge CloakBrowser applied-element market evidence:
+  `prompts/0601/evidence/market-editor-element-probe-20260608.txt`
 - InkForge real PC paste evidence path: `prompts/0601/evidence/wechat-paste/`
 - InkForge real XHS browser raster evidence path: `prompts/0601/evidence/xhs-raster/`
 - InkForge WeChat SVG spec: `.trellis/spec/frontend/wechat-svg-modules.md`

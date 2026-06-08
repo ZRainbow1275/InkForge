@@ -782,6 +782,99 @@ git status --short --branch
   - `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck dirtied the generated
     cache. The tracked e2e PNG files under `prompts/0601/evidence/e2e/` were already dirty
     at the start of this continuation and remain a separate artifact-review concern.
+- [x] 2026-06-09 applied-editor-element evidence-label runtime slice:
+  - Promoted the 2026-06-08 CloakBrowser applied-element rule from docs/spec into the executable
+    style catalog by adding `applied-editor-element` to `StyleEvidenceLabel`.
+  - Ranked `applied-editor-element` above `doc-only` but below `unit-tested`, so 135/Xiumi
+    applied editor evidence can be displayed and audited without satisfying renderer,
+    local-browser, PC paste, mobile-preview, sync, or publish gates.
+  - Added ExportModal label text `已应用元素`, preserving user-visible evidence reporting
+    without changing default platform evidence or promoting any blocked/unavailable style.
+  - Added focused regression assertions in
+    `inkforge/src/services/export/platform-export-rendering.test.ts` proving
+    `applied-editor-element` does not make `wechat-classic-inline` or XHS local-browser-gated
+    styles usable.
+  - Synchronized the evidence label schema in
+    `docs/platform-rendering-rules/market-practices-catalog.md` and
+    `.trellis/spec/frontend/wechat-svg-modules.md`.
+  - Impact checks:
+    `gitnexus impact evaluateStyleChoiceAvailability` returned LOW risk, 1 direct test
+    dependent, 0 affected processes.
+    `gitnexus impact getPlatformStyleAvailabilityReport` returned LOW risk, 2 direct dependents
+    (`platform-export-rendering.test.ts`, `ExportModal.vue`), 0 affected processes.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 36 tests.
+    `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `git diff --check -- <06-01 applied evidence/runtime paths>` passed with only normal
+    Windows LF-to-CRLF warnings.
+    `inkforge/tsconfig.tsbuildinfo` was not modified by the typecheck rerun.
+    CloakBrowser visual check opened local Vite at `http://127.0.0.1:3005/`, created a real
+    draft, opened ExportModal, and confirmed the style capability panel still shows
+    `7/15` usable WeChat choices with mobile-only/plugin/sync/H5/design gates blocked or
+    unavailable. Screenshot was saved only under the local CloakBrowser screenshot directory
+    and was not committed.
+
+### 2026-06-09 block-boundary insertion guard runtime slice
+
+- Implemented `inkforge/src/extensions/BlockBoundaryInsertion.ts` as the shared editor guard
+  for block-level market/style insertions.
+  - Inline text snippets keep the current inline insertion behavior.
+  - Block JSON/HTML and `type: "block"` snippets replace an empty command paragraph.
+  - When the selection is inside a non-empty top-level block, the new block is inserted after
+    that owning block rather than inside the current paragraph/card.
+- Wired `SlashCommands.ts` callout/details commands through the guard.
+- Wired `SnippetExpansion.ts` through the guard, using snippet `type` to choose inline vs block
+  insertion.
+- Added `inkforge/src/extensions/BlockBoundaryInsertion.test.ts` covering:
+  inline snippet preservation, non-empty paragraph block insertion, empty command paragraph
+  replacement, and block snippet tab-stop selection.
+- Synchronized docs/spec with the executable guard:
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `docs/platform-rendering-rules/wechat-rules.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and
+  `.trellis/spec/frontend/flagship-element-catalog.md`.
+- Impact checks before editing:
+  GitNexus MCP impact for `insertCallout`, `insertDetailsBlock`, `SlashCommands`,
+  `SnippetExpansion`, and `applyResolvedSnippet` returned LOW risk. `applyResolvedSnippet`
+  had one direct affected flow (`handleKeyDown`) and 0 high-risk processes.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/extensions/BlockBoundaryInsertion.test.ts --reporter=default`
+  passed, 1 file / 4 tests.
+  `pnpm -C inkforge exec vitest run src/extensions/BlockBoundaryInsertion.test.ts src/services/snippet/snippet.test.ts --reporter=default`
+  passed, 2 files / 15 tests.
+  `pnpm -C inkforge exec vitest run src/extensions --reporter=default`
+  passed, 12 files / 76 tests.
+  `pnpm -C inkforge exec eslint src/extensions/BlockBoundaryInsertion.ts src/extensions/BlockBoundaryInsertion.test.ts src/extensions/SlashCommands.ts src/extensions/SnippetExpansion.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built in
+  33.64s.
+  `inkforge/tsconfig.tsbuildinfo` was restored after the production build dirtied the generated
+  cache.
+  GitNexus MCP `detect_changes(scope=all)` returned low risk and 0 affected processes. The
+  report still includes unrelated existing dirty files, so review/commit must remain
+  path-specific.
+  `git diff --check HEAD -- <block-boundary/docs paths>` passed with only normal Windows
+  LF-to-CRLF warnings.
+- CloakBrowser visual check (profile `inkforge-0601`, no Playwright):
+  - Opened the real local Workstation draft at `http://127.0.0.1:3005/`.
+  - Placed the real TipTap selection inside a non-empty paragraph and executed the registered
+    slash `callout` command. DOM readback showed top-level order:
+    heading -> paragraph -> blockquote(callout) -> blockquote(original), with no nested
+    paragraph/card insertion and no vertical rectangle overlaps.
+  - Created an empty command paragraph, executed the registered slash `details` command, and
+    confirmed `emptyParagraphs=0`; top-level order included a `detailsBlock` sibling and no
+    overlap.
+  - Saved one local-only screenshot under the CloakBrowser screenshot directory:
+    `inkforge-block-boundary-insertion-visual-20260609-1780940208952.png`.
+  - The temporary visual-check edits were restored to the pre-check draft content. A blind
+    multi-undo cleanup briefly cleared the draft because it crossed earlier history entries;
+    the content was restored from the pre-check DOM snapshot and the page returned to
+    `已同步 · 已保存`, 54 字 / 3 段. Future visual checks should use an isolated draft or a saved
+    baseline snapshot for cleanup rather than repeated undo.
 
 ## Remaining Checks Before Commit
 
@@ -826,6 +919,9 @@ git status --short --branch
 - [x] Commit the 2026-06-08 ExportModal WebView2 narrow-preview regression repair only; leave
       unrelated dirty files, pre-existing dirty e2e PNG files, and QR/platform-preview
       candidates untouched.
+- [x] Commit the combined 2026-06-09 applied-editor-element evidence-label and block-boundary
+      insertion guard runtime slice only; leave unrelated dirty files, pre-existing dirty e2e
+      PNG files, QR/platform-preview candidates, and local CloakBrowser screenshots untouched.
 
 ## Honest Non-Goals For This Slice
 

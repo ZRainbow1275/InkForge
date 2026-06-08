@@ -4,6 +4,7 @@ import type { Editor } from '@tiptap/core'
 import { matchSnippetTrigger } from '@/services/snippet/matcher'
 import { resolveSnippetContent } from '@/services/snippet/resolver'
 import type { SnippetContext, SnippetRecord } from '@/services/snippet/types'
+import { insertContentAtBlockBoundary } from './BlockBoundaryInsertion'
 
 export interface SnippetExpansionOptions {
   getSnippets: () => SnippetRecord[]
@@ -27,14 +28,20 @@ function stillHasTrigger(editor: Editor, from: number, to: number, trigger: stri
   return editor.state.doc.textBetween(from, to, '\n', '\n') === trigger
 }
 
-function applyResolvedSnippet(editor: Editor, from: number, to: number, content: string, selectionOffset: { from: number; to: number }): void {
-  editor
-    .chain()
-    .focus()
-    .deleteRange({ from, to })
-    .insertContent(content)
-    .setTextSelection({ from: from + selectionOffset.from, to: from + selectionOffset.to })
-    .run()
+function applyResolvedSnippet(
+  editor: Editor,
+  snippet: SnippetRecord,
+  from: number,
+  to: number,
+  content: string,
+  selectionOffset: { from: number; to: number },
+): void {
+  insertContentAtBlockBoundary(editor, {
+    content,
+    mode: snippet.type === 'block' ? 'block' : 'inline',
+    replaceRange: { from, to },
+    selectionOffset,
+  })
 }
 
 export const SnippetExpansion = Extension.create<SnippetExpansionOptions>({
@@ -85,7 +92,7 @@ export const SnippetExpansion = Extension.create<SnippetExpansionOptions>({
                 const selectionOffset = firstStop
                   ? { from: firstStop.from, to: firstStop.to }
                   : { from: resolved.finalCursorOffset, to: resolved.finalCursorOffset }
-                applyResolvedSnippet(this.editor, from, to, resolved.content, selectionOffset)
+                applyResolvedSnippet(this.editor, match.snippet, from, to, resolved.content, selectionOffset)
                 return this.options.onSnippetExpanded(snippetId)
               })
             return true

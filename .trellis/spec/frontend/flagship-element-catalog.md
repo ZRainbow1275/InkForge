@@ -23,6 +23,11 @@
 > confirms current logged-in WeChat/135/Xiumi browser surfaces. It expands taxonomy and workflow
 > gates only; it does not permit copying market templates or promoting plugin/sync/H5/mobile-only
 > capabilities without exact InkForge runtime evidence.
+>
+> 2026-06-08 CloakBrowser applied-element rerun in that evidence file raises the bar for market
+> learning: click a concrete 135/Xiumi style/effect, visually confirm the central editor/canvas
+> changed, then read DOM/controls. Applied elements can inform InkForge-owned rules, but cannot
+> become copied templates or available platform capabilities by themselves.
 
 ---
 
@@ -176,7 +181,62 @@ Any new catalog element must declare:
   `text/html` 剪贴板粘贴已证明它会降级为纯文本。若后续采用插件传输、开发者工具 HTML
   替换或授权同步，必须用新的 channel evidence 单独升级，不得复用普通剪贴板结论。
 
-### 6.2 用户样式选择 UI 合同
+### 6.2 Applied Market Element Translation
+
+This section governs how 135/Xiumi applied elements may influence future flagship or toolbar
+work. It is intentionally additive: no existing flagship modules, original presets, components,
+or tests may be removed to make room for market-inspired styles.
+
+Evidence gate:
+
+- `market-template-listing` is a category/listing proof only.
+- `applied-editor-element` requires click -> central editor/canvas visual change -> DOM/control
+  read -> InkForge rule extraction.
+- `platform-published` requires the same InkForge artifact to pass the real target channel.
+- Applied 135/Xiumi evidence never bypasses `convertToWechatWithStats`, `checkWechatSafe`,
+  style catalog availability, XHS manifest checks, or Zhihu Markdown leakage checks.
+
+135 ordinary styles:
+
+- Learn visual grammar such as section roots, inline paragraph rhythm, image ratio metadata,
+  small geometric/SVG motifs, and card/body hierarchy.
+- Do not keep `_135editor`, `135brush`, `135bg`, `data-tools`, `data-id`, market CDN image URLs,
+  copied section geometry, copied text, or template-specific source.
+- Rewrite flex/transform/gradient/fixed-size/`!important` constructs into InkForge-owned flow
+  blocks, table/table-cell where appropriate, static SVG primitives, or raster fallback.
+- Toolbar/marker insertions must respect block boundaries. If a selection is inside an existing
+  `data-ink-block` or `data-ink-svg` container, the new block should be inserted after the
+  nearest owning block or the command should report a blocked insertion state. Never produce
+  overlapping nested style cards silently.
+- Runtime editor insertions use `inkforge/src/extensions/BlockBoundaryInsertion.ts` as the
+  shared guard. Slash block commands, block snippets, future marker buttons, and market-card
+  insertions must call this helper rather than raw `insertContent()`. Empty command paragraphs
+  are replaced; non-empty current blocks keep their text and receive the new style block as the
+  next top-level sibling. Text snippets keep inline insertion.
+
+Xiumi authoring components:
+
+- `.tn-page`, `.tn-comp`, `.tn-cell`, `.tn-cell-group`, and `contenteditable` cells are authoring
+  implementation details. They do not enter InkForge output.
+- SVG gallery/action samples that appear as image/layer/action trees map to `interactive-system`
+  manifests and fallback artifacts, not to direct inline SVG availability.
+- Free layout, z-order, background images, fixed geometry, overflow clipping, invisible hit
+  areas, and `line-height:0` require a layout report and platform-specific fallback.
+- Xiumi title/card patterns may be re-expressed only through source-owned inline HTML blocks,
+  installed icon libraries, and safe inline SVG paths.
+
+135 SVG builder effects:
+
+- Convert image roles such as cover, moving element, and bottom/background into a typed image-slot
+  manifest with ratio/dimension/source/fallback fields.
+- Convert duration, scale, expansion, movement direction, and ordering controls into typed
+  motion and block-order schema.
+- Expanded-content backgrounds and gap-removal controls must provide static-expanded and raster
+  fallback modes before any user-visible interaction toggle is enabled.
+- Mobile-only or touch-only effects remain disabled until `mobile-preview` evidence exists for
+  the exact InkForge artifact.
+
+### 6.3 用户样式选择 UI 合同
 
 The UI for future style selection must be a gate-aware control surface, not a template gallery
 that implies every market effect is available.

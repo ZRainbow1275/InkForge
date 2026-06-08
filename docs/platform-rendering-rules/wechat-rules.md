@@ -49,6 +49,38 @@ catalog rather than hard-coding this document's tables.
 | 秀米：Markdown 锚点映射、同步后预览、留言权限、背景图高度风险、复制到微信 | Markdown anchors 只映射语义元素；同步后预览和留言需要微信认证/账号权限；背景图、z-order、复制到微信都需要平台预览和布局报告 |
 | 秀米：生成长图/PDF/视频、贴纸图文 | 作为 fallback artifact，不作为微信公众号正文富文本成功证明 |
 
+### 0.3A Applied-Element Rules From CloakBrowser
+
+2026-06-08 CloakBrowser applied-element rerun 更新了微信规则的证据门：只看 135/秀米左侧样式列表不够，必须点击真实样式/效果、确认中间编辑区/画布已经出现内容，再读取 DOM 和参数面板。该证据等级是 `applied-editor-element`，仍低于 `pc-editor-paste`、`mobile-preview`、`credentialed-sync` 和 `published`。
+
+135 普通编辑器应用后规则：
+
+- `section._135editor`、`data-tools="135编辑器"`、`data-id`、`135brush`、`135bg`、大量 inline styles 和少量 inline SVG/image motifs 只说明 135 的 authoring/output structure；InkForge 输出不得依赖这些 class/id/data metadata。
+- `data-width="100%"`、`data-ratio`、`data-w` 是可学习的图片 manifest 思路。InkForge 应用为自有 image manifest、intrinsic ratio、caption、upload/localization checklist，而不是保留 135 CDN 或元数据。
+- `line-height:1.75em`、`letter-spacing:1.5px`、`font-size:14px`、`text-align:justify` 是可学习的正文节奏。进入微信输出时必须经过现有段落参数、inline style 和 quality detector。
+- `display:flex`、`justify-content`、fixed width/height、`transform`、vendor transform、`linear-gradient`、`!important`、class/id dependency 都是重写或阻断对象。安全替代是普通 flow block、table/table-cell、inline-block、solid background、WeChat-safe SVG motif 或 raster fallback。
+- 135 的实机插入证明了一个编辑器风险：市场样式可能被插入到当前光标所在的另一个样式块内部，导致重叠和竖排挤压。InkForge 的 toolbar/marker insert 必须使用 block-boundary sentinel；如果 selection 在 `data-ink-block` / `data-ink-svg` 内部，应把新块插入到最近 block 之后，或要求先退出当前块。
+- InkForge editor runtime now enforces this through `inkforge/src/extensions/BlockBoundaryInsertion.ts`.
+  Slash commands and block snippets must insert block content through that helper so a callout,
+  details block, market card, or future SVG/H5 marker becomes a top-level sibling instead of
+  being silently nested inside the current paragraph/card. Inline text snippets keep inline
+  behavior.
+
+秀米图文编辑器应用后规则：
+
+- `.tn-page`、`.tn-comp`、`.tn-cell`、`.tn-cell-group`、`.tn-comp-pin` 是秀米 authoring internals。微信正文不得保留这些 class、contenteditable cell、flex/free-layout dependency。
+- 秀米 `SVG图集/图集滚动` 插入后可以没有 literal `<svg>`，而是多张图片、图层、动作和滚动状态。InkForge 应把这类样式归为 `interactive artifact family`：image-slot manifest、motion/action schema、mobile trigger gate、static/raster/long-image fallback。
+- 标题样式应抽象为自有 inline HTML block：文本保持可编辑和可重排，背景色块/边框/几何 motif 用安全 inline style 或 source-owned SVG path；不要导入 `.tn-*` 组件树。
+- `line-height:0`、fixed height、overflow hidden、background image、z-order 和自由定位必须进入 layout report；不能在微信正文中无报告输出。
+
+135 SVG 编辑器应用后规则：
+
+- 135 SVG builder 是 effect builder，不是 raw template source。`封面图`、`元素图`、`底层片` 等槽位应转为 InkForge image-slot manifest。
+- `动画时长`、`放大时长`、`展开时长`、`元素缩小比例`、`元素图移动方向` 等参数应转为 motion parameter schema 和 direction enum。
+- `展开内容背景`、`去缝隙`、`上移`、`下移`、`间距`、`复制`、`删除` 等操作说明互动效果需要 expanded-content model、block order/spacing model 和 fallback plan。
+- 全文背景高度超过 4000px 的风险仍按移动端/Android layout gate 处理。
+- 免费试用、购买提示、Vue/Ant DOM、私有 SVG 源码和素材要求只作为规则参考，不进入 InkForge 实现。
+
 交互 SVG 分级：
 
 - `static-safe`：只含图形装饰、分隔符、印章、几何图标；可按默认 SVG 校验进入微信输出。

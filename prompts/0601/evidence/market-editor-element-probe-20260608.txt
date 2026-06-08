@@ -1,8 +1,11 @@
 InkForge 06-01 market editor element probe, 2026-06-08
 
 Scope:
-- Read-only Playwright browser probe after the user re-logged into WeChat Official Account,
-  135 Editor, and Xiumi.
+- Sections 1-5 record the earlier read-only browser taxonomy probe after the user re-logged
+  into WeChat Official Account, 135 Editor, and Xiumi.
+- Section 6 records the follow-up CloakBrowser-only applied-element rerun requested by the user:
+  click a real style/effect, visually confirm the central editor/canvas changed, then read DOM
+  and extract InkForge rules.
 - The probe focused on visible editor surfaces, element taxonomy, workflow states, and
   platform gates for InkForge rule generation.
 - No screenshot, QR code, cookie, token, HAR, browser profile, private SVG code, proprietary
@@ -147,3 +150,263 @@ Runtime rule outcome:
 - Mobile-only SVG, plugin transfer, sync draft, H5/design families, cover-thumbnail publishing,
   and official widgets must remain `blocked` or `unavailable` until their exact target gate is
   verified with real platform evidence.
+
+6. CloakBrowser applied-element rerun
+
+Scope:
+- Tooling: CloakBrowser only. No Playwright was used for this applied-element editor probe.
+- Browser profile: `C:/Users/HP/.codex/tools/cloakbrowser-mcp/profiles/inkforge-0601`.
+- User had re-logged into 135, Xiumi, and WeChat before the rerun.
+- Screenshots were used only as local visual checks in the CloakBrowser screenshot area and were
+  not committed.
+- No 135/Xiumi template source, private SVG code, paid material, account data, cookie, QR,
+  profile, token, HAR, or screenshot was copied into the repository.
+
+Evidence method:
+- A market editor list or left-panel thumbnail is not enough.
+- Valid learning requires this chain:
+  `click style/effect -> central editor/canvas visibly changes -> read editor DOM -> extract rule`.
+- `market-template-listing`, `applied-editor-element`, and `platform-published` are separate
+  evidence states. This section proves applied editor elements only. It does not prove final
+  WeChat mobile rendering, Dark Mode, publish, sync, or plugin transfer.
+
+6.1 Xiumi applied article/SVG/title samples
+
+URL:
+- `https://xiumi.us/studio/v5#/paper/for/new/cube/0`
+
+Baseline applied article card:
+- Visual: the central canvas was not empty. It already contained a pale green image/text card.
+- `.tn-page` DOM summary:
+  - `nodes: 116`
+  - `SECTION: 18`
+  - `DIV: 54`
+  - `IMG: 2`
+  - `P: 12`
+  - `SPAN: 27`
+  - `styleAttrs: 75`
+  - `classAttrs: 101`
+  - `contenteditable: 6`
+- Structural traits:
+  - authoring tree uses `.tn-comp`, `.tn-cell`, `.tn-cell-group`, `.tn-comp-pin`;
+  - frequent `display:flex`, `flex-flow`, `justify-content`, `align-self`, `flex`;
+  - fixed width/height, `transform`, `overflow:hidden`;
+  - images use `statics.xiumi.us`;
+  - image style commonly includes `vertical-align: middle; max-width: 100%; width: 100%;`;
+  - text nodes are inside `contenteditable` authoring cells.
+- InkForge rule:
+  - treat Xiumi normal cards as authoring component trees, not direct WeChat-safe output;
+  - rewrite into readable DOM order, source-owned inline HTML blocks, image manifest/raster
+    fallback, and a layout report;
+  - do not keep `.tn-*` class dependencies or free-layout/flex assumptions.
+
+SVG category and SVG gallery effect:
+- Click path: switched the left category to `SVG`, then clicked the first visible effect card:
+  `SVG互动效果丨游戏机屏幕自动向左平滑滚动多张图片`.
+- Visual: the central canvas gained a red game-console-like gallery scrolling effect card, and
+  the right-side settings surface switched to the selected component.
+- `.tn-page` after insert:
+  - `nodes: 233`
+  - `SECTION: 48`
+  - `DIV: 144`
+  - `IMG: 8`
+  - `svg: 0`
+  - `styleAttrs: 167`
+  - `classAttrs: 202`
+  - `contenteditable: 8`
+  - `tnComp: 47`
+  - `tnCell: 56`
+- Risk counters:
+  - `fixedWidth: 12`
+  - `fixedHeight: 21`
+  - `flex: 15`
+  - `lineHeight0: 20`
+  - `overflowHidden: 16`
+  - `backgroundImage: 1`
+- InkForge rule:
+  - Xiumi `SVG图集/图集滚动` can be represented in the authoring editor as image slots,
+    layer/component state, and action metadata rather than literal `<svg>`;
+  - classify this family as `interactive artifact family` plus image-slot manifest, trigger
+    gate, mobile proof gate, and raster/long-image/static fallback;
+  - do not infer WeChat inline-SVG support from the Xiumi authoring component tree.
+
+Applied Xiumi title sample:
+- Click path: opened `标题`, then clicked `1 毕业不说再见`.
+- Visual: a small blue-green title block appeared between the red SVG gallery card and the
+  explanatory text.
+- DOM traits:
+  - root chain: `section -> div.tn-cell-group -> contenteditable text`;
+  - `SECTION.tn-comp-pin tn-comp-style-pin` carried
+    `text-align: center; justify-content: center; display: flex; flex-flow: row; margin: 20px 0px 0px;`;
+  - text cell used `contenteditable=true`, `text-align: justify`, `font-size: 100%`,
+    `color: rgb(255, 255, 255)`;
+  - background cell used `background-color: rgb(176, 227, 202); padding: 5px 12px; line-height: 1.6;`.
+- InkForge rule:
+  - learn the title design pattern, not the component code;
+  - output source-owned inline HTML blocks with stable text order, no `.tn-*` dependency,
+    and no flex-only layout dependency.
+
+6.2 135 Editor applied free title/image-text samples
+
+URL:
+- `https://www.135editor.com/beautify_editor.html`
+
+Workspace state:
+- Visual: login state was valid; the left style center, top toolbar, and central UEditor canvas
+  were visible.
+- The `免费` filter was enabled.
+- The editable article iframe was `#ueditor_0`.
+
+Applied free title style:
+- Click path: left category `标题`, then the free title style `毕业骊歌起 / 逐梦向远方`.
+- Visual: the title card entered the central editor, but it was inserted at the active cursor
+  inside an existing blue title block, producing overlap and vertical squeezing.
+- DOM before:
+  - `textLen: 166`
+  - `sections: 41`
+  - `svg: 4`
+  - `img: 1`
+  - `styleAttrs: 46`
+  - `classAttrs: 8`
+- DOM after:
+  - `nodes: 90`
+  - `SECTION: 58`
+  - `IMG: 4`
+  - `svg: 5`
+  - `styleAttrs: 65`
+  - `classAttrs: 19`
+  - `idAttrs: 11`
+  - `dataAttrs: 34`
+- Observed constructs:
+  - `section._135editor`, `data-tools="135编辑器"`, `data-id="173483"`;
+  - classes such as `135brush`, `135bg`, `_135editor`;
+  - `display:flex`, `justify-content`, `transform`, `-webkit-transform`, `-moz-transform`,
+    `-o-transform`, fixed width/height, and `linear-gradient(to right,#9dceff,#66b1ff)`.
+- InkForge rule:
+  - 135 teaches a section-first, inline-style, small SVG/image motif pattern;
+  - InkForge must use block-boundary sentinels for toolbar/marker insertion so a new style
+    does not land inside another card;
+  - flex, transform, gradient, class/id, and third-party metadata must be rewritten or blocked.
+
+Applied free image-text style:
+- Click path: switched to the image-text category and clicked a free image/text card.
+- Visual: a graduation image collage, pale blue text card, and white dot decoration appeared
+  below the existing editor content. This insertion was visually coherent and not nested inside
+  the previous title block.
+- DOM after:
+  - `textLen: 719`
+  - `nodes: 160`
+  - `SECTION: 102`
+  - `STRONG: 16`
+  - `IMG: 12`
+  - `svg: 5`
+  - `styleAttrs: 115`
+  - `classAttrs: 31`
+  - `idAttrs: 11`
+  - `dataAttrs: 86`
+- Image traits:
+  - image host: `bcn.135editor.com`;
+  - attributes include `data-width="100%"`, `data-ratio`, `data-w`;
+  - style sample: `width: 100%; display: block; vertical-align:baseline; box-sizing:border-box;`.
+- Text/card traits:
+  - root `section._135editor data-tools="135编辑器" data-id="173483"`;
+  - container style includes `background-color:#f0f9ff; padding:10px; display:flex; margin-top:10px; box-sizing:border-box;`;
+  - paragraph rhythm includes `text-align:justify`, `line-height:1.75em`, `letter-spacing:1.5px`,
+    `font-size:14px`, `color:#333333`, `padding-left:10px`.
+- InkForge rule:
+  - keep responsive image metadata concepts: width, ratio, intrinsic width, caption/text card,
+    and paragraph rhythm;
+  - before WeChat success claims, require image manifest/upload/localization evidence;
+  - rewrite flex layout, `!important`, class/id, transform, gradient, and remote-CDN dependencies.
+
+6.3 135 SVG Editor applied free-trial effect
+
+URL:
+- `https://www.135editor.com/svgeditor/`
+
+Baseline visual state:
+- The central SVG builder canvas already contained three trial skeleton blocks:
+  `多选一点击弹出 自定义多个触发区`, `多图轮播（逐行轮播）`, and `扇形轮播 点击换图/点击红包`.
+- The right panel initially described full-article background setup and warned that full
+  background image height should not exceed 4000px.
+
+Applied trial effect:
+- Click path: selected the left item `ID: 1049 点击移动元素放大消失展开`, then clicked `免费试用`.
+- Visual: the central canvas gained two new blocks named `点击移动元素放大消失展开`; one was active
+  with a dashed selection boundary, and the right panel switched to the ID 1049 settings.
+- Canvas block summary:
+  - total blocks: `5`
+  - visible block geometry: `x=589, w=336, h=150`
+  - new block ids/text:
+    - `block-1780936705274`: `试用 点击移动元素放大消失展开`
+    - `block-1780936705277`: active block, `试用 点击移动元素放大消失展开`
+  - `svg: 5`
+  - `img: 0`
+  - `styleAttrs: 6`
+- Right panel controls:
+  - `ID:1049`
+  - `您正在试用效果,立即购买>>>`
+  - `[素材要求]`
+  - cover / element / bottom image slots: `封面图`, `元素图`, `底层片`;
+  - upload/DIY controls: `添加图片`, upload instructions, `DIY设计图片`;
+  - motion parameters: `动画时长`, `放大时长`, `展开时长`, `元素缩小比例`;
+  - direction enum: `元素图移动方向` with arrow controls;
+  - expanded-content controls: `撤销`, `恢复`, `去缝隙`, `上移`, `下移`, `间距`, `复制`, `删除`;
+  - background: `展开内容背景`, with the same tall-background risk family.
+- InkForge rule:
+  - model 135 SVG builder output as an effect builder schema, not raw template source;
+  - source-owned implementation needs an effect skeleton, image-slot manifest, trigger-zone
+    manifest, motion parameter schema, expanded-content background, block ordering/spacing,
+    gap-removal controls, and mobile preview proof gate;
+  - do not copy Vue/Ant DOM, trial template code, private SVG source, or paid material.
+
+6.4 External source refresh
+
+Grok:
+- `grok_search.plan_intent` and `grok_search.web_search` both returned `Session terminated`
+  during this rerun.
+- This run therefore does not claim Grok source support.
+
+Exa / public refresh:
+- 135 official articles reinforced that copy code/manual developer-tool insertion, authorized
+  sync, and browser-plugin transfer are separate paths. They also warn that phone preview is
+  needed because backend editors may not fully render complex interaction.
+- 135 SVG articles reinforced the right-panel model: image modules, ordering, timing, text/font/
+  color/speed controls, and mobile preview.
+- Xiumi public/tutorial material reinforced that SVG interaction/animation differs from H5 CSS
+  and that template settings must be converted into understandable attributes or fallbacks.
+- Xiaohongshu/Rednote sources reinforced image-card defaults such as 3:4 vertical pages
+  (`1080x1440` commonly used), carousel/page manifests, and configurable image constraints.
+  Treat these as checklist defaults, not eternal constants.
+- Zhihu sources reinforced clean Markdown, LaTeX, image upload/public host, Mermaid/diagram PNG
+  fallback, and simplified Markdown tables.
+- doocs/md reinforced a single Markdown renderer with sanitized inline styles, custom themes,
+  code highlighting, image upload/image beds, Mermaid/PlantUML handling, and clipboard/extension
+  workflows.
+
+6.5 InkForge rule deltas
+
+- Add an applied-element evidence gate:
+  `market-template-listing != applied-editor-element != platform-published`.
+- A valid market editor learning sample requires:
+  `click style/effect -> visual change in central editor/canvas -> DOM read -> rule extraction`.
+- 135 ordinary styles:
+  - learn section-first inline styling, image metadata, paragraph rhythm, and small SVG/image
+    motifs;
+  - block class/id/data metadata, flex-only layout, transform, gradient, `!important`, and remote
+    image dependency unless converted through InkForge's own renderer and artifact manifest;
+  - add block-boundary insertion guard to prevent a style being inserted inside another active
+    style card.
+- Xiumi authoring components:
+  - `.tn-page/.tn-comp/.tn-cell` are authoring internals only;
+  - SVG gallery effects may be image-slot/layer/action component trees rather than literal SVG;
+  - free layout requires readable DOM order or raster/long-image fallback.
+- 135 SVG builder:
+  - interactive effects need image-slot manifest, motion parameter schema, trigger/region
+    schema, expanded-content background, block order/spacing, and mobile preview gate;
+  - trial/paid/private template code is not input to InkForge.
+- Runtime availability:
+  - user-visible choices can become rich and varied, but only exact InkForge artifacts with
+    matching evidence labels may be shown as `available`;
+  - all other market-inspired choices remain `blocked`, `unavailable`, or checklist/fallback
+    states until their own real gate is passed.

@@ -125,6 +125,15 @@ describe('platform native export rendering rules', () => {
     expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
     expect(catalog.every(choice => choice.evidenceFloor !== 'published')).toBe(true)
 
+    const classicInline = getStyleChoiceById('wechat-classic-inline')
+    expect(classicInline).toBeDefined()
+    if (!classicInline) return
+
+    const marketAppliedEvidence = evaluateStyleChoiceAvailability(classicInline, ['applied-editor-element'])
+    expect(marketAppliedEvidence.bestEvidence).toBe('applied-editor-element')
+    expect(marketAppliedEvidence.usable).toBe(false)
+    expect(marketAppliedEvidence.reason).toContain('unit-tested')
+
     const zhihuDataTable = getStyleChoiceById('zhihu-data-table')
     expect(zhihuDataTable?.fallbackOutput).toBe('image-fallback')
     expect(zhihuDataTable?.detectorBlockers).toEqual(expect.arrayContaining([
@@ -208,9 +217,10 @@ describe('platform native export rendering rules', () => {
     if (!classic || !xhsCarousel || !zhihuColumn) return
 
     expect(evaluateStyleChoiceAvailability(classic, ['doc-only']).usable).toBe(false)
+    expect(evaluateStyleChoiceAvailability(classic, ['applied-editor-element']).usable).toBe(false)
     expect(evaluateStyleChoiceAvailability(classic, ['unit-tested']).usable).toBe(true)
 
-    const xhsWithoutBrowser = evaluateStyleChoiceAvailability(xhsCarousel, ['unit-tested'])
+    const xhsWithoutBrowser = evaluateStyleChoiceAvailability(xhsCarousel, ['unit-tested', 'applied-editor-element'])
     expect(xhsWithoutBrowser.usable).toBe(false)
     expect(xhsWithoutBrowser.reason).toContain('local-browser')
     expect(evaluateStyleChoiceAvailability(xhsCarousel, ['local-browser']).usable).toBe(true)

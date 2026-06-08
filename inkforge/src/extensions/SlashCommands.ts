@@ -1,6 +1,7 @@
 import { Extension, type Editor } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import type { EditorView } from '@tiptap/pm/view'
+import { insertContentAtBlockBoundary } from './BlockBoundaryInsertion'
 
 // ═══════════════════════════════════════════════════════════════════
 // 斜杠命令系统 TipTap 扩展
@@ -50,35 +51,40 @@ export interface SlashCommandsStorage {
 }
 
 function insertCallout(editor: Editor): void {
-  editor.chain().focus().insertContent({
-    type: 'blockquote',
-    content: [
-      {
-        type: 'paragraph',
-        content: [{ type: 'text', text: '提示：在这里补充重点信息。' }],
-      },
-    ],
-  }).run()
+  insertContentAtBlockBoundary(editor, {
+    mode: 'block',
+    content: {
+      type: 'blockquote',
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '提示：在这里补充重点信息。' }],
+        },
+      ],
+    },
+  })
 }
 
 function insertDetailsBlock(editor: Editor): void {
-  const inserted = editor.chain().focus().insertContent({
-    type: 'detailsBlock',
-    attrs: { summary: '详情' },
-    content: [
-      {
-        type: 'paragraph',
-        content: [{ type: 'text', text: '在这里补充详情内容。' }],
-      },
-    ],
-  }).run()
+  const inserted = insertContentAtBlockBoundary(editor, {
+    mode: 'block',
+    content: {
+      type: 'detailsBlock',
+      attrs: { summary: '详情' },
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '在这里补充详情内容。' }],
+        },
+      ],
+    },
+  })
 
   if (!inserted) {
-    editor
-      .chain()
-      .focus()
-      .insertContent('<details><summary>详情</summary><p>在这里补充详情内容。</p></details>')
-      .run()
+    insertContentAtBlockBoundary(editor, {
+      mode: 'block',
+      content: '<details><summary>详情</summary><p>在这里补充详情内容。</p></details>',
+    })
   }
 }
 /** 内置命令列表 */
