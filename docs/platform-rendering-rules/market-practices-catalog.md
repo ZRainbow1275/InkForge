@@ -46,6 +46,8 @@
 | --- | --- | --- |
 | `market-template-listing` | 左侧列表、素材库、公开页存在某类样式或效果 | 样式实际插入、DOM 结构、微信粘贴、手机端触发、发布 |
 | `applied-editor-element` | 点击样式/效果后，中间编辑区/画布真实出现内容，并能读取当前编辑器 DOM | 微信最终 sanitizer、手机预览、Dark Mode、封面缩略图、插件/同步、发布 |
+| `authenticated-editor-reachable` | 真实微信 PC 图文编辑器在登录态 profile 中可进入 | artifact 粘贴、DOM sanitizer 保留、手机预览、同步、发布 |
+| `pc-editor-dom-readable` | 真实微信 PC 编辑器标题/正文 DOM 可读，且视觉确认编辑区存在 | artifact 粘贴成功、手机最终渲染、Dark Mode、SMIL/点击触发、封面缩略图 |
 | `platform-published` | 真实平台账号/预览/发布链路对同一 artifact 通过 | 未来平台稳定性或其他账号/渠道天然通过 |
 
 有效市场学习流程：

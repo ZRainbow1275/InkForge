@@ -29,6 +29,10 @@ XHS/Zhihu 弱来源冲突、agent 复审和聚焦测试）、
 只读浏览器元素探针；后续已追加 CloakBrowser-only applied-element rerun：点击 135/秀米
 真实样式/SVG 效果、视觉确认中间编辑区/画布出现内容、再读 DOM/参数面板；不含截图、QR、
 token、账号 ID、模板代码或私有素材）。
+`wechat-editor-authenticated-readable-20260609.txt`（CloakBrowser `inkforge-0601` 登录态微信
+编辑器只读证据：编辑器可达、`.ProseMirror` 标题/正文 DOM 可读、正文含真实音频卡，因此本轮未做
+粘贴/保存/预览/发布；该证据只对应 `authenticated-editor-reachable` 和 `pc-editor-dom-readable`，
+不升级为 `pc-editor-paste`、`mobile-preview`、`credentialed-sync` 或 `published`）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -128,6 +132,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] xhs-markdown-gate-refresh-20260608.txt # 当前质量门禁实现：XHS raw Markdown 控制符阻断 + WeChat 登录态复核
 [x] style-catalog-amber-paste-refresh-20260608.txt # 当前规则实现：style-catalog typed choices + amber paste blocked proof
 [x] market-editor-element-probe-20260608.txt # 本轮只读浏览器元素探针 + CloakBrowser applied-element rerun：WeChat 后台 + 135/Xiumi taxonomy/应用元素规则
+[x] wechat-editor-authenticated-readable-20260609.txt # 当前微信后台：CloakBrowser 登录态编辑器可达且 DOM 可读；不含粘贴/预览/保存/发布
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
@@ -151,4 +156,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
 - 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本，因此当前剩余手动门禁是：为 amber 明确验证一个能保留富 HTML/SVG 的真实渠道、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
+- 2026-06-09 CloakBrowser `inkforge-0601` 复核证明当前账号可进入微信 PC 图文编辑器，并能读取顶层 `.ProseMirror` 标题/正文 DOM；但当前草稿正文含真实音频卡，未执行任何粘贴、保存、预览或发布。该证据只能作为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不得外推为 `pc-editor-paste` 或手机端证明。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。2026-06-09 已补强知乎 preview-fidelity：`renderZhihuMockHtml()` 会把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` image fallback，并由 focused Vitest 覆盖。该本地预览证据不等于知乎 public host、上传、同步或发布成功。

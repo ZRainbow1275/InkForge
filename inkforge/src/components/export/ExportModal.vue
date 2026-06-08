@@ -244,6 +244,8 @@ function styleEvidenceLabel(label: StyleEvidenceLabel): string {
   const labels: Record<StyleEvidenceLabel, string> = {
     'doc-only': '文档',
     'applied-editor-element': '已应用元素',
+    'authenticated-editor-reachable': '已登录编辑器',
+    'pc-editor-dom-readable': 'PC DOM 可读',
     'unit-tested': '单测',
     'local-browser': '本机浏览器',
     'pc-editor-paste': 'PC 编辑器',

@@ -3,7 +3,7 @@
 - **任务**：`.trellis/tasks/06-01-multiplatform-render-svg`
 - **分支基线**：`dev/visual-fixes`（活体应用树 `inkforge/`）
 - **配套契约**：`prompts/0601/PRD.md`（AC1–AC10 / R1–R8）、`prompts/0601/SPEC.md`（实现契约 / 26 变体清单）、`prompts/0601/research/*.md`（5 份一手调研）
-- **验证日期**：2026-06-01；最新证据刷新：2026-06-08
+- **验证日期**：2026-06-01；最新证据刷新：2026-06-09
 - **验证类型**：对抗式终审（adversarial verification）—— 所有断言均经实测复核，未采信未验证的声称。
 
 ---
@@ -28,6 +28,7 @@
 - 真实微信公众号后台 **PC 编辑器粘贴路径** 已通过 Playwright + 用户扫码登录验证：`flagship-kiln` 与 `flagship-tempera` 均有真实 `mp.weixin.qq.com` PC 编辑器证据；微信 paste sanitizer 在实测样本中保留 8 个 inline SVG 和全部 `data-ink-svg`，并暴露/修复了封面长标题溢出。
 - `flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e 和本地 artifact probe 覆盖，但仍缺单独的真实公众号后台 PC 粘贴登记。不能把 kiln/tempera 的 PC paste 证据外推成 amber 的平台粘贴证据。
 - 仍未由当前自动化完全证明的是：微信「预览」扫码后的**手机微信端最终渲染 / SMIL 交互 / 暗黑模式人工确认**。该门禁依赖账号封面图、微信手机客户端和扫码预览，不应被本地测试、Tauri e2e 或 PC 后台 DOM 证据冒充。
+- 2026-06-09 已用 CloakBrowser `inkforge-0601` 复核真实微信公众号 PC 图文编辑器：编辑器可达，标题/正文 `.ProseMirror` DOM 可读，底部保存/预览/发表按钮可见且未点击。当前草稿正文含真实音频卡，本轮未做粘贴/保存/预览/发布，因此该证据只标记为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不能升级 `flagship-amber` 的 `pc-editor-paste` 门禁。
 
 ---
 

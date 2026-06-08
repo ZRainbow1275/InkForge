@@ -1,0 +1,121 @@
+# WeChat Authenticated Editor Readability Evidence — 2026-06-09
+
+Scope: authenticated, read-only CloakBrowser probe of the WeChat Official Account article
+editor. This file records editor reachability and DOM readability only. It does not claim
+paste retention, phone preview rendering, Dark Mode, SMIL interaction, cover-thumbnail
+acceptance, sync, scheduled send, or publish.
+
+## Tooling
+
+- Browser tool: CloakBrowser only.
+- Profile: `inkforge-0601`.
+- Page title: `公众号`.
+- URL shape after redaction:
+  `https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=77&appmsgid=REDACTED&isMul=1&replaceScene=0&isSend=0&isFreePublish=0&token=REDACTED&lang=zh_CN&timestamp=REDACTED`
+- Screenshot: saved outside the repository in the CloakBrowser screenshot directory and not
+  committed, because it contains authenticated platform UI.
+
+## Read-Only DOM Probe
+
+Viewport:
+
+- `innerWidth=1440`
+- `innerHeight=960`
+- `devicePixelRatio≈1`
+
+Top-level page counts:
+
+- `iframe=1`
+- `contenteditable=3`
+- `textarea=2`
+- `svg=7`
+- `img=16`
+- `data-ink-svg=0`
+- `style=7`
+
+Visible editor structures:
+
+- `#editor_pannel`: visible, `768x1438`.
+- `#js_appmsg_editor`: visible, `768x1438`.
+- `.appmsg_editor`: visible, `578x1306`.
+- `.appmsg_editor_inner`: visible, `578x1306`.
+- `#js_ueditor`: visible, `578x716`.
+- `#js_editor`: visible, `578x716`.
+- `#edui1`: visible, `578x716`.
+- `.ProseMirror`: visible title editor and body editor.
+
+Contenteditable split:
+
+- Title editor: visible `.ProseMirror`, `578x30`, text `test1`, `htmlLength=5`.
+- Body editor: visible `.ProseMirror ProseMirror-focused`, `586x598`,
+  `htmlLength=1424`.
+- Body readback contained an existing platform audio card plus an empty trailing section:
+  `section.custom_select_card_wrp` with nested `data-pluginname="insertaudio"` and
+  `contenteditable="false"`, followed by `<section><span leaf><br ...></span></section>`.
+- Body text count shown by the platform was `正文字数0`, but the DOM is not an empty article
+  body because the audio card exists.
+
+Iframe:
+
+- One hidden same-origin iframe was readable.
+- It contained no contenteditable editor body and no `data-ink-svg`.
+- Its text began with platform JavaScript helper definitions, so it is not the article
+  body surface.
+
+Visible high-risk actions:
+
+- `#js_submit` / button text `保存为草稿`, visible at the bottom action bar.
+- `#js_preview` / button text `预览`, visible at the bottom action bar.
+- `#js_send` / `.mass_send` / button text `发表`, visible at the bottom action bar.
+
+No save, preview, send, publish, sync, or platform-insert action was clicked.
+
+## Internal Read-Only Surface Probe
+
+The following objects were inspected by key/type only. No mutating method was called.
+
+Window-level editor globals:
+
+- `__MP_Editor_JSAPI__`: object with `invoke` and `on` functions.
+- `__MpEditor`: function.
+- `__mpTitleEditor`: Vue object. Readable keys included `getContent`, `setContent`,
+  `getView`, `insertEmoji`, `focus`, `getContentLength`, `checkTextBeforeSave`, and
+  `handleDispatchTransaction`.
+- `editorVarGlobal`: object containing iframe-render helper state.
+
+ProseMirror roots:
+
+- Title and body roots each expose `pmViewDesc` on the DOM node.
+- Inline event handler properties such as `onpaste`, `oncopy`, `oncut`, `oninput`, and
+  `onkeydown` were not attached as direct DOM properties on either visible root.
+- A direct writable ProseMirror view was not safely recovered from the body root during this
+  probe, so no `setContent`, transaction dispatch, synthetic paste, or JSAPI insert was used.
+
+Loaded editor scripts included `editor_for_web1`, `appmsg_edit_v2_gray`, and
+`get_article_structure_tmpl` bundles from `res.wx.qq.com`. This confirms a modern WeChat PC
+editor stack, but it does not expose a safe, verified InkForge insertion channel by itself.
+
+## Evidence Classification
+
+This pass upgrades only these internal evidence labels:
+
+- `authenticated-editor-reachable`: the authenticated WeChat editor URL was reachable in the
+  required CloakBrowser profile.
+- `pc-editor-dom-readable`: the PC editor's top-level ProseMirror title/body DOM was readable,
+  and the body editor was visually confirmed.
+
+It does not satisfy:
+
+- `pc-editor-paste`: no InkForge artifact was pasted into this authenticated editor in this
+  pass.
+- `mobile-preview`: no phone preview was opened.
+- `credentialed-sync`: no sync or plugin transfer was executed.
+- `published`: no publish action was executed.
+
+## Decision
+
+The visible draft was not used for a paste/readback test because it already contains a real
+platform audio card. Treating it as disposable would risk modifying a credentialed real draft.
+The correct next proof for `flagship-amber` is a separate, intentionally disposable article or
+a proven channel-specific insertion route with cleanup evidence, followed by PC readback and
+phone preview evidence for the exact InkForge artifact.

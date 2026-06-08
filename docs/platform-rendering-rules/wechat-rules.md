@@ -91,6 +91,8 @@ catalog rather than hard-coding this document's tables.
 状态证明规则：
 
 - `copy-to-editor` 成功不等于 `copy-to-wechat` 成功。
+- `authenticated-editor-reachable` 只证明真实微信 PC 编辑器可达。
+- `pc-editor-dom-readable` 只证明真实微信 PC 编辑器标题/正文 DOM 可读。
 - `plugin-transfer` 成功不等于平台渲染成功。
 - `sync-draft` 成功不等于发布成功。
 - `preview-share` / `platform-preview` 只证明预览入口当前可见，不证明发布、手机端触发或暗黑模式通过。
@@ -98,6 +100,7 @@ catalog rather than hard-coding this document's tables.
 - `published` 必须由真实账号、授权、接口/后台返回、平台预览和必要的手机端检查共同证明。
 - `pc-editor-paste` 只证明当前微信 PC 后台粘贴 sanitizer 和桌面编辑器保留/渲染路径；不得外推为手机最终渲染、SMIL/点击触发、暗黑模式、封面缩略图或发布成功。
 - 如果 `text/html` 剪贴板中含富 HTML/SVG，但微信编辑器读回只有纯文本，该渠道必须记录为 `blocked`。`flagship-amber` 在 2026-06-08 的普通 `Control+V` 路径就是此状态。
+- 2026-06-09 CloakBrowser `inkforge-0601` 只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
 
 ### 0.4 禁止项
 

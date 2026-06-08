@@ -179,6 +179,10 @@ Evidence labels for UI state:
 - `applied-editor-element`: a concrete 135/Xiumi style/effect was clicked, visibly applied in
   the central editor/canvas, and DOM/controls were read. This proves market authoring structure
   and rewrite/fallback requirements only; it does not satisfy `unit-tested` or platform proof.
+- `authenticated-editor-reachable`: the real WeChat PC article editor is reachable in an
+  authenticated browser profile. This proves login/editor access only.
+- `pc-editor-dom-readable`: the real WeChat PC editor title/body DOM is readable and visually
+  inspected. This proves editor-surface introspection only, not sanitizer retention.
 - `unit-tested`: detector/converter tests prove structure only.
 - `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
 - `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact.
@@ -186,6 +190,17 @@ Evidence labels for UI state:
 - `credentialed-sync`: real account sync created draft/material, still not publish proof.
 - `published`: final platform publish/preview was inspected.
 - `blocked` / `unavailable`: show blocker and fallback, never report success.
+
+2026-06-09 CloakBrowser WeChat editor probe:
+
+- `prompts/0601/evidence/wechat-editor-authenticated-readable-20260609.txt` records an
+  authenticated WeChat PC editor page in the required `inkforge-0601` profile. The visible title
+  and body `.ProseMirror` editors were readable, but the current body contained an existing
+  platform audio card, so no paste/readback test was attempted.
+- This evidence upgrades only `authenticated-editor-reachable` and `pc-editor-dom-readable`.
+  These labels rank below `unit-tested`, `local-browser`, `pc-editor-paste`, `mobile-preview`,
+  `credentialed-sync`, and `published`; they must not make any style choice selectable or
+  publishable by themselves.
 
 **Pipeline ordering (why injection works):** `preset.decorate(html, target)` runs in
 `wechat.ts` (~:1336) **after** the export DOMPurify (so injected SVG is NOT stripped) and

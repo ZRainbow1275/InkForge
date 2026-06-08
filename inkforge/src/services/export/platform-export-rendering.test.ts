@@ -137,6 +137,14 @@ describe('platform native export rendering rules', () => {
     expect(marketAppliedEvidence.usable).toBe(false)
     expect(marketAppliedEvidence.reason).toContain('unit-tested')
 
+    const authenticatedEditorEvidence = evaluateStyleChoiceAvailability(
+      classicInline,
+      ['authenticated-editor-reachable', 'pc-editor-dom-readable'],
+    )
+    expect(authenticatedEditorEvidence.bestEvidence).toBe('pc-editor-dom-readable')
+    expect(authenticatedEditorEvidence.usable).toBe(false)
+    expect(authenticatedEditorEvidence.reason).toContain('unit-tested')
+
     const zhihuDataTable = getStyleChoiceById('zhihu-data-table')
     expect(zhihuDataTable?.fallbackOutput).toBe('image-fallback')
     expect(zhihuDataTable?.detectorBlockers).toEqual(expect.arrayContaining([

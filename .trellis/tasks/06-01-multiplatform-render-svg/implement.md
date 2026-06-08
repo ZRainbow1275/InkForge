@@ -338,6 +338,17 @@ git status --short --branch
     Vitest, typecheck, and build were used as the fallback.
   - Evidence file:
     `prompts/0601/evidence/quality-gate-hardening-20260608.txt`.
+- [x] 2026-06-09 CloakBrowser WeChat authenticated editor readback refresh:
+  - Used CloakBrowser only with the required `inkforge-0601` profile.
+  - Reached the authenticated WeChat Official Account PC article editor and visually confirmed
+    the editor page.
+  - Read top-level `.ProseMirror` title/body DOM. The body editor was `586x598` and contained an
+    existing platform audio card plus a trailing blank section, so this draft was not treated as
+    disposable and no paste/save/preview/publish action was executed.
+  - Added runtime evidence labels `authenticated-editor-reachable` and `pc-editor-dom-readable`.
+    They rank below `unit-tested`; focused tests prove they do not make a WeChat style usable.
+  - Evidence file:
+    `prompts/0601/evidence/wechat-editor-authenticated-readable-20260609.txt`.
 - [x] 2026-06-08 XHS markdown-gate refresh:
   - Rechecked `https://mp.weixin.qq.com/` through Playwright. The active page still
     reported the login / QR-login entry, title `微信公众平台`, `hasEditorApi=false`,

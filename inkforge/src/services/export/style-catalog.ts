@@ -5,6 +5,8 @@ export type StyleChoiceStatus = 'available' | 'blocked' | 'unavailable'
 export type StyleEvidenceLabel =
   | 'doc-only'
   | 'applied-editor-element'
+  | 'authenticated-editor-reachable'
+  | 'pc-editor-dom-readable'
   | 'unit-tested'
   | 'local-browser'
   | 'pc-editor-paste'
@@ -97,6 +99,8 @@ export interface StyleChoiceApplicationAvailability {
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
+  'authenticated-editor-reachable': 1.5,
+  'pc-editor-dom-readable': 1.75,
   'unit-tested': 2,
   'local-browser': 3,
   'pc-editor-paste': 4,
