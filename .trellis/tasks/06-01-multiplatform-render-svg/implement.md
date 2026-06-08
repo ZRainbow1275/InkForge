@@ -219,6 +219,39 @@ git status --short --branch
   - Saved non-sensitive evidence under `prompts/0601/evidence/xhs-raster/` and
     synchronized `prompts/0601/COMPLETION-REPORT.md` plus evidence README files
     so AC6 no longer relies only on Node guard tests.
+- [x] 2026-06-08 follow-up platform-gate and market-learning pass:
+  - Rechecked `https://mp.weixin.qq.com/` through Playwright. The active page was the
+    WeChat Public Platform login/QR-login entry, not an authenticated article editor, so
+    no `flagship-amber` PC paste evidence was collected or claimed.
+  - Rechecked 135 with a real browser:
+    `beautify_editor.html` exposed style/template/SVG editor/AI layout/one-click layout,
+    import/insert/theme/full-black-white/color-pick/title/body/image-text/guide/layout/
+    festival/industry/small-element/SVG filters, and copy/save/sync/preview workflow
+    actions; `svg-center.html` exposed click, slide, carousel, long-press, region-trigger,
+    quiz/game, text-effect, and mobile-only SVG trigger labels.
+  - Rechecked Xiumi with a real browser:
+    public homepage separated paper/H5/design artifact families; `studio/v5` paper editor
+    exposed open/preview/save/export/more, enhanced media mode, base typography settings,
+    material/library tabs, team material, audio/video, theme/title/card/image/layout/SVG/
+    component groups.
+  - Fetched the 135 SVG export tutorial with Exa from a known URL. It supports the rule that
+    `copy-to-editor` and `copy-to-wechat` are separate platform-specific states; it does not
+    prove final mobile rendering.
+  - Grok Search was retained as weak conflict evidence only. Its unsupported "official 2026"
+    guide and percentage claims were rejected because sources did not substantiate them.
+  - Spawned 2 lightweight documentation QA agents from
+    `research/market-rule-followup-agent-input.csv`; the platform-gate reviewer reported
+    actionable findings through `research/market-rule-followup-agent-output.csv`. The
+    source-trust reviewer returned no usable structured findings, so it was not used as
+    substantive evidence. The actionable finding was to separate AC5 automated SMIL/static-
+    fallback proof from still-open mobile WeChat SMIL/Dark Mode gates.
+  - Updated `prompts/0601/COMPLETION-REPORT.md`, `prompts/0601/evidence/README.md`,
+    `prompts/0601/evidence/wechat-paste/README.md`,
+    `prompts/0601/evidence/market-source-refresh-20260608.txt`,
+    `docs/platform-rendering-rules/market-practices-catalog.md`,
+    `docs/platform-rendering-rules/wechat-rules.md`, `docs/微信渲染规则.md`, and
+    `.trellis/spec/frontend/wechat-svg-modules.md` so PC paste, mobile trigger, Dark Mode,
+    cover-thumbnail, sync, and publish proof remain distinct.
 
 ## Remaining Checks Before Commit
 
@@ -240,6 +273,8 @@ git status --short --branch
       unrelated dirty files and sensitive QR/platform-preview candidate PNG files untouched.
 - [x] Commit the 2026-06-08 AC6 browser-canvas raster fix and evidence only; leave
       unrelated dirty files and QR/platform-preview candidates untouched.
+- [ ] Commit the 2026-06-08 follow-up market-learning and platform-gate documentation only;
+      leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

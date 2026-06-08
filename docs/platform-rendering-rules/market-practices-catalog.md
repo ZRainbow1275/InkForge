@@ -10,10 +10,12 @@
 | --- | --- | --- |
 | 135 编辑器登录页/工作台实机观察 | 样式中心、模板中心、SVG 样式、SVG 效果、公众号长图、一键排版、校对、剪贴板、预览分享、同步公众号 | 抽象为元素族、检查项和导出路径，不复制模板 |
 | 135 编辑器 2026-06-08 登录态实机复核 | 编辑器内导航含导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG；SVG 中心含点击展开/显示/切换/缩放/翻转/弹出/放大/消失/播放/抽签、滑动展示、图片轮播、长按显示、渐显展示、文字弹幕、区域触发、趣味游戏、互动答题、文字特效、引导关注 | 进入 `interactive-system`、`editor-workflow-system` 和 `layout-and-layer-system`，仅记录 taxonomy |
+| 135 编辑器 2026-06-08 二次实机复核 | `beautify_editor.html` 可见样式/模板/SVG编辑器/AI排版/一键排版/我的文章/我的图片/剪切板/公众号长图，以及导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG、复制使用、快速保存、保存同步、预览分享、同步公众号；`svg-center.html` 明确列出点击、滑动、轮播、长按、区域触发等 SVG taxonomy，且多处标注“仅支持手机端触发” | 强化 artifact-state lifecycle 和移动端门禁；PC 后台粘贴只能证明 paste sanitizer/桌面编辑器渲染，不证明手机端触发、暗黑模式或发布成功 |
 | 135 编辑器 2026-06-08 公开首页实机复核 | 首页明确把经典排版、AI 排版、SVG 动效、AI 生图、团队多人使用、AI 产品矩阵、公众号专属插件、多平台分发、企业内容中台、系统插件集成、开放接口、私有化部署、授权公众号、定时群发、全文格式、水印设置、团队管理列为产品/账号工作流入口 | 补强 `editor-workflow-system` 的 artifact-state、credential-gate、team-permission 和 enterprise-integration 规则；不得把插件/同步/接口入口视作当前发布成功证明 |
 | 135 公开 SVG 教程 | SVG 需要区分复制到编辑器与复制到微信后台的出口，复杂效果可通过 HTML/代码入口插入 | WeChat output contract 增加 `copy-to-editor`、`copy-to-wechat`、`plugin/sync` 三类出口 |
 | 秀米登录页/图文编辑器实机观察 | 图文排版、H5、图片设计、SVG 图集、滑动、点击展开、路径动画、自由布局、图层、长图/PDF/视频出口 | 将互动 SVG、自由布局、长图/PDF 降级写成规则，非默认输出 |
 | 秀米 2026-06-08 登录态实机复核 | 导入 Word/Excel/Markdown、导入公众号文章、生成长图/PDF/视频、生成贴纸图文、一键排版、同步公众号、插件复制、继续复制粘贴；组件侧含主题色、标题、卡片、图片、布局、SVG、组件；属性侧含动作/动作列表/提取动作、点击动作、背景图、图层、定位、间距、字号、组件定位、页面对齐、多选对齐、SVG 图集 | 补充导入、动作、插件/同步、图层/自由布局、artifact 状态生命周期 |
+| 秀米 2026-06-08 图文编辑器二次实机复核 | `studio/v5#/paper/for/new/cube/0` 可见打开、预览、保存、导出、更多、增强模式、基础格式字号/行距/字距、图文模板、图片素材、图文收藏、剪贴板、我的图库、团队素材、音视频、样刊模板、主题色、标题、卡片、图片、布局、SVG、组件 | 强化 authoring surface / material library / canvas / preview / save / export / platform preview 分层；增强媒体、团队素材和音视频属于独立能力或清单项，不是文章渲染成功证明 |
 | 秀米 2026-06-08 公开首页实机复核 | 官网 v13.4.8 将图文排版、H5 制作、图片设计作为三条主线，并显式提供我的秀米、教程培训、团队功能、手机版、秀米插件、第三方对接、新建图文/H5/设计、挑选风格排版/秀/设计入口 | 将 InkForge 的平台规则分成 article、interactive-page、design-image 三种 artifact family；当前任务只承诺 article/export 渲染，不伪装 H5 或设计器能力 |
 | 秀米公开插件/教程资料 | 插件复制可降低 SVG 格式丢失；长图导出是微信以外平台的重要桥 | XHS 默认把富样式转成图片/长图/海报，不伪造正文富文本 |
 | 微信公众平台编辑器插件开发规范 | 固定宽高、`line-height:0`、透明图片叠 SVG、`pre` 包普通段落、深色模式、SVG `begin` 触发等风险 | 更新 WeChat hard blockers 和 quality detector 期望 |
@@ -21,6 +23,7 @@
 | mdnice/TypeZen 等 OSS | 多主题、AI 结构清理、图片/公式/代码特殊处理、多平台适配 | 借鉴能力分类，不引入第二套 renderer |
 | Redink / 渲染AI（`joshua23/redink-xiaohongshu`） | 小红书 AI 图文生成的分阶段 pipeline、外置 prompt、封面/内容页/manifest 思路 | 仅作 XHS raster/AI workflow 概念参考；不复用代码、提示词或素材；其 CC-BY-NC-SA-4.0 许可不能进入商业实现 |
 | `prompts/0601/` 本机实测 | WeChat-safe SVG 子集、HTML 色块层、旗舰系统真实微信 paste 存活证据 | 作为 InkForge 最高优先级实证规则 |
+| 微信公众平台 2026-06-08 二次状态复核 | `mp.weixin.qq.com` 当前停留在登录/扫码入口，未进入已认证图文编辑器 | 本轮未产生 `flagship-amber` PC 粘贴证据；所有手机微信预览、SMIL、暗黑模式、封面缩略图门禁仍保持未完成 |
 
 ### 1.2 不进入实现的内容
 
@@ -152,6 +155,7 @@ WeChat:
 - 只允许 opt-in。
 - SVG 交互必须通过 `checkWechatSafe` 扩展规则和真实平台/编辑器验证。
 - SMIL `begin` 不能仅有 `touchstart`；PC/移动都需要可触发。项目默认不使用 DOM 事件处理器。
+- 市场页标注“仅支持手机端触发”的效果默认归入 `mobile-only-risk`。即使 PC 后台粘贴保留 SVG，也必须在手机微信预览中记录触发前后和静态兜底，才能从 `blocked` 转为可用。
 - 复杂交互必须有 rasterized fallback 或 publish checklist。
 
 XHS:
@@ -189,6 +193,7 @@ InkForge 合同：
 - `imported` 只是输入状态，不等于可信内容。任何外部 HTML/SVG/图片包都必须记录来源类型、运行 sanitize/schema validation、拒绝 unsupported construct，并保留 provenance/audit note。
 - `one-click-typeset` 只能调用现有 renderer / preset / quality detector，不得新建绕过管线的模板拼接路径。
 - `copy-to-editor`、`copy-to-wechat`、`plugin-transfer`、`sync-draft`、`published` 是不同 artifact state。前一状态成功不得推断后一状态成功。
+- `copy-to-wechat-pc-editor` 也只能证明当前 PC 后台 paste sanitizer 和桌面编辑器 DOM/可视化路径；它不能证明手机微信最终渲染、SMIL/click 触发、Dark Mode、封面缩略图、草稿同步或发布成功。
 - `plugin-transfer` 是传输渠道，不是平台渲染证明。插件/同步路径必须有传输前安全检查、传输后格式丢失检测和不可用 fallback。
 - `sync-draft` / `published` 必须经过真实凭据、账号授权、权限、接口返回和平台预览确认；任一缺失时输出 `blocked` / `unavailable`。
 - `authorized-account`、`scheduled-publish`、`team-shared`、`enterprise-api`、`private-deploy` 是权限/分发能力，不是排版渲染能力。它们只能在真实账号、团队、接口和部署配置存在时进入发布路径；否则只显示检查项和阻断原因。
@@ -226,6 +231,7 @@ Layering rules:
 | style center / style blocks | `headline-system`, `body-system`, `card-system` | normative |
 | template center / sample templates | no-copy boundary, persona/theme presets | taxonomy only |
 | SVG style/effect/templates | `interactive-system`, `wechat-svg-modules` | normative with real-verification gate |
+| mobile-only SVG trigger labels | `interactive-system`, evidence README | blocked until real mobile WeChat trigger evidence |
 | long image / PDF / video | `fallback-system`, XHS image page/long image | normative artifact fallback |
 | import Word/Excel/Markdown/article | `editor-workflow-system` | normative ingress validation |
 | export / copy / preview share | `editor-workflow-system` | normative artifact-state lifecycle |
@@ -253,6 +259,7 @@ Conflict rules:
 
 - A source that relies on `<script>`, event attributes, DOM listeners, class selectors, `<style>`, external CSS, or external SVG/image resources cannot loosen the WeChat output contract.
 - A source that shows plugin copy, preview share, or draft sync cannot prove final publish rendering without credentialed platform confirmation.
+- A source that shows PC editor paste success cannot prove mobile WeChat rendering, click/SMIL interaction, Dark Mode, cover-thumbnail acceptance, scheduled send, or publish success.
 - A source that shows free layout/layers cannot bypass DOM readability, Dark Mode, mobile overflow, and fallback checks.
 - If two sources disagree on platform limits, use configurable limits and a publish checklist until the live platform can verify the current account.
 - Do not adopt search summaries that contain unverifiable product names, version numbers,

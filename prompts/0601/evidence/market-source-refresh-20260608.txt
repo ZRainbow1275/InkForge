@@ -49,6 +49,68 @@ Playwright real-browser observations:
    - Separate article/export artifacts from H5 and design-image artifacts. Current InkForge
      article/export rules must not claim H5 or design-tool parity.
 
+3. WeChat public platform login state recheck, https://mp.weixin.qq.com/
+   Timestamp:
+   - 2026-06-08 10:15 local session
+   Page state:
+   - The browser was on the WeChat Public Platform login page, title "微信公众平台".
+   - Visible text showed account login / QR login entry, not the authenticated article editor.
+   Rule outcome:
+   - No amber PC paste evidence was collected in this pass. The missing `flagship-amber`
+     PC paste gate and all mobile WeChat preview gates remain open. This page state cannot
+     be used as publish, preview, sanitizer, SMIL, Dark Mode, or cover-thumbnail evidence.
+
+4. 135 editor in-browser workspace recheck, https://www.135editor.com/beautify_editor.html
+   Timestamp:
+   - 2026-06-08 10:15 local session
+   Page title:
+   - 135编辑器官网-AI微信排版编辑器-微信公众号图文排版工具，好用素材多
+   Visible taxonomy:
+   - left navigation: 样式, 模板, SVG编辑器, AI排版, 一键排版, 我的文章, 我的图片,
+     剪切板, AI配图, 135AI工具, 运营工具, 在线作图, 公众号长图
+   - editor tools and style filters: 导入, 插入, 主题色, 全文黑白, 吸色, 标题, 正文,
+     图文, 引导, 布局, 节日, 行业, 小元素, 更多, SVG, 推荐, 最新, 免费, 收藏
+   - delivery actions visible in editor text: 复制使用, 快速保存, 保存同步, 清空内容,
+     预览分享, 同步公众号, 功能教程, 快捷键
+   Rule outcome:
+   - These observations strengthen the artifact-state lifecycle: import, local render,
+     clipboard copy, saved draft, sync draft, preview share, and publish/mobile preview are
+     separate states. They do not prove WeChat final rendering without platform evidence.
+
+5. 135 SVG center recheck, https://www.135editor.com/svg-center.html
+   Timestamp:
+   - 2026-06-08 10:15 local session
+   Page title:
+   - 2026公众号样式大全_微信排版素材_支持一键秒刷-135编辑器
+   Visible SVG taxonomy:
+   - 点击展开, 点击显示, 点击切换, 点击缩放, 点击翻转, 点击弹出, 点击放大,
+     点击消失, 点击播放, 点击抽签, 滑动展示, 图片轮播, 长按显示, 渐显展示,
+     文字弹幕, 区域触发, 趣味游戏, 互动答题, 文字特效, 引导关注
+   - Multiple listed samples explicitly included "仅支持手机端触发".
+   Rule outcome:
+   - Mobile-only labels become a hard evidence rule: PC backend paste can prove sanitizer
+     retention and desktop-editor rendering only. Mobile-triggered SVG effects require
+     real mobile WeChat preview evidence plus static fallback.
+
+6. Xiumi paper editor recheck, https://xiumi.us/studio/v5#/paper/for/new/cube/0
+   Timestamp:
+   - 2026-06-08 10:15 local session
+   Page title:
+   - 图文: (无标题) | 秀米XIUMI
+   Visible workflow and taxonomy:
+   - top actions: 打开, 预览, 保存, 导出, 更多
+   - enhanced mode text: 开启音乐视频等增强模式
+   - base format: 字号 16, 行间距 1.6, 字间距 0, 默认图
+   - source/material tabs: 图文模板, 图片素材, 图文收藏, 剪贴板, 我的图库,
+     团队素材, 音视频, 样刊模板
+   - element groups: 主题色, 标题, 卡片, 图片, 布局, SVG, 组件, 热门,
+     推荐模板, 最近使用
+   Rule outcome:
+   - Xiumi reinforces the split between authoring surface, material library, canvas,
+     preview, save, export, plugin/sync, and final platform preview. It also reinforces
+     that enhanced media/H5/design capabilities are distinct artifact families, not
+     proof that InkForge article/export rendering can publish those capabilities.
+
 Exa search refresh:
 
 Query:
@@ -71,14 +133,26 @@ Useful results:
     channel. It is not proof of final mobile WeChat rendering, SMIL interaction, Dark Mode,
     cover-thumbnail acceptance, or publishing success.
 
+Exa/fetch follow-up from known URLs:
+- 135 SVG tutorial page `https://www.135editor.com/books/chapter/1/410` says SVG export
+  should choose code according to the use platform, with separate copy buttons for
+  "复制代码到135编辑器" and "复制代码到微信后台"; it also warns not to paste code directly if
+  the platform-specific path is available.
+  Rule outcome:
+  - This supports separate `copy-to-editor` and `copy-to-wechat` states. It does not prove
+    the copied SVG survives final mobile preview or publish.
+
 Grok Search refresh:
 
 Query:
 - 135编辑器 秀米 微信公众号 SVG 排版 插件 复制 粘贴 格式 丢失 2026 最佳实践
 
 Result handling:
-- The response contained unverifiable product names, version numbers, percentage claims, and
-  citation_card placeholders without reachable primary sources.
+- The first response contained unverifiable product names, version numbers, percentage
+  claims, and citation_card placeholders without reachable primary sources.
+- A follow-up query returned sources for the 135 homepage, Xiumi homepage, and the 135 SVG
+  tutorial above, but Grok's answer still added an unsupported "official 2026 guide" and
+  unsupported complaint percentages. Those unsupported additions were rejected.
 - It was treated as a weak conflict source and was not used to loosen InkForge's WeChat-safe
   contract.
 
@@ -88,3 +162,5 @@ Rule impact:
 - Updated .trellis/spec/frontend/flagship-element-catalog.md so future UI work cannot treat AI
   generation, account authorization, scheduled sending, team features, enterprise APIs, or
   private deployment as article-rendering proof.
+- Updated evidence READMEs and the completion report so AC5 distinguishes automated SMIL
+  structure/static fallback from still-open mobile WeChat click/SMIL and Dark Mode gates.

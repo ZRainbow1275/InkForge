@@ -91,6 +91,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
    - 文末结束标（vessel / fin / rule，含 ◇◇◇）显示；
    - 正文每行约 20–22 字（不被 SVG 撑破行宽）；
    - 暗黑模式下 SVG 不反色（自带不透明背景 rect）；
+   - 点击/SMIL 交互若该产物包含互动模块，必须在手机微信预览里真实触发，不能用 PC 后台 DOM 或本地 e2e 替代；
    - 无裸标签泄漏、无 `<style>`/class 残留。
 8. 手机截图存本目录，命名 `wechat-<presetId>-mobile-<日期>.png`（如 `wechat-flagship-kiln-mobile-20260608.png`）。
 
@@ -113,8 +114,11 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
 [ ] wechat-flagship-tempera-mobile-<日期>.png   # B 手机预览：铜绿旗舰公众号渲染
 [ ] wechat-flagship-amber-mobile-<日期>.png     # B 手机预览：黄铜旗舰公众号渲染
-[ ] charsperline-<presetId>-<日期>.png   # 可选：标尺/字数佐证 20-22 字/行（AC3）
-[ ] darkmode-<presetId>-<日期>.png       # 可选：暗黑模式不反色佐证
+[ ] charsperline-<presetId>-<日期>.png   # 推荐：标尺/字数佐证 20-22 字/行（AC3）
+[ ] darkmode-flagship-kiln-<日期>.png       # B 手机暗黑模式：赤陶旗舰不反色/不丢背景
+[ ] darkmode-flagship-tempera-<日期>.png    # B 手机暗黑模式：铜绿旗舰不反色/不丢背景
+[ ] darkmode-flagship-amber-<日期>.png      # B 手机暗黑模式：黄铜旗舰不反色/不丢背景
+[ ] smil-interaction-<presetId>-<日期>.png  # B 手机互动：若文章含 SMIL/click 模块，记录触发前后
 ```
 
 把截图直接放本目录（`prompts/0601/evidence/`）。文本日志同目录。
@@ -123,5 +127,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。当前剩余手动门禁是 amber PC 后台粘贴补证、微信手机端扫码预览截图与 SMIL/暗黑模式确认。
+- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。当前剩余手动门禁是 amber PC 后台粘贴补证、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。

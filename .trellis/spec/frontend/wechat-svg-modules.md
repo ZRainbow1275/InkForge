@@ -36,6 +36,11 @@ construct breaks.
   source-owned modules after this spec's safe-subset checks and real WeChat verification.
   Xiumi-style actions/layers/free layout map to `layout-and-layer-system`; unsupported
   absolute/free-canvas compositions degrade to raster/long-image with text backup.
+- 2026-06-08 follow-up browser learning adds an evidence rule: market SVG effects marked
+  "mobile only" or "only supports mobile trigger" remain `mobile-only-risk` even if PC paste
+  preserves their SVG. PC editor paste evidence proves sanitizer retention and desktop-editor
+  rendering only; it does not prove mobile WeChat rendering, click/SMIL trigger, Dark Mode,
+  cover-thumbnail acceptance, sync, scheduled send, or publish.
 - Treat public claims that WeChat article SVG can rely on `<script>`, `onclick`/`onload`,
   DOM event listeners, class selectors, `<style>`, external CSS, or remote resources as
   conflicting/high-risk input. These constructs are forbidden in InkForge output even if a
@@ -95,6 +100,10 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
   `touchstart` alone; default modules should avoid DOM event handlers entirely. If the module
   cannot be verified in a real WeChat editor/browser path, ship a raster fallback or mark the
   capability `blocked`.
+- Automated tests can prove safe structure, idempotency, static fallback, and local/Tauri
+  rendering. They do not by themselves prove mobile WeChat click/SMIL behavior. Any public
+  claim that an interactive module is usable on WeChat mobile requires phone-preview evidence
+  in the task evidence folder.
 - Interaction support levels:
   - `static-safe`: pure graphics, seals, dividers, icons, background motifs.
   - `click-safe-candidate`: SMIL click/time sequencing using only the safe subset; requires

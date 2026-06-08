@@ -38,6 +38,7 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 |----------|-------------------|
 | 135：样式中心、模板中心、标题/正文/图文/引导/布局/节日/行业/小元素/SVG 分类 | 进入元素族 catalog；只作为 trigger、persona、quality detector 的 taxonomy |
 | 135：点击展开/显示/切换/缩放/翻转/弹出/播放/抽签、滑动展示、图片轮播、长按显示、文字弹幕、区域触发、互动答题等 SVG taxonomy | 进入 `interactive-system` 候选；默认 `blocked`，只有通过 WeChat-safe SVG 校验和真实微信编辑器/移动端验证后才可标记可用 |
+| 135 SVG 中心：多处效果标注“仅支持手机端触发” | 进入 `mobile-only-risk`；PC 后台粘贴和本地 e2e 只能证明结构/保留/桌面可视化，不能替代手机微信触发证据 |
 | 秀米：导入 Word/Excel/Markdown、导入公众号文章、一键排版、插件复制、继续复制粘贴、同步公众号 | 进入 artifact state machine：`imported`、`local-rendered`、`copy-to-editor`、`copy-to-wechat`、`plugin-transfer`、`sync-draft`、`published`，各状态独立验收 |
 | 秀米：动作/动作列表/提取动作、点击动作、图层、定位、背景图、组件定位、多选对齐、SVG 图集 | 映射为 `layout-and-layer-system`；微信正文必须保持 DOM 可读顺序，绝对/自由布局默认降级为图片/长图 |
 | 秀米：生成长图/PDF/视频、贴纸图文 | 作为 fallback artifact，不作为微信公众号正文富文本成功证明 |
@@ -46,7 +47,7 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 
 - `static-safe`：只含图形装饰、分隔符、印章、几何图标；可按默认 SVG 校验进入微信输出。
 - `click-safe-candidate`：SMIL `begin="click"` 或时间序列，不依赖脚本、事件属性、class/id/外部 CSS；必须有 PC 编辑器和移动端触发证据。
-- `mobile-only-risk`：只标注手机端触发、长按触发或依赖 `touchstart` 的效果；默认 `blocked`，必须提供静态 fallback。
+- `mobile-only-risk`：只标注手机端触发、长按触发或依赖 `touchstart` 的效果；默认 `blocked`，必须提供静态 fallback，并用手机微信预览记录触发前后，不能用 PC 后台 DOM 或 Tauri/WebView2 截图替代。
 - `script-or-dom-event`：依赖 `<script>`、`onclick`、`onload`、JS listener、外部 CSS、`<style>` 或 class selector 的效果；禁止进入微信正文输出。
 
 状态证明规则：
@@ -55,6 +56,7 @@ InkForge 的微信公众号产物必须是可粘贴/可同步的 `inline-style H
 - `plugin-transfer` 成功不等于平台渲染成功。
 - `sync-draft` 成功不等于发布成功。
 - `published` 必须由真实账号、授权、接口/后台返回、平台预览和必要的手机端检查共同证明。
+- `pc-editor-paste` 只证明当前微信 PC 后台粘贴 sanitizer 和桌面编辑器保留/渲染路径；不得外推为手机最终渲染、SMIL/点击触发、暗黑模式、封面缩略图或发布成功。
 
 ### 0.4 禁止项
 
