@@ -616,10 +616,58 @@ git status --short --branch
     confirming no local Vite session remained.
   - Evidence file:
     `prompts/0601/evidence/style-catalog-exportmodal-ui-refresh-20260608.txt`.
+  - Committed as:
+    `319f8b5 feat(export): surface style capability gates`.
   - Honest boundary:
     this slice does not claim new WeChat PC rich paste success, WeChat phone preview,
     SMIL/click trigger proof, Dark Mode proof, cover-thumbnail proof, credentialed sync,
     scheduled-send, or publish success.
+- [x] 2026-06-08 ExportModal style capability gate e2e slice:
+  - Refactored `inkforge/tests/e2e/specs/svg-render.spec.cjs` so the existing flagship
+    export preview path reuses `openExportPanel('微信')`, then added a real ExportModal
+    capability-gate probe for all three platform tabs.
+  - The new e2e case asserts the same runtime catalog facts that the UI exposes:
+    WeChat `4/7` with 7 cards, 4 available, 2 blocked, and 1 unavailable; Xiaohongshu
+    `2/3` with 1 blocked long-report image artifact; Zhihu `2/3` with 1 blocked diagram
+    and formula image fallback.
+  - The case also verifies the `样式能力目录` preflight row, keeps
+    `Amber business flagship` blocked after the ordinary WeChat PC paste failure, and keeps
+    `Official widget publish checklist` unavailable without credentialed proof.
+  - Impact check:
+    `npx gitnexus impact "File:inkforge/tests/e2e/specs/svg-render.spec.cjs" -r InkForge --depth 3`
+    returned LOW risk, 0 affected processes.
+  - Verification:
+    `node -c inkforge/tests/e2e/specs/svg-render.spec.cjs` passed.
+    `pnpm -C inkforge test:e2e` passed against the real Tauri/WebView2 binary:
+    2 spec files, 17 tests. The run refreshed tracked e2e screenshots, which were restored
+    and intentionally not committed.
+    `pnpm -C inkforge exec eslint tests/e2e/specs/svg-render.spec.cjs --quiet` is not a usable
+    gate for this CJS/WDIO file under the current repo config: the current working tree reports
+    82 errors for `require`, `__dirname`, WDIO globals (`browser`/`describe`/`it`), and browser
+    globals (`document`/`window`), while the `HEAD` version of the same file already reports
+    73 environment/config errors including the existing `no-useless-assignment` at line 249.
+    This slice does not change ESLint test-environment configuration.
+    `git diff --check -- inkforge/tests/e2e/specs/svg-render.spec.cjs .trellis/tasks/06-01-multiplatform-render-svg/implement.md prompts/0601/evidence/style-catalog-exportmodal-e2e-refresh-20260608.txt docs/platform-rendering-rules/market-practices-catalog.md`
+    passed with only normal Windows LF-to-CRLF warnings.
+  - Evidence file:
+    `prompts/0601/evidence/style-catalog-exportmodal-e2e-refresh-20260608.txt`.
+  - Honest boundary:
+    this e2e gate proves local real-binary UI visibility and catalog/preflight consistency.
+    It still does not prove new WeChat PC rich paste success, phone preview, mobile Dark
+    Mode, SMIL/click trigger behavior, cover-thumbnail acceptance, credentialed sync,
+    scheduled-send, or publish success.
+- [x] 2026-06-08 public source hygiene refresh for the e2e closeout:
+  - Ran a lightweight Grok/Exa public-source check for 2026 WeChat SVG/rich-text limits,
+    Xiaohongshu image-note artifact rules, and Zhihu Markdown/image/formula/diagram rules.
+  - WeChat public sources reinforced existing inline-style, `text/html` clipboard,
+    no-script/no-event, no unsupported CSS, and image/diagram fallback rules.
+  - Xiaohongshu public sources reinforced current 3:4/image-page/manifest defaults, but
+    source quality varied; numeric limits remain configurable/checkable and do not become
+    permanent hardcoded constants without official/publish-entry proof.
+  - Zhihu public/open-source references reinforced clean Markdown, image upload/public host,
+    formula/diagram raster fallback, and table simplification rules.
+  - Updated `docs/platform-rendering-rules/market-practices-catalog.md` with source-hygiene
+    notes and additional source index entries. No runtime availability was upgraded.
 
 ## Remaining Checks Before Commit
 
@@ -657,7 +705,9 @@ git status --short --branch
       refresh only; leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 style-choice catalog and amber ordinary-paste retry docs/spec/code
       only; leave unrelated dirty files and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 ExportModal style capability gate UI slice only; leave unrelated
+- [x] Commit the 2026-06-08 ExportModal style capability gate UI slice only; leave unrelated
+      dirty files and QR/platform-preview candidates untouched.
+- [x] Commit the 2026-06-08 ExportModal style capability gate e2e slice only; leave unrelated
       dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice

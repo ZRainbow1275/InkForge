@@ -1,0 +1,87 @@
+# Style Catalog ExportModal E2E Refresh - 2026-06-08
+
+Scope:
+- This evidence covers the Tauri/WebView2 e2e guard added after the runtime style catalog
+  and ExportModal read-only capability panel were committed.
+- It verifies local real-binary UI behavior only. It is not WeChat mobile preview, final
+  platform publish, credentialed sync, scheduled send, or phone Dark Mode evidence.
+
+Changed file:
+- `inkforge/tests/e2e/specs/svg-render.spec.cjs`
+
+Implementation:
+- Added `openExportPanel(platformLabel = '微信')` so the flagship preview helper and the
+  new platform capability probe share the same real ExportModal open path.
+- Added `selectExportPlatform(platformLabel)` to switch ExportModal platform tabs through
+  the rendered UI.
+- Added `collectStyleCapabilityProbe()` to read the actual `.style-catalog-summary`,
+  `.style-choice-card`, status classes, and `样式能力目录` preflight row from the live modal.
+- Added e2e case:
+  `surfaces style capability gates for all platforms in the real ExportModal`.
+
+Assertions:
+- WeChat summary includes `微信公众号 当前可用 4/7`.
+- WeChat card counts are 7 total, 4 available, 2 blocked, and 1 unavailable.
+- WeChat preflight row includes `样式能力目录可用 4/7；受限 2；不可用 1`.
+- `Amber business flagship` remains blocked and carries the ordinary WeChat PC paste
+  failure text: `real WeChat PC paste reduced the rich HTML artifact to plain text`.
+- `Official widget publish checklist` remains unavailable without credentialed proof.
+- Xiaohongshu summary includes `小红书 当前可用 2/3`.
+- Xiaohongshu card counts are 3 total, 2 available, and 1 blocked.
+- Xiaohongshu preflight row includes `样式能力目录可用 2/3；受限 1；不可用 0`.
+- `Long report image artifact` remains blocked.
+- Zhihu summary includes `知乎 当前可用 2/3`.
+- Zhihu card counts are 3 total, 2 available, and 1 blocked.
+- Zhihu preflight row includes `样式能力目录可用 2/3；受限 1；不可用 0`.
+- `Diagram and formula image fallback` remains blocked.
+
+Validation already run before this evidence note:
+- `npx gitnexus impact "File:inkforge/tests/e2e/specs/svg-render.spec.cjs" -r InkForge --depth 3`
+  - LOW risk
+  - 0 affected processes
+- `node -c inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  - passed
+- `pnpm -C inkforge test:e2e`
+  - passed
+  - real Tauri/WebView2 binary through tauri-driver/msedgedriver
+  - `svg-render.spec.cjs`: 6 passing
+  - `visual.spec.cjs`: 11 passing
+  - total: 2 spec files, 17 tests
+- `pnpm -C inkforge exec eslint tests/e2e/specs/svg-render.spec.cjs --quiet`
+  - not a usable gate for this CJS/WDIO file under the current repo ESLint config
+  - current working tree: 82 errors, mostly `require`/`__dirname`, WDIO globals, and browser
+    globals treated as undefined
+  - baseline `HEAD` version of the same file via `--stdin --stdin-filename` already reports
+    73 errors, including the existing `no-useless-assignment` on line 249
+  - this slice does not change ESLint environment configuration
+- `git diff --check -- inkforge/tests/e2e/specs/svg-render.spec.cjs .trellis/tasks/06-01-multiplatform-render-svg/implement.md prompts/0601/evidence/style-catalog-exportmodal-e2e-refresh-20260608.txt docs/platform-rendering-rules/market-practices-catalog.md`
+  - passed with only normal Windows LF-to-CRLF warnings
+
+Public source hygiene check:
+- Grok/Exa public-source refresh was run for 2026 WeChat SVG/rich-text, Xiaohongshu image
+  note artifacts, and Zhihu Markdown/image/formula/diagram handling.
+- The WeChat side reinforced existing rules: inline styles, `text/html` clipboard, no scripts,
+  no event handlers, no class/id/style dependency, and image/diagram fallback for complex blocks.
+- The Xiaohongshu side reinforced 3:4/image-page/manifest defaults, but public market guides
+  disagree on exact counts and size limits. InkForge keeps those as configurable/checkable
+  limits and does not hardcode them as eternal platform constants.
+- The Zhihu side reinforced clean Markdown, public image host/upload dependency, alt/caption,
+  and raster fallback for Mermaid/Graphviz/PlantUML/Vega-style diagrams.
+- Weak or unverifiable search claims did not upgrade any blocked/unavailable runtime catalog
+  choices.
+
+Artifact hygiene:
+- The e2e run refreshed tracked screenshots:
+  - `prompts/0601/evidence/e2e/flagship-amber.png`
+  - `prompts/0601/evidence/e2e/flagship-kiln.png`
+  - `prompts/0601/evidence/e2e/flagship-tempera.png`
+- These screenshots were restored and are not part of this slice.
+- QR/platform-preview candidate PNG files under `prompts/0601/evidence/wechat-paste/`
+  remain untracked and must not be committed without separate sensitive-artifact review.
+
+Honest boundary:
+- This proves ExportModal style capability gates are surfaced in a real local Tauri/WebView2
+  UI and stay consistent with the runtime style catalog.
+- It does not prove new WeChat PC rich paste success, WeChat phone preview, mobile Dark Mode,
+  SMIL/click trigger behavior, cover-thumbnail acceptance, credentialed sync, scheduled-send,
+  or final platform publish.

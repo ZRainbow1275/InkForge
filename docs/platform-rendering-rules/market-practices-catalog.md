@@ -26,6 +26,7 @@
 | Redink / 渲染AI（`joshua23/redink-xiaohongshu`） | 小红书 AI 图文生成的分阶段 pipeline、外置 prompt、封面/内容页/manifest 思路 | 仅作 XHS raster/AI workflow 概念参考；不复用代码、提示词或素材；其 CC-BY-NC-SA-4.0 许可不能进入商业实现 |
 | `prompts/0601/` 本机实测 | WeChat-safe SVG 子集、HTML 色块层、旗舰系统真实微信 paste 存活证据 | 作为 InkForge 最高优先级实证规则 |
 | 微信公众平台 2026-06-08 二次状态复核 | `mp.weixin.qq.com` 当前停留在登录/扫码入口，未进入已认证图文编辑器 | 本轮未产生 `flagship-amber` PC 粘贴证据；所有手机微信预览、SMIL、暗黑模式、封面缩略图门禁仍保持未完成 |
+| 2026-06-08 public source hygiene refresh | Grok/Exa 公开检索复核了微信 inline-style/clipboard、XHS 3:4/image-page、Zhihu Markdown/image fallback 方向；其中部分结果带弱来源或不可核验的统计/上限说法 | 只保留与现有规则一致且可落成检测项的部分；无可核验来源的百分比、固定上限、平台能力升级不得写入 runtime catalog |
 
 ### 1.2 不进入实现的内容
 
@@ -471,6 +472,11 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 - Redink / 渲染AI XHS workflow reference: `https://github.com/joshua23/redink-xiaohongshu` (concept only; CC-BY-NC-SA-4.0 non-commercial boundary)
 - WeWrite WeChat constraints reference: `https://github.com/oaker-io/wewrite/blob/main/references/wechat-constraints.md`
 - VerySmallWoods WeChat markdown copy/paste architecture reference: `https://www.verysmallwoods.com/blog/20260119-wechat-markdown-copy-paste`
+- Toolbox365 Markdown-to-WeChat traps reference: `https://www.toolbox365.cn/tutorials/markdown-to-wechat-typesetting-traps/`
+- Canva Xiaohongshu size market reference: `https://www.canva.cn/sizes/little-red-book/`
+- Xiaohongshu / Rednote cover size market reference: `https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size`
+- VSCode-Zhihu source reference: `https://github.com/niudai/VSCode-Zhihu`
+- md2zhihu source reference: `https://github.com/drmingdrmer/md2zhihu`
 - netpi WeChat SVG interaction research reference: `https://github.com/netpi/wechat-layout`
 - doocs/md docs: `https://md.doocs.org/` and `https://github.com/doocs/md`
 - InkForge real WeChat evidence: `prompts/0601/evidence/`

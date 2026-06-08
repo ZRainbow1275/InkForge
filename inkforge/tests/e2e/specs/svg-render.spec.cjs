@@ -281,34 +281,7 @@ async function reachWorkstationExport(articleId) {
  * preset. Throws (HARD) if the card is missing or the SVG never injects.
  */
 async function openFlagshipExportPreview(flagshipName) {
-  // Click 全屏导出 to open the ExportModal.
-  await browser.execute(() => {
-    const btn = document.querySelector('.panel-stage .stage-btn-secondary');
-    if (btn && !btn.disabled) btn.click();
-  });
-
-  // Modal teleports to <body>; wait for the panel + preset grid to mount.
-  await browser.waitUntil(
-    async () =>
-      browser.execute(
-        () =>
-          !!document.querySelector('.export-panel') &&
-          document.querySelectorAll('.export-panel .preset-card').length > 0,
-      ),
-    {
-      timeout: 12_000,
-      interval: 300,
-      timeoutMsg: 'ExportModal (.export-panel + .preset-card) never mounted',
-    },
-  );
-
-  // Make sure the WeChat platform pill is active (flagship presets are WeChat).
-  await browser.execute(() => {
-    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
-    const wechat = pills.find((p) => /微信/.test(p.textContent || '')) || pills[0];
-    if (wechat && !wechat.classList.contains('active')) wechat.click();
-  });
-  await browser.pause(400);
+  await openExportPanel('微信');
 
   // Click the flagship preset card by its visible name.
   const clicked = await browser.execute((name) => {
@@ -336,6 +309,76 @@ async function openFlagshipExportPreview(flagshipName) {
       timeoutMsg: `flagship preview never injected [data-ink-svg] for "${flagshipName}"`,
     },
   );
+}
+
+async function openExportPanel(platformLabel = '微信') {
+  // Click 全屏导出 to open the ExportModal.
+  await browser.execute(() => {
+    const btn = document.querySelector('.panel-stage .stage-btn-secondary');
+    if (btn && !btn.disabled) btn.click();
+  });
+
+  // Modal teleports to <body>; wait for the panel + preset grid to mount.
+  await browser.waitUntil(
+    async () =>
+      browser.execute(
+        () =>
+          !!document.querySelector('.export-panel') &&
+          document.querySelectorAll('.export-panel .preset-card').length > 0,
+      ),
+    {
+      timeout: 12_000,
+      interval: 300,
+      timeoutMsg: 'ExportModal (.export-panel + .preset-card) never mounted',
+    },
+  );
+
+  const selected = await browser.execute((label) => {
+    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
+    const target = pills.find((p) => (p.textContent || '').includes(label)) || pills[0];
+    if (!target) return false;
+    if (!target.classList.contains('active')) target.click();
+    return true;
+  }, platformLabel);
+  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
+  await browser.pause(400);
+}
+
+async function selectExportPlatform(platformLabel) {
+  const selected = await browser.execute((label) => {
+    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));
+    const target = pills.find((p) => (p.textContent || '').includes(label));
+    if (!target) return false;
+    if (!target.classList.contains('active')) target.click();
+    return true;
+  }, platformLabel);
+  expect(selected, `platform pill "${platformLabel}" should exist in ExportModal`).to.equal(true);
+  await browser.pause(400);
+}
+
+function collectStyleCapabilityProbe() {
+  return browser.execute(() => {
+    const cards = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
+    const summaries = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+      .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+      .filter((text) => text.includes('样式能力目录'));
+    const byClass = (className) => cards.filter((card) => card.classList.contains(className)).length;
+
+    return {
+      summary: (document.querySelector('.export-panel .style-catalog-summary')?.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' '),
+      cardCount: cards.length,
+      availableCount: byClass('style-choice-available'),
+      blockedCount: byClass('style-choice-blocked'),
+      unavailableCount: byClass('style-choice-unavailable'),
+      cards: cards.map((card) => ({
+        className: card.className,
+        text: (card.textContent || '').trim().replace(/\s+/g, ' '),
+      })),
+      preflightText: summaries.join(' | '),
+    };
+  });
 }
 
 function closeExportModal() {
@@ -416,6 +459,70 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       return this.skip();
     }
     expect(exportReady, '全屏导出 button is enabled (editor status ready)').to.equal(true);
+  });
+
+  it('surfaces style capability gates for all platforms in the real ExportModal', async function () {
+    if (!exportReady) {
+      // eslint-disable-next-line no-console
+      console.warn(`[svg-render] style capability gates skip — ${seedFailureReason}`);
+      return this.skip();
+    }
+
+    await openExportPanel('微信');
+
+    const wechat = await collectStyleCapabilityProbe();
+    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 4/7');
+    expect(wechat.cardCount, 'WeChat choice card count').to.equal(7);
+    expect(wechat.availableCount, 'WeChat available choice count').to.equal(4);
+    expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(2);
+    expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(1);
+    expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
+      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+    expect(
+      wechat.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Amber business flagship') &&
+        card.text.includes('real WeChat PC paste reduced the rich HTML artifact to plain text')),
+      'Amber stays blocked after the ordinary WeChat paste failure evidence',
+    ).to.equal(true);
+    expect(
+      wechat.cards.some((card) =>
+        card.className.includes('style-choice-unavailable') &&
+        card.text.includes('Official widget publish checklist')),
+      'official-account widgets stay unavailable without credentialed proof',
+    ).to.equal(true);
+
+    await selectExportPlatform('小红书');
+    const xhs = await collectStyleCapabilityProbe();
+    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 2/3');
+    expect(xhs.cardCount, 'XHS choice card count').to.equal(3);
+    expect(xhs.availableCount, 'XHS available choice count').to.equal(2);
+    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(1);
+    expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
+      .to.include('样式能力目录可用 2/3；受限 1；不可用 0');
+    expect(
+      xhs.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Long report image artifact')),
+      'XHS long-image report remains blocked until artifact crop/size proof exists',
+    ).to.equal(true);
+
+    await selectExportPlatform('知乎');
+    const zhihu = await collectStyleCapabilityProbe();
+    expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 2/3');
+    expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(3);
+    expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(2);
+    expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(1);
+    expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
+      .to.include('样式能力目录可用 2/3；受限 1；不可用 0');
+    expect(
+      zhihu.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Diagram and formula image fallback')),
+      'Zhihu image fallback remains blocked without public image-host proof',
+    ).to.equal(true);
+
+    await closeExportModal();
   });
 
   // MULTI-ROUND: loop the 3 flagship presets. Each round HARD-asserts injected
