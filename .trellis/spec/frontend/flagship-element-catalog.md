@@ -67,6 +67,7 @@ Any new catalog element must declare:
   preview-shared/platform-previewed, scheduled-send/scheduled-publish, published, blocked, or
   unavailable.
 - layout report when the element uses background layers, z-order, hit areas, or raster fallback.
+- WeChat runtime issue id when layout proof is missing: `wechat-layout-report-required`.
 
 ---
 
@@ -230,6 +231,9 @@ Xiumi authoring components:
   manifests and fallback artifacts, not to direct inline SVG availability.
 - Free layout, z-order, background images, fixed geometry, overflow clipping, invisible hit
   areas, and `line-height:0` require a layout report and platform-specific fallback.
+- If free-layout/layer constructs remain in WeChat output, the quality detector must raise
+  `wechat-layout-report-required`; normal source-owned flow blocks with `background-color`,
+  border, padding, margin, and readable line-height must remain allowed.
 - Xiumi title/card patterns may be re-expressed only through source-owned inline HTML blocks,
   installed icon libraries, and safe inline SVG paths.
 

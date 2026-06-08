@@ -93,6 +93,18 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
 - These blockers are an implementation of the no-copy boundary. They do not prove WeChat paste,
   mobile preview, Dark Mode, sync, scheduled send, or publish success.
 
+2026-06-09 layout report runtime gate:
+
+- The WeChat quality detector now emits `wechat-layout-report-required` when final output still
+  contains market-style free positioning, z-order layers, background image layers, cropped overflow,
+  fixed geometry, manual offsets, negative overlap spacing, or invisible/custom hit areas.
+- This gate is separate from `wechat-unsupported-css`: unsupported CSS says the platform cannot
+  safely keep a property; layout-report-required says a 135/Xiumi-style layer system needs a
+  readable DOM order, text fallback, crop/overflow proof, trigger-area proof, target-platform label,
+  or raster/long-image fallback before it can be reported as exportable.
+- Normal InkForge-owned inline flow blocks using `background-color`, borders, padding, margins,
+  readable line-height, and source-owned SVG motifs should not trigger this gate.
+
 ## 2. 平台输出合同
 
 | 平台 | 主产物 | 样式丰富度 | 默认降级 | 不可通过项 |
@@ -351,6 +363,9 @@ Layering rules:
 - Background images must not hide editable images or meaningful text. If background is used, foreground text needs explicit contrast and mobile crop checks.
 - Hit areas and trigger regions must be visible or documented. Invisible overlays are only allowed inside a verified WeChat-safe SVG module and must have a static fallback.
 - Z-order, locked layers, and overlapping regions require a per-artifact layout report: visible order, DOM order, text fallback, crop/overflow status, and platform target.
+- Runtime enforcement: WeChat final-output checks must surface these constructs through
+  `wechat-layout-report-required` unless the renderer has already degraded them to a safe flow
+  block, raster artifact, or long-image artifact with reportable proof.
 
 ### 3.10 Market Observation Coverage Trace
 

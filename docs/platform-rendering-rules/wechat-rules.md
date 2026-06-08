@@ -80,6 +80,11 @@ publish inspection; it does not automatically satisfy WeChat phone preview.
 - 秀米 `SVG图集/图集滚动` 插入后可以没有 literal `<svg>`，而是多张图片、图层、动作和滚动状态。InkForge 应把这类样式归为 `interactive artifact family`：image-slot manifest、motion/action schema、mobile trigger gate、static/raster/long-image fallback。
 - 标题样式应抽象为自有 inline HTML block：文本保持可编辑和可重排，背景色块/边框/几何 motif 用安全 inline style 或 source-owned SVG path；不要导入 `.tn-*` 组件树。
 - `line-height:0`、fixed height、overflow hidden、background image、z-order 和自由定位必须进入 layout report；不能在微信正文中无报告输出。
+- Runtime gate: `wechat-layout-report-required` blocks free positioning, z-order, background
+  image layers, overflow crop, fixed geometry, manual offsets, negative overlap spacing, and
+  invisible/custom hit areas unless the renderer has rewritten them into safe flow markup or a
+  raster/long-image fallback with layout report proof. This gate is intentionally separate from
+  `wechat-unsupported-css`.
 
 135 SVG 编辑器应用后规则：
 

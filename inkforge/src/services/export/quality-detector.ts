@@ -65,6 +65,41 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   },
 ] as const
 
+const WECHAT_LAYOUT_REPORT_RISK_RULES = [
+  {
+    pattern: /\bposition\s*:\s*(?:absolute|fixed|sticky)\b/i,
+    label: 'free positioning layer',
+  },
+  {
+    pattern: /\bz-index\s*:/i,
+    label: 'z-order layer',
+  },
+  {
+    pattern: /\bbackground(?:-image)?\s*:\s*[^;"']*url\s*\(/i,
+    label: 'background image layer',
+  },
+  {
+    pattern: /\boverflow(?:-[xy])?\s*:\s*(?:hidden|clip)\b/i,
+    label: 'cropped overflow',
+  },
+  {
+    pattern: /(?:^|[;"'\s])(?:width|height|min-width|min-height|max-width|max-height)\s*:\s*\d{3,}px\b/i,
+    label: 'fixed geometry',
+  },
+  {
+    pattern: /(?:^|[;"'\s])(?:left|top|right|bottom)\s*:\s*-?\d+(?:px|rpx|em|rem|%)\b/i,
+    label: 'manual offset',
+  },
+  {
+    pattern: /\bmargin(?:-(?:top|left|right|bottom))?\s*:\s*-\d+(?:px|rpx|em|rem|%)\b/i,
+    label: 'negative overlap spacing',
+  },
+  {
+    pattern: /\b(?:opacity\s*:\s*0(?:\.0+)?|visibility\s*:\s*hidden|pointer-events\s*:)/i,
+    label: 'invisible or custom hit area',
+  },
+] as const
+
 // ═══════════════════════════════════════════════════════════════════
 // 统一入口
 // ═══════════════════════════════════════════════════════════════════
@@ -321,6 +356,16 @@ function detectWechatOfficialEditorSpecIssues(markdown: string, issues: QualityI
       severity: 'error',
       message: `检测到微信高风险 CSS：${unsupportedCssFindings.join(', ')}`,
       suggestion: '改用自然流、inline-block/table/table-cell、纯色背景、显式尺寸归一化或 raster fallback',
+    })
+  }
+
+  const layoutReportFindings = collectWechatLayoutReportFindings(markupScan)
+  if (layoutReportFindings.length > 0) {
+    addIssue(issues, {
+      id: 'wechat-layout-report-required',
+      severity: 'error',
+      message: `检测到需要 layout report 的图层/自由布局风险：${layoutReportFindings.join(', ')}`,
+      suggestion: '135/秀米式图层、背景图、自由定位、裁切和触发区必须改为可读 DOM 顺序的 InkForge 自有 HTML/SVG，或降级为 raster/long-image，并附 layout report（视觉顺序、DOM 顺序、文本 fallback、裁切/溢出、触发区和目标平台）。',
     })
   }
 
@@ -813,6 +858,14 @@ function collectMarketEditorResidues(markdown: string): string[] {
   return Array.from(new Set(
     MARKET_EDITOR_RESIDUE_RULES
       .filter(rule => rule.pattern.test(scan))
+      .map(rule => rule.label),
+  ))
+}
+
+function collectWechatLayoutReportFindings(markupScan: string): string[] {
+  return Array.from(new Set(
+    WECHAT_LAYOUT_REPORT_RISK_RULES
+      .filter(rule => rule.pattern.test(markupScan))
       .map(rule => rule.label),
   ))
 }

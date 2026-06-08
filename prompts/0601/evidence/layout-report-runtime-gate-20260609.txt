@@ -1,0 +1,91 @@
+# Layout Report Runtime Gate Evidence — 2026-06-09
+
+Scope:
+
+- Task: `.trellis/tasks/06-01-multiplatform-render-svg/`
+- Slice: turn 135/Xiumi free-layout, layer, background, crop, and hit-area learning into a
+  WeChat runtime quality gate.
+- Browser rule: CloakBrowser only for visual smoke. No Playwright was used in this slice.
+- Profile: required `inkforge-0601` profile was already active and was reused.
+
+Implementation:
+
+- Added `wechat-layout-report-required` in
+  `inkforge/src/services/export/quality-detector.ts`.
+- The detector now reports this error when WeChat publishable output still contains:
+  - free positioning (`position:absolute/fixed/sticky`)
+  - z-order layers (`z-index`)
+  - background image layers
+  - cropped overflow (`overflow:hidden/clip`)
+  - fixed geometry
+  - manual offsets
+  - negative overlap spacing
+  - invisible/custom hit areas
+- The gate is intentionally separate from `wechat-unsupported-css`.
+- Normal InkForge-owned flow blocks with `background-color`, borders, padding, margin, and
+  readable line-height are covered by a negative-control test and do not trigger the gate.
+
+Docs/spec updates:
+
+- `docs/platform-rendering-rules/market-practices-catalog.md`
+- `docs/platform-rendering-rules/wechat-rules.md`
+- `.trellis/spec/frontend/wechat-svg-modules.md`
+- `.trellis/spec/frontend/flagship-element-catalog.md`
+
+Validation:
+
+- `npx gitnexus analyze`: repository indexed successfully.
+- GitNexus impact before edit:
+  - `detectWechatOfficialEditorSpecIssues`: LOW, 0 affected processes.
+  - `detectQuality`: LOW, 0 affected processes.
+  - `detectMarketEditorResidues`: LOW, 0 affected processes.
+- Focused regression:
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - Result: 1 file, 44 tests passed.
+- Cross-platform export regression:
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - Result: 4 files, 83 tests passed.
+- Export suite:
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - Result: 35 files, 977 tests passed.
+- Lint:
+  - `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - Result: passed.
+- Type-check:
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - Result: passed.
+- Production build:
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - Result: passed, Vite built in 43.86s.
+
+CloakBrowser visual smoke:
+
+- Opened local Vite app at `http://127.0.0.1:3005/`.
+- Home page DOM probe:
+  - title: `InkForge - 首页`
+  - horizontal overflow: 0
+  - interactive entries: 39
+  - zero-sized visible controls: 0
+  - emoji matches: 0
+- Workstation DOM probe:
+  - title: `InkForge - 工作站`
+  - `.ProseMirror` / editable surface present
+  - publish/export entry visible
+  - horizontal overflow: 0
+  - emoji matches: 0
+- ExportModal DOM probe:
+  - `.export-panel`: 900 x 768 at 1440 x 960
+  - horizontal overflow: 0
+  - actual visible controls: 76
+  - zero-sized visible controls: 0
+  - emoji matches: 0
+- A local runtime screenshot was captured for visual inspection only. The screenshot path is
+  intentionally not recorded here and must not be committed.
+
+Non-claims:
+
+- This slice does not prove WeChat PC paste, mobile preview, SMIL/click trigger, Dark Mode,
+  cover-thumbnail, credentialed sync, scheduled send, or publish success.
+- This slice does not copy 135/Xiumi templates, private SVG, material assets, account data,
+  authenticated-session artifacts, traffic captures, login images, or browser runtime artifacts.
+- This slice does not change Xiaohongshu or Zhihu publish availability.

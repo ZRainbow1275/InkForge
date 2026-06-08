@@ -89,6 +89,13 @@ construct breaks.
   market style ids, `tn-*`/`ng-*` authoring attributes, and third-party market image sources.
   Plain prose that merely mentions 135/Xiumi is allowed. This gate is unit-tested and must stay
   separate from WeChat paste/mobile/sync/publish proof labels.
+- 2026-06-09 layout-report runtime gate: `wechat-layout-report-required` blocks free positioning,
+  z-order layers, background image layers, overflow crop, fixed geometry, manual offsets, negative
+  overlap spacing, and invisible/custom hit areas in WeChat output. The issue means the renderer
+  must preserve readable DOM order and text fallback, or degrade to raster/long-image with a
+  layout report covering visual order, DOM order, crop/overflow, trigger area, and target platform.
+  This gate is separate from `wechat-unsupported-css` and is unit-tested with a normal-flow
+  negative control.
 - Editor-side block insertion is part of the SVG/H5 safety contract. `SlashCommands`,
   `SnippetExpansion`, and future market marker/tool buttons must route block content through
   `inkforge/src/extensions/BlockBoundaryInsertion.ts` so source-owned cards/SVG/H5 placeholders
@@ -175,6 +182,8 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
   - Any free-layout/layer/background/hit-area effect must produce a layout report with visual
     order, DOM order, text fallback, crop/overflow status, trigger-area status, and target
     platform.
+  - If those constructs remain in WeChat publishable output, `detectQuality()` must report
+    `wechat-layout-report-required` rather than silently treating the artifact as exportable.
 
 Selectable interaction matrix:
 

@@ -42,6 +42,11 @@ token、账号 ID、模板代码或私有素材）。
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
 tests passed，ESLint/vue-tsc/build exit 0，CloakBrowser local visual check done；不含截图路径、
 账号数据、模板源码或私有素材）。
+`layout-report-runtime-gate-20260609.txt`（CloakBrowser applied-element 的图层/自由布局规则落地为
+WeChat runtime 门禁：`wechat-layout-report-required` 阻断自由定位、z-order、背景图层、裁切、
+固定几何、手动位移、负 margin 和隐藏触发区；普通自有 inline flow 色块不误报；focused Vitest
+44 tests passed，4-file export regression 83 tests passed，full export serial 977 tests passed，
+ESLint/vue-tsc/build exit 0，CloakBrowser local visual check done；不含截图路径或账号数据）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -144,6 +149,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-editor-authenticated-readable-20260609.txt # 当前微信后台：CloakBrowser 登录态编辑器可达且 DOM 可读；不含粘贴/预览/保存/发布
 [x] style-proof-checklist-20260609.txt # 当前规则实现：evidence label -> proof requirement 清单；safe draft/phone/Dark Mode/cover gates 独立
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
+[x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图

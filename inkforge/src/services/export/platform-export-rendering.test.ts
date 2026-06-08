@@ -578,6 +578,43 @@ describe('platform native export rendering rules', () => {
     expect(report.issues.find(issue => issue.id === 'wechat-class-id-dependency')?.severity).toBe('warning')
   })
 
+  it('requires a WeChat layout report for free layers backgrounds crops and trigger areas', () => {
+    const report = detectQuality(
+      [
+        '<section style="position:absolute;z-index:9;left:12px;top:-4px;width:375px;height:420px;overflow:hidden;background-image:url(https://example.com/bg.png);margin-top:-16px">',
+        '<a href="https://example.com" style="opacity:0;pointer-events:auto">隐藏触发区</a>',
+        '<p>这类自由布局必须先生成 layout report 或降级为图片。</p>',
+        '</section>',
+      ].join(''),
+      'wechat'
+    )
+    const issue = report.issues.find(item => item.id === 'wechat-layout-report-required')
+
+    expect(report.passed).toBe(false)
+    expect(issue?.severity).toBe('error')
+    expect(issue?.message).toContain('free positioning layer')
+    expect(issue?.message).toContain('z-order layer')
+    expect(issue?.message).toContain('background image layer')
+    expect(issue?.message).toContain('cropped overflow')
+    expect(issue?.message).toContain('manual offset')
+    expect(issue?.message).toContain('negative overlap spacing')
+    expect(issue?.message).toContain('invisible or custom hit area')
+    expect(issue?.suggestion).toContain('layout report')
+  })
+
+  it('does not require a WeChat layout report for normal inline flow blocks', () => {
+    const report = detectQuality(
+      [
+        '<section style="background-color:#f8f4ed;border-left:4px solid #8a4b2d;padding:16px;margin:18px 0;border-radius:4px">',
+        '<p style="line-height:1.75;color:#2d2a26">普通自有色块保持自然 DOM 顺序。</p>',
+        '</section>',
+      ].join(''),
+      'wechat'
+    )
+
+    expect(report.issues.some(item => item.id === 'wechat-layout-report-required')).toBe(false)
+  })
+
   it('blocks copied 135 and Xiumi authoring residues from WeChat output', () => {
     const report = detectQuality(MARKET_EDITOR_RESIDUE_HTML, 'wechat')
     const issue = report.issues.find(item => item.id === 'wechat-market-editor-residue')
