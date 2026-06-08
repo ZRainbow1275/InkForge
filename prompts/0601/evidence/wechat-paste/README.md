@@ -23,7 +23,7 @@
 
 ## 人工粘贴步骤（每份产物各做一次）
 
-**当前状态（2026-06-08）**：`flagship-kiln` 与 `flagship-tempera` 已在真实 `mp.weixin.qq.com` PC 图文编辑器中通过 Playwright 触发 `text/html` paste 事件验证。微信 paste sanitizer 保留 inline SVG 与 `data-ink-svg`，PC 编辑器可视化渲染成立；PC 验证还暴露并修复了封面长标题溢出。仍需手机微信扫码预览来确认最终移动端渲染、SMIL 交互和暗黑模式。
+**当前状态（2026-06-08）**：`flagship-kiln` 与 `flagship-tempera` 已在真实 `mp.weixin.qq.com` PC 图文编辑器中通过 Playwright 触发 `text/html` paste 事件验证。微信 paste sanitizer 保留 inline SVG 与 `data-ink-svg`，PC 编辑器可视化渲染成立；PC 验证还暴露并修复了封面长标题溢出。`flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e 和本地 artifact probe 覆盖，但仍缺单独的真实公众号后台 PC 粘贴登记。三旗舰最终仍需手机微信扫码预览来确认移动端渲染、SMIL 交互和暗黑模式。
 
 1. 用 **Chrome 或 Edge** 打开 `<presetId>.html`（双击即可）。
 2. 在页面正文区按 **Ctrl + A**（全选），再按 **Ctrl + C**（复制）。
@@ -77,7 +77,7 @@
 - 问题 / 截图链接：
 
 ### flagship-amber（黄铜旗舰）
-- PC 后台粘贴：
+- PC 后台粘贴：待补证。当前只有真实导出管线、Tauri/WebView2 e2e 与本地 artifact probe 证据，不能外推为真实公众号后台 PC paste 通过。
 - 手机预览日期 / 微信版本：
 - 封面：
 - 标题头：

@@ -118,9 +118,15 @@ Cross-platform target contract:
 
 - WeChat: inline HTML block + WeChat-safe SVG, then final-output compliance checks.
 - Xiaohongshu: plain text plus image/poster/long-image artifacts. Never leak inline SVG or
-  WeChat HTML into the publishable body.
+  WeChat HTML into the publishable body. Any image-page or long-image route must validate
+  manifest count, actual file count, cover page, page ordering, and every body reference such
+  as `see image N` before it can be reported as exportable.
 - Zhihu: clean Markdown. Remove WeChat-specific `<section data-ink-block>` and inline SVG
-  decorations; preserve semantic Markdown or image fallback.
+  decorations; preserve semantic Markdown or image fallback. Final Markdown must block local
+  paths, `blob:`, `data:`, private-network/localhost URLs, temporary preview URLs, and
+  WeChat-only CDN dependencies. Raw diagram fences (`mermaid`, `graphviz`, `dot`, `plantuml`,
+  `puml`, `vega`, `vega-lite`, `vegalite`) must be rasterized with alt/caption or marked
+  `blocked` / `unavailable`.
 
 ---
 
@@ -155,6 +161,12 @@ Cross-platform target contract:
 - Platform leakage tests are required for every new family: XHS output must not contain
   `<svg>`, `<section data-ink-block>`, HTML tags, or raw Markdown control leakage; Zhihu output
   must not contain WeChat decorations or inline CSS dependency.
+- XHS negative tests must include image manifest/page-count/reference mismatch, stale cover
+  references after reorder/delete, and missing image files. These are blockers, not style
+  warnings.
+- Zhihu negative tests must include blocked image hosts (`file:`, local paths, `blob:`, `data:`,
+  localhost/private IPs, temporary preview URLs, and WeChat CDN), missing alt text on fallback
+  images, and raw diagram fences for Mermaid/Graphviz/DOT/PlantUML/PUML/Vega/Vega-Lite.
 
 ---
 

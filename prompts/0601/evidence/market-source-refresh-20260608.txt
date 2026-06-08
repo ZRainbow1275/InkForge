@@ -1,0 +1,90 @@
+InkForge 06-01 market source refresh, 2026-06-08
+
+Scope:
+- This file records non-sensitive market-observation evidence for the platform rendering rule
+  catalog. It contains no screenshots, account cookies, QR codes, or proprietary template code.
+- 135 and Xiumi are references for taxonomy and workflow only. InkForge must not copy their
+  templates, paid materials, private SVG code, or brand assets.
+
+Playwright real-browser observations:
+
+1. 135 editor public homepage, https://www.135editor.com/
+   Page title:
+   - 135编辑器 - 专业公众号排版工具_微信公众号编辑器_智能AI排版
+   Visible taxonomy:
+   - classic layout / AI layout
+   - SVG motion/effects
+   - AI image generation
+   - team multi-user operation
+   - AI product matrix, quick layout, quick image design
+   - public-account plugin
+   - operation tools
+   - product links: 135 editor, AI layout, SVG editor, design/PPT/image tools, AI notes,
+     SCRM and operation guide
+   - resource links: client download, public-account plugin download, multi-platform
+     distribution
+   - AI tools: AI writing, AI image, AI chart, AI Q&A, text-to-XHS-note, AI illustration,
+     AI scene creation
+   - enterprise links: enterprise content middle platform, system plugin integration,
+     open API, private deployment, training, activities
+   - logged-in menu entries visible in the browser included authorized public accounts,
+     scheduled group send, full-text format, watermark setting, team management, and orders.
+   Rule outcome:
+   - Treat these as workflow states and capability taxonomy. Do not treat plugin, sync,
+     authorized-account, scheduled-send, enterprise API, or private-deploy entry points as
+     proof that InkForge has published or rendered successfully on a target platform.
+
+2. Xiumi public homepage, https://xiumi.us/#/
+   Page title:
+   - 秀米编辑器官网_微信公众号图文编辑和H5制作 - 秀米XIUMI
+   Visible version string:
+   - POWERED BY XIUMI v13.4.8
+   Visible taxonomy:
+   - 图文排版: style selection, beginner guide, new paper
+   - H5制作: style selection, H5 beginner guide, new H5
+   - 图片设计: style design selection, design beginner guide, new design
+   - workflow entries: my Xiumi, membership, tutorial/training, team features, mobile
+     version, Xiumi plugin, third-party integration
+   Rule outcome:
+   - Separate article/export artifacts from H5 and design-image artifacts. Current InkForge
+     article/export rules must not claim H5 or design-tool parity.
+
+Exa search refresh:
+
+Query:
+- current official documentation or product pages for 135 editor WeChat public account editor
+  SVG effects AI layout multi-platform distribution and Xiumi WeChat editor plugin H5 design
+  features 2026
+
+Useful results:
+- 135 official/product pages corroborated:
+  - 10万+ style/material taxonomy
+  - SVG effects such as slide, click popup, trigger image switch, and carousel switch
+  - one-click layout, saved articles/images, clipboard, topic/calendar/content resources
+  - AI writing/image/chart/Q&A and text-to-XHS-note as upstream generation or conversion
+  - multi-platform and enterprise/service taxonomy
+- Xiumi Chrome Web Store listing, extension id fifkoliiibjdpcdfcknjjcpnahhnihid:
+  - The listing says the plugin copies Xiumi article content into the WeChat public-account
+    editor and can reduce format loss from ordinary copy/paste for some SVG functions.
+   Rule outcome:
+  - Plugin transfer can reduce loss in a particular channel, but it remains a transfer
+    channel. It is not proof of final mobile WeChat rendering, SMIL interaction, Dark Mode,
+    cover-thumbnail acceptance, or publishing success.
+
+Grok Search refresh:
+
+Query:
+- 135编辑器 秀米 微信公众号 SVG 排版 插件 复制 粘贴 格式 丢失 2026 最佳实践
+
+Result handling:
+- The response contained unverifiable product names, version numbers, percentage claims, and
+  citation_card placeholders without reachable primary sources.
+- It was treated as a weak conflict source and was not used to loosen InkForge's WeChat-safe
+  contract.
+
+Rule impact:
+- Updated docs/platform-rendering-rules/market-practices-catalog.md with official/public-page
+  taxonomy, artifact-family separation, credentialed workflow gates, and source-conflict rules.
+- Updated .trellis/spec/frontend/flagship-element-catalog.md so future UI work cannot treat AI
+  generation, account authorization, scheduled sending, team features, enterprise APIs, or
+  private deployment as article-rendering proof.

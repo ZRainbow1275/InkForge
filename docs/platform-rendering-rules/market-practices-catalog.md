@@ -10,13 +10,16 @@
 | --- | --- | --- |
 | 135 编辑器登录页/工作台实机观察 | 样式中心、模板中心、SVG 样式、SVG 效果、公众号长图、一键排版、校对、剪贴板、预览分享、同步公众号 | 抽象为元素族、检查项和导出路径，不复制模板 |
 | 135 编辑器 2026-06-08 登录态实机复核 | 编辑器内导航含导入、插入、主题色、全文黑白、吸色、标题、正文、图文、引导、布局、节日、行业、小元素、SVG；SVG 中心含点击展开/显示/切换/缩放/翻转/弹出/放大/消失/播放/抽签、滑动展示、图片轮播、长按显示、渐显展示、文字弹幕、区域触发、趣味游戏、互动答题、文字特效、引导关注 | 进入 `interactive-system`、`editor-workflow-system` 和 `layout-and-layer-system`，仅记录 taxonomy |
+| 135 编辑器 2026-06-08 公开首页实机复核 | 首页明确把经典排版、AI 排版、SVG 动效、AI 生图、团队多人使用、AI 产品矩阵、公众号专属插件、多平台分发、企业内容中台、系统插件集成、开放接口、私有化部署、授权公众号、定时群发、全文格式、水印设置、团队管理列为产品/账号工作流入口 | 补强 `editor-workflow-system` 的 artifact-state、credential-gate、team-permission 和 enterprise-integration 规则；不得把插件/同步/接口入口视作当前发布成功证明 |
 | 135 公开 SVG 教程 | SVG 需要区分复制到编辑器与复制到微信后台的出口，复杂效果可通过 HTML/代码入口插入 | WeChat output contract 增加 `copy-to-editor`、`copy-to-wechat`、`plugin/sync` 三类出口 |
 | 秀米登录页/图文编辑器实机观察 | 图文排版、H5、图片设计、SVG 图集、滑动、点击展开、路径动画、自由布局、图层、长图/PDF/视频出口 | 将互动 SVG、自由布局、长图/PDF 降级写成规则，非默认输出 |
 | 秀米 2026-06-08 登录态实机复核 | 导入 Word/Excel/Markdown、导入公众号文章、生成长图/PDF/视频、生成贴纸图文、一键排版、同步公众号、插件复制、继续复制粘贴；组件侧含主题色、标题、卡片、图片、布局、SVG、组件；属性侧含动作/动作列表/提取动作、点击动作、背景图、图层、定位、间距、字号、组件定位、页面对齐、多选对齐、SVG 图集 | 补充导入、动作、插件/同步、图层/自由布局、artifact 状态生命周期 |
+| 秀米 2026-06-08 公开首页实机复核 | 官网 v13.4.8 将图文排版、H5 制作、图片设计作为三条主线，并显式提供我的秀米、教程培训、团队功能、手机版、秀米插件、第三方对接、新建图文/H5/设计、挑选风格排版/秀/设计入口 | 将 InkForge 的平台规则分成 article、interactive-page、design-image 三种 artifact family；当前任务只承诺 article/export 渲染，不伪装 H5 或设计器能力 |
 | 秀米公开插件/教程资料 | 插件复制可降低 SVG 格式丢失；长图导出是微信以外平台的重要桥 | XHS 默认把富样式转成图片/长图/海报，不伪造正文富文本 |
 | 微信公众平台编辑器插件开发规范 | 固定宽高、`line-height:0`、透明图片叠 SVG、`pre` 包普通段落、深色模式、SVG `begin` 触发等风险 | 更新 WeChat hard blockers 和 quality detector 期望 |
 | doocs/md 文档和 OSS Markdown 编辑器 | Markdown parser、sanitize、theme、CSS inline、clipboard `text/html`、图片上传、链接脚注 | 保留现有 InkForge 管线，强化最终输出后检测 |
 | mdnice/TypeZen 等 OSS | 多主题、AI 结构清理、图片/公式/代码特殊处理、多平台适配 | 借鉴能力分类，不引入第二套 renderer |
+| Redink / 渲染AI（`joshua23/redink-xiaohongshu`） | 小红书 AI 图文生成的分阶段 pipeline、外置 prompt、封面/内容页/manifest 思路 | 仅作 XHS raster/AI workflow 概念参考；不复用代码、提示词或素材；其 CC-BY-NC-SA-4.0 许可不能进入商业实现 |
 | `prompts/0601/` 本机实测 | WeChat-safe SVG 子集、HTML 色块层、旗舰系统真实微信 paste 存活证据 | 作为 InkForge 最高优先级实证规则 |
 
 ### 1.2 不进入实现的内容
@@ -176,7 +179,9 @@ Zhihu:
 市场映射：
 
 - 135：导入、插入、主题色、全文黑白、吸色、一键排版、文本校对、剪切板、预览分享、同步公众号。
+- 135 公开首页补充：经典排版与 AI 排版是两条不同入口；AI 生文/生图/图表/问答、文案转笔记、AI 配图、AI 场景创作是内容生成/重写阶段，不等于发布；公众号插件、多平台分发、授权公众号、定时群发、企业内容中台、系统插件集成、开放接口、私有化部署和团队管理均属于 credentialed workflow。
 - 秀米：导入 Word/Excel/Markdown、导入公众号文章、一键排版、插件复制、继续复制粘贴、同步公众号/微博、生成长图/PDF/视频。
+- 秀米公开首页补充：图文排版、H5 制作、图片设计是不同 artifact family；`new paper`、`new tablet/H5`、`new placard/design` 不能共用同一渲染成功状态。
 - doocs/md / OSS：Markdown 源优先，预览 DOM 复制时进行 CSS 内联，最终通过 `text/html` 剪贴板或平台 API 输出。
 
 InkForge 合同：
@@ -186,6 +191,8 @@ InkForge 合同：
 - `copy-to-editor`、`copy-to-wechat`、`plugin-transfer`、`sync-draft`、`published` 是不同 artifact state。前一状态成功不得推断后一状态成功。
 - `plugin-transfer` 是传输渠道，不是平台渲染证明。插件/同步路径必须有传输前安全检查、传输后格式丢失检测和不可用 fallback。
 - `sync-draft` / `published` 必须经过真实凭据、账号授权、权限、接口返回和平台预览确认；任一缺失时输出 `blocked` / `unavailable`。
+- `authorized-account`、`scheduled-publish`、`team-shared`、`enterprise-api`、`private-deploy` 是权限/分发能力，不是排版渲染能力。它们只能在真实账号、团队、接口和部署配置存在时进入发布路径；否则只显示检查项和阻断原因。
+- `ai-draft`、`ai-layout`、`ai-chart`、`ai-image`、`text-to-xhs-note` 是上游内容/素材生成状态。进入 InkForge 渲染前必须落成可审计 Markdown、image manifest 或 structured artifact，且必须经过同样的平台质量检测。
 - `preview-share` 只能证明本地或托管预览可见，不证明微信/小红书/知乎最终渲染。
 - `export-long-image`、`export-pdf`、`export-video` 是 fallback artifact，不得伪装为平台正文富文本。
 
@@ -223,9 +230,14 @@ Layering rules:
 | import Word/Excel/Markdown/article | `editor-workflow-system` | normative ingress validation |
 | export / copy / preview share | `editor-workflow-system` | normative artifact-state lifecycle |
 | plugin copy / sync | `editor-workflow-system` | credential/channel-gated |
+| AI layout / AI image / text-to-XHS | `editor-workflow-system`, XHS raster pipeline | ingress only; must materialize as Markdown/image manifest before export |
+| authorized account / scheduled publish | `editor-workflow-system` | credential-gated; never inferred from copy/export |
+| enterprise content middle platform / API / private deploy | `editor-workflow-system` | integration boundary only; no publish success without real endpoint |
+| paper / H5 / design separation | Xiumi public homepage | artifact-family separation; current rule set covers article/export first |
 | actions / extracted actions | `interactive-system`, `layout-and-layer-system` | opt-in only |
 | layers / free layout / z-order | `layout-and-layer-system` | raster fallback unless proven safe |
 | layout / component positioning | `layout-and-layer-system` | platform-specific mapping |
+| AI image-and-text staged pipeline | Redink / 渲染AI XHS generator | conceptual only; no code/prompt/template reuse |
 
 ### 3.11 Source Conflict And Proof Hierarchy
 
@@ -235,7 +247,7 @@ Market editors and public tutorials often demonstrate effects in their own autho
 2. InkForge real artifacts and real platform/editor evidence under `prompts/0601/evidence/`.
 3. Project validators and tests such as `checkWechatSafe`, XHS leakage checks, Zhihu Markdown checks, and artifact manifest checks.
 4. Logged-in 135/Xiumi/browser observations as taxonomy and workflow references only.
-5. Public blogs, examples, and OSS projects as implementation ideas only.
+5. Search-engine summaries and public blogs/examples/OSS projects as implementation ideas only.
 
 Conflict rules:
 
@@ -243,6 +255,14 @@ Conflict rules:
 - A source that shows plugin copy, preview share, or draft sync cannot prove final publish rendering without credentialed platform confirmation.
 - A source that shows free layout/layers cannot bypass DOM readability, Dark Mode, mobile overflow, and fallback checks.
 - If two sources disagree on platform limits, use configurable limits and a publish checklist until the live platform can verify the current account.
+- Do not adopt search summaries that contain unverifiable product names, version numbers,
+  percentages, or "official report" references without a reachable primary source. 2026-06-08
+  Grok search returned such claims for SVG plugins, so it was treated as a weak conflict source
+  and did not loosen the WeChat-safe contract.
+- Exa search results are usable only when they point back to reachable official/product/store
+  pages. The 2026-06-08 Exa refresh corroborated 135's official AI/SVG/multi-platform taxonomy
+  and the Chrome Web Store listing for the Xiumi plugin; it did not prove final WeChat mobile
+  rendering.
 
 ## 4. WeChat Hard Rules
 
@@ -338,14 +358,21 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 - 135 SVG insertion tutorial: `https://www.135editor.com/geo/gongzhonghaopaiban/1516/`
 - 135 SVG center real-browser entry: `https://www.135editor.com/svg-center.html`
 - 135 editor real-browser entry: `https://www.135editor.com/beautify_editor.html`
+- 135 public homepage / product taxonomy real-browser entry: `https://www.135editor.com/`
+- 135 Exa-corroborated product taxonomy: `https://www.135editor.com/beautify_editor.html`,
+  `https://by.135editor.com/`
 - Xiumi official site: `https://xiumi.us/`
 - Xiumi paper editor real-browser entry: `https://xiumi.us/studio/v5/paper`
+- Xiumi Chrome extension listing: Chrome Web Store `fifkoliiibjdpcdfcknjjcpnahhnihid`
 - doocs/md official editor: `https://md.doocs.org/`
 - doocs/md source: `https://github.com/doocs/md`
+- Redink / 渲染AI XHS workflow reference: `https://github.com/joshua23/redink-xiaohongshu` (concept only; CC-BY-NC-SA-4.0 non-commercial boundary)
 - WeWrite WeChat constraints reference: `https://github.com/oaker-io/wewrite/blob/main/references/wechat-constraints.md`
 - VerySmallWoods WeChat markdown copy/paste architecture reference: `https://www.verysmallwoods.com/blog/20260119-wechat-markdown-copy-paste`
 - netpi WeChat SVG interaction research reference: `https://github.com/netpi/wechat-layout`
-- Xiumi Chrome extension listing: Chrome Web Store `fifkoliiibjdpcdfcknjjcpnahhnihid`
 - doocs/md docs: `https://md.doocs.org/` and `https://github.com/doocs/md`
 - InkForge real WeChat evidence: `prompts/0601/evidence/`
+- InkForge market-rule agent output: `.trellis/tasks/06-01-multiplatform-render-svg/research/market-rule-agent-output.csv`
+- InkForge real PC paste evidence path: `prompts/0601/evidence/wechat-paste/`
+- InkForge real XHS browser raster evidence path: `prompts/0601/evidence/xhs-raster/`
 - InkForge WeChat SVG spec: `.trellis/spec/frontend/wechat-svg-modules.md`

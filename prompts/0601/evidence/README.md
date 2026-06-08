@@ -1,7 +1,7 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
 本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：PC 粘贴路径证据目前单独覆盖 `flagship-kiln` 与 `flagship-tempera`；`flagship-amber` 仍需补一次真实公众号后台 PC 粘贴登记。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
@@ -9,7 +9,15 @@
 
 ## A. 跑 tauri-driver 真二进制探针 / e2e（机器门禁）
 
-**当前状态（2026-06-08）**：已执行并通过。`pnpm -C inkforge test:e2e` 由 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests passed。证据截图已存 `prompts/0601/evidence/e2e/flagship-{kiln,tempera,amber}.png`。
+**当前状态（2026-06-08）**：已执行并通过。最新机器日志已留档：
+`build-refresh-20260608-082644.txt`（Vite built in 42.06s）、
+`cargo-build-refresh-20260608-082813.txt`（`cargo build -p inkforge` dev profile 9.15s）、
+`probe-svg-render-20260608-082919.txt`（A1 诊断探针）、
+`e2e-svg-render-20260608-083022.txt`（A2 正式 e2e）、
+`market-source-refresh-20260608.txt`（135/Xiumi/Exa/Grok 市场来源刷新）。`pnpm -C inkforge test:e2e` 由
+`onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
+Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
+passed。证据截图已存 `prompts/0601/evidence/e2e/flagship-{kiln,tempera,amber}.png`。
 
 ### A0. 前置（探针与 spec 都**不自带 build**）
 
@@ -40,6 +48,12 @@ node tests/e2e/probes/svg-render.cjs
 ```
 对每个旗舰预设（赤陶 / 铜绿 / 黄铜）打印每个 `[data-ink-svg]` 模块的 bbox / viewBox / `width:100%` 与容器的 delta、`#nice` 列宽、charsPerLine，并给出 VERDICT（OK / NO-SVG / VIEWBOX-MISSING / WIDTH-DRIFT / PAINT-CULLED / NICE-WIDTH-OUT-OF-BAND / CHARS-OUT-OF-BAND）。把整段 stdout 存为 `prompts/0601/evidence/probe-svg-render-<日期>.txt`。
 
+2026-06-08 当前探针结果说明：`probe-svg-render-20260608-082919.txt` 对三旗舰均确认
+`moduleCount=2`、`viewBox` 存在、`widthAttr=100%`、`deltaToParent=0`，SVG 几何与响应式宽度
+正常；同时因诊断脚本读取的是 401px ExportModal 宽列与 15px 字号，VERDICT 报
+`CHARS-OUT-OF-BAND: 27/line`。该脚本是人读几何诊断，不是 AC3 graded gate；正式 AC3 仍以
+`svg-render.spec.cjs` 在移动排版口径下的真实字形布局断言为准，当前 A2 e2e 已通过。
+
 ### A2. 正式 e2e spec（graded，wdio）
 ```bash
 cd D:/Desktop/Inkforge/inkforge
@@ -58,9 +72,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 **当前状态（2026-06-08）**：
 
-- 已完成：真实 `mp.weixin.qq.com` PC 图文编辑器粘贴验证。Playwright 触发真实 `text/html` paste 事件后，微信编辑器 paste sanitizer 保留 8 个 inline SVG / 8 个 `data-ink-svg`，并在 PC 编辑器中可视化渲染封面、分隔线、引用卡和文末结束标。
+- 已完成：真实 `mp.weixin.qq.com` PC 图文编辑器粘贴路径验证。Playwright 触发真实 `text/html` paste 事件后，微信编辑器 paste sanitizer 在 `flagship-kiln` / `flagship-tempera` 样本中保留 inline SVG / `data-ink-svg`，并在 PC 编辑器中可视化渲染封面、分隔线、引用卡和文末结束标。
 - 已完成：PC 粘贴验证暴露的封面长标题溢出已修复，并通过重粘验证 `coverMaxOverflowPx` 为负值，标题落在 viewBox 内。
-- 未完成：微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式确认。该步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
+- 未完成：`flagship-amber` 单独 PC 后台粘贴登记；微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式确认。手机端步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
 
 对**每个旗舰预设**（赤陶旗舰 / 铜绿旗舰 / 黄铜旗舰）执行：
 
@@ -85,13 +99,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## C. 证据清单（采集后逐项打勾）
 
 ```
-[ ] probe-svg-render-<日期>.txt          # A1 探针 stdout（3 预设几何 + VERDICT）
-[ ] e2e-svg-render-<日期>.txt            # A2 wdio spec 结果
+[x] build-refresh-20260608-082644.txt   # A0 PROD dist 刷新，Vite built in 42.06s
+[x] cargo-build-refresh-20260608-082813.txt # A0 Tauri debug 二进制编译，9.15s
+[x] probe-svg-render-20260608-082919.txt # A1 探针 stdout；SVG 几何 OK，chars/line 诊断提示见上文
+[x] e2e-svg-render-20260608-083022.txt   # A2 wdio spec：2 spec files / 16 tests passed
+[x] market-source-refresh-20260608.txt   # 市场来源刷新：135/Xiumi/Exa/Grok，非敏感文本证据
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
 [x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
-[x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图
+[x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
+[ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰单独粘贴补证
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
 [ ] wechat-flagship-tempera-mobile-<日期>.png   # B 手机预览：铜绿旗舰公众号渲染
 [ ] wechat-flagship-amber-mobile-<日期>.png     # B 手机预览：黄铜旗舰公众号渲染
@@ -105,5 +123,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 最新自动化门禁、真实 Tauri e2e 和真实公众号后台 PC 粘贴已执行并通过；当前唯一剩余手动门禁是微信手机端扫码预览截图与 SMIL/暗黑模式确认。
+- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。当前剩余手动门禁是 amber PC 后台粘贴补证、微信手机端扫码预览截图与 SMIL/暗黑模式确认。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。知乎 SVG-as-img（`buildSvgDataUri`）路径在 Node 单测完整覆盖。

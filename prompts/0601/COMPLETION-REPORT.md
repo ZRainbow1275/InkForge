@@ -18,13 +18,16 @@
 - 最新 `platform-export-rendering.test.ts`：**25 用例全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 通过，Vite built in **30.91s**。
+- 已保存生产构建刷新日志：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 通过，Vite built in **42.06s**（`evidence/build-refresh-20260608-082644.txt`）。
+- 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
+- A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
 - 小红书海报栅格化已通过真实浏览器 canvas 证明：实际动态导入 `renderXhsPosterCard()`，从 `cover-grid` 的 `data-ink-svg` wrapper 产出 1080×1440 PNG。
 
 **诚实声明（剩余人工门禁）**：
-- 真实微信公众号后台 **PC 编辑器粘贴** 已通过 Playwright + 用户扫码登录验证；微信 paste sanitizer 保留 8 个 inline SVG 和全部 `data-ink-svg`，并暴露/修复了封面长标题溢出。
-- 唯一仍未由当前自动化完全证明的是：微信「预览」扫码后的**手机微信端最终渲染 / SMIL 交互 / 暗黑模式人工确认**。该门禁依赖账号封面图、微信手机客户端和扫码预览，不应被本地测试或 PC 后台 DOM 证据冒充。
+- 真实微信公众号后台 **PC 编辑器粘贴路径** 已通过 Playwright + 用户扫码登录验证：`flagship-kiln` 与 `flagship-tempera` 均有真实 `mp.weixin.qq.com` PC 编辑器证据；微信 paste sanitizer 在实测样本中保留 8 个 inline SVG 和全部 `data-ink-svg`，并暴露/修复了封面长标题溢出。
+- `flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e 和本地 artifact probe 覆盖，但仍缺单独的真实公众号后台 PC 粘贴登记。不能把 kiln/tempera 的 PC paste 证据外推成 amber 的平台粘贴证据。
+- 仍未由当前自动化完全证明的是：微信「预览」扫码后的**手机微信端最终渲染 / SMIL 交互 / 暗黑模式人工确认**。该门禁依赖账号封面图、微信手机客户端和扫码预览，不应被本地测试、Tauri e2e 或 PC 后台 DOM 证据冒充。
 
 ---
 
@@ -38,7 +41,7 @@
 | PR4 | SMIL 交互族 | `interactive.ts`（i-clickswitch / i-scrollcards / i-fadein / i-sequence，4 变体）+ 静态兜底 + 单测 | ✅ 完成 · 测试绿 |
 | PR5 | 小红书海报 + 知乎适配 | `raster.ts`（`rasterizeSvg` 真 canvas / `buildSvgDataUri` / `svgToImgTag` / `posterViewBox`）+ 单测 | ✅ 完成 · 测试绿 |
 | PR6 | 冗余双做预设 | `ExportOptions` 加 `enableSvgModules`/`svgInjectionPlan`（默认关，零回归）+ 3 个旗舰预设接入 `themes.ts` + `iconography.ts` lucide 映射 + `flagship-svg.test.ts` | ✅ 完成 · 测试绿 |
-| PR7 | 验证与证据 | `flagship-pipeline-smoke.test.ts`（端到端真测）+ e2e 探针 `svg-render.cjs`/`.spec.cjs` + 本报告 + 证据指南 | 自动化、真实 Tauri e2e、公众号后台 PC 粘贴已完成；手机扫码预览仍为人工门禁 |
+| PR7 | 验证与证据 | `flagship-pipeline-smoke.test.ts`（端到端真测）+ e2e 探针 `svg-render.cjs`/`.spec.cjs` + 本报告 + 证据指南 | 自动化与真实 Tauri e2e 已覆盖三旗舰；公众号后台 PC 粘贴路径已覆盖 kiln/tempera，amber 待单独补证；手机扫码预览仍为人工门禁 |
 
 ---
 
@@ -164,8 +167,30 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 # passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-# passed, Vite built in 30.91s
+# passed, Vite built in 42.06s
+
+cargo build -p inkforge
+# passed, dev profile compiled in 9.15s
 ```
+
+对应新增日志：
+
+- `prompts/0601/evidence/build-refresh-20260608-082644.txt`
+- `prompts/0601/evidence/cargo-build-refresh-20260608-082813.txt`
+- `prompts/0601/evidence/probe-svg-render-20260608-082919.txt`
+- `prompts/0601/evidence/e2e-svg-render-20260608-083022.txt`
+- `prompts/0601/evidence/market-source-refresh-20260608.txt`
+
+补充解释：`probe-svg-render-20260608-082919.txt` 是非 graded 的几何诊断探针。它在当前
+ExportModal 401px / 15px 口径下报告 27 字/行，因此保留为需要人工解读的诊断提示；
+`e2e-svg-render-20260608-083022.txt` 中正式 `svg-render.spec.cjs` 仍通过移动排版真实布局断言：
+三旗舰注入 responsive `[data-ink-svg]`，并且 flagship body yields a mobile-comfortable
+~20-22 CJK chars/line。
+
+市场来源刷新：`market-source-refresh-20260608.txt` 记录了 Playwright 对 135/Xiumi 公开页的
+真实浏览器观察、Exa 对 135 官方产品页与 Xiumi Chrome 插件页的复核，以及 Grok 搜索弱来源处理。
+结论只进入 taxonomy、artifact-family、credentialed workflow 和 proof hierarchy，不放宽
+WeChat-safe SVG 安全子集，也不把插件/同步/授权/定时群发视作最终发布证明。
 
 ---
 
@@ -186,7 +211,7 @@ NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
 
 | AC | 结论 | 证据 |
 |----|------|------|
-| **AC1** 微信真机粘贴渲染正确 | PC 后台粘贴已实测；手机扫码预览仍为人工门禁 | `flagship-pipeline-smoke.test.ts` 证明产物经完整微信管线后 SVG 存活且 safe；`pnpm -C inkforge test:e2e` 已用真实 Tauri/WebView2 二进制验证响应式 SVG 与 20 字/行；真实 `mp.weixin.qq.com` 后台 PC 编辑器 paste sanitizer 已保留 8 个 inline SVG / 8 个 `data-ink-svg`。尚缺手机微信扫码预览截图来证明最终手机端渲染、暗黑模式与 SMIL 交互。 |
+| **AC1** 微信真机粘贴渲染正确 | PC 后台粘贴路径已实测；amber PC 补证与手机扫码预览仍为人工门禁 | `flagship-pipeline-smoke.test.ts` 证明产物经完整微信管线后 SVG 存活且 safe；`pnpm -C inkforge test:e2e` 已用真实 Tauri/WebView2 二进制验证三旗舰响应式 SVG 与 20 字/行；真实 `mp.weixin.qq.com` 后台 PC 编辑器 paste sanitizer 已在 kiln/tempera 样本中保留 8 个 inline SVG / 8 个 `data-ink-svg`。尚缺 `flagship-amber` 的单独 PC 后台粘贴登记，以及手机微信扫码预览截图来证明最终手机端渲染、暗黑模式与 SMIL 交互。 |
 | **AC2** ≥7 族 × persona 可复用 | ✅ 实测绿 | `svg-modules/__tests__/registry.test.ts`（26 模块 / 7 族）+ 各族 `*.test.ts` × 4 persona 快照 + safe 校验；`flagship-pipeline-smoke.test.ts` 逐 module-id 命中。 |
 | **AC3** 20-22 字/行不破坏 | 实测绿 | `flagship-pipeline-smoke.test.ts` 断言 `generatePersonaBaseCSS` 仍含 `min(22em` + `font-size: 17px`；真实 Tauri/WebView2 e2e 在 360px 移动列测得 **20 字/行**，落在目标带内。 |
 | **AC4** 12+5+3 预设 + 既有测试零回归 | ✅ 实测绿 | 完整 export 套件 33 文件 / 822 用例全绿（含 `themes-migration`/`platform-export-rendering`/`pipeline-cross-platform`）；预设计数 12+5+3 原样；`flagship-svg.test.ts` + `flagship-pipeline-smoke.test.ts` 非旗舰守护实测「无 data-ink-svg / 无 `<svg`」。 |
@@ -201,7 +226,7 @@ NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
 
 ## 7. 已知限制（诚实披露）
 
-1. **GUI e2e 与真实公众号后台 PC 粘贴已执行；唯一剩余手动门禁 = 微信手机端扫码预览确认**。tauri-driver 真二进制几何探针已跑通（含 prod 加密路径），真实公众号后台 PC 编辑器 paste sanitizer 也已证明 inline SVG 被保留并渲染。剩下需要微信手机客户端确认的，是扫码预览后的最终移动端渲染、SMIL 交互、暗黑模式和封面缩略图门槛。
+1. **GUI e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera；剩余手动门禁 = amber PC 补证 + 微信手机端扫码预览确认**。tauri-driver 真二进制几何探针已跑通（含 prod 加密路径），真实公众号后台 PC 编辑器 paste sanitizer 也已证明 inline SVG 在已测样本中被保留并渲染。剩下需要补齐的，是 `flagship-amber` 的单独 PC 粘贴登记，以及微信手机客户端扫码预览后的最终移动端渲染、SMIL 交互、暗黑模式和封面缩略图门槛。
 2. **旗舰 SVG 为品牌色锁定（by design）**。3 个旗舰预设 primaryColor 固定为 `#D95B3F`/`#3B7A6B`/`#C19A56`，体现「静谧刊印」品牌门面；如需任意色，使用既有 12 预设 + `ExportOptions.enableSvgModules` 开关（默认关，零回归）按需注入。
 3. **真 canvas 栅格化（`rasterizeSvg`）仅在浏览器 / Tauri WebView 运行**。Node 单测覆盖纯函数（viewBox / data-URI / img-tag）与无 DOM 守卫抛错路径；2026-06-08 追加真实浏览器证据：动态导入实际 `renderXhsPosterCard()`，由 `cover-grid` 的 `data-ink-svg` wrapper 产出 `data:image/png;base64,`，自然尺寸 1080×1440，字节数 99114，SHA-256 `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`。证据见 `evidence/xhs-raster/`。
 4. **跨 WebView2 版本兼容**已按 SVG 1.1 标准子集 + SMIL `begin="click"` + 静态兜底设计，并在当前 Win11 自动化门禁下验证；其他 WebView2 版本的真机渲染属周期性人工复验范畴（AC1 门禁覆盖）。
@@ -256,12 +281,12 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 ### 10.3 真实微信公众号后台「PC 编辑器粘贴渲染」验证（Playwright 驱动真浏览器 + 用户扫码登录）
 在**真实公众号后台**（账号「高天方寒」，`mp.weixin.qq.com` 图文编辑器）经 Playwright 模拟**真实 paste 事件**（`text/html` 经 `DataTransfer`，触发微信 ProseMirror 自身 paste sanitizer）灌入 `flagship-kiln` 产物，并读回 sanitizer 实际保留的 DOM：
 - **inline SVG 穿透微信编辑器 paste sanitizer**：粘贴前 8 `<svg>` → 保留 **8**；`data-ink-svg` 8 → **8**；`<rect>` 22 / `<text>` 10 / `<path>` 11 全部保留；`<img>` 0（SVG 保持内联，无需降级栅格化）。**这从真实后台层面证明 inline-SVG 方案成立。**
-- **PC 编辑器可视化渲染**（实测此版编辑器**会**渲染 inline SVG，非 README 旧设想）：封面 `cover-grid`（网格 + ember 点 + 标题）、`divider-forge`（线 + 中心 ember）、`quote-mark` 大引号、文末 `endmark-vessel`（鼎×笔尖 + "InkForge·墨铸" 署名）均正确渲染；`flagship-tempera` 的 `cover-title`（96px 大标题）+ `quote-corner`（铜绿角括号）亦验证。证据截图见 `evidence/wechat-paste/wechat-*.png`。
+- **PC 编辑器可视化渲染**（实测此版编辑器**会**渲染 inline SVG，非 README 旧设想）：`flagship-kiln` 的封面 `cover-grid`（网格 + ember 点 + 标题）、`divider-forge`（线 + 中心 ember）、`quote-mark` 大引号、文末 `endmark-vessel`（鼎×笔尖 + "InkForge·墨铸" 署名）均正确渲染；`flagship-tempera` 的 `cover-title`（96px 大标题）+ `quote-corner`（铜绿角括号）亦验证。证据截图见 `evidence/wechat-paste/wechat-*.png`。`flagship-amber` 仍需单独 PC 后台粘贴登记。
 - **真机暴露并修复封面长标题溢出**：长标题「静谧刊印：当排版成为一种克制的力量」(17 字) 在 `cover-grid` 第一行排 14 字、字号 84、溢出 viewBox 122px。根因：`covers.ts` `splitLines` 的 `maxCharsPerLine` 硬编码 14、不随字号/可用宽度自适应。修复：新增 `fitCharsPerLine(availableW, fontSize, letterSpacing)`，三封面变体改按可用宽度推导每行字数（cover-title 9 / cover-grid 10 / cover-quote 16）。重生成产物后真机重粘验证：两封面变体 `coverMaxOverflowPx` 分别 −62 / −63（落在 viewBox 内，**不再溢出**），svg-modules 13 文件/264 测试绿（含新增溢出守卫）。
-- **唯一仍需用户手动**：微信「预览/群发到手机」要求先插一张封面缩略图（微信硬性要求，与正文无关）——手机微信端最终渲染、SMIL 交互和暗黑模式由用户完成最后确认。PC 后台 paste 成功不能替代手机端最终预览。
+- **仍需人工补证**：`flagship-amber` 的真实公众号后台 PC 粘贴登记；微信「预览/群发到手机」要求先插一张封面缩略图（微信硬性要求，与正文无关）——手机微信端最终渲染、SMIL 交互和暗黑模式由用户完成最后确认。PC 后台 paste 成功不能替代手机端最终预览。
 
 ---
 
 ## 9. 结论
 
-自动化门禁（单测/冒烟/typecheck/lint/build）全绿，真实 Tauri/WebView2 e2e 全绿：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。真实微信公众号后台 PC 编辑器粘贴也已证明 inline SVG 能穿透 paste sanitizer 并可视化渲染；该实测还暴露并修复了封面长标题溢出。AC2/AC3/AC4/AC5/AC6/AC7/AC8/AC9/AC10 已由自动化与真实运行证据覆盖。**唯一剩余门禁** = 微信手机端扫码预览中的最终渲染、SMIL 交互、暗黑模式和封面缩略图要求确认。
+自动化门禁（单测/冒烟/typecheck/lint/build）全绿，真实 Tauri/WebView2 e2e 全绿：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。真实微信公众号后台 PC 编辑器粘贴路径已证明 inline SVG 能在已测样本中穿透 paste sanitizer 并可视化渲染；该实测还暴露并修复了封面长标题溢出。AC2/AC3/AC4/AC5/AC6/AC7/AC8/AC9/AC10 已由自动化与真实运行证据覆盖。**剩余门禁** = `flagship-amber` PC 后台粘贴补证 + 微信手机端扫码预览中的最终渲染、SMIL 交互、暗黑模式和封面缩略图要求确认。

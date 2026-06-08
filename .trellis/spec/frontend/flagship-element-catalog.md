@@ -36,6 +36,10 @@ Any new catalog element must declare:
 - WeChat artifact type: HTML block, WeChat-safe SVG, raster fallback, or publish checklist.
 - XHS artifact type: plain text, image page, long image, or unavailable.
 - Zhihu artifact type: Markdown semantic, image fallback, or unavailable.
+- XHS manifest/page-count/reference consistency contract when the element can produce an image
+  page, long image, cover, or carousel artifact.
+- Zhihu image-host and raw diagram fence handling when the element can produce image fallback,
+  formula/diagram/table raster output, or Markdown image references.
 - safety validator and negative tests.
 - idempotency sentinel.
 - source/provenance when imported from an external editor artifact.
@@ -151,5 +155,9 @@ Any new catalog element must declare:
 - 135/秀米的样式中心、模板中心、SVG 中心和图文编辑器只提供功能分类、工作流和质量门参考；不得导入、复刻或硬编码其模板几何、会员素材、私有 SVG 代码、品牌资产。
 - 「一键排版」按钮只能调用既有 flagship decorator chain、preset renderer 和 quality detector；不得绕过 `convertToWechatWithStats`、`checkWechatSafe`、XHS/Zhihu leakage checks 或 artifact manifest。
 - 「插件复制」「同步公众号」「生成长图/PDF/视频」是输出渠道，不是渲染成功证明。UI 必须区分本地 artifact、剪贴板复制、插件传输、草稿同步、发布完成与不可用状态。
+- 135-style `AI排版` / `AI生图` / `AI图表` / `文案转笔记` and Xiumi-style `图文/H5/设计` creation entries are ingress or artifact-family selectors. They must first materialize audited Markdown, image manifests, or long-image artifacts, then pass the same platform renderer and quality gates.
+- `授权公众号` / `定时群发` / `团队功能` / `企业内容中台` / `开放接口` / `私有化部署` are credentialed distribution or integration states. A UI affordance may expose them only as blocked/unavailable/checklist states unless a real account, team permission, endpoint, and platform preview are verified.
 - 图层/自由布局/背景图/动作列表进入工具 UI 时，必须先声明目标平台：WeChat 使用 inline HTML/SVG 安全子集或图片 fallback，XHS 使用图片页/长图，Zhihu 使用 Markdown/图片 fallback。
+- XHS 图片页/长图必须生成 manifest、页码/封面/正文引用一致性报告和裁切报告；任何数量、文件、引用不一致都应阻断导出或标记 `unavailable`。
+- Zhihu 图片 fallback 必须是 public HTTPS/platform-host URL 且有 alt/caption；本地、`blob:`、`data:`、localhost/private IP、临时预览 URL、微信专用 CDN 或 raw diagram fence 必须阻断、图片化或标记 `blocked`。
 - 任何新按钮图标继续使用已安装图标库或 inline SVG path；不得使用 emoji 图标。

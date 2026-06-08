@@ -1,0 +1,154 @@
+[probe] spawning tauri-driver: C:\Users\HP\.cargo\bin\tauri-driver.exe
+[probe] msedgedriver: C:\Users\HP\.local\bin\msedgedriver.exe
+[probe] app binary: D:\Desktop\Inkforge\inkforge\src-tauri\target\debug\InkForge.exe
+Asset `favicon.ico` not found; fallback to favicon.ico.html
+Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+Asset `favicon.ico` not found; fallback to index.html
+[probe] seeded draft: d0ebf72b-d550-4f5e-939b-30766e1b1de0
+[probe] workstation export reachable: true
+
+========== FLAGSHIP "赤陶旗舰" SVG GEOMETRY ==========
+{
+  "charsPerLine": 27,
+  "fontSizePx": 15,
+  "hadNice": true,
+  "moduleCount": 2,
+  "modules": [
+    {
+      "deltaToParent": 0,
+      "moduleId": "cover-grid",
+      "parentW": 401,
+      "secBox": {
+        "h": 230,
+        "w": 401,
+        "x": 695,
+        "y": 242
+      },
+      "svgBox": {
+        "h": 230,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 620",
+      "widthAttr": "100%"
+    },
+    {
+      "deltaToParent": 0,
+      "moduleId": "divider-forge",
+      "parentW": 401,
+      "secBox": {
+        "h": 22,
+        "w": 401,
+        "x": 695,
+        "y": 1036
+      },
+      "svgBox": {
+        "h": 22,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 60",
+      "widthAttr": "100%"
+    }
+  ],
+  "niceWidth": 401,
+  "paraWidth": 401
+}
+  VERDICT:
+    - CHARS-OUT-OF-BAND: 27/line (expected ~18–22, band 16–24)
+
+========== FLAGSHIP "铜绿旗舰" SVG GEOMETRY ==========
+{
+  "charsPerLine": 27,
+  "fontSizePx": 15,
+  "hadNice": true,
+  "moduleCount": 2,
+  "modules": [
+    {
+      "deltaToParent": 0,
+      "moduleId": "cover-title",
+      "parentW": 401,
+      "secBox": {
+        "h": 230,
+        "w": 401,
+        "x": 695,
+        "y": 242
+      },
+      "svgBox": {
+        "h": 230,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 620",
+      "widthAttr": "100%"
+    },
+    {
+      "deltaToParent": 0,
+      "moduleId": "divider-diamond",
+      "parentW": 401,
+      "secBox": {
+        "h": 22,
+        "w": 401,
+        "x": 695,
+        "y": 1036
+      },
+      "svgBox": {
+        "h": 22,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 60",
+      "widthAttr": "100%"
+    }
+  ],
+  "niceWidth": 401,
+  "paraWidth": 401
+}
+  VERDICT:
+    - CHARS-OUT-OF-BAND: 27/line (expected ~18–22, band 16–24)
+
+========== FLAGSHIP "黄铜旗舰" SVG GEOMETRY ==========
+{
+  "charsPerLine": 27,
+  "fontSizePx": 15,
+  "hadNice": true,
+  "moduleCount": 2,
+  "modules": [
+    {
+      "deltaToParent": 0,
+      "moduleId": "cover-title",
+      "parentW": 401,
+      "secBox": {
+        "h": 230,
+        "w": 401,
+        "x": 695,
+        "y": 242
+      },
+      "svgBox": {
+        "h": 230,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 620",
+      "widthAttr": "100%"
+    },
+    {
+      "deltaToParent": 0,
+      "moduleId": "divider-grid",
+      "parentW": 401,
+      "secBox": {
+        "h": 22,
+        "w": 401,
+        "x": 695,
+        "y": 1036
+      },
+      "svgBox": {
+        "h": 22,
+        "w": 401
+      },
+      "viewBox": "0 0 1080 60",
+      "widthAttr": "100%"
+    }
+  ],
+  "niceWidth": 401,
+  "paraWidth": 401
+}
+  VERDICT:
+    - CHARS-OUT-OF-BAND: 27/line (expected ~18–22, band 16–24)
+
+====================================================

@@ -101,6 +101,7 @@
 | 小红书图片页工具 | figure-system：3:4 image pages + layout report |
 | 小红书长文编辑器 | 真实账号验证项；本地只能证明 payload 和 artifact，不伪造发布 |
 | 微信旗舰 HTML/SVG | 对 XHS 全部降级为图片或纯文本摘要 |
+| Redink / 渲染AI | 只借鉴 staged pipeline（outline → cover → content pages）、外置 prompt、manifest/页面一致性思路；不复制代码、提示词、图片素材或生成模板，不作为平台发布证明 |
 
 ## 七、验收要求
 
@@ -111,8 +112,11 @@
 
 ## 八、Source Index
 
+> 3:4、1080x1440、1242x1660、最多 18 图等均来自 2026 市场资料和当前可见入口经验，账号版本、地区、灰度发布和平台策略可能变动。InkForge 必须把这些值作为 configurable/checkable limit 与 publish checklist 项，而不是硬编码为永久常量。
+
 - Rednote / Xiaohongshu 3:4 cover market reference: `https://xiaohongshu.oimi.ai/en/blog/xiaohongshu-cover-size`
 - Xiaohongshu 2026 image-size market reference: `https://focalflow.app/blog/xiaohongshu-image-guide-2026/`
 - Social media aspect-ratio market reference: `https://toolora.info/en/t/social-aspect-ratio-guide/`
 - Xiaohongshu 2026 format guide market reference: `https://www.travelofchina.com/how-to-post-on-xiaohongshu/`
 - Rednote content guideline market reference: `https://mktgplus.com/130/essential-faqs-for-international-brands-on-xiaohongshu-rednote`
+- Redink / 渲染AI XHS workflow reference: `https://github.com/joshua23/redink-xiaohongshu` (concept only; CC-BY-NC-SA-4.0 non-commercial boundary)

@@ -1,0 +1,567 @@
+
+> inkforge@0.1.0 test:e2e D:\Desktop\Inkforge\inkforge
+> wdio run tests/e2e/wdio.conf.cjs
+
+2026-06-08T00:30:25.148Z INFO @wdio/cli:launcher: Run onPrepare hook
+   Compiling inkforge v0.1.0 (D:\Desktop\Inkforge\inkforge\src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.63s
+
+Execution of 2 workers started at 2026-06-08T00:30:29.903Z
+
+2026-06-08T00:30:29.906Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-06-08T00:30:29.907Z INFO @wdio/xvfb: XvfbManager.init() called
+2026-06-08T00:30:29.907Z INFO @wdio/xvfb: Xvfb not needed on current platform
+2026-06-08T00:30:29.909Z INFO @wdio/local-runner: Start worker 0-0 with arg: run tests/e2e/wdio.conf.cjs
+2026-06-08T00:30:29.966Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-06-08T00:30:29.966Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-06-08T00:30:29.966Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+[0-0] 2026-06-08T00:30:30.936Z INFO @wdio/local-runner: Run worker command: run
+[0-0] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+[0-0] 2026-06-08T00:30:31.159Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-0] 2026-06-08T00:30:31.159Z INFO @wdio/utils: Connecting to existing driver at http://127.0.0.1:4444/
+[0-0] 2026-06-08T00:30:31.167Z INFO webdriver: [POST] http://127.0.0.1:4444/session
+[0-0] 2026-06-08T00:30:31.672Z INFO webdriver: COMMAND getWindowHandle()
+[0-0] 2026-06-08T00:30:31.673Z INFO webdriver: [GET] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/window
+[0-0] 2026-06-08T00:30:31.678Z INFO webdriver: RESULT 3AA81185449823997099C82866C4B17A
+[0-0] 2026-06-08T00:30:31.684Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:31.684Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:31.685Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!document.querySelector('.ink-titlebar')).apply(null, arguments)\n        ","args":[]}
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-0] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-0] Asset `favicon.ico` not found; fallback to index.html
+[0-0] 2026-06-08T00:30:32.315Z INFO webdriver: RESULT false
+[0-0] 2026-06-08T00:30:32.324Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:32.325Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:32.325Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!document.querySelector('.ink-titlebar')).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:32.331Z INFO webdriver: RESULT false
+[0-0] 2026-06-08T00:30:32.340Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:32.341Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:32.341Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => !!document.querySelector('.ink-titlebar')).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:32.537Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:34.049Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:34.049Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:34.049Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      if (!location.pathname.startsWith('/workstation')) {\n        window.history.pushState({}, '', '/workstation');\n        window.dispatchEvent(new PopStateEvent('popstate'));\n      }\n    }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:34.067Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:35.083Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:35.083Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:35.083Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((seedTitle, seedBody) => {\n    function findPinia() {\n      const root = document.getElementById('app');\n      const app = root && root.__vue_app__;\n      if (!app || !app._context || !app._context.provides) return null;\n      const provides = app._context.provides;\n      // Pinia registers itself under a non-enumerable Symbol key; find the\n      // provided value that looks like a Pinia instance (has the `_s` store Map).\n      for (const sym of Object.getOwnPropertySymbols(provides)) {\n        const candidate = provides[sym];\n        if (candidate && candidate._s && typeof candidate._s.get === 'function') {\n          return candidate;\n        }\n      }\n      return null;\n    }\n\n    try {\n      const pinia = findPinia();\n      if (!pinia) return { ok: false, reason: 'PINIA-UNREACHABLE: #app.__vue_app__ provides has no Pinia (with _s store map)' };\n\n      const articleStore = pinia._s.get('article');\n      if (!articleStore || typeof articleStore.addArticle !== 'function') {\n        return { ok: false, reason: 'STORE-MISSING: pinia._s has no usable `article` store (addArticle missing)' };\n      }\n\n      // Async creation: addArticle is a real zod-validated, encrypted, audited\n      // path. We return a Promise so webdriver awaits it.\n      return articleStore\n        .addArticle({\n          title: seedTitle,\n          sourceUrl: 'e2e://svg-render-seed/' + Date.now(),\n          rawContent: seedBody,\n        })\n        .then((article) => {\n          if (!article || !article.id) {\n            return { ok: false, reason: 'CREATE-FAILED: addArticle returned no article id' };\n          }\n          articleStore.selectArticle(article.id);\n          return { ok: true, articleId: article.id };\n        })\n        .catch((err) => ({\n          ok: false,\n          reason: 'ADD-ARTICLE-THREW: ' + (err && err.message ? err.message : String(err)),\n        }));\n    } catch (err) {\n      return { ok: false, reason: 'SEED-EXCEPTION: ' + (err && err.message ? err.message : String(err)) };\n    }\n  }).apply(null, arguments)\n        ","args":["SVG 旗舰排版真机验证样稿","# SVG 旗舰排版真机验证样稿\n\n> 这是一段导语，用来触发封面与引用卡模块的真实注入流程。\n\n在墨铸的导出管线里，我们把高级排版编译成微信安全的内联矢量图形，\n让标题、分隔线、引用卡与结束标都成为可复用的参数化组件，并且严格遵守\n每行二十到二十二个汉字的移动端可读性铁律，不破坏任何既有渲染行为。\n\n## 章节标题触发标题头模块\n\n正文继续展开，混排英文 The quick brown fox 与中文段落，验证字体对在真实\nWebView2 内的协同表现，同时让分隔线与徽章模块拥有足够的上下文环境。\n\n### 三级标题触发竖线标题头\n\n这一段是较长的中文正文，用于测量每行折行后的汉字数量是否落在二十到\n二十二字的舒适区间，从而确认行宽锁在旗舰预设下依旧生效且未被破坏。\n\n---\n\n> “真实渲染、真实跑通、零模拟。” —— 墨铸团队\n\n末段补充更多中文内容，确保文末结束标模块能够正确追加到正文之后，\n并且整篇文章的多个 SVG 模块都能在导出预览中被探针稳定地观测到。"]}
+[0-0] 2026-06-08T00:30:35.119Z INFO webdriver: RESULT { articleId: '0bc90039-47af-4472-802f-3d522417ffe6', ok: true }
+[0-0] 2026-06-08T00:30:35.120Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:35.120Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:35.121Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((id) => {\n    const target = id ? `/workstation?id=${encodeURIComponent(id)}` : '/workstation';\n    if (!location.pathname.startsWith('/workstation') || (id && !location.search.includes(id))) {\n      window.history.pushState({}, '', target);\n      window.dispatchEvent(new PopStateEvent('popstate'));\n    }\n  }).apply(null, arguments)\n        ","args":["0bc90039-47af-4472-802f-3d522417ffe6"]}
+[0-0] 2026-06-08T00:30:35.131Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:36.334Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:36.335Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:36.335Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const bar = document.querySelector('.panel-stage .stage-collapsed-bar');\n    if (bar) bar.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:36.372Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:36.780Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:36.780Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:36.780Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n          const btn = document.querySelector('.panel-stage .stage-btn-secondary');\n          if (!btn) return 'absent';\n          return btn.disabled ? 'disabled' : 'ready';\n        }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:36.790Z INFO webdriver: RESULT ready
+[0-0] 2026-06-08T00:30:36.793Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:36.794Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:36.794Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const btn = document.querySelector('.panel-stage .stage-btn-secondary');\n    if (btn && !btn.disabled) btn.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:36.887Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:36.887Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:36.888Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:36.888Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() =>\n          !!document.querySelector('.export-panel') &&\n          document.querySelectorAll('.export-panel .preset-card').length > 0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:36.918Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:36.919Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:36.919Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:36.919Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));\n    const wechat = pills.find((p) => /微信/.test(p.textContent || '')) || pills[0];\n    if (wechat && !wechat.classList.contains('active')) wechat.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:36.928Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:37.334Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:37.334Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:37.334Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((name) => {\n    const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));\n    const card = cards.find((c) => (c.textContent || '').includes(name));\n    if (!card) return false;\n    card.click();\n    return true;\n  }).apply(null, arguments)\n        ","args":["赤陶旗舰"]}
+[0-0] 2026-06-08T00:30:37.420Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:37.421Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:37.421Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:37.421Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        if (!render) return false;\n        return render.querySelectorAll('[data-ink-svg]').length > 0;\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:37.430Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:37.430Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:37.430Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:37.431Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        const sections = Array.from(render.querySelectorAll('[data-ink-svg]'));\n        const modules = sections.map((sec) => {\n          const svg = sec.querySelector('svg');\n          const secBox = sec.getBoundingClientRect();\n          const svgBox = svg ? svg.getBoundingClientRect() : null;\n          const parentBox = svg && svg.parentElement\n            ? svg.parentElement.getBoundingClientRect()\n            : null;\n          return {\n            moduleId: sec.getAttribute('data-ink-svg'),\n            hasSvg: !!svg,\n            viewBox: svg ? (svg.getAttribute('viewBox') || svg.getAttribute('viewbox')) : null,\n            secW: secBox ? Math.round(secBox.width) : 0,\n            svgW: svgBox ? Math.round(svgBox.width) : 0,\n            svgH: svgBox ? Math.round(svgBox.height) : 0,\n            parentW: parentBox ? Math.round(parentBox.width) : 0,\n            // delta between the svg width and its container (parent) width\n            deltaToParent:\n              svgBox && parentBox\n                ? Math.abs(svgBox.width - parentBox.width)\n                : Number.POSITIVE_INFINITY,\n          };\n        });\n        return { count: sections.length, modules };\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:37.440Z INFO webdriver: RESULT {
+[0-0]   count: 2,
+[0-0]   modules: [
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'cover-grid',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 230,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 620'
+[0-0]     },
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'divider-forge',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 22,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 60'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-06-08T00:30:37.443Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-06-08T00:30:37.443Z INFO webdriver: [GET] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/screenshot
+[0-0] 2026-06-08T00:30:37.602Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAACDQAAAVGCAIAAADkC+6UAAAQAElEQVR4nOzdB...
+[0-0] [svg-render] flagship-kiln: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-grid","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] 2026-06-08T00:30:37.608Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:37.608Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:37.608Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const close = document.querySelector('.export-panel .header-close');\n    if (close) close.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:37.618Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:38.029Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.029Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.029Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const btn = document.querySelector('.panel-stage .stage-btn-secondary');\n    if (btn && !btn.disabled) btn.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.068Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:38.069Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.069Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.069Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() =>\n          !!document.querySelector('.export-panel') &&\n          document.querySelectorAll('.export-panel .preset-card').length > 0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.081Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:38.082Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.082Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.082Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));\n    const wechat = pills.find((p) => /微信/.test(p.textContent || '')) || pills[0];\n    if (wechat && !wechat.classList.contains('active')) wechat.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.090Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:38.492Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.492Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.492Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((name) => {\n    const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));\n    const card = cards.find((c) => (c.textContent || '').includes(name));\n    if (!card) return false;\n    card.click();\n    return true;\n  }).apply(null, arguments)\n        ","args":["铜绿旗舰"]}
+[0-0] 2026-06-08T00:30:38.527Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:38.527Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.527Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.528Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        if (!render) return false;\n        return render.querySelectorAll('[data-ink-svg]').length > 0;\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.534Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:38.534Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.534Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.534Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        const sections = Array.from(render.querySelectorAll('[data-ink-svg]'));\n        const modules = sections.map((sec) => {\n          const svg = sec.querySelector('svg');\n          const secBox = sec.getBoundingClientRect();\n          const svgBox = svg ? svg.getBoundingClientRect() : null;\n          const parentBox = svg && svg.parentElement\n            ? svg.parentElement.getBoundingClientRect()\n            : null;\n          return {\n            moduleId: sec.getAttribute('data-ink-svg'),\n            hasSvg: !!svg,\n            viewBox: svg ? (svg.getAttribute('viewBox') || svg.getAttribute('viewbox')) : null,\n            secW: secBox ? Math.round(secBox.width) : 0,\n            svgW: svgBox ? Math.round(svgBox.width) : 0,\n            svgH: svgBox ? Math.round(svgBox.height) : 0,\n            parentW: parentBox ? Math.round(parentBox.width) : 0,\n            // delta between the svg width and its container (parent) width\n            deltaToParent:\n              svgBox && parentBox\n                ? Math.abs(svgBox.width - parentBox.width)\n                : Number.POSITIVE_INFINITY,\n          };\n        });\n        return { count: sections.length, modules };\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.542Z INFO webdriver: RESULT {
+[0-0]   count: 2,
+[0-0]   modules: [
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'cover-title',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 230,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 620'
+[0-0]     },
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'divider-diamond',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 22,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 60'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-06-08T00:30:38.543Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-06-08T00:30:38.544Z INFO webdriver: [GET] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/screenshot
+[0-0] 2026-06-08T00:30:38.693Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAACDQAAAVGCAIAAADkC+6UAAAQAElEQVR4nOzdB...
+[0-0] [svg-render] flagship-tempera: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-title","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] 2026-06-08T00:30:38.697Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:38.697Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:38.698Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const close = document.querySelector('.export-panel .header-close');\n    if (close) close.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:38.708Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:39.112Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.113Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.113Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const btn = document.querySelector('.panel-stage .stage-btn-secondary');\n    if (btn && !btn.disabled) btn.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.147Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:39.147Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.147Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.147Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() =>\n          !!document.querySelector('.export-panel') &&\n          document.querySelectorAll('.export-panel .preset-card').length > 0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.154Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:39.155Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.155Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.155Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));\n    const wechat = pills.find((p) => /微信/.test(p.textContent || '')) || pills[0];\n    if (wechat && !wechat.classList.contains('active')) wechat.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.159Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:39.572Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.573Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.573Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((name) => {\n    const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));\n    const card = cards.find((c) => (c.textContent || '').includes(name));\n    if (!card) return false;\n    card.click();\n    return true;\n  }).apply(null, arguments)\n        ","args":["黄铜旗舰"]}
+[0-0] 2026-06-08T00:30:39.608Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:39.608Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.608Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.608Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        if (!render) return false;\n        return render.querySelectorAll('[data-ink-svg]').length > 0;\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.617Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:39.617Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.618Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.618Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        const sections = Array.from(render.querySelectorAll('[data-ink-svg]'));\n        const modules = sections.map((sec) => {\n          const svg = sec.querySelector('svg');\n          const secBox = sec.getBoundingClientRect();\n          const svgBox = svg ? svg.getBoundingClientRect() : null;\n          const parentBox = svg && svg.parentElement\n            ? svg.parentElement.getBoundingClientRect()\n            : null;\n          return {\n            moduleId: sec.getAttribute('data-ink-svg'),\n            hasSvg: !!svg,\n            viewBox: svg ? (svg.getAttribute('viewBox') || svg.getAttribute('viewbox')) : null,\n            secW: secBox ? Math.round(secBox.width) : 0,\n            svgW: svgBox ? Math.round(svgBox.width) : 0,\n            svgH: svgBox ? Math.round(svgBox.height) : 0,\n            parentW: parentBox ? Math.round(parentBox.width) : 0,\n            // delta between the svg width and its container (parent) width\n            deltaToParent:\n              svgBox && parentBox\n                ? Math.abs(svgBox.width - parentBox.width)\n                : Number.POSITIVE_INFINITY,\n          };\n        });\n        return { count: sections.length, modules };\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.625Z INFO webdriver: RESULT {
+[0-0]   count: 2,
+[0-0]   modules: [
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'cover-title',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 230,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 620'
+[0-0]     },
+[0-0]     {
+[0-0]       deltaToParent: 0,
+[0-0]       hasSvg: true,
+[0-0]       moduleId: 'divider-grid',
+[0-0]       parentW: 401,
+[0-0]       secW: 401,
+[0-0]       svgH: 22,
+[0-0]       svgW: 401,
+[0-0]       viewBox: '0 0 1080 60'
+[0-0]     }
+[0-0]   ]
+[0-0] }
+[0-0] 2026-06-08T00:30:39.626Z INFO webdriver: COMMAND takeScreenshot()
+[0-0] 2026-06-08T00:30:39.627Z INFO webdriver: [GET] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/screenshot
+[0-0] 2026-06-08T00:30:39.804Z INFO webdriver: RESULT iVBORw0KGgoAAAANSUhEUgAACDQAAAVGCAIAAADkC+6UAAAQAElEQVR4nOzdB...
+[0-0] [svg-render] flagship-amber: 2 [data-ink-svg] modules; sample bbox {"deltaToParent":0,"hasSvg":true,"moduleId":"cover-title","parentW":401,"secW":401,"svgH":230,"svgW":401,"viewBox":"0 0 1080 620"}
+[0-0] 2026-06-08T00:30:39.807Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:39.808Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:39.808Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const close = document.querySelector('.export-panel .header-close');\n    if (close) close.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:39.816Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:40.227Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.227Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.227Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const btn = document.querySelector('.panel-stage .stage-btn-secondary');\n    if (btn && !btn.disabled) btn.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.256Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:40.257Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.257Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.257Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() =>\n          !!document.querySelector('.export-panel') &&\n          document.querySelectorAll('.export-panel .preset-card').length > 0).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.267Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:40.267Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.268Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.268Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const pills = Array.from(document.querySelectorAll('.export-panel .pill-btn'));\n    const wechat = pills.find((p) => /微信/.test(p.textContent || '')) || pills[0];\n    if (wechat && !wechat.classList.contains('active')) wechat.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.273Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:40.689Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.689Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.689Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((name) => {\n    const cards = Array.from(document.querySelectorAll('.export-panel .preset-card'));\n    const card = cards.find((c) => (c.textContent || '').includes(name));\n    if (!card) return false;\n    card.click();\n    return true;\n  }).apply(null, arguments)\n        ","args":["铜绿旗舰"]}
+[0-0] 2026-06-08T00:30:40.719Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:40.719Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.720Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.720Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n        const render = document.querySelector('.export-panel .preview-render');\n        if (!render) return false;\n        return render.querySelectorAll('[data-ink-svg]').length > 0;\n      }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.728Z INFO webdriver: RESULT true
+[0-0] 2026-06-08T00:30:40.729Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.729Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.729Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const render = document.querySelector('.export-panel .preview-render');\n      const niceEl =\n        render.querySelector('#nice') ||\n        render.querySelector('section[id=\"nice\"]') ||\n        render;\n      const niceBox = niceEl.getBoundingClientRect();\n\n      // Longest body <p> NOT inside an injected SVG module (decorative).\n      const paras = Array.from(render.querySelectorAll('p'))\n        .filter((p) => !p.closest('[data-ink-svg]'));\n      let best = null;\n      for (const p of paras) {\n        const text = (p.textContent || '').trim();\n        if (!text) continue;\n        if (!best || text.length > best.text.length) best = { text, el: p };\n      }\n\n      const SHIP_FONT_PX = 17; // generatePersonaBaseCSS #nice font-size lock\n      const MOBILE_COL_PX = 360; // ~375px phone − WeChat body padding\n      const LINE_HEIGHT = 1.75; // academic persona (铜绿/tempera)\n      let charsPerLine = null;\n      let lineCount = null;\n      let sampleChars = null;\n      if (best) {\n        const cs = getComputedStyle(best.el);\n        const probe = document.createElement('div');\n        probe.style.position = 'absolute';\n        probe.style.left = '-99999px';\n        probe.style.top = '0';\n        probe.style.visibility = 'hidden';\n        probe.style.width = MOBILE_COL_PX + 'px';\n        probe.style.fontSize = SHIP_FONT_PX + 'px';\n        probe.style.lineHeight = String(LINE_HEIGHT);\n        probe.style.whiteSpace = 'normal';\n        probe.style.wordBreak = 'break-word';\n        probe.style.lineBreak = 'strict';\n        // Inherit the real body font stack + kerning so CJK glyph advance is\n        // faithful to what ships (font substitution differs per machine).\n        probe.style.fontFamily = cs.fontFamily;\n        probe.style.fontFeatureSettings = cs.fontFeatureSettings;\n        probe.textContent = best.text;\n        render.appendChild(probe);\n        const lineHeightPx = SHIP_FONT_PX * LINE_HEIGHT;\n        lineCount = Math.max(1, Math.round(probe.scrollHeight / lineHeightPx));\n        sampleChars = best.text.length;\n        charsPerLine = Math.round(sampleChars / lineCount);\n        render.removeChild(probe);\n      }\n      return {\n        niceWidth: Math.round(niceBox.width),\n        hadPara: !!best,\n        charsPerLine,\n        lineCount,\n        sampleChars,\n      };\n    }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.750Z INFO webdriver: RESULT {
+[0-0]   charsPerLine: 20,
+[0-0]   hadPara: true,
+[0-0]   lineCount: 5,
+[0-0]   niceWidth: 401,
+[0-0]   sampleChars: 99
+[0-0] }
+[0-0] [svg-render] chars/line (mobile-emulated): 20 (99 chars over 5 lines @360px/17px)
+[0-0] 2026-06-08T00:30:40.751Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-0] 2026-06-08T00:30:40.751Z INFO webdriver: [POST] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888/execute/sync
+[0-0] 2026-06-08T00:30:40.751Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n    const close = document.querySelector('.export-panel .header-close');\n    if (close) close.click();\n  }).apply(null, arguments)\n        ","args":[]}
+[0-0] 2026-06-08T00:30:40.761Z INFO webdriver: RESULT null
+[0-0] 2026-06-08T00:30:40.764Z INFO webdriver: COMMAND deleteSession()
+[0-0] 2026-06-08T00:30:40.764Z INFO webdriver: [DELETE] http://127.0.0.1:4444/session/177ab82494b030cf6aaaf9c9fca95888
+[0-0] 2026-06-08T00:30:40.785Z INFO webdriver: RESULT null
+[0-0] PASSED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/svg-render.spec.cjs
+2026-06-08T00:30:40.924Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+2026-06-08T00:30:40.924Z INFO @wdio/cli:launcher: Run onWorkerStart hook
+2026-06-08T00:30:40.925Z INFO @wdio/local-runner: Start worker 0-1 with arg: run tests/e2e/wdio.conf.cjs
+2026-06-08T00:30:40.978Z INFO @wdio/xvfb:ProcessFactory: xvfb-run not found, falling back to regular fork
+2026-06-08T00:30:40.978Z INFO @wdio/xvfb:ProcessFactory: ProcessFactory: shouldRun=false, isAvailable=false
+2026-06-08T00:30:40.978Z INFO @wdio/xvfb:ProcessFactory: Creating worker process with regular fork
+[0-1] 2026-06-08T00:30:41.795Z INFO @wdio/local-runner: Run worker command: run
+[0-1] RUNNING in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/visual.spec.cjs
+[0-1] 2026-06-08T00:30:41.935Z INFO webdriver: Initiate new session using the WebDriver protocol
+[0-1] 2026-06-08T00:30:41.935Z INFO @wdio/utils: Connecting to existing driver at http://127.0.0.1:4444/
+[0-1] 2026-06-08T00:30:41.945Z INFO webdriver: [POST] http://127.0.0.1:4444/session
+[0-1] 2026-06-08T00:30:42.392Z INFO webdriver: COMMAND getWindowHandle()
+[0-1] 2026-06-08T00:30:42.392Z INFO webdriver: [GET] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/window
+[0-1] 2026-06-08T00:30:42.396Z INFO webdriver: RESULT B784215F6F69FBA82FFD7C49D409CA8B
+[0-1] 2026-06-08T00:30:42.401Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:42.401Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:42.401Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-base"]}
+[0-1] Asset `favicon.ico` not found; fallback to favicon.ico.html
+[0-1] Asset `favicon.ico` not found; fallback to favicon.ico/index.html
+[0-1] Asset `favicon.ico` not found; fallback to index.html
+[0-1] 2026-06-08T00:30:42.955Z INFO webdriver: RESULT .18s
+[0-1] 2026-06-08T00:30:42.959Z INFO webdriver: COMMAND findElement("css selector", ".ink-titlebar")
+[0-1] 2026-06-08T00:30:42.959Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element
+[0-1] 2026-06-08T00:30:42.959Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar"}
+[0-1] 2026-06-08T00:30:43.181Z INFO webdriver: RESULT {
+[0-1]   'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.35'
+[0-1] }
+[0-1] 2026-06-08T00:30:43.187Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar")
+[0-1] 2026-06-08T00:30:43.187Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.187Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar"}
+[0-1] 2026-06-08T00:30:43.207Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.35'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:43.212Z INFO webdriver: COMMAND getElementTagName("f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.35")
+[0-1] 2026-06-08T00:30:43.212Z INFO webdriver: [GET] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element/f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.35/name
+[0-1] 2026-06-08T00:30:43.222Z INFO webdriver: RESULT header
+[0-1] 2026-06-08T00:30:43.223Z INFO webdriver: COMMAND findElement("css selector", ".ink-titlebar__seal")
+[0-1] 2026-06-08T00:30:43.223Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element
+[0-1] 2026-06-08T00:30:43.223Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__seal"}
+[0-1] 2026-06-08T00:30:43.233Z INFO webdriver: RESULT {
+[0-1]   'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.36'
+[0-1] }
+[0-1] 2026-06-08T00:30:43.235Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar__seal")
+[0-1] 2026-06-08T00:30:43.236Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.236Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__seal"}
+[0-1] 2026-06-08T00:30:43.246Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.36'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:43.250Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar__btn")
+[0-1] 2026-06-08T00:30:43.250Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.250Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__btn"}
+[0-1] 2026-06-08T00:30:43.263Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.39'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:43.266Z INFO webdriver: COMMAND findElement("css selector", ".ink-titlebar__btn--close")
+[0-1] 2026-06-08T00:30:43.266Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element
+[0-1] 2026-06-08T00:30:43.266Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__btn--close"}
+[0-1] 2026-06-08T00:30:43.276Z INFO webdriver: RESULT {
+[0-1]   'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.39'
+[0-1] }
+[0-1] 2026-06-08T00:30:43.278Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar__btn--close")
+[0-1] 2026-06-08T00:30:43.278Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.278Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__btn--close"}
+[0-1] 2026-06-08T00:30:43.289Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.39'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:43.292Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar__btn")
+[0-1] 2026-06-08T00:30:43.292Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.292Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__btn"}
+[0-1] 2026-06-08T00:30:43.300Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.39'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:43.304Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:43.304Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:43.304Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function(elem) {\n      try {\n        const style = window.getComputedStyle(elem);\n        return { value: style?.display ?? \"\" };\n      } catch {\n        if (typeof elem.isConnected === \"boolean\" && !elem.isConnected) {\n          throw new Error(\"stale element reference: element is not attached to the page document\");\n        }\n        return { value: \"\" };\n      }\n    }).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38"}]}
+[0-1] 2026-06-08T00:30:43.305Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:43.305Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:43.305Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function checkVisibility(elem, params) {\n      if (typeof elem.checkVisibility === \"function\") {\n        return elem.checkVisibility(params);\n      }\n      return null;\n    }).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38"},{"withinViewport":false,"contentVisibilityAuto":true,"opacityProperty":true,"visibilityProperty":true}]}
+[0-1] 2026-06-08T00:30:43.321Z INFO webdriver: RESULT { value: 'flex' }
+[0-1] 2026-06-08T00:30:43.325Z INFO webdriver: RESULT true
+[0-1] 2026-06-08T00:30:43.325Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:43.326Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:43.326Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function isElementClickable(elem) {\n  if (!elem.getBoundingClientRect || !elem.scrollIntoView || !elem.contains || !elem.getClientRects || !document.elementFromPoint) {\n    return false;\n  }\n  const isOldEdge = !!window.StyleMedia;\n  const scrollIntoViewFullSupport = !(window.safari || isOldEdge);\n  function getOverlappingElement(elem2, context) {\n    context = context || document;\n    const elemDimension = elem2.getBoundingClientRect();\n    const x = elemDimension.left + elem2.clientWidth / 2;\n    const y = elemDimension.top + elem2.clientHeight / 2;\n    return context.elementFromPoint(x, y);\n  }\n  function getOverlappingRects(elem2, context) {\n    context = context || document;\n    const rects = elem2.getClientRects();\n    const rect = rects[0];\n    const x = rect.left + rect.width / 2;\n    const y = rect.top + rect.height / 2;\n    return [context.elementFromPoint(x, y)];\n  }\n  function getOverlappingElements(elem2, context) {\n    return [getOverlappingElement(elem2, context)].concat(getOverlappingRects(elem2, context));\n  }\n  function nodeContains(elem2, otherNode) {\n    if (isOldEdge) {\n      let tmpElement = otherNode;\n      while (tmpElement) {\n        if (tmpElement === elem2) {\n          return true;\n        }\n        tmpElement = tmpElement.parentNode;\n        if (tmpElement && tmpElement.nodeType === 11 && tmpElement.host) {\n          tmpElement = tmpElement.host;\n        }\n      }\n      return false;\n    }\n    return elem2.contains(otherNode);\n  }\n  function isOverlappingElementMatch(elementsFromPoint, elem2) {\n    if (elementsFromPoint.some(function(elementFromPoint) {\n      return elementFromPoint === elem2 || nodeContains(elem2, elementFromPoint);\n    })) {\n      return true;\n    }\n    let elemsWithShadowRoot = [].concat(elementsFromPoint);\n    elemsWithShadowRoot = elemsWithShadowRoot.filter(function(x) {\n      return x && x.shadowRoot && x.shadowRoot.elementFromPoint;\n    });\n    let shadowElementsFromPoint = [];\n    for (let i = 0; i < elemsWithShadowRoot.length; ++i) {\n      const shadowElement = elemsWithShadowRoot[i];\n      shadowElementsFromPoint = shadowElementsFromPoint.concat(\n        getOverlappingElements(elem2, shadowElement.shadowRoot)\n      );\n    }\n    shadowElementsFromPoint = [].concat(shadowElementsFromPoint);\n    shadowElementsFromPoint = shadowElementsFromPoint.filter(function(x) {\n      return !elementsFromPoint.includes(x);\n    });\n    if (shadowElementsFromPoint.length === 0) {\n      return false;\n    }\n    return isOverlappingElementMatch(shadowElementsFromPoint, elem2);\n  }\n  function isElementInViewport(elem2) {\n    if (!elem2.getBoundingClientRect) {\n      return false;\n    }\n    const rect = elem2.getBoundingClientRect();\n    const windowHeight = window.innerHeight || document.documentElement.clientHeight;\n    const windowWidth = window.innerWidth || document.documentElement.clientWidth;\n    const vertInView = rect.top < windowHeight && rect.top + rect.height > 0;\n    const horInView = rect.left < windowWidth && rect.left + rect.width > 0;\n    return vertInView && horInView;\n  }\n  function isEnabled(elem2) {\n    return elem2.disabled !== true;\n  }\n  function hasOverlaps(elem2) {\n    return !isOverlappingElementMatch(getOverlappingElements(elem2), elem2);\n  }\n  function isFullyDisplayedInViewport(elem2) {\n    return isElementInViewport(elem2) && !hasOverlaps(elem2);\n  }\n  function getViewportScrollPositions() {\n    return {\n      x: window.scrollX !== null && window.scrollX !== void 0 ? window.scrollX : window.pageXOffset,\n      y: window.scrollY !== null && window.scrollY !== void 0 ? window.scrollY : window.pageYOffset\n    };\n  }\n  let _isFullyDisplayedInViewport = isFullyDisplayedInViewport(elem);\n  if (!_isFullyDisplayedInViewport) {\n    const { x: originalX, y: originalY } = getViewportScrollPositions();\n    elem.scrollIntoView(scrollIntoViewFullSupport ? { block: \"center\", inline: \"center\" } : false);\n    _isFullyDisplayedInViewport = isFullyDisplayedInViewport(elem);\n    const { x: currentX, y: currentY } = getViewportScrollPositions();\n    if (currentX !== originalX || currentY !== originalY) {\n      window.scroll(originalX, originalY);\n    }\n  }\n  return _isFullyDisplayedInViewport && isEnabled(elem);\n}).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38"}]}
+[0-1] 2026-06-08T00:30:43.334Z INFO webdriver: RESULT true
+[0-1] 2026-06-08T00:30:43.334Z INFO webdriver: COMMAND elementClick("f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38")
+[0-1] 2026-06-08T00:30:43.335Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element/f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38/click
+[0-1] 2026-06-08T00:30:43.335Z INFO webdriver: DATA {}
+[0-1] 2026-06-08T00:30:43.416Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:43.722Z INFO webdriver: COMMAND elementClick("f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38")
+[0-1] 2026-06-08T00:30:43.722Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element/f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38/click
+[0-1] 2026-06-08T00:30:43.722Z INFO webdriver: DATA {}
+[0-1] 2026-06-08T00:30:43.782Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:43.987Z INFO webdriver: COMMAND findElements("css selector", ".ink-titlebar__btn")
+[0-1] 2026-06-08T00:30:43.987Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/elements
+[0-1] 2026-06-08T00:30:43.987Z INFO webdriver: DATA {"using":"css selector","value":".ink-titlebar__btn"}
+[0-1] 2026-06-08T00:30:43.998Z INFO webdriver: RESULT [
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.38'
+[0-1]   },
+[0-1]   {
+[0-1]     'element-6066-11e4-a52e-4f735466cecf': 'f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.39'
+[0-1]   }
+[0-1] ]
+[0-1] 2026-06-08T00:30:44.003Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.003Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.003Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function(elem) {\n      try {\n        const style = window.getComputedStyle(elem);\n        return { value: style?.display ?? \"\" };\n      } catch {\n        if (typeof elem.isConnected === \"boolean\" && !elem.isConnected) {\n          throw new Error(\"stale element reference: element is not attached to the page document\");\n        }\n        return { value: \"\" };\n      }\n    }).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37"}]}
+[0-1] 2026-06-08T00:30:44.004Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.004Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.004Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function checkVisibility(elem, params) {\n      if (typeof elem.checkVisibility === \"function\") {\n        return elem.checkVisibility(params);\n      }\n      return null;\n    }).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37"},{"withinViewport":false,"contentVisibilityAuto":true,"opacityProperty":true,"visibilityProperty":true}]}
+[0-1] 2026-06-08T00:30:44.011Z INFO webdriver: RESULT { value: 'flex' }
+[0-1] 2026-06-08T00:30:44.016Z INFO webdriver: RESULT true
+[0-1] 2026-06-08T00:30:44.016Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.017Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.017Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (function isElementClickable(elem) {\n  if (!elem.getBoundingClientRect || !elem.scrollIntoView || !elem.contains || !elem.getClientRects || !document.elementFromPoint) {\n    return false;\n  }\n  const isOldEdge = !!window.StyleMedia;\n  const scrollIntoViewFullSupport = !(window.safari || isOldEdge);\n  function getOverlappingElement(elem2, context) {\n    context = context || document;\n    const elemDimension = elem2.getBoundingClientRect();\n    const x = elemDimension.left + elem2.clientWidth / 2;\n    const y = elemDimension.top + elem2.clientHeight / 2;\n    return context.elementFromPoint(x, y);\n  }\n  function getOverlappingRects(elem2, context) {\n    context = context || document;\n    const rects = elem2.getClientRects();\n    const rect = rects[0];\n    const x = rect.left + rect.width / 2;\n    const y = rect.top + rect.height / 2;\n    return [context.elementFromPoint(x, y)];\n  }\n  function getOverlappingElements(elem2, context) {\n    return [getOverlappingElement(elem2, context)].concat(getOverlappingRects(elem2, context));\n  }\n  function nodeContains(elem2, otherNode) {\n    if (isOldEdge) {\n      let tmpElement = otherNode;\n      while (tmpElement) {\n        if (tmpElement === elem2) {\n          return true;\n        }\n        tmpElement = tmpElement.parentNode;\n        if (tmpElement && tmpElement.nodeType === 11 && tmpElement.host) {\n          tmpElement = tmpElement.host;\n        }\n      }\n      return false;\n    }\n    return elem2.contains(otherNode);\n  }\n  function isOverlappingElementMatch(elementsFromPoint, elem2) {\n    if (elementsFromPoint.some(function(elementFromPoint) {\n      return elementFromPoint === elem2 || nodeContains(elem2, elementFromPoint);\n    })) {\n      return true;\n    }\n    let elemsWithShadowRoot = [].concat(elementsFromPoint);\n    elemsWithShadowRoot = elemsWithShadowRoot.filter(function(x) {\n      return x && x.shadowRoot && x.shadowRoot.elementFromPoint;\n    });\n    let shadowElementsFromPoint = [];\n    for (let i = 0; i < elemsWithShadowRoot.length; ++i) {\n      const shadowElement = elemsWithShadowRoot[i];\n      shadowElementsFromPoint = shadowElementsFromPoint.concat(\n        getOverlappingElements(elem2, shadowElement.shadowRoot)\n      );\n    }\n    shadowElementsFromPoint = [].concat(shadowElementsFromPoint);\n    shadowElementsFromPoint = shadowElementsFromPoint.filter(function(x) {\n      return !elementsFromPoint.includes(x);\n    });\n    if (shadowElementsFromPoint.length === 0) {\n      return false;\n    }\n    return isOverlappingElementMatch(shadowElementsFromPoint, elem2);\n  }\n  function isElementInViewport(elem2) {\n    if (!elem2.getBoundingClientRect) {\n      return false;\n    }\n    const rect = elem2.getBoundingClientRect();\n    const windowHeight = window.innerHeight || document.documentElement.clientHeight;\n    const windowWidth = window.innerWidth || document.documentElement.clientWidth;\n    const vertInView = rect.top < windowHeight && rect.top + rect.height > 0;\n    const horInView = rect.left < windowWidth && rect.left + rect.width > 0;\n    return vertInView && horInView;\n  }\n  function isEnabled(elem2) {\n    return elem2.disabled !== true;\n  }\n  function hasOverlaps(elem2) {\n    return !isOverlappingElementMatch(getOverlappingElements(elem2), elem2);\n  }\n  function isFullyDisplayedInViewport(elem2) {\n    return isElementInViewport(elem2) && !hasOverlaps(elem2);\n  }\n  function getViewportScrollPositions() {\n    return {\n      x: window.scrollX !== null && window.scrollX !== void 0 ? window.scrollX : window.pageXOffset,\n      y: window.scrollY !== null && window.scrollY !== void 0 ? window.scrollY : window.pageYOffset\n    };\n  }\n  let _isFullyDisplayedInViewport = isFullyDisplayedInViewport(elem);\n  if (!_isFullyDisplayedInViewport) {\n    const { x: originalX, y: originalY } = getViewportScrollPositions();\n    elem.scrollIntoView(scrollIntoViewFullSupport ? { block: \"center\", inline: \"center\" } : false);\n    _isFullyDisplayedInViewport = isFullyDisplayedInViewport(elem);\n    const { x: currentX, y: currentY } = getViewportScrollPositions();\n    if (currentX !== originalX || currentY !== originalY) {\n      window.scroll(originalX, originalY);\n    }\n  }\n  return _isFullyDisplayedInViewport && isEnabled(elem);\n}).apply(null, arguments)\n        ","args":[{"element-6066-11e4-a52e-4f735466cecf":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37","ELEMENT":"f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37"}]}
+[0-1] 2026-06-08T00:30:44.024Z INFO webdriver: RESULT true
+[0-1] 2026-06-08T00:30:44.025Z INFO webdriver: COMMAND getElementAttribute("f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37", "data-tauri-drag-region")
+[0-1] 2026-06-08T00:30:44.025Z INFO webdriver: [GET] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element/f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37/attribute/data-tauri-drag-region
+[0-1] 2026-06-08T00:30:44.031Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:44.031Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.031Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.032Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const btn = document.querySelectorAll('.ink-titlebar__btn')[0];\n      const svg = btn ? btn.querySelector('svg') : null;\n      return svg ? svg.getBoundingClientRect().width : 0;\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.040Z INFO webdriver: RESULT 14
+[0-1] 2026-06-08T00:30:44.042Z INFO webdriver: COMMAND elementClick("f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37")
+[0-1] 2026-06-08T00:30:44.042Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/element/f.B784215F6F69FBA82FFD7C49D409CA8B.d.94A26D47D4B90BAE956D89A7B3FC1A40.e.37/click
+[0-1] 2026-06-08T00:30:44.042Z INFO webdriver: DATA {}
+[0-1] 2026-06-08T00:30:44.095Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:44.497Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.498Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.498Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const seal = document.querySelector('.ink-titlebar .forge-nib-mark, .ink-titlebar__seal svg');\n      if (!seal) return null;\n      const allPaths = Array.from(seal.querySelectorAll('path'));\n      const allCircles = Array.from(seal.querySelectorAll('circle'));\n      const isInkBlack = (el) => {\n        const fill = (el.getAttribute('fill') || '').toUpperCase();\n        return fill === '#1C1F23' || fill === 'RGB(28, 31, 35)';\n      };\n      const isForgedRed = (el) => {\n        const fill = (el.getAttribute('fill') || '').toUpperCase();\n        return fill === '#C9362C' || fill === 'RGB(201, 54, 44)';\n      };\n      const darkPaths = allPaths.filter(isInkBlack);\n      // Carved slice negative space: a <mask>/<clipPath>, or the black-filled\n      // mask <path> inside it.\n      const nibSlice =\n        seal.querySelectorAll('mask, clipPath').length +\n        allPaths.filter((p) => {\n          const fill = (p.getAttribute('fill') || '').toUpperCase();\n          return fill === '#000000' || fill === '#000' || fill === 'BLACK';\n        }).length;\n      const redAccents =\n        allPaths.filter(isForgedRed).length +\n        allCircles.filter(isForgedRed).length;\n      return {\n        darkPaths: darkPaths.length,\n        nibSlice,\n        redAccents,\n        paths: allPaths.length,\n        polygons: seal.querySelectorAll('polygon').length,\n      };\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.504Z INFO webdriver: RESULT { darkPaths: 4, nibSlice: 2, paths: 5, polygons: 0, redAccents: 1 }
+[0-1] 2026-06-08T00:30:44.505Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.506Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.506Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      window.history.pushState({}, '', '/settings?tab=about');\n      window.dispatchEvent(new PopStateEvent('popstate'));\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.525Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:44.526Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.526Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.526Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => document.querySelectorAll('.forge-nib-mark--tier-1024').length).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.534Z INFO webdriver: RESULT 0
+[0-1] 2026-06-08T00:30:44.731Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.731Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.731Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => document.querySelectorAll('.forge-nib-mark--tier-1024').length).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.737Z INFO webdriver: RESULT 0
+[0-1] 2026-06-08T00:30:44.932Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.933Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.933Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => document.querySelectorAll('.forge-nib-mark--tier-1024').length).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:44.978Z INFO webdriver: RESULT 1
+[0-1] 2026-06-08T00:30:44.978Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:44.978Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:44.979Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const svg = document.querySelector('.forge-nib-mark--tier-1024');\n      if (!svg) return null;\n      return {\n        paths: svg.querySelectorAll('path').length,\n        rects: svg.querySelectorAll('rect').length,\n        circles: svg.querySelectorAll('circle').length,\n        filters: svg.querySelectorAll('filter').length,\n        gradients: svg.querySelectorAll('radialGradient, linearGradient').length,\n      };\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.006Z INFO webdriver: RESULT { circles: 2, filters: 0, gradients: 3, paths: 5, rects: 1 }
+[0-1] 2026-06-08T00:30:45.007Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.007Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.007Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const wordmark = document.querySelector('.ink-logo-lockup__wordmark');\n      return wordmark ? wordmark.textContent || '' : '';\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.017Z INFO webdriver: RESULT InkForge·墨铸
+[0-1] 2026-06-08T00:30:45.019Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.019Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.019Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-base"]}
+[0-1] 2026-06-08T00:30:45.027Z INFO webdriver: RESULT .18s
+[0-1] 2026-06-08T00:30:45.028Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.028Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.028Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-instant"]}
+[0-1] 2026-06-08T00:30:45.037Z INFO webdriver: RESULT 80ms
+[0-1] 2026-06-08T00:30:45.038Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.038Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.038Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-fast"]}
+[0-1] 2026-06-08T00:30:45.047Z INFO webdriver: RESULT .12s
+[0-1] 2026-06-08T00:30:45.047Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.048Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.048Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-base"]}
+[0-1] 2026-06-08T00:30:45.056Z INFO webdriver: RESULT .18s
+[0-1] 2026-06-08T00:30:45.057Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.057Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.057Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-slow"]}
+[0-1] 2026-06-08T00:30:45.065Z INFO webdriver: RESULT .24s
+[0-1] 2026-06-08T00:30:45.066Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.066Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.066Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--type-step-1"]}
+[0-1] 2026-06-08T00:30:45.073Z INFO webdriver: RESULT 14px
+[0-1] 2026-06-08T00:30:45.073Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.073Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.074Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--type-step-2"]}
+[0-1] 2026-06-08T00:30:45.080Z INFO webdriver: RESULT 22px
+[0-1] 2026-06-08T00:30:45.081Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.081Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.081Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--type-step-3"]}
+[0-1] 2026-06-08T00:30:45.088Z INFO webdriver: RESULT 34px
+[0-1] 2026-06-08T00:30:45.089Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.089Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.089Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--type-step-4"]}
+[0-1] 2026-06-08T00:30:45.098Z INFO webdriver: RESULT 56px
+[0-1] 2026-06-08T00:30:45.099Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.099Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.099Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--ease-out-quart"]}
+[0-1] 2026-06-08T00:30:45.107Z INFO webdriver: RESULT cubic-bezier(.22, 1, .36, 1)
+[0-1] 2026-06-08T00:30:45.108Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.109Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.109Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--focus-ring"]}
+[0-1] 2026-06-08T00:30:45.117Z INFO webdriver: RESULT 0 0 0 2px #D95B3F, 0 0 0 4px rgba(217, 91, 63, .2)
+[0-1] 2026-06-08T00:30:45.119Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.119Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.119Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return ((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()).apply(null, arguments)\n        ","args":["--motion-base"]}
+[0-1] 2026-06-08T00:30:45.127Z INFO webdriver: RESULT .18s
+[0-1] 2026-06-08T00:30:45.128Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.129Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.129Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => document.documentElement.getAttribute('data-theme')).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.136Z INFO webdriver: RESULT light
+[0-1] 2026-06-08T00:30:45.137Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.137Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.137Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => getComputedStyle(document.body).backgroundColor).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.144Z INFO webdriver: RESULT rgb(30, 30, 30)
+[0-1] 2026-06-08T00:30:45.145Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.145Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.145Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const root = document.documentElement;\n      root.setAttribute('data-theme', 'dark');\n      root.classList.remove('theme-light');\n      root.classList.add('theme-dark');\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.153Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:45.555Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.555Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.555Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => getComputedStyle(document.body).backgroundColor).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.562Z INFO webdriver: RESULT rgb(15, 23, 42)
+[0-1] 2026-06-08T00:30:45.562Z INFO webdriver: COMMAND executeScript(<fn>, <object>)
+[0-1] 2026-06-08T00:30:45.563Z INFO webdriver: [POST] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9/execute/sync
+[0-1] 2026-06-08T00:30:45.563Z INFO webdriver: DATA {"script":"\n            function webdriverioPolyfill() {\n  var __defProp = Object.defineProperty;\n  var __name = function(target, _value) {\n    return __defProp(target, \"name\", { value: _value, configurable: true });\n  };\n  var __globalThis = typeof globalThis === \"object\" && globalThis || typeof window === \"object\" && window;\n  __globalThis.__name = __name;\n}\n            webdriverioPolyfill();\n            return (() => {\n      const root = document.documentElement;\n      root.setAttribute('data-theme', 'light');\n      root.classList.remove('theme-dark');\n      root.classList.add('theme-light');\n    }).apply(null, arguments)\n        ","args":[]}
+[0-1] 2026-06-08T00:30:45.575Z INFO webdriver: RESULT null
+[0-1] 2026-06-08T00:30:45.576Z INFO webdriver: COMMAND deleteSession()
+[0-1] 2026-06-08T00:30:45.577Z INFO webdriver: [DELETE] http://127.0.0.1:4444/session/3f88940413e6a4c95544f0450dfcc1a9
+[0-1] 2026-06-08T00:30:45.600Z INFO webdriver: RESULT null
+[0-1] PASSED in undefined - file:///D:/Desktop/Inkforge/inkforge/tests/e2e/specs/visual.spec.cjs
+2026-06-08T00:30:45.731Z INFO @wdio/cli:launcher: Run onWorkerEnd hook
+
+ "spec" Reporter:
+------------------------------------------------------------------
+[webview2 148.0.3967.96 windows #0-0] Running: webview2 (v148.0.3967.96) on windows
+[webview2 148.0.3967.96 windows #0-0] Session ID: 177ab82494b030cf6aaaf9c9fca95888
+[webview2 148.0.3967.96 windows #0-0]
+[webview2 148.0.3967.96 windows #0-0] » tests\e2e\specs\svg-render.spec.cjs
+[webview2 148.0.3967.96 windows #0-0] InkForge — SVG flagship typesetting (PR7, multi-round, real binary)
+[webview2 148.0.3967.96 windows #0-0]    ✓ seeds a real draft and enables the export pipeline (precondition)
+[webview2 148.0.3967.96 windows #0-0]    ✓ flagship-kiln (赤陶旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 148.0.3967.96 windows #0-0]    ✓ flagship-tempera (铜绿旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 148.0.3967.96 windows #0-0]    ✓ flagship-amber (黄铜旗舰) injects responsive [data-ink-svg] modules into the export preview
+[webview2 148.0.3967.96 windows #0-0]    ✓ flagship body yields a mobile-comfortable ~20–22 CJK chars/line (real layout, ship font)
+[webview2 148.0.3967.96 windows #0-0]
+[webview2 148.0.3967.96 windows #0-0] 5 passing (9.1s)
+------------------------------------------------------------------
+[webview2 148.0.3967.96 windows #0-1] Running: webview2 (v148.0.3967.96) on windows
+[webview2 148.0.3967.96 windows #0-1] Session ID: 3f88940413e6a4c95544f0450dfcc1a9
+[webview2 148.0.3967.96 windows #0-1]
+[webview2 148.0.3967.96 windows #0-1] » tests\e2e\specs\visual.spec.cjs
+[webview2 148.0.3967.96 windows #0-1] InkForge — chrome
+[webview2 148.0.3967.96 windows #0-1]    ✓ TitleBar present with 3 control buttons + seal slot
+[webview2 148.0.3967.96 windows #0-1]    ✓ Max button click round-trips without throwing (IPC allowlist accepts)
+[webview2 148.0.3967.96 windows #0-1]    ✓ Min button is clickable + IPC click round-trips without throw
+[webview2 148.0.3967.96 windows #0-1]
+[webview2 148.0.3967.96 windows #0-1] InkForge — brand mark
+[webview2 148.0.3967.96 windows #0-1]    ✓ TitleBar mark renders Ink-Black drop+anvil paths + carved slice + Forged-Red ember
+[webview2 148.0.3967.96 windows #0-1]    ✓ Settings About tier-1024 hero mark + wordmark "墨铸"
+[webview2 148.0.3967.96 windows #0-1]
+[webview2 148.0.3967.96 windows #0-1] InkForge — tokens
+[webview2 148.0.3967.96 windows #0-1]    ✓ Motion ladder matches §13 (instant 80, fast 120, base 180, slow 240)
+[webview2 148.0.3967.96 windows #0-1]    ✓ Typography rhythm matches §15 (14/22/34/56)
+[webview2 148.0.3967.96 windows #0-1]    ✓ Easing curve matches §13 (cubic-bezier ease-out-quart)
+[webview2 148.0.3967.96 windows #0-1]    ✓ Focus ring token contains Kiln double-stroke (§14)
+[webview2 148.0.3967.96 windows #0-1]
+[webview2 148.0.3967.96 windows #0-1] InkForge — theme cascade
+[webview2 148.0.3967.96 windows #0-1]    ✓ Default lands in light theme on first launch
+[webview2 148.0.3967.96 windows #0-1]    ✓ Toggling data-theme to dark flips body background through Vellum→Char range
+[webview2 148.0.3967.96 windows #0-1]
+[webview2 148.0.3967.96 windows #0-1] 11 passing (3.2s)
+
+
+Spec Files:	 2 passed, 2 total (100% completed) in 00:00:15
+
+2026-06-08T00:30:45.732Z INFO @wdio/local-runner: Shutting down spawned worker
+2026-06-08T00:30:45.994Z INFO @wdio/local-runner: Waiting for 0 to shut down gracefully
+2026-06-08T00:30:45.994Z INFO @wdio/local-runner: shutting down
+2026-06-08T00:30:45.994Z INFO @wdio/cli:launcher: Run onComplete hook
