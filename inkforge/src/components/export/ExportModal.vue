@@ -9,7 +9,7 @@ import {
   convertToNativeFormat, copyTextToClipboard,
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
-  getPlatformStyleAvailabilityReport,
+  getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -19,7 +19,8 @@ import type {
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
   WechatPublishStatus, WechatDraftPublishResult,
   ExportFontFamily, ExportFontSize,
-  StyleArtifactType, StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
+  StyleArtifactType, StyleChoiceApplication, StyleChoiceApplicationAvailability,
+  StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
   StyleMotionLevel, StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
@@ -107,6 +108,9 @@ interface PublishIntegrationStatus {
 
 interface StyleChoiceDisplay {
   availability: StyleChoiceAvailability
+  application: StyleChoiceApplication | null
+  selectable: boolean
+  selected: boolean
   statusClass: string
   statusLabel: string
   outputLabel: string
@@ -115,6 +119,7 @@ interface StyleChoiceDisplay {
   ruleGroupLabel: string
   evidenceLabel: string
   detail: string
+  actionLabel: string
 }
 
 // ─── Props / Emits ───────────────────────────────────────
@@ -148,6 +153,12 @@ const platformPresetIds = ref<Record<Platform, string>>({
 
 const selectedPresetId = computed(() => platformPresetIds.value[selectedPlatform.value])
 
+const selectedStyleChoiceIds = ref<Record<Platform, string | null>>({
+  wechat: null,
+  xiaohongshu: null,
+  zhihu: null,
+})
+
 const currentPresets = computed((): PresetDisplay[] => {
   const presets = getPlatformPresets(selectedPlatform.value)
   return presets.map(p => ({
@@ -160,10 +171,35 @@ const currentPresets = computed((): PresetDisplay[] => {
 })
 
 const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
+const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(selectedPlatform.value))
+const selectedStyleChoiceApplication = computed(() =>
+  styleApplicationReport.value.find(item =>
+    item.availability.choice.id === selectedStyleChoiceIds.value[selectedPlatform.value],
+  ) ?? null,
+)
 
 const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
   const limitedCount = report.stats.blocked + report.stats.unavailable
+  const selectedAction = selectedStyleChoiceApplication.value
+
+  if (selectedAction?.selectable && selectedAction.application) {
+    return {
+      key: 'style-catalog',
+      label: '样式能力目录',
+      state: 'ready',
+      detail: `已选择 ${selectedAction.availability.choice.label} → ${selectedAction.application.presetLabel}（${selectedAction.application.presetId}）；可用 ${report.stats.usable}/${report.stats.total}`,
+    }
+  }
+
+  if (selectedAction && !selectedAction.selectable) {
+    return {
+      key: 'style-catalog',
+      label: '样式能力目录',
+      state: 'blocked',
+      detail: `${selectedAction.availability.choice.label} 当前不可应用：${selectedAction.reason}`,
+    }
+  }
 
   return {
     key: 'style-catalog',
@@ -174,18 +210,29 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
 })
 
 const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
-  styleAvailabilityReport.value.choices.map(availability => ({
-    availability,
-    statusClass: `style-choice-${availability.status}`,
-    statusLabel: styleStatusLabel(availability.status, availability.usable),
-    outputLabel: styleArtifactLabel(availability.choice.primaryOutput),
-    strengthLabel: styleStrengthLabel(availability.choice.visualStrength),
-    motionLabel: styleMotionLabel(availability.choice.motion),
-    ruleGroupLabel: styleRuleGroupLabel(availability.choice.ruleGroup),
-    evidenceLabel: styleEvidenceLabel(availability.requiredEvidence),
-    detail: styleChoiceDetail(availability),
+  styleApplicationReport.value.map(item => ({
+    availability: item.availability,
+    application: item.application,
+    selectable: item.selectable,
+    selected: selectedStyleChoiceIds.value[selectedPlatform.value] === item.availability.choice.id,
+    statusClass: `style-choice-${item.availability.status}`,
+    statusLabel: styleStatusLabel(item.availability.status, item.availability.usable),
+    outputLabel: styleArtifactLabel(item.availability.choice.primaryOutput),
+    strengthLabel: styleStrengthLabel(item.availability.choice.visualStrength),
+    motionLabel: styleMotionLabel(item.availability.choice.motion),
+    ruleGroupLabel: styleRuleGroupLabel(item.availability.choice.ruleGroup),
+    evidenceLabel: styleEvidenceLabel(item.availability.requiredEvidence),
+    detail: styleChoiceDetail(item.availability),
+    actionLabel: styleChoiceActionLabel(item),
   })),
 )
+
+function styleChoiceActionLabel(item: StyleChoiceApplicationAvailability): string {
+  if (item.selectable && item.application) return `应用到 ${item.application.presetLabel}`
+  if (!item.application) return item.availability.usable ? '仅说明能力' : '不可应用'
+  if (item.availability.status === 'unavailable') return '不可用'
+  return '受限'
+}
 
 function styleStatusLabel(status: StyleChoiceStatus, usable: boolean): string {
   if (usable) return '可用'
@@ -271,14 +318,28 @@ function styleChoiceDetail(availability: StyleChoiceAvailability): string {
   return `${blockers}；${fallback}`
 }
 
-function selectPreset(id: string) {
+function selectPreset(id: string, source: 'preset' | 'style-choice' = 'preset') {
   platformPresetIds.value[selectedPlatform.value] = id
+  if (source === 'preset') {
+    selectedStyleChoiceIds.value[selectedPlatform.value] = null
+  }
   if (selectedPlatform.value === 'wechat') {
     const preset = themePresets.find(item => item.id === id) || getDefaultPreset()
     exportOptions.value.primaryColor = preset.primaryColor
     exportOptions.value.fontFamily = normalizeExportFontFamily(preset.fontFamily)
     exportOptions.value.fontSize = normalizeExportFontSize(preset.fontSize)
   }
+}
+
+function selectStyleChoice(row: StyleChoiceDisplay) {
+  if (!row.selectable || !row.application) {
+    showOperationFeedback('error', `${row.availability.choice.label} 当前不能应用到真实导出 preset。`)
+    return
+  }
+
+  selectedStyleChoiceIds.value[selectedPlatform.value] = row.availability.choice.id
+  selectPreset(row.application.presetId, 'style-choice')
+  showOperationFeedback('info', `已应用 ${row.availability.choice.label}，实际使用 ${row.application.presetLabel}。`)
 }
 
 function normalizeExportFontFamily(value: string): ExportFontFamily {
@@ -904,11 +965,21 @@ onUnmounted(() => {
                   <span>证据门禁由 runtime catalog 决定</span>
                 </div>
                 <div class="style-choice-list">
-                  <div
+                  <button
                     v-for="row in styleChoiceRows"
                     :key="row.availability.choice.id"
+                    type="button"
                     class="style-choice-card"
-                    :class="row.statusClass"
+                    :class="[
+                      row.statusClass,
+                      {
+                        'style-choice-selected': row.selected,
+                        'style-choice-disabled': !row.selectable,
+                      },
+                    ]"
+                    :disabled="!row.selectable"
+                    :aria-pressed="row.selected"
+                    @click="selectStyleChoice(row)"
                   >
                     <div class="style-choice-head">
                       <span class="style-choice-name">{{ row.availability.choice.label }}</span>
@@ -924,7 +995,16 @@ onUnmounted(() => {
                     <p class="style-choice-detail">
                       {{ row.detail }}
                     </p>
-                  </div>
+                    <div class="style-choice-action">
+                      <span>{{ row.actionLabel }}</span>
+                      <span
+                        v-if="row.application"
+                        class="style-choice-preset"
+                      >
+                        {{ row.application.presetId }}
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -1499,6 +1579,7 @@ onUnmounted(() => {
 .header-close:focus-visible,
 .pill-btn:focus-visible,
 .preset-card:focus-visible,
+.style-choice-card:focus-visible,
 .segment-btn:focus-visible,
 .swatch-btn:focus-visible,
 .draft-action:focus-visible,
@@ -1689,10 +1770,38 @@ onUnmounted(() => {
 }
 
 .style-choice-card {
+  display: block;
+  width: 100%;
   padding: 10px;
   border: 1px solid var(--hairline);
   border-radius: 8px;
   background: var(--bg-rice-paper);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  transition: border-color var(--motion-fast) var(--ease-out-quart),
+    background-color var(--motion-fast) var(--ease-out-quart),
+    box-shadow var(--motion-fast) var(--ease-out-quart);
+}
+
+.style-choice-card:not(:disabled) {
+  cursor: pointer;
+}
+
+.style-choice-card:not(:disabled):hover {
+  border-color: var(--ember-border);
+  background: var(--ember-soft);
+}
+
+.style-choice-card.style-choice-selected {
+  border-color: var(--ember);
+  background: var(--ember-soft);
+  box-shadow: 0 0 0 1px var(--ember);
+}
+
+.style-choice-card.style-choice-disabled {
+  opacity: 0.82;
 }
 
 .style-choice-head {
@@ -1754,6 +1863,33 @@ onUnmounted(() => {
   font-size: 11px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+.style-choice-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.style-choice-card:not(:disabled) .style-choice-action {
+  color: var(--ember);
+}
+
+.style-choice-preset {
+  flex-shrink: 0;
+  max-width: 46%;
+  color: var(--text-secondary);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Export Options ── */

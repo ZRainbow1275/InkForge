@@ -97,6 +97,9 @@ Executable mirror:
 - `getPlatformStyleAvailabilityReport()` is the runtime summary for ExportModal preflight and
   style-capability display. UI counts must come from this report, not from doc tables or local
   component constants.
+- `getPlatformStyleApplicationReport()` is the second gate for interactive UI actions. A style
+  may be `available` but still not `selectable` when no existing InkForge preset/export option
+  can honestly realize it yet.
 - Docs may describe additional `doc-only` ideas, but user-visible availability must come from
   the executable catalog and current evidence labels.
 
@@ -135,8 +138,13 @@ Executable mirror:
 选择规则：
 
 - 默认给用户展示当前平台可真实支持的样式，不把 `blocked` 或 `unavailable` 样式伪装为可用。
-- ExportModal 的“样式能力”面板是只读能力面板：展示 choice、证据门槛、fallback、可用/受限/
-  不可用状态和预检计数；它不能在没有真实 renderer / artifact / evidence 升级时变成可点击模板库。
+- ExportModal 的“样式能力”面板可以提供真实可选动作，但必须同时满足两层 gate：
+  `evaluateStyleChoiceAvailability().usable === true` 且
+  `getStyleChoiceApplication(choice.id)` 指向现有 InkForge preset/export option。没有真实映射
+  的 `available` choice 只能展示为“仅说明能力”，不能成为可点击模板。
+- 点击可选样式必须通过现有 preset/export option 改变真实渲染路径，例如选择
+  `wechat-flagship-kiln` 时实际选择 `flagship-kiln` preset。不得只设置 UI active 状态。
+- 手动选择 preset 后应清空或同步样式 choice 状态，避免“卡片显示 A、实际 preset 是 B”的错位。
 - 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
 - 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
 - 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。

@@ -876,6 +876,69 @@ git status --short --branch
     `已同步 · 已保存`, 54 字 / 3 段. Future visual checks should use an isolated draft or a saved
     baseline snapshot for cleanup rather than repeated undo.
 
+### 2026-06-09 ExportModal selectable style application gate slice
+
+- Implemented the second-stage runtime application gate for market-informed style choices:
+  `available` remains the platform/evidence catalog gate, while `selectable` now requires an
+  executable `StyleChoiceApplication` that maps to an existing InkForge preset/export path.
+- Added `StyleChoiceApplication`, `evaluateStyleChoiceApplication()`,
+  `getStyleChoiceApplication()`, and `getPlatformStyleApplicationReport()` in
+  `inkforge/src/services/export/style-catalog.ts`, and re-exported the public API through
+  `inkforge/src/services/export/index.ts`.
+- Mapped currently executable choices to existing real presets:
+  WeChat flagship/editorial choices to `report`, `flagship-kiln`, `flagship-tempera`, or
+  `flagship-amber`; XHS clean text to `xhs-fresh`; Zhihu clean/table choices to
+  `zhihu-academic`, `zhihu-insight`, or `zhihu-tech`.
+- Kept non-executable market capabilities disabled even when they are documented as available:
+  `wechat-toolbar-parameter-map` has no current toolbar block renderer in ExportModal,
+  `xhs-cover-carousel` has no current image-page artifact creator, and `wechat-flagship-amber`
+  remains blocked by the runtime catalog despite its future preset mapping.
+- Updated `ExportModal.vue` so style cards are real gate-aware buttons:
+  selectable cards call the same `selectPreset()` path as the preset grid, selected cards expose
+  `aria-pressed`, unavailable/non-executable cards are disabled, and manual preset selection
+  clears the selected style choice to avoid UI/renderer drift.
+- Updated focused unit and e2e coverage so the UI proves both sides of the contract:
+  selectable Kiln changes the active preset to `赤陶旗舰`, while Amber and toolbar parameter map
+  stay disabled; XHS and Zhihu selectable examples map to real existing presets.
+- Synchronized docs/spec contracts:
+  `.trellis/spec/frontend/flagship-element-catalog.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and
+  `docs/platform-rendering-rules/market-practices-catalog.md`.
+- Added evidence summary:
+  `prompts/0601/evidence/style-application-selectable-ui-20260609.txt`.
+- Impact checks before editing:
+  GitNexus impact for `getPlatformStyleAvailabilityReport`,
+  `evaluateStyleChoiceAvailability`, `getPlatformStyleChoices`,
+  `File:inkforge/src/components/export/ExportModal.vue`, and
+  `File:inkforge/tests/e2e/specs/svg-render.spec.cjs` returned LOW risk and 0 affected
+  processes. GitNexus index was refreshed with `npx gitnexus analyze` before the slice.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed, 1 file / 38 tests.
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed, 35 files / 970 tests.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed.
+  `cd inkforge && ./node_modules/.bin/wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed against WebView2 `148.0.3967.96`, 1 spec file / 6 tests.
+- CloakBrowser visual check (profile `inkforge-0601`, no Playwright):
+  opened the real local app and existing Workstation draft, opened ExportModal through the UI,
+  confirmed WeChat `7/15` capability summary, no horizontal overflow, Kiln selectable state
+  and real preset change to `赤陶旗舰`, Amber/toolbar disabled state, XHS clean text mapping to
+  `清新少女`, Zhihu semantic table mapping to `技术博客`, and disabled image-page/image-fallback
+  cards. Screenshots are local-only under the CloakBrowser screenshot directory and are not
+  committed.
+- Final CloakBrowser recheck after the last automated verification pass confirmed the active
+  `inkforge-0601` profile remained on the local Workstation with `已同步 · 已保存`; WeChat summary
+  stayed `7/15`, Kiln stayed selected with `aria-pressed="true"`, active preset stayed
+  `赤陶旗舰`, Amber and toolbar stayed disabled, preview SVG count was `10`, and body horizontal
+  overflow was false.
+- Honest boundary:
+  this slice does not claim current WeChat mobile preview, SMIL/click animation, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled-send, or publish proof.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

@@ -24,6 +24,10 @@ construct breaks.
 - Treat `inkforge/src/services/export/style-catalog.ts` as the executable mirror of the
   user-selectable style matrix. UI/export-report code should consume its typed choices and
   availability evaluator instead of forking doc-only tables.
+- User-clickable style UI must pass both catalog gates:
+  `evaluateStyleChoiceAvailability()` proves the current evidence floor is satisfied, while
+  `getPlatformStyleApplicationReport()` proves the choice maps to an existing InkForge preset
+  or export option that actually changes output. Available-but-unmapped choices stay read-only.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs

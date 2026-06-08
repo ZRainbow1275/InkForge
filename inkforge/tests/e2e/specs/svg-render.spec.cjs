@@ -374,6 +374,8 @@ function collectStyleCapabilityProbe() {
       unavailableCount: byClass('style-choice-unavailable'),
       cards: cards.map((card) => ({
         className: card.className,
+        disabled: Boolean(card.disabled),
+        pressed: card.getAttribute('aria-pressed'),
         text: (card.textContent || '').trim().replace(/\s+/g, ' '),
       })),
       preflightText: summaries.join(' | '),
@@ -506,6 +508,41 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.text.includes('Plugin transfer channel checklist')),
       'plugin transfer stays unavailable without channel-specific proof',
     ).to.equal(true);
+
+    const applicationProbe = await browser.executeAsync((done) => {
+      const finish = () => {
+        const cardsAfter = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
+        const kilnAfter = cardsAfter.find((card) => (card.textContent || '').includes('Kiln creative flagship'));
+        const amberAfter = cardsAfter.find((card) => (card.textContent || '').includes('Amber business flagship'));
+        const toolbarAfter = cardsAfter.find((card) => (card.textContent || '').includes('Toolbar typography parameter map'));
+        const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
+          .find((card) => card.classList.contains('active'));
+        const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+          .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+          .find((text) => text.includes('样式能力目录')) || '';
+
+        done({
+          kilnDisabled: Boolean(kilnAfter?.disabled),
+          kilnPressed: kilnAfter?.getAttribute('aria-pressed') || '',
+          amberDisabled: Boolean(amberAfter?.disabled),
+          toolbarDisabled: Boolean(toolbarAfter?.disabled),
+          activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
+          preflight,
+        });
+      };
+
+      const cards = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
+      const kiln = cards.find((card) => (card.textContent || '').includes('Kiln creative flagship'));
+      if (kiln && !kiln.disabled) kiln.click();
+      window.setTimeout(finish, 350);
+    });
+    expect(applicationProbe.kilnDisabled, 'Kiln style is selectable because it maps to a real preset').to.equal(false);
+    expect(applicationProbe.kilnPressed, 'Kiln style exposes selected state after click').to.equal('true');
+    expect(applicationProbe.amberDisabled, 'Amber has a preset but remains disabled while catalog status is blocked').to.equal(true);
+    expect(applicationProbe.toolbarDisabled, 'Toolbar parameter map is available but not selectable without a preset-backed action').to.equal(true);
+    expect(applicationProbe.activePresetText, 'style click selects the real Kiln preset').to.include('赤陶旗舰');
+    expect(applicationProbe.preflight, 'preflight names the selected style and real preset')
+      .to.include('已选择 Kiln creative flagship → 赤陶旗舰（flagship-kiln）');
 
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();

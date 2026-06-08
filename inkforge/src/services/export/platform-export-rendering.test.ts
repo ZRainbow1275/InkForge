@@ -7,12 +7,15 @@ import {
   convertToNativeFormat,
   convertToWechatWithStats,
   detectQuality,
+  evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
   getDefaultPreset,
   getDefaultStyleEvidence,
+  getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
   getPresetById,
+  getStyleChoiceApplication,
   getStyleChoiceById,
   getStyleChoiceCatalog,
   markdownToWechatWithStats,
@@ -228,6 +231,46 @@ describe('platform native export rendering rules', () => {
     expect(evaluateStyleChoiceAvailability(zhihuColumn, ['unit-tested']).usable).toBe(true)
   })
 
+  it('separates available style choices from selectable preset-backed actions', () => {
+    const kiln = getStyleChoiceById('wechat-flagship-kiln')
+    const amber = getStyleChoiceById('wechat-flagship-amber')
+    const toolbarMap = getStyleChoiceById('wechat-toolbar-parameter-map')
+    const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
+    const xhsClean = getStyleChoiceById('xhs-clean-text')
+    const zhihuTable = getStyleChoiceById('zhihu-data-table')
+    expect(kiln).toBeDefined()
+    expect(amber).toBeDefined()
+    expect(toolbarMap).toBeDefined()
+    expect(xhsCarousel).toBeDefined()
+    expect(xhsClean).toBeDefined()
+    expect(zhihuTable).toBeDefined()
+
+    if (!kiln || !amber || !toolbarMap || !xhsCarousel || !xhsClean || !zhihuTable) return
+
+    expect(getStyleChoiceApplication('wechat-flagship-kiln')?.presetId).toBe('flagship-kiln')
+    expect(evaluateStyleChoiceApplication(kiln, ['local-browser']).selectable).toBe(true)
+
+    const amberApplication = evaluateStyleChoiceApplication(amber, ['pc-editor-paste', 'mobile-preview'])
+    expect(amberApplication.application?.presetId).toBe('flagship-amber')
+    expect(amberApplication.selectable).toBe(false)
+    expect(amberApplication.reason).toContain('plain text')
+
+    const toolbarApplication = evaluateStyleChoiceApplication(toolbarMap, ['local-browser'])
+    expect(toolbarApplication.application).toBeNull()
+    expect(toolbarApplication.selectable).toBe(false)
+    expect(toolbarApplication.reason).toContain('no existing InkForge preset')
+
+    const xhsCarouselApplication = evaluateStyleChoiceApplication(xhsCarousel, ['local-browser'])
+    expect(xhsCarouselApplication.availability.usable).toBe(true)
+    expect(xhsCarouselApplication.selectable).toBe(false)
+    expect(xhsCarouselApplication.reason).toContain('no existing InkForge preset')
+
+    expect(evaluateStyleChoiceApplication(xhsClean, ['unit-tested']).application?.presetId).toBe('xhs-fresh')
+    expect(evaluateStyleChoiceApplication(xhsClean, ['unit-tested']).selectable).toBe(true)
+    expect(evaluateStyleChoiceApplication(zhihuTable, ['unit-tested']).application?.presetId).toBe('zhihu-tech')
+    expect(evaluateStyleChoiceApplication(zhihuTable, ['unit-tested']).selectable).toBe(true)
+  })
+
   it('summarizes platform style availability without promoting blocked choices', () => {
     const wechatReport = getPlatformStyleAvailabilityReport('wechat')
     const xhsReport = getPlatformStyleAvailabilityReport('xiaohongshu')
@@ -250,6 +293,23 @@ describe('platform native export rendering rules', () => {
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-academic-latex-column')?.usable).toBe(true)
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-diagram-article')?.usable).toBe(false)
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-public-image-upload-checklist')?.usable).toBe(false)
+  })
+
+  it('reports selectable style actions only when a usable catalog choice has a real application mapping', () => {
+    const wechatApplications = getPlatformStyleApplicationReport('wechat')
+    const xhsApplications = getPlatformStyleApplicationReport('xiaohongshu')
+    const zhihuApplications = getPlatformStyleApplicationReport('zhihu')
+
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln')?.selectable).toBe(true)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-amber')?.selectable).toBe(false)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-mobile-only-effect')?.selectable).toBe(false)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-toolbar-parameter-map')?.selectable).toBe(false)
+
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-clean-text')?.selectable).toBe(true)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-cover-carousel')?.selectable).toBe(false)
+
+    expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-clean-column')?.selectable).toBe(true)
+    expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-diagram-article')?.selectable).toBe(false)
   })
 
   it('keeps WeChat HTML compatible with draft content sanitization and inline CSS rendering', () => {

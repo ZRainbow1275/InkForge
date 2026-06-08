@@ -256,6 +256,20 @@ Implementation rules:
 - ExportModal may surface the catalog as a read-only capability panel and preflight row via
   `getPlatformStyleAvailabilityReport()`. It must not duplicate catalog constants in the
   component, and it must not let blocked/unavailable choices look selectable.
+- ExportModal may also expose selectable style actions through
+  `getPlatformStyleApplicationReport()`. This is a stricter second gate: the choice must be
+  usable under `evaluateStyleChoiceAvailability()` and must have a source-owned
+  `StyleChoiceApplication` that maps to a real existing InkForge preset or export option.
+- `available` is not the same as `selectable`. An available XHS image-page or Zhihu image-fallback
+  choice stays read-only until the current UI can create the real artifact, manifest, host, or
+  fallback required by that choice.
+- Clicking a selectable choice must change the existing renderer path, normally by calling the
+  same preset-selection path used by the preset grid. It must not persist a style id that the
+  renderer ignores.
+- Manual preset selection should clear or resynchronize the selected style choice so the UI never
+  reports one style while rendering another.
+- `wechat-flagship-amber` may have a preset mapping for documentation and future recovery, but it
+  remains non-selectable while the runtime catalog status is `blocked`.
 - Preview and scheduled-send states are separate from publish. A preview link proves only that
   the preview entry is visible for the current artifact; scheduled send proves only a
   credentialed distribution setup, not final publish success.

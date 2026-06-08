@@ -76,6 +76,24 @@ export interface PlatformStyleAvailabilityReport {
   }
 }
 
+export type StyleChoiceApplicationScope = 'styled-preview' | 'native-output' | 'styled-and-native'
+
+export interface StyleChoiceApplication {
+  choiceId: string
+  platform: Platform
+  presetId: string
+  presetLabel: string
+  scope: StyleChoiceApplicationScope
+  note: string
+}
+
+export interface StyleChoiceApplicationAvailability {
+  availability: StyleChoiceAvailability
+  application: StyleChoiceApplication | null
+  selectable: boolean
+  reason: string
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -92,6 +110,105 @@ export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
   xiaohongshu: ['unit-tested', 'local-browser'],
   zhihu: ['unit-tested'],
 } as const satisfies Record<Platform, readonly StyleEvidenceLabel[]>
+
+const STYLE_CHOICE_APPLICATIONS = [
+  {
+    choiceId: 'wechat-classic-inline',
+    platform: 'wechat',
+    presetId: 'report',
+    presetLabel: '行业研报',
+    scope: 'styled-and-native',
+    note: 'uses the existing default WeChat inline HTML preset and current export options',
+  },
+  {
+    choiceId: 'wechat-quiet-editorial',
+    platform: 'wechat',
+    presetId: 'flagship-tempera',
+    presetLabel: '铜绿旗舰',
+    scope: 'styled-and-native',
+    note: 'uses the flagship editorial decorator chain for lede, reading bar, pullquote, and footer blocks',
+  },
+  {
+    choiceId: 'wechat-cover-seal-divider',
+    platform: 'wechat',
+    presetId: 'flagship-kiln',
+    presetLabel: '赤陶旗舰',
+    scope: 'styled-and-native',
+    note: 'uses the existing WeChat-safe SVG cover and divider renderer in the Kiln flagship preset',
+  },
+  {
+    choiceId: 'wechat-card-rich',
+    platform: 'wechat',
+    presetId: 'flagship-tempera',
+    presetLabel: '铜绿旗舰',
+    scope: 'styled-and-native',
+    note: 'uses the current flagship marker/card decorator chain without enabling unproven interactive output',
+  },
+  {
+    choiceId: 'wechat-flagship-kiln',
+    platform: 'wechat',
+    presetId: 'flagship-kiln',
+    presetLabel: '赤陶旗舰',
+    scope: 'styled-and-native',
+    note: 'direct mapping to the existing Kiln flagship export preset',
+  },
+  {
+    choiceId: 'wechat-flagship-tempera',
+    platform: 'wechat',
+    presetId: 'flagship-tempera',
+    presetLabel: '铜绿旗舰',
+    scope: 'styled-and-native',
+    note: 'direct mapping to the existing Tempera flagship export preset',
+  },
+  {
+    choiceId: 'wechat-flagship-amber',
+    platform: 'wechat',
+    presetId: 'flagship-amber',
+    presetLabel: '黄铜旗舰',
+    scope: 'styled-and-native',
+    note: 'kept mapped but disabled until the real WeChat paste gate is no longer blocked',
+  },
+  {
+    choiceId: 'xhs-clean-text',
+    platform: 'xiaohongshu',
+    presetId: 'xhs-fresh',
+    presetLabel: '清新少女',
+    scope: 'styled-and-native',
+    note: 'uses the current Xiaohongshu plain-text native exporter and matching preview preset',
+  },
+  {
+    choiceId: 'zhihu-clean-column',
+    platform: 'zhihu',
+    presetId: 'zhihu-academic',
+    presetLabel: '学术论文',
+    scope: 'styled-and-native',
+    note: 'uses the clean Markdown native exporter and existing Zhihu academic preview preset',
+  },
+  {
+    choiceId: 'zhihu-academic-latex-column',
+    platform: 'zhihu',
+    presetId: 'zhihu-academic',
+    presetLabel: '学术论文',
+    scope: 'styled-and-native',
+    note: 'uses the clean Markdown native exporter with the academic preview preset',
+  },
+  {
+    choiceId: 'zhihu-wechat-adapted',
+    platform: 'zhihu',
+    presetId: 'zhihu-insight',
+    presetLabel: '深度评论',
+    scope: 'styled-and-native',
+    note: 'uses the existing semantic cleanup path plus the insight preview preset',
+  },
+  {
+    choiceId: 'zhihu-data-table',
+    platform: 'zhihu',
+    presetId: 'zhihu-tech',
+    presetLabel: '技术博客',
+    scope: 'styled-and-native',
+    note: 'uses semantic Markdown table output and the existing Zhihu tech preview preset',
+  },
+] as const satisfies readonly StyleChoiceApplication[]
 
 export const PLATFORM_STYLE_CHOICES = [
   {
@@ -581,6 +698,10 @@ export function getStyleChoiceById(choiceId: string): PlatformStyleChoice | unde
   return PLATFORM_STYLE_CHOICES.find(choice => choice.id === choiceId)
 }
 
+export function getStyleChoiceApplication(choiceId: string): StyleChoiceApplication | null {
+  return STYLE_CHOICE_APPLICATIONS.find(application => application.choiceId === choiceId) ?? null
+}
+
 export function getDefaultStyleEvidence(platform: Platform): readonly StyleEvidenceLabel[] {
   return DEFAULT_STYLE_EVIDENCE_BY_PLATFORM[platform]
 }
@@ -633,6 +754,56 @@ export function evaluateStyleChoiceAvailability(
     bestEvidence,
     reason: 'style choice has enough evidence for its current artifact state',
   }
+}
+
+export function evaluateStyleChoiceApplication(
+  choice: PlatformStyleChoice,
+  evidence: readonly StyleEvidenceLabel[] = [],
+): StyleChoiceApplicationAvailability {
+  const availability = evaluateStyleChoiceAvailability(choice, evidence)
+  const application = getStyleChoiceApplication(choice.id)
+
+  if (!application) {
+    return {
+      availability,
+      application: null,
+      selectable: false,
+      reason: 'no existing InkForge preset or export option maps this style choice yet',
+    }
+  }
+
+  if (application.platform !== choice.platform) {
+    return {
+      availability,
+      application,
+      selectable: false,
+      reason: 'style application platform does not match the catalog choice',
+    }
+  }
+
+  if (!availability.usable) {
+    return {
+      availability,
+      application,
+      selectable: false,
+      reason: availability.reason,
+    }
+  }
+
+  return {
+    availability,
+    application,
+    selectable: true,
+    reason: `selects preset ${application.presetId} through the existing export pipeline`,
+  }
+}
+
+export function getPlatformStyleApplicationReport(
+  platform: Platform,
+  evidence: readonly StyleEvidenceLabel[] = getDefaultStyleEvidence(platform),
+): readonly StyleChoiceApplicationAvailability[] {
+  return getPlatformStyleChoices(platform)
+    .map(choice => evaluateStyleChoiceApplication(choice, evidence))
 }
 
 export function getPlatformStyleAvailabilityReport(
