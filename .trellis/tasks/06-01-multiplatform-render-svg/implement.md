@@ -716,6 +716,72 @@ git status --short --branch
     `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
     passed.
     `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- [x] 2026-06-08 re-login element-level browser probe and style catalog expansion:
+  - Used Playwright in read-only mode after the user re-logged into WeChat Official Account,
+    135 Editor, and Xiumi.
+  - Added `prompts/0601/evidence/market-editor-element-probe-20260608.txt` with non-sensitive
+    element taxonomy and workflow boundaries:
+    WeChat authenticated backend/creation menu, 135 toolbar/style/SVG/workflow taxonomy,
+    135 SVG center mobile-only labels, Xiumi import/plugin/sync/action/layer/SVG/H5/design
+    artifact-family separation, and public Exa/Grok supplementary source treatment.
+  - Expanded `inkforge/src/services/export/style-catalog.ts` additively from the prior minimal
+    style matrix to richer executable choices:
+    WeChat 15 choices (`7 usable / 4 blocked / 4 unavailable` under default evidence),
+    Xiaohongshu 7 choices (`4 usable / 2 blocked / 1 unavailable`), and Zhihu 7 choices
+    (`4 usable / 2 blocked / 1 unavailable`).
+  - Added regression coverage for mobile-only SVG, credentialed plugin/sync/upload gates, and
+    H5/design artifact-family boundaries in
+    `inkforge/src/services/export/platform-export-rendering.test.ts`.
+  - Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` expected ExportModal style-capability
+    counts and card text probes to match runtime catalog output.
+  - Updated runtime/docs alignment in
+    `docs/platform-rendering-rules/market-practices-catalog.md`,
+    `docs/platform-rendering-rules/wechat-rules.md`,
+    `docs/platform-rendering-rules/xiaohongshu-rules.md`,
+    `docs/platform-rendering-rules/zhihu-rules.md`,
+    `.trellis/spec/frontend/wechat-svg-modules.md`,
+    `.trellis/spec/frontend/flagship-element-catalog.md`, and
+    `prompts/0601/evidence/README.md`.
+  - This pass still does not claim WeChat article editor rich paste, phone preview, SMIL/click,
+    Dark Mode, cover thumbnail, credentialed sync, scheduled send, or publish proof.
+- [x] 2026-06-08 ExportModal WebView2 narrow-preview regression repair:
+  - A targeted real Tauri/WebView2 e2e run of
+    `tests/e2e/specs/svg-render.spec.cjs` exposed two regressions after the richer 15/7/7
+    style catalog expansion:
+    the mobile-only WeChat card assertion could not see the second blocker text, and the
+    ExportModal preview column collapsed to `niceWidth=61` / SVG parent width 61px in the
+    real WebView2 layout.
+  - Repaired `inkforge/src/components/export/ExportModal.vue` so blocked/unavailable style
+    cards display the full blocker list, long blocker text wraps safely, `.preview-render`
+    has explicit `width:100%` / `box-sizing:border-box`, and the modal stacks at `980px`
+    instead of waiting until `760px`. This preserves the desktop two-column layout while
+    preventing narrow Windows/WebView2 surfaces from crushing the preview column.
+  - Repaired `inkforge/tests/e2e/specs/svg-render.spec.cjs` so `closeExportModal()` waits for
+    the teleported modal DOM to unmount before the next round opens a new ExportModal.
+  - Impact checks:
+    `npx gitnexus impact "File:inkforge/src/components/export/ExportModal.vue" -r InkForge --depth 3`
+    returned LOW risk, 0 affected processes.
+    `npx gitnexus impact "File:inkforge/tests/e2e/specs/svg-render.spec.cjs" -r InkForge --depth 3`
+    returned LOW risk, 0 affected processes.
+  - Verification:
+    `node -c inkforge/tests/e2e/specs/svg-render.spec.cjs` passed.
+    `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    passed.
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed, 1 file / 36 tests.
+    `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+    passed, 35 files / 968 tests.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+    `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with
+    `BUILD_EXIT:0`.
+    `cd inkforge && ./node_modules/.bin/wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+    passed against WebView2 `148.0.3967.96`: 1 spec file, 6 tests. The regression probe now
+    reports `niceWidth=401`, SVG parent width 401px, and mobile-emulated chars/line `20`.
+    `cd inkforge && ./node_modules/.bin/wdio run tests/e2e/wdio.conf.cjs`
+    passed against WebView2 `148.0.3967.96`: 2 spec files, 17 tests.
+  - `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck dirtied the generated
+    cache. The tracked e2e PNG files under `prompts/0601/evidence/e2e/` were already dirty
+    at the start of this continuation and remain a separate artifact-review concern.
 
 ## Remaining Checks Before Commit
 
@@ -757,6 +823,9 @@ git status --short --branch
       dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 ExportModal style capability gate e2e slice only; leave unrelated
       dirty files and QR/platform-preview candidates untouched.
+- [x] Commit the 2026-06-08 ExportModal WebView2 narrow-preview regression repair only; leave
+      unrelated dirty files, pre-existing dirty e2e PNG files, and QR/platform-preview
+      candidates untouched.
 
 ## Honest Non-Goals For This Slice
 

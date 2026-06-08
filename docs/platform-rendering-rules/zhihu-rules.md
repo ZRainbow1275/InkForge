@@ -49,10 +49,12 @@ instead of duplicating this document's matrix.
 | Choice id | 用途 | 样式来源 | 输出 | 默认证据 | 阻断条件 |
 | --- | --- | --- | --- | --- | --- |
 | `zhihu-clean-column` | 专栏长文 | 标题、段落、引用、列表、代码 | clean Markdown | `unit-tested` | 残留 HTML/CSS/微信 wrapper |
-| `zhihu-academic` | 学术/技术文章 | LaTeX、脚注、表格、代码语言 | Markdown + formula preview checklist | `unit-tested` | `$` 不匹配、公式无法预览且无图片 fallback |
-| `zhihu-diagram-article` | 含流程图/架构图文章 | Mermaid/Graphviz/PlantUML/Vega 图片化 | Markdown image + alt/caption | `local-browser` after raster proof | raw diagram fence、图片 host 不可发布 |
-| `zhihu-data-table` | 数据表、复杂表格 | Markdown 表格或图片 fallback | Markdown table / image | `unit-tested` | 复杂 HTML table、宽表格未简化、alt/caption 缺失 |
+| `zhihu-academic-latex-column` | 学术/技术文章 | LaTeX、脚注、表格、代码语言 | Markdown + formula preview checklist | `unit-tested` | `$` 不匹配、公式无法预览且无图片 fallback |
 | `zhihu-wechat-adapted` | 微信稿迁移知乎 | 语义降级 | Markdown semantic blocks | `unit-tested` | `data-ink-*`、inline SVG、style/class 依赖 |
+| `zhihu-diagram-article` | 含流程图/架构图文章 | Mermaid/Graphviz/PlantUML/Vega 图片化 | Markdown image + alt/caption | `local-browser` after raster proof | raw diagram fence、图片 host 不可发布 |
+| `zhihu-complex-table-fallback` | 宽表/复杂表格 | 图片化表格 + 题注 | Markdown image + clean fallback | `local-browser` | 无 raster artifact、public host、alt/caption |
+| `zhihu-data-table` | 数据表、复杂表格 | Markdown 表格或图片 fallback | Markdown table / image | `unit-tested` | 复杂 HTML table、宽表格未简化、alt/caption 缺失 |
+| `zhihu-public-image-upload-checklist` | 图片上传/图床重写 | 公开 HTTPS / 平台图床 | publish checklist | `credentialed-sync` | 无真实上传响应或公开 host 证明 |
 
 实施要求：
 

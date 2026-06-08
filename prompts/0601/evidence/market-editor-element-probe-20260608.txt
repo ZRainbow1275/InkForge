@@ -1,0 +1,149 @@
+InkForge 06-01 market editor element probe, 2026-06-08
+
+Scope:
+- Read-only Playwright browser probe after the user re-logged into WeChat Official Account,
+  135 Editor, and Xiumi.
+- The probe focused on visible editor surfaces, element taxonomy, workflow states, and
+  platform gates for InkForge rule generation.
+- No screenshot, QR code, cookie, token, HAR, browser profile, private SVG code, proprietary
+  template body, account id, user number, or paid material was written to this repository.
+- No save, sync, preview-share, publish, scheduled send, delete, import, export, plugin action,
+  or official-account API action was executed.
+
+1. WeChat Official Account backend
+
+URL class:
+- `https://mp.weixin.qq.com/` redirected into an authenticated Official Account backend.
+- Any URL that may include `token=...` must be recorded as `token=<redacted>`.
+
+Visible logged-in backend surface:
+- Left navigation included `首页`, `内容管理`, `草稿箱`, `素材库`, `发表记录`, `原创`,
+  `合集`, `互动管理`, `留言`, `私信`, `投票`, `自动回复`, `自定义菜单`, `用户管理`,
+  `数据分析`, `收入变现`, `账号成长`, `广告与服务`, and `设置与开发`.
+- The home page exposed a `新的创作` entry and creation choices:
+  `文章`, `选择已有内容`, `贴图`, `视频`, `转载`, `音频`, `直播`.
+- The home page exposed recent-draft and recent-publish areas.
+
+Boundary:
+- This proves the current browser session can read the authenticated backend home surface and
+  article-creation menu.
+- This does not prove the article editor paste path, `.ProseMirror` retention, WeChat PC rich
+  paste, phone preview, SMIL/click behavior, Dark Mode, cover thumbnail acceptance, sync,
+  scheduled send, or publish state.
+- No existing draft or published article was edited.
+
+2. 135 Editor workspace
+
+URL checked:
+- `https://www.135editor.com/beautify_editor.html`
+
+Visible editor taxonomy:
+- Main authoring entries included `样式`, `模板`, `SVG编辑器`, `AI排版`, `一键排版`,
+  `我的文章`, `我的图片`, `剪切板`, `AI配图`, `135AI工具`, `运营工具`, `在线作图`,
+  and `公众号长图`.
+- Toolbar/parameter entries included default font, clear format, format brush, font size, bold,
+  italic, underline, delete line, text color, background color, alignment, first-line indent,
+  paragraph spacing, line spacing, letter spacing, side padding, background, image upload,
+  quote, link, Word-image upload, AI polish/generate, fullscreen writing mode, text shadow,
+  text border, full-text auto-typeset, and query/replace.
+- Style families included title, body, image-text, guide, layout, festival, industry,
+  small-element, and SVG families.
+- Workflow entries included import, insert, theme color, full-text black/white, color picker,
+  copy-use, quick save, save-sync, long-image generation, preview/share, and sync to official
+  account.
+- Preview/settings entries included screen-size preview buckets and dark-mode preview.
+- Account/workflow entries included authorized official account, scheduled send, watermark,
+  full-text format, team management, plugin download, multi-platform distribution, enterprise
+  content platform, open interface, and private deployment.
+
+Boundary:
+- 135 is a taxonomy/workflow reference only.
+- InkForge must not copy 135 templates, paid assets, private SVG code, account data, or exact
+  layout geometry.
+- `copy`, `copy-to-WeChat`, plugin transfer, save-sync, preview/share, scheduled send, and
+  publish are separate evidence states.
+
+3. 135 SVG center
+
+URL checked:
+- `https://www.135editor.com/svg-center.html`
+
+Visible SVG taxonomy:
+- Categories included click reveal, click show, click switch, click zoom, click flip,
+  click popup, click enlarge, click disappear, click play, draw/lottery, slide display,
+  image carousel, long-press display, fade-in display, bullet text, region trigger, fun game,
+  interactive quiz, text effects, and follow-guide effects.
+- Multiple visible labels contained mobile-only wording such as `仅支持手机端触发` or equivalent
+  mobile-trigger notes.
+
+Boundary:
+- Mobile-only labels become `mobile-only-risk` in InkForge.
+- PC browser visibility or PC editor paste can never promote those effects to available.
+- A source-owned InkForge module needs WeChat-safe checks plus real phone preview before/after
+  evidence before it can be user-visible as an available interactive WeChat effect.
+
+4. Xiumi article editor
+
+URL checked:
+- `https://xiumi.us/studio/v5#/paper/for/new/cube/0`
+
+Visible workflow taxonomy:
+- Top actions included open, preview, save, exit, export, sync to official account, sync to
+  Weibo draft, plugin copy, copy/paste fallback, multi-article sync, and more.
+- More-menu actions included new article, import Word/Excel/Markdown, import official-account
+  article, duplicate article, collect images, generate long image/PDF/video, generate sticker
+  article, one-click layout, and set as sample.
+- Permission gates included WeChat official-account authorization, sync preview requiring
+  WeChat certification, and comment options requiring official-account comment permission.
+- Base format exposed font size 16, line spacing 1.6, letter spacing 0, default image, article
+  word count, reading-time field, link count, image count, and gallery count.
+- Material groups included theme color, title, card, image, layout, SVG, component, article
+  template, image material, favorites, clipboard, personal gallery, team material,
+  audio/video, and sample template.
+- Action/SVG families included draw/lottery, rolling, switch, grid switch, rotate, flip,
+  sequence frame, click, automatic trigger, long press, delay, loop, carousel, click reveal,
+  path animation, transition, branch transition, slide trigger, parallax, click answer,
+  bullet text, click show, click change image, click open, click disappear, click popup,
+  click zoom, click print, click jump, click play, long-press switch, region trigger,
+  click drop, and click plus auto.
+- Layout/layer controls included background image, background repeat, background color,
+  transparency, positioning, z-order, spacing, line spacing, letter spacing, page margin,
+  scaling, component positioning, page alignment, multi-select alignment, width/height/X/Y,
+  animation list, action extraction, and format extraction.
+- Mobile/layout risk text included background image height over 4000 causing Android display
+  risk, media cover operations needing plugin/sync upload, and overly tall images causing
+  clickability problems.
+
+Boundary:
+- Xiumi confirms InkForge's article/export, H5 page, design image, enhanced media, plugin,
+  sync, and API flows are separate artifact families or credentialed states.
+- Xiumi's authoring preview is not WeChat final mobile rendering proof.
+- Free layout, z-order, background images, media covers, and oversized images require layout
+  reports and raster/static fallbacks.
+
+5. Public source refresh
+
+Exa results used as supplementary current references:
+- 135 official FAQ/tutorial pages separate ordinary copy, copy-to-editor, copy-to-WeChat,
+  developer-tool HTML replacement, plugin transfer, and authorized save-sync. They also warn
+  that ordinary copy paths can lose some SVG effects.
+- Xiumi Chrome extension and sync API documentation separate plugin copy and credentialed sync
+  from normal copy/paste; the sync API transfers HTML and images through authenticated server
+  interfaces and image URL replacement.
+- Xiaohongshu/Rednote current tools and guides still center on image cards/carousel pages,
+  browser/canvas rendering, 3:4 or similar vertical ratios, manifest/page order, cover strength,
+  and manual upload.
+- Zhihu authoring tools still center on clean Markdown, Markdown/LaTeX, image upload/public
+  hosts, Mermaid/Graphviz/diagram rasterization, and table simplification.
+
+Grok Search / Grok Fetch:
+- 135 SVG center fetch corroborated the taxonomy headings.
+- Xiumi public homepage fetch only produced sparse slideshow content in this environment, so
+  it was treated as weak supplementary input and did not loosen any rule.
+
+Runtime rule outcome:
+- The executable style catalog should expose richer user choices, but only `available` choices
+  whose current InkForge renderer/artifact has enough evidence may count as usable.
+- Mobile-only SVG, plugin transfer, sync draft, H5/design families, cover-thumbnail publishing,
+  and official widgets must remain `blocked` or `unavailable` until their exact target gate is
+  verified with real platform evidence.

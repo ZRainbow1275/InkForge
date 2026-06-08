@@ -82,13 +82,20 @@ catalog rather than hard-coding this document's tables.
 | Choice id | 适用内容 | 输出形态 | 默认状态 | 必要证据 | 不通过时降级 |
 | --- | --- | --- | --- | --- | --- |
 | `wechat-classic-inline` | 原 12 微信预设 | inline-style HTML | enabled | `unit-tested` + focused export tests | 保留基础 inline HTML |
-| `wechat-quiet-press` | 长文、评论、报告 | HTML block + 少量几何 SVG | enabled for flagship | `local-browser` | 移除 SVG，仅保留 HTML 色块 |
+| `wechat-quiet-editorial` | 长文、评论、报告 | HTML block + 少量几何 SVG | enabled for flagship | `local-browser` | 移除 SVG，仅保留 HTML 色块 |
+| `wechat-toolbar-parameter-map` | 字号、行距、字距、缩进、两侧边距 | inline-style HTML | available | `local-browser` | 回到基础段落参数 |
 | `wechat-cover-seal-divider` | 封面、分隔、落款 | WeChat-safe static SVG | opt-in | `unit-tested` + `local-browser` | PNG/JPG 或普通分隔线 |
 | `wechat-card-rich` | 金句、数据、对比、时间线 | inline HTML card | opt-in | `unit-tested` | 普通引用/列表/段落 |
+| `wechat-flagship-kiln` | 创意旗舰长文 | WeChat-safe SVG + HTML block | available locally | `local-browser` | 图片 fallback 或普通 inline HTML |
+| `wechat-flagship-tempera` | 学术/报告旗舰长文 | WeChat-safe SVG + HTML block | available locally | `local-browser` | 图片 fallback 或普通 inline HTML |
 | `wechat-flagship-amber` | 商业结构稿、对比、时间线 | WeChat-safe SVG + HTML block | blocked | `pc-editor-paste` still missing | 普通剪贴板路径已在 2026-06-08 真实编辑器中降级为纯文本；需插件/HTML 替换/授权同步等明确渠道另证 |
 | `wechat-click-reveal` | 点击展开、切换、序列帧 | SMIL candidate SVG | blocked by default | `pc-editor-paste` + `mobile-preview` | static-safe SVG 或长图 |
 | `wechat-mobile-only-effect` | 长按、touch-only、区域触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 静态图 / 图片页 |
-| `wechat-official-widget` | 小程序卡片、视频号、投票、音频 | publish checklist / official editor component | unavailable without credential | `credentialed-sync` 或 `published` | 手动发布清单 |
+| `wechat-carousel-switch` | 图片轮播、点击切换、滑动触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 图片序列 / 长图 |
+| `wechat-official-widget-checklist` | 小程序卡片、视频号、投票、音频 | publish checklist / official editor component | unavailable without credential | `credentialed-sync` 或 `published` | 手动发布清单 |
+| `wechat-plugin-transfer-checklist` | 插件传输、复制到微信通道 | publish checklist | unavailable without channel proof | `credentialed-sync` | 手动发布清单 |
+| `wechat-sync-draft-checklist` | 授权账号、草稿同步、图片传输 | publish checklist | unavailable without authorization | `credentialed-sync` | 手动发布清单 |
+| `wechat-h5-design-boundary` | H5、设计图、增强媒体、PDF/视频 | publish checklist | unavailable for article body | `doc-only` | 独立 artifact family |
 
 用户看到的“可用”必须对应当前证据等级。`blocked` 项可以显示为实验/清单项，但按钮不得导出为成功状态。
 

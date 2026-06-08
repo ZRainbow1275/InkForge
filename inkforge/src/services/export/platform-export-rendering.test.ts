@@ -106,14 +106,21 @@ describe('platform native export rendering rules', () => {
     const catalog = getStyleChoiceCatalog()
     const ids = catalog.map(choice => choice.id)
 
-    expect(getPlatformStyleChoices('wechat').length).toBeGreaterThanOrEqual(7)
-    expect(getPlatformStyleChoices('xiaohongshu').length).toBeGreaterThanOrEqual(3)
-    expect(getPlatformStyleChoices('zhihu').length).toBeGreaterThanOrEqual(3)
+    expect(getPlatformStyleChoices('wechat').length).toBeGreaterThanOrEqual(15)
+    expect(getPlatformStyleChoices('xiaohongshu').length).toBeGreaterThanOrEqual(7)
+    expect(getPlatformStyleChoices('zhihu').length).toBeGreaterThanOrEqual(7)
 
     expect(ids).toContain('wechat-classic-inline')
+    expect(ids).toContain('wechat-cover-seal-divider')
     expect(ids).toContain('wechat-flagship-amber')
+    expect(ids).toContain('wechat-mobile-only-effect')
+    expect(ids).toContain('wechat-plugin-transfer-checklist')
     expect(ids).toContain('xhs-cover-carousel')
+    expect(ids).toContain('xhs-markdown-card-slicer')
+    expect(ids).toContain('xhs-h5-design-import-boundary')
+    expect(ids).toContain('zhihu-academic-latex-column')
     expect(ids).toContain('zhihu-diagram-article')
+    expect(ids).toContain('zhihu-public-image-upload-checklist')
 
     expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
     expect(catalog.every(choice => choice.evidenceFloor !== 'published')).toBe(true)
@@ -151,6 +158,45 @@ describe('platform native export rendering rules', () => {
     expect(officialAvailability.status).toBe('unavailable')
   })
 
+  it('keeps mobile-only plugin sync and H5 or design families behind explicit proof gates', () => {
+    const mobileOnlyChoices = getStyleChoiceCatalog()
+      .filter(choice => choice.motion === 'mobile-only')
+    expect(mobileOnlyChoices.length).toBeGreaterThanOrEqual(2)
+
+    for (const choice of mobileOnlyChoices) {
+      const availability = evaluateStyleChoiceAvailability(choice, getDefaultStyleEvidence(choice.platform))
+      expect(availability.usable, choice.id).toBe(false)
+      expect(choice.status, choice.id).toBe('blocked')
+      expect(choice.evidenceFloor, choice.id).toBe('mobile-preview')
+      expect(choice.fallbackOutput, choice.id).not.toBe('unavailable')
+    }
+
+    const credentialedChoices = getStyleChoiceCatalog()
+      .filter(choice => choice.evidenceFloor === 'credentialed-sync')
+    expect(credentialedChoices.length).toBeGreaterThanOrEqual(3)
+
+    for (const choice of credentialedChoices) {
+      const availability = evaluateStyleChoiceAvailability(choice, getDefaultStyleEvidence(choice.platform))
+      expect(availability.usable, choice.id).toBe(false)
+      expect(availability.status, choice.id).toBe('unavailable')
+      expect(choice.primaryOutput, choice.id).toBe('publish-checklist')
+    }
+
+    for (const choiceId of [
+      'wechat-h5-design-boundary',
+      'xhs-h5-design-import-boundary',
+    ]) {
+      const choice = getStyleChoiceById(choiceId)
+      expect(choice).toBeDefined()
+      if (!choice) continue
+
+      const availability = evaluateStyleChoiceAvailability(choice, ['published'])
+      expect(availability.usable, choiceId).toBe(false)
+      expect(availability.status, choiceId).toBe('unavailable')
+      expect(choice.primaryOutput, choiceId).toBe('publish-checklist')
+    }
+  })
+
   it('requires exact evidence floor before enabling available style choices', () => {
     const classic = getStyleChoiceById('wechat-classic-inline')
     const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
@@ -182,12 +228,18 @@ describe('platform native export rendering rules', () => {
     expect(wechatReport.stats.usable).toBeGreaterThan(0)
     expect(wechatReport.stats.blocked).toBeGreaterThan(0)
     expect(wechatReport.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.usable).toBe(false)
+    expect(wechatReport.choices.find(choice => choice.choice.id === 'wechat-mobile-only-effect')?.usable).toBe(false)
+    expect(wechatReport.choices.find(choice => choice.choice.id === 'wechat-plugin-transfer-checklist')?.usable).toBe(false)
 
     expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')?.usable).toBe(true)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-markdown-card-slicer')?.usable).toBe(true)
     expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-long-report')?.usable).toBe(false)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-h5-design-import-boundary')?.usable).toBe(false)
 
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-clean-column')?.usable).toBe(true)
+    expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-academic-latex-column')?.usable).toBe(true)
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-diagram-article')?.usable).toBe(false)
+    expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-public-image-upload-checklist')?.usable).toBe(false)
   })
 
   it('keeps WeChat HTML compatible with draft content sanitization and inline CSS rendering', () => {

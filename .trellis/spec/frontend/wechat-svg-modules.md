@@ -55,6 +55,11 @@ construct breaks.
   `.ProseMirror` readback after real `Control+V` was plain text only (`data-ink-svg=0`,
   `svg=0`, no inline styles). The ordinary clipboard channel is therefore `blocked` for amber
   until a separately named channel is proven.
+- 2026-06-08 re-login browser probe: `prompts/0601/evidence/market-editor-element-probe-20260608.txt`
+  records current WeChat backend, 135 Editor, 135 SVG center, and Xiumi editor visible surfaces.
+  It is valid taxonomy/workflow evidence only. It does not upgrade WeChat paste, mobile preview,
+  Dark Mode, sync, cover-thumbnail, scheduled-send, or publish availability without exact
+  artifact proof in the runtime catalog.
 
 ---
 

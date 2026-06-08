@@ -62,17 +62,35 @@ Executable mirror:
 
 | Choice id | 平台 | 内容块 | 样式族 | 视觉强度 | 动效 | 主输出 | 降级 | 最低证据标签 | 阻断条件 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `wechat-quiet-editorial` | 微信 | 全文 | 静谧刊印 / Quiet Press | medium | none | inline HTML block + safe SVG divider | 普通 inline HTML | `unit-tested` | `<style>`、class/id 依赖、unsupported CSS |
-| `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | 墨铸 flagship creative | high | optional SMIL candidate | inline HTML block + safe SVG | static-safe SVG 或 raster fallback | `local-browser`；对外宣传互动需 `mobile-preview` | PC paste、手机触发、Dark Mode 任一未证实时不得标记为发布可用 |
-| `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | calm editorial | medium | none / click-safe candidate | inline HTML block + safe SVG | plain inline section | `local-browser` | 可读容器固定宽高、`line-height:0`、普通文本 `<pre>` |
-| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | business editorial | medium-high | static | inline HTML block + safe SVG | static HTML fallback | `pc-editor-paste` | 2026-06-08 普通剪贴板富 HTML/SVG 粘贴在真实微信 PC 编辑器中降级为纯文本 |
-| `wechat-interaction-lab` | 微信 | 点击展开、切换、滑动、轮播、区域触发 | interactive-system | high | opt-in only | WeChat-safe SVG candidate | static fallback / raster fallback | `pc-editor-paste` + `mobile-preview` | 仅 `touchstart`、脚本、事件属性、外链资源、手机端无证据 |
-| `wechat-publish-component-checklist` | 微信 | 小程序卡片、视频号、投票、音频、名片 | guide-system | n/a | n/a | publish checklist | blocked/unavailable | `credentialed-sync` 或 `published` | 无真实账号权限、接口返回或后台组件证据 |
-| `xhs-clean-note` | 小红书 | 正文 | pure text note | low | none | 纯文本 | 拆段/短句 | `unit-tested` | HTML、SVG、Markdown 控制符泄漏 |
-| `xhs-cover-carousel` | 小红书 | 封面、多页图文 | image-page / poster | high | none | 3:4 图片页 + manifest | 长图或拆篇 | `local-browser`；发布需真实入口 | manifest 数量、文件数、正文“见第 N 张图”不一致，格式/数量/大小未过关 |
-| `xhs-report-long-image` | 小红书 | 长文、表格、步骤 | long-image | medium | none | 长图 artifact | 多页图片 | `local-browser` | 裁切、横向溢出、资源不可加载 |
-| `zhihu-clean-article` | 知乎 | 专栏/回答正文 | clean Markdown | medium | none | Markdown | 简化表格/清理 HTML | `unit-tested` | 微信包装、inline CSS、HTML 依赖 |
-| `zhihu-diagram-formula-fallback` | 知乎 | 公式、图表、复杂表格 | image fallback | medium | none | Markdown + public HTTPS image | blocked/unavailable | `local-browser`；发布需图片上传证据 | 本地/`blob:`/`data:`/私网/微信 CDN、alt/caption 缺失 |
+| `wechat-classic-inline` | 微信 | 原 12 微信预设 | body-system | medium | none | inline HTML | static fallback | `unit-tested` | 微信 sanitizer 变化、官方组件需求、unsupported CSS |
+| `wechat-quiet-editorial` | 微信 | lede、阅读条、引用、footer | card-system | medium | static | inline HTML | static fallback | `local-browser` | 固定容器、`line-height:0`、`text-align:start/end` |
+| `wechat-toolbar-parameter-map` | 微信 | 字号、行距、字距、缩进、两侧边距 | body-system | medium | none | inline HTML | static fallback | `local-browser` | 工具栏参数不得绕过现有微信 renderer |
+| `wechat-cover-seal-divider` | 微信 | 封面、分隔、落款 | headline-system | high | static | WeChat-safe SVG | image fallback | `local-browser` | 精确 artifact 的 PC paste、封面缩略图仍需另证 |
+| `wechat-card-rich` | 微信 | 金句、数据、对比、时间线、清单 | card-system | medium-high | static | inline HTML | static fallback | `local-browser` | 固定容器、透明图叠 SVG、Dark Mode 证据缺失 |
+| `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | headline-system | high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、封面缩略图仍需另证 |
+| `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | headline-system | medium-high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、Dark Mode 仍需另证 |
+| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | headline-system | medium-high | static | WeChat-safe SVG | static fallback | `pc-editor-paste` | 2026-06-08 普通剪贴板富 HTML/SVG 粘贴在真实微信 PC 编辑器中降级为纯文本 |
+| `wechat-click-reveal` | 微信 | 点击展开、渐进披露 | interactive-system | high | click-candidate | WeChat-safe SVG | static fallback | `mobile-preview` | SMIL/click 手机前后证据缺失 |
+| `wechat-mobile-only-effect` | 微信 | 长按、touch-only、区域触发 | interactive-system | high | mobile-only | WeChat-safe SVG | static fallback | `mobile-preview` | 市场标签提示仅手机端触发，默认 blocked |
+| `wechat-carousel-switch` | 微信 | 图片轮播、点击切换、序列帧、滑动触发 | interactive-system | high | mobile-only | WeChat-safe SVG | image fallback | `mobile-preview` | 手机微信读回和静态 fallback 缺失 |
+| `wechat-official-widget-checklist` | 微信 | 小程序卡片、视频号、投票、音频、名片 | guide-system | low | none | publish checklist | unavailable | `credentialed-sync` | 无真实账号权限、接口返回或后台组件证据 |
+| `wechat-plugin-transfer-checklist` | 微信 | 插件传输、复制到微信通道、格式丢失读回 | editor-workflow-system | low | none | publish checklist | unavailable | `credentialed-sync` | 未执行插件传输和通道级 DOM 读回 |
+| `wechat-sync-draft-checklist` | 微信 | 授权账号、草稿同步、图片传输、同步读回 | editor-workflow-system | low | none | publish checklist | unavailable | `credentialed-sync` | 无真实授权同步响应；同步不等于预览/发布 |
+| `wechat-h5-design-boundary` | 微信 | H5、设计图、增强媒体、PDF/视频 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 独立 artifact family，不是微信公众号正文渲染成功 |
+| `xhs-clean-text` | 小红书 | 标题、短段、列表、话题 | body-system | low | none | plain text | plain text | `unit-tested` | HTML/SVG/Markdown 控制符泄漏 |
+| `xhs-cover-carousel` | 小红书 | 封面、步骤卡、图文卡、图表 | figure-system | high | none | image page | long image | `local-browser` | manifest、格式、页数上限检查不通过 |
+| `xhs-cover-hook` | 小红书 | 封面标题、副标题、主题钩子 | headline-system | high | none | image page | plain text | `local-browser` | 封面裁切、对比、manifest cover 标记缺失 |
+| `xhs-markdown-card-slicer` | 小红书 | H2 分页、手动分页、清单、代码卡 | figure-system | medium-high | none | image page | long image | `local-browser` | 页序、正文图号引用、overflow 未修正 |
+| `xhs-data-card` | 小红书 | 数据表、对比、指标、图表摘要 | card-system | medium-high | none | image page | long image | `local-browser` | 密集表格/小字需要逐页 overflow 和手机可读性证明 |
+| `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 裁切、横向溢出、资源不可加载 |
+| `xhs-h5-design-import-boundary` | 小红书 | H5、设计海报、视频/PDF、贴纸图文 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 需先落成图片页/纯文本，不是正文富文本 |
+| `zhihu-clean-column` | 知乎 | 标题、段落、引用、列表、代码 | body-system | medium | none | clean Markdown | clean Markdown | `unit-tested` | 微信 wrapper、HTML/CSS、inline SVG 泄漏 |
+| `zhihu-academic-latex-column` | 知乎 | LaTeX、脚注、代码、引用 | body-system | medium | none | clean Markdown | image fallback | `unit-tested` | 公式括号不匹配、公式预览/图片 fallback 缺失 |
+| `zhihu-wechat-adapted` | 知乎 | 微信标题、引用、卡片、列表、落款 | fallback-system | medium | none | clean Markdown | image fallback | `unit-tested` | `data-ink-*`、inline SVG、style/class 依赖未清理 |
+| `zhihu-diagram-article` | 知乎 | 公式图、图表图、表格图 | figure-system | medium | none | image fallback | clean Markdown | `local-browser` | public HTTPS / platform-host 证明、alt/caption 缺失 |
+| `zhihu-complex-table-fallback` | 知乎 | 宽表、多段单元格、表格截图、题注 | card-system | medium | none | image fallback | clean Markdown | `local-browser` | 栅格 artifact 与公开图片 host 证据缺失 |
+| `zhihu-data-table` | 知乎 | 简单表、数据摘要、对比行 | card-system | medium | none | clean Markdown | image fallback | `unit-tested` | 表格分隔线非法、复杂表格未简化或缺 alt/caption |
+| `zhihu-public-image-upload-checklist` | 知乎 | 平台图片上传、公开 HTTPS 重写、alt、caption | editor-workflow-system | low | none | publish checklist | unavailable | `credentialed-sync` | 需真实知乎或公开图床上传响应 |
 
 选择规则：
 

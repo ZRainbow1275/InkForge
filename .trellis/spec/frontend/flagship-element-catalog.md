@@ -18,6 +18,11 @@
 > surface for user-selectable style choices. This document describes the element families; the
 > runtime catalog decides whether a style is available, blocked, or unavailable for a platform
 > based on current evidence.
+>
+> 2026-06-08 element probe: `prompts/0601/evidence/market-editor-element-probe-20260608.txt`
+> confirms current logged-in WeChat/135/Xiumi browser surfaces. It expands taxonomy and workflow
+> gates only; it does not permit copying market templates or promoting plugin/sync/H5/mobile-only
+> capabilities without exact InkForge runtime evidence.
 
 ---
 

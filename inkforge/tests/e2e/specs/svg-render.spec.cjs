@@ -381,11 +381,19 @@ function collectStyleCapabilityProbe() {
   });
 }
 
-function closeExportModal() {
-  return browser.execute(() => {
+async function closeExportModal() {
+  await browser.execute(() => {
     const close = document.querySelector('.export-panel .header-close');
     if (close) close.click();
   });
+  await browser.waitUntil(
+    async () => browser.execute(() => !document.querySelector('.export-panel')),
+    {
+      timeout: 5_000,
+      interval: 100,
+      timeoutMsg: 'ExportModal did not unmount after close',
+    },
+  );
 }
 
 function ensureEvidenceDir() {
@@ -471,13 +479,13 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     await openExportPanel('微信');
 
     const wechat = await collectStyleCapabilityProbe();
-    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 4/7');
-    expect(wechat.cardCount, 'WeChat choice card count').to.equal(7);
-    expect(wechat.availableCount, 'WeChat available choice count').to.equal(4);
-    expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(2);
-    expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(1);
+    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 7/15');
+    expect(wechat.cardCount, 'WeChat choice card count').to.equal(15);
+    expect(wechat.availableCount, 'WeChat available choice count').to.equal(7);
+    expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
+    expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(4);
     expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+      .to.include('样式能力目录可用 7/15；受限 4；不可用 4');
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
@@ -487,39 +495,60 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Mobile-only SVG effect candidate') &&
+        card.text.includes('phone WeChat before/after evidence missing')),
+      'mobile-only SVG effects stay blocked until phone WeChat evidence exists',
+    ).to.equal(true);
+    expect(
+      wechat.cards.some((card) =>
         card.className.includes('style-choice-unavailable') &&
-        card.text.includes('Official widget publish checklist')),
-      'official-account widgets stay unavailable without credentialed proof',
+        card.text.includes('Plugin transfer channel checklist')),
+      'plugin transfer stays unavailable without channel-specific proof',
     ).to.equal(true);
 
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();
-    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 2/3');
-    expect(xhs.cardCount, 'XHS choice card count').to.equal(3);
-    expect(xhs.availableCount, 'XHS available choice count').to.equal(2);
-    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(1);
+    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/7');
+    expect(xhs.cardCount, 'XHS choice card count').to.equal(7);
+    expect(xhs.availableCount, 'XHS available choice count').to.equal(4);
+    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(2);
+    expect(xhs.unavailableCount, 'XHS unavailable choice count').to.equal(1);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 2/3；受限 1；不可用 0');
+      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
     expect(
       xhs.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Long report image artifact')),
       'XHS long-image report remains blocked until artifact crop/size proof exists',
     ).to.equal(true);
+    expect(
+      xhs.cards.some((card) =>
+        card.className.includes('style-choice-unavailable') &&
+        card.text.includes('H5 and design import boundary')),
+      'XHS H5/design routes remain separate artifact-family checklists',
+    ).to.equal(true);
 
     await selectExportPlatform('知乎');
     const zhihu = await collectStyleCapabilityProbe();
-    expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 2/3');
-    expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(3);
-    expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(2);
-    expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(1);
+    expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 4/7');
+    expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(7);
+    expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(4);
+    expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(2);
+    expect(zhihu.unavailableCount, 'Zhihu unavailable choice count').to.equal(1);
     expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 2/3；受限 1；不可用 0');
+      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
     expect(
       zhihu.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Diagram and formula image fallback')),
       'Zhihu image fallback remains blocked without public image-host proof',
+    ).to.equal(true);
+    expect(
+      zhihu.cards.some((card) =>
+        card.className.includes('style-choice-unavailable') &&
+        card.text.includes('Public image upload checklist')),
+      'Zhihu public image upload remains credentialed before publishability',
     ).to.equal(true);
 
     await closeExportModal();

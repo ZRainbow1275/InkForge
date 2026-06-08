@@ -25,6 +25,8 @@ XHS/Zhihu 弱来源冲突、agent 复审和聚焦测试）、
 `xhs-markdown-gate-refresh-20260608.txt`（微信登录态复核 + 小红书 raw Markdown 控制符阻断门禁）、
 `style-catalog-amber-paste-refresh-20260608.txt`（可执行样式选择 catalog + `flagship-amber`
 普通剪贴板富 HTML 粘贴降级为纯文本的真实微信证据）。
+`market-editor-element-probe-20260608.txt`（用户重新登录后对微信公众号、135、秀米的
+只读浏览器元素探针；不含截图、QR、token、账号 ID、模板代码或私有素材）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -123,6 +125,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] quality-gate-hardening-20260608.txt # 当前质量门禁实现：WeChat/XHS/Zhihu 阻断规则 + tests/lint/typecheck/build
 [x] xhs-markdown-gate-refresh-20260608.txt # 当前质量门禁实现：XHS raw Markdown 控制符阻断 + WeChat 登录态复核
 [x] style-catalog-amber-paste-refresh-20260608.txt # 当前规则实现：style-catalog typed choices + amber paste blocked proof
+[x] market-editor-element-probe-20260608.txt # 本轮只读浏览器元素探针：WeChat 后台 + 135/Xiumi taxonomy
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图

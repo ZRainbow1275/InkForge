@@ -183,9 +183,7 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
     motionLabel: styleMotionLabel(availability.choice.motion),
     ruleGroupLabel: styleRuleGroupLabel(availability.choice.ruleGroup),
     evidenceLabel: styleEvidenceLabel(availability.requiredEvidence),
-    detail: availability.usable
-      ? `当前证据 ${availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'}，fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`
-      : `${availability.reason}；fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`,
+    detail: styleChoiceDetail(availability),
   })),
 )
 
@@ -257,6 +255,19 @@ function styleRuleGroupLabel(group: StyleRuleGroup): string {
     'layout-and-layer-system': '图层布局',
   }
   return labels[group]
+}
+
+function styleChoiceDetail(availability: StyleChoiceAvailability): string {
+  const fallback = `fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`
+  if (availability.usable) {
+    const evidence = availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'
+    return `当前证据 ${evidence}，${fallback}`
+  }
+
+  const blockers = availability.choice.blockers.length > 0
+    ? availability.choice.blockers.join('；')
+    : availability.reason
+  return `${blockers}；${fallback}`
 }
 
 function selectPreset(id: string) {
@@ -1741,6 +1752,7 @@ onUnmounted(() => {
   color: var(--text-secondary);
   font-size: 11px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 /* ── Export Options ── */
@@ -2459,6 +2471,8 @@ onUnmounted(() => {
   border: 1px solid var(--hairline);
   border-radius: 12px;
   padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
   min-height: 200px;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -2490,7 +2504,7 @@ onUnmounted(() => {
    bespoke 4px #CFD8DC track was not dark-aware.
    ═══════════════════════════════════════════════════════════ */
 
-@media (max-width: 760px) {
+@media (max-width: 980px) {
   .export-overlay {
     padding: 12px;
     align-items: stretch;
