@@ -325,7 +325,7 @@ git status --short --branch
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 focused verification logs and platform gate matrix only; leave
       unrelated dirty files and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
+- [x] Commit the 2026-06-08 overnight market-rule hardening docs/spec and agent CSV files only;
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
