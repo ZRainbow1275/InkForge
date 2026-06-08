@@ -127,7 +127,7 @@ instead of duplicating this document's matrix.
 
 | 市场能力 | InkForge 映射 |
 | --- | --- |
-| 秀米生成长图/PDF/视频 | XHS fallback-system：长图/图片页/PDF 只作为辅助，不作为正文富文本 |
+| 秀米生成长图/PDF/视频 | XHS fallback-system：长图/图片页是可发布图文 fallback；PDF/视频仅是离线或非 XHS 正文辅助产物，不作为小红书正文富文本成功证明 |
 | 小红书图片页工具 | figure-system：3:4 image pages + layout report |
 | 小红书长文编辑器 | 真实账号验证项；本地只能证明 payload 和 artifact，不伪造发布 |
 | 微信旗舰 HTML/SVG | 对 XHS 全部降级为图片或纯文本摘要 |

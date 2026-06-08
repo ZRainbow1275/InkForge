@@ -49,7 +49,8 @@ Any new catalog element must declare:
 - idempotency sentinel.
 - source/provenance when imported from an external editor artifact.
 - action state produced by UI commands: local-rendered, copied, plugin-transferred, synced-draft,
-  published, blocked, or unavailable.
+  preview-shared/platform-previewed, scheduled-send/scheduled-publish, published, blocked, or
+  unavailable.
 - layout report when the element uses background layers, z-order, hit areas, or raster fallback.
 
 ---
@@ -183,13 +184,16 @@ that implies every market effect is available.
 | Motion toggle | none / static / click candidate / mobile-only | disabled by default for risky items | Require static fallback and evidence label before enabling |
 | Evidence badge | `doc-only` through `published` | read-only | Never upgrade without exact artifact proof |
 | Fallback selector | inline HTML / static SVG / raster / long-image / checklist | required for risky styles | Persist fallback in export options/report |
-| Publish/sync command | copy / plugin / sync / publish | credentialed or blocked | Verify account/permission and keep channel states separate |
+| Publish/sync command | copy / plugin / sync / preview / scheduled send / publish | credentialed or blocked | Verify account/permission and keep channel states separate |
 
 Implementation rules:
 
 - ExportModal may surface the catalog as a read-only capability panel and preflight row via
   `getPlatformStyleAvailabilityReport()`. It must not duplicate catalog constants in the
   component, and it must not let blocked/unavailable choices look selectable.
+- Preview and scheduled-send states are separate from publish. A preview link proves only that
+  the preview entry is visible for the current artifact; scheduled send proves only a
+  credentialed distribution setup, not final publish success.
 - Available WeChat choices must pass the WeChat detector before copy. Choices that trigger
   `wechat-event-handler`, `wechat-unsupported-css`, `wechat-unsafe-svg-construct`, or
   `wechat-katex-html` are hard-blocked.

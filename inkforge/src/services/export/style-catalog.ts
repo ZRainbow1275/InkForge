@@ -297,8 +297,17 @@ export const PLATFORM_STYLE_CHOICES = [
     status: 'available',
     evidenceFloor: 'unit-tested',
     publishEvidence: ['published'],
-    blockers: ['invalid separator row', 'complex table needs simplification or image fallback'],
-    detectorBlockers: ['zhihu-table-separator-invalid', 'zhihu-complex-table'],
+    blockers: [
+      'invalid separator row',
+      'complex table needs simplification or public image fallback with alt/caption',
+    ],
+    detectorBlockers: [
+      'zhihu-table-separator-invalid',
+      'zhihu-complex-table',
+      'zhihu-image-host-blocked',
+      'zhihu-image-alt-missing',
+      'zhihu-image-caption-missing',
+    ],
   },
 ] as const satisfies readonly PlatformStyleChoice[]
 

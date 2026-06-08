@@ -117,6 +117,14 @@ describe('platform native export rendering rules', () => {
 
     expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
     expect(catalog.every(choice => choice.evidenceFloor !== 'published')).toBe(true)
+
+    const zhihuDataTable = getStyleChoiceById('zhihu-data-table')
+    expect(zhihuDataTable?.fallbackOutput).toBe('image-fallback')
+    expect(zhihuDataTable?.detectorBlockers).toEqual(expect.arrayContaining([
+      'zhihu-image-host-blocked',
+      'zhihu-image-alt-missing',
+      'zhihu-image-caption-missing',
+    ]))
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

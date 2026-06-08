@@ -687,6 +687,35 @@ git status --short --branch
     `prompts/0601/evidence/market-editor-live-taxonomy-refresh-20260608.txt`.
   - No runtime catalog availability was upgraded because no exact platform publish or phone
     preview evidence was produced.
+- [x] 2026-06-08 market-editor live taxonomy agent review and boundary repair:
+  - Spawned 3 lightweight documentation QA reviewers from
+    `research/market-editor-live-review-agent-input.csv`; all 3 completed and wrote
+    `research/market-editor-live-review-agent-output.csv`.
+  - Findings:
+    - Availability language was safe: docs/evidence and runtime catalog do not promote 135/Xiumi
+      taxonomy to current published capability.
+    - `wechat-rules.md` and `flagship-element-catalog.md` needed explicit preview and scheduled
+      send states so those channels cannot collapse into sync/publish proof.
+    - `xiaohongshu-rules.md` needed to keep PDF/video out of XHS publishable body fallback.
+    - `zhihu-data-table` needed the same public image host/alt/caption detector blockers as
+      other Zhihu image fallbacks because it can fall back to `image-fallback`.
+  - Repairs:
+    - Added `preview-share`/`platform-preview` and `scheduled-send`/`scheduled-publish` as
+      separate artifact states in WeChat/flagship docs.
+    - Qualified XHS PDF/video as offline or non-body auxiliary outputs, while image page/long
+      image remain publishable fallback families.
+    - Added `zhihu-image-host-blocked`, `zhihu-image-alt-missing`, and
+      `zhihu-image-caption-missing` to `zhihu-data-table` in
+      `inkforge/src/services/export/style-catalog.ts`, plus focused test coverage.
+  - Impact check:
+    `npx gitnexus impact getPlatformStyleChoices -r InkForge --depth 3` returned LOW risk,
+    0 affected processes. `STYLE_CHOICE_CATALOG` is not separately indexed.
+  - Verification:
+    `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed: 1 file, 35 tests.
+    `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+    passed.
+    `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
 
 ## Remaining Checks Before Commit
 
