@@ -403,7 +403,7 @@ git status --short --branch
       leave unrelated dirty files and QR/platform-preview candidates untouched.
 - [x] Commit the 2026-06-08 quality-gate hardening refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
-- [ ] Commit the 2026-06-08 XHS markdown-gate refresh only; leave unrelated dirty files
+- [x] Commit the 2026-06-08 XHS markdown-gate refresh only; leave unrelated dirty files
       and QR/platform-preview candidates untouched.
 
 ## Honest Non-Goals For This Slice
