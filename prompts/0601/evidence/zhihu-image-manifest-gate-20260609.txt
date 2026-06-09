@@ -19,6 +19,9 @@ Implementation:
   - run the manifest validator against final clean Markdown,
   - merge issue ids into `qualityReport`,
   - echo the manifest under `artifacts.zhihuImageArtifactManifest`.
+- Added `zhihu-artifact-manifest` to `style-catalog.ts` proof requirements. Zhihu image-fallback
+  style choices now list both `public-image-host` and `zhihu-artifact-manifest` in
+  `getStyleChoiceProofRequirements()` without changing availability gates.
 
 Runtime issue ids:
 
@@ -55,7 +58,7 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 result: passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-result: passed, Vite built in 27.48s
+result: passed, Vite built in 30.99s
 ```
 
 Regression coverage:

@@ -19,7 +19,7 @@
 - 最新 XHS manifest focused 套件：**3 文件 / 69 用例 全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **27.48s**（本轮证据见 `evidence/zhihu-image-manifest-gate-20260609.txt`）。
+- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **30.99s**（本轮证据见 `evidence/zhihu-image-manifest-gate-20260609.txt`）。
 - 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
 - A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
@@ -34,7 +34,7 @@
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 - 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
-- 2026-06-09 已把知乎公式图/图表图/表格图/正文图/封面图 fallback artifact manifest 落到 runtime preflight：`ZhihuImageArtifactManifest` 与 `validateZhihuImageArtifactManifest()` 阻断 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用不一致；`convertToNativeFormat(..., 'zhihu')` 可返回 `artifacts.zhihuImageArtifactManifest`，但该字段只证明本地/平台 host 预检，不升级为知乎账号上传、编辑器预览、同步或发布完成。
+- 2026-06-09 已把知乎公式图/图表图/表格图/正文图/封面图 fallback artifact manifest 落到 runtime preflight：`ZhihuImageArtifactManifest` 与 `validateZhihuImageArtifactManifest()` 阻断 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用不一致；`convertToNativeFormat(..., 'zhihu')` 可返回 `artifacts.zhihuImageArtifactManifest`，但该字段只证明本地/平台 host 预检，不升级为知乎账号上传、编辑器预览、同步或发布完成。样式能力目录同步新增 `zhihu-artifact-manifest` proof requirement，知乎 image-fallback 样式会同时列出 `public-image-host` 与 manifest 门禁。
 
 ---
 
@@ -177,7 +177,7 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 # passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-# passed, Vite built in 27.48s
+# passed, Vite built in 30.99s
 
 cargo build -p inkforge
 # passed, dev profile compiled in 9.15s

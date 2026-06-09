@@ -489,6 +489,9 @@ success.
   no Zhihu manifest is supplied.
 - Browser/CloakBrowser evidence may prove local UI visibility and artifact state labels only. It
   never proves Zhihu account upload, preview, sync, or publish.
+- The style catalog must surface this proof boundary too. Zhihu choices whose primary or fallback
+  output is `image-fallback`, plus `zhihu-public-image-upload-checklist`, must include both
+  `public-image-host` and `zhihu-artifact-manifest` in `getStyleChoiceProofRequirements()`.
 
 Platform style parity matrix:
 

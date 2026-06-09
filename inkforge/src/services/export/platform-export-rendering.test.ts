@@ -226,6 +226,25 @@ describe('platform native export rendering rules', () => {
       'unit-test-coverage',
       'published-url-or-platform-preview',
     ]))
+
+    const zhihuDiagram = getStyleChoiceById('zhihu-diagram-article')
+    const zhihuUpload = getStyleChoiceById('zhihu-public-image-upload-checklist')
+    expect(zhihuDiagram).toBeDefined()
+    expect(zhihuUpload).toBeDefined()
+    if (!zhihuDiagram || !zhihuUpload) return
+
+    expect(getStyleChoiceProofRequirements(zhihuDiagram).map(requirement => requirement.id)).toEqual(expect.arrayContaining([
+      'local-browser-rendering',
+      'public-image-host',
+      'zhihu-artifact-manifest',
+      'published-url-or-platform-preview',
+    ]))
+    expect(getStyleChoiceProofRequirements(zhihuUpload).map(requirement => requirement.id)).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'public-image-host',
+      'zhihu-artifact-manifest',
+      'published-url-or-platform-preview',
+    ]))
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

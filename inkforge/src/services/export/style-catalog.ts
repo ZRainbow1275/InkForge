@@ -34,6 +34,7 @@ export type StyleProofRequirementId =
   | 'published-url-or-platform-preview'
   | 'public-image-host'
   | 'xhs-artifact-manifest'
+  | 'zhihu-artifact-manifest'
   | 'no-sensitive-artifact'
 
 export interface StyleProofRequirement {
@@ -232,6 +233,11 @@ export const STYLE_PROOF_REQUIREMENTS = [
     id: 'xhs-artifact-manifest',
     label: 'XHS artifact manifest',
     description: 'Image page, long-image, cover, count, order, ratio, and reference manifest are consistent.',
+  },
+  {
+    id: 'zhihu-artifact-manifest',
+    label: 'Zhihu artifact manifest',
+    description: 'Image fallback host, upload proof, local file, alt/caption, format, dimensions, bytes, and Markdown references are consistent.',
   },
   {
     id: 'no-sensitive-artifact',
@@ -909,6 +915,18 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
     for (const requirementId of EVIDENCE_PROOF_REQUIREMENT_IDS[label]) {
       requirementIds.add(requirementId)
     }
+  }
+
+  if (
+    choice.platform === 'zhihu'
+    && (
+      choice.primaryOutput === 'image-fallback'
+      || choice.fallbackOutput === 'image-fallback'
+      || choice.id === 'zhihu-public-image-upload-checklist'
+    )
+  ) {
+    requirementIds.add('public-image-host')
+    requirementIds.add('zhihu-artifact-manifest')
   }
 
   return Array.from(requirementIds, requirementId => {
