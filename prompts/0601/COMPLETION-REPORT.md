@@ -319,3 +319,33 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 ## 9. 结论
 
 自动化门禁（单测/冒烟/typecheck/lint/build）全绿，真实 Tauri/WebView2 e2e 全绿：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。真实微信公众号后台 PC 编辑器粘贴路径已证明 inline SVG 能在已测样本中穿透 paste sanitizer 并可视化渲染；该实测还暴露并修复了封面长标题溢出。`flagship-amber` 已补充 CloakBrowser 程序化 `ClipboardEvent` channel 的 PC DOM readback，但普通 Ctrl+V 仍阻断。AC2/AC3/AC4/AC6/AC7/AC8/AC9/AC10 已由自动化与真实运行证据覆盖；AC5 的安全 SMIL 结构与静态兜底由自动化覆盖，但手机微信点击/SMIL 触发仍并入 AC1 人工门禁。**剩余门禁** = 微信手机端扫码预览中的最终渲染、SMIL 交互、暗黑模式、封面缩略图要求确认，以及普通 Ctrl+V/插件/同步等其他渠道如需宣称时的单独证明。
+
+---
+
+## 2026-06-09 Style Proof Acceptance Audit Addendum
+
+- Added `getPlatformStyleProofAcceptanceAuditReport(platform, manifests)` and
+  `getStyleProofAcceptanceAuditReport(manifests)` as a local acceptance audit layer above the
+  style-proof progress and manifest-pack reports.
+- The audit report classifies open proof gates as `completed`, `missing`, `invalid`,
+  `blocked-by-external`, or `unsafe-to-automate`, and emits explicit `cannotClaim` requirement
+  rows. It does not create proof artifacts and does not change style availability or selectability.
+- The report keeps ordinary Ctrl+V rich HTML, channel-specific PC ClipboardEvent readback, phone
+  preview, phone SMIL/click behavior, Dark Mode, cover thumbnail, credentialed sync, public host,
+  and publish proof as separate claims. Local browser, PC DOM, authenticated editor, and weak
+  ClipboardEvent readbacks cannot satisfy those stronger rows.
+- Verification for this addendum:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 68 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 107 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1001 tests.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built in 43.75s.
+- Boundary: this addendum proves local acceptance accounting and cannot-claim enforcement only. It
+  does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.

@@ -17,6 +17,7 @@ import {
   getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
+  getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan,
   getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofProgressReport,
@@ -26,6 +27,7 @@ import {
   getStyleChoiceById,
   getStyleChoiceCatalog,
   getStyleChoiceProofRequirements,
+  getStyleProofAcceptanceAuditReport,
   getStyleProofManifestPackReport,
   getStyleProofManifestReport,
   markdownToWechatWithStats,
@@ -983,6 +985,183 @@ describe('platform native export rendering rules', () => {
     expect(packReport.platformReports.xiaohongshu.ignoredManifestCount).toBe(3)
     expect(packReport.manifests.find(manifest => manifest.choiceId === 'unknown-style-choice')?.usableForProgress)
       .toBe(false)
+  })
+
+  it('audits acceptance gates without inferring phone sync or publish proof from local manifests', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested', 'local-browser'],
+        artifactFingerprint: 'sha256:redacted-classic-inline',
+        artifacts: [
+          {
+            id: 'classic-audit-unit-proof',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'redacted unit proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            artifactFingerprint: 'sha256:redacted-classic-inline',
+            safeForCommit: true,
+          },
+          {
+            id: 'classic-audit-local-proof',
+            requirementId: 'local-browser-rendering',
+            kind: 'browser-readback',
+            label: 'redacted local browser proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-browser',
+            action: 'local-render',
+            readback: 'visual-and-dom',
+            artifactFingerprint: 'sha256:redacted-classic-inline',
+            safeForCommit: true,
+          },
+        ],
+      },
+    ]
+
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', manifests)
+    const requirementStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const cannotClaimIds = audit.cannotClaim.map(requirement => requirement.requirement.id)
+
+    expect(audit.platform).toBe('wechat')
+    expect(audit.progress.summary.choicesWithManifest).toBe(1)
+    expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(0)
+    expect(audit.nextLocalSafeAction?.gate).toBe('local-evidence')
+    expect(audit.nextPhoneAction?.gate).toBe('phone-preview')
+    expect(audit.nextUnsafeToAutomateAction?.gate).toBe('authenticated-pc-editor')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('unsafe-to-automate')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('blocked-by-external')
+    expect(requirementStatus.get('dark-mode-check')).toBe('blocked-by-external')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('blocked-by-external')
+    expect(requirementStatus.get('sync-readback')).toBe('unsafe-to-automate')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'sync-readback',
+      'published-url-or-platform-preview',
+    ]))
+  })
+
+  it('reports cross-platform acceptance gaps without leaking manifest proof between platforms', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-click-reveal',
+        scope: 'style-choice',
+        claimedEvidence: ['pc-editor-paste', 'mobile-preview', 'credentialed-sync', 'published'],
+        artifactFingerprint: 'sha256:redacted-weak-click',
+        artifacts: [
+          {
+            id: 'weak-audit-phone-from-pc-dom',
+            requirementId: 'phone-preview-readback',
+            kind: 'editor-readback',
+            label: 'PC DOM cannot prove phone preview',
+            evidenceLabel: 'pc-editor-dom-readable',
+            platform: 'wechat',
+            choiceId: 'wechat-click-reveal',
+            channel: 'platform-editor',
+            action: 'pc-editor-dom-readback',
+            readback: 'visual-and-dom',
+            artifactFingerprint: 'sha256:redacted-weak-click',
+            exactArtifact: true,
+            safeForCommit: true,
+          },
+          {
+            id: 'weak-audit-publish-from-pc-editor',
+            requirementId: 'published-url-or-platform-preview',
+            kind: 'published-preview',
+            label: 'PC editor preview cannot prove published platform preview',
+            evidenceLabel: 'pc-editor-paste',
+            platform: 'wechat',
+            choiceId: 'wechat-click-reveal',
+            channel: 'platform-editor',
+            action: 'published-preview',
+            readback: 'visual-and-dom',
+            artifactFingerprint: 'sha256:redacted-weak-click',
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'xiaohongshu',
+        choiceId: 'xhs-clean-text',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [
+          {
+            id: 'xhs-audit-unit-proof',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'xhs unit proof',
+            platform: 'xiaohongshu',
+            choiceId: 'xhs-clean-text',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'zhihu',
+        choiceId: 'zhihu-data-table',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [
+          {
+            id: 'zhihu-audit-unit-proof',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'zhihu unit proof',
+            platform: 'zhihu',
+            choiceId: 'zhihu-data-table',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            safeForCommit: true,
+          },
+        ],
+      },
+    ]
+
+    const audit = getStyleProofAcceptanceAuditReport(manifests)
+    const wechatRequirementStatus = new Map(
+      audit.platformReports.wechat.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const xhsRequirementStatus = new Map(
+      audit.platformReports.xiaohongshu.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const zhihuRequirementStatus = new Map(
+      audit.platformReports.zhihu.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(audit.summary.manifestCount).toBe(3)
+    expect(audit.platformReports.wechat.progress.summary.choicesWithManifest).toBe(1)
+    expect(audit.platformReports.wechat.progress.ignoredManifestCount).toBe(2)
+    expect(audit.platformReports.xiaohongshu.progress.summary.choicesWithManifest).toBe(1)
+    expect(audit.platformReports.xiaohongshu.progress.ignoredManifestCount).toBe(2)
+    expect(audit.platformReports.zhihu.progress.summary.choicesWithManifest).toBe(1)
+    expect(audit.platformReports.zhihu.progress.ignoredManifestCount).toBe(2)
+    expect(wechatRequirementStatus.get('phone-preview-readback')).toBe('blocked-by-external')
+    expect(wechatRequirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
+    expect(xhsRequirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
+    expect(zhihuRequirementStatus.get('public-image-host')).toBe('blocked-by-external')
+    expect(zhihuRequirementStatus.get('zhihu-artifact-manifest')).toBe('invalid')
+    expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(audit.summary.completedRequirements)
+    expect(audit.summary.unsafeToAutomateRequirements).toBeGreaterThan(0)
+    expect(audit.summary.blockedByExternalRequirements).toBeGreaterThan(0)
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

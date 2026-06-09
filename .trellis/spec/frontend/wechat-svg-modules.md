@@ -239,6 +239,26 @@ export interface PlatformStyleProofCollectionQueue {
 }
 export function getPlatformStyleProofCollectionPlan(platform: Platform): PlatformStyleProofCollectionPlan
 export function getPlatformStyleProofCollectionQueue(platform: Platform): PlatformStyleProofCollectionQueue
+export type StyleProofAcceptanceAuditStatus =
+  | 'completed' | 'missing' | 'invalid' | 'blocked-by-external' | 'unsafe-to-automate'
+export interface PlatformStyleProofAcceptanceAuditReport {
+  platform: Platform
+  progress: PlatformStyleProofProgressReport
+  gates: readonly StyleProofAcceptanceGateAudit[]
+  requirements: readonly StyleProofAcceptanceRequirementAudit[]
+  cannotClaim: readonly StyleProofAcceptanceRequirementAudit[]
+  nextLocalSafeAction: StyleProofAcceptanceNextAction | null
+  nextExternalAccountAction: StyleProofAcceptanceNextAction | null
+  nextPhoneAction: StyleProofAcceptanceNextAction | null
+  nextUnsafeToAutomateAction: StyleProofAcceptanceNextAction | null
+}
+export function getPlatformStyleProofAcceptanceAuditReport(
+  platform: Platform,
+  manifests?: readonly StyleProofManifest[],
+): PlatformStyleProofAcceptanceAuditReport
+export function getStyleProofAcceptanceAuditReport(
+  manifests?: readonly StyleProofManifest[],
+): StyleProofAcceptanceAuditReport
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }
@@ -881,3 +901,40 @@ Required tests:
   credentialed sync, and publish requirements invalid.
 - The matching `getPlatformStyleProofProgressReport()` gate rows must remain invalid, not
   satisfied or missing.
+
+## 13. Style Proof Acceptance Audit Report
+
+`getPlatformStyleProofAcceptanceAuditReport(platform, manifests)` and
+`getStyleProofAcceptanceAuditReport(manifests)` are the final local audit layer above manifest
+pack/progress reports. They classify every open proof gate as `completed`, `missing`, `invalid`,
+`blocked-by-external`, or `unsafe-to-automate`.
+
+Contracts:
+- The audit report must consume existing `StyleProofManifest` records only. It must not fabricate
+  artifacts, mark a draft safe, click a platform button, open a phone preview, sync, upload, or
+  publish anything.
+- The audit must reuse `getPlatformStyleProofProgressReport()` and
+  `getStyleProofManifestPackReport()` so platform isolation, duplicate artifact id checks,
+  fingerprint mismatch checks, and blocked-choice invalidation remain identical to the lower
+  proof reports.
+- Safe local gaps are only `local-evidence` and `sensitive-hygiene`. Authenticated PC editor,
+  credentialed-channel, and platform-publish gates are `unsafe-to-automate` until a human/operator
+  intentionally executes that real account action with a safe disposable draft or cleanup path.
+- Phone preview, Dark Mode, cover thumbnail, and phone-side SMIL/click proof are
+  `blocked-by-external` until actual phone-preview readback exists. PC DOM, local browser, and
+  ClipboardEvent readback must not complete those rows.
+- Public image host proof is `blocked-by-external` unless a real public HTTPS or platform-hosted
+  artifact is supplied. Zhihu/XHS local manifests must not be interpreted as account upload or
+  publish proof.
+- `cannotClaim` rows are the operator-facing list of proof claims that must not be made in docs,
+  UI, or release notes. They must include ordinary Ctrl+V rich HTML, phone preview, Dark Mode,
+  cover thumbnail, credentialed sync, public host, and publish rows whenever those requirements are
+  absent or invalid.
+
+Required tests:
+- A local/unit WeChat manifest must not complete PC paste, phone preview, Dark Mode, cover,
+  credentialed sync, or publish proof rows.
+- A weak WeChat PC DOM/ClipboardEvent-style manifest must leave phone preview and publish proof
+  unclaimable.
+- A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
+  surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.

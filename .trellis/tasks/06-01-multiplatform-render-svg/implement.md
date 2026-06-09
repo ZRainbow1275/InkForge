@@ -1481,6 +1481,45 @@ git status --short --branch
   this slice proves only local proof-gate enforcement. It does not prove platform paste, phone
   preview, sync, scheduled send, upload, public host, or publish.
 
+## 2026-06-09 Style Proof Acceptance Audit Report Slice
+
+- Added `getPlatformStyleProofAcceptanceAuditReport(platform, manifests)` and
+  `getStyleProofAcceptanceAuditReport(manifests)` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The audit layer consumes only real caller-supplied redacted `StyleProofManifest` records and
+  reuses the existing progress/pack reports. It never creates proof artifacts and never changes
+  `selectable`, `usable`, `blocked`, or `unavailable` catalog decisions.
+- Each gate and requirement is classified as `completed`, `missing`, `invalid`,
+  `blocked-by-external`, or `unsafe-to-automate`.
+- The report exposes operator-facing `cannotClaim` rows plus next local-safe, external-account,
+  phone, and unsafe-to-automate actions. This keeps ordinary Ctrl+V rich HTML, phone preview,
+  Dark Mode, cover thumbnail, credentialed sync, public host, and publish claims separate.
+- Exported the acceptance audit API and types through
+  `inkforge/src/services/export/index.ts`.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new tests prove that
+  local/unit manifests cannot complete PC paste, phone preview, Dark Mode, cover, sync, or publish
+  rows, and that WeChat/XHS/Zhihu acceptance gaps remain isolated in a manifest pack.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-acceptance-audit-20260609.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 68 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 107 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 1001 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  43.75s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+- Boundary:
+  this audit report proves only local acceptance accounting and cannot-claim enforcement. It does
+  not prove platform paste, phone preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync,
+  scheduled send, upload, public host acceptance, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

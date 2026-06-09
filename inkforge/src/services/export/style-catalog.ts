@@ -494,6 +494,122 @@ export interface StyleProofManifestPackReport {
   }
 }
 
+export type StyleProofAcceptanceAuditStatus =
+  | 'completed'
+  | 'missing'
+  | 'invalid'
+  | 'blocked-by-external'
+  | 'unsafe-to-automate'
+
+export interface StyleProofAcceptanceNextAction {
+  gate: StyleProofCollectionGate
+  status: StyleProofAcceptanceAuditStatus
+  requirementIds: readonly StyleProofRequirementId[]
+  choiceIds: readonly string[]
+  note: string
+}
+
+export interface StyleProofAcceptanceGateAudit {
+  gate: StyleProofCollectionGate
+  order: number
+  note: string
+  status: StyleProofAcceptanceAuditStatus
+  requirementIds: readonly StyleProofRequirementId[]
+  choiceIds: readonly string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  sensitiveArtifactCount: number
+  unsafeCommitArtifactCount: number
+  issueCount: number
+  blockedChoiceCount: number
+  mutatingRequirements: number
+  externalAccountRequirements: number
+  phoneRequirements: number
+  safeToAutomateRequirements: number
+  cannotClaim: boolean
+}
+
+export interface StyleProofAcceptanceRequirementAudit {
+  requirement: StyleProofRequirement
+  gate: StyleProofCollectionGate
+  order: number
+  note: string
+  status: StyleProofAcceptanceAuditStatus
+  choiceIds: readonly string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  sensitiveArtifactCount: number
+  unsafeCommitArtifactCount: number
+  issueCount: number
+  blockedChoiceCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  cannotClaim: boolean
+}
+
+export interface PlatformStyleProofAcceptanceAuditReport {
+  platform: Platform
+  progress: PlatformStyleProofProgressReport
+  gates: readonly StyleProofAcceptanceGateAudit[]
+  requirements: readonly StyleProofAcceptanceRequirementAudit[]
+  cannotClaim: readonly StyleProofAcceptanceRequirementAudit[]
+  nextLocalSafeAction: StyleProofAcceptanceNextAction | null
+  nextExternalAccountAction: StyleProofAcceptanceNextAction | null
+  nextPhoneAction: StyleProofAcceptanceNextAction | null
+  nextUnsafeToAutomateAction: StyleProofAcceptanceNextAction | null
+  summary: {
+    totalGates: number
+    completedGates: number
+    missingGates: number
+    invalidGates: number
+    blockedByExternalGates: number
+    unsafeToAutomateGates: number
+    totalRequirements: number
+    completedRequirements: number
+    missingRequirements: number
+    invalidRequirements: number
+    blockedByExternalRequirements: number
+    unsafeToAutomateRequirements: number
+    cannotClaimRequirements: number
+    safeToAutomateOpenRequirements: number
+    externalAccountOpenRequirements: number
+    phoneOpenRequirements: number
+    mutatingOpenRequirements: number
+  }
+}
+
+export interface StyleProofAcceptanceAuditReport {
+  manifests: readonly StyleProofManifestPackManifestSummary[]
+  platformReports: Record<Platform, PlatformStyleProofAcceptanceAuditReport>
+  issues: readonly QualityIssue[]
+  duplicateArtifactIds: readonly string[]
+  summary: {
+    manifestCount: number
+    validManifestCount: number
+    invalidManifestCount: number
+    usableManifestCount: number
+    duplicateArtifactIdCount: number
+    issueCount: number
+    completedGates: number
+    openGates: number
+    completedRequirements: number
+    cannotClaimRequirements: number
+    blockedByExternalRequirements: number
+    unsafeToAutomateRequirements: number
+    safeToAutomateOpenRequirements: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -2660,6 +2776,294 @@ export function getStyleProofManifestPackReport(
       artifactCount: manifests.reduce((total, manifest) => total + manifest.artifacts.length, 0),
       duplicateArtifactIdCount: duplicateArtifactIds.length,
       issueCount: issues.length,
+    },
+  }
+}
+
+function getStyleProofAcceptanceAuditStatus(
+  gate: StyleProofCollectionGate,
+  progress: StyleProofProgressStatus,
+): StyleProofAcceptanceAuditStatus {
+  if (progress === 'satisfied') return 'completed'
+  if (doesStyleProofGateMutatePlatform(gate)) return 'unsafe-to-automate'
+  if (
+    doesStyleProofGateRequirePhone(gate)
+    || doesStyleProofGateRequireExternalAccount(gate)
+    || gate === 'public-host'
+  ) {
+    return 'blocked-by-external'
+  }
+  if (progress === 'invalid') return 'invalid'
+  return 'missing'
+}
+
+function toStyleProofAcceptanceNextAction(
+  audit: StyleProofAcceptanceGateAudit,
+): StyleProofAcceptanceNextAction {
+  return {
+    gate: audit.gate,
+    status: audit.status,
+    requirementIds: audit.requirementIds,
+    choiceIds: audit.choiceIds,
+    note: audit.note,
+  }
+}
+
+function buildStyleProofAcceptanceGateAudit(
+  gate: StyleProofGateProgress,
+): StyleProofAcceptanceGateAudit {
+  const status = getStyleProofAcceptanceAuditStatus(gate.gate, gate.status)
+
+  return {
+    gate: gate.gate,
+    order: gate.order,
+    note: gate.note,
+    status,
+    requirementIds: gate.requirementIds,
+    choiceIds: gate.choiceIds,
+    required: gate.required,
+    satisfied: gate.satisfied,
+    missing: gate.missing,
+    invalid: gate.invalid,
+    artifactCount: gate.artifactCount,
+    acceptedArtifactCount: gate.acceptedArtifactCount,
+    sensitiveArtifactCount: gate.sensitiveArtifactCount,
+    unsafeCommitArtifactCount: gate.unsafeCommitArtifactCount,
+    issueCount: gate.issueCount,
+    blockedChoiceCount: gate.blockedChoiceCount,
+    mutatingRequirements: gate.mutatingRequirements,
+    externalAccountRequirements: gate.externalAccountRequirements,
+    phoneRequirements: gate.phoneRequirements,
+    safeToAutomateRequirements: gate.safeToAutomateRequirements,
+    cannotClaim: status !== 'completed',
+  }
+}
+
+interface StyleProofRequirementAcceptanceAccumulator {
+  requirement: StyleProofRequirement
+  gate: StyleProofCollectionGate
+  choiceIds: Set<string>
+  blockedChoiceIds: Set<string>
+  issueKeys: Set<string>
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  sensitiveArtifactCount: number
+  unsafeCommitArtifactCount: number
+}
+
+function getStyleProofIssueKey(issue: QualityIssue): string {
+  return `${issue.id}\u0000${issue.location ?? ''}\u0000${issue.message}`
+}
+
+function getOrCreateStyleProofRequirementAcceptanceAccumulator(
+  accumulators: Map<StyleProofRequirementId, StyleProofRequirementAcceptanceAccumulator>,
+  requirement: StyleProofRequirement,
+): StyleProofRequirementAcceptanceAccumulator {
+  const existing = accumulators.get(requirement.id)
+  if (existing) return existing
+
+  const gate = STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT[requirement.id]
+  const accumulator: StyleProofRequirementAcceptanceAccumulator = {
+    requirement,
+    gate,
+    choiceIds: new Set<string>(),
+    blockedChoiceIds: new Set<string>(),
+    issueKeys: new Set<string>(),
+    required: 0,
+    satisfied: 0,
+    missing: 0,
+    invalid: 0,
+    artifactCount: 0,
+    acceptedArtifactCount: 0,
+    sensitiveArtifactCount: 0,
+    unsafeCommitArtifactCount: 0,
+  }
+  accumulators.set(requirement.id, accumulator)
+  return accumulator
+}
+
+function buildStyleProofAcceptanceRequirementAudits(
+  progress: PlatformStyleProofProgressReport,
+): StyleProofAcceptanceRequirementAudit[] {
+  const accumulators = new Map<StyleProofRequirementId, StyleProofRequirementAcceptanceAccumulator>()
+
+  for (const choiceProgress of progress.choices) {
+    for (const requirementReport of choiceProgress.report.requirements) {
+      const accumulator = getOrCreateStyleProofRequirementAcceptanceAccumulator(
+        accumulators,
+        requirementReport.requirement,
+      )
+      accumulator.choiceIds.add(choiceProgress.choice.id)
+      if (choiceProgress.blockedByCatalog) {
+        accumulator.blockedChoiceIds.add(choiceProgress.choice.id)
+      }
+      accumulator.required += 1
+      if (requirementReport.status === 'satisfied') accumulator.satisfied += 1
+      if (requirementReport.status === 'missing') accumulator.missing += 1
+      if (requirementReport.status === 'invalid') accumulator.invalid += 1
+
+      for (const issue of requirementReport.issues) {
+        accumulator.issueKeys.add(getStyleProofIssueKey(issue))
+      }
+
+      for (const artifactReport of choiceProgress.report.artifacts) {
+        if (artifactReport.artifact.requirementId !== requirementReport.requirement.id) continue
+
+        accumulator.artifactCount += 1
+        if (artifactReport.status === 'accepted') accumulator.acceptedArtifactCount += 1
+        if (artifactReport.sensitive) accumulator.sensitiveArtifactCount += 1
+        if (artifactReport.unsafeForCommit) accumulator.unsafeCommitArtifactCount += 1
+
+        for (const issue of artifactReport.issues) {
+          accumulator.issueKeys.add(getStyleProofIssueKey(issue))
+        }
+      }
+    }
+  }
+
+  return Array.from(accumulators.values())
+    .map(accumulator => {
+      const progressStatus = getStyleProofProgressStatus({
+        missing: accumulator.missing,
+        invalid: accumulator.invalid,
+        forcedInvalid: accumulator.blockedChoiceIds.size > 0,
+      })
+      const status = getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
+
+      return {
+        requirement: accumulator.requirement,
+        gate: accumulator.gate,
+        order: STYLE_PROOF_COLLECTION_ORDER[accumulator.gate],
+        note: STYLE_PROOF_COLLECTION_NOTES[accumulator.gate],
+        status,
+        choiceIds: Array.from(accumulator.choiceIds).sort(),
+        required: accumulator.required,
+        satisfied: accumulator.satisfied,
+        missing: accumulator.missing,
+        invalid: accumulator.invalid,
+        artifactCount: accumulator.artifactCount,
+        acceptedArtifactCount: accumulator.acceptedArtifactCount,
+        sensitiveArtifactCount: accumulator.sensitiveArtifactCount,
+        unsafeCommitArtifactCount: accumulator.unsafeCommitArtifactCount,
+        issueCount: accumulator.issueKeys.size,
+        blockedChoiceCount: accumulator.blockedChoiceIds.size,
+        mutatesPlatform: doesStyleProofGateMutatePlatform(accumulator.gate),
+        requiresExternalAccount: doesStyleProofGateRequireExternalAccount(accumulator.gate),
+        requiresPhone: doesStyleProofGateRequirePhone(accumulator.gate),
+        safeToAutomate: isStyleProofGateSafeToAutomate(accumulator.gate),
+        cannotClaim: status !== 'completed',
+      }
+    })
+    .sort((left, right) => {
+      if (left.order !== right.order) return left.order - right.order
+      return left.requirement.id.localeCompare(right.requirement.id)
+    })
+}
+
+function countStyleProofAcceptanceStatus(
+  items: readonly { status: StyleProofAcceptanceAuditStatus }[],
+  status: StyleProofAcceptanceAuditStatus,
+): number {
+  return items.filter(item => item.status === status).length
+}
+
+export function getPlatformStyleProofAcceptanceAuditReport(
+  platform: Platform,
+  manifests: readonly StyleProofManifest[] = [],
+): PlatformStyleProofAcceptanceAuditReport {
+  const progress = getPlatformStyleProofProgressReport(platform, manifests)
+  const gates = progress.gates.map(buildStyleProofAcceptanceGateAudit)
+  const requirements = buildStyleProofAcceptanceRequirementAudits(progress)
+  const cannotClaim = requirements.filter(requirement => requirement.cannotClaim)
+  const openRequirements = requirements.filter(requirement => requirement.status !== 'completed')
+  const nextLocalSafeGate = gates
+    .find(gate => gate.status !== 'completed' && gate.safeToAutomateRequirements > 0)
+  const nextExternalAccountGate = gates
+    .find(gate =>
+      gate.status !== 'completed'
+      && (gate.externalAccountRequirements > 0 || gate.gate === 'public-host')
+    )
+  const nextPhoneGate = gates
+    .find(gate => gate.status !== 'completed' && gate.phoneRequirements > 0)
+  const nextUnsafeToAutomateGate = gates
+    .find(gate => gate.status === 'unsafe-to-automate')
+
+  return {
+    platform,
+    progress,
+    gates,
+    requirements,
+    cannotClaim,
+    nextLocalSafeAction: nextLocalSafeGate ? toStyleProofAcceptanceNextAction(nextLocalSafeGate) : null,
+    nextExternalAccountAction: nextExternalAccountGate
+      ? toStyleProofAcceptanceNextAction(nextExternalAccountGate)
+      : null,
+    nextPhoneAction: nextPhoneGate ? toStyleProofAcceptanceNextAction(nextPhoneGate) : null,
+    nextUnsafeToAutomateAction: nextUnsafeToAutomateGate
+      ? toStyleProofAcceptanceNextAction(nextUnsafeToAutomateGate)
+      : null,
+    summary: {
+      totalGates: gates.length,
+      completedGates: countStyleProofAcceptanceStatus(gates, 'completed'),
+      missingGates: countStyleProofAcceptanceStatus(gates, 'missing'),
+      invalidGates: countStyleProofAcceptanceStatus(gates, 'invalid'),
+      blockedByExternalGates: countStyleProofAcceptanceStatus(gates, 'blocked-by-external'),
+      unsafeToAutomateGates: countStyleProofAcceptanceStatus(gates, 'unsafe-to-automate'),
+      totalRequirements: requirements.length,
+      completedRequirements: countStyleProofAcceptanceStatus(requirements, 'completed'),
+      missingRequirements: countStyleProofAcceptanceStatus(requirements, 'missing'),
+      invalidRequirements: countStyleProofAcceptanceStatus(requirements, 'invalid'),
+      blockedByExternalRequirements: countStyleProofAcceptanceStatus(requirements, 'blocked-by-external'),
+      unsafeToAutomateRequirements: countStyleProofAcceptanceStatus(requirements, 'unsafe-to-automate'),
+      cannotClaimRequirements: cannotClaim.length,
+      safeToAutomateOpenRequirements: openRequirements.filter(requirement => requirement.safeToAutomate).length,
+      externalAccountOpenRequirements: openRequirements.filter(requirement => requirement.requiresExternalAccount).length,
+      phoneOpenRequirements: openRequirements.filter(requirement => requirement.requiresPhone).length,
+      mutatingOpenRequirements: openRequirements.filter(requirement => requirement.mutatesPlatform).length,
+    },
+  }
+}
+
+export function getStyleProofAcceptanceAuditReport(
+  manifests: readonly StyleProofManifest[] = [],
+): StyleProofAcceptanceAuditReport {
+  const packReport = getStyleProofManifestPackReport(manifests)
+  const platformReports: Record<Platform, PlatformStyleProofAcceptanceAuditReport> = {
+    wechat: getPlatformStyleProofAcceptanceAuditReport('wechat', manifests),
+    xiaohongshu: getPlatformStyleProofAcceptanceAuditReport('xiaohongshu', manifests),
+    zhihu: getPlatformStyleProofAcceptanceAuditReport('zhihu', manifests),
+  }
+  const platformReportValues = Object.values(platformReports)
+
+  return {
+    manifests: packReport.manifests,
+    platformReports,
+    issues: packReport.issues,
+    duplicateArtifactIds: packReport.duplicateArtifactIds,
+    summary: {
+      manifestCount: packReport.summary.manifestCount,
+      validManifestCount: packReport.summary.validManifestCount,
+      invalidManifestCount: packReport.summary.invalidManifestCount,
+      usableManifestCount: packReport.summary.usableManifestCount,
+      duplicateArtifactIdCount: packReport.summary.duplicateArtifactIdCount,
+      issueCount: packReport.summary.issueCount,
+      completedGates: platformReportValues.reduce((total, report) => total + report.summary.completedGates, 0),
+      openGates: platformReportValues.reduce((total, report) =>
+        total + report.summary.totalGates - report.summary.completedGates, 0),
+      completedRequirements: platformReportValues.reduce((total, report) =>
+        total + report.summary.completedRequirements, 0),
+      cannotClaimRequirements: platformReportValues.reduce((total, report) =>
+        total + report.summary.cannotClaimRequirements, 0),
+      blockedByExternalRequirements: platformReportValues.reduce((total, report) =>
+        total + report.summary.blockedByExternalRequirements, 0),
+      unsafeToAutomateRequirements: platformReportValues.reduce((total, report) =>
+        total + report.summary.unsafeToAutomateRequirements, 0),
+      safeToAutomateOpenRequirements: platformReportValues.reduce((total, report) =>
+        total + report.summary.safeToAutomateOpenRequirements, 0),
     },
   }
 }

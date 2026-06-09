@@ -1,0 +1,39 @@
+Style Proof Acceptance Audit Report - 2026-06-09
+
+Scope:
+- Local acceptance audit for redacted StyleProofManifest packs.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- getPlatformStyleProofAcceptanceAuditReport(platform, manifests)
+- getStyleProofAcceptanceAuditReport(manifests)
+
+Behavior:
+- Classifies gate/requirement rows as completed, missing, invalid, blocked-by-external, or unsafe-to-automate.
+- Emits cannotClaim rows for proof items that must not be claimed.
+- Reuses progress and pack reports, preserving platform isolation, blocked-choice invalidation, duplicate artifact id detection, and fingerprint mismatch handling.
+- Does not create artifacts or change availability/selectability.
+
+Regression coverage:
+- Local/unit WeChat manifests do not satisfy PC paste, phone preview, Dark Mode, cover, sync, or publish rows.
+- Weak PC DOM / ClipboardEvent-style manifests cannot satisfy phone preview or publish proof.
+- Cross-platform audit keeps WeChat/XHS/Zhihu progress isolated.
+- XHS publish and Zhihu public-host/artifact-manifest gaps remain unclaimable.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 68 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 107 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1001 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 43.75s
+
+Boundary:
+- This proves local acceptance accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
