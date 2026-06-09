@@ -82,6 +82,11 @@ export type {
   XhsImageArtifactPage,
   XhsImageArtifactRatio,
   XhsImageCropStatus,
+  ZhihuImageArtifact,
+  ZhihuImageArtifactFormat,
+  ZhihuImageArtifactKind,
+  ZhihuImageArtifactManifest,
+  ZhihuImageHostStatus,
 } from './image-pipeline'
 
 // 主题相关导出
@@ -176,6 +181,7 @@ export {
   quickCheck,
   filterIssues,
   validateXhsImageArtifactManifest,
+  validateZhihuImageArtifactManifest,
 } from './quality-detector'
 
 export {
@@ -257,7 +263,7 @@ import type {
   NativeExportResult, XiaohongshuTextOptions, ZhihuMarkdownOptions,
   QualityIssue, QualityReport,
 } from './types'
-import type { XhsImageArtifactManifest } from './image-pipeline/types'
+import type { XhsImageArtifactManifest, ZhihuImageArtifactManifest } from './image-pipeline/types'
 import { getPresetById, getDefaultPreset, themePresets } from './themes'
 import { DEFAULT_PRESET_ID } from '@/constants'
 import { convertToWechat } from './wechat'
@@ -265,7 +271,7 @@ import { convertToXiaohongshu, getXiaohongshuPresets } from './xiaohongshu'
 import { convertToZhihu, getZhihuPresets } from './zhihu'
 import { markdownToXiaohongshuText } from './xiaohongshu-text'
 import { markdownToZhihuClean } from './zhihu-markdown'
-import { detectQuality, validateXhsImageArtifactManifest } from './quality-detector'
+import { detectQuality, validateXhsImageArtifactManifest, validateZhihuImageArtifactManifest } from './quality-detector'
 
 /**
  * Inspector / Settings 覆盖选项
@@ -401,6 +407,8 @@ export async function convertToNativeFormat(
     xiaohongshuImageManifest?: XhsImageArtifactManifest
     /** 知乎 Markdown 选项 */
     zhihuMarkdownOptions?: ZhihuMarkdownOptions
+    /** 知乎图片 fallback 本地/平台 artifact manifest；只用于 preflight，不表示平台发布成功 */
+    zhihuImageArtifactManifest?: ZhihuImageArtifactManifest
     /** 是否附加质量报告 (默认 true) */
     includeQualityReport?: boolean
   }
@@ -466,11 +474,20 @@ export async function convertToNativeFormat(
     case 'zhihu': {
       // 知乎：直接从 Markdown → 清洁 Markdown（跳过 HTML 管线）
       const result = markdownToZhihuClean(markdown, options?.zhihuMarkdownOptions)
+      const manifestIssues = options?.zhihuImageArtifactManifest
+        ? validateZhihuImageArtifactManifest(options.zhihuImageArtifactManifest, result.markdown)
+        : []
+      const qualityReport = includeReport
+        ? withAdditionalQualityIssues(detectQuality(markdown, 'zhihu'), manifestIssues)
+        : undefined
       return {
         format: 'markdown',
         content: result.markdown,
         platform: 'zhihu',
-        qualityReport: includeReport ? detectQuality(markdown, 'zhihu') : undefined,
+        qualityReport,
+        artifacts: options?.zhihuImageArtifactManifest
+          ? { zhihuImageArtifactManifest: options.zhihuImageArtifactManifest }
+          : undefined,
       }
     }
 

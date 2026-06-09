@@ -1,0 +1,93 @@
+# Zhihu Image Artifact Manifest Gate — 2026-06-09
+
+Scope:
+
+- Implement runtime preflight for Zhihu image fallback artifacts.
+- Artifact kinds: inline image, formula image, diagram image, table image, cover.
+- Boundary: local/platform-host readiness only. This file does not prove Zhihu account upload,
+  editor preview, sync, scheduled publish, or final publish success.
+
+Implementation:
+
+- Added `ZhihuImageArtifactManifest`, `ZhihuImageArtifact`, `ZhihuImageArtifactKind`,
+  `ZhihuImageArtifactFormat`, and `ZhihuImageHostStatus` in
+  `inkforge/src/services/export/image-pipeline/types.ts`.
+- Re-exported the types from `image-pipeline/index.ts` and `services/export/index.ts`.
+- Added `NativeExportResult.artifacts.zhihuImageArtifactManifest`.
+- Added `validateZhihuImageArtifactManifest()` in `quality-detector.ts`.
+- Wired `convertToNativeFormat(..., 'zhihu', { zhihuImageArtifactManifest })` to:
+  - run the manifest validator against final clean Markdown,
+  - merge issue ids into `qualityReport`,
+  - echo the manifest under `artifacts.zhihuImageArtifactManifest`.
+
+Runtime issue ids:
+
+- `zhihu-image-manifest-empty`
+- `zhihu-image-manifest-host-blocked`
+- `zhihu-image-manifest-upload-missing`
+- `zhihu-image-manifest-missing-file`
+- `zhihu-image-manifest-alt-missing`
+- `zhihu-image-manifest-caption-missing`
+- `zhihu-image-manifest-format-unsupported`
+- `zhihu-image-manifest-dimension-invalid`
+- `zhihu-image-manifest-bytes-invalid`
+- `zhihu-image-manifest-reference-mismatch`
+
+Validation commands and results:
+
+```text
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+result: passed
+
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+result: 4 files passed, 87 tests passed
+
+pnpm -C inkforge exec eslint src/services/export/types.ts src/services/export/index.ts src/services/export/quality-detector.ts src/services/export/image-pipeline/types.ts src/services/export/image-pipeline/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+result: passed
+
+pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+result: 35 files passed, 981 tests passed
+
+pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+result: passed
+
+pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+result: passed
+
+NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+result: passed, Vite built in 27.48s
+```
+
+Regression coverage:
+
+- Bad manifest:
+  - blocked `data:` image source,
+  - `requirePlatformUpload:true` host violation,
+  - platform-hosted artifact without `uploaded:true`,
+  - missing local file proof,
+  - missing alt,
+  - formula/diagram semantic fallback without caption/text fallback,
+  - unsupported format,
+  - invalid dimensions,
+  - invalid bytes,
+  - final Markdown / manifest reference mismatch.
+- Good manifest:
+  - one platform-hosted diagram artifact,
+  - `uploaded:true`,
+  - positive dimensions,
+  - allowed format,
+  - non-empty alt and caption,
+  - final Markdown image reference matches manifest.
+
+Proof boundary:
+
+- `artifacts.zhihuImageArtifactManifest` means local/platform-host preflight only.
+- It is not a substitute for a real Zhihu upload response, editor DOM readback, preview result,
+  sync result, scheduled publish proof, or final publish URL.
+- Public HTTPS may satisfy local Markdown host readiness when `requirePlatformUpload` is false.
+  Platform-hosted readiness requires `hostStatus:'platform-hosted'` plus `uploaded:true`.
+
+Sensitive artifact hygiene:
+
+- No browser profile path, cookie, token, QR code, account id, HAR, platform screenshot path, or
+  authenticated page source is stored in this evidence file.

@@ -13,13 +13,13 @@
 在**不重构主管线、不删除任何现有功能/预设/测试**的前提下，落地了一套 WeChat-safe、参数化、可复用、契合「静谧刊印 Quiet Press」品牌哲学的 inline-SVG 高级排版组件系统（26 个注册模块 × 7 族）、3 个全量使用该系统的「SVG 旗舰」微信预设，以及小红书海报栅格化 / 知乎 SVG-as-img 适配。
 
 **自动化与真实运行门禁已刷新**：
-- 最新完整 export 测试套件：**35 文件 / 979 用例 全绿**。
-- 最新跨平台导出 focused 套件：**4 文件 / 85 用例 全绿**。
-- 最新 `platform-export-rendering.test.ts`：**46 用例全绿**。
+- 最新完整 export 测试套件：**35 文件 / 981 用例 全绿**。
+- 最新跨平台导出 focused 套件：**4 文件 / 87 用例 全绿**。
+- 最新 `platform-export-rendering.test.ts`：**48 用例全绿**。
 - 最新 XHS manifest focused 套件：**3 文件 / 69 用例 全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **36.03s**（本轮证据见 `evidence/xhs-image-manifest-gate-20260609.txt`）。
+- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **27.48s**（本轮证据见 `evidence/zhihu-image-manifest-gate-20260609.txt`）。
 - 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
 - A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
@@ -34,6 +34,7 @@
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 - 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
+- 2026-06-09 已把知乎公式图/图表图/表格图/正文图/封面图 fallback artifact manifest 落到 runtime preflight：`ZhihuImageArtifactManifest` 与 `validateZhihuImageArtifactManifest()` 阻断 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用不一致；`convertToNativeFormat(..., 'zhihu')` 可返回 `artifacts.zhihuImageArtifactManifest`，但该字段只证明本地/平台 host 预检，不升级为知乎账号上传、编辑器预览、同步或发布完成。
 
 ---
 
@@ -158,16 +159,16 @@ pnpm exec eslint src/services/export/svg-modules src/services/export/themes.ts s
 
 ```bash
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
-# 1 file passed, 46 tests passed
+# 1 file passed, 48 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
-# 4 files passed, 85 tests passed
+# 4 files passed, 87 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/xhs.test.ts --reporter=default
 # 3 files passed, 69 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
-# 35 files passed, 979 tests passed
+# 35 files passed, 981 tests passed
 
 pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
 # passed
@@ -176,7 +177,7 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 # passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-# passed, Vite built in 36.03s
+# passed, Vite built in 27.48s
 
 cargo build -p inkforge
 # passed, dev profile compiled in 9.15s
@@ -191,6 +192,7 @@ cargo build -p inkforge
 - `prompts/0601/evidence/market-source-refresh-20260608.txt`
 - `prompts/0601/evidence/market-editor-residue-gate-20260609.txt`
 - `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`
+- `prompts/0601/evidence/zhihu-image-manifest-gate-20260609.txt`
 
 补充解释：`probe-svg-render-20260608-082919.txt` 是非 graded 的几何诊断探针。它在当前
 ExportModal 401px / 15px 口径下报告 27 字/行，因此保留为需要人工解读的诊断提示；
@@ -227,7 +229,7 @@ WeChat-safe SVG 安全子集，也不把插件/同步/授权/定时群发视作�
 | **AC3** 20-22 字/行不破坏 | 实测绿 | `flagship-pipeline-smoke.test.ts` 断言 `generatePersonaBaseCSS` 仍含 `min(22em` + `font-size: 17px`；真实 Tauri/WebView2 e2e 在 360px 移动列测得 **20 字/行**，落在目标带内。 |
 | **AC4** 12+5+3 预设 + 既有测试零回归 | ✅ 实测绿 | 完整 export 套件 33 文件 / 822 用例全绿（含 `themes-migration`/`platform-export-rendering`/`pipeline-cross-platform`）；预设计数 12+5+3 原样；`flagship-svg.test.ts` + `flagship-pipeline-smoke.test.ts` 非旗舰守护实测「无 data-ink-svg / 无 `<svg`」。 |
 | **AC5** SMIL 交互 + PC 静态兜底 | 自动化结构与静态兜底实测绿；手机微信触发仍随 AC1 人工门禁确认 | `svg-modules/__tests__/interactive.test.ts`：wechat(allowMotion=true) 出 SMIL（`restart="never"` + `begin∈{click,0s}`）；xhs(allowMotion=false) 实测**无 `<animate`/`<set`**（静态首帧）；i-scrollcards 纯 CSS scroll-snap 无 flex 无 SMIL。该证据证明模块结构、静态兜底与本地/预览路径，不证明手机微信扫码预览中的点击/SMIL 触发。 |
-| **AC6** 小红书海报 canvas 真栅格 / 知乎 SVG-as-img | 实测绿；知乎发布仍受 public image host gate 约束 | `svg-modules/__tests__/raster.test.ts` 覆盖 `posterViewBox`、`buildSvgDataUri`、`svgToImgTag` 与 DOM 缺失守卫；2026-06-08 真实浏览器 canvas 动态导入项目实际 `renderXhsPosterCard()`，将 `cover-grid` 的 `data-ink-svg` wrapper 产出 1080×1440 PNG（99114 bytes，SHA-256 `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`），证据见 `evidence/xhs-raster/`。2026-06-09 `renderZhihuMockHtml()` 已改为把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` 预览 fallback，并由 `zhihu-mock.test.ts` / `svg-modules-fidelity.test.ts` / `usePreviewRenderer.test.ts` 证明；该证据不外推为知乎 public host、上传或发布成功。 |
+| **AC6** 小红书海报 canvas 真栅格 / 知乎 SVG-as-img | 实测绿；知乎发布仍受 public image host / platform-host manifest gate 约束 | `svg-modules/__tests__/raster.test.ts` 覆盖 `posterViewBox`、`buildSvgDataUri`、`svgToImgTag` 与 DOM 缺失守卫；2026-06-08 真实浏览器 canvas 动态导入项目实际 `renderXhsPosterCard()`，将 `cover-grid` 的 `data-ink-svg` wrapper 产出 1080×1440 PNG（99114 bytes，SHA-256 `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`），证据见 `evidence/xhs-raster/`。2026-06-09 `renderZhihuMockHtml()` 已改为把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` 预览 fallback，并由 `zhihu-mock.test.ts` / `svg-modules-fidelity.test.ts` / `usePreviewRenderer.test.ts` 证明；同日新增 `ZhihuImageArtifactManifest` preflight 与 regression tests，阻断不可发布 host、缺上传证明、缺本地文件/bytes、缺 alt/caption、格式/尺寸/Markdown 引用不一致。该证据不外推为知乎账号上传、编辑器预览、同步或发布成功。 |
 | **AC7** 旗舰预设 ≥3 全量 SVG | 实测绿；手机端最终确认同 AC1 | §5 三个旗舰预设；`flagship-pipeline-smoke.test.ts` 逐字核对每个预期 module id；真实 Tauri/WebView2 e2e 对三旗舰均确认 `[data-ink-svg]` 注入和响应式绘制。 |
 | **AC8** 单测+冒烟+e2e+lint+typecheck 全绿 | 实测绿 | §4.1–4.5 全绿；`pnpm -C inkforge test:e2e` 已跑真实 Tauri/WebView2 二进制，`svg-render.spec.cjs` 5 passing，`visual.spec.cjs` 11 passing。 |
 | **AC9** WeChat-safe 校验零违规 | ✅ 实测绿 | `wechat-safe.test.ts` 正/负样本；全 26 模块单测 `checkWechatSafe()=[]`；旗舰预设经**完整管线**后每个 section 仍零违规（`flagship-svg`/`flagship-pipeline-smoke`）。 |
@@ -240,7 +242,8 @@ WeChat-safe SVG 安全子集，也不把插件/同步/授权/定时群发视作�
 1. **GUI e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera；剩余手动门禁 = amber PC 补证 + 微信手机端扫码预览确认**。tauri-driver 真二进制几何探针已跑通（含 prod 加密路径），真实公众号后台 PC 编辑器 paste sanitizer 也已证明 inline SVG 在已测样本中被保留并渲染。剩下需要补齐的，是 `flagship-amber` 的单独 PC 粘贴登记，以及微信手机客户端扫码预览后的最终移动端渲染、SMIL 交互、暗黑模式和封面缩略图门槛。
 2. **旗舰 SVG 为品牌色锁定（by design）**。3 个旗舰预设 primaryColor 固定为 `#D95B3F`/`#3B7A6B`/`#C19A56`，体现「静谧刊印」品牌门面；如需任意色，使用既有 12 预设 + `ExportOptions.enableSvgModules` 开关（默认关，零回归）按需注入。
 3. **真 canvas 栅格化（`rasterizeSvg`）仅在浏览器 / Tauri WebView 运行**。Node 单测覆盖纯函数（viewBox / data-URI / img-tag）与无 DOM 守卫抛错路径；2026-06-08 追加真实浏览器证据：动态导入实际 `renderXhsPosterCard()`，由 `cover-grid` 的 `data-ink-svg` wrapper 产出 `data:image/png;base64,`，自然尺寸 1080×1440，字节数 99114，SHA-256 `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`。证据见 `evidence/xhs-raster/`。
-4. **跨 WebView2 版本兼容**已按 SVG 1.1 标准子集 + SMIL `begin="click"` + 静态兜底设计，并在当前 Win11 自动化门禁下验证；其他 WebView2 版本的真机渲染属周期性人工复验范畴（AC1 门禁覆盖）。
+4. **知乎图片 manifest 是 preflight，不是发布证明**。`ZhihuImageArtifactManifest` 可证明图片 fallback 的 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用一致性；没有真实知乎账号上传响应、编辑器预览读回、同步或发布回执时，平台状态仍应是 `blocked` / `unavailable`。
+5. **跨 WebView2 版本兼容**已按 SVG 1.1 标准子集 + SMIL `begin="click"` + 静态兜底设计，并在当前 Win11 自动化门禁下验证；其他 WebView2 版本的真机渲染属周期性人工复验范畴（AC1 门禁覆盖）。
 
 ---
 

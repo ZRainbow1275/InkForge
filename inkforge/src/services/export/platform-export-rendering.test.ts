@@ -25,6 +25,7 @@ import {
   markdownToZhihuClean,
   postProcessForWechat,
   validateXhsImageArtifactManifest,
+  validateZhihuImageArtifactManifest,
 } from './index'
 
 const REAL_EXPORT_MARKDOWN = [
@@ -993,6 +994,96 @@ describe('platform native export rendering rules', () => {
     expect(result.format).toBe('text')
     expect(result.artifacts?.xiaohongshuImageManifest).toEqual(manifest)
     expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('xhs-image-manifest-'))).toBe(false)
+  })
+
+  it('validates Zhihu image fallback artifact manifest before reporting host/upload readiness', () => {
+    const issues = validateZhihuImageArtifactManifest({
+      markdownReferences: [
+        'https://picx.zhimg.com/v2-formula.png',
+        'https://picx.zhimg.com/v2-missing.png',
+      ],
+      requirePlatformUpload: true,
+      artifacts: [
+        {
+          id: 'diagram-1',
+          kind: 'diagram-image',
+          sourceSrc: 'inkforge-asset://diagram',
+          finalSrc: 'data:image/png;base64,AAAA',
+          fileName: 'diagram.webp',
+          exists: false,
+          uploaded: false,
+          hostStatus: 'blocked',
+          width: 0,
+          height: 800,
+          format: 'webp' as 'png',
+          bytes: 0,
+          alt: '',
+          referencedByMarkdown: true,
+        },
+        {
+          id: 'formula-1',
+          kind: 'formula-image',
+          sourceSrc: 'inkforge-asset://formula',
+          finalSrc: 'https://picx.zhimg.com/v2-formula.png',
+          fileName: 'formula.png',
+          exists: true,
+          uploaded: false,
+          hostStatus: 'platform-hosted',
+          width: 800,
+          height: 200,
+          format: 'png',
+          bytes: 98_000,
+          alt: '公式图',
+          referencedByMarkdown: true,
+        },
+      ],
+    })
+    const ids = issues.map(issue => issue.id)
+
+    expect(ids).toContain('zhihu-image-manifest-host-blocked')
+    expect(ids).toContain('zhihu-image-manifest-upload-missing')
+    expect(ids).toContain('zhihu-image-manifest-missing-file')
+    expect(ids).toContain('zhihu-image-manifest-alt-missing')
+    expect(ids).toContain('zhihu-image-manifest-caption-missing')
+    expect(ids).toContain('zhihu-image-manifest-format-unsupported')
+    expect(ids).toContain('zhihu-image-manifest-dimension-invalid')
+    expect(ids).toContain('zhihu-image-manifest-bytes-invalid')
+    expect(ids).toContain('zhihu-image-manifest-reference-mismatch')
+    expect(issues.some(issue => issue.severity === 'error')).toBe(true)
+  })
+
+  it('accepts a complete Zhihu image artifact manifest as local preflight only', async () => {
+    const imageUrl = 'https://picx.zhimg.com/v2-inkforge-diagram.png'
+    const manifest = {
+      artifacts: [
+        {
+          id: 'diagram-1',
+          kind: 'diagram-image' as const,
+          sourceSrc: 'inkforge-asset://diagram',
+          finalSrc: imageUrl,
+          fileName: 'diagram.png',
+          uploaded: true,
+          hostStatus: 'platform-hosted' as const,
+          width: 1200,
+          height: 720,
+          format: 'png' as const,
+          alt: '架构图',
+          caption: '图 1: 架构图说明',
+          referencedByMarkdown: true,
+        },
+      ],
+    }
+    const markdown = `![架构图](${imageUrl})\n\n图 1: 架构图说明`
+
+    expect(validateZhihuImageArtifactManifest(manifest, markdown)).toEqual([])
+
+    const result = await convertToNativeFormat(markdown, 'zhihu', {
+      zhihuImageArtifactManifest: manifest,
+    })
+
+    expect(result.format).toBe('markdown')
+    expect(result.artifacts?.zhihuImageArtifactManifest).toEqual(manifest)
+    expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('zhihu-image-manifest-'))).toBe(false)
   })
 
   it('blocks raw Markdown controls from Xiaohongshu publishable text without rejecting hashtags', () => {

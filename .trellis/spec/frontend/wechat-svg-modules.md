@@ -382,6 +382,114 @@ return {
 The correct shape preserves the plain-text publishing contract and exposes artifact preflight
 without pretending to own the account upload/publish boundary.
 
+### Zhihu Image Artifact Manifest Preflight
+
+#### 1. Scope / Trigger
+
+Use this contract whenever Zhihu export claims local readiness for formula images, diagram
+images, table images, inline images, covers, or SVG/card image fallbacks. It is a local and
+host-readiness preflight only; it is not a Zhihu account upload, editor preview, sync, or publish
+proof.
+
+#### 2. Signatures
+
+```ts
+export type ZhihuImageArtifactKind = 'inline-image' | 'formula-image' | 'diagram-image' | 'table-image' | 'cover'
+export type ZhihuImageArtifactFormat = 'jpg' | 'jpeg' | 'png' | 'gif'
+export type ZhihuImageHostStatus = 'platform-hosted' | 'public-https' | 'local-only' | 'missing' | 'blocked'
+
+export interface ZhihuImageArtifact {
+  id: string
+  kind: ZhihuImageArtifactKind
+  sourceSrc: string
+  finalSrc: string
+  fileName?: string
+  exists?: boolean
+  uploaded?: boolean
+  hostStatus: ZhihuImageHostStatus
+  width?: number
+  height?: number
+  format?: ZhihuImageArtifactFormat
+  bytes?: number
+  alt: string
+  caption?: string
+  textFallback?: boolean
+  referencedByMarkdown?: boolean
+}
+
+export interface ZhihuImageArtifactManifest {
+  artifacts: ZhihuImageArtifact[]
+  markdownReferences?: string[]
+  requirePlatformUpload?: boolean
+  allowedFormats?: readonly ZhihuImageArtifactFormat[]
+}
+
+export function validateZhihuImageArtifactManifest(
+  manifest: ZhihuImageArtifactManifest,
+  finalMarkdown?: string,
+): QualityIssue[]
+```
+
+`convertToNativeFormat(markdown, 'zhihu', { zhihuImageArtifactManifest })` may echo the manifest
+in `NativeExportResult.artifacts.zhihuImageArtifactManifest`. That field means local/platform-host
+preflight only. It must not be displayed or logged as Zhihu upload, preview, sync, or publish
+success.
+
+#### 3. Contracts
+
+- Final Markdown image references must be stable public HTTPS or a real platform-hosted URL.
+- `file:`, local paths, `blob:`, `data:`, `http:`, private-network/localhost URLs, temporary
+  preview URLs, missing `finalSrc`, and WeChat-only CDN dependencies are blocked.
+- `hostStatus='platform-hosted'` requires `uploaded:true`; without real upload proof, keep the
+  capability `blocked` / `unavailable`.
+- `requirePlatformUpload:true` requires every artifact to be `platform-hosted`.
+- Before platform upload, artifacts must prove local file existence with `exists:true` and a
+  positive `bytes` value.
+- Every artifact needs non-empty `alt`. Formula, diagram, table, and semantic images also need a
+  `caption` or `textFallback:true` so rasterization does not erase meaning.
+- Formats default to JPG/JPEG/PNG/GIF and can be narrowed or expanded by manifest
+  `allowedFormats` only when tests and platform evidence are updated together.
+- If `finalMarkdown` or `markdownReferences` are supplied, every Markdown image URL must be in
+  the manifest, and `referencedByMarkdown` must match the final Markdown state.
+
+#### 4. Validation & Error Matrix
+
+| Condition | Issue id | Severity |
+|-----------|----------|----------|
+| no artifacts | `zhihu-image-manifest-empty` | error |
+| blocked or missing final host, or non-platform host when platform upload is required | `zhihu-image-manifest-host-blocked` | error |
+| platform-hosted artifact lacks `uploaded:true` | `zhihu-image-manifest-upload-missing` | error |
+| non-uploaded artifact lacks `exists:true` | `zhihu-image-manifest-missing-file` | error |
+| missing alt | `zhihu-image-manifest-alt-missing` | error |
+| semantic image lacks caption/text fallback | `zhihu-image-manifest-caption-missing` | error |
+| missing or unsupported format | `zhihu-image-manifest-format-unsupported` | error |
+| width or height is explicitly zero/negative | `zhihu-image-manifest-dimension-invalid` | error |
+| non-uploaded artifact lacks positive bytes | `zhihu-image-manifest-bytes-invalid` | error |
+| final Markdown image references and manifest records diverge | `zhihu-image-manifest-reference-mismatch` | error |
+
+#### 5. Good / Base / Bad Cases
+
+- Good: one `diagram-image` artifact with `finalSrc` on `https://picx.zhimg.com/...`,
+  `hostStatus:'platform-hosted'`, `uploaded:true`, positive dimensions, `format:'png'`,
+  non-empty alt, caption, and `referencedByMarkdown:true` returns no issues and is echoed in
+  `artifacts.zhihuImageArtifactManifest`.
+- Base: text-only Zhihu export supplies no manifest. Clean Markdown output stays unchanged and
+  no image artifact readiness is claimed.
+- Bad: `data:` finalSrc, missing platform upload proof, missing local file proof, empty alt,
+  semantic fallback without caption/text fallback, unsupported format, zero dimensions, invalid
+  bytes, or Markdown reference mismatch all block local artifact readiness.
+
+#### 6. Tests Required
+
+- Unit/regression tests must call `validateZhihuImageArtifactManifest()` directly for both bad
+  and valid manifests.
+- `convertToNativeFormat(..., 'zhihu')` tests must assert valid manifests appear in
+  `artifacts.zhihuImageArtifactManifest` and that manifest issue ids merge into `qualityReport`.
+- Cross-platform export tests must continue proving WeChat and XHS behavior does not change when
+  no Zhihu manifest is supplied.
+- Browser/CloakBrowser evidence may prove local UI visibility and artifact state labels only. It
+  never proves Zhihu account upload, preview, sync, or publish.
+
 Platform style parity matrix:
 
 | Source style family | WeChat | Xiaohongshu | Zhihu |
@@ -439,7 +547,8 @@ Platform style parity matrix:
   images, raw diagram fences for Mermaid/Graphviz/DOT/PlantUML/PUML/Vega/Vega-Lite, residual
   HTML after cleanup, invalid Markdown table separators, semantic formula/diagram/table image
   fallbacks without nearby caption/text explanation, unlabeled fenced code blocks when the source
-  language is knowable, and complex table fallback requirements.
+  language is knowable, complex table fallback requirements, and
+  `ZhihuImageArtifactManifest` host/upload/file/format/dimension/bytes/reference mismatches.
 
 ---
 

@@ -53,6 +53,11 @@ manifest runtime 门禁：`validateXhsImageArtifactManifest()` 阻断页序、�
 作为 local preflight artifact 返回，不升级为上传、预览或发布证明；focused XHS/export 69 tests
 passed，4-file export regression 85 tests passed，full export serial 979 tests passed，ESLint/vue-tsc/build
 exit 0，CloakBrowser `inkforge-0601` local visual check done；不含截图路径、账号数据或平台发布声称）。
+`zhihu-image-manifest-gate-20260609.txt`（知乎 formula/diagram/table/inline/cover image fallback
+本地/平台 host artifact manifest 门禁：`validateZhihuImageArtifactManifest()` 阻断 host、上传证明、
+本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用不一致；`convertToNativeFormat(..., 'zhihu')`
+只回传 `artifacts.zhihuImageArtifactManifest` 作为 preflight，不升级为知乎上传、编辑器预览、同步或发布证明；
+focused cross-platform 87 tests passed，full export serial 981 tests passed，ESLint/vue-tsc/build exit 0）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -157,6 +162,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
+[x] zhihu-image-manifest-gate-20260609.txt # 当前规则实现：Zhihu image fallback artifact manifest 本地/host preflight 门禁
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
@@ -187,3 +193,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   与 `validateXhsImageArtifactManifest()` 只证明本地图片页/封面/长图 artifact 的文件、页序、封面、
   引用、比例、格式、bytes 和裁切状态；`NativeExportResult.artifacts.xiaohongshuImageManifest`
   不是小红书账号上传、手机预览或发布证明。
+- 2026-06-09 知乎 image artifact manifest 已落到 runtime preflight：`ZhihuImageArtifactManifest`
+  与 `validateZhihuImageArtifactManifest()` 只证明公式图、图表图、表格图、正文图和封面图 fallback
+  的 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 final Markdown 引用一致性；
+  `NativeExportResult.artifacts.zhihuImageArtifactManifest` 不是知乎账号上传、编辑器预览、同步或发布证明。

@@ -55,6 +55,36 @@ export interface XhsImageArtifactManifest {
     limits?: XhsImageArtifactLimits
 }
 
+export type ZhihuImageArtifactKind = 'inline-image' | 'formula-image' | 'diagram-image' | 'table-image' | 'cover'
+export type ZhihuImageArtifactFormat = 'jpg' | 'jpeg' | 'png' | 'gif'
+export type ZhihuImageHostStatus = 'platform-hosted' | 'public-https' | 'local-only' | 'missing' | 'blocked'
+
+export interface ZhihuImageArtifact {
+    id: string
+    kind: ZhihuImageArtifactKind
+    sourceSrc: string
+    finalSrc: string
+    fileName?: string
+    exists?: boolean
+    uploaded?: boolean
+    hostStatus: ZhihuImageHostStatus
+    width?: number
+    height?: number
+    format?: ZhihuImageArtifactFormat
+    bytes?: number
+    alt: string
+    caption?: string
+    textFallback?: boolean
+    referencedByMarkdown?: boolean
+}
+
+export interface ZhihuImageArtifactManifest {
+    artifacts: ZhihuImageArtifact[]
+    markdownReferences?: string[]
+    requirePlatformUpload?: boolean
+    allowedFormats?: readonly ZhihuImageArtifactFormat[]
+}
+
 export class NotImplementedError extends Error {
     constructor(public readonly feature: string) {
         super(`Not implemented: ${feature}`)

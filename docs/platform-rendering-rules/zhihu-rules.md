@@ -22,6 +22,41 @@ instead of duplicating this document's matrix.
 - 所有生成图片、fallback 图片、公式图片、表格图片、图表图片都必须有非空 alt 文本。
 - 当图片替代公式、表格或图表时，图片附近必须保留 caption 或文本 fallback，确保语义不因 rasterization 丢失。
 
+### 1.2 图片 Artifact Manifest 本地预检
+
+2026-06-09 起，知乎图片 fallback 不再只靠文档约束。导出层提供
+`ZhihuImageArtifactManifest` 与 `validateZhihuImageArtifactManifest()` 作为 runtime
+preflight：
+
+- 适用对象：正文图片、公式图片、图表图片、复杂表格图片、封面图片，以及微信 SVG/卡片降级后的图片 fallback。
+- `convertToNativeFormat(markdown, 'zhihu', { zhihuImageArtifactManifest })` 可在
+  `NativeExportResult.artifacts.zhihuImageArtifactManifest` 中回传 manifest，并把 manifest 问题合并进
+  `qualityReport.issues`。
+- 该字段只证明本地/平台 host preflight，不证明知乎账号上传、编辑器预览、同步或发布成功。
+- `hostStatus='platform-hosted'` 时必须有 `uploaded:true` 作为真实上传证明；否则输出
+  `zhihu-image-manifest-upload-missing`。
+- `requirePlatformUpload:true` 会强制所有图片使用 `platform-hosted`，不能用普通 public HTTPS
+  替代平台图床证明。
+- 未上传到平台前，本地 fallback 必须证明 `exists:true` 与正数 `bytes`；缺失即阻断。
+- `markdownReferences` 或 final Markdown 中出现的每个图片 URL 必须与 manifest 的 `finalSrc`
+  对齐，`referencedByMarkdown` 不得与最终 Markdown 引用状态冲突。
+- 允许格式默认是 JPG/JPEG/PNG/GIF；如平台规则变化，应通过 manifest `allowedFormats` 显式收窄或放宽，并同步测试。
+
+Issue id：
+
+| 条件 | Issue id | 严重级别 |
+| --- | --- | --- |
+| manifest 无任何 artifact | `zhihu-image-manifest-empty` | error |
+| `finalSrc` 缺失，或 host 是本地、`blob:`、`data:`、http、私网、微信 CDN、临时预览，或 `requirePlatformUpload` 下不是平台图床 | `zhihu-image-manifest-host-blocked` | error |
+| 标记平台图床但没有 `uploaded:true` | `zhihu-image-manifest-upload-missing` | error |
+| 未上传且缺少本地文件存在性证明 | `zhihu-image-manifest-missing-file` | error |
+| alt 为空 | `zhihu-image-manifest-alt-missing` | error |
+| 公式/图表/表格等语义图片缺少 caption 或文字 fallback | `zhihu-image-manifest-caption-missing` | error |
+| 格式缺失或不在允许列表 | `zhihu-image-manifest-format-unsupported` | error |
+| width/height 写成 0 或负数 | `zhihu-image-manifest-dimension-invalid` | error |
+| 未上传且 bytes 缺失或非正数 | `zhihu-image-manifest-bytes-invalid` | error |
+| final Markdown 图片引用与 manifest 不一致 | `zhihu-image-manifest-reference-mismatch` | error |
+
 ## 二、Markdown 支持矩阵
 
 | 元素 | 默认策略 | 说明 |
@@ -119,6 +154,7 @@ instead of duplicating this document's matrix.
 | Raw diagram fence | 出现 fenced `graphviz`、`dot`、`plantuml`、`vega` 等图表语言 | 警告；转图片或说明 |
 | 图片 host | 出现本地路径、`blob:`、`data:`、私网/localhost、临时预览 URL 或微信专用 CDN 依赖 | 阻断/重写 |
 | 图片 alt/caption | fallback 图片缺少 alt，或替代公式/表格/图表时缺少 caption/text fallback | 阻断/警告 |
+| 图片 artifact manifest | host、上传证明、本地文件、bytes、格式、尺寸、引用状态不完整 | 阻断 |
 | 公式括号 | `$` 数量不匹配 | 阻断 |
 | 图片可访问 | 远程图片不可达或本地文件缺失 | 阻断/警告 |
 | Markdown 表格 | 分隔线不合法 | 阻断 |
@@ -149,6 +185,8 @@ instead of duplicating this document's matrix.
 - 运行 Zhihu Markdown 转换 focused tests。
 - 覆盖微信装饰清理负例。
 - 验证输出无 HTML/SVG/CSS 依赖。
+- 覆盖 `validateZhihuImageArtifactManifest()` 的坏 manifest 与好 manifest，并验证
+  `convertToNativeFormat(..., 'zhihu')` 会回传 `artifacts.zhihuImageArtifactManifest`。
 - 没有真实知乎账号或发布权限时，只能报告本地 artifact 通过和平台发布 `blocked`。
 
 ## 八、Source Index

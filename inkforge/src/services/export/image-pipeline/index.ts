@@ -10,6 +10,11 @@ export type {
     XhsImageArtifactPage,
     XhsImageArtifactRatio,
     XhsImageCropStatus,
+    ZhihuImageArtifact,
+    ZhihuImageArtifactFormat,
+    ZhihuImageArtifactKind,
+    ZhihuImageArtifactManifest,
+    ZhihuImageHostStatus,
 } from './types'
 export { NotImplementedError } from './types'
 

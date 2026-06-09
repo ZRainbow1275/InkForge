@@ -11,7 +11,12 @@
  */
 
 import { SUPPORTED_CODE_LANGUAGES } from '@/extensions/codeLanguages'
-import type { XhsImageArtifactManifest, XhsImageArtifactPage } from './image-pipeline/types'
+import type {
+  XhsImageArtifactManifest,
+  XhsImageArtifactPage,
+  ZhihuImageArtifact,
+  ZhihuImageArtifactManifest,
+} from './image-pipeline/types'
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
 
 const XHS_IMAGE_PAGE_COUNT_LIMIT = 18
@@ -22,6 +27,7 @@ const XHS_LIST_ITEM_REVIEW_LIMIT = 7
 const XHS_LONG_LINE_REVIEW_LIMIT = 120
 const XHS_ALLOWED_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png'])
 const XHS_ALLOWED_IMAGE_RATIOS = new Set(['3:4', '1:1'])
+const ZHIHU_ALLOWED_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png', 'gif'])
 const ZHIHU_SEMANTIC_IMAGE_ALT_PATTERN = /(?:公式|方程|图表|流程|架构|表格|数据|统计|截图|示意|diagram|chart|graph|mermaid|plantuml|vega|equation|formula|table|architecture|flow)/i
 const DIAGRAM_FENCE_LANGUAGES = new Set([
   'mermaid',
@@ -288,6 +294,157 @@ export function validateXhsImageArtifactManifest(manifest: XhsImageArtifactManif
       message: `小红书图片 artifact 裁切状态未完全证明：${formatXhsManifestPages(cropUnprovenPages)}`,
       suggestion: '在本地浏览器或导出器中完成 per-page crop check 后，再报告为本地 artifact 通过',
     })
+  }
+
+  return issues
+}
+
+export function validateZhihuImageArtifactManifest(
+  manifest: ZhihuImageArtifactManifest,
+  finalMarkdown?: string,
+): QualityIssue[] {
+  const issues: QualityIssue[] = []
+  const artifacts = manifest.artifacts
+  const allowedFormats = new Set(manifest.allowedFormats ?? ZHIHU_ALLOWED_IMAGE_FORMATS)
+  const markdownReferences = new Set(
+    finalMarkdown
+      ? collectMarkdownImages(finalMarkdown).map(image => image.src)
+      : manifest.markdownReferences ?? [],
+  )
+
+  if (artifacts.length === 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-empty',
+      severity: 'error',
+      message: '知乎图片 artifact manifest 没有任何图片 fallback 记录',
+      suggestion: '生成公式图、图表图、表格图或图片 fallback 前必须写入 manifest.artifacts，并标明最终图片地址、host 状态、alt/caption 和上传证明',
+    })
+    return issues
+  }
+
+  const blockedHosts = artifacts.filter(artifact =>
+    !artifact.finalSrc.trim()
+    || isBlockedZhihuImageSource(artifact.finalSrc)
+    || artifact.hostStatus === 'local-only'
+    || artifact.hostStatus === 'missing'
+    || artifact.hostStatus === 'blocked'
+    || (manifest.requirePlatformUpload === true && artifact.hostStatus !== 'platform-hosted')
+  )
+  if (blockedHosts.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-host-blocked',
+      severity: 'error',
+      message: `知乎图片 artifact 缺少可发布 host：${formatZhihuManifestArtifacts(blockedHosts)}`,
+      suggestion: '最终 Markdown 图片必须是稳定公开 HTTPS，或真实知乎/目标发布入口上传后返回的平台图床地址；本地、blob/data、http、私网、微信 CDN 或缺失 finalSrc 都必须阻断',
+    })
+  }
+
+  const missingUploadProof = artifacts.filter(artifact =>
+    artifact.hostStatus === 'platform-hosted' && artifact.uploaded !== true,
+  )
+  if (missingUploadProof.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-upload-missing',
+      severity: 'error',
+      message: `知乎图片 artifact 标记为平台图床但缺少真实上传证明：${formatZhihuManifestArtifacts(missingUploadProof)}`,
+      suggestion: '只有真实上传接口/编辑器返回的平台图片地址才能标记 uploaded:true；否则保持 blocked/unavailable',
+    })
+  }
+
+  const missingFiles = artifacts.filter(artifact =>
+    artifact.uploaded !== true && artifact.exists !== true,
+  )
+  if (missingFiles.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-missing-file',
+      severity: 'error',
+      message: `知乎图片 artifact 缺少本地文件存在性证明：${formatZhihuManifestArtifacts(missingFiles)}`,
+      suggestion: '未上传到平台前必须证明本地 fallback 文件真实存在并可读取；否则不能报告本地 artifact 通过',
+    })
+  }
+
+  const missingAlt = artifacts.filter(artifact => !artifact.alt.trim())
+  if (missingAlt.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-alt-missing',
+      severity: 'error',
+      message: `知乎图片 artifact 缺少 alt 文本：${formatZhihuManifestArtifacts(missingAlt)}`,
+      suggestion: '公式图、表格图、图表图、SVG fallback 和封面图都必须提供可理解的 alt 文本',
+    })
+  }
+
+  const missingCaption = artifacts.filter(artifact =>
+    isZhihuSemanticImageArtifact(artifact)
+    && !artifact.caption?.trim()
+    && artifact.textFallback !== true,
+  )
+  if (missingCaption.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-caption-missing',
+      severity: 'error',
+      message: `知乎语义图片 artifact 缺少 caption 或文字 fallback：${formatZhihuManifestArtifacts(missingCaption)}`,
+      suggestion: '公式、图表、流程图和复杂表格图片化后必须保留邻近 caption 或正文解释，避免语义丢失',
+    })
+  }
+
+  const unsupportedFormats = artifacts.filter(artifact => {
+    const format = artifact.format ?? detectImageFormat(artifact.finalSrc)
+    return !format || !allowedFormats.has(format)
+  })
+  if (unsupportedFormats.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-format-unsupported',
+      severity: 'error',
+      message: `知乎图片 artifact 格式缺失或不在当前允许列表：${formatZhihuManifestArtifacts(unsupportedFormats)}`,
+      suggestion: '将图片 fallback 转换为 JPG/PNG/GIF 等当前允许格式，并记录真实 finalSrc 或 format',
+    })
+  }
+
+  const invalidDimensions = artifacts.filter(artifact =>
+    (artifact.width !== undefined && artifact.width <= 0)
+    || (artifact.height !== undefined && artifact.height <= 0),
+  )
+  if (invalidDimensions.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-dimension-invalid',
+      severity: 'error',
+      message: `知乎图片 artifact 尺寸无效：${formatZhihuManifestArtifacts(invalidDimensions)}`,
+      suggestion: '记录正数 width/height；无法获取尺寸时不要写 0 或负数',
+    })
+  }
+
+  const invalidBytes = artifacts.filter(artifact =>
+    artifact.uploaded !== true && (typeof artifact.bytes !== 'number' || artifact.bytes <= 0),
+  )
+  if (invalidBytes.length > 0) {
+    addIssue(issues, {
+      id: 'zhihu-image-manifest-bytes-invalid',
+      severity: 'error',
+      message: `知乎图片 artifact 缺少有效 bytes：${formatZhihuManifestArtifacts(invalidBytes)}`,
+      suggestion: '本地 fallback 文件必须记录真实字节数；平台上传图可用 uploaded:true 和平台 URL 作为证明',
+    })
+  }
+
+  if (markdownReferences.size > 0) {
+    const artifactFinalSrcs = new Set(artifacts.map(artifact => artifact.finalSrc))
+    const missingManifestItems = [...markdownReferences].filter(src => !artifactFinalSrcs.has(src))
+    const unreferencedArtifacts = artifacts.filter(artifact => {
+      if (typeof artifact.referencedByMarkdown === 'boolean') {
+        return artifact.referencedByMarkdown !== markdownReferences.has(artifact.finalSrc)
+      }
+      return !markdownReferences.has(artifact.finalSrc)
+    })
+    if (missingManifestItems.length > 0 || unreferencedArtifacts.length > 0) {
+      addIssue(issues, {
+        id: 'zhihu-image-manifest-reference-mismatch',
+        severity: 'error',
+        message: [
+          missingManifestItems.length > 0 ? `Markdown 引用了未登记 artifact 的图片：${missingManifestItems.join(', ')}` : '',
+          unreferencedArtifacts.length > 0 ? `artifact 与 Markdown 引用状态不一致：${formatZhihuManifestArtifacts(unreferencedArtifacts)}` : '',
+        ].filter(Boolean).join('；'),
+        suggestion: '重写最终 Markdown 图片链接后，同步更新 manifest.finalSrc、referencedByMarkdown 和上传记录',
+      })
+    }
   }
 
   return issues
@@ -1103,6 +1260,19 @@ function formatXhsManifestPages(pages: XhsImageArtifactPage[]): string {
   return pages
     .map(page => `${page.fileName || `page-${page.page}`}#${page.page}`)
     .join(', ')
+}
+
+function formatZhihuManifestArtifacts(artifacts: ZhihuImageArtifact[]): string {
+  return artifacts
+    .map(artifact => artifact.fileName || artifact.id || artifact.finalSrc || 'unknown-artifact')
+    .join(', ')
+}
+
+function isZhihuSemanticImageArtifact(artifact: ZhihuImageArtifact): boolean {
+  return artifact.kind === 'formula-image'
+    || artifact.kind === 'diagram-image'
+    || artifact.kind === 'table-image'
+    || ZHIHU_SEMANTIC_IMAGE_ALT_PATTERN.test(artifact.alt)
 }
 
 function matchesDeclaredXhsRatio(page: XhsImageArtifactPage): boolean {
