@@ -385,6 +385,83 @@ export interface PlatformStyleProofCollectionQueue {
   }
 }
 
+export type StyleProofProgressStatus = 'satisfied' | 'missing' | 'invalid'
+
+export interface StyleProofGateProgress {
+  gate: StyleProofCollectionGate
+  order: number
+  note: string
+  status: StyleProofProgressStatus
+  requirementIds: readonly StyleProofRequirementId[]
+  choiceIds: readonly string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  sensitiveArtifactCount: number
+  unsafeCommitArtifactCount: number
+  issueCount: number
+  blockedChoiceCount: number
+  mutatingRequirements: number
+  externalAccountRequirements: number
+  phoneRequirements: number
+  safeToAutomateRequirements: number
+}
+
+export interface StyleChoiceProofProgress {
+  choice: PlatformStyleChoice
+  manifest: StyleProofManifest
+  manifestCount: number
+  report: StyleProofManifestReport
+  blockedByCatalog: boolean
+  status: StyleProofProgressStatus
+  gates: readonly StyleProofGateProgress[]
+  summary: {
+    required: number
+    satisfied: number
+    missing: number
+    invalid: number
+    artifactCount: number
+    acceptedArtifactCount: number
+    sensitiveArtifactCount: number
+    unsafeCommitArtifactCount: number
+    issueCount: number
+  }
+}
+
+export interface PlatformStyleProofProgressReport {
+  platform: Platform
+  choices: readonly StyleChoiceProofProgress[]
+  gates: readonly StyleProofGateProgress[]
+  nextGate: StyleProofCollectionGate | null
+  nextSafeGate: StyleProofCollectionGate | null
+  ignoredManifestCount: number
+  summary: {
+    totalChoices: number
+    choicesWithManifest: number
+    proofSatisfiedChoices: number
+    proofMissingChoices: number
+    proofInvalidChoices: number
+    blockedChoices: number
+    required: number
+    satisfied: number
+    missing: number
+    invalid: number
+    artifactCount: number
+    acceptedArtifactCount: number
+    sensitiveArtifactCount: number
+    unsafeCommitArtifactCount: number
+    issueCount: number
+    totalGates: number
+    mutatingRequirements: number
+    externalAccountRequirements: number
+    phoneRequirements: number
+    safeToAutomateRequirements: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -622,6 +699,27 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',
   'platform-publish': 'Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste or sync success.',
 } as const satisfies Record<StyleProofCollectionGate, string>
+
+function doesStyleProofGateMutatePlatform(gate: StyleProofCollectionGate): boolean {
+  return gate === 'authenticated-pc-editor'
+    || gate === 'credentialed-channel'
+    || gate === 'platform-publish'
+}
+
+function doesStyleProofGateRequireExternalAccount(gate: StyleProofCollectionGate): boolean {
+  return gate === 'market-editor'
+    || gate === 'authenticated-pc-editor'
+    || gate === 'credentialed-channel'
+    || gate === 'platform-publish'
+}
+
+function doesStyleProofGateRequirePhone(gate: StyleProofCollectionGate): boolean {
+  return gate === 'phone-preview'
+}
+
+function isStyleProofGateSafeToAutomate(gate: StyleProofCollectionGate): boolean {
+  return gate === 'local-evidence' || gate === 'sensitive-hygiene'
+}
 
 export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
   wechat: ['unit-tested', 'local-browser'],
@@ -2007,15 +2105,10 @@ function buildStyleProofCollectionStep(
     gate,
     order: STYLE_PROOF_COLLECTION_ORDER[gate],
     blockedByCatalog: choiceReadiness.blockedByCatalog,
-    mutatesPlatform: gate === 'authenticated-pc-editor'
-      || gate === 'credentialed-channel'
-      || gate === 'platform-publish',
-    requiresExternalAccount: gate === 'market-editor'
-      || gate === 'authenticated-pc-editor'
-      || gate === 'credentialed-channel'
-      || gate === 'platform-publish',
-    requiresPhone: gate === 'phone-preview',
-    safeToAutomate: gate === 'local-evidence' || gate === 'sensitive-hygiene',
+    mutatesPlatform: doesStyleProofGateMutatePlatform(gate),
+    requiresExternalAccount: doesStyleProofGateRequireExternalAccount(gate),
+    requiresPhone: doesStyleProofGateRequirePhone(gate),
+    safeToAutomate: isStyleProofGateSafeToAutomate(gate),
     note: STYLE_PROOF_COLLECTION_NOTES[gate],
   }
 }
@@ -2104,6 +2197,246 @@ export function getPlatformStyleProofCollectionQueue(platform: Platform): Platfo
       mutatingSteps: plan.summary.mutatingSteps,
       externalAccountSteps: plan.summary.externalAccountSteps,
       phoneSteps: plan.summary.phoneSteps,
+    },
+  }
+}
+
+interface StyleProofProgressSource {
+  choice: PlatformStyleChoice
+  report: StyleProofManifestReport
+  blockedByCatalog: boolean
+}
+
+function getStyleProofProgressStatus(summary: {
+  missing: number
+  invalid: number
+}): StyleProofProgressStatus {
+  if (summary.invalid > 0) return 'invalid'
+  if (summary.missing > 0) return 'missing'
+  return 'satisfied'
+}
+
+function buildMergedStyleChoiceProofManifest(
+  platform: Platform,
+  choice: PlatformStyleChoice,
+  manifests: readonly StyleProofManifest[],
+): {
+  manifest: StyleProofManifest
+  manifestCount: number
+} {
+  const matchingManifests = manifests.filter(manifest =>
+    manifest.platform === platform && manifest.choiceId === choice.id
+  )
+
+  if (matchingManifests.length === 0) {
+    return {
+      manifest: createStyleProofManifestDraft({
+        platform,
+        choiceId: choice.id,
+      }),
+      manifestCount: 0,
+    }
+  }
+
+  const claimedEvidence = new Set<StyleEvidenceLabel>()
+  const artifacts: StyleProofArtifact[] = []
+
+  for (const manifest of matchingManifests) {
+    for (const evidence of manifest.claimedEvidence) {
+      claimedEvidence.add(evidence)
+    }
+
+    artifacts.push(...manifest.artifacts)
+  }
+
+  return {
+    manifest: {
+      platform,
+      choiceId: choice.id,
+      scope: 'style-choice',
+      claimedEvidence: Array.from(claimedEvidence).sort((left, right) => {
+        if (EVIDENCE_RANK[left] !== EVIDENCE_RANK[right]) return EVIDENCE_RANK[left] - EVIDENCE_RANK[right]
+        return left.localeCompare(right)
+      }),
+      artifacts,
+    },
+    manifestCount: matchingManifests.length,
+  }
+}
+
+function buildStyleProofGateProgress(
+  gate: StyleProofCollectionGate,
+  sources: readonly StyleProofProgressSource[],
+): StyleProofGateProgress | null {
+  const requirementIds = new Set<StyleProofRequirementId>()
+  const choiceIds = new Set<string>()
+  const blockedChoiceIds = new Set<string>()
+  const issueKeys = new Set<string>()
+
+  let required = 0
+  let satisfied = 0
+  let missing = 0
+  let invalid = 0
+  let artifactCount = 0
+  let acceptedArtifactCount = 0
+  let sensitiveArtifactCount = 0
+  let unsafeCommitArtifactCount = 0
+
+  for (const source of sources) {
+    const sourceRequirementIds = new Set<StyleProofRequirementId>()
+
+    for (const requirement of source.report.requirements) {
+      const requirementId = requirement.requirement.id
+      if (STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT[requirementId] !== gate) continue
+
+      sourceRequirementIds.add(requirementId)
+      requirementIds.add(requirementId)
+      choiceIds.add(source.choice.id)
+      if (source.blockedByCatalog) blockedChoiceIds.add(source.choice.id)
+
+      required += 1
+      if (requirement.status === 'satisfied') satisfied += 1
+      if (requirement.status === 'missing') missing += 1
+      if (requirement.status === 'invalid') invalid += 1
+
+      for (const issue of requirement.issues) {
+        issueKeys.add(`${issue.id}|${String(issue.location ?? '')}|${issue.message}`)
+      }
+    }
+
+    if (sourceRequirementIds.size === 0) continue
+
+    for (const artifact of source.report.artifacts) {
+      if (!sourceRequirementIds.has(artifact.artifact.requirementId)) continue
+
+      artifactCount += 1
+      if (artifact.status === 'accepted') acceptedArtifactCount += 1
+      if (artifact.sensitive) sensitiveArtifactCount += 1
+      if (artifact.unsafeForCommit) unsafeCommitArtifactCount += 1
+
+      for (const issue of artifact.issues) {
+        issueKeys.add(`${issue.id}|${String(issue.location ?? '')}|${issue.message}`)
+      }
+    }
+  }
+
+  if (required === 0) return null
+
+  return {
+    gate,
+    order: STYLE_PROOF_COLLECTION_ORDER[gate],
+    note: STYLE_PROOF_COLLECTION_NOTES[gate],
+    status: getStyleProofProgressStatus({ missing, invalid }),
+    requirementIds: Array.from(requirementIds).sort(),
+    choiceIds: Array.from(choiceIds).sort(),
+    required,
+    satisfied,
+    missing,
+    invalid,
+    artifactCount,
+    acceptedArtifactCount,
+    sensitiveArtifactCount,
+    unsafeCommitArtifactCount,
+    issueCount: issueKeys.size,
+    blockedChoiceCount: blockedChoiceIds.size,
+    mutatingRequirements: doesStyleProofGateMutatePlatform(gate) ? required : 0,
+    externalAccountRequirements: doesStyleProofGateRequireExternalAccount(gate) ? required : 0,
+    phoneRequirements: doesStyleProofGateRequirePhone(gate) ? required : 0,
+    safeToAutomateRequirements: isStyleProofGateSafeToAutomate(gate) ? required : 0,
+  }
+}
+
+export function getPlatformStyleProofProgressReport(
+  platform: Platform,
+  manifests: readonly StyleProofManifest[] = [],
+): PlatformStyleProofProgressReport {
+  const choices = getPlatformStyleChoices(platform)
+  const choiceIds = new Set(choices.map(choice => choice.id))
+  const usableManifests = manifests.filter(manifest =>
+    manifest.platform === platform
+    && typeof manifest.choiceId === 'string'
+    && choiceIds.has(manifest.choiceId)
+  )
+  const progressChoices = choices.map(choice => {
+    const { manifest, manifestCount } = buildMergedStyleChoiceProofManifest(platform, choice, usableManifests)
+    const report = getStyleProofManifestReport(manifest)
+    const blockedByCatalog = choice.status !== 'available'
+    const source: StyleProofProgressSource = {
+      choice,
+      report,
+      blockedByCatalog,
+    }
+    const gates = STYLE_PROOF_COLLECTION_GATE_SEQUENCE
+      .map(gate => buildStyleProofGateProgress(gate, [source]))
+      .filter((gateProgress): gateProgress is StyleProofGateProgress => gateProgress !== null)
+    const status = getStyleProofProgressStatus(report.summary)
+
+    return {
+      choice,
+      manifest,
+      manifestCount,
+      report,
+      blockedByCatalog,
+      status,
+      gates,
+      summary: {
+        required: report.summary.required,
+        satisfied: report.summary.satisfied,
+        missing: report.summary.missing,
+        invalid: report.summary.invalid,
+        artifactCount: report.summary.artifactCount,
+        acceptedArtifactCount: report.summary.acceptedArtifactCount,
+        sensitiveArtifactCount: report.summary.sensitiveArtifactCount,
+        unsafeCommitArtifactCount: report.summary.unsafeCommitArtifactCount,
+        issueCount: report.summary.issueCount,
+      },
+    }
+  })
+
+  const sources = progressChoices.map(progress => ({
+    choice: progress.choice,
+    report: progress.report,
+    blockedByCatalog: progress.blockedByCatalog,
+  }))
+  const gates = STYLE_PROOF_COLLECTION_GATE_SEQUENCE
+    .map(gate => buildStyleProofGateProgress(gate, sources))
+    .filter((gateProgress): gateProgress is StyleProofGateProgress => gateProgress !== null)
+  const nextGate = gates.find(gate => gate.missing > 0 || gate.invalid > 0)?.gate ?? null
+  const nextSafeGate = gates.find(gate =>
+    gate.safeToAutomateRequirements > 0 && (gate.missing > 0 || gate.invalid > 0)
+  )?.gate ?? null
+
+  return {
+    platform,
+    choices: progressChoices,
+    gates,
+    nextGate,
+    nextSafeGate,
+    ignoredManifestCount: manifests.length - usableManifests.length,
+    summary: {
+      totalChoices: progressChoices.length,
+      choicesWithManifest: progressChoices.filter(choice => choice.manifestCount > 0).length,
+      proofSatisfiedChoices: progressChoices.filter(choice => choice.status === 'satisfied').length,
+      proofMissingChoices: progressChoices.filter(choice => choice.status === 'missing').length,
+      proofInvalidChoices: progressChoices.filter(choice => choice.status === 'invalid').length,
+      blockedChoices: progressChoices.filter(choice => choice.blockedByCatalog).length,
+      required: progressChoices.reduce((total, choice) => total + choice.summary.required, 0),
+      satisfied: progressChoices.reduce((total, choice) => total + choice.summary.satisfied, 0),
+      missing: progressChoices.reduce((total, choice) => total + choice.summary.missing, 0),
+      invalid: progressChoices.reduce((total, choice) => total + choice.summary.invalid, 0),
+      artifactCount: progressChoices.reduce((total, choice) => total + choice.summary.artifactCount, 0),
+      acceptedArtifactCount: progressChoices.reduce((total, choice) =>
+        total + choice.summary.acceptedArtifactCount, 0),
+      sensitiveArtifactCount: progressChoices.reduce((total, choice) =>
+        total + choice.summary.sensitiveArtifactCount, 0),
+      unsafeCommitArtifactCount: progressChoices.reduce((total, choice) =>
+        total + choice.summary.unsafeCommitArtifactCount, 0),
+      issueCount: progressChoices.reduce((total, choice) => total + choice.summary.issueCount, 0),
+      totalGates: gates.length,
+      mutatingRequirements: gates.reduce((total, gate) => total + gate.mutatingRequirements, 0),
+      externalAccountRequirements: gates.reduce((total, gate) => total + gate.externalAccountRequirements, 0),
+      phoneRequirements: gates.reduce((total, gate) => total + gate.phoneRequirements, 0),
+      safeToAutomateRequirements: gates.reduce((total, gate) => total + gate.safeToAutomateRequirements, 0),
     },
   }
 }

@@ -1360,6 +1360,50 @@ git status --short --branch
   this queue proves only local scheduling/readback. It does not prove platform paste, phone
   preview, sync, scheduled send, or publish.
 
+## 2026-06-09 Style Proof Progress Report Slice
+
+- Added `getPlatformStyleProofProgressReport(platform, manifests)` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The report accepts real redacted `StyleProofManifest` inputs, merges only existing artifacts for
+  the same platform/style choice, and never creates proof artifacts.
+- Cross-platform or unknown-choice manifests are excluded from the requested platform and counted in
+  `ignoredManifestCount`, keeping WeChat, Xiaohongshu, and Zhihu proof state isolated.
+- Each style choice is evaluated in `style-choice` scope through `getStyleProofManifestReport()`.
+  Gate progress therefore reuses the existing manifest validator for satisfied, missing, invalid,
+  accepted, sensitive, and unsafe-commit states.
+- Platform-level gate progress reuses the collection gate order from the plan/queue API and exposes
+  missing/invalid next gates without changing `selectable`, `usable`, `blocked`, or `unavailable`
+  catalog decisions.
+- Exported the progress report API and types through `inkforge/src/services/export/index.ts`.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new tests cover valid
+  redacted local proof progress, invalid/unsafe artifact gate counts, ignored cross-platform
+  manifests, and WeChat amber staying blocked.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-progress-report-20260609.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 62 tests passed.
+- Verification refresh:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 101 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 995 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  56.03s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+- CloakBrowser runtime smoke:
+  a real local Vite page dynamically imported `/src/services/export/index.ts` and called
+  `getPlatformStyleProofProgressReport('wechat', redactedManifests)`. The report returned
+  15 WeChat choices, 6 gates, 1 ignored cross-platform manifest, local/sensitive gates satisfied
+  for `wechat-classic-inline`, and `wechat-flagship-amber` remained blocked.
+- Boundary:
+  this report proves only local proof accounting. It does not prove platform paste, phone preview,
+  sync, scheduled send, upload, public host, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

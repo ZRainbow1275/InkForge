@@ -1,0 +1,76 @@
+# Style Proof Progress Report Evidence - 2026-06-09
+
+Scope
+- Added `getPlatformStyleProofProgressReport(platform, manifests)`.
+- Inputs are caller-supplied redacted `StyleProofManifest` objects.
+- The report merges only existing artifacts for the same platform and style choice.
+- The report does not create proof artifacts and does not change style availability.
+
+Runtime Contract
+- Every style choice is evaluated in `style-choice` scope through `getStyleProofManifestReport()`.
+- Gate aggregation reuses the same gate order as the collection plan and queue:
+  local-evidence, sensitive-hygiene, market-editor, authenticated-pc-editor, phone-preview,
+  public-host, credentialed-channel, platform-publish.
+- Cross-platform or unknown-choice manifests are excluded for the requested platform and counted as
+  ignored.
+- Blocked or unavailable choices remain visible as progress rows, but they are not promoted to
+  usable, selectable, uploaded, previewed, synced, scheduled, or published.
+
+Focused Verification
+- Command:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+- Result:
+  1 file / 62 tests passed.
+- Covered assertions:
+  - Valid redacted unit, local render, exact artifact, and hygiene artifacts increase satisfied
+    counts while stronger PC, phone, and publish gates remain missing.
+  - Invalid visual proof and unsafe proof artifacts are counted at both choice and gate level.
+  - A Zhihu manifest passed to the WeChat report is counted as ignored and does not affect WeChat
+    progress.
+  - `wechat-flagship-amber` remains blocked; progress does not override catalog blockers.
+
+Pending Verification Refresh
+- 4-file export regression suite:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  Result: 4 files / 101 tests passed.
+- Full export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  Result: 35 files / 995 tests passed.
+- Non-mutating ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Result: exit 0.
+- Typecheck:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Result: exit 0.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Result: exit 0, Vite built in 56.03s.
+- Build/typecheck generated `inkforge/tsconfig.tsbuildinfo`; it was restored after verification.
+- GitNexus detect changes and staged-only sensitive artifact scan remain pending until final
+  staging.
+
+CloakBrowser Runtime Smoke
+- Local Vite was started on `http://127.0.0.1:3005/`.
+- CloakBrowser opened the real local app and dynamically imported
+  `/src/services/export/index.ts`.
+- Runtime call:
+  `getPlatformStyleProofProgressReport('wechat', redactedManifests)`.
+- Result:
+  - platform: wechat
+  - choiceCount: 15
+  - choicesWithManifest: 1
+  - ignoredManifestCount: 1
+  - gateCount: 6
+  - nextGate: local-evidence
+  - nextSafeGate: local-evidence
+  - classic local gate: satisfied, satisfied=3, missing=0
+  - classic sensitive gate: satisfied
+  - classic choice: missing, satisfied=4, missing=8
+  - amber blocked: true
+  - amber choice status: blocked
+- The browser context and local dev server were closed after the smoke.
+
+Boundary
+- This evidence is local proof-accounting evidence only.
+- It does not prove WeChat, Xiaohongshu, or Zhihu paste, phone preview, image upload, account sync,
+  scheduled send, public host acceptance, or publish success.

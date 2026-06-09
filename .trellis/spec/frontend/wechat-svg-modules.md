@@ -790,3 +790,33 @@ diamonds ALL survived** the sanitizer and render; 0 gradient/var()/real-transfor
 `prompts/0601/evidence/tune-0602/` (t3-seg1-4 @393px + realwechat-r3-editor-*). This remains
 historical PC editor paste evidence only; it must not be cited as mobile, Dark Mode, cover,
 sync, scheduled-send, or publish proof.
+
+## 10. Style Proof Progress Report
+
+`getPlatformStyleProofProgressReport(platform, manifests)` is the service boundary for aggregating
+real redacted `StyleProofManifest` evidence into platform, style-choice, and collection-gate
+progress rows.
+
+Contracts:
+- The function accepts only caller-supplied manifests. It may merge existing artifacts for the same
+  platform and style choice, but it must not create proof artifacts.
+- Manifests whose platform or `choiceId` does not belong to the requested platform are excluded and
+  counted in `ignoredManifestCount`; evidence must not leak between WeChat, Xiaohongshu, and Zhihu.
+- Every choice is evaluated in `style-choice` scope by reusing `getStyleProofManifestReport()`.
+  Missing, invalid, satisfied, accepted, sensitive, and unsafe commit states therefore stay aligned
+  with the manifest validator.
+- Gate progress must use the same ordered gate map as
+  `getPlatformStyleProofCollectionPlan()` and `getPlatformStyleProofCollectionQueue()`.
+  Local and hygiene gates may be reported as safe to automate; authenticated editor, phone,
+  credentialed, public host, and publish gates must stay separate.
+- `blockedByCatalog` choices stay visible in the progress report, but progress must never promote
+  `blocked` or `unavailable` choices to usable/selectable/publishable.
+- This report is a local proof accounting API. It is not a paste, phone preview, sync, scheduled
+  send, upload, public host, or publish success signal.
+
+Required tests:
+- A redacted manifest with valid unit/local/hygiene artifacts must increase satisfied counts while
+  leaving stronger PC, phone, and publish gates missing.
+- Invalid or unsafe artifacts must count at both choice and gate level.
+- Blocked WeChat flagship choices must remain blocked even when a manifest exists.
+- Cross-platform manifests must be ignored for the requested platform.

@@ -19,6 +19,7 @@ import {
   getPlatformStyleAvailabilityReport,
   getPlatformStyleProofCollectionPlan,
   getPlatformStyleProofCollectionQueue,
+  getPlatformStyleProofProgressReport,
   getPlatformStyleProofReadinessReport,
   getPresetById,
   getStyleChoiceApplication,
@@ -512,6 +513,187 @@ describe('platform native export rendering rules', () => {
       .toContain('zhihu-public-image-upload-checklist')
     expect(zhihuQueue.groups.find(group => group.gate === 'credentialed-channel')?.externalAccountSteps)
       .toBeGreaterThan(0)
+  })
+
+  it('reports style proof progress from redacted manifests without promoting blocked choices', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested', 'local-browser'],
+        artifacts: [
+          {
+            id: 'classic-unit-proof',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'redacted unit proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            committed: true,
+            safeForCommit: true,
+          },
+          {
+            id: 'classic-local-render-proof',
+            requirementId: 'local-browser-rendering',
+            kind: 'browser-readback',
+            label: 'redacted local browser proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-browser',
+            action: 'local-render',
+            readback: 'visual-and-dom',
+            committed: true,
+            safeForCommit: true,
+          },
+          {
+            id: 'classic-exact-artifact-proof',
+            requirementId: 'exact-artifact',
+            kind: 'doc-reference',
+            label: 'redacted exact artifact checksum',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-artifact',
+            action: 'source-hygiene-review',
+            readback: 'hygiene-log',
+            exactArtifact: true,
+            committed: true,
+            safeForCommit: true,
+          },
+          {
+            id: 'classic-sensitive-hygiene-proof',
+            requirementId: 'no-sensitive-artifact',
+            kind: 'hygiene-review',
+            label: 'redacted evidence hygiene proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-artifact',
+            action: 'sensitive-hygiene-review',
+            readback: 'hygiene-log',
+            committed: true,
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-flagship-amber',
+        scope: 'style-choice',
+        claimedEvidence: ['pc-editor-paste'],
+        artifacts: [
+          {
+            id: 'amber-exact-artifact-proof',
+            requirementId: 'exact-artifact',
+            kind: 'doc-reference',
+            label: 'redacted amber artifact checksum',
+            platform: 'wechat',
+            choiceId: 'wechat-flagship-amber',
+            channel: 'local-artifact',
+            action: 'source-hygiene-review',
+            readback: 'hygiene-log',
+            exactArtifact: true,
+            committed: true,
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'zhihu',
+        choiceId: 'zhihu-clean-column',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [],
+      },
+    ]
+
+    const progress = getPlatformStyleProofProgressReport('wechat', manifests)
+    const classicProgress = progress.choices.find(choice => choice.choice.id === 'wechat-classic-inline')
+    const amberProgress = progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+    const platformLocalGate = progress.gates.find(gate => gate.gate === 'local-evidence')
+    const classicLocalGate = classicProgress?.gates.find(gate => gate.gate === 'local-evidence')
+    const classicSensitiveGate = classicProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')
+
+    expect(progress.platform).toBe('wechat')
+    expect(progress.ignoredManifestCount).toBe(1)
+    expect(progress.summary.choicesWithManifest).toBe(2)
+    expect(progress.summary.proofSatisfiedChoices).toBe(0)
+    expect(progress.summary.proofMissingChoices).toBeGreaterThan(0)
+    expect(progress.summary.blockedChoices).toBeGreaterThan(0)
+    expect(progress.nextGate).toBe('local-evidence')
+    expect(progress.nextSafeGate).toBe('local-evidence')
+
+    expect(classicProgress?.manifestCount).toBe(1)
+    expect(classicProgress?.status).toBe('missing')
+    expect(classicProgress?.summary.satisfied).toBeGreaterThanOrEqual(4)
+    expect(classicLocalGate?.status).toBe('satisfied')
+    expect(classicLocalGate?.satisfied).toBeGreaterThanOrEqual(3)
+    expect(classicLocalGate?.safeToAutomateRequirements).toBe(classicLocalGate?.required)
+    expect(classicSensitiveGate?.status).toBe('satisfied')
+    expect(classicSensitiveGate?.safeToAutomateRequirements).toBe(classicSensitiveGate?.required)
+
+    expect(platformLocalGate?.satisfied).toBeGreaterThan(0)
+    expect(platformLocalGate?.missing).toBeGreaterThan(0)
+    expect(platformLocalGate?.safeToAutomateRequirements).toBe(platformLocalGate?.required)
+    expect(amberProgress?.blockedByCatalog).toBe(true)
+    expect(amberProgress?.report.choiceStatus).toBe('blocked')
+    expect(getPlatformStyleAvailabilityReport('wechat').choices.find(choice =>
+      choice.choice.id === 'wechat-flagship-amber',
+    )?.usable).toBe(false)
+  })
+
+  it('counts invalid and unsafe style proof artifacts at the collection gate level', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['local-browser'],
+      artifacts: [
+        {
+          id: 'classic-weak-local-proof',
+          requirementId: 'local-browser-rendering',
+          kind: 'browser-readback',
+          label: 'local DOM readback is too weak for visual rendering proof',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-browser',
+          action: 'local-render',
+          readback: 'dom',
+          safeForCommit: true,
+        },
+        {
+          id: 'classic-unsafe-artifact-proof',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'unsafe exact artifact proof',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          sensitive: true,
+          committed: true,
+          safeForCommit: false,
+        },
+      ],
+    }
+
+    const progress = getPlatformStyleProofProgressReport('wechat', [manifest])
+    const classicProgress = progress.choices.find(choice => choice.choice.id === 'wechat-classic-inline')
+    const localGate = classicProgress?.gates.find(gate => gate.gate === 'local-evidence')
+
+    expect(classicProgress?.status).toBe('invalid')
+    expect(classicProgress?.summary.invalid).toBeGreaterThan(0)
+    expect(classicProgress?.summary.sensitiveArtifactCount).toBe(1)
+    expect(classicProgress?.summary.unsafeCommitArtifactCount).toBe(1)
+    expect(localGate?.status).toBe('invalid')
+    expect(localGate?.invalid).toBeGreaterThan(0)
+    expect(localGate?.sensitiveArtifactCount).toBe(1)
+    expect(localGate?.unsafeCommitArtifactCount).toBe(1)
+    expect(progress.summary.proofInvalidChoices).toBeGreaterThan(0)
+    expect(progress.summary.sensitiveArtifactCount).toBe(1)
+    expect(progress.summary.unsafeCommitArtifactCount).toBe(1)
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {
