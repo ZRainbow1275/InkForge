@@ -68,6 +68,15 @@ export type {
   StyleEvidenceLabel,
   StyleMotionLevel,
   PlatformStyleAvailabilityReport,
+  StyleProofAction,
+  StyleProofArtifact,
+  StyleProofArtifactKind,
+  StyleProofChannel,
+  StyleProofHostStatus,
+  StyleProofManifest,
+  StyleProofManifestIssueId,
+  StyleProofManifestScope,
+  StyleProofReadback,
   StyleProofRequirement,
   StyleProofRequirementId,
   StyleRuleGroup,
@@ -201,6 +210,7 @@ export {
   getStyleChoiceById,
   getStyleChoiceCatalog,
   isEvidenceAtLeast,
+  validateStyleProofManifest,
 } from './style-catalog'
 
 // 共享排版

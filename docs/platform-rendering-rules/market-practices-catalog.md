@@ -451,6 +451,12 @@ Evidence retention rules:
   `getEvidenceProofRequirements()` maps one label to required proof items, while
   `getStyleChoiceProofRequirements()` dedupes a style choice's `evidenceFloor` and
   `publishEvidence` requirements. These helpers do not change `evaluateStyleChoiceAvailability()`.
+- Proof manifests are executable too. `validateStyleProofManifest()` validates a redacted
+  `StyleProofManifest` and returns `QualityIssue[]` for missing requirements, weaker-than-claimed
+  evidence labels, platform/choice mismatch, blocked choices, unsafe committed references,
+  missing exact-artifact proof, missing disposable draft proof, missing phone readback, missing
+  public image host, or missing XHS/Zhihu artifact-manifest validation. It is a proof-quality
+  gate only; it never upgrades `available`, `selectable`, `published`, or platform success state.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,

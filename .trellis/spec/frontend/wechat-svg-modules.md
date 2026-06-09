@@ -36,6 +36,12 @@ construct breaks.
   screenshot evidence, Dark Mode inspection, and cover-thumbnail inspection. `published` is
   cross-platform and proves final platform preview/publish inspection only; WeChat phone proof must
   remain a separate `mobile-preview` label.
+- `validateStyleProofManifest()` is the executable validator for those proof items. It accepts
+  redacted `StyleProofManifest` records, returns `QualityIssue[]`, and verifies requirement
+  coverage, exact-artifact continuity, platform/choice consistency, action/channel/readback
+  contracts, public image-host proof, XHS/Zhihu manifest proof, and sensitive-artifact hygiene.
+  It must not change `evaluateStyleChoiceAvailability()` or `getPlatformStyleApplicationReport()`;
+  a blocked/unavailable choice remains blocked even if a manifest is filled out.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs

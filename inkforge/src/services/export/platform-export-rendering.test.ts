@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
+import type { StyleProofManifest } from './index'
 import {
   convertToNativeFormat,
   convertToWechatWithStats,
@@ -26,6 +27,7 @@ import {
   postProcessForWechat,
   validateXhsImageArtifactManifest,
   validateZhihuImageArtifactManifest,
+  validateStyleProofManifest,
 } from './index'
 
 const REAL_EXPORT_MARKDOWN = [
@@ -245,6 +247,216 @@ describe('platform native export rendering rules', () => {
       'zhihu-artifact-manifest',
       'published-url-or-platform-preview',
     ]))
+  })
+
+  it('validates a complete unit-tested style proof manifest without changing availability gates', () => {
+    const classicInline = getStyleChoiceById('wechat-classic-inline')
+    expect(classicInline).toBeDefined()
+    if (!classicInline) return
+
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'style-proof-unit-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'platform-export-rendering.test.ts focused assertion log',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactRef: 'prompts/0601/evidence/style-proof-manifest-validator-20260609.txt',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    expect(validateStyleProofManifest(manifest)).toEqual([])
+    expect(evaluateStyleChoiceAvailability(classicInline, ['unit-tested']).usable).toBe(true)
+  })
+
+  it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifacts: [
+        {
+          id: 'pc-dom-only',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'editor-readback',
+          label: 'read-only PC editor DOM probe',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const issues = validateStyleProofManifest(manifest)
+
+    expect(issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
+    expect(issues.map(issue => issue.location)).toEqual(expect.arrayContaining([
+      'exact-artifact',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'no-sensitive-artifact',
+    ]))
+  })
+
+  it('does not let a style proof manifest promote blocked choices', () => {
+    const amber = getStyleChoiceById('wechat-flagship-amber')
+    expect(amber).toBeDefined()
+    if (!amber) return
+
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-amber',
+      claimedEvidence: ['pc-editor-paste', 'mobile-preview', 'published'],
+      artifacts: [
+        {
+          id: 'amber-claimed-paste',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'claimed paste proof cannot override runtime blocker',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          exactArtifact: true,
+          disposableDraft: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const issues = validateStyleProofManifest(manifest)
+
+    expect(issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+    expect(evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview', 'published']).usable).toBe(false)
+  })
+
+  it('rejects weak local evidence for stronger mobile preview proof requirements', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      claimedEvidence: ['mobile-preview'],
+      artifacts: [
+        {
+          id: 'local-browser-phone-claim',
+          requirementId: 'phone-preview-readback',
+          kind: 'browser-readback',
+          label: 'local browser readback cannot prove phone preview',
+          evidenceLabel: 'local-browser',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    expect(validateStyleProofManifest(manifest).map(issue => issue.id)).toContain('style-proof-manifest-evidence-too-weak')
+  })
+
+  it('rejects sensitive or non-committable proof artifact references', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['doc-only'],
+      artifacts: [
+        {
+          id: 'unsafe-profile-ref',
+          requirementId: 'catalog-source',
+          kind: 'doc-reference',
+          label: 'unsafe local proof reference',
+          evidenceLabel: 'doc-only',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'docs',
+          action: 'catalog-source',
+          readback: 'none',
+          artifactRef: 'redacted-profileDir-scan-qr.har',
+          committed: true,
+          safeForCommit: false,
+        },
+      ],
+    }
+    const issueIds = validateStyleProofManifest(manifest).map(issue => issue.id)
+
+    expect(issueIds).toContain('style-proof-manifest-sensitive-artifact')
+    expect(issueIds).toContain('style-proof-manifest-unsafe-commit-artifact')
+  })
+
+  it('requires platform and artifact consistency in style proof manifests', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'zhihu',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'wrong-platform-test-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'wrong platform log',
+          evidenceLabel: 'unit-tested',
+          platform: 'xiaohongshu',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    expect(validateStyleProofManifest(manifest).map(issue => issue.id)).toContain('style-proof-manifest-platform-mismatch')
+  })
+
+  it('requires Zhihu image fallback proof artifacts for full style-choice proof validation', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'zhihu',
+      choiceId: 'zhihu-data-table',
+      scope: 'style-choice',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'zhihu-table-unit-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'semantic table unit proof',
+          evidenceLabel: 'unit-tested',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const issues = validateStyleProofManifest(manifest)
+
+    expect(issues.map(issue => issue.location)).toEqual(expect.arrayContaining([
+      'public-image-host',
+      'zhihu-artifact-manifest',
+    ]))
+    expect(getPlatformStyleApplicationReport('zhihu').find(item =>
+      item.availability.choice.id === 'zhihu-clean-column',
+    )?.selectable).toBe(true)
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

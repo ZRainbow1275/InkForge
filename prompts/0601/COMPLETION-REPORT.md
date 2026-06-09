@@ -19,7 +19,7 @@
 - 最新 XHS manifest focused 套件：**3 文件 / 69 用例 全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **30.99s**（本轮证据见 `evidence/zhihu-image-manifest-gate-20260609.txt`）。
+- 最新生产构建：PowerShell 环境下设置 `NODE_OPTIONS=--max-old-space-size=4096` 后执行 `pnpm -C inkforge build` 通过，Vite built in **32.64s**（本轮证据见 `evidence/style-proof-manifest-validator-20260609.txt`）。
 - 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
 - A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
@@ -31,6 +31,7 @@
 - 仍未由当前自动化完全证明的是：微信「预览」扫码后的**手机微信端最终渲染 / SMIL 交互 / 暗黑模式人工确认**。该门禁依赖账号封面图、微信手机客户端和扫码预览，不应被本地测试、Tauri e2e 或 PC 后台 DOM 证据冒充。
 - 2026-06-09 已用 CloakBrowser `inkforge-0601` 复核真实微信公众号 PC 图文编辑器：编辑器可达，标题/正文 `.ProseMirror` DOM 可读，底部保存/预览/发表按钮可见且未点击。当前草稿正文含真实音频卡，本轮未做粘贴/保存/预览/发布，因此该证据只标记为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不能升级 `flagship-amber` 的 `pc-editor-paste` 门禁。
 - 2026-06-09 已把 evidence label 的 proof checklist 落到 `style-catalog.ts`：`pc-editor-paste` 明确要求 exact artifact、safe disposable draft、真实 PC paste/channel event、PC DOM readback 和敏感证据隔离；`mobile-preview` 明确要求手机读回/截图、Dark Mode 和封面缩略图检查。只读探测到的微信 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为安全粘贴入口。
+- 2026-06-09 已新增 `validateStyleProofManifest()`：它校验 redacted proof manifest 是否覆盖 required proof items、是否同一 artifact、是否真实 action/channel/readback、是否存在弱证据冒充强证据、blocked choice 被升级、平台/choice 不一致、敏感本地/profile/HAR/QR/token/cookie 证据引用，以及 Zhihu/XHS manifest proof 缺失。该 validator 不改变 availability/selectable，不证明手机预览、同步或发布。
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 - 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
@@ -159,16 +160,16 @@ pnpm exec eslint src/services/export/svg-modules src/services/export/themes.ts s
 
 ```bash
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
-# 1 file passed, 48 tests passed
+# 1 file passed, 55 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
-# 4 files passed, 87 tests passed
+# 4 files passed, 94 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/xhs.test.ts --reporter=default
 # 3 files passed, 69 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
-# 35 files passed, 981 tests passed
+# 35 files passed, 988 tests passed
 
 pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
 # passed
@@ -177,7 +178,7 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 # passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-# passed, Vite built in 30.99s
+# passed, Vite built in 32.64s
 
 cargo build -p inkforge
 # passed, dev profile compiled in 9.15s
@@ -193,6 +194,7 @@ cargo build -p inkforge
 - `prompts/0601/evidence/market-editor-residue-gate-20260609.txt`
 - `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`
 - `prompts/0601/evidence/zhihu-image-manifest-gate-20260609.txt`
+- `prompts/0601/evidence/style-proof-manifest-validator-20260609.txt`
 
 补充解释：`probe-svg-render-20260608-082919.txt` 是非 graded 的几何诊断探针。它在当前
 ExportModal 401px / 15px 口径下报告 27 字/行，因此保留为需要人工解读的诊断提示；

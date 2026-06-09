@@ -1,0 +1,63 @@
+Style proof manifest validator evidence - 2026-06-09
+
+Scope:
+- Added `StyleProofManifest`, `StyleProofArtifact`, and `validateStyleProofManifest()` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- Re-exported the public API through `inkforge/src/services/export/index.ts`.
+- The validator is a proof-quality gate only. It does not change
+  `evaluateStyleChoiceAvailability()`, `evaluateStyleChoiceApplication()`, ExportModal
+  selectable state, native export content, platform sync, preview, scheduled send, or publish.
+
+Runtime contracts covered:
+- Missing proof requirements return `style-proof-manifest-requirement-missing`.
+- Blocked/unavailable style choices return `style-proof-manifest-choice-blocked` and cannot be
+  promoted by a filled manifest.
+- Weak evidence labels cannot satisfy stronger labels such as `mobile-preview`.
+- Platform and choice mismatch return `style-proof-manifest-platform-mismatch` or
+  `style-proof-manifest-artifact-mismatch`.
+- Sensitive or unsafe committed references are blocked with
+  `style-proof-manifest-sensitive-artifact` and
+  `style-proof-manifest-unsafe-commit-artifact`.
+- `pc-editor-paste` requires exact artifact, disposable draft/cleanup proof, real PC paste/channel
+  event, PC DOM readback, and sensitive-artifact hygiene.
+- `mobile-preview` requires phone readback, phone screenshot/readback, Dark Mode inspection, cover
+  thumbnail inspection, exact artifact, and sensitive-artifact hygiene.
+- Zhihu image-fallback style-choice proof requires both public image host proof and a validated
+  Zhihu artifact manifest proof entry. XHS artifact manifest proof is treated the same way for XHS
+  choices that require it.
+
+Focused verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+- Result: 1 file passed, 55 tests passed.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+- Result: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+- Result: passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+- Result: 4 files passed, 94 tests passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+- Result: 35 files passed, 988 tests passed.
+- `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`
+- Result: passed.
+- PowerShell build with `NODE_OPTIONS=--max-old-space-size=4096` and `pnpm -C inkforge build`
+- Result: passed, Vite built in 32.64s.
+
+CloakBrowser visual/runtime smoke:
+- Required profile: `inkforge-0601`.
+- Desktop 1400x900 local Workstation: real draft opened, ExportModal visible, body overflow false.
+- WeChat style capability summary stayed `微信公众号 当前可用 7/15`.
+- Amber business flagship remained disabled; mobile/interactive/plugin/sync checklist choices remained disabled.
+- Browser runtime dynamic import of `/src/services/export/index.ts`:
+  - valid unit-tested `StyleProofManifest` returned 0 issues.
+  - unsafe local profile/HAR/QR-style reference returned
+    `style-proof-manifest-sensitive-artifact` and `style-proof-manifest-unsafe-commit-artifact`.
+- Mobile 390x844 local Workstation: real draft opened, ExportModal visible, panel rect x=8/y=8/w=374/h=828/right=382,
+  body width 390, viewport width 390, horizontal overflow false, WeChat summary visible, Amber disabled.
+- No CloakBrowser screenshots, account data, browser profile files, cookies, tokens, HAR files, QR codes, or profile paths
+  are committed by this slice.
+
+Sensitive evidence boundary:
+- No browser profile, cookie, token, HAR, QR, account screenshot, profile path, or authenticated
+  page artifact is committed by this validator slice.
+- Proof artifacts should reference redacted evidence ids, safe summaries, hashes, counts, or test
+  logs only.

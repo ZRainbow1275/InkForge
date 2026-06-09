@@ -1,4 +1,4 @@
-import type { Platform } from './types'
+import type { Platform, QualityIssue } from './types'
 
 export type StyleChoiceStatus = 'available' | 'blocked' | 'unavailable'
 
@@ -123,6 +123,118 @@ export interface StyleChoiceApplicationAvailability {
   application: StyleChoiceApplication | null
   selectable: boolean
   reason: string
+}
+
+export type StyleProofManifestScope = 'evidence-label' | 'style-choice'
+
+export type StyleProofArtifactKind =
+  | 'doc-reference'
+  | 'test-log'
+  | 'browser-readback'
+  | 'editor-readback'
+  | 'phone-readback'
+  | 'screenshot'
+  | 'channel-response'
+  | 'published-preview'
+  | 'image-host-check'
+  | 'artifact-manifest'
+  | 'hygiene-review'
+
+export type StyleProofChannel =
+  | 'docs'
+  | 'unit-test'
+  | 'local-browser'
+  | 'tauri-webview'
+  | 'market-editor'
+  | 'platform-editor'
+  | 'phone-preview'
+  | 'credentialed-channel'
+  | 'public-web'
+  | 'local-artifact'
+
+export type StyleProofAction =
+  | 'catalog-source'
+  | 'applied-market-element'
+  | 'authenticated-editor-opened'
+  | 'pc-editor-dom-readback'
+  | 'test-run'
+  | 'local-render'
+  | 'pc-paste'
+  | 'phone-preview'
+  | 'dark-mode-check'
+  | 'cover-thumbnail-check'
+  | 'credentialed-sync'
+  | 'sync-readback'
+  | 'published-preview'
+  | 'public-image-host-check'
+  | 'artifact-manifest-validation'
+  | 'source-hygiene-review'
+  | 'sensitive-hygiene-review'
+
+export type StyleProofReadback =
+  | 'none'
+  | 'dom'
+  | 'visual'
+  | 'visual-and-dom'
+  | 'phone'
+  | 'screenshot'
+  | 'api-response'
+  | 'published-url'
+  | 'manifest'
+  | 'test-assertion'
+  | 'hygiene-log'
+
+export type StyleProofHostStatus =
+  | 'public-https'
+  | 'platform-hosted'
+  | 'local-only'
+  | 'blocked'
+  | 'missing'
+
+export interface StyleProofArtifact {
+  id: string
+  requirementId: StyleProofRequirementId
+  kind: StyleProofArtifactKind
+  label: string
+  evidenceLabel?: StyleEvidenceLabel
+  platform?: Platform
+  choiceId?: string
+  channel: StyleProofChannel
+  action: StyleProofAction
+  readback: StyleProofReadback
+  artifactFingerprint?: string
+  artifactRef?: string
+  exactArtifact?: boolean
+  disposableDraft?: boolean
+  safeForCommit?: boolean
+  committed?: boolean
+  sensitive?: boolean
+  hostStatus?: StyleProofHostStatus
+}
+
+export type StyleProofManifestIssueId =
+  | 'style-proof-manifest-choice-unknown'
+  | 'style-proof-manifest-platform-mismatch'
+  | 'style-proof-manifest-choice-blocked'
+  | 'style-proof-manifest-evidence-too-weak'
+  | 'style-proof-manifest-requirement-missing'
+  | 'style-proof-manifest-artifact-mismatch'
+  | 'style-proof-manifest-sensitive-artifact'
+  | 'style-proof-manifest-unsafe-commit-artifact'
+  | 'style-proof-manifest-exact-artifact-missing'
+  | 'style-proof-manifest-disposable-draft-missing'
+  | 'style-proof-manifest-platform-action-missing'
+  | 'style-proof-manifest-readback-missing'
+  | 'style-proof-manifest-public-image-host-missing'
+  | 'style-proof-manifest-validation-missing'
+
+export interface StyleProofManifest {
+  platform: Platform
+  claimedEvidence: readonly StyleEvidenceLabel[]
+  scope?: StyleProofManifestScope
+  choiceId?: string
+  artifactFingerprint?: string
+  artifacts: readonly StyleProofArtifact[]
 }
 
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
@@ -285,6 +397,28 @@ const EVIDENCE_PROOF_REQUIREMENT_IDS = {
     'no-sensitive-artifact',
   ],
 } as const satisfies Record<StyleEvidenceLabel, readonly StyleProofRequirementId[]>
+
+const SENSITIVE_ARTIFACT_REF_PATTERNS = [
+  /\baccessToken\b/i,
+  /\brefreshToken\b/i,
+  /\bauthorization\b/i,
+  /\bbearer\s+[a-z0-9._-]+/i,
+  /\bcookie\b/i,
+  /\bset-cookie\b/i,
+  /\bpassword\b/i,
+  /\bsecret\b/i,
+  /\bapi[_-]?key\b/i,
+  /\bsessionid\b/i,
+  /\.har\b/i,
+  /\bhar\b/i,
+  /\bqr(?:code)?\b/i,
+  /\bscan-qr\b/i,
+  /\bprofileDir\b/i,
+  /\buserDataDir\b/i,
+  /[a-z]:\\users\\/i,
+  /[a-z]:\/users\//i,
+  /cloakbrowser.*profiles/i,
+] as const
 
 export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
   wechat: ['unit-tested', 'local-browser'],
@@ -934,6 +1068,432 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
     if (!requirement) throw new Error(`Unknown style proof requirement: ${requirementId}`)
     return requirement
   })
+}
+
+export function validateStyleProofManifest(manifest: StyleProofManifest): QualityIssue[] {
+  const issues: QualityIssue[] = []
+  const choice = manifest.choiceId ? getStyleChoiceById(manifest.choiceId) : undefined
+  const scope = manifest.scope ?? 'evidence-label'
+
+  if (manifest.choiceId && !choice) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-choice-unknown',
+      message: `Style proof manifest references unknown style choice: ${manifest.choiceId}`,
+      suggestion: 'Use a choice id from getStyleChoiceCatalog(), or omit choiceId for evidence-label-only validation.',
+      location: manifest.choiceId,
+    })
+  }
+
+  if (scope === 'style-choice' && !choice) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-choice-unknown',
+      message: 'Style-choice proof validation requires a known choiceId.',
+      suggestion: 'Set manifest.choiceId to a runtime catalog choice before validating full style-choice proof requirements.',
+    })
+  }
+
+  if (choice && choice.platform !== manifest.platform) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-platform-mismatch',
+      message: `Style proof manifest platform ${manifest.platform} does not match choice ${choice.id} platform ${choice.platform}.`,
+      suggestion: 'Keep proof artifacts platform-specific; do not reuse WeChat, XHS, or Zhihu proof across platforms.',
+      location: choice.id,
+    })
+  }
+
+  if (choice && choice.status !== 'available') {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-choice-blocked',
+      message: `Style choice ${choice.id} is ${choice.status} and cannot be promoted by proof artifacts.`,
+      suggestion: choice.blockers[0] ?? 'Resolve the runtime catalog blocker before treating proof artifacts as an availability upgrade.',
+      location: choice.id,
+    })
+  }
+
+  const requirementEntries = collectRequiredStyleProofRequirementEntries(manifest, choice)
+  for (const entry of requirementEntries) {
+    const matchingArtifacts = manifest.artifacts.filter(artifact => artifact.requirementId === entry.requirementId)
+    if (matchingArtifacts.length === 0) {
+      addStyleProofIssue(issues, {
+        id: 'style-proof-manifest-requirement-missing',
+        message: `Style proof manifest is missing required proof artifact: ${entry.requirementId}.`,
+        suggestion: 'Add a redacted, source-owned proof artifact for every requirement returned by the evidence label or style choice proof checklist.',
+        location: entry.requirementId,
+      })
+      continue
+    }
+
+    for (const artifact of matchingArtifacts) {
+      validateStyleProofArtifactScope(manifest, artifact, issues)
+      validateStyleProofArtifactEvidence(entry, artifact, issues)
+    }
+
+    validateStyleProofRequirementCoverage(entry.requirementId, matchingArtifacts, issues)
+  }
+
+  for (const artifact of manifest.artifacts) {
+    validateStyleProofArtifactScope(manifest, artifact, issues)
+    validateStyleProofArtifactHygiene(artifact, issues)
+  }
+
+  return dedupeStyleProofIssues(issues)
+}
+
+interface RequiredStyleProofRequirementEntry {
+  requirementId: StyleProofRequirementId
+  evidenceLabel?: StyleEvidenceLabel
+}
+
+function collectRequiredStyleProofRequirementEntries(
+  manifest: StyleProofManifest,
+  choice: PlatformStyleChoice | undefined,
+): RequiredStyleProofRequirementEntry[] {
+  const entries = new Map<StyleProofRequirementId, RequiredStyleProofRequirementEntry>()
+  const addRequirement = (requirementId: StyleProofRequirementId, evidenceLabel?: StyleEvidenceLabel): void => {
+    const current = entries.get(requirementId)
+    if (!current) {
+      entries.set(requirementId, { requirementId, evidenceLabel })
+      return
+    }
+
+    if (
+      evidenceLabel
+      && (
+        !current.evidenceLabel
+        || EVIDENCE_RANK[evidenceLabel] > EVIDENCE_RANK[current.evidenceLabel]
+      )
+    ) {
+      entries.set(requirementId, { requirementId, evidenceLabel })
+    }
+  }
+
+  for (const label of manifest.claimedEvidence) {
+    for (const requirementId of EVIDENCE_PROOF_REQUIREMENT_IDS[label]) {
+      addRequirement(requirementId, label)
+    }
+  }
+
+  if (manifest.scope === 'style-choice' && choice) {
+    for (const label of [choice.evidenceFloor, ...choice.publishEvidence]) {
+      for (const requirementId of EVIDENCE_PROOF_REQUIREMENT_IDS[label]) {
+        addRequirement(requirementId, label)
+      }
+    }
+
+    for (const requirement of getStyleChoiceProofRequirements(choice)) {
+      addRequirement(requirement.id)
+    }
+  }
+
+  return Array.from(entries.values())
+}
+
+function validateStyleProofArtifactScope(
+  manifest: StyleProofManifest,
+  artifact: StyleProofArtifact,
+  issues: QualityIssue[],
+): void {
+  if (artifact.platform && artifact.platform !== manifest.platform) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-platform-mismatch',
+      message: `Proof artifact ${artifact.id} platform ${artifact.platform} does not match manifest platform ${manifest.platform}.`,
+      suggestion: 'Keep each proof artifact bound to the platform where it was collected.',
+      location: artifact.id,
+    })
+  }
+
+  if (manifest.choiceId && artifact.choiceId && artifact.choiceId !== manifest.choiceId) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-artifact-mismatch',
+      message: `Proof artifact ${artifact.id} belongs to choice ${artifact.choiceId}, not ${manifest.choiceId}.`,
+      suggestion: 'Do not reuse evidence across style choices unless the exact same artifact and renderer path are documented.',
+      location: artifact.id,
+    })
+  }
+
+  if (
+    manifest.artifactFingerprint
+    && artifact.artifactFingerprint
+    && artifact.artifactFingerprint !== manifest.artifactFingerprint
+  ) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-artifact-mismatch',
+      message: `Proof artifact ${artifact.id} fingerprint does not match the manifest artifact fingerprint.`,
+      suggestion: 'Only upgrade evidence labels when the exact same exported artifact fingerprint is preserved across proof steps.',
+      location: artifact.id,
+    })
+  }
+}
+
+function validateStyleProofArtifactEvidence(
+  entry: RequiredStyleProofRequirementEntry,
+  artifact: StyleProofArtifact,
+  issues: QualityIssue[],
+): void {
+  if (
+    entry.evidenceLabel
+    && artifact.evidenceLabel
+    && !isEvidenceAtLeast(artifact.evidenceLabel, entry.evidenceLabel)
+  ) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-evidence-too-weak',
+      message: `Proof artifact ${artifact.id} carries ${artifact.evidenceLabel} evidence, below required ${entry.evidenceLabel}.`,
+      suggestion: 'Collect proof through the exact target channel instead of reusing weaker local, documentation, or editor-reachability evidence.',
+      location: artifact.id,
+    })
+  }
+}
+
+function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues: QualityIssue[]): void {
+  const sensitiveReference = typeof artifact.artifactRef === 'string' && isSensitiveStyleProofReference(artifact.artifactRef)
+  if (artifact.sensitive === true || sensitiveReference) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-sensitive-artifact',
+      message: `Proof artifact ${artifact.id} references sensitive or local authenticated material.`,
+      suggestion: 'Keep cookies, tokens, QR codes, HAR files, browser profiles, account screenshots, and local profile paths out of committed proof manifests.',
+      location: artifact.id,
+    })
+  }
+
+  if (artifact.committed === true && (artifact.sensitive === true || artifact.safeForCommit === false || sensitiveReference)) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-unsafe-commit-artifact',
+      message: `Proof artifact ${artifact.id} is marked committed but is not safe for repository evidence.`,
+      suggestion: 'Commit only redacted summaries, issue ids, counts, hashes, or non-sensitive screenshots that have passed evidence hygiene review.',
+      location: artifact.id,
+    })
+  }
+}
+
+function validateStyleProofRequirementCoverage(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const has = (predicate: (artifact: StyleProofArtifact) => boolean): boolean => artifacts.some(predicate)
+
+  switch (requirementId) {
+    case 'catalog-source':
+      requireStyleProof(issues, requirementId, has(artifact => artifact.action === 'catalog-source'))
+      break
+    case 'market-applied-dom-readback':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'applied-market-element'
+        && artifact.channel === 'market-editor'
+        && isDomOrVisualReadback(artifact.readback)
+      ))
+      break
+    case 'no-proprietary-template-source':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'source-hygiene-review'
+        && artifact.readback === 'hygiene-log'
+      ))
+      break
+    case 'authenticated-editor-url':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'authenticated-editor-opened'
+        && artifact.channel === 'platform-editor'
+      ))
+      break
+    case 'pc-editor-dom-readback':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'pc-editor-dom-readback'
+        && artifact.channel === 'platform-editor'
+        && isDomOrVisualReadback(artifact.readback)
+      ))
+      break
+    case 'unit-test-coverage':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'test-run'
+        && artifact.channel === 'unit-test'
+        && artifact.readback === 'test-assertion'
+      ))
+      break
+    case 'local-browser-rendering':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'local-render'
+        && (artifact.channel === 'local-browser' || artifact.channel === 'tauri-webview')
+        && isVisualReadback(artifact.readback)
+      ))
+      break
+    case 'exact-artifact':
+      if (!has(artifact => artifact.exactArtifact === true)) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Style proof manifest does not prove that evidence belongs to the exact exported artifact.',
+          suggestion: 'Record the exact preset/channel/artifact fingerprint and mark the proof artifact exactArtifact:true.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'safe-disposable-draft':
+      if (!has(artifact => artifact.disposableDraft === true)) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-disposable-draft-missing',
+          message: 'PC editor proof lacks a safe disposable draft or verified cleanup path.',
+          suggestion: 'Do not mutate a real account draft until the proof manifest records disposableDraft:true for the test draft/channel.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'pc-editor-paste-event':
+      if (!has(artifact => artifact.action === 'pc-paste' && artifact.channel === 'platform-editor')) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-platform-action-missing',
+          message: 'PC editor paste proof lacks the real paste/channel event.',
+          suggestion: 'Authenticated editor reachability or DOM readback is not enough; record the exact PC paste or transfer action.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'phone-preview-readback':
+      if (!has(artifact =>
+        artifact.action === 'phone-preview'
+        && artifact.channel === 'phone-preview'
+        && (artifact.readback === 'phone' || isVisualReadback(artifact.readback))
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-readback-missing',
+          message: 'Mobile preview proof lacks phone-side readback for the exact artifact.',
+          suggestion: 'Use phone-preview evidence; local browser, PC editor DOM, and PC paste evidence do not prove final mobile rendering.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'phone-screenshot':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.kind === 'screenshot'
+        && artifact.channel === 'phone-preview'
+        && artifact.readback === 'screenshot'
+      ))
+      break
+    case 'dark-mode-check':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'dark-mode-check'
+        && artifact.channel === 'phone-preview'
+        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+      ))
+      break
+    case 'cover-thumbnail-check':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'cover-thumbnail-check'
+        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+      ))
+      break
+    case 'credentialed-channel-response':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'credentialed-sync'
+        && artifact.channel === 'credentialed-channel'
+        && artifact.readback === 'api-response'
+      ))
+      break
+    case 'sync-readback':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'sync-readback'
+        && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
+      ))
+      break
+    case 'published-url-or-platform-preview':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'published-preview'
+        && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
+      ))
+      break
+    case 'public-image-host':
+      if (!has(artifact =>
+        artifact.action === 'public-image-host-check'
+        && (artifact.hostStatus === 'public-https' || artifact.hostStatus === 'platform-hosted')
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-public-image-host-missing',
+          message: 'Image fallback proof lacks a public HTTPS or platform-hosted image host check.',
+          suggestion: 'Record a public-image-host proof artifact; local, data, blob, temporary preview, or WeChat-only image URLs do not satisfy this requirement.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'xhs-artifact-manifest':
+    case 'zhihu-artifact-manifest':
+      if (!has(artifact =>
+        artifact.kind === 'artifact-manifest'
+        && artifact.action === 'artifact-manifest-validation'
+        && artifact.readback === 'manifest'
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-validation-missing',
+          message: `${requirementId} proof lacks a validated artifact manifest entry.`,
+          suggestion: 'Run the platform-specific image artifact manifest validator first, then reference only the redacted validation result in style proof.',
+          location: requirementId,
+        })
+      }
+      break
+    case 'no-sensitive-artifact':
+      requireStyleProof(issues, requirementId, has(artifact =>
+        artifact.action === 'sensitive-hygiene-review'
+        && artifact.readback === 'hygiene-log'
+      ))
+      break
+  }
+}
+
+function requireStyleProof(
+  issues: QualityIssue[],
+  requirementId: StyleProofRequirementId,
+  passed: boolean,
+): void {
+  if (passed) return
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-requirement-missing',
+    message: `Style proof artifact for ${requirementId} is present but does not satisfy the required action/channel/readback contract.`,
+    suggestion: 'Use the exact platform action and readback expected by this proof requirement; weaker evidence must remain a lower evidence label.',
+    location: requirementId,
+  })
+}
+
+function isDomOrVisualReadback(readback: StyleProofReadback): boolean {
+  return readback === 'dom' || readback === 'visual' || readback === 'visual-and-dom'
+}
+
+function isVisualReadback(readback: StyleProofReadback): boolean {
+  return readback === 'visual' || readback === 'visual-and-dom' || readback === 'screenshot'
+}
+
+function isSensitiveStyleProofReference(value: string): boolean {
+  return SENSITIVE_ARTIFACT_REF_PATTERNS.some(pattern => pattern.test(value))
+}
+
+function addStyleProofIssue(
+  issues: QualityIssue[],
+  issue: {
+    id: StyleProofManifestIssueId
+    severity?: QualityIssue['severity']
+    message: string
+    suggestion: string
+    location?: string
+  },
+): void {
+  issues.push({
+    id: issue.id,
+    severity: issue.severity ?? 'error',
+    message: issue.message,
+    suggestion: issue.suggestion,
+    location: issue.location,
+  })
+}
+
+function dedupeStyleProofIssues(issues: readonly QualityIssue[]): QualityIssue[] {
+  const seen = new Set<string>()
+  const deduped: QualityIssue[] = []
+
+  for (const issue of issues) {
+    const key = `${issue.id}\u0000${issue.location ?? ''}\u0000${issue.message}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    deduped.push(issue)
+  }
+
+  return deduped
 }
 
 export function evaluateStyleChoiceAvailability(
