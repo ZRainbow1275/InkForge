@@ -307,6 +307,53 @@ export interface PlatformStyleProofReadinessReport {
   }
 }
 
+export type StyleProofCollectionGate =
+  | 'local-evidence'
+  | 'market-editor'
+  | 'authenticated-pc-editor'
+  | 'phone-preview'
+  | 'credentialed-channel'
+  | 'public-host'
+  | 'platform-publish'
+  | 'sensitive-hygiene'
+
+export type StyleProofCollectionStatus = 'missing' | 'invalid'
+
+export interface StyleProofCollectionStep {
+  choice: PlatformStyleChoice
+  requirement: StyleProofRequirement
+  status: StyleProofCollectionStatus
+  gate: StyleProofCollectionGate
+  order: number
+  blockedByCatalog: boolean
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  note: string
+}
+
+export interface PlatformStyleProofCollectionPlan {
+  platform: Platform
+  steps: readonly StyleProofCollectionStep[]
+  summary: {
+    total: number
+    localEvidence: number
+    marketEditor: number
+    authenticatedPcEditor: number
+    phonePreview: number
+    credentialedChannel: number
+    publicHost: number
+    platformPublish: number
+    sensitiveHygiene: number
+    blockedChoices: number
+    mutatingSteps: number
+    externalAccountSteps: number
+    phoneSteps: number
+    safeToAutomate: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -487,6 +534,52 @@ const SENSITIVE_ARTIFACT_REF_PATTERNS = [
   /[a-z]:\/users\//i,
   /cloakbrowser.*profiles/i,
 ] as const
+
+const STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT = {
+  'catalog-source': 'local-evidence',
+  'market-applied-dom-readback': 'market-editor',
+  'no-proprietary-template-source': 'local-evidence',
+  'authenticated-editor-url': 'authenticated-pc-editor',
+  'pc-editor-dom-readback': 'authenticated-pc-editor',
+  'unit-test-coverage': 'local-evidence',
+  'local-browser-rendering': 'local-evidence',
+  'exact-artifact': 'local-evidence',
+  'safe-disposable-draft': 'authenticated-pc-editor',
+  'pc-editor-paste-event': 'authenticated-pc-editor',
+  'phone-preview-readback': 'phone-preview',
+  'phone-screenshot': 'phone-preview',
+  'dark-mode-check': 'phone-preview',
+  'cover-thumbnail-check': 'phone-preview',
+  'credentialed-channel-response': 'credentialed-channel',
+  'sync-readback': 'credentialed-channel',
+  'published-url-or-platform-preview': 'platform-publish',
+  'public-image-host': 'public-host',
+  'xhs-artifact-manifest': 'local-evidence',
+  'zhihu-artifact-manifest': 'local-evidence',
+  'no-sensitive-artifact': 'sensitive-hygiene',
+} as const satisfies Record<StyleProofRequirementId, StyleProofCollectionGate>
+
+const STYLE_PROOF_COLLECTION_ORDER: Record<StyleProofCollectionGate, number> = {
+  'local-evidence': 10,
+  'sensitive-hygiene': 20,
+  'market-editor': 30,
+  'authenticated-pc-editor': 40,
+  'phone-preview': 50,
+  'public-host': 60,
+  'credentialed-channel': 70,
+  'platform-publish': 80,
+}
+
+const STYLE_PROOF_COLLECTION_NOTES = {
+  'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
+  'sensitive-hygiene': 'Review proof references for tokens, cookies, QR codes, HAR files, browser profiles, account screenshots, and local credential paths.',
+  'market-editor': 'Use CloakBrowser to apply a concrete market editor element, visually confirm insertion, and record DOM/controls without copying template source.',
+  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact and safe disposable-draft cleanup proof are ready.',
+  'phone-preview': 'Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.',
+  'public-host': 'Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.',
+  'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',
+  'platform-publish': 'Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste or sync success.',
+} as const satisfies Record<StyleProofCollectionGate, string>
 
 export const DEFAULT_STYLE_EVIDENCE_BY_PLATFORM = {
   wechat: ['unit-tested', 'local-browser'],
@@ -1849,6 +1942,77 @@ export function getPlatformStyleProofReadinessReport(platform: Platform): Platfo
       blockedByCatalog: choices.filter(choice => choice.blockedByCatalog).length,
       missingRequirements: choices.reduce((total, choice) => total + choice.missingRequirementIds.length, 0),
       invalidRequirements: choices.reduce((total, choice) => total + choice.invalidRequirementIds.length, 0),
+    },
+  }
+}
+
+function buildStyleProofCollectionStep(
+  choiceReadiness: StyleChoiceProofReadiness,
+  requirementId: StyleProofRequirementId,
+  status: StyleProofCollectionStatus,
+): StyleProofCollectionStep {
+  const requirement = STYLE_PROOF_REQUIREMENT_BY_ID.get(requirementId)
+  if (!requirement) {
+    throw new Error(`Unknown style proof requirement: ${requirementId}`)
+  }
+
+  const gate = STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT[requirementId]
+
+  return {
+    choice: choiceReadiness.choice,
+    requirement,
+    status,
+    gate,
+    order: STYLE_PROOF_COLLECTION_ORDER[gate],
+    blockedByCatalog: choiceReadiness.blockedByCatalog,
+    mutatesPlatform: gate === 'authenticated-pc-editor'
+      || gate === 'credentialed-channel'
+      || gate === 'platform-publish',
+    requiresExternalAccount: gate === 'market-editor'
+      || gate === 'authenticated-pc-editor'
+      || gate === 'credentialed-channel'
+      || gate === 'platform-publish',
+    requiresPhone: gate === 'phone-preview',
+    safeToAutomate: gate === 'local-evidence' || gate === 'sensitive-hygiene',
+    note: STYLE_PROOF_COLLECTION_NOTES[gate],
+  }
+}
+
+export function getPlatformStyleProofCollectionPlan(platform: Platform): PlatformStyleProofCollectionPlan {
+  const readiness = getPlatformStyleProofReadinessReport(platform)
+  const steps = readiness.choices
+    .flatMap(choiceReadiness => [
+      ...choiceReadiness.missingRequirementIds.map(requirementId =>
+        buildStyleProofCollectionStep(choiceReadiness, requirementId, 'missing'),
+      ),
+      ...choiceReadiness.invalidRequirementIds.map(requirementId =>
+        buildStyleProofCollectionStep(choiceReadiness, requirementId, 'invalid'),
+      ),
+    ])
+    .sort((left, right) => {
+      if (left.order !== right.order) return left.order - right.order
+      if (left.choice.id !== right.choice.id) return left.choice.id.localeCompare(right.choice.id)
+      return left.requirement.id.localeCompare(right.requirement.id)
+    })
+
+  return {
+    platform,
+    steps,
+    summary: {
+      total: steps.length,
+      localEvidence: steps.filter(step => step.gate === 'local-evidence').length,
+      marketEditor: steps.filter(step => step.gate === 'market-editor').length,
+      authenticatedPcEditor: steps.filter(step => step.gate === 'authenticated-pc-editor').length,
+      phonePreview: steps.filter(step => step.gate === 'phone-preview').length,
+      credentialedChannel: steps.filter(step => step.gate === 'credentialed-channel').length,
+      publicHost: steps.filter(step => step.gate === 'public-host').length,
+      platformPublish: steps.filter(step => step.gate === 'platform-publish').length,
+      sensitiveHygiene: steps.filter(step => step.gate === 'sensitive-hygiene').length,
+      blockedChoices: new Set(steps.filter(step => step.blockedByCatalog).map(step => step.choice.id)).size,
+      mutatingSteps: steps.filter(step => step.mutatesPlatform).length,
+      externalAccountSteps: steps.filter(step => step.requiresExternalAccount).length,
+      phoneSteps: steps.filter(step => step.requiresPhone).length,
+      safeToAutomate: steps.filter(step => step.safeToAutomate).length,
     },
   }
 }

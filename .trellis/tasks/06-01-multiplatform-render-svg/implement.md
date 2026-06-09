@@ -1201,6 +1201,65 @@ git status --short --branch
 - Evidence summary:
   `prompts/0601/evidence/wechat-paste/amber-pc-clipboardevent-readback-20260609.txt`.
 
+## 2026-06-09 Style Proof Collection Plan Slice
+
+- Added `getPlatformStyleProofCollectionPlan(platform)` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The plan converts missing/invalid style proof requirements into ordered collection gates:
+  `local-evidence`, `market-editor`, `authenticated-pc-editor`, `phone-preview`,
+  `credentialed-channel`, `public-host`, `platform-publish`, and `sensitive-hygiene`.
+- Each step records whether the proof would mutate a real platform, require an external account,
+  require a phone, or remain safe to automate locally. This keeps PC paste, phone preview,
+  credentialed sync, public-host, publish, and sensitive-hygiene gates separate.
+- Exported the new API from `inkforge/src/services/export/index.ts`.
+- Added regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the test asserts that
+  WeChat amber still remains blocked, phone proof stays separate from PC editor proof, XHS
+  artifact manifests do not leak into Zhihu, and Zhihu public-host/channel/publish gates remain
+  distinct.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-collection-plan-20260609.txt`.
+- Updated docs/spec/report surfaces:
+  `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `docs/platform-rendering-rules/wechat-rules.md`,
+  `docs/微信渲染规则.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `prompts/0601/evidence/README.md`.
+- Current runtime smoke from the evidence file:
+  WeChat total 143, phonePreview 52, authenticatedPcEditor 24, safeToAutomate 44;
+  XHS total 38; Zhihu total 43. This is collection scheduling evidence only, not platform
+  paste, mobile preview, sync, or publish success.
+- Verification already run before this docs update:
+  `npx gitnexus impact getPlatformStyleProofReadinessReport -r InkForge --depth 3`: LOW,
+  0 affected processes.
+  `npx gitnexus impact getStyleChoiceProofRequirements -r InkForge --depth 3`: LOW,
+  0 affected processes.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 59 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- Post-doc-update verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 59 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 98 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 992 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet`: passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, latest Vite build
+  completed in 31.20s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+  `git diff --check -- <slice paths>`: passed; only Windows autocrlf warnings appeared.
+  `npx gitnexus detect-changes -r InkForge --scope all`: LOW risk, 0 affected processes. The
+  report includes unrelated existing dirty files, so the staged review must remain path-specific.
+- Read-only sub-agent review found three consistency issues and no real sensitive artifact
+  references. Fixes applied: the test now counts missing plus invalid requirements, the spec
+  signature includes `order`, `blockedByCatalog`, and `note`, and the evidence table includes
+  the `marketEditor` summary column.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
@@ -1250,6 +1309,10 @@ git status --short --branch
 - [x] Verify and commit the 2026-06-09 post-reboot amber PC editor readback documentation slice
       only; leave unrelated dirty files, pre-existing dirty e2e PNG files, QR/platform-preview
       candidates, and local CloakBrowser screenshots untouched.
+- [x] Verify and commit the 2026-06-09 style proof collection plan slice only; leave unrelated
+      dirty files, pre-existing dirty e2e PNG files, QR/platform-preview candidates, local
+      CloakBrowser screenshots, profile paths, cookies, tokens, HAR, and account artifacts
+      untouched.
 
 ## Honest Non-Goals For This Slice
 

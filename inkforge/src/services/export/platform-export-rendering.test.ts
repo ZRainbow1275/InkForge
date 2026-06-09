@@ -17,6 +17,7 @@ import {
   getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
+  getPlatformStyleProofCollectionPlan,
   getPlatformStyleProofReadinessReport,
   getPresetById,
   getStyleChoiceApplication,
@@ -424,6 +425,50 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
     ]))
     expect(zhihuUploadReadiness?.missingRequirementIds).not.toContain('xhs-artifact-manifest')
+  })
+
+  it('builds platform proof collection plans without promoting external gates', () => {
+    const wechatPlan = getPlatformStyleProofCollectionPlan('wechat')
+    const xhsPlan = getPlatformStyleProofCollectionPlan('xiaohongshu')
+    const zhihuPlan = getPlatformStyleProofCollectionPlan('zhihu')
+    const wechatReadiness = getPlatformStyleProofReadinessReport('wechat')
+
+    expect(wechatPlan.platform).toBe('wechat')
+    expect(wechatPlan.summary.total)
+      .toBe(wechatReadiness.summary.missingRequirements + wechatReadiness.summary.invalidRequirements)
+    expect(wechatPlan.summary.phonePreview).toBeGreaterThan(0)
+    expect(wechatPlan.summary.authenticatedPcEditor).toBeGreaterThan(0)
+    expect(wechatPlan.summary.platformPublish).toBeGreaterThan(0)
+    expect(wechatPlan.summary.safeToAutomate).toBeLessThan(wechatPlan.summary.total)
+
+    const amberSteps = wechatPlan.steps.filter(step => step.choice.id === 'wechat-flagship-amber')
+    expect(amberSteps.some(step =>
+      step.requirement.id === 'pc-editor-paste-event'
+      && step.gate === 'authenticated-pc-editor'
+      && step.mutatesPlatform
+      && step.requiresExternalAccount
+      && !step.safeToAutomate
+    )).toBe(true)
+    expect(amberSteps.filter(step => step.gate === 'phone-preview').map(step => step.requirement.id)).toEqual(
+      expect.arrayContaining(['phone-preview-readback', 'phone-screenshot', 'dark-mode-check', 'cover-thumbnail-check']),
+    )
+    expect(amberSteps.every(step => step.status === 'missing')).toBe(true)
+    expect(amberSteps.every(step => step.blockedByCatalog)).toBe(true)
+
+    const xhsManifestStep = xhsPlan.steps.find(step =>
+      step.choice.id === 'xhs-cover-carousel' && step.requirement.id === 'xhs-artifact-manifest',
+    )
+    expect(xhsManifestStep?.gate).toBe('local-evidence')
+    expect(xhsManifestStep?.safeToAutomate).toBe(true)
+    expect(xhsPlan.steps.some(step => step.requirement.id === 'zhihu-artifact-manifest')).toBe(false)
+
+    const zhihuUploadSteps = zhihuPlan.steps.filter(step => step.choice.id === 'zhihu-public-image-upload-checklist')
+    expect(zhihuUploadSteps.find(step => step.requirement.id === 'public-image-host')?.gate).toBe('public-host')
+    expect(zhihuUploadSteps.find(step => step.requirement.id === 'credentialed-channel-response')?.gate)
+      .toBe('credentialed-channel')
+    expect(zhihuUploadSteps.find(step => step.requirement.id === 'published-url-or-platform-preview')?.gate)
+      .toBe('platform-publish')
+    expect(zhihuUploadSteps.some(step => step.requirement.id === 'xhs-artifact-manifest')).toBe(false)
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

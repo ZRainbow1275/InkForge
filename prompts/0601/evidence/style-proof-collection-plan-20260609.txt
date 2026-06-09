@@ -1,0 +1,58 @@
+# Style proof collection plan runtime evidence - 2026-06-09
+
+Scope:
+
+- Runtime API: `getPlatformStyleProofCollectionPlan(platform)`.
+- Source module: `/src/services/export/index.ts`.
+- Browser tool: CloakBrowser only, using the project-required `inkforge-0601` profile label.
+- Local URL: `http://127.0.0.1:3005/`.
+- Boundary: this plan classifies missing/invalid proof requirements for future collection. It
+  does not create proof artifacts, does not paste into platform editors, does not sync, and does
+  not publish.
+
+Runtime smoke:
+
+- Opened the real local Vite app in CloakBrowser.
+- Page title: `InkForge - 首页`.
+- Viewport: 1400 x 900.
+- `documentElement.scrollWidth`: 1400.
+- `body.scrollWidth`: 1400.
+- Horizontal overflow: false.
+- Dynamically imported `/src/services/export/index.ts` and called
+  `getPlatformStyleProofCollectionPlan()` for WeChat, Xiaohongshu, and Zhihu.
+
+Plan summaries:
+
+| Platform | Total steps | Local evidence | Market editor | Auth PC editor | Phone preview | Credentialed channel | Public host | Platform publish | Sensitive hygiene | Mutating steps | External-account steps | Phone steps | Safe to automate |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| WeChat | 143 | 29 | 0 | 24 | 52 | 8 | 0 | 15 | 15 | 47 | 47 | 52 | 44 |
+| Xiaohongshu | 38 | 24 | 0 | 0 | 0 | 0 | 0 | 7 | 7 | 7 | 7 | 0 | 31 |
+| Zhihu | 43 | 21 | 0 | 0 | 0 | 2 | 6 | 7 | 7 | 9 | 9 | 0 | 28 |
+
+WeChat amber gate sample:
+
+- `exact-artifact` -> `local-evidence`, non-mutating.
+- `no-sensitive-artifact` -> `sensitive-hygiene`, non-mutating.
+- `pc-editor-dom-readback` -> `authenticated-pc-editor`, mutating/external-account gate.
+- `pc-editor-paste-event` -> `authenticated-pc-editor`, mutating/external-account gate.
+- `safe-disposable-draft` -> `authenticated-pc-editor`, mutating/external-account gate.
+- `cover-thumbnail-check` -> `phone-preview`, phone gate.
+- `dark-mode-check` -> `phone-preview`, phone gate.
+- `phone-preview-readback` -> `phone-preview`, phone gate.
+- `phone-screenshot` -> `phone-preview`, phone gate.
+- `published-url-or-platform-preview` -> `platform-publish`, mutating/external-account gate.
+
+Cross-platform checks:
+
+- XHS carousel `xhs-artifact-manifest` is classified as `local-evidence` and `safeToAutomate=true`.
+- XHS collection plan does not include `zhihu-artifact-manifest`.
+- Zhihu public image upload `public-image-host` is classified as `public-host`.
+- Zhihu public image upload `credentialed-channel-response` is classified as `credentialed-channel`.
+- Zhihu public image upload `published-url-or-platform-preview` is classified as `platform-publish`.
+- Zhihu collection plan does not include `xhs-artifact-manifest`.
+
+Sensitive-artifact boundary:
+
+- No account page, token, cookie, HAR, QR code, browser profile path, account screenshot,
+  platform URL, or local CloakBrowser screenshot path is recorded in this evidence file.
+- CloakBrowser and the local Vite server were closed after the smoke.

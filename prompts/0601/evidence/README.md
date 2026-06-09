@@ -66,6 +66,11 @@ passed、full export serial 990 tests passed、export ESLint/vue-tsc/build exit 
 ESLint/vue-tsc/build exit 0，并用 CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块完成
 runtime smoke；该矩阵确认 XHS image-page/long-image 与 Zhihu image-fallback/upload 的 manifest
 proof requirement 平台隔离，不生成 artifact，不升级平台粘贴、手机预览、同步或发布证明）。
+`style-proof-collection-plan-20260609.txt`（平台级 style proof collection plan：
+`getPlatformStyleProofCollectionPlan()` 把 readiness 缺口映射为 local-evidence、market-editor、
+authenticated-pc-editor、phone-preview、credentialed-channel、public-host、platform-publish
+和 sensitive-hygiene 门禁；CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块读回 WeChat
+143 / XHS 38 / Zhihu 43 个待采集步骤。该文件是排程证据，不证明粘贴、手机预览、同步或发布成功）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -190,6 +195,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-paste/amber-pc-clipboardevent-readback-20260609.txt # 当前微信后台：amber exact artifact 的特定 ClipboardEvent channel PC DOM readback；普通 Ctrl+V/手机/发布仍未证明
 [x] style-proof-checklist-20260609.txt # 当前规则实现：evidence label -> proof requirement 清单；safe draft/phone/Dark Mode/cover gates 独立
 [x] style-proof-manifest-validator-20260609.txt # 当前规则实现：StyleProofManifest runtime validator；proof 质量门禁，不升级 platform success
+[x] style-proof-collection-plan-20260609.txt # 当前规则实现：readiness gaps -> collection gates；区分本地自动化/账号/手机/发布/敏感清洁门禁
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

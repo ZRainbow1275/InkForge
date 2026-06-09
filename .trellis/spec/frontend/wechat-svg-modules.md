@@ -59,6 +59,13 @@ construct breaks.
   image-fallback/upload choices require `public-image-host` plus `zhihu-artifact-manifest`.
   `credentialed-sync` itself is only account/channel response, sync readback, and sensitive-proof
   hygiene.
+- `getPlatformStyleProofCollectionPlan()` turns that readiness matrix into an execution plan for
+  future proof collection. Each missing or invalid requirement is mapped to a gate:
+  `local-evidence`, `market-editor`, `authenticated-pc-editor`, `phone-preview`,
+  `credentialed-channel`, `public-host`, `platform-publish`, or `sensitive-hygiene`. The plan
+  exposes whether a step mutates a real platform, requires an external account, requires a phone,
+  or is safe to automate locally. It is scheduling metadata only; it must not promote blocked
+  styles or replace exact CloakBrowser/platform proof.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
@@ -152,6 +159,46 @@ export function getSvgModule(id: string): SvgModuleSpec | undefined
 // svg-modules/raster.ts — xhs/zhihu rasterization (browser/Tauri canvas only)
 export function posterViewBox(ratio: '3:4'|'1:1'): { width: number; height: number }
 export function rasterizeSvg(svgHtml: string, opts: RasterOptions): Promise<string> // PNG dataURL; throws without DOM
+
+// style-catalog.ts - proof collection scheduling, not platform success
+export type StyleProofCollectionGate =
+  | 'local-evidence' | 'market-editor' | 'authenticated-pc-editor' | 'phone-preview'
+  | 'credentialed-channel' | 'public-host' | 'platform-publish' | 'sensitive-hygiene'
+export type StyleProofCollectionStatus = 'missing' | 'invalid'
+export interface StyleProofCollectionStep {
+  choice: PlatformStyleChoice
+  requirement: StyleProofRequirement
+  status: StyleProofCollectionStatus
+  gate: StyleProofCollectionGate
+  order: number
+  blockedByCatalog: boolean
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  note: string
+}
+export interface PlatformStyleProofCollectionPlan {
+  platform: Platform
+  steps: readonly StyleProofCollectionStep[]
+  summary: {
+    total: number
+    localEvidence: number
+    marketEditor: number
+    authenticatedPcEditor: number
+    phonePreview: number
+    credentialedChannel: number
+    publicHost: number
+    platformPublish: number
+    sensitiveHygiene: number
+    blockedChoices: number
+    mutatingSteps: number
+    externalAccountSteps: number
+    phoneSteps: number
+    safeToAutomate: number
+  }
+}
+export function getPlatformStyleProofCollectionPlan(platform: Platform): PlatformStyleProofCollectionPlan
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }

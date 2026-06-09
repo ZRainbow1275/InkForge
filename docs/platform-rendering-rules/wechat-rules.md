@@ -20,6 +20,13 @@ readback, and sensitive-artifact hygiene. `mobile-preview` requires phone-side r
 Dark Mode inspection, and cover-thumbnail inspection. `published` is cross-platform final preview or
 publish inspection; it does not automatically satisfy WeChat phone preview.
 
+Executable collection plan source: `getPlatformStyleProofCollectionPlan()` converts missing or
+invalid proof requirements into ordered gates. For WeChat, `local-evidence` and
+`sensitive-hygiene` can be automated locally, while `authenticated-pc-editor`, `phone-preview`,
+`credentialed-channel`, and `platform-publish` remain real-platform gates. The collection plan
+schedules future proof work; it does not promote `blocked` choices or prove mobile preview, Dark
+Mode, cover thumbnail, sync, or publish success.
+
 ### 0.1 产物类型
 
 | 产物 | 默认用途 | 要求 |

@@ -474,6 +474,12 @@ Evidence retention rules:
 - `getPlatformStyleProofReadinessReport()` lifts those empty drafts to a full platform matrix.
   It lists every style choice, the missing/invalid proof requirement ids, and catalog-blocked
   choices. It is the operator checklist for full acceptance, not a success signal.
+- `getPlatformStyleProofCollectionPlan()` converts the readiness gaps into ordered collection
+  gates: local evidence, market editor probing, authenticated PC editor proof, phone preview,
+  credentialed channel, public host, platform publish, and sensitive-artifact hygiene. It marks
+  which steps are mutating, require external accounts, require a phone, or are safe to automate
+  locally. The plan is a work queue for real evidence collection; it is not proof that any gate
+  has passed.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,
