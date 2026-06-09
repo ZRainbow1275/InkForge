@@ -852,3 +852,32 @@ Required tests:
 - A fully evidenced blocked choice must remain invalid and must not increase `proofSatisfiedChoices`.
 - WeChat, Xiaohongshu, and Zhihu platform reports must keep `choicesWithManifest` and
   `ignoredManifestCount` isolated.
+
+## 12. Strong Proof Gate Negative Regression
+
+Strong platform gates must fail closed when a manifest tries to reuse weaker evidence.
+
+Contracts:
+- `authenticated-editor-reachable` and `pc-editor-dom-readable` prove only reachability/readability
+  of the PC editor. They must not satisfy phone preview, credentialed sync, publish, or safe draft
+  requirements.
+- `local-browser` proves local browser/Tauri rendering only. It must not satisfy phone screenshot,
+  cover thumbnail, credentialed sync, or published/platform-preview requirements.
+- A PC `ClipboardEvent`/`DataTransfer` readback can count only as channel-specific
+  `pc-editor-paste` evidence. It must not satisfy `safe-disposable-draft`; draft safety requires
+  an explicit safe-draft artifact, not an inferred paste/readback artifact.
+- `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
+  and `disposableDraft:true`.
+- `cover-thumbnail-check` requires `channel:'phone-preview'`.
+- `sync-readback` requires `channel:'credentialed-channel'`.
+- `published-url-or-platform-preview` requires `channel:'public-web'` or `channel:'phone-preview'`.
+- Progress reports must surface these failures as invalid authenticated-PC, phone-preview,
+  credentialed-channel, or platform-publish gates and must not increase `proofSatisfiedChoices`.
+
+Required tests:
+- A manifest that tries to satisfy safe draft with a PC paste/ClipboardEvent artifact must keep
+  `safe-disposable-draft` invalid.
+- PC DOM, authenticated editor, and local browser artifacts must keep phone preview,
+  credentialed sync, and publish requirements invalid.
+- The matching `getPlatformStyleProofProgressReport()` gate rows must remain invalid, not
+  satisfied or missing.

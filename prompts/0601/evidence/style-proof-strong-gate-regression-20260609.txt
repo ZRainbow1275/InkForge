@@ -1,0 +1,57 @@
+# Style Proof Strong Gate Regression Evidence - 2026-06-09
+
+Scope
+- Hardened `validateStyleProofManifest()` requirement coverage so weak local, PC editor reachability,
+  PC DOM readback, and PC ClipboardEvent readback cannot satisfy stronger platform proof gates.
+- This is a local validator/progress regression slice. It does not create proof artifacts and does
+  not change style availability.
+
+Runtime Contract
+- `safe-disposable-draft` now requires an explicit `safe-disposable-draft` action collected through
+  the `platform-editor` channel with `disposableDraft:true`.
+- `cover-thumbnail-check` requires the `phone-preview` channel.
+- `sync-readback` requires the `credentialed-channel` channel.
+- `published-url-or-platform-preview` requires a final `public-web` or `phone-preview` channel.
+- PC editor DOM reachability, authenticated editor reachability, local browser rendering, and a
+  channel-specific PC ClipboardEvent readback remain lower proof labels. They cannot satisfy phone
+  preview, credentialed sync, publish, or safe-draft gates.
+
+Focused Verification
+- Command:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+- Result:
+  1 file / 66 tests passed.
+- Covered assertions:
+  - A PC ClipboardEvent-style artifact with `action:'pc-paste'` and `disposableDraft:true` does not
+    satisfy `safe-disposable-draft`.
+  - PC editor DOM readback does not satisfy `phone-preview-readback` or `sync-readback`.
+  - Local browser screenshots do not satisfy `phone-screenshot` or `cover-thumbnail-check`.
+  - Authenticated editor reachability does not satisfy `credentialed-channel-response`.
+  - PC editor visual readback does not satisfy `published-url-or-platform-preview`.
+  - The affected authenticated PC editor, phone preview, credentialed channel, and publish gates
+    are reported invalid, and `proofSatisfiedChoices` remains 0.
+
+Verification Refresh
+- 4-file export regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  Result: 4 files / 105 tests passed.
+- Full export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  Result: 35 files / 999 tests passed.
+- Non-mutating ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Result: exit 0.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Result: exit 0.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Result: exit 0, Vite built in 40.38s.
+- Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after verification.
+- GitNexus detect changes and staged-only sensitive artifact scan are run immediately before commit,
+  after exact staging.
+
+Boundary
+- This evidence proves only local proof-gate enforcement.
+- It does not prove WeChat, Xiaohongshu, or Zhihu paste, phone preview, image upload, account sync,
+  scheduled send, public host acceptance, or publish success.

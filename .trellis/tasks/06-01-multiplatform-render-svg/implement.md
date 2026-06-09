@@ -1445,6 +1445,42 @@ git status --short --branch
   this pack report proves only local proof intake/accounting. It does not prove platform paste,
   phone preview, sync, scheduled send, upload, public host, or publish.
 
+## 2026-06-09 Strong Proof Gate Negative Regression Slice
+
+- Hardened `validateStyleProofManifest()` so weaker proof artifacts cannot satisfy stronger
+  platform gates by using only a matching `requirementId`.
+- Added explicit `StyleProofAction` value `safe-disposable-draft`.
+- `safe-disposable-draft` now requires `action:'safe-disposable-draft'`,
+  `channel:'platform-editor'`, `disposableDraft:true`, and a draft-safety readback.
+- `cover-thumbnail-check` now requires `channel:'phone-preview'`.
+- `sync-readback` now requires `channel:'credentialed-channel'`.
+- `published-url-or-platform-preview` now requires `channel:'public-web'` or
+  `channel:'phone-preview'`.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test proves that
+  authenticated editor reachability, PC editor DOM readback, local browser screenshots, and
+  PC ClipboardEvent-style paste readback cannot satisfy safe-draft, mobile-preview,
+  credentialed-sync, or published gates.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-strong-gate-regression-20260609.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 66 tests passed.
+- Verification refresh:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 105 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 999 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  40.38s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+- Boundary:
+  this slice proves only local proof-gate enforcement. It does not prove platform paste, phone
+  preview, sync, scheduled send, upload, public host, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

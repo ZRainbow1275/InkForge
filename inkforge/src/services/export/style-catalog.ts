@@ -157,6 +157,7 @@ export type StyleProofAction =
   | 'applied-market-element'
   | 'authenticated-editor-opened'
   | 'pc-editor-dom-readback'
+  | 'safe-disposable-draft'
   | 'test-run'
   | 'local-render'
   | 'pc-paste'
@@ -1802,11 +1803,16 @@ function validateStyleProofRequirementCoverage(
       }
       break
     case 'safe-disposable-draft':
-      if (!has(artifact => artifact.disposableDraft === true)) {
+      if (!has(artifact =>
+        artifact.action === 'safe-disposable-draft'
+        && artifact.channel === 'platform-editor'
+        && artifact.disposableDraft === true
+        && (artifact.readback === 'dom' || artifact.readback === 'visual-and-dom' || artifact.readback === 'hygiene-log')
+      )) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-disposable-draft-missing',
           message: 'PC editor proof lacks a safe disposable draft or verified cleanup path.',
-          suggestion: 'Do not mutate a real account draft until the proof manifest records disposableDraft:true for the test draft/channel.',
+          suggestion: 'Do not mutate a real account draft until the proof manifest records a safe-disposable-draft platform-editor proof for the test draft/channel.',
           location: requirementId,
         })
       }
@@ -1852,6 +1858,7 @@ function validateStyleProofRequirementCoverage(
     case 'cover-thumbnail-check':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'cover-thumbnail-check'
+        && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
       ))
       break
@@ -1865,12 +1872,14 @@ function validateStyleProofRequirementCoverage(
     case 'sync-readback':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'sync-readback'
+        && artifact.channel === 'credentialed-channel'
         && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
       ))
       break
     case 'published-url-or-platform-preview':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'published-preview'
+        && (artifact.channel === 'public-web' || artifact.channel === 'phone-preview')
         && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
       ))
       break

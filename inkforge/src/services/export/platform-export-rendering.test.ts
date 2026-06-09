@@ -727,7 +727,7 @@ describe('platform native export rendering rules', () => {
           platform: 'wechat',
           choiceId: 'wechat-flagship-amber',
           channel: 'platform-editor',
-          action: 'pc-paste',
+          action: 'safe-disposable-draft',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
           disposableDraft: true,
@@ -1086,6 +1086,153 @@ describe('platform native export rendering rules', () => {
     }
 
     expect(validateStyleProofManifest(manifest).map(issue => issue.id)).toContain('style-proof-manifest-evidence-too-weak')
+  })
+
+  it('keeps weak editor and browser evidence out of mobile sync publish and draft-safety gates', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-paste', 'mobile-preview', 'credentialed-sync', 'published'],
+      artifactFingerprint: 'sha256:redacted-click-reveal',
+      artifacts: [
+        {
+          id: 'weak-safe-draft-from-clipboardevent',
+          requirementId: 'safe-disposable-draft',
+          kind: 'editor-readback',
+          label: 'PC ClipboardEvent readback cannot prove draft safety',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          disposableDraft: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-phone-from-pc-dom',
+          requirementId: 'phone-preview-readback',
+          kind: 'editor-readback',
+          label: 'PC editor DOM readback cannot prove mobile preview',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-phone-screenshot-from-local-browser',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'local browser screenshot cannot prove phone preview',
+          evidenceLabel: 'local-browser',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'local-browser',
+          action: 'local-render',
+          readback: 'screenshot',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-cover-from-local-browser',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'local browser cover crop cannot prove platform phone thumbnail',
+          evidenceLabel: 'local-browser',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'local-browser',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-credentialed-from-auth-open',
+          requirementId: 'credentialed-channel-response',
+          kind: 'editor-readback',
+          label: 'authenticated editor reachability cannot prove credentialed sync',
+          evidenceLabel: 'authenticated-editor-reachable',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'api-response',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-sync-from-pc-dom',
+          requirementId: 'sync-readback',
+          kind: 'editor-readback',
+          label: 'PC DOM readback cannot prove credentialed sync readback',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'sync-readback',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          safeForCommit: true,
+        },
+        {
+          id: 'weak-published-from-pc-editor',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'PC editor preview cannot prove published platform preview',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'published-preview',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toContain('style-proof-manifest-evidence-too-weak')
+    expect(issueIds).toContain('style-proof-manifest-requirement-missing')
+    expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('sync-readback')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(issueLocations).toEqual(expect.arrayContaining([
+      'safe-disposable-draft',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'cover-thumbnail-check',
+      'credentialed-channel-response',
+      'sync-readback',
+      'published-url-or-platform-preview',
+    ]))
+
+    const progress = getPlatformStyleProofProgressReport('wechat', [manifest])
+    const gateStatus = new Map(progress.gates.map(gate => [gate.gate, gate.status]))
+
+    expect(gateStatus.get('authenticated-pc-editor')).toBe('invalid')
+    expect(gateStatus.get('phone-preview')).toBe('invalid')
+    expect(gateStatus.get('credentialed-channel')).toBe('invalid')
+    expect(gateStatus.get('platform-publish')).toBe('invalid')
+    expect(progress.summary.proofSatisfiedChoices).toBe(0)
   })
 
   it('rejects sensitive or non-committable proof artifact references', () => {
