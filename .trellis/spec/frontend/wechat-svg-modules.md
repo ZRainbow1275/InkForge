@@ -50,6 +50,15 @@ construct breaks.
   style-choice draft defaults to `scope:'style-choice'` and `artifacts:[]`, so
   `getStyleProofManifestReport()` can enumerate exact missing proof requirements before any
   CloakBrowser/platform action is attempted. It must never fabricate artifact entries.
+- `getPlatformStyleProofReadinessReport()` aggregates those empty style-choice drafts for one
+  platform. It is the acceptance-readiness matrix for future WeChat/XHS/Zhihu proof collection:
+  every row starts from missing proof unless real redacted artifacts are later supplied. It must
+  not be treated as renderer success, paste success, mobile preview, sync, or publish proof.
+  Platform-specific artifact manifests must be attached by platform/output type, not by generic
+  evidence labels: XHS image-page/long-image choices require `xhs-artifact-manifest`, while Zhihu
+  image-fallback/upload choices require `public-image-host` plus `zhihu-artifact-manifest`.
+  `credentialed-sync` itself is only account/channel response, sync readback, and sensitive-proof
+  hygiene.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs

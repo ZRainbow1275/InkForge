@@ -54,6 +54,13 @@ CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块完成本地 runtime 
 passed、full export serial 990 tests passed、export ESLint/vue-tsc/build exit 0，并用 CloakBrowser
 `inkforge-0601` 动态导入真实 Vite 模块完成 runtime smoke；不生成 mock proof artifact，不升级平台预览、
 同步或发布证明）。
+`style-proof-readiness-matrix-20260609.txt`（平台级 style proof readiness 矩阵：
+`getPlatformStyleProofReadinessReport()` 为 WeChat/XHS/Zhihu 全部 style choices 生成空 draft
+验收矩阵，列出 missing/invalid proof requirement ids 和 catalog-blocked choices；focused Vitest
+58 tests passed，4-file export 97 tests passed，full export serial 991 tests passed，
+ESLint/vue-tsc/build exit 0，并用 CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块完成
+runtime smoke；该矩阵确认 XHS image-page/long-image 与 Zhihu image-fallback/upload 的 manifest
+proof requirement 平台隔离，不生成 artifact，不升级平台粘贴、手机预览、同步或发布证明）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975

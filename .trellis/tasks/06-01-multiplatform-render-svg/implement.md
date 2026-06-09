@@ -1114,6 +1114,53 @@ git status --short --branch
 - Evidence summary:
   `prompts/0601/evidence/style-proof-manifest-draft-20260609.txt`.
 
+### 2026-06-09 style proof readiness matrix slice
+
+- Added `getPlatformStyleProofReadinessReport()` in
+  `inkforge/src/services/export/style-catalog.ts`, and re-exported the readiness API plus row
+  types through `inkforge/src/services/export/index.ts`.
+- The API builds one empty style-choice proof draft per style choice on a platform, then runs
+  `getStyleProofManifestReport()` for every row.
+- Every row starts with `artifacts: []` and reports missing/invalid proof requirement ids. This is
+  the acceptance checklist for future CloakBrowser/platform proof collection, not a success signal.
+- Focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts` proves:
+  - WeChat readiness covers all WeChat choices and has `valid=0` before real proof artifacts.
+  - `wechat-flagship-amber` remains catalog-blocked and lists the PC paste, mobile preview,
+    Dark Mode, cover-thumbnail, publish, exact-artifact, disposable-draft, and hygiene gaps.
+  - XHS readiness covers all XHS choices without fabricating artifacts.
+  - Zhihu public image upload readiness lists credentialed channel, sync readback, public host,
+    Zhihu artifact manifest, and publish/platform-preview gaps.
+- Verification so far:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed, 1 file / 58 tests.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  GitNexus index was refreshed with `npx gitnexus analyze`; impact for
+  `getPlatformStyleProofReadinessReport`, `getStyleChoiceProofRequirements`,
+  `createStyleProofManifestDraft`, and `getStyleProofManifestReport` returned LOW risk and
+  0 affected execution flows.
+  Follow-up runtime review found that `credentialed-sync` was carrying an XHS-specific proof
+  requirement into Zhihu/WeChat checklist rows. The mapping was narrowed so `credentialed-sync`
+  keeps only account/sync/readback/sensitive-hygiene proof, while XHS image-page/long-image
+  choices add `xhs-artifact-manifest` and Zhihu image-fallback/upload choices add
+  `public-image-host` plus `zhihu-artifact-manifest`.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed, 4 files / 97 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed, 35 files / 991 tests.
+  `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  PowerShell `NODE_OPTIONS=--max-old-space-size=4096`; `pnpm -C inkforge build` passed.
+  CloakBrowser runtime smoke (profile `inkforge-0601`, no Playwright) opened the real local Vite
+  app, confirmed no horizontal overflow at 1400px, dynamically imported
+  `/src/services/export/index.ts`, and verified WeChat 15 / XHS 7 / Zhihu 7 readiness rows,
+  `valid=0` for all platforms, all generated drafts empty, amber still catalog-blocked, XHS
+  carousel requiring `xhs-artifact-manifest`, and Zhihu public upload requiring
+  `public-image-host` plus `zhihu-artifact-manifest` without inheriting `xhs-artifact-manifest`.
+- Evidence summary:
+  `prompts/0601/evidence/style-proof-readiness-matrix-20260609.txt`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

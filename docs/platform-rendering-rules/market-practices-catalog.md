@@ -451,6 +451,10 @@ Evidence retention rules:
   `getEvidenceProofRequirements()` maps one label to required proof items, while
   `getStyleChoiceProofRequirements()` dedupes a style choice's `evidenceFloor` and
   `publishEvidence` requirements. These helpers do not change `evaluateStyleChoiceAvailability()`.
+  Platform-specific artifact manifest requirements must stay platform-gated: `credentialed-sync`
+  only proves account/channel response, sync readback, and sensitive-artifact hygiene; XHS
+  image-page/long-image choices add `xhs-artifact-manifest`, while Zhihu image-fallback/upload
+  choices add `public-image-host` plus `zhihu-artifact-manifest`.
 - Proof manifests are executable too. `validateStyleProofManifest()` validates a redacted
   `StyleProofManifest` and returns `QualityIssue[]` for missing requirements, weaker-than-claimed
   evidence labels, platform/choice mismatch, blocked choices, unsafe committed references,
@@ -465,6 +469,9 @@ Evidence retention rules:
   platform/evidence label or a full style choice. It deliberately leaves `artifacts: []`, so the
   report lists missing real evidence instead of inventing proof artifacts. Use it before collecting
   CloakBrowser or platform evidence; do not commit filled manifests until sensitive-artifact review.
+- `getPlatformStyleProofReadinessReport()` lifts those empty drafts to a full platform matrix.
+  It lists every style choice, the missing/invalid proof requirement ids, and catalog-blocked
+  choices. It is the operator checklist for full acceptance, not a success signal.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,

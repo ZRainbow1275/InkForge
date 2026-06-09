@@ -17,6 +17,7 @@ import {
   getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
+  getPlatformStyleProofReadinessReport,
   getPresetById,
   getStyleChoiceApplication,
   getStyleChoiceById,
@@ -197,6 +198,11 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
       'no-sensitive-artifact',
     ])
+    expect(getEvidenceProofRequirements('credentialed-sync').map(requirement => requirement.id)).toEqual([
+      'credentialed-channel-response',
+      'sync-readback',
+      'no-sensitive-artifact',
+    ])
 
     const amber = getStyleChoiceById('wechat-flagship-amber')
     expect(amber).toBeDefined()
@@ -226,10 +232,20 @@ describe('platform native export rendering rules', () => {
 
     const xhsRequirementIds = getStyleChoiceProofRequirements(xhsCleanText).map(requirement => requirement.id)
     expect(xhsRequirementIds).not.toContain('phone-preview-readback')
+    expect(xhsRequirementIds).not.toContain('xhs-artifact-manifest')
     expect(xhsRequirementIds).toEqual(expect.arrayContaining([
       'unit-test-coverage',
       'published-url-or-platform-preview',
     ]))
+
+    const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
+    expect(xhsCarousel).toBeDefined()
+    if (!xhsCarousel) return
+
+    const xhsCarouselRequirementIds = getStyleChoiceProofRequirements(xhsCarousel).map(requirement => requirement.id)
+    expect(xhsCarouselRequirementIds).toContain('xhs-artifact-manifest')
+    expect(xhsCarouselRequirementIds).not.toContain('zhihu-artifact-manifest')
+    expect(xhsCarouselRequirementIds).not.toContain('public-image-host')
 
     const zhihuDiagram = getStyleChoiceById('zhihu-diagram-article')
     const zhihuUpload = getStyleChoiceById('zhihu-public-image-upload-checklist')
@@ -249,6 +265,7 @@ describe('platform native export rendering rules', () => {
       'zhihu-artifact-manifest',
       'published-url-or-platform-preview',
     ]))
+    expect(getStyleChoiceProofRequirements(zhihuUpload).map(requirement => requirement.id)).not.toContain('xhs-artifact-manifest')
   })
 
   it('validates a complete unit-tested style proof manifest without changing availability gates', () => {
@@ -356,6 +373,57 @@ describe('platform native export rendering rules', () => {
       'pc-editor-dom-readback',
       'no-sensitive-artifact',
     ])
+  })
+
+  it('builds platform-level proof readiness matrices from empty drafts without claiming proof', () => {
+    const wechatReadiness = getPlatformStyleProofReadinessReport('wechat')
+    const xhsReadiness = getPlatformStyleProofReadinessReport('xiaohongshu')
+    const zhihuReadiness = getPlatformStyleProofReadinessReport('zhihu')
+
+    expect(wechatReadiness.platform).toBe('wechat')
+    expect(wechatReadiness.summary.total).toBe(getPlatformStyleChoices('wechat').length)
+    expect(wechatReadiness.summary.valid).toBe(0)
+    expect(wechatReadiness.summary.missingRequirements).toBeGreaterThan(0)
+    expect(wechatReadiness.choices.every(choice => choice.draft.artifacts.length === 0)).toBe(true)
+    expect(wechatReadiness.choices.every(choice => choice.draft.scope === 'style-choice')).toBe(true)
+
+    const amberReadiness = wechatReadiness.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+    expect(amberReadiness).toBeDefined()
+    if (!amberReadiness) return
+
+    expect(amberReadiness.blockedByCatalog).toBe(true)
+    expect(amberReadiness.report.choiceStatus).toBe('blocked')
+    expect(amberReadiness.missingRequirementIds).toEqual(expect.arrayContaining([
+      'exact-artifact',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'published-url-or-platform-preview',
+      'no-sensitive-artifact',
+    ]))
+
+    expect(xhsReadiness.summary.total).toBe(getPlatformStyleChoices('xiaohongshu').length)
+    expect(xhsReadiness.summary.valid).toBe(0)
+    expect(xhsReadiness.summary.missingRequirements).toBeGreaterThan(0)
+    const xhsCarouselReadiness = xhsReadiness.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')
+    expect(xhsCarouselReadiness?.missingRequirementIds).toContain('xhs-artifact-manifest')
+    expect(xhsCarouselReadiness?.missingRequirementIds).not.toContain('zhihu-artifact-manifest')
+
+    const zhihuUploadReadiness = zhihuReadiness.choices.find(choice =>
+      choice.choice.id === 'zhihu-public-image-upload-checklist',
+    )
+    expect(zhihuUploadReadiness).toBeDefined()
+    expect(zhihuUploadReadiness?.missingRequirementIds).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+      'public-image-host',
+      'zhihu-artifact-manifest',
+      'published-url-or-platform-preview',
+    ]))
+    expect(zhihuUploadReadiness?.missingRequirementIds).not.toContain('xhs-artifact-manifest')
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

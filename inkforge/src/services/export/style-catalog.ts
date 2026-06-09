@@ -286,6 +286,27 @@ export interface StyleProofManifestReport {
   }
 }
 
+export interface StyleChoiceProofReadiness {
+  choice: PlatformStyleChoice
+  draft: StyleProofManifest
+  report: StyleProofManifestReport
+  blockedByCatalog: boolean
+  missingRequirementIds: readonly StyleProofRequirementId[]
+  invalidRequirementIds: readonly StyleProofRequirementId[]
+}
+
+export interface PlatformStyleProofReadinessReport {
+  platform: Platform
+  choices: readonly StyleChoiceProofReadiness[]
+  summary: {
+    total: number
+    valid: number
+    blockedByCatalog: number
+    missingRequirements: number
+    invalidRequirements: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -436,8 +457,6 @@ const EVIDENCE_PROOF_REQUIREMENT_IDS = {
   'credentialed-sync': [
     'credentialed-channel-response',
     'sync-readback',
-    'public-image-host',
-    'xhs-artifact-manifest',
     'no-sensitive-artifact',
   ],
   published: [
@@ -1098,6 +1117,18 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
     for (const requirementId of EVIDENCE_PROOF_REQUIREMENT_IDS[label]) {
       requirementIds.add(requirementId)
     }
+  }
+
+  if (
+    choice.platform === 'xiaohongshu'
+    && (
+      choice.primaryOutput === 'image-page'
+      || choice.primaryOutput === 'long-image'
+      || choice.fallbackOutput === 'image-page'
+      || choice.fallbackOutput === 'long-image'
+    )
+  ) {
+    requirementIds.add('xhs-artifact-manifest')
   }
 
   if (
@@ -1777,6 +1808,44 @@ export function getPlatformStyleAvailabilityReport(
       usable: choices.filter(choice => choice.usable).length,
       blocked: choices.filter(choice => choice.status === 'blocked').length,
       unavailable: choices.filter(choice => choice.status === 'unavailable').length,
+    },
+  }
+}
+
+export function getPlatformStyleProofReadinessReport(platform: Platform): PlatformStyleProofReadinessReport {
+  const choices = getPlatformStyleChoices(platform)
+    .map(choice => {
+      const draft = createStyleProofManifestDraft({
+        platform,
+        choiceId: choice.id,
+      })
+      const report = getStyleProofManifestReport(draft)
+      const missingRequirementIds = report.requirements
+        .filter(requirement => requirement.status === 'missing')
+        .map(requirement => requirement.requirement.id)
+      const invalidRequirementIds = report.requirements
+        .filter(requirement => requirement.status === 'invalid')
+        .map(requirement => requirement.requirement.id)
+
+      return {
+        choice,
+        draft,
+        report,
+        blockedByCatalog: choice.status !== 'available',
+        missingRequirementIds,
+        invalidRequirementIds,
+      }
+    })
+
+  return {
+    platform,
+    choices,
+    summary: {
+      total: choices.length,
+      valid: choices.filter(choice => choice.report.valid).length,
+      blockedByCatalog: choices.filter(choice => choice.blockedByCatalog).length,
+      missingRequirements: choices.reduce((total, choice) => total + choice.missingRequirementIds.length, 0),
+      invalidRequirements: choices.reduce((total, choice) => total + choice.invalidRequirementIds.length, 0),
     },
   }
 }

@@ -1,0 +1,74 @@
+Style proof readiness matrix slice - 2026-06-09
+
+Scope
+
+- Added getPlatformStyleProofReadinessReport() in inkforge/src/services/export/style-catalog.ts.
+- Re-exported the readiness API and readiness row types through
+  inkforge/src/services/export/index.ts.
+- This is an acceptance checklist only. It does not alter export HTML, native output,
+  evaluateStyleChoiceAvailability(), getPlatformStyleApplicationReport(), ExportModal selectable
+  state, preview state, sync state, or publish state.
+
+Runtime contract
+
+- The API creates one empty style-choice draft per style choice on the requested platform.
+- Every draft has artifacts: [].
+- Each row carries:
+  - the style choice.
+  - the empty draft.
+  - the getStyleProofManifestReport() result.
+  - blockedByCatalog.
+  - missingRequirementIds.
+  - invalidRequirementIds.
+- The platform summary counts total rows, valid proof rows, catalog-blocked choices, missing
+  requirements, and invalid requirements.
+- Because every row starts from empty artifacts, valid proof row count should be zero until real,
+  redacted artifacts are supplied through a future evidence collection path.
+
+Verification
+
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file, 58 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Result: passed, 4 files, 97 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 35 files, 991 tests.
+- pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096; pnpm -C inkforge build
+  Result: passed, Vite built in 32.80s.
+- GitNexus impact for getPlatformStyleProofReadinessReport, getStyleChoiceProofRequirements,
+  createStyleProofManifestDraft, and getStyleProofManifestReport:
+  Result: LOW risk, 0 affected execution flows.
+- CloakBrowser runtime smoke against the real local Vite app:
+  Result: home page had no horizontal overflow at 1400px. Dynamic import of
+  /src/services/export/index.ts returned WeChat 15 rows, XHS 7 rows, Zhihu 7 rows, valid=0
+  for all platforms, every generated draft had artifacts: [], and amber stayed catalog-blocked.
+  The smoke also confirmed XHS image-page choices require xhs-artifact-manifest, while Zhihu
+  public image upload requires public-image-host plus zhihu-artifact-manifest and does not inherit
+  xhs-artifact-manifest.
+
+Focused assertions added
+
+- WeChat readiness row count matches getPlatformStyleChoices('wechat').length.
+- WeChat readiness valid count is 0 and every generated draft has artifacts: [] plus
+  scope: style-choice.
+- wechat-flagship-amber is blockedByCatalog and lists missing exact-artifact,
+  safe-disposable-draft, pc-editor-paste-event, phone-preview-readback, phone-screenshot,
+  dark-mode-check, cover-thumbnail-check, published-url-or-platform-preview, and
+  no-sensitive-artifact.
+- Xiaohongshu readiness row count matches getPlatformStyleChoices('xiaohongshu').length and
+  starts with missing proof requirements. XHS image-page / long-image choices list
+  xhs-artifact-manifest without leaking Zhihu proof requirements.
+- Zhihu public image upload checklist lists missing credentialed-channel-response, sync-readback,
+  public-image-host, zhihu-artifact-manifest, and published-url-or-platform-preview without
+  inheriting xhs-artifact-manifest.
+
+Sensitive-artifact boundary
+
+- No platform account page, QR code, cookie, token, HAR, browser profile path, screenshot path,
+  private template source, paid/trial SVG source, or proprietary asset was committed.

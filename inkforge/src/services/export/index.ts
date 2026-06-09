@@ -85,6 +85,8 @@ export type {
   StyleProofRequirementId,
   StyleProofRequirementReport,
   StyleProofRequirementReportStatus,
+  StyleChoiceProofReadiness,
+  PlatformStyleProofReadinessReport,
   StyleRuleGroup,
   StyleVisualStrength,
 } from './style-catalog'
@@ -212,6 +214,7 @@ export {
   getPlatformStyleApplicationReport,
   getPlatformStyleAvailabilityReport,
   getPlatformStyleChoices,
+  getPlatformStyleProofReadinessReport,
   getStyleProofManifestReport,
   getStyleChoiceProofRequirements,
   getStyleChoiceApplication,
