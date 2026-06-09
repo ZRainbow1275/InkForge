@@ -66,6 +66,11 @@ construct breaks.
   exposes whether a step mutates a real platform, requires an external account, requires a phone,
   or is safe to automate locally. It is scheduling metadata only; it must not promote blocked
   styles or replace exact CloakBrowser/platform proof.
+- `getPlatformStyleProofCollectionQueue()` is the grouped operator view of that plan. It must
+  derive from the plan, group only non-empty gates in collection order, expose `nextGate` and
+  `nextSafeGate`, and count blocked choices, mutating steps, external-account steps, phone steps,
+  and safe-to-automate steps. It is a queue for real proof collection, not an availability or
+  publish-success shortcut.
 - ExportModal may surface this plan in the style capability cards as proof summaries and gate
   labels. That UI is informational only: it must not change `selectable`, `usable`, `blocked`, or
   `unavailable` decisions, and it must keep local evidence, PC editor proof, phone preview,
@@ -203,7 +208,37 @@ export interface PlatformStyleProofCollectionPlan {
     safeToAutomate: number
   }
 }
+export interface StyleProofCollectionGateGroup {
+  gate: StyleProofCollectionGate
+  order: number
+  note: string
+  steps: readonly StyleProofCollectionStep[]
+  choiceIds: readonly string[]
+  stepCount: number
+  blockedChoiceCount: number
+  mutatingSteps: number
+  externalAccountSteps: number
+  phoneSteps: number
+  safeToAutomateSteps: number
+}
+export interface PlatformStyleProofCollectionQueue {
+  platform: Platform
+  groups: readonly StyleProofCollectionGateGroup[]
+  nextGate: StyleProofCollectionGate | null
+  nextSafeGate: StyleProofCollectionGate | null
+  summary: {
+    totalSteps: number
+    totalGates: number
+    totalChoices: number
+    blockedChoices: number
+    safeToAutomateSteps: number
+    mutatingSteps: number
+    externalAccountSteps: number
+    phoneSteps: number
+  }
+}
 export function getPlatformStyleProofCollectionPlan(platform: Platform): PlatformStyleProofCollectionPlan
+export function getPlatformStyleProofCollectionQueue(platform: Platform): PlatformStyleProofCollectionQueue
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }

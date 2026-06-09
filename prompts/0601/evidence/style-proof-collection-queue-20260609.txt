@@ -1,0 +1,120 @@
+# Style proof collection queue evidence - 2026-06-09
+
+Scope:
+
+- Runtime API: `getPlatformStyleProofCollectionQueue(platform)`.
+- UI surface: `inkforge/src/components/export/ExportModal.vue`.
+- Local URL: `http://127.0.0.1:3005/`.
+- Browser tool: CloakBrowser only.
+- Boundary: this is a local scheduling and UI-readback proof. It does not paste into a
+  platform editor, does not create or mutate a platform draft, does not open phone preview,
+  does not sync, and does not publish.
+
+Implementation behavior:
+
+- The queue groups `getPlatformStyleProofCollectionPlan(platform)` steps by ordered gate.
+- It exposes `nextGate` and `nextSafeGate` so local evidence and hygiene work can be completed
+  before any authenticated editor, phone, credentialed channel, or publish action.
+- It keeps blocked catalog choices visible in the queue but does not promote them to usable or
+  selectable.
+- ExportModal now surfaces the next gate in the style catalog summary and preflight detail.
+
+Runtime queue readback through the real Vite module:
+
+- WeChat:
+  - total steps: 143.
+  - total gates: 6.
+  - total choices with pending proof: 15.
+  - blocked choices represented in the queue: 8.
+  - next gate: `local-evidence`.
+  - next safe gate: `local-evidence`.
+  - local-evidence: 29 steps, 15 choices, 29 safe-to-automate steps.
+  - sensitive-hygiene: 15 steps, 15 choices, 15 safe-to-automate steps.
+  - authenticated-pc-editor: 24 steps, 8 choices, 24 mutating/external-account steps.
+  - phone-preview: 52 steps, 13 choices, 52 phone steps.
+  - credentialed-channel: 8 steps, 4 choices, 8 mutating/external-account steps.
+  - platform-publish: 15 steps, 15 choices, 15 mutating/external-account steps.
+- Xiaohongshu:
+  - total steps: 38.
+  - total gates: 3.
+  - total choices with pending proof: 7.
+  - blocked choices represented in the queue: 3.
+  - next gate: `local-evidence`.
+  - next safe gate: `local-evidence`.
+  - local-evidence: 24 steps, 7 choices, 24 safe-to-automate steps.
+  - sensitive-hygiene: 7 steps, 7 choices, 7 safe-to-automate steps.
+  - platform-publish: 7 steps, 7 choices, 7 mutating/external-account steps.
+- Zhihu:
+  - total steps: 43.
+  - total gates: 5.
+  - total choices with pending proof: 7.
+  - blocked choices represented in the queue: 3.
+  - next gate: `local-evidence`.
+  - next safe gate: `local-evidence`.
+  - local-evidence: 21 steps, 7 choices, 21 safe-to-automate steps.
+  - sensitive-hygiene: 7 steps, 7 choices, 7 safe-to-automate steps.
+  - public-host: 6 steps, 6 choices.
+  - credentialed-channel: 2 steps, 1 choice, 2 mutating/external-account steps.
+  - platform-publish: 7 steps, 7 choices, 7 mutating/external-account steps.
+
+Desktop CloakBrowser UI smoke:
+
+- Opened the real local Vite app.
+- Entered the real Workstation draft through the existing continue-writing control.
+- Opened ExportModal through the existing export control in the local app.
+- Page title: `InkForge - 工作站`.
+- Viewport: 1400 x 900.
+- `documentElement.scrollWidth`: 1400.
+- `body.scrollWidth`: 1400.
+- Horizontal overflow: false.
+- Style catalog summary:
+  - `微信公众号 当前可用 7/15`.
+  - `证据门禁由 runtime catalog 决定`.
+  - `下一步 本地证据，共 6 类门禁`.
+- Style catalog preflight includes:
+  `待补证据 143；门禁 6；下一步 本地证据；本地 44；手机 52；账号/平台 47`.
+- Style cards: 15.
+- Proof summaries: 15.
+- Proof gate labels: 60.
+
+Mobile CloakBrowser UI smoke:
+
+- Reopened the same local Workstation route at 390 x 844.
+- Opened ExportModal through the local export control.
+- `documentElement.scrollWidth`: 390.
+- `body.scrollWidth`: 390.
+- Horizontal overflow: false.
+- Style catalog summary:
+  - `微信公众号 当前可用 7/15`.
+  - `证据门禁由 runtime catalog 决定`.
+  - `下一步 本地证据，共 6 类门禁`.
+- Style catalog preflight includes:
+  `待补证据 143；门禁 6；下一步 本地证据；本地 44；手机 52；账号/平台 47`.
+- Style cards: 15.
+- Proof summaries: 15.
+- Proof gate labels: 60.
+- First visible card width: 332px.
+- First visible card `scrollWidth/clientWidth`: 331/331.
+- Visible text emoji-like scan: false.
+
+Code validation:
+
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 60 tests passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 99 tests passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 993 tests passed.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  52.28s.
+- Build-generated `inkforge/tsconfig.tsbuildinfo` was restored and is not part of this evidence
+  commit.
+
+Sensitive-artifact boundary:
+
+- No account page material, local browser runtime locator, platform private URL, phone-scan
+  material, or local credential locator is recorded in this evidence file.
+- CloakBrowser and the local Vite server must be closed after verification.

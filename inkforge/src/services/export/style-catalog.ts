@@ -354,6 +354,37 @@ export interface PlatformStyleProofCollectionPlan {
   }
 }
 
+export interface StyleProofCollectionGateGroup {
+  gate: StyleProofCollectionGate
+  order: number
+  note: string
+  steps: readonly StyleProofCollectionStep[]
+  choiceIds: readonly string[]
+  stepCount: number
+  blockedChoiceCount: number
+  mutatingSteps: number
+  externalAccountSteps: number
+  phoneSteps: number
+  safeToAutomateSteps: number
+}
+
+export interface PlatformStyleProofCollectionQueue {
+  platform: Platform
+  groups: readonly StyleProofCollectionGateGroup[]
+  nextGate: StyleProofCollectionGate | null
+  nextSafeGate: StyleProofCollectionGate | null
+  summary: {
+    totalSteps: number
+    totalGates: number
+    totalChoices: number
+    blockedChoices: number
+    safeToAutomateSteps: number
+    mutatingSteps: number
+    externalAccountSteps: number
+    phoneSteps: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -569,6 +600,17 @@ const STYLE_PROOF_COLLECTION_ORDER: Record<StyleProofCollectionGate, number> = {
   'credentialed-channel': 70,
   'platform-publish': 80,
 }
+
+const STYLE_PROOF_COLLECTION_GATE_SEQUENCE: readonly StyleProofCollectionGate[] = [
+  'local-evidence',
+  'sensitive-hygiene',
+  'market-editor',
+  'authenticated-pc-editor',
+  'phone-preview',
+  'public-host',
+  'credentialed-channel',
+  'platform-publish',
+]
 
 const STYLE_PROOF_COLLECTION_NOTES = {
   'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
@@ -2013,6 +2055,55 @@ export function getPlatformStyleProofCollectionPlan(platform: Platform): Platfor
       externalAccountSteps: steps.filter(step => step.requiresExternalAccount).length,
       phoneSteps: steps.filter(step => step.requiresPhone).length,
       safeToAutomate: steps.filter(step => step.safeToAutomate).length,
+    },
+  }
+}
+
+export function getPlatformStyleProofCollectionQueue(platform: Platform): PlatformStyleProofCollectionQueue {
+  const plan = getPlatformStyleProofCollectionPlan(platform)
+  const groups: StyleProofCollectionGateGroup[] = []
+
+  for (const gate of STYLE_PROOF_COLLECTION_GATE_SEQUENCE) {
+    const steps = plan.steps.filter(step => step.gate === gate)
+    if (steps.length === 0) continue
+
+    groups.push({
+      gate,
+      order: STYLE_PROOF_COLLECTION_ORDER[gate],
+      note: STYLE_PROOF_COLLECTION_NOTES[gate],
+      steps,
+      choiceIds: Array.from(new Set(steps.map(step => step.choice.id))).sort(),
+      stepCount: steps.length,
+      blockedChoiceCount: new Set(steps
+        .filter(step => step.blockedByCatalog)
+        .map(step => step.choice.id)).size,
+      mutatingSteps: steps.filter(step => step.mutatesPlatform).length,
+      externalAccountSteps: steps.filter(step => step.requiresExternalAccount).length,
+      phoneSteps: steps.filter(step => step.requiresPhone).length,
+      safeToAutomateSteps: steps.filter(step => step.safeToAutomate).length,
+    })
+  }
+
+  const choiceIds = new Set(plan.steps.map(step => step.choice.id))
+  const nextGate = groups[0]?.gate ?? null
+  const nextSafeGate = groups.find(group => group.safeToAutomateSteps > 0)?.gate ?? null
+
+  return {
+    platform,
+    groups,
+    nextGate,
+    nextSafeGate,
+    summary: {
+      totalSteps: plan.steps.length,
+      totalGates: groups.length,
+      totalChoices: choiceIds.size,
+      blockedChoices: new Set(plan.steps
+        .filter(step => step.blockedByCatalog)
+        .map(step => step.choice.id)).size,
+      safeToAutomateSteps: plan.summary.safeToAutomate,
+      mutatingSteps: plan.summary.mutatingSteps,
+      externalAccountSteps: plan.summary.externalAccountSteps,
+      phoneSteps: plan.summary.phoneSteps,
     },
   }
 }

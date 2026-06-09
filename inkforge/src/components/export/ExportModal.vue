@@ -10,7 +10,7 @@ import {
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
-  getPlatformStyleProofCollectionPlan,
+  getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -177,6 +177,7 @@ const currentPresets = computed((): PresetDisplay[] => {
 const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
 const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(selectedPlatform.value))
 const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionPlan(selectedPlatform.value))
+const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofStepsByChoice = computed(() => {
   const grouped = new Map<string, StyleProofCollectionStep[]>()
   for (const step of styleProofCollectionPlan.value.steps) {
@@ -185,6 +186,10 @@ const styleProofStepsByChoice = computed(() => {
     grouped.set(step.choice.id, steps)
   }
   return grouped
+})
+const styleProofNextGateLabel = computed(() => {
+  const gate = styleProofCollectionQueue.value.nextSafeGate ?? styleProofCollectionQueue.value.nextGate
+  return gate ? styleProofGateLabel(gate) : '无待补门禁'
 })
 const selectedStyleChoiceApplication = computed(() =>
   styleApplicationReport.value.find(item =>
@@ -195,9 +200,10 @@ const selectedStyleChoiceApplication = computed(() =>
 const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
   const proofPlan = styleProofCollectionPlan.value
+  const proofQueue = styleProofCollectionQueue.value
   const limitedCount = report.stats.blocked + report.stats.unavailable
   const selectedAction = selectedStyleChoiceApplication.value
-  const proofTail = `待补证据 ${proofPlan.summary.total}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
+  const proofTail = `待补证据 ${proofPlan.summary.total}；门禁 ${proofQueue.summary.totalGates}；下一步 ${styleProofNextGateLabel.value}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
 
   if (selectedAction?.selectable && selectedAction.application) {
     return {
@@ -1023,6 +1029,7 @@ onUnmounted(() => {
                 <div class="style-catalog-summary">
                   <span>{{ platformInfo.name }} 当前可用 {{ styleAvailabilityReport.stats.usable }}/{{ styleAvailabilityReport.stats.total }}</span>
                   <span>证据门禁由 runtime catalog 决定</span>
+                  <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
                 </div>
                 <div class="style-choice-list">
                   <button

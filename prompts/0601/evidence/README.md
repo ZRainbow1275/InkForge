@@ -76,6 +76,11 @@ authenticated-pc-editor、phone-preview、credentialed-channel、public-host、p
 CloakBrowser 桌面 1400×900 与移动 390×844 均无水平溢出，重启后已重复本地 UI 复核，
 15 个样式卡均有 proof summary，60 个 gate 标签渲染；该文件不证明平台粘贴、手机预览、
 同步或发布成功）。
+`style-proof-collection-queue-20260609.txt`（当前规则实现：
+`getPlatformStyleProofCollectionQueue()` 将 collection plan 按 gate 分组并给出 `nextGate` /
+`nextSafeGate`；CloakBrowser 通过真实 Vite 模块读回 WeChat 143 steps / 6 gates、XHS
+38 steps / 3 gates、Zhihu 43 steps / 5 gates，ExportModal 显示“下一步 本地证据”且无横向溢出；
+该文件不证明平台粘贴、手机预览、同步或发布成功）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -202,6 +207,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-manifest-validator-20260609.txt # 当前规则实现：StyleProofManifest runtime validator；proof 质量门禁，不升级 platform success
 [x] style-proof-collection-plan-20260609.txt # 当前规则实现：readiness gaps -> collection gates；区分本地自动化/账号/手机/发布/敏感清洁门禁
 [x] style-proof-ui-gates-20260609.txt # 当前 UI 实现：ExportModal 显示 proof summary/gate labels；CloakBrowser 桌面/移动无横向溢出
+[x] style-proof-collection-queue-20260609.txt # 当前规则实现：collection gates -> ordered queue；CloakBrowser runtime queue readback + UI next gate
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

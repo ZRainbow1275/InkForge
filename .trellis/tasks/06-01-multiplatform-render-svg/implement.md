@@ -1317,6 +1317,49 @@ git status --short --branch
   gate labels, no horizontal overflow, and no emoji-like visible text. Temporary local screenshots
   were used for visual inspection only and are not recorded as evidence paths.
 
+## 2026-06-09 Style Proof Collection Queue Slice
+
+- Added `getPlatformStyleProofCollectionQueue(platform)` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The queue derives only from `getPlatformStyleProofCollectionPlan(platform)`, groups non-empty
+  gates in execution order, and exposes `nextGate` / `nextSafeGate`.
+- Each queue group records step count, choice ids, blocked choice count, mutating steps,
+  external-account steps, phone steps, and safe-to-automate steps. This gives later platform
+  proof collection an executable order without guessing from flat steps.
+- Exported the queue API and types through `inkforge/src/services/export/index.ts`.
+- ExportModal style capability summary and preflight detail now show the next proof gate and gate
+  count. This is informational only; it does not change `selectable`, `usable`, `blocked`, or
+  `unavailable` decisions and does not execute any platform action.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test asserts queue
+  ordering, safe-vs-mutating separation, phone gate isolation, XHS no-phone queue shape, Zhihu
+  public-host/credentialed-channel grouping, and that WeChat amber remains not usable.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-collection-queue-20260609.txt`.
+- Runtime evidence:
+  CloakBrowser dynamically imported the real Vite module and read back WeChat 143 steps / 6 gates,
+  XHS 38 steps / 3 gates, and Zhihu 43 steps / 5 gates. ExportModal local UI showed
+  `下一步 本地证据，共 6 类门禁` and no horizontal overflow at 1400x900.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 60 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 99 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 993 tests passed.
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  52.28s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+  CloakBrowser mobile 390x844 showed `下一步 本地证据，共 6 类门禁`, 15 style cards, 15 proof
+  summaries, 60 gate labels, no horizontal overflow, and first-card `scrollWidth/clientWidth`
+  stayed 331/331.
+- Boundary:
+  this queue proves only local scheduling/readback. It does not prove platform paste, phone
+  preview, sync, scheduled send, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
@@ -1373,6 +1416,9 @@ git status --short --branch
 - [x] Verify and commit the 2026-06-09 ExportModal style proof gate UI slice only; leave unrelated
       dirty files, pre-existing dirty e2e PNG files, QR/platform-preview candidates, local
       CloakBrowser screenshots, local browser runtime/auth artifacts, and account artifacts untouched.
+- [x] Verify and commit the 2026-06-09 style proof collection queue slice only; leave unrelated
+      dirty files, pre-existing dirty e2e PNG files, QR/platform-preview candidates, local
+      browser runtime/auth artifacts, and account artifacts untouched.
 
 ## Honest Non-Goals For This Slice
 

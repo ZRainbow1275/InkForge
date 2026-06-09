@@ -18,6 +18,7 @@ import {
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
   getPlatformStyleProofCollectionPlan,
+  getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofReadinessReport,
   getPresetById,
   getStyleChoiceApplication,
@@ -469,6 +470,48 @@ describe('platform native export rendering rules', () => {
     expect(zhihuUploadSteps.find(step => step.requirement.id === 'published-url-or-platform-preview')?.gate)
       .toBe('platform-publish')
     expect(zhihuUploadSteps.some(step => step.requirement.id === 'xhs-artifact-manifest')).toBe(false)
+  })
+
+  it('groups platform proof collection queues into ordered gates without changing catalog blockers', () => {
+    const wechatQueue = getPlatformStyleProofCollectionQueue('wechat')
+    const xhsQueue = getPlatformStyleProofCollectionQueue('xiaohongshu')
+    const zhihuQueue = getPlatformStyleProofCollectionQueue('zhihu')
+    const wechatPlan = getPlatformStyleProofCollectionPlan('wechat')
+
+    expect(wechatQueue.platform).toBe('wechat')
+    expect(wechatQueue.summary.totalSteps).toBe(wechatPlan.summary.total)
+    expect(wechatQueue.summary.totalGates).toBeGreaterThanOrEqual(6)
+    expect(wechatQueue.summary.safeToAutomateSteps).toBe(wechatPlan.summary.safeToAutomate)
+    expect(wechatQueue.summary.phoneSteps).toBe(wechatPlan.summary.phoneSteps)
+    expect(wechatQueue.summary.externalAccountSteps).toBe(wechatPlan.summary.externalAccountSteps)
+    expect(wechatQueue.nextGate).toBe('local-evidence')
+    expect(wechatQueue.nextSafeGate).toBe('local-evidence')
+
+    const localGroup = wechatQueue.groups.find(group => group.gate === 'local-evidence')
+    const phoneGroup = wechatQueue.groups.find(group => group.gate === 'phone-preview')
+    const publishGroup = wechatQueue.groups.find(group => group.gate === 'platform-publish')
+    expect(localGroup?.safeToAutomateSteps).toBe(localGroup?.stepCount)
+    expect(localGroup?.mutatingSteps).toBe(0)
+    expect(phoneGroup?.phoneSteps).toBe(phoneGroup?.stepCount)
+    expect(phoneGroup?.safeToAutomateSteps).toBe(0)
+    expect(publishGroup?.mutatingSteps).toBe(publishGroup?.stepCount)
+    expect(wechatQueue.groups.map(group => group.order)).toEqual(
+      [...wechatQueue.groups.map(group => group.order)].sort((left, right) => left - right),
+    )
+    expect(wechatQueue.groups.find(group => group.gate === 'authenticated-pc-editor')?.choiceIds)
+      .toContain('wechat-flagship-amber')
+    expect(wechatQueue.summary.blockedChoices).toBeGreaterThan(0)
+    expect(getPlatformStyleAvailabilityReport('wechat').choices.find(choice =>
+      choice.choice.id === 'wechat-flagship-amber',
+    )?.usable).toBe(false)
+
+    expect(xhsQueue.groups.find(group => group.gate === 'local-evidence')?.choiceIds)
+      .toContain('xhs-cover-carousel')
+    expect(xhsQueue.groups.some(group => group.gate === 'phone-preview')).toBe(false)
+    expect(zhihuQueue.groups.find(group => group.gate === 'public-host')?.choiceIds)
+      .toContain('zhihu-public-image-upload-checklist')
+    expect(zhihuQueue.groups.find(group => group.gate === 'credentialed-channel')?.externalAccountSteps)
+      .toBeGreaterThan(0)
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {
