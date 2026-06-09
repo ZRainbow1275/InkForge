@@ -127,6 +127,7 @@ publish inspection; it does not automatically satisfy WeChat phone preview.
 - 如果 `text/html` 剪贴板中含富 HTML/SVG，但微信编辑器读回只有纯文本，该渠道必须记录为 `blocked`。`flagship-amber` 在 2026-06-08 的普通 `Control+V` 路径就是此状态。
 - 2026-06-09 CloakBrowser `inkforge-0601` 只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
 - 同一只读复核还观察到当前真实草稿存在 `#js_add_appmsg` / `data-action="add"` 的“增加一条/新建内容”入口；该入口会改变多图文草稿结构，未在没有 disposable draft 和 cleanup proof 的情况下点击，不能作为安全粘贴测试入口。
+- 2026-06-09 后续 CloakBrowser 证据对 exact `flagship-amber.html` 执行程序化 `ClipboardEvent('paste')` + `DataTransfer`，真实微信 PC 编辑器 paste handler 接管并读回 `data-ink-svg=3` / `svg=35`。这只证明该 PC channel 的 DOM readback；普通 Ctrl+V、手机预览、Dark Mode、封面缩略图、同步、定时发送和发布仍必须分开验收。
 
 ### 0.4 禁止项
 
@@ -149,7 +150,7 @@ publish inspection; it does not automatically satisfy WeChat phone preview.
 | `wechat-card-rich` | 金句、数据、对比、时间线 | inline HTML card | opt-in | `unit-tested` | 普通引用/列表/段落 |
 | `wechat-flagship-kiln` | 创意旗舰长文 | WeChat-safe SVG + HTML block | available locally | `local-browser` | 图片 fallback 或普通 inline HTML |
 | `wechat-flagship-tempera` | 学术/报告旗舰长文 | WeChat-safe SVG + HTML block | available locally | `local-browser` | 图片 fallback 或普通 inline HTML |
-| `wechat-flagship-amber` | 商业结构稿、对比、时间线 | WeChat-safe SVG + HTML block | blocked | `pc-editor-paste` still missing | 普通剪贴板路径已在 2026-06-08 真实编辑器中降级为纯文本；需插件/HTML 替换/授权同步等明确渠道另证 |
+| `wechat-flagship-amber` | 商业结构稿、对比、时间线 | WeChat-safe SVG + HTML block | blocked | `pc-editor-paste` channel-specific proof exists; `mobile-preview` still missing | 普通 Ctrl+V 路径已在 2026-06-08 降级为纯文本；2026-06-09 CloakBrowser ClipboardEvent 只证明 PC channel，手机/发布仍需另证 |
 | `wechat-click-reveal` | 点击展开、切换、序列帧 | SMIL candidate SVG | blocked by default | `pc-editor-paste` + `mobile-preview` | static-safe SVG 或长图 |
 | `wechat-mobile-only-effect` | 长按、touch-only、区域触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 静态图 / 图片页 |
 | `wechat-carousel-switch` | 图片轮播、点击切换、滑动触发 | mobile-only SVG candidate | blocked | `mobile-preview` before/after | 图片序列 / 长图 |

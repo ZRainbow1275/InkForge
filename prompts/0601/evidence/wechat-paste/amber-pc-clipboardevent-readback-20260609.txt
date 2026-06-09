@@ -1,0 +1,57 @@
+# WeChat amber PC editor ClipboardEvent readback - 2026-06-09
+
+Scope:
+
+- Platform: WeChat Official Account PC article editor in an authenticated session.
+- Browser tool: CloakBrowser only, using the project-required `inkforge-0601` profile label.
+- Artifact: `prompts/0601/evidence/wechat-paste/flagship-amber.html`.
+- Channel: a programmatic `ClipboardEvent('paste')` with a `DataTransfer` carrying exact
+  `text/html` artifact content plus stripped `text/plain` fallback, dispatched to the visible
+  body `.ProseMirror` editor.
+- Boundary: this is not the ordinary keyboard/system-clipboard `Control+V` channel. The
+  2026-06-08 ordinary Ctrl+V path remains blocked because WeChat reduced the rich artifact
+  to plain text.
+
+Artifact preflight:
+
+- File existed on disk before the platform action.
+- Disk size: 42096 bytes.
+- Local fetch text length: 40214.
+- `data-ink-svg`: 3.
+- Inline `svg`: 35.
+- `hasNice`: true.
+- `startsWithDoctype`: true.
+
+Editor readback:
+
+- Body editor before paste: placeholder text `从这里开始写正文`, `htmlLength=298`,
+  `data-ink-svg=0`, `svg=0`.
+- Paste handler result: `dispatchReturn=false`, `defaultPrevented=true`.
+- Body editor after paste: `textLength=1299`, `htmlLength=43227`, `data-ink-svg=3`,
+  `svg=35`, `sectionCount=48`, `styleAttrCount=195`, `classAttrCount=30`.
+- Semantic markers after paste: `hasNice=true`, `hasFlagshipFooter=true`,
+  `hasInteractiveStretch=true`, `hasCover=true`.
+- First readable text began with the expected InkForge flagship article copy.
+
+Cleanup and post-reboot safety check:
+
+- No `保存为草稿`, `预览`, or `发表` button was clicked.
+- `document.execCommand('undo')` returned false.
+- A focused `selectAll` plus `delete` emptied body text but left a residual title/cover
+  SVG fragment in the editor DOM, so the session navigated away without saving.
+- After the reboot, a CloakBrowser read-only check opened the WeChat backend home page.
+  It was not on the editor route, no `.ProseMirror` editors were mounted, and the visible
+  recent drafts still matched the pre-test set: `111`, `静谧刊印：当排版成为一种克制的力量`,
+  `数字人民币：一切的基点`, `未命名文章`.
+- No new visible draft from this run was detected on the home page.
+- The temporary artifact server on `127.0.0.1:3106` was stopped and the port no longer
+  had a listening process.
+
+Evidence boundary:
+
+- This supports `pc-editor-paste` only for the explicit CloakBrowser/ClipboardEvent PC editor
+  channel and DOM readback above.
+- It does not prove ordinary Ctrl+V, phone/mobile preview, SMIL or click behavior on phone,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, or publish.
+- No token, cookie, HAR, QR image, profile directory path, account screenshot, platform URL,
+  or browser runtime screenshot path is recorded in this evidence file.

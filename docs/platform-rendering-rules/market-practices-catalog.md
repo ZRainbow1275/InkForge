@@ -30,6 +30,7 @@
 | 2026-06-08 135/Xiumi logged-in Playwright taxonomy refresh | 135 当前编辑器确认 toolbar 参数、样式族、SVG/长图、复制/保存/同步/预览、深色模式、授权公众号/定时群发/团队权限；秀米当前图文编辑器确认导入 Word/Excel/Markdown、导入公众号文章、同步/插件/复制、生成长图/PDF/视频、动作/图层/背景图/定位、SVG 图集、4000px 背景图安卓风险、公众号认证/留言权限 | 作为 `editor-workflow-system` 与 `layout-and-layer-system` 的当前实机 taxonomy 证据；未执行同步、复制、预览、导出或发布，不升级任何 runtime availability |
 | 2026-06-08 CloakBrowser applied-element rerun | 使用 `inkforge-0601` profile，仅用 CloakBrowser 在 135 普通编辑器、135 SVG 编辑器、秀米图文编辑器中点击免费样式/SVG 效果，确认中间编辑区/画布真实出现内容后读取 DOM | 作为 `applied-editor-element` 证据：可转化为 InkForge 规则、布局风险、插入风险、manifest/schema/fallback 要求；不复制模板源码、私有 SVG、会员素材或账号数据，也不升级为 WeChat mobile/published 证据 |
 | 2026-06-09 WeChat authenticated editor read-only proof checklist | CloakBrowser `inkforge-0601` 能进入真实微信 PC 图文编辑器并读取标题/正文 `.ProseMirror`；当前正文已有真实音频卡，且 `#js_add_appmsg` / `data-action="add"` 会改变多图文草稿结构 | 只升级 `authenticated-editor-reachable` 与 `pc-editor-dom-readable`；`pc-editor-paste` 仍必须另有 exact artifact、safe disposable draft、真实粘贴/channel event、DOM readback 与敏感证据隔离 |
+| 2026-06-09 WeChat amber PC ClipboardEvent readback | CloakBrowser 在真实微信 PC 图文编辑器中对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')` + `DataTransfer`；微信 paste handler 接管，DOM 读回 `data-ink-svg=3` / `svg=35` / `styleAttr=195` / `classAttr=30` | 作为 channel-specific `pc-editor-paste` 证据；不推翻 2026-06-08 普通 Ctrl+V 阻断，也不升级手机预览、Dark Mode、封面缩略图、同步、定时发送或发布 |
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
 
 ### 1.2 不进入实现的内容
@@ -50,6 +51,7 @@
 | `applied-editor-element` | 点击样式/效果后，中间编辑区/画布真实出现内容，并能读取当前编辑器 DOM | 微信最终 sanitizer、手机预览、Dark Mode、封面缩略图、插件/同步、发布 |
 | `authenticated-editor-reachable` | 真实微信 PC 图文编辑器在登录态 profile 中可进入 | artifact 粘贴、DOM sanitizer 保留、手机预览、同步、发布 |
 | `pc-editor-dom-readable` | 真实微信 PC 编辑器标题/正文 DOM 可读，且视觉确认编辑区存在 | artifact 粘贴成功、手机最终渲染、Dark Mode、SMIL/点击触发、封面缩略图 |
+| `pc-editor-paste` | exact artifact 被真实 PC 平台编辑器 paste handler 接收并 DOM/视觉读回 | 普通 Ctrl+V、手机最终渲染、Dark Mode、SMIL/点击触发、封面缩略图、同步、发布 |
 | `platform-published` | 真实平台账号/预览/发布链路对同一 artifact 通过 | 未来平台稳定性或其他账号/渠道天然通过 |
 
 有效市场学习流程：
@@ -140,7 +142,7 @@ Executable mirror:
 | `wechat-card-rich` | 微信 | 金句、数据、对比、时间线、清单 | card-system | medium-high | static | inline HTML | static fallback | `local-browser` | 固定容器、透明图叠 SVG、Dark Mode 证据缺失 |
 | `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | headline-system | high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、封面缩略图仍需另证 |
 | `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | headline-system | medium-high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、Dark Mode 仍需另证 |
-| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | headline-system | medium-high | static | WeChat-safe SVG | static fallback | `pc-editor-paste` | 2026-06-08 普通剪贴板富 HTML/SVG 粘贴在真实微信 PC 编辑器中降级为纯文本 |
+| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | headline-system | medium-high | static | WeChat-safe SVG | static fallback | `pc-editor-paste` | 普通 Ctrl+V 仍降级为纯文本；2026-06-09 CloakBrowser ClipboardEvent PC readback 不证明手机/发布 |
 | `wechat-click-reveal` | 微信 | 点击展开、渐进披露 | interactive-system | high | click-candidate | WeChat-safe SVG | static fallback | `mobile-preview` | SMIL/click 手机前后证据缺失 |
 | `wechat-mobile-only-effect` | 微信 | 长按、touch-only、区域触发 | interactive-system | high | mobile-only | WeChat-safe SVG | static fallback | `mobile-preview` | 市场标签提示仅手机端触发，默认 blocked |
 | `wechat-carousel-switch` | 微信 | 图片轮播、点击切换、序列帧、滑动触发 | interactive-system | high | mobile-only | WeChat-safe SVG | image fallback | `mobile-preview` | 手机微信读回和静态 fallback 缺失 |
@@ -176,7 +178,7 @@ Executable mirror:
 - 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
 - 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
 - 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。
-- `wechat-flagship-amber` 当前在 executable catalog 中为 `blocked`。普通剪贴板路径失败不代表本地渲染失败，但它阻止该样式被标记为“微信 PC 富文本粘贴可用”。
+- `wechat-flagship-amber` 当前在 executable catalog 中仍为 `blocked`。普通剪贴板路径失败不代表本地渲染失败；2026-06-09 CloakBrowser ClipboardEvent 读回只证明该 PC channel，不足以开放手机预览、Dark Mode、封面缩略图、同步或发布状态。
 
 ## 3. InkForge Rule Catalog
 
@@ -491,7 +493,7 @@ This trace maps existing InkForge style assets to user-facing choices so future 
 | Original 12 WeChat presets | Classic WeChat presets | WeChat | `unit-tested` / prior `local-browser` evidence when rerun | Must remain behaviorally unchanged; no forced SVG injection |
 | `flagship-kiln` | Bold creative flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | High-contrast editorial; no copied market geometry |
 | `flagship-tempera` | Calm academic flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | Long-form reading rhythm and directory/card emphasis |
-| `flagship-amber` | Structured business flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` | PC/mobile WeChat proof must be refreshed before claiming platform availability |
+| `flagship-amber` | Structured business flagship | WeChat; XHS/Zhihu via fallback only | `local-browser` plus channel-specific PC ClipboardEvent readback | Runtime catalog remains blocked until mobile/publish proof; ordinary Ctrl+V still blocked |
 | `style-catalog.ts` | Gate-aware style availability catalog | WeChat / XHS / Zhihu | `unit-tested` | Runtime mirror of this matrix; do not fork it in UI code |
 | SVG static modules | Divider, seal, cover geometry | WeChat inline; XHS/Zhihu image fallback | `unit-tested` | Safe subset only |
 | SVG interactive modules | Click/candidate interaction | WeChat opt-in | `unit-tested`; availability requires `mobile-preview` | Default blocked for mobile-only/touch-only patterns |

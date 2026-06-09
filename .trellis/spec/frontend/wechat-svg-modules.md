@@ -251,6 +251,13 @@ Evidence labels for UI state:
   These labels rank below `unit-tested`, `local-browser`, `pc-editor-paste`, `mobile-preview`,
   `credentialed-sync`, and `published`; they must not make any style choice selectable or
   publishable by themselves.
+- `prompts/0601/evidence/wechat-paste/amber-pc-clipboardevent-readback-20260609.txt` records a
+  later CloakBrowser PC editor paste-channel proof for exact `flagship-amber.html`. A
+  programmatic `ClipboardEvent('paste')` with `DataTransfer` was handled by the real WeChat
+  editor, and DOM readback kept `data-ink-svg=3` plus `svg=35`. This is channel-specific
+  `pc-editor-paste` evidence for the PC editor only. It does not overturn the 2026-06-08
+  ordinary Ctrl+V blocker, and it does not prove phone preview, SMIL/click behavior on phone,
+  Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled send, or publish.
 
 **Pipeline ordering (why injection works):** `preset.decorate(html, target)` runs in
 `wechat.ts` (~:1336) **after** the export DOMPurify (so injected SVG is NOT stripped) and

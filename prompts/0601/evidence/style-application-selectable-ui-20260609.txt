@@ -50,7 +50,8 @@ Examples of intentionally non-selectable choices:
   ExportModal does not create the required image-page/carousel artifact.
 - `wechat-flagship-amber`: mapped for future recovery, but still non-selectable because
   the runtime catalog status remains `blocked`; the real WeChat ordinary-paste attempt
-  reduced the rich artifact to plain text.
+  reduced the rich artifact to plain text, and the later CloakBrowser ClipboardEvent readback
+  is channel-specific PC evidence rather than mobile or publish proof.
 - Mobile-only SVG effects, credentialed plugin/sync/upload workflows, H5/free-layout
   artifacts, and image-fallback families remain disabled until the exact InkForge artifact
   has the required evidence.

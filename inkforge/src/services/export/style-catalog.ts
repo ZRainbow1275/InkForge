@@ -549,7 +549,7 @@ const STYLE_CHOICE_APPLICATIONS = [
     presetId: 'flagship-amber',
     presetLabel: '黄铜旗舰',
     scope: 'styled-and-native',
-    note: 'kept mapped but disabled until the real WeChat paste gate is no longer blocked',
+    note: 'kept mapped but disabled until mobile preview and publish proof exist; ordinary Ctrl+V remains blocked',
   },
   {
     choiceId: 'xhs-clean-text',
@@ -719,7 +719,10 @@ export const PLATFORM_STYLE_CHOICES = [
     status: 'blocked',
     evidenceFloor: 'pc-editor-paste',
     publishEvidence: ['mobile-preview', 'published'],
-    blockers: ['2026-06-08 real WeChat PC paste reduced the rich HTML artifact to plain text', 'mobile preview proof missing'],
+    blockers: [
+      'ordinary Ctrl+V reduced the rich HTML artifact to plain text; 2026-06-09 CloakBrowser ClipboardEvent PC DOM readback is channel-specific',
+      'mobile preview proof missing',
+    ],
     detectorBlockers: ['wechat-unsafe-svg-construct', 'wechat-unsupported-css', 'wechat-event-handler'],
   },
   {

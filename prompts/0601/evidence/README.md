@@ -1,7 +1,7 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
 本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：PC 粘贴路径证据目前单独覆盖 `flagship-kiln` 与 `flagship-tempera`；`flagship-amber` 仍需补一次真实公众号后台 PC 粘贴登记。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：PC 粘贴路径证据覆盖 `flagship-kiln` 与 `flagship-tempera`；`flagship-amber` 另有 2026-06-09 CloakBrowser `ClipboardEvent` channel 的 PC DOM readback 证据，但普通 Ctrl+V 仍阻断，且三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
@@ -33,6 +33,11 @@ token、账号 ID、模板代码或私有素材）。
 编辑器只读证据：编辑器可达、`.ProseMirror` 标题/正文 DOM 可读、正文含真实音频卡，因此本轮未做
 粘贴/保存/预览/发布；该证据只对应 `authenticated-editor-reachable` 和 `pc-editor-dom-readable`，
 不升级为 `pc-editor-paste`、`mobile-preview`、`credentialed-sync` 或 `published`）。
+`wechat-paste/amber-pc-clipboardevent-readback-20260609.txt`（CloakBrowser `inkforge-0601`
+在真实微信 PC 图文编辑器里对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')`
+加 `DataTransfer`，微信 paste handler 接管并读回 `data-ink-svg=3` / `svg=35`。该证据只覆盖
+特定 PC ClipboardEvent channel；普通 Ctrl+V、手机预览、Dark Mode、封面缩略图、同步、定时发送
+和发布仍未证明）。
 `style-proof-checklist-20260609.txt`（style-catalog 运行时 proof checklist：`pc-editor-paste`
 必须有 exact artifact、safe disposable draft、真实 PC paste/channel event、PC DOM readback 和敏感
 证据隔离；`mobile-preview` 单独要求手机读回/截图、Dark Mode 和封面缩略图检查；同次 CloakBrowser
@@ -142,7 +147,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 - 已完成：真实 `mp.weixin.qq.com` PC 图文编辑器粘贴路径验证。Playwright 触发真实 `text/html` paste 事件后，微信编辑器 paste sanitizer 在 `flagship-kiln` / `flagship-tempera` 样本中保留 inline SVG / `data-ink-svg`，并在 PC 编辑器中可视化渲染封面、分隔线、引用卡和文末结束标。
 - 已完成：PC 粘贴验证暴露的封面长标题溢出已修复，并通过重粘验证 `coverMaxOverflowPx` 为负值，标题落在 viewBox 内。
-- 未完成：`flagship-amber` 单独 PC 后台粘贴登记；微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式确认。手机端步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
+- 已补充：`flagship-amber` 的 CloakBrowser 程序化 `ClipboardEvent` PC 编辑器读回证据（同一 artifact 读回 `data-ink-svg=3` / `svg=35`）。普通 Ctrl+V 仍在 2026-06-08 被微信降级为纯文本。未完成：微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式 / 封面缩略图确认。手机端步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
 
 对**每个旗舰预设**（赤陶旗舰 / 铜绿旗舰 / 黄铜旗舰）执行：
 
@@ -175,13 +180,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-source-refresh-20260608.txt   # 市场来源刷新：135/Xiumi/Exa/Grok，非敏感文本证据
 [x] focused-export-refresh-20260608.txt  # focused 导出测试：4 files / 64 tests passed
 [x] svg-modules-refresh-20260608.txt     # SVG 模块 + 旗舰产物 emitter：15 files / 383 tests passed
-[x] platform-gate-matrix-20260608.md     # 当前平台门禁矩阵：机器门禁完成，WeChat 手机/amber 门禁仍缺
+[x] platform-gate-matrix-20260608.md     # 历史平台门禁矩阵：机器门禁完成；WeChat 手机门禁仍缺，amber 普通 Ctrl+V 仍阻断
 [x] market-rule-overnight-refresh-20260608.txt # 当前市场规则硬化：135/Xiumi/WeChat official/XHS/Zhihu/agent 复审
 [x] quality-gate-hardening-20260608.txt # 当前质量门禁实现：WeChat/XHS/Zhihu 阻断规则 + tests/lint/typecheck/build
 [x] xhs-markdown-gate-refresh-20260608.txt # 当前质量门禁实现：XHS raw Markdown 控制符阻断 + WeChat 登录态复核
 [x] style-catalog-amber-paste-refresh-20260608.txt # 当前规则实现：style-catalog typed choices + amber paste blocked proof
 [x] market-editor-element-probe-20260608.txt # 本轮只读浏览器元素探针 + CloakBrowser applied-element rerun：WeChat 后台 + 135/Xiumi taxonomy/应用元素规则
 [x] wechat-editor-authenticated-readable-20260609.txt # 当前微信后台：CloakBrowser 登录态编辑器可达且 DOM 可读；不含粘贴/预览/保存/发布
+[x] wechat-paste/amber-pc-clipboardevent-readback-20260609.txt # 当前微信后台：amber exact artifact 的特定 ClipboardEvent channel PC DOM readback；普通 Ctrl+V/手机/发布仍未证明
 [x] style-proof-checklist-20260609.txt # 当前规则实现：evidence label -> proof requirement 清单；safe draft/phone/Dark Mode/cover gates 独立
 [x] style-proof-manifest-validator-20260609.txt # 当前规则实现：StyleProofManifest runtime validator；proof 质量门禁，不升级 platform success
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
@@ -193,7 +199,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
 [x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
 [x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
-[ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰富文本/SVG 粘贴补证；普通剪贴板路径已失败，需明确替代渠道
+[ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰可提交截图补证；当前只有脱敏文本读回，普通剪贴板路径已失败
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
 [ ] wechat-flagship-tempera-mobile-<日期>.png   # B 手机预览：铜绿旗舰公众号渲染
 [ ] wechat-flagship-amber-mobile-<日期>.png     # B 手机预览：黄铜旗舰公众号渲染
@@ -210,7 +216,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本，因此当前剩余手动门禁是：为 amber 明确验证一个能保留富 HTML/SVG 的真实渠道、微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认与封面缩略图入口确认。
+- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本；2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel 对 exact artifact 的 PC DOM readback 保留 `data-ink-svg=3` / `svg=35`。因此当前剩余手动门禁是：微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认、封面缩略图入口确认，以及普通 Ctrl+V/插件/授权同步等其他渠道若要对外宣称时的单独证明。
 - 2026-06-09 CloakBrowser `inkforge-0601` 复核证明当前账号可进入微信 PC 图文编辑器，并能读取顶层 `.ProseMirror` 标题/正文 DOM；但当前草稿正文含真实音频卡，未执行任何粘贴、保存、预览或发布。该证据只能作为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不得外推为 `pc-editor-paste` 或手机端证明。
 - 2026-06-09 runtime proof checklist 已落到 `style-catalog.ts`：`pc-editor-paste` 的安全前置包括 `safe-disposable-draft`；本轮只读探测到的 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为粘贴测试入口。
 - 2026-06-09 `validateStyleProofManifest()` 已落到 `style-catalog.ts`：它验证 redacted proof manifest 是否覆盖 required proof items、是否同一 artifact、是否真实平台 action/readback、是否误用弱证据、是否引用敏感本地/profile/HAR/QR/token/cookie 材料。它不改变 style availability、selectable 状态，也不等于平台预览、同步或发布成功。

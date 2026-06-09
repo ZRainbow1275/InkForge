@@ -23,7 +23,7 @@
 
 ## 人工粘贴步骤（每份产物各做一次）
 
-**当前状态（2026-06-08）**：`flagship-kiln` 与 `flagship-tempera` 已在真实 `mp.weixin.qq.com` PC 图文编辑器中通过 Playwright 触发 `text/html` paste 事件验证。微信 paste sanitizer 保留 inline SVG 与 `data-ink-svg`，PC 编辑器可视化渲染成立；PC 验证还暴露并修复了封面长标题溢出。`flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e 和本地 artifact probe 覆盖，但 2026-06-08 后续在已认证 `.ProseMirror` 编辑器里的普通 `text/html` 剪贴板重试失败：剪贴板 artifact 含 `data-ink-svg=3` / `svg=35` / `data-ink-block=23`，真实 `Control+V` 后微信编辑器读回仍为纯文本（`data-ink-svg=0` / `svg=0` / `style=0`）。因此 `flagship-amber` **不得**标记为 PC 富文本粘贴通过，除非后续单独验证插件传输、开发者工具 HTML 替换或授权同步等明确渠道。三旗舰最终仍需手机微信扫码预览来确认移动端渲染、SMIL 交互和暗黑模式。
+**当前状态（2026-06-09）**：`flagship-kiln` 与 `flagship-tempera` 已在真实 `mp.weixin.qq.com` PC 图文编辑器中通过 paste 事件验证。微信 paste sanitizer 保留 inline SVG 与 `data-ink-svg`，PC 编辑器可视化渲染成立；PC 验证还暴露并修复了封面长标题溢出。`flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e 和本地 artifact probe 覆盖。2026-06-08 在已认证 `.ProseMirror` 编辑器里的普通 `text/html` 剪贴板重试失败：剪贴板 artifact 含 `data-ink-svg=3` / `svg=35` / `data-ink-block=23`，真实 `Control+V` 后微信编辑器读回仍为纯文本（`data-ink-svg=0` / `svg=0` / `style=0`）。2026-06-09 随后使用 CloakBrowser 在真实微信 PC 编辑器中以程序化 `ClipboardEvent('paste')` + `DataTransfer` 注入同一 `flagship-amber.html`，微信自身 paste handler 接管并阻止默认行为，读回保留 `data-ink-svg=3`、`svg=35`、`styleAttr=195`、`classAttr=30` 和完整正文结构；证据见 `amber-pc-clipboardevent-readback-20260609.txt`。因此 amber 现在只有**特定 ClipboardEvent channel 的 PC DOM readback**，普通 Ctrl+V 仍阻断，三旗舰最终仍需手机微信扫码预览来确认移动端渲染、SMIL 交互、暗黑模式和封面缩略图。
 
 1. 用 **Chrome 或 Edge** 打开 `<presetId>.html`（双击即可）。
 2. 在页面正文区按 **Ctrl + A**（全选），再按 **Ctrl + C**（复制）。
@@ -84,7 +84,7 @@
 - 问题 / 截图链接：
 
 ### flagship-amber（黄铜旗舰）
-- PC 后台粘贴：普通剪贴板路径阻断。2026-06-08 已认证微信图文编辑器重试中，artifact 在剪贴板里是富 HTML/SVG，但 `Control+V` 后编辑器 DOM 读回为纯文本，`data-ink-svg=0`、`svg=0`、`style=0`。当前只有真实导出管线、Tauri/WebView2 e2e 与本地 artifact probe 证据，不能外推为真实公众号后台 PC paste 通过。
+- PC 后台粘贴：普通剪贴板路径阻断。2026-06-08 已认证微信图文编辑器重试中，artifact 在剪贴板里是富 HTML/SVG，但 `Control+V` 后编辑器 DOM 读回为纯文本，`data-ink-svg=0`、`svg=0`、`style=0`。2026-06-09 CloakBrowser 以程序化 `ClipboardEvent('paste')` + `DataTransfer` 触发真实微信 PC 编辑器 paste handler，同一 `flagship-amber.html` 读回 `data-ink-svg=3`、`svg=35`、`styleAttr=195`、`classAttr=30`，并在重启后只读确认首页近期草稿未出现新增可见草稿；详见 `amber-pc-clipboardevent-readback-20260609.txt`。该证据只覆盖特定 PC ClipboardEvent channel，不等于普通 Ctrl+V、手机预览、同步或发布通过。
 - 手机预览日期 / 微信版本：
 - 封面：
 - 标题头：

@@ -1161,6 +1161,46 @@ git status --short --branch
 - Evidence summary:
   `prompts/0601/evidence/style-proof-readiness-matrix-20260609.txt`.
 
+### 2026-06-09 post-reboot amber PC editor readback recovery
+
+- Resumed after reboot without creating a new task. `task.py current` still reported none, but
+  `06-01-multiplatform-render-svg/` remained `in_progress`, matching the active task context.
+- Stopped the leftover temporary artifact server on `127.0.0.1:3106` after confirming its command
+  line served only `prompts/0601/evidence/wechat-paste/flagship-amber.html`; the port no longer
+  had a listening process.
+- Reopened WeChat through CloakBrowser only with the required `inkforge-0601` profile. The backend
+  was still logged in and on the home page, not the editor route. A read-only DOM probe found no
+  `.ProseMirror` editors mounted and the visible recent draft set still matched the pre-test set:
+  `111`, `静谧刊印：当排版成为一种克制的力量`, `数字人民币：一切的基点`, `未命名文章`.
+- Documented the prior amber platform action as channel-specific evidence:
+  exact `flagship-amber.html` was dispatched to the real WeChat PC body editor through a
+  CloakBrowser programmatic `ClipboardEvent('paste')` plus `DataTransfer`; WeChat's paste handler
+  intercepted it and DOM readback kept `data-ink-svg=3`, `svg=35`, `styleAttr=195`,
+  `classAttr=30`, `hasFlagshipFooter=true`, `hasInteractiveStretch=true`, and `hasCover=true`.
+- Preserved the boundary that this does not prove ordinary Ctrl+V, phone/mobile preview,
+  SMIL/click behavior on phone, Dark Mode, cover-thumbnail acceptance, credentialed sync,
+  scheduled send, or publish.
+- Kept `wechat-flagship-amber` catalog status `blocked`; only the blocker text now distinguishes
+  ordinary Ctrl+V failure from the CloakBrowser ClipboardEvent PC channel readback.
+- Verification:
+  `npx gitnexus impact PLATFORM_STYLE_CHOICES -r InkForge --depth 3`: LOW, 0 affected processes.
+  `npx gitnexus impact getPlatformStyleChoices -r InkForge --depth 3`: LOW, 4 impacted symbols,
+  0 affected processes.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 58 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 97 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 991 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in 31.68s.
+  `git diff --check -- <slice paths>`: passed; only Windows autocrlf warnings appeared.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+- Evidence summary:
+  `prompts/0601/evidence/wechat-paste/amber-pc-clipboardevent-readback-20260609.txt`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
@@ -1207,6 +1247,9 @@ git status --short --branch
 - [x] Commit the combined 2026-06-09 applied-editor-element evidence-label and block-boundary
       insertion guard runtime slice only; leave unrelated dirty files, pre-existing dirty e2e
       PNG files, QR/platform-preview candidates, and local CloakBrowser screenshots untouched.
+- [x] Verify and commit the 2026-06-09 post-reboot amber PC editor readback documentation slice
+      only; leave unrelated dirty files, pre-existing dirty e2e PNG files, QR/platform-preview
+      candidates, and local CloakBrowser screenshots untouched.
 
 ## Honest Non-Goals For This Slice
 
