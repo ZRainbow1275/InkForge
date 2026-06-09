@@ -1260,6 +1260,63 @@ git status --short --branch
   signature includes `order`, `blockedByCatalog`, and `note`, and the evidence table includes
   the `marketEditor` summary column.
 
+## 2026-06-09 ExportModal Style Proof Gate UI Slice
+
+- Surfaced `getPlatformStyleProofCollectionPlan(platform)` inside
+  `inkforge/src/components/export/ExportModal.vue`.
+- The style catalog preflight row now displays platform-level pending proof totals: total pending
+  proof steps, locally automatable steps, phone steps, and external-account/platform steps.
+- Each style capability card now displays:
+  - a proof summary derived from the choice-specific collection steps;
+  - up to four distinct gate labels from the collection plan, covering local evidence, market
+    editor, PC editor, phone preview, credentialed channel, public host, platform publish, and
+    sensitive-hygiene gates.
+- The UI is informational only. It does not change `selectable`, `usable`, `blocked`, or
+  `unavailable` decisions and does not execute any platform action.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` to record the UI contract: ExportModal
+  may show collection-plan summaries and gate labels, but must keep availability decisions and
+  proof collection gates separate.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-ui-gates-20260609.txt`.
+- Runtime boundary from the evidence file:
+  local UI proof only; no WeChat/XHS/Zhihu paste, phone preview, sync, scheduled send, or publish
+  success is claimed.
+- GitNexus impact checks:
+  `npx gitnexus impact getPlatformStyleApplicationReport -r InkForge --depth 3`: LOW,
+  0 affected processes.
+  `npx gitnexus impact getPlatformStyleAvailabilityReport -r InkForge --depth 3`: LOW,
+  0 affected processes.
+  `npx gitnexus impact getPlatformStyleProofCollectionPlan -r InkForge --depth 3` could not find
+  the new symbol in the current index, so the slice uses the two existing report symbols plus
+  focused tests, build checks, CloakBrowser UI proof, and final `detect-changes` as the fallback.
+- Verification already run before the reboot:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 59 tests passed.
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- CloakBrowser runtime UI smoke before the reboot (profile `inkforge-0601`, no Playwright):
+  desktop 1400x900 and mobile 390x844 both opened the real local Vite app, entered the real
+  workstation, opened the ExportModal through the existing export button, and showed 15 style
+  cards, 15 proof summaries, 60 proof gate labels, and no horizontal overflow.
+- Post-reboot verification refresh:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 59 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 98 tests passed.
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  29.44s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+  GitNexus impact for `getPlatformStyleApplicationReport` and
+  `getPlatformStyleAvailabilityReport` stayed LOW with 0 affected processes; the current
+  GitNexus index still could not find `getPlatformStyleProofCollectionPlan`.
+  CloakBrowser desktop/mobile refresh again showed 15 style cards, 15 proof summaries, 60 proof
+  gate labels, no horizontal overflow, and no emoji-like visible text. Temporary local screenshots
+  were used for visual inspection only and are not recorded as evidence paths.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
@@ -1313,6 +1370,9 @@ git status --short --branch
       dirty files, pre-existing dirty e2e PNG files, QR/platform-preview candidates, local
       CloakBrowser screenshots, profile paths, cookies, tokens, HAR, and account artifacts
       untouched.
+- [x] Verify and commit the 2026-06-09 ExportModal style proof gate UI slice only; leave unrelated
+      dirty files, pre-existing dirty e2e PNG files, QR/platform-preview candidates, local
+      CloakBrowser screenshots, local browser runtime/auth artifacts, and account artifacts untouched.
 
 ## Honest Non-Goals For This Slice
 

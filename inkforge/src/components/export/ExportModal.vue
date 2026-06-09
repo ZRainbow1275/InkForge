@@ -10,6 +10,7 @@ import {
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
+  getPlatformStyleProofCollectionPlan,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -21,7 +22,8 @@ import type {
   ExportFontFamily, ExportFontSize,
   StyleArtifactType, StyleChoiceApplication, StyleChoiceApplicationAvailability,
   StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
-  StyleMotionLevel, StyleRuleGroup, StyleVisualStrength
+  StyleMotionLevel, StyleProofCollectionGate, StyleProofCollectionStep,
+  StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -119,6 +121,8 @@ interface StyleChoiceDisplay {
   ruleGroupLabel: string
   evidenceLabel: string
   detail: string
+  proofSummary: string
+  proofGateLabels: string[]
   actionLabel: string
 }
 
@@ -172,6 +176,16 @@ const currentPresets = computed((): PresetDisplay[] => {
 
 const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
 const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(selectedPlatform.value))
+const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionPlan(selectedPlatform.value))
+const styleProofStepsByChoice = computed(() => {
+  const grouped = new Map<string, StyleProofCollectionStep[]>()
+  for (const step of styleProofCollectionPlan.value.steps) {
+    const steps = grouped.get(step.choice.id) ?? []
+    steps.push(step)
+    grouped.set(step.choice.id, steps)
+  }
+  return grouped
+})
 const selectedStyleChoiceApplication = computed(() =>
   styleApplicationReport.value.find(item =>
     item.availability.choice.id === selectedStyleChoiceIds.value[selectedPlatform.value],
@@ -180,15 +194,17 @@ const selectedStyleChoiceApplication = computed(() =>
 
 const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
+  const proofPlan = styleProofCollectionPlan.value
   const limitedCount = report.stats.blocked + report.stats.unavailable
   const selectedAction = selectedStyleChoiceApplication.value
+  const proofTail = `待补证据 ${proofPlan.summary.total}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
 
   if (selectedAction?.selectable && selectedAction.application) {
     return {
       key: 'style-catalog',
       label: '样式能力目录',
       state: 'ready',
-      detail: `已选择 ${selectedAction.availability.choice.label} → ${selectedAction.application.presetLabel}（${selectedAction.application.presetId}）；可用 ${report.stats.usable}/${report.stats.total}`,
+      detail: `已选择 ${selectedAction.availability.choice.label} → ${selectedAction.application.presetLabel}（${selectedAction.application.presetId}）；可用 ${report.stats.usable}/${report.stats.total}；${proofTail}`,
     }
   }
 
@@ -197,7 +213,7 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
       key: 'style-catalog',
       label: '样式能力目录',
       state: 'blocked',
-      detail: `${selectedAction.availability.choice.label} 当前不可应用：${selectedAction.reason}`,
+      detail: `${selectedAction.availability.choice.label} 当前不可应用：${selectedAction.reason}；${proofTail}`,
     }
   }
 
@@ -205,27 +221,69 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
     key: 'style-catalog',
     label: '样式能力目录',
     state: report.stats.usable > 0 ? limitedCount > 0 ? 'warning' : 'ready' : 'blocked',
-    detail: `可用 ${report.stats.usable}/${report.stats.total}；受限 ${report.stats.blocked}；不可用 ${report.stats.unavailable}`,
+    detail: `可用 ${report.stats.usable}/${report.stats.total}；受限 ${report.stats.blocked}；不可用 ${report.stats.unavailable}；${proofTail}`,
   }
 })
 
 const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
-  styleApplicationReport.value.map(item => ({
-    availability: item.availability,
-    application: item.application,
-    selectable: item.selectable,
-    selected: selectedStyleChoiceIds.value[selectedPlatform.value] === item.availability.choice.id,
-    statusClass: `style-choice-${item.availability.status}`,
-    statusLabel: styleStatusLabel(item.availability.status, item.availability.usable),
-    outputLabel: styleArtifactLabel(item.availability.choice.primaryOutput),
-    strengthLabel: styleStrengthLabel(item.availability.choice.visualStrength),
-    motionLabel: styleMotionLabel(item.availability.choice.motion),
-    ruleGroupLabel: styleRuleGroupLabel(item.availability.choice.ruleGroup),
-    evidenceLabel: styleEvidenceLabel(item.availability.requiredEvidence),
-    detail: styleChoiceDetail(item.availability),
-    actionLabel: styleChoiceActionLabel(item),
-  })),
+  styleApplicationReport.value.map(item => {
+    const proofSteps = styleProofStepsByChoice.value.get(item.availability.choice.id) ?? []
+    return {
+      availability: item.availability,
+      application: item.application,
+      selectable: item.selectable,
+      selected: selectedStyleChoiceIds.value[selectedPlatform.value] === item.availability.choice.id,
+      statusClass: `style-choice-${item.availability.status}`,
+      statusLabel: styleStatusLabel(item.availability.status, item.availability.usable),
+      outputLabel: styleArtifactLabel(item.availability.choice.primaryOutput),
+      strengthLabel: styleStrengthLabel(item.availability.choice.visualStrength),
+      motionLabel: styleMotionLabel(item.availability.choice.motion),
+      ruleGroupLabel: styleRuleGroupLabel(item.availability.choice.ruleGroup),
+      evidenceLabel: styleEvidenceLabel(item.availability.requiredEvidence),
+      detail: styleChoiceDetail(item.availability),
+      proofSummary: styleProofSummary(proofSteps),
+      proofGateLabels: styleProofGateLabels(proofSteps),
+      actionLabel: styleChoiceActionLabel(item),
+    }
+  }),
 )
+
+function styleProofSummary(steps: readonly StyleProofCollectionStep[]): string {
+  if (steps.length === 0) return '证据门禁：当前无待采集项，仍以最终平台验收为准'
+
+  const invalid = steps.filter(step => step.status === 'invalid').length
+  const localSafe = steps.filter(step => step.safeToAutomate).length
+  const phone = steps.filter(step => step.requiresPhone).length
+  const external = steps.filter(step => step.requiresExternalAccount).length
+  const invalidPart = invalid > 0 ? `，无效 ${invalid}` : ''
+  return `证据门禁：待采集 ${steps.length}${invalidPart}；本地 ${localSafe}；手机 ${phone}；账号/平台 ${external}`
+}
+
+function styleProofGateLabels(steps: readonly StyleProofCollectionStep[]): string[] {
+  const labels: string[] = []
+  const seen = new Set<StyleProofCollectionGate>()
+  for (const step of steps) {
+    if (seen.has(step.gate)) continue
+    seen.add(step.gate)
+    labels.push(styleProofGateLabel(step.gate))
+    if (labels.length >= 4) break
+  }
+  return labels
+}
+
+function styleProofGateLabel(gate: StyleProofCollectionGate): string {
+  const labels: Record<StyleProofCollectionGate, string> = {
+    'local-evidence': '本地证据',
+    'market-editor': '市场编辑器',
+    'authenticated-pc-editor': 'PC 编辑器',
+    'phone-preview': '手机预览',
+    'credentialed-channel': '授权通道',
+    'public-host': '公开图床',
+    'platform-publish': '平台发布',
+    'sensitive-hygiene': '敏感清洁',
+  }
+  return labels[gate]
+}
 
 function styleChoiceActionLabel(item: StyleChoiceApplicationAvailability): string {
   if (item.selectable && item.application) return `应用到 ${item.application.presetLabel}`
@@ -997,6 +1055,21 @@ onUnmounted(() => {
                     <p class="style-choice-detail">
                       {{ row.detail }}
                     </p>
+                    <p class="style-choice-proof-summary">
+                      {{ row.proofSummary }}
+                    </p>
+                    <div
+                      v-if="row.proofGateLabels.length"
+                      class="style-choice-proof-gates"
+                      aria-label="待补证据门禁"
+                    >
+                      <span
+                        v-for="gateLabel in row.proofGateLabels"
+                        :key="gateLabel"
+                      >
+                        {{ gateLabel }}
+                      </span>
+                    </div>
                     <div class="style-choice-action">
                       <span>{{ row.actionLabel }}</span>
                       <span
@@ -1865,6 +1938,33 @@ onUnmounted(() => {
   font-size: 11px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+.style-choice-proof-summary {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.style-choice-proof-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.style-choice-proof-gates span {
+  padding: 2px 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warning-light) 62%, var(--bg-surface));
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .style-choice-action {

@@ -1,0 +1,75 @@
+# Style proof gate UI runtime evidence - 2026-06-09
+
+Scope:
+
+- UI surface: `inkforge/src/components/export/ExportModal.vue`.
+- Runtime API surfaced in UI: `getPlatformStyleProofCollectionPlan(platform)`.
+- Local URL: `http://127.0.0.1:3005/`.
+- Browser tool: CloakBrowser only.
+- Boundary: this is local UI evidence. It does not paste into a platform editor, does not
+  create a draft, does not sync, does not open mobile WeChat preview, and does not publish.
+
+Implementation behavior:
+
+- ExportModal style capability cards now show a proof summary for every style choice.
+- The style preflight row includes platform-level pending proof totals.
+- Each style card shows up to four gate labels from the collection plan so users can see
+  whether the missing evidence is local, PC editor, phone preview, credentialed channel,
+  public host, platform publish, market editor, or sensitive-hygiene work.
+- This UI does not change `selectable`, `usable`, `blocked`, or `unavailable` decisions.
+
+Desktop CloakBrowser smoke:
+
+- Opened the real local Vite app.
+- Entered the real Workstation draft through the existing "continue writing" button.
+- Opened ExportModal through the existing export button.
+- Page title: `InkForge - 工作站`.
+- Viewport: 1400 x 900.
+- `documentElement.scrollWidth`: 1400.
+- `body.scrollWidth`: 1400.
+- Horizontal overflow: false.
+- Style cards: 15.
+- Proof summaries: 15.
+- Proof gate labels: 60.
+- First visible WeChat style card proof summary:
+  `证据门禁：待采集 11；本地 3；手机 4；账号/平台 4`.
+- First visible WeChat style card gate labels:
+  `本地证据`, `敏感清洁`, `PC 编辑器`, `手机预览`.
+- Card overlap check on the first visible cards: false.
+
+Mobile CloakBrowser smoke:
+
+- Reopened the same local Workstation route at 390 x 844.
+- Opened ExportModal through the existing export button.
+- `documentElement.scrollWidth`: 390.
+- `body.scrollWidth`: 390.
+- Horizontal overflow: false.
+- Style cards: 15.
+- Proof summaries: 15.
+- Proof gate labels: 60.
+- Style catalog area width: 364px.
+- First visible card width: 332px.
+- First visible card `scrollWidth/clientWidth`: 331/331.
+- The four first-card gate labels stayed on one wrapped row inside the card.
+- Amber business flagship card height expanded to 207.84px for its longer blocker text,
+  while card `scrollWidth/clientWidth` remained 331/331.
+
+Post-reboot verification refresh:
+
+- After the computer reboot, restarted the real local Vite app and repeated the same
+  CloakBrowser desktop and mobile checks with the `inkforge-0601` profile.
+- Desktop 1400 x 900 again reported `documentElement.scrollWidth=1400`,
+  `body.scrollWidth=1400`, horizontal overflow false, 15 style cards, 15 proof summaries,
+  and 60 gate labels.
+- Mobile 390 x 844 again reported `documentElement.scrollWidth=390`, `body.scrollWidth=390`,
+  horizontal overflow false, 15 style cards, 15 proof summaries, 60 gate labels,
+  style catalog width 364px, and first-card `scrollWidth/clientWidth=331/331`.
+- Temporary local screenshots were used only for visual inspection of the desktop and mobile
+  style catalog area. No local screenshot locator is recorded here and no screenshot is part of this
+  evidence commit.
+
+Sensitive-artifact boundary:
+
+- No account page material, local browser runtime locator, platform private URL, phone-scan
+  material, or local credential locator is recorded in this evidence file.
+- CloakBrowser and the local Vite server were closed after the smoke.

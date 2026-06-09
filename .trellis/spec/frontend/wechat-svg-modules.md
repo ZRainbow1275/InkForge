@@ -66,6 +66,11 @@ construct breaks.
   exposes whether a step mutates a real platform, requires an external account, requires a phone,
   or is safe to automate locally. It is scheduling metadata only; it must not promote blocked
   styles or replace exact CloakBrowser/platform proof.
+- ExportModal may surface this plan in the style capability cards as proof summaries and gate
+  labels. That UI is informational only: it must not change `selectable`, `usable`, `blocked`, or
+  `unavailable` decisions, and it must keep local evidence, PC editor proof, phone preview,
+  credentialed channel, public host, platform publish, and sensitive-hygiene gates visually
+  distinct.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
