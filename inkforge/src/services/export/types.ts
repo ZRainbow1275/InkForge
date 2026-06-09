@@ -5,6 +5,7 @@
  */
 
 import type { ExportPreset, PresetPersona, ExportTarget, FontSpec } from '@/types'
+import type { XhsImageArtifactManifest } from './image-pipeline/types'
 import type { SvgInjectionPlan } from './svg-modules/inject'
 
 // ═══════════════════════════════════════════════════════════════════
@@ -489,4 +490,8 @@ export interface NativeExportResult {
   platform: Platform
   /** 质量报告 */
   qualityReport?: QualityReport
+  /** 本地导出产物证明；只表示 artifact preflight，不等于平台发布成功 */
+  artifacts?: {
+    xiaohongshuImageManifest?: XhsImageArtifactManifest
+  }
 }

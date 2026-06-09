@@ -99,6 +99,10 @@ instead of duplicating this document's matrix.
 
 - 3:4、1080x1440、1242x1660、18 图、20MB 等都是配置默认值和发布清单输入，不是永久硬编码。
 - 每个图片页导出必须带 manifest：页码、文件名、尺寸、比例、格式、cover 标记、正文引用状态和裁切状态。
+- Runtime validator: `validateXhsImageArtifactManifest()` validates local image-page/long-image
+  artifacts before InkForge reports local readiness. `convertToNativeFormat(..., 'xiaohongshu')`
+  can carry `artifacts.xiaohongshuImageManifest` only as local preflight evidence; it is not a
+  publish-state upgrade.
 - 用户可选“高视觉强度”时，正文仍是纯文本；视觉丰富度只进入图片页、封面、海报或长图。
 - 没有真实小红书发布入口时，只能报告本地图片 artifact 通过，不能报告平台发布通过。
 
@@ -123,6 +127,9 @@ instead of duplicating this document's matrix.
 | 图片重编号 | 删除/新增/重排图片后仍出现旧页码、旧文件或旧封面引用 | 阻断 |
 | 图片裁切 | 标题/正文被裁切 | 阻断 |
 | 文件存在 | manifest 中图片不存在 | 阻断 |
+| Manifest 页序 | 页码不连续、重复、cover 不在首图或 cover 重复 | 阻断 |
+| Manifest 字节数 | 缺少真实 bytes 或超过当前 max bytes | 阻断 |
+| Manifest 裁切证明 | `cropStatus=overflow` 阻断；`warning/unknown` 只能作为本地 preflight 警告 | 阻断 / 警告 |
 | 发布能力 | 无账号/无权限/未登录 | `blocked` / `unavailable` |
 
 ## 六、市场实践映射

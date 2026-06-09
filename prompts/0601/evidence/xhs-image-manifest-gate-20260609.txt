@@ -1,0 +1,116 @@
+XHS image artifact manifest runtime gate - 2026-06-09
+
+Scope
+-----
+
+This slice adds a local preflight gate for Xiaohongshu image-page / cover /
+long-image artifacts. It does not claim real Xiaohongshu upload, account sync,
+preview, or publish success.
+
+Implemented runtime contract
+----------------------------
+
+- `XhsImageArtifactManifest` records image artifact kind, pages, body references,
+  optional configured limits, and per-page file/dimension/ratio/format/bytes/
+  cover/reference/crop status.
+- `validateXhsImageArtifactManifest()` emits blocking issues for:
+  - empty or over-limit page count;
+  - non-continuous, duplicated, or cover-not-first page order;
+  - missing file existence proof;
+  - missing or duplicated cover page;
+  - body reference mismatch;
+  - unsupported or dimension-mismatched ratio;
+  - unsupported format;
+  - missing, zero, or over-limit bytes;
+  - crop overflow.
+- `cropStatus=warning` or `cropStatus=unknown` remains a warning and does not
+  become a fake local pass.
+- `convertToNativeFormat(..., 'xiaohongshu')` accepts the optional manifest,
+  merges manifest issues into the quality report, and returns
+  `artifacts.xiaohongshuImageManifest` as local preflight evidence only.
+- If no manifest is supplied, the previous Xiaohongshu native text behavior is
+  unchanged.
+
+GitNexus / impact
+-----------------
+
+- `gitnexus detect_changes(scope=all)`: low risk, 36 changed files in the noisy
+  full worktree, 0 affected execution processes. This includes unrelated dirty
+  files, so final review remains path-specific and staged-only.
+- `gitnexus impact convertToNativeFormat`: LOW risk, 2 direct callers
+  (`platform-export-rendering.test.ts`, `ExportModal.vue`), 0 affected processes.
+- `gitnexus impact detectQuality`: MEDIUM risk because it is a shared export
+  quality entry. Direct callers include `convertToNativeFormat`,
+  `detectQualityAll`, `quickCheck`, `platform-export-rendering.test.ts`, and
+  `ExportModal.vue`; 0 affected processes. Full export regression was therefore
+  required and passed.
+
+Validation commands and results
+-------------------------------
+
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/xhs.test.ts --reporter=default`
+  - 3 files passed, 69 tests passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - 4 files passed, 85 tests passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - 35 files passed, 979 tests passed.
+- `pnpm -C inkforge exec eslint src/services/export/types.ts src/services/export/index.ts src/services/export/quality-detector.ts src/services/export/image-pipeline/types.ts src/services/export/image-pipeline/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - passed, Vite built in 36.03s.
+- `inkforge/tsconfig.tsbuildinfo`
+  - restored after build; generated cache is intentionally not part of this slice.
+
+CloakBrowser local visual smoke
+-------------------------------
+
+Browser route: CloakBrowser only, using the existing `inkforge-0601` profile.
+No Playwright was used for this visual pass.
+
+- Home:
+  - title `InkForge - 首页`;
+  - document width 1440, horizontal overflow 0;
+  - 39 visible controls, 0 zero-sized visible controls;
+  - no emoji found in visible system text.
+- Workstation:
+  - title `InkForge - 工作站`;
+  - `.ProseMirror` present, visible, and populated;
+  - publish entry visible;
+  - document width 1440, horizontal overflow 0;
+  - 13 visible controls, 0 zero-sized visible controls;
+  - no emoji found in visible system text.
+- Export modal / WeChat tab:
+  - `.export-panel` visible at 900 x 768 in a 1440 x 960 viewport;
+  - horizontal overflow 0;
+  - 86 visible controls, 0 zero-sized visible controls;
+  - WeChat style cards expose available / blocked / unavailable states;
+  - no emoji found in visible system text.
+- Export modal / Xiaohongshu tab:
+  - active tab `小红书`;
+  - `.export-panel` remains 900 x 768;
+  - horizontal overflow 0;
+  - 41 visible controls, 0 zero-sized visible controls;
+  - current style catalog text reports `小红书 当前可用 4/7`;
+  - image-page and long-image choices remain explicit local artifact states,
+    not publish proof.
+
+Evidence hygiene
+----------------
+
+- No account page screenshot, QR screenshot, cookie, token, platform user id,
+  private template source, or market editor source code is recorded here.
+- CloakBrowser visual captures were used only for local inspection and their
+  local filesystem paths are intentionally not written into this evidence file.
+- 135/Xiumi/WeChat platform state is not used to claim this XHS manifest gate.
+- This gate proves only local artifact preflight behavior inside InkForge.
+
+Non-claims
+----------
+
+- Not a real Xiaohongshu upload.
+- Not Xiaohongshu mobile preview proof.
+- Not Xiaohongshu publish proof.
+- Not a WeChat paste, mobile preview, sync, scheduled send, or publish proof.
+- Not a Zhihu public host/upload proof.

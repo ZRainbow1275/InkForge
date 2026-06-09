@@ -47,6 +47,12 @@ WeChat runtime 门禁：`wechat-layout-report-required` 阻断自由定位、z-o
 固定几何、手动位移、负 margin 和隐藏触发区；普通自有 inline flow 色块不误报；focused Vitest
 44 tests passed，4-file export regression 83 tests passed，full export serial 977 tests passed，
 ESLint/vue-tsc/build exit 0，CloakBrowser local visual check done；不含截图路径或账号数据）。
+`xhs-image-manifest-gate-20260609.txt`（小红书 image-page / cover / long-image 本地 artifact
+manifest runtime 门禁：`validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、
+比例/尺寸、格式、bytes 与裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 只把 manifest
+作为 local preflight artifact 返回，不升级为上传、预览或发布证明；focused XHS/export 69 tests
+passed，4-file export regression 85 tests passed，full export serial 979 tests passed，ESLint/vue-tsc/build
+exit 0，CloakBrowser `inkforge-0601` local visual check done；不含截图路径、账号数据或平台发布声称）。
 `pnpm -C inkforge test:e2e` 由
 `onPrepare` 真实 `cargo build`，通过 `tauri-driver.exe` + `msedgedriver.exe` 驱动真
 Tauri/WebView2 二进制；`svg-render.spec.cjs` 5 tests passed，`visual.spec.cjs` 11 tests
@@ -150,6 +156,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-checklist-20260609.txt # 当前规则实现：evidence label -> proof requirement 清单；safe draft/phone/Dark Mode/cover gates 独立
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
+[x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
@@ -176,3 +183,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - 2026-06-09 CloakBrowser `inkforge-0601` 复核证明当前账号可进入微信 PC 图文编辑器，并能读取顶层 `.ProseMirror` 标题/正文 DOM；但当前草稿正文含真实音频卡，未执行任何粘贴、保存、预览或发布。该证据只能作为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不得外推为 `pc-editor-paste` 或手机端证明。
 - 2026-06-09 runtime proof checklist 已落到 `style-catalog.ts`：`pc-editor-paste` 的安全前置包括 `safe-disposable-draft`；本轮只读探测到的 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为粘贴测试入口。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。2026-06-09 已补强知乎 preview-fidelity：`renderZhihuMockHtml()` 会把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` image fallback，并由 focused Vitest 覆盖。该本地预览证据不等于知乎 public host、上传、同步或发布成功。
+- 2026-06-09 小红书 image artifact manifest 已落到 runtime preflight：`XhsImageArtifactManifest`
+  与 `validateXhsImageArtifactManifest()` 只证明本地图片页/封面/长图 artifact 的文件、页序、封面、
+  引用、比例、格式、bytes 和裁切状态；`NativeExportResult.artifacts.xiaohongshuImageManifest`
+  不是小红书账号上传、手机预览或发布证明。

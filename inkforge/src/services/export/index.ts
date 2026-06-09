@@ -74,6 +74,16 @@ export type {
   StyleVisualStrength,
 } from './style-catalog'
 
+export type {
+  XhsImageArtifactFormat,
+  XhsImageArtifactKind,
+  XhsImageArtifactLimits,
+  XhsImageArtifactManifest,
+  XhsImageArtifactPage,
+  XhsImageArtifactRatio,
+  XhsImageCropStatus,
+} from './image-pipeline'
+
 // 主题相关导出
 export {
   themePresets,
@@ -165,6 +175,7 @@ export {
   detectQualityAll,
   quickCheck,
   filterIssues,
+  validateXhsImageArtifactManifest,
 } from './quality-detector'
 
 export {
@@ -244,7 +255,9 @@ export {
 import type {
   Platform, ExportOptions, ExportPreset, XiaohongshuPreset, ZhihuPreset,
   NativeExportResult, XiaohongshuTextOptions, ZhihuMarkdownOptions,
+  QualityIssue, QualityReport,
 } from './types'
+import type { XhsImageArtifactManifest } from './image-pipeline/types'
 import { getPresetById, getDefaultPreset, themePresets } from './themes'
 import { DEFAULT_PRESET_ID } from '@/constants'
 import { convertToWechat } from './wechat'
@@ -252,7 +265,7 @@ import { convertToXiaohongshu, getXiaohongshuPresets } from './xiaohongshu'
 import { convertToZhihu, getZhihuPresets } from './zhihu'
 import { markdownToXiaohongshuText } from './xiaohongshu-text'
 import { markdownToZhihuClean } from './zhihu-markdown'
-import { detectQuality } from './quality-detector'
+import { detectQuality, validateXhsImageArtifactManifest } from './quality-detector'
 
 /**
  * Inspector / Settings 覆盖选项
@@ -384,6 +397,8 @@ export async function convertToNativeFormat(
     overrides?: RenderOverrides
     /** 小红书纯文本选项 */
     xiaohongshuTextOptions?: XiaohongshuTextOptions
+    /** 小红书图片页/长图本地 artifact manifest；只用于 preflight，不表示平台发布成功 */
+    xiaohongshuImageManifest?: XhsImageArtifactManifest
     /** 知乎 Markdown 选项 */
     zhihuMarkdownOptions?: ZhihuMarkdownOptions
     /** 是否附加质量报告 (默认 true) */
@@ -431,11 +446,20 @@ export async function convertToNativeFormat(
         ...options?.xiaohongshuTextOptions,
       }
       const result = markdownToXiaohongshuText(markdown, textOptions)
+      const manifestIssues = options?.xiaohongshuImageManifest
+        ? validateXhsImageArtifactManifest(options.xiaohongshuImageManifest)
+        : []
+      const qualityReport = includeReport
+        ? withAdditionalQualityIssues(detectQuality(markdown, 'xiaohongshu'), manifestIssues)
+        : undefined
       return {
         format: 'text',
         content: result.text,
         platform: 'xiaohongshu',
-        qualityReport: includeReport ? detectQuality(markdown, 'xiaohongshu') : undefined,
+        qualityReport,
+        artifacts: options?.xiaohongshuImageManifest
+          ? { xiaohongshuImageManifest: options.xiaohongshuImageManifest }
+          : undefined,
       }
     }
 
@@ -454,6 +478,22 @@ export async function convertToNativeFormat(
       const _exhaustiveCheck: never = platform
       throw new Error(`未支持的导出平台: ${_exhaustiveCheck}`)
     }
+  }
+}
+
+function withAdditionalQualityIssues(report: QualityReport, extraIssues: QualityIssue[]): QualityReport {
+  if (extraIssues.length === 0) return report
+
+  const issues = [...report.issues, ...extraIssues]
+  const errors = issues.filter(issue => issue.severity === 'error').length
+  const warnings = issues.filter(issue => issue.severity === 'warning').length
+  const suggestions = issues.filter(issue => issue.severity === 'suggestion').length
+
+  return {
+    ...report,
+    passed: errors === 0,
+    issues,
+    stats: { errors, warnings, suggestions },
   }
 }
 

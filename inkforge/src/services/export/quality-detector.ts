@@ -11,14 +11,17 @@
  */
 
 import { SUPPORTED_CODE_LANGUAGES } from '@/extensions/codeLanguages'
+import type { XhsImageArtifactManifest, XhsImageArtifactPage } from './image-pipeline/types'
 import type { Platform, QualityReport, QualityIssue, QualityIssueSeverity } from './types'
 
 const XHS_IMAGE_PAGE_COUNT_LIMIT = 18
 const XHS_IMAGE_COUNT_REVIEW_THRESHOLD = XHS_IMAGE_PAGE_COUNT_LIMIT
+const XHS_IMAGE_ARTIFACT_MAX_BYTES = 20 * 1024 * 1024
 const XHS_HASHTAG_REVIEW_LIMIT = 10
 const XHS_LIST_ITEM_REVIEW_LIMIT = 7
 const XHS_LONG_LINE_REVIEW_LIMIT = 120
 const XHS_ALLOWED_IMAGE_FORMATS = new Set(['jpg', 'jpeg', 'png'])
+const XHS_ALLOWED_IMAGE_RATIOS = new Set(['3:4', '1:1'])
 const ZHIHU_SEMANTIC_IMAGE_ALT_PATTERN = /(?:公式|方程|图表|流程|架构|表格|数据|统计|截图|示意|diagram|chart|graph|mermaid|plantuml|vega|equation|formula|table|architecture|flow)/i
 const DIAGRAM_FENCE_LANGUAGES = new Set([
   'mermaid',
@@ -146,6 +149,148 @@ export function detectQuality(markdown: string, platform: Platform): QualityRepo
     issues,
     stats: { errors, warnings, suggestions },
   }
+}
+
+export function validateXhsImageArtifactManifest(manifest: XhsImageArtifactManifest): QualityIssue[] {
+  const issues: QualityIssue[] = []
+  const pages = manifest.pages
+  const maxPages = manifest.limits?.maxPages ?? XHS_IMAGE_PAGE_COUNT_LIMIT
+  const maxBytes = manifest.limits?.maxBytes ?? XHS_IMAGE_ARTIFACT_MAX_BYTES
+  const allowedRatios = new Set(manifest.limits?.allowedRatios ?? XHS_ALLOWED_IMAGE_RATIOS)
+  const allowedFormats = new Set(manifest.limits?.allowedFormats ?? XHS_ALLOWED_IMAGE_FORMATS)
+
+  if (pages.length === 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-count-mismatch',
+      severity: 'error',
+      message: '小红书图片 artifact manifest 没有任何图片页',
+      suggestion: '生成图片页或长图前必须写入 manifest.pages，并标明页码、文件、尺寸、格式、封面和裁切状态',
+    })
+    return issues
+  }
+
+  if (pages.length > maxPages) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-count-mismatch',
+      severity: 'error',
+      message: `小红书图片 artifact manifest 包含 ${pages.length} 页，超过当前配置上限 ${maxPages} 页`,
+      suggestion: '拆分图文包、降低页数，或在真实账号发布入口确认新的 page-count limit 后更新配置清单',
+    })
+  }
+
+  const expectedPages = new Set(Array.from({ length: pages.length }, (_value, index) => index + 1))
+  const actualPages = new Set(pages.map(page => page.page))
+  if (actualPages.size !== pages.length || !setsAreEqual(expectedPages, actualPages)) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-page-order',
+      severity: 'error',
+      message: `小红书图片 artifact 页序不连续或有重复：${pages.map(page => page.page).join(', ')}`,
+      suggestion: '按 1..N 重建 manifest 页码、文件名和正文“见第 N 张图”引用，避免发布顺序错位',
+    })
+  }
+
+  const missingFiles = pages.filter(page => page.exists !== true)
+  if (missingFiles.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-missing-file',
+      severity: 'error',
+      message: `小红书图片 artifact 缺少文件存在性证明：${formatXhsManifestPages(missingFiles)}`,
+      suggestion: '导出前确认每个 manifest 文件真实存在并可读取；没有文件证明时只能标记为 blocked/unavailable',
+    })
+  }
+
+  const coverPages = pages.filter(page => page.cover)
+  if (coverPages.length === 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-cover-missing',
+      severity: 'error',
+      message: '小红书图片 artifact manifest 缺少 cover 页标记',
+      suggestion: '第一张图默认承担封面职责；manifest 必须标明唯一 cover 页并校验缩略图可读性',
+    })
+  } else if (coverPages.length > 1) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-cover-duplicate',
+      severity: 'error',
+      message: `小红书图片 artifact manifest 出现多个 cover 页：${formatXhsManifestPages(coverPages)}`,
+      suggestion: '只保留一个封面页；重排图片后同步更新 cover 标记和正文引用',
+    })
+  } else if (coverPages[0]?.page !== 1) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-page-order',
+      severity: 'error',
+      message: `小红书图片 artifact cover 页为第 ${coverPages[0]?.page} 页，不是第 1 页`,
+      suggestion: '将封面页移到第 1 页，或在发布清单中明确重排后的首图封面证明',
+    })
+  }
+
+  const invalidReferences = manifest.bodyReferences.filter(reference => !actualPages.has(reference))
+  const pageReferenceMismatches = pages.filter(page => {
+    if (typeof page.referencedByBody !== 'boolean') return false
+    return page.referencedByBody !== manifest.bodyReferences.includes(page.page)
+  })
+  if (invalidReferences.length > 0 || pageReferenceMismatches.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-reference-mismatch',
+      severity: 'error',
+      message: [
+        invalidReferences.length > 0 ? `正文引用了不存在的图片页：${invalidReferences.join(', ')}` : '',
+        pageReferenceMismatches.length > 0 ? `manifest referencedByBody 与正文引用不一致：${formatXhsManifestPages(pageReferenceMismatches)}` : '',
+      ].filter(Boolean).join('；'),
+      suggestion: '同步重建正文“见第 N 张图”、manifest 页码、cover 标记和导出文件列表',
+    })
+  }
+
+  const unsupportedRatios = pages.filter(page => !allowedRatios.has(page.ratio) || !matchesDeclaredXhsRatio(page))
+  if (unsupportedRatios.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-ratio-unsupported',
+      severity: 'error',
+      message: `小红书图片 artifact 比例不符合当前配置或尺寸声明：${formatXhsManifestPages(unsupportedRatios)}`,
+      suggestion: '将图片页裁切/重排为 3:4 或 1:1 等当前配置允许比例，并记录实际 width/height',
+    })
+  }
+
+  const unsupportedFormats = pages.filter(page => !allowedFormats.has(page.format))
+  if (unsupportedFormats.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-format-unsupported',
+      severity: 'error',
+      message: `小红书图片 artifact 格式不在当前允许列表：${unsupportedFormats.map(page => `${page.fileName || `page-${page.page}`}.${page.format}`).join(', ')}`,
+      suggestion: '将图片页转换为当前配置允许的 JPG/PNG 等格式，再重新生成 manifest',
+    })
+  }
+
+  const invalidBytes = pages.filter(page => typeof page.bytes !== 'number' || page.bytes <= 0 || page.bytes > maxBytes)
+  if (invalidBytes.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-bytes-limit',
+      severity: 'error',
+      message: `小红书图片 artifact 缺少有效字节数或超过当前 ${maxBytes} bytes 限制：${formatXhsManifestPages(invalidBytes)}`,
+      suggestion: '导出器必须记录每页真实 bytes；超限时压缩、分页或进入 publish checklist',
+    })
+  }
+
+  const cropOverflowPages = pages.filter(page => page.cropStatus === 'overflow')
+  if (cropOverflowPages.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-crop-overflow',
+      severity: 'error',
+      message: `小红书图片 artifact 存在裁切/溢出：${formatXhsManifestPages(cropOverflowPages)}`,
+      suggestion: '重新排版图片页，确保标题、正文、图表和安全边距未被裁切',
+    })
+  }
+
+  const cropUnprovenPages = pages.filter(page => page.cropStatus === 'warning' || page.cropStatus === 'unknown')
+  if (cropUnprovenPages.length > 0) {
+    addIssue(issues, {
+      id: 'xhs-image-manifest-crop-overflow',
+      severity: 'warning',
+      message: `小红书图片 artifact 裁切状态未完全证明：${formatXhsManifestPages(cropUnprovenPages)}`,
+      suggestion: '在本地浏览器或导出器中完成 per-page crop check 后，再报告为本地 artifact 通过',
+    })
+  }
+
+  return issues
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -952,6 +1097,29 @@ function detectXhsImageArtifactIssues(markdown: string, issues: QualityIssue[]):
       suggestion: '小红书图片页默认只放行 JPG/PNG；SVG/WebP/GIF/HEIC/AVIF 等必须先通过真实转换器生成可预览 artifact，再进入发布清单',
     })
   }
+}
+
+function formatXhsManifestPages(pages: XhsImageArtifactPage[]): string {
+  return pages
+    .map(page => `${page.fileName || `page-${page.page}`}#${page.page}`)
+    .join(', ')
+}
+
+function matchesDeclaredXhsRatio(page: XhsImageArtifactPage): boolean {
+  if (page.width <= 0 || page.height <= 0) return false
+
+  const ratio = page.width / page.height
+  if (page.ratio === '3:4') return Math.abs(ratio - 0.75) <= 0.02
+  if (page.ratio === '1:1') return Math.abs(ratio - 1) <= 0.02
+  return false
+}
+
+function setsAreEqual<T>(left: Set<T>, right: Set<T>): boolean {
+  if (left.size !== right.size) return false
+  for (const item of left) {
+    if (!right.has(item)) return false
+  }
+  return true
 }
 
 function detectXhsPlainTextReadabilityIssues(markdown: string, issues: QualityIssue[]): void {

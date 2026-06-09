@@ -3,6 +3,13 @@ export type {
     ResolvedImage,
     UploadResult,
     IUploader,
+    XhsImageArtifactFormat,
+    XhsImageArtifactKind,
+    XhsImageArtifactLimits,
+    XhsImageArtifactManifest,
+    XhsImageArtifactPage,
+    XhsImageArtifactRatio,
+    XhsImageCropStatus,
 } from './types'
 export { NotImplementedError } from './types'
 

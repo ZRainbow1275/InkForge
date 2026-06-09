@@ -24,6 +24,7 @@ import {
   markdownToXiaohongshuText,
   markdownToZhihuClean,
   postProcessForWechat,
+  validateXhsImageArtifactManifest,
 } from './index'
 
 const REAL_EXPORT_MARKDOWN = [
@@ -911,6 +912,87 @@ describe('platform native export rendering rules', () => {
     expect(issue?.message).toContain('webp')
     expect(issue?.message).toContain('avif')
     expect(report.passed).toBe(false)
+  })
+
+  it('validates Xiaohongshu image artifact manifest before reporting local image-page readiness', () => {
+    const issues = validateXhsImageArtifactManifest({
+      kind: 'image-page',
+      bodyReferences: [1, 3],
+      pages: [
+        {
+          page: 2,
+          fileName: 'cover.webp',
+          src: 'inkforge-asset://cover',
+          exists: false,
+          width: 1000,
+          height: 1000,
+          ratio: '3:4',
+          format: 'webp' as 'png',
+          cover: true,
+          referencedByBody: false,
+          cropStatus: 'overflow',
+        },
+        {
+          page: 2,
+          fileName: 'detail.png',
+          src: 'inkforge-asset://detail',
+          exists: true,
+          width: 1080,
+          height: 1440,
+          ratio: '3:4',
+          format: 'png',
+          bytes: 21 * 1024 * 1024,
+          cover: true,
+          referencedByBody: true,
+          cropStatus: 'unknown',
+        },
+      ],
+    })
+    const ids = issues.map(issue => issue.id)
+
+    expect(ids).toContain('xhs-image-manifest-page-order')
+    expect(ids).toContain('xhs-image-manifest-missing-file')
+    expect(ids).toContain('xhs-image-manifest-cover-duplicate')
+    expect(ids).toContain('xhs-image-manifest-reference-mismatch')
+    expect(ids).toContain('xhs-image-manifest-ratio-unsupported')
+    expect(ids).toContain('xhs-image-manifest-format-unsupported')
+    expect(ids).toContain('xhs-image-manifest-bytes-limit')
+    expect(ids).toContain('xhs-image-manifest-crop-overflow')
+    expect(issues.some(issue => issue.id === 'xhs-image-manifest-crop-overflow' && issue.severity === 'error')).toBe(true)
+    expect(issues.some(issue => issue.id === 'xhs-image-manifest-crop-overflow' && issue.severity === 'warning')).toBe(true)
+  })
+
+  it('accepts a complete Xiaohongshu image artifact manifest as local preflight only', async () => {
+    const manifest = {
+      kind: 'image-page' as const,
+      bodyReferences: [1],
+      pages: [
+        {
+          page: 1,
+          fileName: 'cover.png',
+          src: 'inkforge-asset://cover',
+          exists: true,
+          width: 1080,
+          height: 1440,
+          ratio: '3:4' as const,
+          format: 'png' as const,
+          bytes: 120_000,
+          cover: true,
+          referencedByBody: true,
+          cropStatus: 'ok' as const,
+        },
+      ],
+    }
+
+    expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+
+    const result = await convertToNativeFormat('这是正文，请见第1张图。', 'xiaohongshu', {
+      xiaohongshuImageManifest: manifest,
+    })
+
+    expect(result.format).toBe('text')
+    expect(result.artifacts?.xiaohongshuImageManifest).toEqual(manifest)
+    expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('xhs-image-manifest-'))).toBe(false)
   })
 
   it('blocks raw Markdown controls from Xiaohongshu publishable text without rejecting hashtags', () => {

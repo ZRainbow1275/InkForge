@@ -248,6 +248,8 @@ Cross-platform target contract:
   such as `see image N` before it can be reported as exportable. Market values such as
   1080x1440, JPG/PNG, 20MB, and 18 images are current defaults/checklist inputs, not eternal
   hardcoded platform constants.
+  Runtime contract: image-page/long-image artifacts use the preflight spec below; it is local
+  evidence only, not XHS account upload, sync, preview, or publish proof.
 - Zhihu: clean Markdown. Remove WeChat-specific `<section data-ink-block>` and inline SVG
   decorations; preserve semantic Markdown or image fallback. Final Markdown must block local
   paths, `blob:`, `data:`, private-network/localhost URLs, temporary preview URLs, and
@@ -255,6 +257,130 @@ Cross-platform target contract:
   `puml`, `vega`, `vega-lite`, `vegalite`) must be rasterized with alt/caption or marked
   `blocked` / `unavailable`. Residual WeChat wrappers, style/class-dependent HTML, and
   complex tables that cannot stay semantic must be cleaned, simplified, rasterized, or blocked.
+
+### XHS Image Artifact Manifest Preflight
+
+#### 1. Scope / Trigger
+
+Use this contract whenever Xiaohongshu export claims local readiness for image pages, cover
+images, carousels, or long-image artifacts. It is mandatory for high-visual-strength XHS output
+because the publishable body remains plain text while visual layout lives in generated image
+artifacts.
+
+#### 2. Signatures
+
+```ts
+export type XhsImageArtifactKind = 'image-page' | 'cover' | 'long-image'
+export type XhsImageArtifactFormat = 'jpg' | 'jpeg' | 'png'
+export type XhsImageArtifactRatio = '3:4' | '1:1'
+export type XhsImageCropStatus = 'ok' | 'warning' | 'overflow' | 'unknown'
+
+export interface XhsImageArtifactPage {
+  page: number
+  fileName: string
+  src: string
+  exists?: boolean
+  width: number
+  height: number
+  ratio: XhsImageArtifactRatio
+  format: XhsImageArtifactFormat
+  bytes?: number
+  cover?: boolean
+  referencedByBody?: boolean
+  cropStatus: XhsImageCropStatus
+}
+
+export interface XhsImageArtifactManifest {
+  kind: XhsImageArtifactKind
+  pages: XhsImageArtifactPage[]
+  bodyReferences: number[]
+  limits?: {
+    maxPages?: number
+    maxBytes?: number
+    allowedRatios?: readonly XhsImageArtifactRatio[]
+    allowedFormats?: readonly XhsImageArtifactFormat[]
+  }
+}
+
+export function validateXhsImageArtifactManifest(manifest: XhsImageArtifactManifest): QualityIssue[]
+```
+
+`convertToNativeFormat(markdown, 'xiaohongshu', { xiaohongshuImageManifest })` may echo the
+manifest in `NativeExportResult.artifacts.xiaohongshuImageManifest`. That field means local
+preflight only. It must not be displayed or logged as platform upload, preview, sync, or publish
+success.
+
+#### 3. Contracts
+
+- Pages are ordered 1..N without gaps or duplicates.
+- Exactly one page is the cover, and the cover must be page 1 unless a future real XHS entry
+  proves a different cover-selection contract.
+- `exists: true` is required before reporting local readiness; missing file proof is blocked.
+- `bodyReferences` must reference real pages, and optional `referencedByBody` must match it.
+- `ratio` must be in the configured allowed ratio set and match actual `width / height`.
+- `format` must be in the configured allowed format set.
+- `bytes` must be a positive real value and remain below the configured max bytes.
+- `cropStatus='overflow'` is blocked; `warning` and `unknown` remain warnings.
+
+#### 4. Validation & Error Matrix
+
+| Condition | Issue id | Severity |
+|-----------|----------|----------|
+| no pages or over configured page limit | `xhs-image-manifest-count-mismatch` | error |
+| duplicated/gapped page numbers or cover not on page 1 | `xhs-image-manifest-page-order` | error |
+| any page lacks `exists: true` | `xhs-image-manifest-missing-file` | error |
+| no cover page | `xhs-image-manifest-cover-missing` | error |
+| multiple cover pages | `xhs-image-manifest-cover-duplicate` | error |
+| body references a missing page or `referencedByBody` disagrees | `xhs-image-manifest-reference-mismatch` | error |
+| unsupported ratio or declared ratio does not match dimensions | `xhs-image-manifest-ratio-unsupported` | error |
+| unsupported image format | `xhs-image-manifest-format-unsupported` | error |
+| missing, zero, or over-limit bytes | `xhs-image-manifest-bytes-limit` | error |
+| `cropStatus='overflow'` | `xhs-image-manifest-crop-overflow` | error |
+| `cropStatus='warning'` or `'unknown'` | `xhs-image-manifest-crop-overflow` | warning |
+
+#### 5. Good / Base / Bad Cases
+
+- Good: one 1080x1440 PNG page, `ratio='3:4'`, `exists:true`, positive bytes, `cover:true`,
+  body reference `[1]`, `referencedByBody:true`, and `cropStatus:'ok'` returns no issues.
+- Base: text-only XHS export supplies no manifest. The native text output stays unchanged and no
+  artifact success is claimed.
+- Bad: duplicate page numbers, missing file proof, duplicate cover, unsupported format,
+  mismatched 1:1/3:4 dimensions, invalid references, over-limit bytes, or crop overflow all block
+  local artifact readiness.
+
+#### 6. Tests Required
+
+- Unit/regression tests must call `validateXhsImageArtifactManifest()` directly for both bad and
+  valid manifests.
+- `convertToNativeFormat(..., 'xiaohongshu')` tests must assert that valid manifests appear in
+  `artifacts.xiaohongshuImageManifest` and that manifest issue ids merge into `qualityReport`.
+- Cross-platform export tests must continue proving that WeChat/Zhihu behavior does not change
+  when no XHS manifest is supplied.
+- Browser/CloakBrowser evidence may prove local UI visibility and artifact state labels only. It
+  never proves XHS upload or publish.
+
+#### 7. Wrong vs Correct
+
+Wrong:
+
+```ts
+return { platform: 'xiaohongshu', format: 'text', content, published: true }
+```
+
+Correct:
+
+```ts
+return {
+  platform: 'xiaohongshu',
+  format: 'text',
+  content,
+  qualityReport: withAdditionalQualityIssues(report, manifestIssues),
+  artifacts: { xiaohongshuImageManifest },
+}
+```
+
+The correct shape preserves the plain-text publishing contract and exposes artifact preflight
+without pretending to own the account upload/publish boundary.
 
 Platform style parity matrix:
 

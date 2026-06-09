@@ -13,12 +13,13 @@
 在**不重构主管线、不删除任何现有功能/预设/测试**的前提下，落地了一套 WeChat-safe、参数化、可复用、契合「静谧刊印 Quiet Press」品牌哲学的 inline-SVG 高级排版组件系统（26 个注册模块 × 7 族）、3 个全量使用该系统的「SVG 旗舰」微信预设，以及小红书海报栅格化 / 知乎 SVG-as-img 适配。
 
 **自动化与真实运行门禁已刷新**：
-- 最新完整 export 测试套件：**35 文件 / 977 用例 全绿**。
-- 最新跨平台导出 focused 套件：**4 文件 / 83 用例 全绿**。
-- 最新 `platform-export-rendering.test.ts`：**44 用例全绿**。
+- 最新完整 export 测试套件：**35 文件 / 979 用例 全绿**。
+- 最新跨平台导出 focused 套件：**4 文件 / 85 用例 全绿**。
+- 最新 `platform-export-rendering.test.ts`：**46 用例全绿**。
+- 最新 XHS manifest focused 套件：**3 文件 / 69 用例 全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **43.86s**（本轮证据见 `evidence/layout-report-runtime-gate-20260609.txt`）。
+- 最新生产构建：`NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` 经 Git Bash 执行通过，Vite built in **36.03s**（本轮证据见 `evidence/xhs-image-manifest-gate-20260609.txt`）。
 - 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
 - A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
@@ -32,6 +33,7 @@
 - 2026-06-09 已把 evidence label 的 proof checklist 落到 `style-catalog.ts`：`pc-editor-paste` 明确要求 exact artifact、safe disposable draft、真实 PC paste/channel event、PC DOM readback 和敏感证据隔离；`mobile-preview` 明确要求手机读回/截图、Dark Mode 和封面缩略图检查。只读探测到的微信 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为安全粘贴入口。
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
+- 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 
 ---
 
@@ -156,13 +158,16 @@ pnpm exec eslint src/services/export/svg-modules src/services/export/themes.ts s
 
 ```bash
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
-# 1 file passed, 42 tests passed
+# 1 file passed, 46 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
-# 4 files passed, 81 tests passed
+# 4 files passed, 85 tests passed
+
+pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/xhs.test.ts --reporter=default
+# 3 files passed, 69 tests passed
 
 pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
-# 35 files passed, 975 tests passed
+# 35 files passed, 979 tests passed
 
 pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
 # passed
@@ -171,7 +176,7 @@ pnpm -C inkforge exec vue-tsc --noEmit --pretty false
 # passed
 
 NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
-# passed, Vite built in 35.29s
+# passed, Vite built in 36.03s
 
 cargo build -p inkforge
 # passed, dev profile compiled in 9.15s
@@ -185,6 +190,7 @@ cargo build -p inkforge
 - `prompts/0601/evidence/e2e-svg-render-20260608-083022.txt`
 - `prompts/0601/evidence/market-source-refresh-20260608.txt`
 - `prompts/0601/evidence/market-editor-residue-gate-20260609.txt`
+- `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`
 
 补充解释：`probe-svg-render-20260608-082919.txt` 是非 graded 的几何诊断探针。它在当前
 ExportModal 401px / 15px 口径下报告 27 字/行，因此保留为需要人工解读的诊断提示；
