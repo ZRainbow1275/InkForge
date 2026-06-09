@@ -237,6 +237,47 @@ export interface StyleProofManifest {
   artifacts: readonly StyleProofArtifact[]
 }
 
+export type StyleProofRequirementReportStatus = 'satisfied' | 'missing' | 'invalid'
+export type StyleProofArtifactReportStatus = 'accepted' | 'invalid' | 'sensitive' | 'unsafe-commit'
+
+export interface StyleProofRequirementReport {
+  requirement: StyleProofRequirement
+  evidenceLabel?: StyleEvidenceLabel
+  status: StyleProofRequirementReportStatus
+  artifactIds: readonly string[]
+  issues: readonly QualityIssue[]
+}
+
+export interface StyleProofArtifactReport {
+  artifact: StyleProofArtifact
+  status: StyleProofArtifactReportStatus
+  sensitive: boolean
+  unsafeForCommit: boolean
+  issues: readonly QualityIssue[]
+}
+
+export interface StyleProofManifestReport {
+  platform: Platform
+  scope: StyleProofManifestScope
+  choiceId?: string
+  choiceStatus?: StyleChoiceStatus
+  valid: boolean
+  issues: readonly QualityIssue[]
+  requirements: readonly StyleProofRequirementReport[]
+  artifacts: readonly StyleProofArtifactReport[]
+  summary: {
+    required: number
+    satisfied: number
+    missing: number
+    invalid: number
+    artifactCount: number
+    acceptedArtifactCount: number
+    sensitiveArtifactCount: number
+    unsafeCommitArtifactCount: number
+    issueCount: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -1139,6 +1180,45 @@ export function validateStyleProofManifest(manifest: StyleProofManifest): Qualit
   return dedupeStyleProofIssues(issues)
 }
 
+export function getStyleProofManifestReport(manifest: StyleProofManifest): StyleProofManifestReport {
+  const choice = manifest.choiceId ? getStyleChoiceById(manifest.choiceId) : undefined
+  const scope = manifest.scope ?? 'evidence-label'
+  const issues = validateStyleProofManifest(manifest)
+  const requirements = collectRequiredStyleProofRequirementEntries(manifest, choice)
+    .map(entry => buildStyleProofRequirementReport(entry, manifest.artifacts, issues))
+  const artifacts = manifest.artifacts
+    .map(artifact => buildStyleProofArtifactReport(artifact, issues))
+
+  const satisfied = requirements.filter(requirement => requirement.status === 'satisfied').length
+  const missing = requirements.filter(requirement => requirement.status === 'missing').length
+  const invalid = requirements.filter(requirement => requirement.status === 'invalid').length
+  const acceptedArtifactCount = artifacts.filter(artifact => artifact.status === 'accepted').length
+  const sensitiveArtifactCount = artifacts.filter(artifact => artifact.sensitive).length
+  const unsafeCommitArtifactCount = artifacts.filter(artifact => artifact.unsafeForCommit).length
+
+  return {
+    platform: manifest.platform,
+    scope,
+    choiceId: manifest.choiceId,
+    choiceStatus: choice?.status,
+    valid: issues.length === 0,
+    issues,
+    requirements,
+    artifacts,
+    summary: {
+      required: requirements.length,
+      satisfied,
+      missing,
+      invalid,
+      artifactCount: artifacts.length,
+      acceptedArtifactCount,
+      sensitiveArtifactCount,
+      unsafeCommitArtifactCount,
+      issueCount: issues.length,
+    },
+  }
+}
+
 interface RequiredStyleProofRequirementEntry {
   requirementId: StyleProofRequirementId
   evidenceLabel?: StyleEvidenceLabel
@@ -1245,8 +1325,7 @@ function validateStyleProofArtifactEvidence(
 }
 
 function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues: QualityIssue[]): void {
-  const sensitiveReference = typeof artifact.artifactRef === 'string' && isSensitiveStyleProofReference(artifact.artifactRef)
-  if (artifact.sensitive === true || sensitiveReference) {
+  if (isSensitiveStyleProofArtifact(artifact)) {
     addStyleProofIssue(issues, {
       id: 'style-proof-manifest-sensitive-artifact',
       message: `Proof artifact ${artifact.id} references sensitive or local authenticated material.`,
@@ -1255,7 +1334,7 @@ function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues:
     })
   }
 
-  if (artifact.committed === true && (artifact.sensitive === true || artifact.safeForCommit === false || sensitiveReference)) {
+  if (isUnsafeStyleProofCommitArtifact(artifact)) {
     addStyleProofIssue(issues, {
       id: 'style-proof-manifest-unsafe-commit-artifact',
       message: `Proof artifact ${artifact.id} is marked committed but is not safe for repository evidence.`,
@@ -1263,6 +1342,85 @@ function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues:
       location: artifact.id,
     })
   }
+}
+
+function buildStyleProofRequirementReport(
+  entry: RequiredStyleProofRequirementEntry,
+  artifacts: readonly StyleProofArtifact[],
+  issues: readonly QualityIssue[],
+): StyleProofRequirementReport {
+  const requirement = STYLE_PROOF_REQUIREMENT_BY_ID.get(entry.requirementId)
+  if (!requirement) throw new Error(`Unknown style proof requirement: ${entry.requirementId}`)
+
+  const matchingArtifacts = artifacts.filter(artifact => artifact.requirementId === entry.requirementId)
+  const relatedIssues = getStyleProofRequirementIssues(entry, matchingArtifacts, issues)
+  const status: StyleProofRequirementReportStatus = matchingArtifacts.length === 0
+    ? 'missing'
+    : relatedIssues.length > 0
+      ? 'invalid'
+      : 'satisfied'
+
+  return {
+    requirement,
+    evidenceLabel: entry.evidenceLabel,
+    status,
+    artifactIds: matchingArtifacts.map(artifact => artifact.id),
+    issues: relatedIssues,
+  }
+}
+
+function buildStyleProofArtifactReport(
+  artifact: StyleProofArtifact,
+  issues: readonly QualityIssue[],
+): StyleProofArtifactReport {
+  const artifactIssues = getStyleProofArtifactIssues(artifact, issues)
+  const sensitive = isSensitiveStyleProofArtifact(artifact)
+  const unsafeForCommit = isUnsafeStyleProofCommitArtifact(artifact)
+  const status: StyleProofArtifactReportStatus = unsafeForCommit
+    ? 'unsafe-commit'
+    : sensitive
+      ? 'sensitive'
+      : artifactIssues.length > 0
+        ? 'invalid'
+        : 'accepted'
+
+  return {
+    artifact,
+    status,
+    sensitive,
+    unsafeForCommit,
+    issues: artifactIssues,
+  }
+}
+
+function getStyleProofRequirementIssues(
+  entry: RequiredStyleProofRequirementEntry,
+  artifacts: readonly StyleProofArtifact[],
+  issues: readonly QualityIssue[],
+): QualityIssue[] {
+  const artifactIds = new Set(artifacts.map(artifact => artifact.id))
+
+  return issues.filter(issue =>
+    issue.location === entry.requirementId
+    || (typeof issue.location === 'string' && artifactIds.has(issue.location))
+  )
+}
+
+function getStyleProofArtifactIssues(
+  artifact: StyleProofArtifact,
+  issues: readonly QualityIssue[],
+): QualityIssue[] {
+  return issues.filter(issue => issue.location === artifact.id)
+}
+
+function isSensitiveStyleProofArtifact(artifact: StyleProofArtifact): boolean {
+  return artifact.sensitive === true
+    || (typeof artifact.artifactRef === 'string' && isSensitiveStyleProofReference(artifact.artifactRef))
+}
+
+function isUnsafeStyleProofCommitArtifact(artifact: StyleProofArtifact): boolean {
+  return artifact.committed === true
+    && (artifact.safeForCommit === false || isSensitiveStyleProofArtifact(artifact))
 }
 
 function validateStyleProofRequirementCoverage(

@@ -42,6 +42,12 @@ token、账号 ID、模板代码或私有素材）。
 升级、平台/choice 不一致、敏感 profile/HAR/QR/cookie/token/local path 证据引用、缺 public image
 host 或 XHS/Zhihu manifest validation；该 validator 不改变 availability/selectable，不证明手机预览、
 同步或发布）。
+`style-proof-manifest-report-20260609.txt`（style proof manifest 结构化报告 API：
+`getStyleProofManifestReport()` 复用 validator，输出 requirement/artifact rows、缺失/无效/通过状态、
+敏感 artifact 计数和 unsafe-commit 计数；focused Vitest 55 tests passed，ESLint exit 0；该 report
+只作为证据清单/验收报告边界，不升级为平台预览、同步或发布证明；同轮完成 4-file export
+94 tests passed、full export serial 988 tests passed、export ESLint/vue-tsc/build exit 0，并用
+CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块完成本地 runtime smoke）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975

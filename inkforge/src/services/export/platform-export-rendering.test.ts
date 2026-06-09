@@ -21,6 +21,7 @@ import {
   getStyleChoiceById,
   getStyleChoiceCatalog,
   getStyleChoiceProofRequirements,
+  getStyleProofManifestReport,
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
@@ -278,6 +279,24 @@ describe('platform native export rendering rules', () => {
     }
 
     expect(validateStyleProofManifest(manifest)).toEqual([])
+    const report = getStyleProofManifestReport(manifest)
+    expect(report.valid).toBe(true)
+    expect(report.scope).toBe('evidence-label')
+    expect(report.choiceStatus).toBe('available')
+    expect(report.summary).toMatchObject({
+      required: 1,
+      satisfied: 1,
+      missing: 0,
+      invalid: 0,
+      artifactCount: 1,
+      acceptedArtifactCount: 1,
+      sensitiveArtifactCount: 0,
+      unsafeCommitArtifactCount: 0,
+      issueCount: 0,
+    })
+    expect(report.requirements[0]?.status).toBe('satisfied')
+    expect(report.requirements[0]?.artifactIds).toEqual(['style-proof-unit-log'])
+    expect(report.artifacts[0]?.status).toBe('accepted')
     expect(evaluateStyleChoiceAvailability(classicInline, ['unit-tested']).usable).toBe(true)
   })
 
@@ -311,6 +330,18 @@ describe('platform native export rendering rules', () => {
       'pc-editor-paste-event',
       'no-sensitive-artifact',
     ]))
+
+    const report = getStyleProofManifestReport(manifest)
+    expect(report.valid).toBe(false)
+    expect(report.summary.missing).toBe(4)
+    expect(report.summary.invalid).toBe(1)
+    expect(report.requirements.find(item =>
+      item.requirement.id === 'pc-editor-dom-readback',
+    )?.status).toBe('invalid')
+    expect(report.requirements.find(item =>
+      item.requirement.id === 'exact-artifact',
+    )?.status).toBe('missing')
+    expect(report.artifacts[0]?.status).toBe('invalid')
   })
 
   it('does not let a style proof manifest promote blocked choices', () => {
@@ -399,6 +430,14 @@ describe('platform native export rendering rules', () => {
 
     expect(issueIds).toContain('style-proof-manifest-sensitive-artifact')
     expect(issueIds).toContain('style-proof-manifest-unsafe-commit-artifact')
+
+    const report = getStyleProofManifestReport(manifest)
+    expect(report.valid).toBe(false)
+    expect(report.summary.sensitiveArtifactCount).toBe(1)
+    expect(report.summary.unsafeCommitArtifactCount).toBe(1)
+    expect(report.summary.acceptedArtifactCount).toBe(0)
+    expect(report.artifacts[0]?.status).toBe('unsafe-commit')
+    expect(report.requirements[0]?.status).toBe('invalid')
   })
 
   it('requires platform and artifact consistency in style proof manifests', () => {

@@ -457,6 +457,10 @@ Evidence retention rules:
   missing exact-artifact proof, missing disposable draft proof, missing phone readback, missing
   public image host, or missing XHS/Zhihu artifact-manifest validation. It is a proof-quality
   gate only; it never upgrades `available`, `selectable`, `published`, or platform success state.
+- `getStyleProofManifestReport()` turns the same validator output into requirement and artifact
+  rows: `satisfied`, `missing`, `invalid`, `accepted`, `sensitive`, or `unsafe-commit`. Use it for
+  evidence checklists, completion reports, and follow-up CloakBrowser platform probes. It must not
+  be used as an export converter, availability shortcut, or proof of mobile preview/sync/publish.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,

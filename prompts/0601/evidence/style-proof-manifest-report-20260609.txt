@@ -1,0 +1,76 @@
+Style proof manifest report slice - 2026-06-09
+
+Scope
+
+- Added getStyleProofManifestReport() in inkforge/src/services/export/style-catalog.ts.
+- Re-exported the report API and report row types through inkforge/src/services/export/index.ts.
+- The report is a diagnostic/evidence layer only. It does not alter export HTML, native output,
+  evaluateStyleChoiceAvailability(), getPlatformStyleApplicationReport(), ExportModal selectable
+  state, sync state, preview state, or publish state.
+
+Runtime contract
+
+- validateStyleProofManifest(manifest) remains the authoritative validator and returns QualityIssue[].
+- getStyleProofManifestReport(manifest) reuses the validator result and groups it into:
+  - requirement rows: satisfied, missing, invalid.
+  - artifact rows: accepted, invalid, sensitive, unsafe-commit.
+  - summary counters for required proof items, missing/invalid proof, accepted artifacts,
+    sensitive artifacts, unsafe committed artifacts, and total issue count.
+- The report is intended for redacted proof manifests, docs, completion reports, and follow-up
+  CloakBrowser platform probes.
+- The report must not be used to upgrade blocked choices, infer mobile preview, infer sync,
+  infer publish, or treat account/editor reachability as paste success.
+
+Market-source refresh boundary
+
+- 2026-06-09 Grok Search connectivity was verified.
+- The focused query returned public 135 and Xiumi entry points plus a self-promotional 135 ranking
+  result. These sources remain taxonomy/workflow references only and were not used to loosen any
+  WeChat, Xiaohongshu, or Zhihu runtime proof rule.
+- No 135/Xiumi/WeChat account screenshot, QR code, cookie, token, HAR, browser profile path, private
+  template source, paid/trial SVG source, or proprietary asset was committed.
+
+Verification
+
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file, 55 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Result: passed, 4 files, 94 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 35 files, 988 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- PowerShell: $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  Result: passed, Vite built in 34.49s.
+- inkforge/tsconfig.tsbuildinfo was restored after typecheck/build dirtied the generated cache.
+
+CloakBrowser runtime smoke
+
+- Browser tool: CloakBrowser only, required profile inkforge-0601.
+- Local app: http://127.0.0.1:3005/.
+- The page loaded as InkForge - 首页 at 1400x900 with no horizontal overflow.
+- The browser dynamically imported /src/services/export/index.ts from the real Vite server and
+  called getStyleProofManifestReport() on three redacted manifests:
+  - complete unit-tested manifest: valid=true, required=1, satisfied=1, acceptedArtifactCount=1.
+  - weak pc-editor-paste manifest with only PC DOM readback: valid=false, required=5, missing=4,
+    invalid=1; exact-artifact, safe-disposable-draft, pc-editor-paste-event, and
+    no-sensitive-artifact were missing; pc-editor-dom-readback was invalid.
+  - synthetic redacted sensitive reference: valid=false, sensitiveArtifactCount=1,
+    unsafeCommitArtifactCount=1, artifact status unsafe-commit.
+- No platform account page, QR code, cookie, token, HAR, browser profile path, screenshot path,
+  or authenticated artifact was committed.
+- Vite dev server was stopped after the smoke; 127.0.0.1:3005 had no LISTENING socket.
+
+Focused assertions added
+
+- A complete unit-tested proof manifest reports valid=true, one satisfied requirement row, one
+  accepted artifact row, and zero missing/invalid/sensitive/unsafe counters.
+- A claimed pc-editor-paste manifest with only weak PC DOM evidence reports missing exact-artifact,
+  safe-disposable-draft, pc-editor-paste-event, and no-sensitive-artifact rows, plus an invalid
+  pc-editor-dom-readback row.
+- A manifest referencing a redacted profile/HAR/QR-style string reports sensitive and unsafe-commit
+  artifact counters without committing any real sensitive material.

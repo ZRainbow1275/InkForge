@@ -42,6 +42,10 @@ construct breaks.
   contracts, public image-host proof, XHS/Zhihu manifest proof, and sensitive-artifact hygiene.
   It must not change `evaluateStyleChoiceAvailability()` or `getPlatformStyleApplicationReport()`;
   a blocked/unavailable choice remains blocked even if a manifest is filled out.
+- `getStyleProofManifestReport()` is the human/operator-facing companion for the validator. It
+  groups issues by required proof item and proof artifact, exposes missing/invalid/satisfied rows,
+  and counts sensitive or unsafe-to-commit artifacts. It is safe for diagnostics and evidence
+  summaries only; it must not become an availability, selectable, sync, preview, or publish gate.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
