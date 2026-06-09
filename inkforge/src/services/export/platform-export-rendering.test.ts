@@ -26,6 +26,7 @@ import {
   getStyleChoiceById,
   getStyleChoiceCatalog,
   getStyleChoiceProofRequirements,
+  getStyleProofManifestPackReport,
   getStyleProofManifestReport,
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
@@ -694,6 +695,294 @@ describe('platform native export rendering rules', () => {
     expect(progress.summary.proofInvalidChoices).toBeGreaterThan(0)
     expect(progress.summary.sensitiveArtifactCount).toBe(1)
     expect(progress.summary.unsafeCommitArtifactCount).toBe(1)
+  })
+
+  it('keeps fully evidenced blocked choices invalid in style proof progress', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-amber',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-paste', 'mobile-preview', 'published'],
+      artifactFingerprint: 'sha256:redacted-amber-artifact',
+      artifacts: [
+        {
+          id: 'amber-exact-artifact',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'redacted exact artifact proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-disposable-draft',
+          requirementId: 'safe-disposable-draft',
+          kind: 'editor-readback',
+          label: 'redacted disposable draft proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          disposableDraft: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-pc-paste',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'redacted PC paste proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-pc-dom',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'editor-readback',
+          label: 'redacted PC DOM proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-phone-readback',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'redacted phone preview proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-phone-screenshot',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'redacted phone screenshot proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-dark-mode',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'redacted dark mode proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-cover-thumbnail',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'redacted cover thumbnail proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'phone-preview',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-published-preview',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'redacted published preview proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+        {
+          id: 'amber-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted hygiene proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const progress = getPlatformStyleProofProgressReport('wechat', [manifest])
+    const amberProgress = progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+
+    expect(amberProgress?.summary.missing).toBe(0)
+    expect(amberProgress?.report.valid).toBe(false)
+    expect(amberProgress?.report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+    expect(amberProgress?.status).toBe('invalid')
+    expect(progress.summary.proofSatisfiedChoices).toBe(0)
+    expect(progress.summary.proofInvalidChoices).toBeGreaterThan(0)
+  })
+
+  it('rejects style proof progress merged from different artifact fingerprints', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifactFingerprint: 'sha256:redacted-artifact-a',
+        artifacts: [
+          {
+            id: 'classic-unit-artifact-a',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'unit proof for artifact A',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            artifactFingerprint: 'sha256:redacted-artifact-a',
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['local-browser'],
+        artifactFingerprint: 'sha256:redacted-artifact-b',
+        artifacts: [
+          {
+            id: 'classic-local-artifact-b',
+            requirementId: 'local-browser-rendering',
+            kind: 'browser-readback',
+            label: 'local render proof for artifact B',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-browser',
+            action: 'local-render',
+            readback: 'visual-and-dom',
+            artifactFingerprint: 'sha256:redacted-artifact-b',
+            safeForCommit: true,
+          },
+        ],
+      },
+    ]
+
+    const progress = getPlatformStyleProofProgressReport('wechat', manifests)
+    const classicProgress = progress.choices.find(choice => choice.choice.id === 'wechat-classic-inline')
+    const packReport = getStyleProofManifestPackReport(manifests)
+
+    expect(classicProgress?.status).toBe('invalid')
+    expect(classicProgress?.report.valid).toBe(false)
+    expect(classicProgress?.report.issues.map(issue => issue.id))
+      .toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(packReport.issues.map(issue => issue.id))
+      .toContain('style-proof-manifest-pack-fingerprint-mismatch')
+  })
+
+  it('reports manifest pack issues without leaking proof between platforms', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [
+          {
+            id: 'shared-pack-artifact-id',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'wechat unit proof',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'zhihu',
+        choiceId: 'zhihu-clean-column',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [
+          {
+            id: 'shared-pack-artifact-id',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'zhihu unit proof',
+            platform: 'zhihu',
+            choiceId: 'zhihu-clean-column',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            safeForCommit: true,
+          },
+        ],
+      },
+      {
+        platform: 'wechat',
+        choiceId: 'unknown-style-choice',
+        scope: 'style-choice',
+        claimedEvidence: [],
+        artifacts: [],
+      },
+    ]
+
+    const packReport = getStyleProofManifestPackReport(manifests)
+    const issueIds = packReport.issues.map(issue => issue.id)
+
+    expect(packReport.summary.manifestCount).toBe(3)
+    expect(packReport.summary.usableManifestCount).toBe(2)
+    expect(packReport.summary.duplicateArtifactIdCount).toBe(1)
+    expect(packReport.duplicateArtifactIds).toEqual(['shared-pack-artifact-id'])
+    expect(issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-pack-artifact-id-duplicate',
+      'style-proof-manifest-pack-choice-unknown',
+      'style-proof-manifest-choice-unknown',
+    ]))
+
+    expect(packReport.platformReports.wechat.summary.choicesWithManifest).toBe(1)
+    expect(packReport.platformReports.wechat.ignoredManifestCount).toBe(2)
+    expect(packReport.platformReports.zhihu.summary.choicesWithManifest).toBe(1)
+    expect(packReport.platformReports.zhihu.ignoredManifestCount).toBe(2)
+    expect(packReport.platformReports.xiaohongshu.summary.choicesWithManifest).toBe(0)
+    expect(packReport.platformReports.xiaohongshu.ignoredManifestCount).toBe(3)
+    expect(packReport.manifests.find(manifest => manifest.choiceId === 'unknown-style-choice')?.usableForProgress)
+      .toBe(false)
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

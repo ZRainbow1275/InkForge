@@ -227,6 +227,10 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-readback-missing'
   | 'style-proof-manifest-public-image-host-missing'
   | 'style-proof-manifest-validation-missing'
+  | 'style-proof-manifest-pack-choice-unknown'
+  | 'style-proof-manifest-pack-platform-mismatch'
+  | 'style-proof-manifest-pack-artifact-id-duplicate'
+  | 'style-proof-manifest-pack-fingerprint-mismatch'
 
 export interface StyleProofManifest {
   platform: Platform
@@ -459,6 +463,33 @@ export interface PlatformStyleProofProgressReport {
     externalAccountRequirements: number
     phoneRequirements: number
     safeToAutomateRequirements: number
+  }
+}
+
+export interface StyleProofManifestPackManifestSummary {
+  index: number
+  platform: Platform
+  choiceId?: string
+  artifactCount: number
+  valid: boolean
+  usableForProgress: boolean
+  issueCount: number
+}
+
+export interface StyleProofManifestPackReport {
+  manifests: readonly StyleProofManifestPackManifestSummary[]
+  platformReports: Record<Platform, PlatformStyleProofProgressReport>
+  issues: readonly QualityIssue[]
+  duplicateArtifactIds: readonly string[]
+  summary: {
+    manifestCount: number
+    validManifestCount: number
+    invalidManifestCount: number
+    usableManifestCount: number
+    unboundManifestCount: number
+    artifactCount: number
+    duplicateArtifactIdCount: number
+    issueCount: number
   }
 }
 
@@ -2210,7 +2241,9 @@ interface StyleProofProgressSource {
 function getStyleProofProgressStatus(summary: {
   missing: number
   invalid: number
+  forcedInvalid?: boolean
 }): StyleProofProgressStatus {
+  if (summary.forcedInvalid) return 'invalid'
   if (summary.invalid > 0) return 'invalid'
   if (summary.missing > 0) return 'missing'
   return 'satisfied'
@@ -2223,6 +2256,7 @@ function buildMergedStyleChoiceProofManifest(
 ): {
   manifest: StyleProofManifest
   manifestCount: number
+  issues: readonly QualityIssue[]
 } {
   const matchingManifests = manifests.filter(manifest =>
     manifest.platform === platform && manifest.choiceId === choice.id
@@ -2235,18 +2269,40 @@ function buildMergedStyleChoiceProofManifest(
         choiceId: choice.id,
       }),
       manifestCount: 0,
+      issues: [],
     }
   }
 
   const claimedEvidence = new Set<StyleEvidenceLabel>()
   const artifacts: StyleProofArtifact[] = []
+  const artifactFingerprints = new Set<string>()
 
   for (const manifest of matchingManifests) {
+    if (manifest.artifactFingerprint) {
+      artifactFingerprints.add(manifest.artifactFingerprint)
+    }
+
     for (const evidence of manifest.claimedEvidence) {
       claimedEvidence.add(evidence)
     }
 
     artifacts.push(...manifest.artifacts)
+    for (const artifact of manifest.artifacts) {
+      if (artifact.artifactFingerprint) {
+        artifactFingerprints.add(artifact.artifactFingerprint)
+      }
+    }
+  }
+
+  const sortedArtifactFingerprints = Array.from(artifactFingerprints).sort()
+  const issues: QualityIssue[] = []
+  if (sortedArtifactFingerprints.length > 1) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-pack-fingerprint-mismatch',
+      message: `Style proof manifests for ${choice.id} reference multiple artifact fingerprints.`,
+      suggestion: 'Do not merge proof artifacts from different exported artifacts; collect one manifest set per exact artifact fingerprint.',
+      location: choice.id,
+    })
   }
 
   return {
@@ -2254,6 +2310,7 @@ function buildMergedStyleChoiceProofManifest(
       platform,
       choiceId: choice.id,
       scope: 'style-choice',
+      ...(sortedArtifactFingerprints.length === 1 ? { artifactFingerprint: sortedArtifactFingerprints[0] } : {}),
       claimedEvidence: Array.from(claimedEvidence).sort((left, right) => {
         if (EVIDENCE_RANK[left] !== EVIDENCE_RANK[right]) return EVIDENCE_RANK[left] - EVIDENCE_RANK[right]
         return left.localeCompare(right)
@@ -2261,6 +2318,26 @@ function buildMergedStyleChoiceProofManifest(
       artifacts,
     },
     manifestCount: matchingManifests.length,
+    issues,
+  }
+}
+
+function mergeStyleProofManifestReportIssues(
+  report: StyleProofManifestReport,
+  issues: readonly QualityIssue[],
+): StyleProofManifestReport {
+  if (issues.length === 0) return report
+
+  const mergedIssues = dedupeStyleProofIssues([...report.issues, ...issues])
+
+  return {
+    ...report,
+    valid: mergedIssues.length === 0,
+    issues: mergedIssues,
+    summary: {
+      ...report.summary,
+      issueCount: mergedIssues.length,
+    },
   }
 }
 
@@ -2326,7 +2403,11 @@ function buildStyleProofGateProgress(
     gate,
     order: STYLE_PROOF_COLLECTION_ORDER[gate],
     note: STYLE_PROOF_COLLECTION_NOTES[gate],
-    status: getStyleProofProgressStatus({ missing, invalid }),
+    status: getStyleProofProgressStatus({
+      missing,
+      invalid,
+      forcedInvalid: blockedChoiceIds.size > 0,
+    }),
     requirementIds: Array.from(requirementIds).sort(),
     choiceIds: Array.from(choiceIds).sort(),
     required,
@@ -2358,8 +2439,13 @@ export function getPlatformStyleProofProgressReport(
     && choiceIds.has(manifest.choiceId)
   )
   const progressChoices = choices.map(choice => {
-    const { manifest, manifestCount } = buildMergedStyleChoiceProofManifest(platform, choice, usableManifests)
-    const report = getStyleProofManifestReport(manifest)
+    const {
+      manifest,
+      manifestCount,
+      issues,
+    } = buildMergedStyleChoiceProofManifest(platform, choice, usableManifests)
+    const baseReport = getStyleProofManifestReport(manifest)
+    const report = mergeStyleProofManifestReportIssues(baseReport, issues)
     const blockedByCatalog = choice.status !== 'available'
     const source: StyleProofProgressSource = {
       choice,
@@ -2369,7 +2455,10 @@ export function getPlatformStyleProofProgressReport(
     const gates = STYLE_PROOF_COLLECTION_GATE_SEQUENCE
       .map(gate => buildStyleProofGateProgress(gate, [source]))
       .filter((gateProgress): gateProgress is StyleProofGateProgress => gateProgress !== null)
-    const status = getStyleProofProgressStatus(report.summary)
+    const status = getStyleProofProgressStatus({
+      ...report.summary,
+      forcedInvalid: blockedByCatalog || issues.length > 0,
+    })
 
     return {
       choice,
@@ -2437,6 +2526,131 @@ export function getPlatformStyleProofProgressReport(
       externalAccountRequirements: gates.reduce((total, gate) => total + gate.externalAccountRequirements, 0),
       phoneRequirements: gates.reduce((total, gate) => total + gate.phoneRequirements, 0),
       safeToAutomateRequirements: gates.reduce((total, gate) => total + gate.safeToAutomateRequirements, 0),
+    },
+  }
+}
+
+function buildStyleProofManifestPackIssues(manifests: readonly StyleProofManifest[]): {
+  issues: QualityIssue[]
+  duplicateArtifactIds: string[]
+} {
+  const issues: QualityIssue[] = []
+  const artifactCounts = new Map<string, number>()
+  const fingerprintsByChoice = new Map<string, Set<string>>()
+
+  for (const manifest of manifests) {
+    const choice = manifest.choiceId ? getStyleChoiceById(manifest.choiceId) : undefined
+    const fingerprintChoiceKey = manifest.choiceId
+      ? `${manifest.platform}|${manifest.choiceId}`
+      : null
+
+    if (manifest.choiceId && !choice) {
+      addStyleProofIssue(issues, {
+        id: 'style-proof-manifest-pack-choice-unknown',
+        message: `Style proof manifest pack references unknown style choice: ${manifest.choiceId}.`,
+        suggestion: 'Use a choice id from getStyleChoiceCatalog() before feeding manifests into a platform progress report.',
+        location: manifest.choiceId,
+      })
+    }
+
+    if (choice && choice.platform !== manifest.platform) {
+      addStyleProofIssue(issues, {
+        id: 'style-proof-manifest-pack-platform-mismatch',
+        message: `Style proof manifest pack binds ${manifest.choiceId} to ${manifest.platform}, but the catalog choice belongs to ${choice.platform}.`,
+        suggestion: 'Keep every manifest bound to the platform where the style choice and evidence were collected.',
+        location: manifest.choiceId,
+      })
+    }
+
+    if (fingerprintChoiceKey && manifest.artifactFingerprint) {
+      const fingerprints = fingerprintsByChoice.get(fingerprintChoiceKey) ?? new Set<string>()
+      fingerprints.add(manifest.artifactFingerprint)
+      fingerprintsByChoice.set(fingerprintChoiceKey, fingerprints)
+    }
+
+    for (const artifact of manifest.artifacts) {
+      artifactCounts.set(artifact.id, (artifactCounts.get(artifact.id) ?? 0) + 1)
+
+      if (fingerprintChoiceKey && artifact.artifactFingerprint) {
+        const fingerprints = fingerprintsByChoice.get(fingerprintChoiceKey) ?? new Set<string>()
+        fingerprints.add(artifact.artifactFingerprint)
+        fingerprintsByChoice.set(fingerprintChoiceKey, fingerprints)
+      }
+    }
+  }
+
+  const duplicateArtifactIds = Array.from(artifactCounts.entries())
+    .filter(([, count]) => count > 1)
+    .map(([artifactId]) => artifactId)
+    .sort()
+
+  for (const artifactId of duplicateArtifactIds) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-pack-artifact-id-duplicate',
+      message: `Style proof manifest pack reuses artifact id ${artifactId}.`,
+      suggestion: 'Use stable, unique artifact ids so gate progress and hygiene reports can point to one proof record unambiguously.',
+      location: artifactId,
+    })
+  }
+
+  for (const [choiceKey, fingerprints] of fingerprintsByChoice.entries()) {
+    if (fingerprints.size <= 1) continue
+
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-pack-fingerprint-mismatch',
+      message: `Style proof manifest pack references multiple artifact fingerprints for ${choiceKey}.`,
+      suggestion: 'Keep each proof pack grouped by exact exported artifact fingerprint before reporting gate progress.',
+      location: choiceKey,
+    })
+  }
+
+  return {
+    issues: dedupeStyleProofIssues(issues),
+    duplicateArtifactIds,
+  }
+}
+
+export function getStyleProofManifestPackReport(
+  manifests: readonly StyleProofManifest[],
+): StyleProofManifestPackReport {
+  const platformReports: Record<Platform, PlatformStyleProofProgressReport> = {
+    wechat: getPlatformStyleProofProgressReport('wechat', manifests),
+    xiaohongshu: getPlatformStyleProofProgressReport('xiaohongshu', manifests),
+    zhihu: getPlatformStyleProofProgressReport('zhihu', manifests),
+  }
+  const { issues: packIssues, duplicateArtifactIds } = buildStyleProofManifestPackIssues(manifests)
+  const manifestSummaries = manifests.map((manifest, index) => {
+    const manifestIssues = validateStyleProofManifest(manifest)
+    const choice = manifest.choiceId ? getStyleChoiceById(manifest.choiceId) : undefined
+    const usableForProgress = Boolean(choice && choice.platform === manifest.platform)
+
+    return {
+      index,
+      platform: manifest.platform,
+      ...(manifest.choiceId ? { choiceId: manifest.choiceId } : {}),
+      artifactCount: manifest.artifacts.length,
+      valid: manifestIssues.length === 0,
+      usableForProgress,
+      issueCount: manifestIssues.length,
+    }
+  })
+  const manifestIssues = manifests.flatMap(manifest => validateStyleProofManifest(manifest))
+  const issues = dedupeStyleProofIssues([...manifestIssues, ...packIssues])
+
+  return {
+    manifests: manifestSummaries,
+    platformReports,
+    issues,
+    duplicateArtifactIds,
+    summary: {
+      manifestCount: manifests.length,
+      validManifestCount: manifestSummaries.filter(manifest => manifest.valid).length,
+      invalidManifestCount: manifestSummaries.filter(manifest => !manifest.valid).length,
+      usableManifestCount: manifestSummaries.filter(manifest => manifest.usableForProgress).length,
+      unboundManifestCount: manifestSummaries.filter(manifest => !manifest.choiceId).length,
+      artifactCount: manifests.reduce((total, manifest) => total + manifest.artifacts.length, 0),
+      duplicateArtifactIdCount: duplicateArtifactIds.length,
+      issueCount: issues.length,
     },
   }
 }

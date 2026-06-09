@@ -85,6 +85,10 @@ CloakBrowser 桌面 1400×900 与移动 390×844 均无水平溢出，重启后�
 `getPlatformStyleProofProgressReport()` 将 redacted manifests 聚合为 platform / choice / gate
 progress，focused Vitest 62 tests passed；该文件只证明本地 proof accounting，不证明平台粘贴、
 手机预览、同步、上传、public host acceptance 或发布成功）。
+`style-proof-manifest-pack-report-20260609.txt`（当前规则实现：
+`getStyleProofManifestPackReport()` 将一组 redacted manifests 汇总为三平台 progress reports，并报告
+unknown choices、platform mismatch、duplicate artifact ids、same-choice fingerprint mismatch 与 blocked-choice invalid progress；focused Vitest 65 tests passed。该文件只证明本地
+proof intake/accounting，不证明平台粘贴、手机预览、同步、上传、public host acceptance 或发布成功）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -213,6 +217,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-ui-gates-20260609.txt # 当前 UI 实现：ExportModal 显示 proof summary/gate labels；CloakBrowser 桌面/移动无横向溢出
 [x] style-proof-collection-queue-20260609.txt # 当前规则实现：collection gates -> ordered queue；CloakBrowser runtime queue readback + UI next gate
 [x] style-proof-progress-report-20260609.txt # 当前规则实现：redacted manifests -> platform/choice/gate proof progress；focused tests passed
+[x] style-proof-manifest-pack-report-20260609.txt # 当前规则实现：redacted manifest pack -> three platform progress reports + pack issues
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

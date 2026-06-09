@@ -1404,6 +1404,47 @@ git status --short --branch
   this report proves only local proof accounting. It does not prove platform paste, phone preview,
   sync, scheduled send, upload, public host, or publish.
 
+## 2026-06-09 Style Proof Manifest Pack Report Slice
+
+- Added `getStyleProofManifestPackReport(manifests)` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The pack report runs `getPlatformStyleProofProgressReport()` for WeChat, Xiaohongshu, and Zhihu,
+  preserving per-platform `choicesWithManifest` and `ignoredManifestCount` isolation.
+- The pack report reuses `validateStyleProofManifest()` and adds pack-level issues for unknown
+  choices, platform/choice mismatches, and duplicate artifact ids.
+- Duplicate artifact ids are reported as errors because progress and hygiene rows must point to one
+  unambiguous proof record.
+- Multi-manifest progress now also rejects multiple `artifactFingerprint` values for the same
+  platform/style choice. This prevents local, phone, credentialed, or publish proof from different
+  exported artifacts being merged into one satisfied progress state.
+- Blocked/unavailable catalog choices force an invalid progress state even when all requirement
+  artifacts are present, so they cannot inflate `proofSatisfiedChoices`.
+- Evidence-label-only manifests can remain valid manifests, but they are not applied to every style
+  choice; the pack summary records whether each manifest is usable for style-choice progress.
+- Exported the pack report API and types through `inkforge/src/services/export/index.ts`.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test verifies duplicate
+  artifact id reporting, unknown choice reporting, and WeChat/Xiaohongshu/Zhihu isolation.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-manifest-pack-report-20260609.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 65 tests passed after review fixes for fingerprint mismatch and blocked-choice progress.
+- Verification refresh:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  4 files / 104 tests passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  35 files / 998 tests passed.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  32.21s.
+  Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after validation dirtied it.
+- Boundary:
+  this pack report proves only local proof intake/accounting. It does not prove platform paste,
+  phone preview, sync, scheduled send, upload, public host, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

@@ -820,3 +820,35 @@ Required tests:
 - Invalid or unsafe artifacts must count at both choice and gate level.
 - Blocked WeChat flagship choices must remain blocked even when a manifest exists.
 - Cross-platform manifests must be ignored for the requested platform.
+
+## 11. Style Proof Manifest Pack Report
+
+`getStyleProofManifestPackReport(manifests)` is the multi-platform intake boundary for a batch of
+redacted style proof manifests.
+
+Contracts:
+- The pack report must call `getPlatformStyleProofProgressReport()` separately for WeChat,
+  Xiaohongshu, and Zhihu. Cross-platform manifests must appear only as ignored inputs for the
+  non-target platform reports.
+- The pack report must reuse `validateStyleProofManifest()` for per-manifest issues, then add
+  pack-level issues for unknown choices, platform/choice mismatch, and duplicate artifact ids.
+- Duplicate artifact ids are errors because gate and hygiene reports must point to exactly one proof
+  record.
+- Multiple artifact fingerprints for the same platform and style choice are errors. Progress must
+  not merge local, phone, credentialed, or publish proof artifacts from different exported artifacts
+  into one satisfied gate state.
+- Manifests without a style `choiceId` can remain valid evidence-label manifests, but they are not
+  usable for style-choice progress and must not be silently applied to every choice.
+- `blocked` and `unavailable` catalog choices must force an invalid progress state even when every
+  proof requirement has an artifact. Progress can document collected evidence for those choices, but
+  it must not count them as proof-satisfied choices.
+- The pack report is still local proof accounting. It must not report paste, phone preview, sync,
+  upload, public host acceptance, scheduled send, or publish success.
+
+Required tests:
+- A pack containing WeChat and Zhihu manifests with the same artifact id must report a duplicate id.
+- Unknown style choices must be reported at pack level and by manifest validation.
+- Same-choice fingerprint mismatch must be reported by both platform progress and pack reports.
+- A fully evidenced blocked choice must remain invalid and must not increase `proofSatisfiedChoices`.
+- WeChat, Xiaohongshu, and Zhihu platform reports must keep `choicesWithManifest` and
+  `ignoredManifestCount` isolated.

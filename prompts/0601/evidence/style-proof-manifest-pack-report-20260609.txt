@@ -1,0 +1,62 @@
+# Style Proof Manifest Pack Report Evidence - 2026-06-09
+
+Scope
+- Added `getStyleProofManifestPackReport(manifests)`.
+- The function is the local intake/reporting boundary for a batch of redacted style proof manifests.
+- It does not create proof artifacts and does not change style availability.
+
+Runtime Contract
+- WeChat, Xiaohongshu, and Zhihu progress reports are calculated separately through
+  `getPlatformStyleProofProgressReport()`.
+- A manifest contributes only to the platform report whose catalog owns the manifest `choiceId`.
+- Unknown choices and platform/choice mismatches are reported as pack issues.
+- Duplicate artifact ids are reported as pack issues.
+- Multiple artifact fingerprints for the same platform/style choice are reported as pack/progress
+  issues. Progress must not merge evidence from different exported artifacts into one satisfied gate
+  state.
+- Blocked or unavailable catalog choices remain invalid progress rows even when all proof artifacts
+  are present.
+- Evidence-label-only manifests are not applied to every style choice.
+
+Focused Verification
+- Command:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+- Result:
+  1 file / 65 tests passed.
+- Covered assertions:
+  - A pack with WeChat and Zhihu manifests using the same artifact id reports
+    `style-proof-manifest-pack-artifact-id-duplicate`.
+  - Unknown style choices are reported by the pack layer and by manifest validation.
+  - WeChat, Xiaohongshu, and Zhihu platform reports keep `choicesWithManifest` and
+    `ignoredManifestCount` isolated.
+  - Same-choice fingerprint mismatch is rejected by platform progress and pack reports.
+  - A fully evidenced blocked WeChat style remains invalid and does not increase
+    `proofSatisfiedChoices`.
+
+Verification Refresh
+- 4-file export regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  Result: 4 files / 104 tests passed.
+- Full export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  Result: 35 files / 998 tests passed.
+- Non-mutating ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Result: exit 0.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Result: exit 0.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Result: exit 0, Vite built in 32.21s.
+- Build-generated `inkforge/tsconfig.tsbuildinfo` was restored after verification.
+- Review fixes confirmed before this refresh:
+  fingerprint mismatch now invalidates merged same-choice progress, and a fully evidenced blocked
+  catalog choice remains invalid instead of increasing `proofSatisfiedChoices`.
+- Final GitNexus detect changes and staged-only sensitive artifact scan are run immediately before
+  commit, after exact staging.
+
+Boundary
+- This evidence is local proof-intake/accounting evidence only.
+- It does not prove WeChat, Xiaohongshu, or Zhihu paste, phone preview, image upload, account sync,
+  scheduled send, public host acceptance, or publish success.
