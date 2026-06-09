@@ -1,0 +1,78 @@
+Style proof manifest draft slice - 2026-06-09
+
+Scope
+
+- Added createStyleProofManifestDraft() in inkforge/src/services/export/style-catalog.ts.
+- Re-exported the draft API and StyleProofManifestDraftOptions through
+  inkforge/src/services/export/index.ts.
+- This is a proof-collection scaffold only. It does not alter export HTML, native output,
+  evaluateStyleChoiceAvailability(), getPlatformStyleApplicationReport(), ExportModal selectable
+  state, preview state, sync state, or publish state.
+
+Runtime contract
+
+- The API returns a redacted StyleProofManifest with artifacts: [].
+- If a choiceId is supplied and no scope is supplied, the draft uses scope: style-choice.
+- If no choiceId is supplied, the draft uses scope: evidence-label.
+- The API may carry a caller-supplied artifactFingerprint, but it does not generate or infer one.
+- The caller must fill artifacts only after collecting real, redacted evidence from tests,
+  CloakBrowser, a platform editor, phone preview, credentialed sync, or publish inspection.
+- getStyleProofManifestReport() is then used to enumerate missing or invalid proof rows.
+
+Verification so far
+
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file, 57 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  Result: passed, 4 files, 96 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 35 files, 990 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- PowerShell: $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  Result: passed, Vite built in 27.55s.
+- inkforge/tsconfig.tsbuildinfo was restored after typecheck/build dirtied the generated cache.
+
+CloakBrowser runtime smoke
+
+- Browser tool: CloakBrowser only, required profile inkforge-0601.
+- Local app: http://127.0.0.1:3005/.
+- The page loaded as InkForge - 首页 at 1400x900 with no horizontal overflow.
+- The browser dynamically imported /src/services/export/index.ts from the real Vite server and
+  called createStyleProofManifestDraft() plus getStyleProofManifestReport().
+- wechat-flagship-amber style-choice draft:
+  - artifacts: [].
+  - scope: style-choice.
+  - valid=false because the choice remains blocked and proof artifacts are missing.
+  - report summary: required=10, missing=10, artifactCount=0, acceptedArtifactCount=0.
+  - first missing rows: exact-artifact, safe-disposable-draft, pc-editor-paste-event,
+    pc-editor-dom-readback, no-sensitive-artifact, phone-preview-readback, phone-screenshot,
+    dark-mode-check, cover-thumbnail-check, published-url-or-platform-preview.
+- pc-editor-dom-readable evidence-label draft:
+  - artifacts: [].
+  - scope: evidence-label.
+  - report summary: required=3, missing=3.
+  - missing rows: authenticated-editor-url, pc-editor-dom-readback, no-sensitive-artifact.
+- No platform account page, QR code, cookie, token, HAR, browser profile path, screenshot path,
+  or authenticated artifact was committed.
+- Vite dev server was stopped after the smoke; 127.0.0.1:3005 had no LISTENING socket.
+
+Focused assertions added
+
+- A draft for wechat-flagship-amber carries platform=wechat, choiceId=wechat-flagship-amber,
+  scope=style-choice, an optional redacted fingerprint, and artifacts: [].
+- Its report is invalid because the choice is still blocked and every real proof artifact is
+  missing. Required rows include exact-artifact, safe-disposable-draft, pc-editor-paste-event,
+  phone-preview-readback, phone-screenshot, dark-mode-check, cover-thumbnail-check,
+  published-url-or-platform-preview, and no-sensitive-artifact.
+- A draft for claimed pc-editor-dom-readable evidence without a choice remains evidence-label
+  scoped and lists only authenticated-editor-url, pc-editor-dom-readback, and no-sensitive-artifact.
+
+Sensitive-artifact boundary
+
+- No platform account page, QR code, cookie, token, HAR, browser profile path, screenshot path,
+  private template source, paid/trial SVG source, or proprietary asset was committed.

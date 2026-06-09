@@ -7,6 +7,7 @@ import type { StyleProofManifest } from './index'
 import {
   convertToNativeFormat,
   convertToWechatWithStats,
+  createStyleProofManifestDraft,
   detectQuality,
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
@@ -298,6 +299,63 @@ describe('platform native export rendering rules', () => {
     expect(report.requirements[0]?.artifactIds).toEqual(['style-proof-unit-log'])
     expect(report.artifacts[0]?.status).toBe('accepted')
     expect(evaluateStyleChoiceAvailability(classicInline, ['unit-tested']).usable).toBe(true)
+  })
+
+  it('creates empty style proof manifest drafts that enumerate real proof gaps without fake artifacts', () => {
+    const draft = createStyleProofManifestDraft({
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-amber',
+      artifactFingerprint: 'sha256:redacted-amber-artifact',
+    })
+
+    expect(draft).toMatchObject({
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-amber',
+      scope: 'style-choice',
+      claimedEvidence: [],
+      artifactFingerprint: 'sha256:redacted-amber-artifact',
+      artifacts: [],
+    })
+
+    const report = getStyleProofManifestReport(draft)
+    expect(report.valid).toBe(false)
+    expect(report.choiceStatus).toBe('blocked')
+    expect(report.summary.artifactCount).toBe(0)
+    expect(report.summary.acceptedArtifactCount).toBe(0)
+    expect(report.summary.required).toBeGreaterThanOrEqual(9)
+    expect(report.summary.missing).toBe(report.summary.required)
+    expect(report.requirements.map(requirement => requirement.requirement.id)).toEqual(expect.arrayContaining([
+      'exact-artifact',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'published-url-or-platform-preview',
+      'no-sensitive-artifact',
+    ]))
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+  })
+
+  it('creates evidence-label proof drafts only for explicitly claimed labels', () => {
+    const draft = createStyleProofManifestDraft({
+      platform: 'wechat',
+      claimedEvidence: ['pc-editor-dom-readable'],
+    })
+    const report = getStyleProofManifestReport(draft)
+
+    expect(draft.choiceId).toBeUndefined()
+    expect(draft.scope).toBe('evidence-label')
+    expect(draft.artifacts).toEqual([])
+    expect(report.choiceId).toBeUndefined()
+    expect(report.summary.required).toBe(3)
+    expect(report.summary.missing).toBe(3)
+    expect(report.requirements.map(requirement => requirement.requirement.id)).toEqual([
+      'authenticated-editor-url',
+      'pc-editor-dom-readback',
+      'no-sensitive-artifact',
+    ])
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

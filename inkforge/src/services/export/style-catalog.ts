@@ -237,6 +237,14 @@ export interface StyleProofManifest {
   artifacts: readonly StyleProofArtifact[]
 }
 
+export interface StyleProofManifestDraftOptions {
+  platform: Platform
+  claimedEvidence?: readonly StyleEvidenceLabel[]
+  scope?: StyleProofManifestScope
+  choiceId?: string
+  artifactFingerprint?: string
+}
+
 export type StyleProofRequirementReportStatus = 'satisfied' | 'missing' | 'invalid'
 export type StyleProofArtifactReportStatus = 'accepted' | 'invalid' | 'sensitive' | 'unsafe-commit'
 
@@ -1109,6 +1117,17 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
     if (!requirement) throw new Error(`Unknown style proof requirement: ${requirementId}`)
     return requirement
   })
+}
+
+export function createStyleProofManifestDraft(options: StyleProofManifestDraftOptions): StyleProofManifest {
+  return {
+    platform: options.platform,
+    scope: options.scope ?? (options.choiceId ? 'style-choice' : 'evidence-label'),
+    claimedEvidence: options.claimedEvidence ?? [],
+    artifacts: [],
+    ...(options.choiceId ? { choiceId: options.choiceId } : {}),
+    ...(options.artifactFingerprint ? { artifactFingerprint: options.artifactFingerprint } : {}),
+  }
 }
 
 export function validateStyleProofManifest(manifest: StyleProofManifest): QualityIssue[] {

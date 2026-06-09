@@ -461,6 +461,10 @@ Evidence retention rules:
   rows: `satisfied`, `missing`, `invalid`, `accepted`, `sensitive`, or `unsafe-commit`. Use it for
   evidence checklists, completion reports, and follow-up CloakBrowser platform probes. It must not
   be used as an export converter, availability shortcut, or proof of mobile preview/sync/publish.
+- `createStyleProofManifestDraft()` creates an empty, redacted `StyleProofManifest` scaffold for a
+  platform/evidence label or a full style choice. It deliberately leaves `artifacts: []`, so the
+  report lists missing real evidence instead of inventing proof artifacts. Use it before collecting
+  CloakBrowser or platform evidence; do not commit filled manifests until sensitive-artifact review.
 - A test log can prove `unit-tested`, not `pc-editor-paste`.
 - A 135/秀米 authoring preview can prove taxonomy and workflow state, not WeChat final mobile rendering.
 - A 135/秀米 applied-editor-element proof can additionally prove authoring DOM structure,

@@ -48,6 +48,12 @@ host 或 XHS/Zhihu manifest validation；该 validator 不改变 availability/se
 只作为证据清单/验收报告边界，不升级为平台预览、同步或发布证明；同轮完成 4-file export
 94 tests passed、full export serial 988 tests passed、export ESLint/vue-tsc/build exit 0，并用
 CloakBrowser `inkforge-0601` 动态导入真实 Vite 模块完成本地 runtime smoke）。
+`style-proof-manifest-draft-20260609.txt`（style proof manifest 空白清单 API：
+`createStyleProofManifestDraft()` 生成 `artifacts: []` 的 redacted scaffold，让 report 在真实证据采集前
+列出 style-choice/evidence-label 缺口；focused Vitest 57 tests passed、4-file export 96 tests
+passed、full export serial 990 tests passed、export ESLint/vue-tsc/build exit 0，并用 CloakBrowser
+`inkforge-0601` 动态导入真实 Vite 模块完成 runtime smoke；不生成 mock proof artifact，不升级平台预览、
+同步或发布证明）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975

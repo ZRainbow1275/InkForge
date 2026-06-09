@@ -13,13 +13,13 @@
 在**不重构主管线、不删除任何现有功能/预设/测试**的前提下，落地了一套 WeChat-safe、参数化、可复用、契合「静谧刊印 Quiet Press」品牌哲学的 inline-SVG 高级排版组件系统（26 个注册模块 × 7 族）、3 个全量使用该系统的「SVG 旗舰」微信预设，以及小红书海报栅格化 / 知乎 SVG-as-img 适配。
 
 **自动化与真实运行门禁已刷新**：
-- 最新完整 export 测试套件：**35 文件 / 988 用例 全绿**。
-- 最新跨平台导出 focused 套件：**4 文件 / 94 用例 全绿**。
-- 最新 `platform-export-rendering.test.ts`：**55 用例全绿**。
+- 最新完整 export 测试套件：**35 文件 / 990 用例 全绿**。
+- 最新跨平台导出 focused 套件：**4 文件 / 96 用例 全绿**。
+- 最新 `platform-export-rendering.test.ts`：**57 用例全绿**。
 - 最新 XHS manifest focused 套件：**3 文件 / 69 用例 全绿**。
 - 最新非变异 ESLint：`src/services/export` 与本轮质量检测文件均通过。
 - 最新 `vue-tsc --noEmit --pretty false`：**exit 0，无错误**。
-- 最新生产构建：PowerShell 环境下设置 `NODE_OPTIONS=--max-old-space-size=4096` 后执行 `pnpm -C inkforge build` 通过，Vite built in **34.49s**（本轮证据见 `evidence/style-proof-manifest-report-20260609.txt`）。
+- 最新生产构建：PowerShell 环境下设置 `NODE_OPTIONS=--max-old-space-size=4096` 后执行 `pnpm -C inkforge build` 通过，Vite built in **27.55s**（本轮证据见 `evidence/style-proof-manifest-draft-20260609.txt`）。
 - 最新 Tauri debug 二进制编译：`cargo build -p inkforge` 通过，dev profile **9.15s**（`evidence/cargo-build-refresh-20260608-082813.txt`）。
 - GUI e2e 已通过真实 Tauri/WebView2 二进制：`svg-render.spec.cjs` **5 passing**，`visual.spec.cjs` **11 passing**。
 - A1 诊断探针已刷新：三旗舰 SVG 几何正常（`viewBox` + `width:100%` + `deltaToParent=0`），但诊断脚本在 401px ExportModal 宽列下报告 `CHARS-OUT-OF-BAND: 27/line`；该项不作为 AC3 graded gate，正式移动排版口径由已通过的 `svg-render.spec.cjs` 覆盖。
@@ -34,6 +34,8 @@
 - 2026-06-09 已新增 `validateStyleProofManifest()`：它校验 redacted proof manifest 是否覆盖 required proof items、是否同一 artifact、是否真实 action/channel/readback、是否存在弱证据冒充强证据、blocked choice 被升级、平台/choice 不一致、敏感本地/profile/HAR/QR/token/cookie 证据引用，以及 Zhihu/XHS manifest proof 缺失。该 validator 不改变 availability/selectable，不证明手机预览、同步或发布。
 - 2026-06-09 已新增 `getStyleProofManifestReport()`：它复用 `validateStyleProofManifest()` 的结果，把 manifest 拆成 requirement rows 与 artifact rows，标记 `satisfied` / `missing` / `invalid` / `accepted` / `sensitive` / `unsafe-commit`，并输出缺口、敏感证据和不可提交证据计数。该 report 只服务证据清单和验收报告，不改变 export、availability、selectable、手机预览、同步或发布状态。
 - 2026-06-09 已用 CloakBrowser `inkforge-0601` 对 `getStyleProofManifestReport()` 做本地运行时 smoke：真实 Vite 模块动态导入成功，完整 manifest 返回 `valid=true`，弱 PC paste manifest 返回 4 missing + 1 invalid，合成敏感引用返回 sensitive/unsafe 计数；首页 1400×900 无横向溢出。未进入账号页面，未提交截图路径、profile 路径、token、cookie、HAR、QR 或账号材料。
+- 2026-06-09 已新增 `createStyleProofManifestDraft()`：它为 evidence-label 或 style-choice 创建空 artifacts 的 redacted proof manifest scaffold，让 `getStyleProofManifestReport()` 在采集真实证据前列出所有缺口；不会生成假 artifact，不改变 export、availability、selectable、手机预览、同步或发布状态。
+- 2026-06-09 已用 CloakBrowser `inkforge-0601` 对 `createStyleProofManifestDraft()` 做本地运行时 smoke：真实 Vite 模块动态导入成功，`wechat-flagship-amber` draft 返回 `artifacts: []`、`scope: style-choice`，report 明确列出 10 个 missing proof；`pc-editor-dom-readable` evidence draft 明确列出 3 个 missing proof。未进入账号页面，未提交截图路径、profile 路径、token、cookie、HAR、QR 或账号材料。
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 - 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。

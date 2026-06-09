@@ -1045,6 +1045,75 @@ git status --short --branch
 - Evidence summary:
   `prompts/0601/evidence/style-proof-checklist-20260609.txt`.
 
+### 2026-06-09 style proof manifest report slice
+
+- Added `getStyleProofManifestReport()` in
+  `inkforge/src/services/export/style-catalog.ts`, and re-exported the report API and report row
+  types through `inkforge/src/services/export/index.ts`.
+- The report reuses `validateStyleProofManifest()` and groups the same issues by requirement
+  and artifact rows:
+  - requirement statuses: `satisfied`, `missing`, `invalid`.
+  - artifact statuses: `accepted`, `invalid`, `sensitive`, `unsafe-commit`.
+  - summary counters for required proof items, missing/invalid rows, accepted artifacts,
+    sensitive artifacts, unsafe committed artifacts, and total issue count.
+- This is a diagnostics/evidence layer only. It does not change export output, style availability,
+  style selectability, mobile preview proof, sync proof, or publish proof.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed, 1 file / 55 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed, 4 files / 94 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed, 35 files / 988 tests.
+  `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  PowerShell `NODE_OPTIONS=--max-old-space-size=4096`; `pnpm -C inkforge build` passed,
+  Vite built in 34.49s.
+- CloakBrowser runtime smoke (profile `inkforge-0601`, no Playwright):
+  opened the real local app, dynamically imported `/src/services/export/index.ts`, and confirmed
+  complete, weak, and synthetic-sensitive manifests report the expected valid/missing/invalid/
+  sensitive/unsafe counters. No account page, profile path, QR, token, cookie, HAR, or screenshot
+  path was committed.
+- Evidence summary:
+  `prompts/0601/evidence/style-proof-manifest-report-20260609.txt`.
+- Commit:
+  `6521114 fix(export): report style proof manifest gaps`.
+
+### 2026-06-09 style proof manifest draft slice
+
+- Added `createStyleProofManifestDraft()` in
+  `inkforge/src/services/export/style-catalog.ts`, and re-exported the draft API plus
+  `StyleProofManifestDraftOptions` through `inkforge/src/services/export/index.ts`.
+- The API creates a redacted `StyleProofManifest` scaffold with `artifacts: []`:
+  - with `choiceId`, default `scope` is `style-choice`.
+  - without `choiceId`, default `scope` is `evidence-label`.
+  - optional `artifactFingerprint` is caller-supplied only; the helper does not infer or create
+    a fake fingerprint.
+- The draft is designed to be passed into `getStyleProofManifestReport()` before platform
+  probing so missing requirements are explicit before any CloakBrowser, platform editor, phone
+  preview, sync, or publish action. It deliberately creates no proof artifacts.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed, 1 file / 57 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed, 4 files / 96 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed, 35 files / 990 tests.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec eslint src/services/export --ext .ts,.vue --quiet` passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  PowerShell `NODE_OPTIONS=--max-old-space-size=4096`; `pnpm -C inkforge build` passed,
+  Vite built in 27.55s.
+- CloakBrowser runtime smoke (profile `inkforge-0601`, no Playwright):
+  opened the real local app, dynamically imported `/src/services/export/index.ts`, and confirmed
+  `wechat-flagship-amber` style-choice draft uses `artifacts:[]`, report has required=10 and
+  missing=10, and `pc-editor-dom-readable` evidence-label draft has required=3 and missing=3.
+  No account page, profile path, QR, token, cookie, HAR, or screenshot path was committed.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck dirtied the generated cache.
+- Evidence summary:
+  `prompts/0601/evidence/style-proof-manifest-draft-20260609.txt`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

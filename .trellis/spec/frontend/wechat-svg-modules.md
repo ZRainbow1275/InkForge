@@ -46,6 +46,10 @@ construct breaks.
   groups issues by required proof item and proof artifact, exposes missing/invalid/satisfied rows,
   and counts sensitive or unsafe-to-commit artifacts. It is safe for diagnostics and evidence
   summaries only; it must not become an availability, selectable, sync, preview, or publish gate.
+- `createStyleProofManifestDraft()` is the scaffold entry point for future proof collection. A
+  style-choice draft defaults to `scope:'style-choice'` and `artifacts:[]`, so
+  `getStyleProofManifestReport()` can enumerate exact missing proof requirements before any
+  CloakBrowser/platform action is attempted. It must never fabricate artifact entries.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
