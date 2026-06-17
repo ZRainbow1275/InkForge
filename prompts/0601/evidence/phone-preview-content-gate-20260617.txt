@@ -1,0 +1,54 @@
+Phone Preview Content Gate - 2026-06-17
+
+Scope:
+- Local executable proof-gate hardening for redacted StyleProofManifest records.
+- Prevents scan, entry, setup, or cover-setting states from satisfying mobile-preview readback.
+- No platform mutation, phone preview opening, sync, upload, schedule, or publish action was
+  performed.
+
+Implemented:
+- Added StyleProofArtifact.phonePreviewContentVerified?: boolean.
+- Strengthened phone-preview-readback validation for mobile-preview evidence.
+- Added style-proof-manifest-phone-content-missing for phone-preview artifacts that do not prove
+  final article-body content readback.
+
+Behavior:
+- A phone-preview-readback artifact must still use action phone-preview, channel phone-preview,
+  and phone or visual readback.
+- It now also needs phonePreviewContentVerified:true before it can satisfy
+  phone-preview-readback.
+- A scan page, preview entry, setup dialog, cover-setting page, or PC backend DOM readback remains
+  setup/blocking evidence only.
+- The rule preserves the old readback-missing status when no phone-preview artifact exists at all.
+- The rule does not change style availability, selectable, usable, blocked, or unavailable states.
+
+Regression coverage:
+- A phone-preview entry/readback artifact without final article-body content verification is
+  invalid and surfaces style-proof-manifest-phone-content-missing.
+- Screenshot, Dark Mode, and cover-thumbnail proof rows remain independently satisfied when their
+  own artifacts are present, but they cannot replace final phone content readback.
+
+Initial verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 73 tests
+- ./node_modules/.bin/vitest.cmd run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 112 tests
+- ./node_modules/.bin/vitest.cmd run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1006 tests
+- ./node_modules/.bin/eslint.cmd src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- ./node_modules/.bin/vue-tsc.cmd --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build
+  PASS: exit 0, built in 1m 59s
+
+Verification note:
+- A parallel pnpm 4-file Vitest run hit the existing 5s timeout on the WeChat full-pipeline case
+  under local load. The failed file and the 4-file set were rerun through the local Vitest binary
+  in serial mode and passed.
+
+Boundary:
+- This proves local proof-gate enforcement only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  ordinary rich paste, safe draft cleanup, credentialed sync, scheduled send, public host
+  acceptance, XHS/Zhihu account upload, or publish success.

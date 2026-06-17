@@ -36,6 +36,10 @@ construct breaks.
   screenshot evidence, Dark Mode inspection, and cover-thumbnail inspection. `published` is
   cross-platform and proves final platform preview/publish inspection only; WeChat phone proof must
   remain a separate `mobile-preview` label.
+- `StyleProofArtifact.phonePreviewContentVerified === true` is required for
+  `phone-preview-readback`. A scan page, preview entry, setup dialog, cover-setting page, or PC
+  backend DOM readback is not phone-side final article content. Keep those as blocked/setup
+  evidence until the exact artifact is visible in the phone preview article body.
 - `validateStyleProofManifest()` is the executable validator for those proof items. It accepts
   redacted `StyleProofManifest` records, returns `QualityIssue[]`, and verifies requirement
   coverage, exact-artifact continuity, platform/choice consistency, action/channel/readback
@@ -377,6 +381,9 @@ Evidence labels for UI state:
 - `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
 - `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact.
 - `mobile-preview`: phone preview proved final mobile visibility/interaction/Dark Mode target.
+  `phone-preview-readback` requires `phonePreviewContentVerified:true`; phone screenshot,
+  Dark Mode, and cover-thumbnail checks remain separate proof rows and cannot substitute for
+  the final article-body readback.
 - `credentialed-sync`: real account sync created draft/material, still not publish proof.
 - `published`: final platform publish/preview was inspected.
 - `blocked` / `unavailable`: show blocker and fallback, never report success.

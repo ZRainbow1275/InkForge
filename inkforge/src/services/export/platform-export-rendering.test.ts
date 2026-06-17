@@ -775,6 +775,7 @@ describe('platform native export rendering rules', () => {
           action: 'phone-preview',
           readback: 'phone',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          phonePreviewContentVerified: true,
           safeForCommit: true,
         },
         {
@@ -1533,6 +1534,81 @@ describe('platform native export rendering rules', () => {
     }
 
     expect(validateStyleProofManifest(manifest).map(issue => issue.id)).toContain('style-proof-manifest-evidence-too-weak')
+  })
+
+  it('rejects phone preview entry or scan state without final article content readback', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      claimedEvidence: ['mobile-preview'],
+      artifacts: [
+        {
+          id: 'phone-preview-entry-only',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'phone preview entry is visible but article body was not read',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          exactArtifact: true,
+          phonePreviewContentVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-preview-screenshot',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'redacted phone screenshot proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-preview-dark-mode',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'redacted dark mode proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-preview-cover',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'redacted cover thumbnail proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-phone-content-missing')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('satisfied')
+    expect(requirementStatus.get('dark-mode-check')).toBe('satisfied')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('satisfied')
   })
 
   it('keeps weak editor and browser evidence out of mobile sync publish and draft-safety gates', () => {

@@ -532,3 +532,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
   safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-06-17 Phone Preview Content Gate Addendum
+
+- Added `phonePreviewContentVerified?: boolean` to `StyleProofArtifact`.
+- Strengthened `phone-preview-readback`: `mobile-preview` now requires phone-preview action,
+  phone-preview channel, phone/visual readback, and `phonePreviewContentVerified:true`.
+- Added `style-proof-manifest-phone-content-missing` so scan pages, preview entries, setup dialogs,
+  cover-setting pages, and PC backend DOM readbacks stay invalid unless the exact artifact is
+  visible in the final phone preview article body.
+- Screenshot, Dark Mode, and cover-thumbnail rows remain separate proof rows; they cannot replace
+  the final article-body readback.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 73 tests.
+- Broader verification:
+  4-file export regression passed 112 tests in serial mode; full export serial run passed
+  35 files / 1006 tests; targeted export ESLint passed; `vue-tsc --noEmit --pretty false`
+  passed; direct Vite production build passed with exit 0. A parallel pnpm 4-file run hit the
+  existing 5s timeout on the WeChat full-pipeline case under local load, and the same scope passed
+  when rerun through the local Vitest binary in serial mode.
+- Boundary: this addendum proves local proof-gate enforcement only. It does not prove WeChat phone
+  preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.

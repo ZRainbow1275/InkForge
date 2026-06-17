@@ -113,6 +113,8 @@ image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/r
 规则，不含账号、本地浏览器目录、登录凭据、扫码材料、抓包材料、截图位置、模板源码、私有 SVG 或素材 URL）。
 `market-editor-applied-gate-20260617.txt`（当前规则实现：`applied-editor-element` requires
 `centralEditorChanged:true`; center-unchanged library/listing probes stay invalid）。
+`phone-preview-content-gate-20260617.txt`（当前规则实现：`mobile-preview` requires
+`phonePreviewContentVerified:true`; scan/entry/setup states stay invalid）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -249,6 +251,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
+[x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -338,4 +341,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Focused export tests, 4-file export regression, full export serial run, targeted ESLint,
   `vue-tsc --noEmit`, and direct Vite production build passed; the combined package build script
   hit a Node heap out-of-memory failure during `vue-tsc -b` on this low-free-memory host.
+- This is local validator proof only, not phone, sync, upload, schedule, or publish proof.
+
+## 2026-06-17 Phone Preview Content Gate
+
+- [x] phone-preview-content-gate-20260617.txt
+- `StyleProofArtifact.phonePreviewContentVerified` is now required for `phone-preview-readback`.
+- Scan pages, preview entries, setup dialogs, cover-setting pages, and PC backend DOM readbacks
+  remain setup evidence only until the exact artifact is visible in the phone preview article body.
+- Focused export tests, 4-file export serial regression, full export serial run, targeted ESLint,
+  `vue-tsc --noEmit`, and direct Vite production build passed.
 - This is local validator proof only, not phone, sync, upload, schedule, or publish proof.

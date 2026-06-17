@@ -207,6 +207,7 @@ export interface StyleProofArtifact {
   artifactRef?: string
   exactArtifact?: boolean
   centralEditorChanged?: boolean
+  phonePreviewContentVerified?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
   safeForCommit?: boolean
@@ -226,6 +227,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
+  | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-disposable-draft-missing'
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-platform-action-missing'
@@ -2112,20 +2114,34 @@ function validateStyleProofRequirementCoverage(
         })
       }
       break
-    case 'phone-preview-readback':
-      if (!has(artifact =>
+    case 'phone-preview-readback': {
+      const hasPhonePreviewReadback = has(artifact =>
         artifact.action === 'phone-preview'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || isVisualReadback(artifact.readback))
-      )) {
+      )
+      if (!hasPhonePreviewReadback) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-readback-missing',
           message: 'Mobile preview proof lacks phone-side readback for the exact artifact.',
           suggestion: 'Use phone-preview evidence; local browser, PC editor DOM, and PC paste evidence do not prove final mobile rendering.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        artifact.action === 'phone-preview'
+        && artifact.channel === 'phone-preview'
+        && (artifact.readback === 'phone' || isVisualReadback(artifact.readback))
+        && artifact.phonePreviewContentVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-phone-content-missing',
+          message: 'Mobile preview proof does not prove that the final phone article content was opened and read back.',
+          suggestion: 'Do not use scan/entry/setup evidence for mobile-preview; record phonePreviewContentVerified:true only after the exact artifact is visible in the phone preview article body.',
+          location: requirementId,
+        })
       }
       break
+    }
     case 'phone-screenshot':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.kind === 'screenshot'

@@ -1772,6 +1772,44 @@ git status --short --branch
   this slice proves only local proof-gate enforcement. It does not mutate a live editor, create a
   draft, open phone preview, sync, upload, schedule, publish, or close external platform gates.
 
+## 2026-06-17 Phone Preview Content Proof Gate Slice
+
+- Added `phonePreviewContentVerified?: boolean` to `StyleProofArtifact`.
+- Strengthened `phone-preview-readback` validation in
+  `inkforge/src/services/export/style-catalog.ts`: a phone-preview proof now requires
+  `action:'phone-preview'`, `channel:'phone-preview'`, phone/visual readback, and
+  `phonePreviewContentVerified:true` before `mobile-preview` can satisfy final phone readback.
+- Added `style-proof-manifest-phone-content-missing` so scan pages, preview entries, setup
+  dialogs, cover-setting pages, or PC backend DOM readbacks cannot be mistaken for final
+  phone article-body rendering.
+- Preserved the old `style-proof-manifest-readback-missing` status when no phone-preview artifact
+  exists at all.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test proves a
+  phone-entry-only artifact stays invalid while phone screenshot, Dark Mode, and cover-thumbnail
+  rows remain independently satisfied when their own artifacts are present.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/phone-preview-content-gate-20260617.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 73 tests passed.
+- Final verification:
+  - `./node_modules/.bin/vitest.cmd run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism`:
+    4 files / 112 tests passed.
+  - `./node_modules/.bin/vitest.cmd run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+    35 files / 1006 tests passed.
+  - `./node_modules/.bin/eslint.cmd src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+    passed.
+  - `./node_modules/.bin/vue-tsc.cmd --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build`: exit 0,
+    built in 1m 59s.
+  - A parallel pnpm 4-file Vitest run hit the existing 5s timeout on the WeChat full-pipeline case
+    under local load; the failed file and the 4-file set were rerun through the local Vitest binary
+    in serial mode and passed.
+- Boundary:
+  this slice proves only local proof-gate enforcement. It does not open phone preview, mutate a
+  live editor, create a draft, sync, upload, schedule, publish, or close external platform gates.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
