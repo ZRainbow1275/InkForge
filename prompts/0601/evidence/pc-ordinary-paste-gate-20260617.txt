@@ -1,0 +1,50 @@
+PC Ordinary Clipboard Paste Gate - 2026-06-17
+
+Scope:
+- Local executable proof-gate hardening for redacted StyleProofManifest records.
+- Prevents programmatic ClipboardEvent/DataTransfer readback from satisfying ordinary user Ctrl+V
+  rich HTML/SVG paste.
+- No platform mutation, editor paste action, draft save, phone preview opening, sync, upload,
+  schedule, or publish action was performed.
+
+Implemented:
+- Added StyleProofArtifact.ordinaryClipboardPasteVerified?: boolean.
+- Strengthened pc-editor-paste-event validation.
+- Added style-proof-manifest-ordinary-paste-not-verified.
+
+Behavior:
+- pc-editor-paste-event still requires action pc-paste and channel platform-editor.
+- It now also needs ordinaryClipboardPasteVerified:true before it can satisfy ordinary PC clipboard
+  paste proof.
+- Programmatic ClipboardEvent/DataTransfer readback can remain PC-channel diagnostics, but it stays
+  invalid for ordinary Ctrl+V paste proof.
+- The rule preserves missing status when no matching platform-editor pc-paste artifact exists at
+  all.
+- The rule does not change style availability, selectable, usable, blocked, or unavailable states.
+
+Regression coverage:
+- A manifest with exact artifact, safe disposable draft, PC DOM readback, and sensitive hygiene
+  still remains invalid when its pc-paste artifact is only a programmatic ClipboardEvent readback.
+- Safe draft, PC DOM readback, and hygiene rows remain independently satisfied when their own
+  artifacts are present.
+- Strong PC paste fixtures must explicitly set ordinaryClipboardPasteVerified:true.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 75 tests
+- cd inkforge && ./node_modules/.bin/vitest.cmd run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 114 tests
+- cd inkforge && ./node_modules/.bin/vitest.cmd run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1008 tests
+- cd inkforge && ./node_modules/.bin/eslint.cmd src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- cd inkforge && ./node_modules/.bin/vue-tsc.cmd --noEmit --pretty false
+  PASS
+- cd inkforge && NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build
+  PASS: built in 2m 26s
+
+Boundary:
+- This proves local proof-gate enforcement only.
+- It does not prove ordinary WeChat Ctrl+V paste, WeChat phone preview, mobile Dark Mode, mobile
+  SMIL/click, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host
+  acceptance, XHS/Zhihu account upload, or publish success.

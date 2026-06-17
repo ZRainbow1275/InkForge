@@ -207,6 +207,7 @@ export interface StyleProofArtifact {
   artifactRef?: string
   exactArtifact?: boolean
   centralEditorChanged?: boolean
+  ordinaryClipboardPasteVerified?: boolean
   phonePreviewContentVerified?: boolean
   darkModeEnabledVerified?: boolean
   coverThumbnailAccepted?: boolean
@@ -229,6 +230,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
+  | 'style-proof-manifest-ordinary-paste-not-verified'
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
   | 'style-proof-manifest-cover-thumbnail-not-accepted'
@@ -2108,16 +2110,32 @@ function validateStyleProofRequirementCoverage(
       }
       break
     }
-    case 'pc-editor-paste-event':
-      if (!has(artifact => artifact.action === 'pc-paste' && artifact.channel === 'platform-editor')) {
+    case 'pc-editor-paste-event': {
+      const hasPcPasteEvent = has(artifact =>
+        artifact.action === 'pc-paste'
+        && artifact.channel === 'platform-editor'
+      )
+      if (!hasPcPasteEvent) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-platform-action-missing',
           message: 'PC editor paste proof lacks the real paste/channel event.',
           suggestion: 'Authenticated editor reachability or DOM readback is not enough; record the exact PC paste or transfer action.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        artifact.action === 'pc-paste'
+        && artifact.channel === 'platform-editor'
+        && artifact.ordinaryClipboardPasteVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-ordinary-paste-not-verified',
+          message: 'PC editor paste proof does not prove ordinary user Ctrl+V rich HTML paste.',
+          suggestion: 'Record ordinaryClipboardPasteVerified:true only after a real user clipboard paste keeps the exact rich HTML/SVG artifact in the authenticated PC editor.',
+          location: requirementId,
+        })
       }
       break
+    }
     case 'phone-preview-readback': {
       const hasPhonePreviewReadback = has(artifact =>
         artifact.action === 'phone-preview'

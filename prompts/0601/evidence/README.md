@@ -118,6 +118,9 @@ image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/r
 `phone-dark-cover-gate-20260617.txt`（当前规则实现：`dark-mode-check` requires
 `darkModeEnabledVerified:true`; `cover-thumbnail-check` requires `coverThumbnailAccepted:true`;
 ordinary phone screenshots and cover setup pages stay invalid）。
+`pc-ordinary-paste-gate-20260617.txt`（当前规则实现：`pc-editor-paste-event` requires
+`ordinaryClipboardPasteVerified:true`; programmatic ClipboardEvent/DataTransfer readback stays
+invalid for ordinary Ctrl+V paste）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -256,6 +259,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
+[x] pc-ordinary-paste-gate-20260617.txt # 当前规则实现：ordinary PC paste requires ordinaryClipboardPasteVerified:true
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -367,3 +371,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Focused export tests, 4-file export serial regression, full export serial run, targeted ESLint,
   `vue-tsc --noEmit`, and direct Vite production build passed.
 - This is local validator proof only, not phone, sync, upload, schedule, or publish proof.
+
+## 2026-06-17 PC Ordinary Clipboard Paste Gate
+
+- [x] pc-ordinary-paste-gate-20260617.txt
+- `StyleProofArtifact.ordinaryClipboardPasteVerified` is now required for
+  `pc-editor-paste-event`.
+- Programmatic ClipboardEvent/DataTransfer readback remains PC-channel diagnostics only; it cannot
+  satisfy ordinary user Ctrl+V rich HTML/SVG paste proof.
+- Focused export tests, 4-file export serial regression, full export serial run, targeted ESLint,
+  `vue-tsc --noEmit`, and direct Vite production build passed.
+- This is local validator proof only, not ordinary PC paste, phone, sync, upload, schedule, or
+  publish proof.

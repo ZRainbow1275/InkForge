@@ -749,6 +749,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          ordinaryClipboardPasteVerified: true,
           safeForCommit: true,
         },
         {
@@ -1355,6 +1356,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          ordinaryClipboardPasteVerified: true,
           safeForCommit: true,
         },
         {
@@ -1397,6 +1399,102 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-cleanup-path-missing')
     expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-disposable-draft-missing')
+  })
+
+  it('rejects programmatic ClipboardEvent proof as ordinary PC clipboard paste', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-classic-paste',
+      artifacts: [
+        {
+          id: 'classic-exact-artifact',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'redacted exact artifact proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-classic-paste',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'classic-disposable-draft',
+          requirementId: 'safe-disposable-draft',
+          kind: 'editor-readback',
+          label: 'redacted disposable draft proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'safe-disposable-draft',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-classic-paste',
+          disposableDraft: true,
+          cleanupPathVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'programmatic-clipboardevent-paste',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'programmatic ClipboardEvent readback cannot prove ordinary Ctrl+V',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-classic-paste',
+          ordinaryClipboardPasteVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'classic-pc-dom',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'editor-readback',
+          label: 'redacted PC editor DOM proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-classic-paste',
+          safeForCommit: true,
+        },
+        {
+          id: 'classic-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-classic-paste',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-ordinary-paste-not-verified')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(requirementStatus.get('safe-disposable-draft')).toBe('satisfied')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
   })
 
   it('rejects market library selection when the central editor did not change', () => {
@@ -1502,6 +1600,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           exactArtifact: true,
           disposableDraft: true,
+          ordinaryClipboardPasteVerified: true,
           safeForCommit: true,
         },
       ],

@@ -583,3 +583,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
   safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-06-17 PC Ordinary Clipboard Paste Gate Addendum
+
+- Added `ordinaryClipboardPasteVerified?: boolean` to `StyleProofArtifact`.
+- Strengthened `pc-editor-paste-event`: a platform-editor `pc-paste` artifact must also prove the
+  ordinary user Ctrl+V rich HTML/SVG path.
+- Added `style-proof-manifest-ordinary-paste-not-verified` so programmatic
+  ClipboardEvent/DataTransfer readback remains diagnostic and cannot satisfy ordinary paste proof.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 75 tests.
+- Broader verification:
+  4-file export regression passed 114 tests in serial mode; full export serial run passed
+  35 files / 1008 tests; targeted export ESLint passed; `vue-tsc --noEmit --pretty false`
+  passed; direct Vite production build passed with exit 0.
+- Boundary: this addendum proves local proof-gate enforcement only. It does not prove ordinary
+  WeChat Ctrl+V paste, WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction,
+  cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host acceptance,
+  XHS/Zhihu account upload, or publish success.

@@ -1842,6 +1842,36 @@ git status --short --branch
   this slice proves only local proof-gate enforcement. It does not open phone preview, mutate a
   live editor, create a draft, sync, upload, schedule, publish, or close external platform gates.
 
+## 2026-06-17 PC Ordinary Clipboard Paste Proof Gate Slice
+
+- Implemented:
+  - `StyleProofArtifact.ordinaryClipboardPasteVerified?: boolean`.
+  - `style-proof-manifest-ordinary-paste-not-verified`.
+- Contract:
+  - `pc-editor-paste-event` still needs `action:'pc-paste'` and
+    `channel:'platform-editor'`, but now also needs `ordinaryClipboardPasteVerified:true`.
+  - Programmatic `ClipboardEvent`/`DataTransfer` readback may remain PC-channel diagnostics, but it
+    stays invalid for ordinary user Ctrl+V rich HTML/SVG paste proof.
+  - Missing `pc-paste` artifacts remain `missing`; present but weak artifacts become `invalid`.
+  - This rule does not alter style availability, selectable, usable, blocked, or unavailable
+    states.
+- Verification:
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+    passed 1 file / 75 tests.
+  - `./node_modules/.bin/vitest.cmd run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism`:
+    passed 4 files / 114 tests.
+  - `./node_modules/.bin/vitest.cmd run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+    passed 35 files / 1008 tests.
+  - `./node_modules/.bin/eslint.cmd src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+    passed.
+  - `./node_modules/.bin/vue-tsc.cmd --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build`: passed,
+    built in 2m 26s.
+- Boundary:
+  this slice proves only local proof-gate enforcement. It does not mutate a live editor, create a
+  draft, paste into WeChat, open phone preview, sync, upload, schedule, publish, or close external
+  platform gates.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

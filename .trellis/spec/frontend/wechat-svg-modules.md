@@ -166,6 +166,11 @@ construct breaks.
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
   remain invalid for `applied-editor-element` until the center editor/canvas/paper visibly changes
   and the after-state DOM/controls are read.
+- 2026-06-17 executable manifest contract: `StyleProofArtifact.ordinaryClipboardPasteVerified === true`
+  is now required for `pc-editor-paste-event`. A programmatic `ClipboardEvent('paste')` or
+  `DataTransfer` readback may remain useful PC-channel diagnostics, but it must stay invalid for
+  ordinary user Ctrl+V rich HTML/SVG paste until the authenticated PC editor preserves the exact
+  artifact through the normal clipboard path.
 - 2026-06-09 runtime gate: the export quality detector now turns that no-copy boundary into
   platform errors. `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
   `zhihu-market-editor-residue` block 135/Xiumi authoring classes, `data-tools`, copied numeric
@@ -384,7 +389,9 @@ Evidence labels for UI state:
   inspected. This proves editor-surface introspection only, not sanitizer retention.
 - `unit-tested`: detector/converter tests prove structure only.
 - `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
-- `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact.
+- `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact
+  through ordinary user Ctrl+V rich HTML/SVG paste; it requires
+  `ordinaryClipboardPasteVerified:true`.
 - `mobile-preview`: phone preview proved final mobile visibility/interaction/Dark Mode target.
   `phone-preview-readback` requires `phonePreviewContentVerified:true`; phone screenshot,
   Dark Mode, and cover-thumbnail checks remain separate proof rows and cannot substitute for
@@ -933,9 +940,10 @@ Contracts:
   requirements.
 - `local-browser` proves local browser/Tauri rendering only. It must not satisfy phone screenshot,
   cover thumbnail, credentialed sync, or published/platform-preview requirements.
-- A PC `ClipboardEvent`/`DataTransfer` readback can count only as channel-specific
-  `pc-editor-paste` evidence. It must not satisfy `safe-disposable-draft`; draft safety requires
-  an explicit safe-draft artifact, not an inferred paste/readback artifact.
+- A PC `ClipboardEvent`/`DataTransfer` readback can count only as channel-specific diagnostics.
+  It must not satisfy ordinary `pc-editor-paste-event` unless
+  `ordinaryClipboardPasteVerified:true`, and it must not satisfy `safe-disposable-draft`; draft
+  safety requires an explicit safe-draft artifact, not an inferred paste/readback artifact.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -955,6 +963,9 @@ Contracts:
 Required tests:
 - A manifest that tries to satisfy safe draft with a PC paste/ClipboardEvent artifact must keep
   `safe-disposable-draft` invalid.
+- A manifest that tries to satisfy ordinary PC paste with a programmatic ClipboardEvent artifact
+  must keep `pc-editor-paste-event` invalid and surface
+  `style-proof-manifest-ordinary-paste-not-verified`.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,
