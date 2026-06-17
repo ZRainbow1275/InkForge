@@ -11,6 +11,8 @@ Scope:
   `wechat-draftbox-readonly-preflight-20260617.txt`.
 - Latest WeChat editor refresh reviewed:
   `wechat-editor-dom-readonly-refresh-20260618.txt`.
+- Latest ordinary paste tooling preflight reviewed:
+  `wechat-ordinary-paste-os-clipboard-preflight-20260618.txt`.
 - This audit does not create platform proof, does not mutate a live editor, does not open phone
   preview, does not sync, upload, schedule, or publish.
 
@@ -28,7 +30,7 @@ Requirement matrix:
 
 | Requirement | Current evidence | Audit result | Next required proof |
 | --- | --- | --- | --- |
-| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. 2026-06-17 CloakBrowser reached backend home and draftbox list. 2026-06-18 CloakBrowser loaded the session-bound PC article editor and read `#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`, and `.ProseMirror ProseMirror-focused` without mutating content. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; ordinary Ctrl+V paste/readback from a safe disposable draft. |
+| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. 2026-06-17 CloakBrowser reached backend home and draftbox list. 2026-06-18 CloakBrowser loaded the session-bound PC article editor and read `#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`, and `.ProseMirror ProseMirror-focused` without mutating content. The Windows CF_HTML helper dry-run generated payload metadata for all three flagship artifacts. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; ordinary Ctrl+V paste/readback from a safe disposable draft. |
 | AC2 module family and persona coverage | `svg-modules` registry/family tests and completion report record 26 modules / 7 families across personas. | `complete-local` | Re-run module and export suites after any module changes. |
 | AC3 20-22 CJK chars per line | Real Tauri/WebView2 e2e and probe evidence cover local/mobile-width layout. | `complete-local` | Refresh e2e after layout or typography changes. |
 | AC4 existing 12 WeChat + 5 XHS + 3 Zhihu presets preserved | Export suites, migration tests, and completion report show preset counts and regression coverage. | `complete-local` | Re-run full export suite before final archive. |
@@ -65,6 +67,9 @@ Current strongest evidence:
   visible, and delete/edit/publish actions are distinguishable. The 2026-06-18 refresh reached the
   PC article editor by preserving the active backend session in the editor entry URL and read the
   editor shell plus ProseMirror body DOM without live mutation.
+- `inkforge/scripts/set-windows-html-clipboard.ps1` can build Windows CF_HTML clipboard payload
+  metadata for `flagship-amber`, `flagship-kiln`, and `flagship-tempera`; this is local tooling
+  readiness only and is not ordinary Ctrl+V proof.
 - The committed local manifest pack intentionally remains invalid as full proof because it records
   local evidence only; that is correct and prevents false platform claims.
 
@@ -86,9 +91,12 @@ Safe next actions:
 1. Keep all local accounting/reporting helpers honest: local evidence cannot close external gates.
 2. Before any live WeChat mutation, prepare a disposable draft plan that names the exact artifact,
    target channel, cleanup path, redaction boundary, and expected DOM/readback evidence.
-3. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
+3. For ordinary PC paste, use the Windows CF_HTML helper only after the safe disposable draft and
+   cleanup path are verified; the proof still needs OS Ctrl+V, editor DOM readback, and cleanup
+   readback.
+4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
-4. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host
+5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host
    result exists.
 
 Closeout decision:

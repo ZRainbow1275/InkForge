@@ -944,6 +944,11 @@ Contracts:
   It must not satisfy ordinary `pc-editor-paste-event` unless
   `ordinaryClipboardPasteVerified:true`, and it must not satisfy `safe-disposable-draft`; draft
   safety requires an explicit safe-draft artifact, not an inferred paste/readback artifact.
+- Windows CF_HTML preparation, including `inkforge/scripts/set-windows-html-clipboard.ps1`
+  `-DryRun`, is local tool readiness only. It must not set `ordinaryClipboardPasteVerified:true`
+  until the exact artifact is written to the OS clipboard, inserted by ordinary Ctrl+V into an
+  authenticated WeChat PC editor, read back from the editor DOM, and cleaned up through a verified
+  disposable draft path.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -966,6 +971,9 @@ Required tests:
 - A manifest that tries to satisfy ordinary PC paste with a programmatic ClipboardEvent artifact
   must keep `pc-editor-paste-event` invalid and surface
   `style-proof-manifest-ordinary-paste-not-verified`.
+- A manifest that cites CF_HTML dry-run metadata without a real OS Ctrl+V editor DOM readback must
+  keep `pc-editor-paste-event` missing or invalid; local clipboard preparation is not platform
+  paste proof.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,

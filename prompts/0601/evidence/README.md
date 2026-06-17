@@ -129,6 +129,11 @@ invalid for ordinary Ctrl+V paste）。
 后台首页草稿卡片可读，卡片组件的 session-bound 编辑入口可进入 PC 图文编辑器，`#js_appmsg_editor` /
 `#js_ueditor` / `#js_editor` / `.edui-editor` / `.ProseMirror ProseMirror-focused` 可读；未粘贴、
 保存、预览、同步、上传、定时、发布或创建草稿，不升级为普通 Ctrl+V、手机预览或发布证明）。
+`wechat-ordinary-paste-os-clipboard-preflight-20260618.txt`（当前本机工具预检：
+`inkforge/scripts/set-windows-html-clipboard.ps1` 可为三旗舰 artifact 生成 Windows CF_HTML
+剪贴板 payload metadata；dry-run 显示每个 artifact 均为 `svgCount=35` / `dataInkSvgCount=3`。
+该预检不写微信、不粘贴、不保存、不证明普通 Ctrl+V；只有后续在安全可清理草稿中完成 OS
+剪贴板 Ctrl+V、DOM 读回和清理复核后，才能设置 `ordinaryClipboardPasteVerified:true`）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -271,6 +276,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-home-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信后台首页可达；只读，不证明编辑器/手机/发布
 [x] wechat-draftbox-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信草稿箱可达；edit 未进入文章编辑器
 [x] wechat-editor-dom-readonly-refresh-20260618.txt # 当前平台状态：CloakBrowser 微信 PC 编辑器可达且 DOM 可读；未粘贴/保存/预览/发布
+[x] wechat-ordinary-paste-os-clipboard-preflight-20260618.txt # 当前本机工具预检：三旗舰可生成 CF_HTML；不是微信 Ctrl+V 证明
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

@@ -1,0 +1,46 @@
+WeChat Ordinary Paste OS Clipboard Preflight - 2026-06-18
+
+Scope:
+- Local Windows CF_HTML preparation helper for future ordinary Ctrl+V verification.
+- No WeChat editor mutation, no paste, no save, no preview, no sync, no upload, no scheduled send,
+  no publish, no deletion, and no draft creation was performed.
+
+Implemented helper:
+- `inkforge/scripts/set-windows-html-clipboard.ps1`
+
+Helper behavior:
+- Reads a UTF-8 HTML artifact from disk.
+- Wraps the exact artifact as a Windows HTML clipboard fragment with `StartHTML`, `EndHTML`,
+  `StartFragment`, and `EndFragment` byte offsets.
+- Provides Unicode plain-text fallback in the same clipboard data object when run without
+  `-DryRun`.
+- Requires `powershell.exe -STA` for real clipboard writes.
+- `-DryRun` computes the exact CF_HTML payload metadata without changing the clipboard.
+
+Dry-run command shape:
+- `powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File inkforge/scripts/set-windows-html-clipboard.ps1 -HtmlPath <artifact> -DryRun`
+
+Dry-run results:
+
+| artifact | htmlBytes | cfHtmlBytes | startHtml | startFragment | endFragment | endHtml | svgCount | dataInkSvgCount | sha256 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `flagship-amber.html` | 42096 | 42265 | 105 | 137 | 42233 | 42265 | 35 | 3 | `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d` |
+| `flagship-kiln.html` | 41800 | 41969 | 105 | 137 | 41937 | 41969 | 35 | 3 | `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531` |
+| `flagship-tempera.html` | 41754 | 41923 | 105 | 137 | 41891 | 41923 | 35 | 3 | `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585` |
+
+Next live gate:
+- Open a safe disposable WeChat draft whose cleanup path is already verified.
+- Run the helper without `-DryRun` for the exact target artifact.
+- Focus the authenticated WeChat PC editor body through CloakBrowser.
+- Trigger ordinary OS `Ctrl+V`; do not dispatch a synthetic `ClipboardEvent`.
+- Read back the PC editor DOM for the exact artifact.
+- Record `ordinaryClipboardPasteVerified:true` only if rich HTML/SVG survives the real Ctrl+V path.
+- Clean up the disposable draft and verify cleanup before claiming the proof row.
+
+Boundary:
+- This preflight proves only that InkForge can build CF_HTML payloads for the three committed
+  flagship artifacts.
+- It does not prove ordinary WeChat Ctrl+V paste.
+- It does not prove safe disposable draft cleanup.
+- It does not prove phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, XHS/Zhihu upload, or publish success.

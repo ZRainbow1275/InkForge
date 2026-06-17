@@ -1941,6 +1941,30 @@ git status --short --branch
   phone preview, Dark Mode, cover, sync, schedule, publish, XHS upload, and Zhihu public-host gates
   remain open.
 
+## 2026-06-18 Ordinary Paste OS Clipboard Preflight
+
+- Added `inkforge/scripts/set-windows-html-clipboard.ps1`.
+- Added `prompts/0601/evidence/wechat-ordinary-paste-os-clipboard-preflight-20260618.txt`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+- The helper builds Windows CF_HTML payloads for future OS clipboard Ctrl+V tests:
+  - wraps the exact artifact in `StartHTML` / `EndHTML` / `StartFragment` / `EndFragment`
+    byte offsets
+  - provides a UnicodeText fallback when run without `-DryRun`
+  - requires `powershell.exe -STA` for real clipboard writes
+  - reports artifact filename, byte counts, offsets, SHA-256, SVG count, and `data-ink-svg`
+    count without logging local paths
+- Dry-run verification passed for:
+  - `flagship-amber.html`: `svgCount=35`, `dataInkSvgCount=3`
+  - `flagship-kiln.html`: `svgCount=35`, `dataInkSvgCount=3`
+  - `flagship-tempera.html`: `svgCount=35`, `dataInkSvgCount=3`
+- Boundary:
+  this is local OS clipboard payload readiness only. It does not prove ordinary WeChat Ctrl+V
+  paste, safe disposable draft cleanup, phone preview, Dark Mode, mobile SMIL/click, cover
+  thumbnail, sync, scheduled send, XHS/Zhihu upload, or publish success. The next live proof still
+  needs a safe disposable draft, real OS Ctrl+V, editor DOM readback, and verified cleanup.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
