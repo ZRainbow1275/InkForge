@@ -1,0 +1,83 @@
+06-01 Completion Gap Audit - 2026-06-17
+
+Scope:
+- Current-state audit for `.trellis/tasks/06-01-multiplatform-render-svg/`.
+- Inputs reviewed: `prompts/0601/PRD.md`, `prompts/0601/SPEC.md`,
+  `prompts/0601/COMPLETION-REPORT.md`, `prompts/0601/evidence/README.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and the 2026-06-09 / 2026-06-17 proof
+  evidence files.
+- This audit does not create platform proof, does not mutate a live editor, does not open phone
+  preview, does not sync, upload, schedule, or publish.
+
+Audit labels:
+- `complete-local`: current repository tests, local runtime artifacts, or local manifests prove
+  the exact local requirement.
+- `complete-pc-editor`: current redacted PC editor evidence proves the exact PC editor claim only.
+- `partial`: useful evidence exists, but the exact acceptance gate needs stronger proof.
+- `missing-external`: the gate needs phone, account, host, upload, sync, or publish evidence that
+  is not present in committed evidence.
+- `unsafe-to-automate-now`: the next action could mutate a real account/editor state and should
+  not be claimed or run automatically without a safe disposable draft or equivalent cleanup path.
+
+Requirement matrix:
+
+| Requirement | Current evidence | Audit result | Next required proof |
+| --- | --- | --- | --- |
+| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check. |
+| AC2 module family and persona coverage | `svg-modules` registry/family tests and completion report record 26 modules / 7 families across personas. | `complete-local` | Re-run module and export suites after any module changes. |
+| AC3 20-22 CJK chars per line | Real Tauri/WebView2 e2e and probe evidence cover local/mobile-width layout. | `complete-local` | Refresh e2e after layout or typography changes. |
+| AC4 existing 12 WeChat + 5 XHS + 3 Zhihu presets preserved | Export suites, migration tests, and completion report show preset counts and regression coverage. | `complete-local` | Re-run full export suite before final archive. |
+| AC5 SMIL/click interaction | Unit tests prove safe SMIL structure and static fallback; local/e2e proves visible first-frame behavior. | `partial` | Exact phone WeChat before/after evidence for interactive artifact. |
+| AC6 XHS poster/image and Zhihu image fallback | Browser canvas raster evidence, XHS image manifest gate, Zhihu image manifest gate, and focused tests exist. | `complete-local` for local artifacts; `missing-external` for platform upload/publish | Real XHS/Zhihu account upload/editor/publish or public-host proof if those claims are needed. |
+| AC7 at least three SVG flagship presets | `flagship-kiln`, `flagship-tempera`, and `flagship-amber` exist and are exercised by local tests/e2e. | `complete-local`; PC proof is only partial by channel | Do not claim all channels until phone and ordinary-paste/channel-specific proofs exist. |
+| AC8 unit, smoke, e2e, lint, typecheck, build | Prior verification logs cover export tests, full export serial tests, e2e, lint, typecheck, and build for code slices. | `complete-local` for the recorded code state | Refresh after any new source-code change. |
+| AC9 WeChat-safe validator zero violations | `wechat-safe` tests and pipeline smoke tests verify owned SVG output. | `complete-local` | Keep validator mandatory for any new SVG/H5 module. |
+| AC10 no emoji UI icons | Existing icon rules use installed icon libraries or source-owned SVG paths; no UI icon change in recent slices. | `complete-local` | Keep review gate for any new UI control. |
+
+Cross-platform proof matrix:
+
+| Platform / channel | Current proof | Cannot claim yet |
+| --- | --- | --- |
+| WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
+| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; authenticated editor reachable/readable. | Amber ordinary Ctrl+V rich HTML success; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
+| Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
+| Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
+
+Current strongest evidence:
+- Local renderer and WeChat-safe SVG contract are well covered by tests and real Tauri/WebView2.
+- Runtime quality gates now block 135/Xiumi residues, unsafe layout/layer constructs, XHS body
+  leakage, XHS image artifact issues, and Zhihu image artifact issues.
+- Style proof accounting now has validator, manifest report, readiness matrix, collection plan,
+  queue, progress report, pack report, strong-gate regression, acceptance audit, UI surfacing, and
+  committed local evidence helpers.
+- The committed local manifest pack intentionally remains invalid as full proof because it records
+  local evidence only; that is correct and prevents false platform claims.
+
+Remaining hard gates:
+- WeChat phone preview for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
+- WeChat mobile Dark Mode for all three flagships.
+- WeChat mobile SMIL/click interaction for exact interactive artifacts.
+- WeChat cover thumbnail / preview-entry acceptance.
+- Amber ordinary Ctrl+V rich HTML success, or a clearly named alternate channel with exact
+  artifact readback.
+- Safe disposable draft or equivalent cleanup path before mutating live WeChat editor state.
+- Credentialed sync/draft readback, scheduled send, and publish proof if those claims are needed.
+- XHS real account upload/preview/publish if platform publication is claimed.
+- Zhihu public-host acceptance and real account upload/preview/publish if platform publication is
+  claimed.
+
+Safe next actions:
+1. Keep all local accounting/reporting helpers honest: local evidence cannot close external gates.
+2. Before any live WeChat mutation, prepare a disposable draft plan that names the exact artifact,
+   target channel, cleanup path, redaction boundary, and expected DOM/readback evidence.
+3. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
+   draft conditions are satisfied.
+4. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host
+   result exists.
+
+Closeout decision:
+- The 06-01 task is not complete as of this audit.
+- The implemented local renderer, quality gates, proof accounting, and documentation are
+  substantial and verified, but final completion still requires the missing external platform
+  evidence above.

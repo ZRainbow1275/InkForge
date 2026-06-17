@@ -103,6 +103,10 @@ unsafe-to-automate 的 proof rows 暴露为 cannotClaim；该文件只证明本�
 ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能力摘要、单个样式卡和
 导出预检里显示 cannotClaim / 验收宣称审计；该文件只证明本地 UI 防呆层，不证明平台粘贴、
 手机预览、同步、上传、public host acceptance 或发布成功）。
+`completion-gap-audit-20260617.txt`（06-01 当前完成度缺口审计：按 AC1-AC10、WeChat/XHS/Zhihu
+平台 proof channel 和 hard gates 逐项标记 complete-local / partial / missing-external /
+unsafe-to-automate-now；结论是本地 renderer、质量门禁和 proof accounting 已充分推进，但手机预览、
+暗黑模式、移动 SMIL/click、封面入口、外部账号上传/同步/发布仍不能宣称完成）。
 `market-editor-dom-learning-20260617.txt`（CloakBrowser-only applied-element refresh：
 135 普通编辑器真实样式插入、135 SVG trial effect authoring blocks、秀米 SVG-gallery
 image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/residue-gate
@@ -240,6 +244,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-acceptance-audit-20260609.txt # 当前规则实现：redacted manifests -> acceptance audit cannotClaim rows
 [x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
 [x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
+[x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual

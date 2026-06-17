@@ -1619,6 +1619,32 @@ git status --short --branch
   mobile Dark Mode, cover thumbnail, ordinary Ctrl+V, plugin transfer, credentialed sync, scheduled
   send, public host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-17 Completion Gap Audit Slice
+
+- Added a current-state completion gap audit:
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`.
+- The audit supersedes neither the 2026-06-08 completion audit nor the platform gate matrix; it
+  layers on top of them with the later 2026-06-09 / 2026-06-17 proof accounting work.
+- Inputs reviewed:
+  `prompts/0601/PRD.md`, `prompts/0601/SPEC.md`, `prompts/0601/COMPLETION-REPORT.md`,
+  `prompts/0601/evidence/README.md`, `.trellis/spec/frontend/wechat-svg-modules.md`, and the
+  current proof evidence files.
+- The audit classifies AC1-AC10 and platform proof channels as `complete-local`,
+  `complete-pc-editor`, `partial`, `missing-external`, or `unsafe-to-automate-now`.
+- Current result:
+  local renderer behavior, WeChat-safe SVG validation, preset preservation, local Tauri/WebView2
+  e2e, XHS/Zhihu local preflight manifests, no-emoji UI icon discipline, style proof accounting,
+  acceptance UI, committed local evidence manifests, and market DOM learning are all recorded.
+  Final WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover entry, Amber ordinary
+  Ctrl+V or clearly named alternate channel proof, safe disposable draft conditions, credentialed
+  sync/readback, scheduled send, public host acceptance, XHS/Zhihu account upload, and publish
+  proof remain missing or unsafe to automate automatically.
+- Updated evidence/report surfaces:
+  `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+- Boundary:
+  this slice is evidence accounting only. It does not change runtime code, execute platform
+  actions, mutate a live editor, open phone preview, sync, upload, schedule, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

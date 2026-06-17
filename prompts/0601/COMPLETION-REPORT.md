@@ -402,3 +402,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   ordinary Ctrl+V rich HTML paste, phone preview, mobile Dark Mode, mobile SMIL/click interaction,
   cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-17 Completion Gap Audit Addendum
+
+- Added `prompts/0601/evidence/completion-gap-audit-20260617.txt` as the current-state audit above
+  the older 2026-06-08 completion and platform-gate matrices.
+- The audit reviews `prompts/0601/PRD.md`, `prompts/0601/SPEC.md`, this completion report,
+  `prompts/0601/evidence/README.md`, `.trellis/spec/frontend/wechat-svg-modules.md`, and the
+  2026-06-09 / 2026-06-17 proof evidence files.
+- It classifies AC1-AC10 and platform proof channels as `complete-local`, `complete-pc-editor`,
+  `partial`, `missing-external`, or `unsafe-to-automate-now`.
+- Current conclusion: AC2, AC3, AC4, AC8, AC9, and AC10 are locally proven by current tests,
+  Tauri/WebView2 evidence, or source/evidence review. AC6 and AC7 are locally proven but still
+  require real account/platform evidence for publication claims. AC1 and AC5 remain partial because
+  final phone preview, mobile Dark Mode, mobile SMIL/click, cover entry, and channel-specific
+  external proof are absent.
+- The audit preserves the cannot-claim boundary: local renderer proof, PC editor proof, market
+  editor DOM learning, and committed local manifests cannot close phone, sync, upload, scheduled
+  send, or publish gates.
+- Boundary: this addendum is evidence accounting only. It does not create platform proof, mutate a
+  live editor, open phone preview, sync, upload, schedule, or publish.
