@@ -293,3 +293,11 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `disposableDraft:true` and `cleanupPathVerified:true` on the same platform-editor proof artifact.
 - It is not platform proof. It does not claim a real draft, cleanup action, phone preview, sync,
   upload, schedule, or publish.
+
+## 2026-06-17 WeChat Backend Session Preflight
+
+- [x] wechat-backend-session-preflight-20260617.txt
+- This CloakBrowser-only read-only preflight reached the WeChat backend home path but the page
+  reported a timed-out session and exposed no workbench/editor controls.
+- It is blocked evidence, not platform proof. It does not satisfy authenticated editor,
+  safe-draft cleanup, paste, phone preview, sync, upload, schedule, or publish gates.

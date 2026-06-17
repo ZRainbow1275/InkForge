@@ -1669,6 +1669,19 @@ git status --short --branch
   verify a live platform cleanup path, mutate an editor, open phone preview, sync, upload,
   schedule, or publish.
 
+## 2026-06-17 WeChat Backend Session Preflight Slice
+
+- Ran a CloakBrowser-only read-only preflight against the WeChat Official Account backend home
+  path after the safe-draft cleanup gate slice.
+- The page reported a timed-out session and exposed no workbench/editor controls in the safe DOM
+  probe.
+- Added non-sensitive blocked-evidence file:
+  `prompts/0601/evidence/wechat-backend-session-preflight-20260617.txt`.
+- Boundary:
+  this slice is blocked evidence only. It does not prove authenticated editor access, safe draft
+  cleanup, PC paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  upload, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

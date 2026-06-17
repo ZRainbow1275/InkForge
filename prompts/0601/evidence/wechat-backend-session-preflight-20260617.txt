@@ -1,0 +1,31 @@
+WeChat Backend Session Preflight - 2026-06-17
+
+Scope:
+- CloakBrowser-only, read-only preflight against the WeChat Official Account backend.
+- No editor mutation, no paste, no draft creation, no cleanup action, no preview, no sync,
+  no upload, no schedule, and no publish.
+
+Observed:
+- Navigated to the WeChat backend home path in the active CloakBrowser context.
+- The page title was "公众号".
+- The sanitized page path was "https://mp.weixin.qq.com/cgi-bin/home".
+- The page reported "登录超时，请重新登录".
+- Workbench/editor text was not present.
+- Generic DOM counts from the safe probe:
+  - anchors: 8
+  - buttons: 0
+  - iframes: 0
+  - inputs/editables: 0
+
+Conclusion:
+- Current WeChat backend account state is not usable for collecting platform proof.
+- This attempt does not satisfy authenticated editor, safe disposable draft, cleanup path,
+  PC paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  or publish requirements.
+- The 06-01 task remains blocked on renewed external account access and phone-side proof for
+  those gates.
+
+Boundary:
+- This file records a blocked preflight only.
+- It contains no browser-runtime artifact, no account material, no local capture path, and no
+  platform proof claim.

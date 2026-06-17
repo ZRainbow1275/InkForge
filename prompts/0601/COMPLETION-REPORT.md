@@ -442,3 +442,16 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   disposable platform draft, real cleanup path, phone preview, mobile Dark Mode, mobile SMIL/click,
   cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-17 WeChat Backend Session Preflight Addendum
+
+- Added `prompts/0601/evidence/wechat-backend-session-preflight-20260617.txt`.
+- A CloakBrowser-only read-only preflight opened the WeChat backend home path, but the page reported
+  a timed-out session and exposed no workbench/editor controls.
+- This evidence is intentionally classified as blocked evidence. It does not satisfy authenticated
+  editor access, safe disposable draft cleanup, PC paste, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, upload, or publish requirements.
+- Boundary: no platform mutation, paste, draft creation, cleanup action, preview, sync, upload,
+  schedule, or publish was performed.
