@@ -76,6 +76,12 @@ construct breaks.
   `unavailable` decisions, and it must keep local evidence, PC editor proof, phone preview,
   credentialed channel, public host, platform publish, and sensitive-hygiene gates visually
   distinct.
+- `getCommittedStyleProofLocalEvidenceManifests()` returns a cloned pack of repo-committed,
+  redacted local evidence manifests for the flagship WeChat local/Tauri evidence already stored
+  under `prompts/0601/evidence/`. `getCommittedStyleProofLocalEvidenceAuditReport()` runs the
+  normal acceptance audit over that pack. These helpers are explicit local-evidence entry points:
+  they must not be consumed as default platform proof, and they must not complete phone preview,
+  PC editor paste, credentialed sync, public host, scheduled-send, or publish gates.
 - WeChat official editor guidance adds hard failure modes that must be respected by SVG and
   HTML block authors: no fixed-width/height content containers, no `line-height:0` around
   readable text, no transparent image hidden under an SVG background, no ordinary paragraphs
@@ -947,3 +953,39 @@ Required tests:
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
   `cannotClaim` labels without changing the existing style capability counts.
+
+## 14. Committed Local Evidence Manifest Pack
+
+`getCommittedStyleProofLocalEvidenceManifests()` is a narrow bridge from committed, redacted repo
+evidence into the normal `StyleProofManifest` validator/progress/audit pipeline. It exists so local
+unit/e2e/hygiene proof can be accounted for consistently without pretending that external platform
+gates have been completed.
+
+Contracts:
+- The helper may reference only repository-safe evidence paths, currently
+  `prompts/0601/evidence/style-proof-acceptance-ui-20260617.txt`,
+  `prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt`, and the tracked
+  `prompts/0601/evidence/e2e/flagship-*.png` screenshots.
+- Returned manifests must be cloned before leaving the helper so callers cannot mutate the internal
+  committed-evidence table.
+- The helper may satisfy local `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
+  and `no-sensitive-artifact` rows for the referenced exact artifacts.
+- The helper must not claim `pc-editor-paste`, `safe-disposable-draft`, `pc-editor-dom-readback`,
+  `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, `cover-thumbnail-check`,
+  `credentialed-channel-response`, `sync-readback`, `public-image-host`, or
+  `published-url-or-platform-preview`.
+- `wechat-flagship-amber` may appear in the local evidence pack because its WebView2 screenshot is
+  committed evidence, but it must remain `blocked`/`invalid` until the ordinary Ctrl+V/mobile/publish
+  blockers are resolved by separate exact-channel proof.
+- `getCommittedStyleProofLocalEvidenceAuditReport()` is only shorthand for running the existing
+  audit over those manifests. It must keep `cannotClaim` rows and next phone/manual gate actions
+  visible.
+
+Required tests:
+- The committed pack returns three WeChat flagship manifests and twelve safe committed artifacts,
+  with no duplicate artifact ids and no sensitive/unsafe commit issues.
+- The pack report has `validManifestCount:0` and `invalidManifestCount:3` because external proof is
+  intentionally absent and amber is still blocked; this is expected and must not be relaxed.
+- Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
+  Mode, cover, sync, and publish rows stay missing/unclaimable.
+- Amber remains blocked/invalid even with local WebView2 evidence.

@@ -1548,6 +1548,40 @@ git status --short --branch
   preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync, scheduled send, upload, public
   host acceptance, or publish success.
 
+## 2026-06-17 Committed Local Style Proof Evidence Slice
+
+- Added `getCommittedStyleProofLocalEvidenceManifests()` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- Added `getCommittedStyleProofLocalEvidenceAuditReport()` as an explicit shorthand for running the
+  normal acceptance audit over that committed local manifest pack.
+- The helper records only repo-safe local evidence for the three WeChat flagship artifacts:
+  `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
+- Each manifest references tracked, redacted evidence under `prompts/0601/evidence/` only:
+  the acceptance UI evidence log, the new committed-local-evidence evidence note, and the tracked
+  Tauri/WebView2 `e2e/flagship-*.png` screenshots.
+- The helper returns cloned manifests so callers cannot mutate the internal committed-evidence
+  table.
+- The pack proves only local `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` rows. It does not create artifacts and does not complete PC editor paste,
+  safe disposable draft, phone preview, Dark Mode, cover thumbnail, credentialed sync, public host,
+  scheduled send, or publish rows.
+- `wechat-flagship-amber` remains blocked/invalid even though its local WebView2 screenshot is part
+  of the pack; ordinary Ctrl+V/mobile/publish blockers remain separate.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test verifies manifest
+  cloning, three manifests / twelve safe artifacts, zero duplicate artifact ids, zero sensitive or
+  unsafe committed artifacts, satisfied Kiln/Tempera local+hygiene gates, blocked Amber, and
+  continued cannot-claim rows for PC paste, phone, Dark Mode, cover, sync, and publish.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 69 tests passed.
+- Boundary:
+  this helper proves only committed local evidence accounting. It does not prove platform paste,
+  phone preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync, scheduled send, upload,
+  public host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

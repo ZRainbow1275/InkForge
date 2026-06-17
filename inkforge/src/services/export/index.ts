@@ -227,6 +227,8 @@ export {
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
   getBestEvidence,
+  getCommittedStyleProofLocalEvidenceAuditReport,
+  getCommittedStyleProofLocalEvidenceManifests,
   getDefaultStyleEvidence,
   getEvidenceProofRequirements,
   getPlatformStyleApplicationReport,

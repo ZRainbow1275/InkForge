@@ -1534,6 +1534,133 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
   })
 }
 
+interface CommittedStyleProofLocalEvidenceManifestOptions {
+  choiceId: 'wechat-flagship-kiln' | 'wechat-flagship-tempera' | 'wechat-flagship-amber'
+  label: string
+  artifactFingerprint: string
+  localRenderArtifactRef: string
+}
+
+const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF =
+  'prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt'
+
+const COMMITTED_STYLE_PROOF_ACCEPTANCE_UI_REPORT_REF =
+  'prompts/0601/evidence/style-proof-acceptance-ui-20260617.txt'
+
+function createCommittedStyleProofLocalEvidenceManifest(
+  options: CommittedStyleProofLocalEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId.replace(/^wechat-/, '')
+
+  return {
+    platform: 'wechat',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested', 'local-browser'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_ACCEPTANCE_UI_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-local-render-proof`,
+        requirementId: 'local-browser-rendering',
+        kind: 'screenshot',
+        label: `${options.label} committed Tauri/WebView2 local rendering proof`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'tauri-webview',
+        action: 'local-render',
+        readback: 'screenshot',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.localRenderArtifactRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact-artifact binding`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
+const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
+  createCommittedStyleProofLocalEvidenceManifest({
+    choiceId: 'wechat-flagship-kiln',
+    label: 'Kiln creative flagship',
+    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-kiln.png@tauri-webview-e2e',
+    localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-kiln.png',
+  }),
+  createCommittedStyleProofLocalEvidenceManifest({
+    choiceId: 'wechat-flagship-tempera',
+    label: 'Tempera academic flagship',
+    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e',
+    localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-tempera.png',
+  }),
+  createCommittedStyleProofLocalEvidenceManifest({
+    choiceId: 'wechat-flagship-amber',
+    label: 'Amber business flagship',
+    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-amber.png@tauri-webview-e2e',
+    localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-amber.png',
+  }),
+] as const satisfies readonly StyleProofManifest[]
+
+function cloneStyleProofManifest(manifest: StyleProofManifest): StyleProofManifest {
+  return {
+    ...manifest,
+    claimedEvidence: [...manifest.claimedEvidence],
+    artifacts: manifest.artifacts.map(artifact => ({ ...artifact })),
+  }
+}
+
+export function getCommittedStyleProofLocalEvidenceManifests(): readonly StyleProofManifest[] {
+  return COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS.map(cloneStyleProofManifest)
+}
+
+export function getCommittedStyleProofLocalEvidenceAuditReport(): StyleProofAcceptanceAuditReport {
+  return getStyleProofAcceptanceAuditReport(getCommittedStyleProofLocalEvidenceManifests())
+}
+
 export function createStyleProofManifestDraft(options: StyleProofManifestDraftOptions): StyleProofManifest {
   return {
     platform: options.platform,

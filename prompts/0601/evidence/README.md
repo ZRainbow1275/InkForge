@@ -235,6 +235,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-strong-gate-regression-20260609.txt # 当前规则实现：弱证据不能满足 safe draft/mobile/sync/publish 强门禁
 [x] style-proof-acceptance-audit-20260609.txt # 当前规则实现：redacted manifests -> acceptance audit cannotClaim rows
 [x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
+[x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

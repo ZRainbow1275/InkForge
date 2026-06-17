@@ -11,6 +11,8 @@ import {
   detectQuality,
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
+  getCommittedStyleProofLocalEvidenceAuditReport,
+  getCommittedStyleProofLocalEvidenceManifests,
   getDefaultPreset,
   getDefaultStyleEvidence,
   getEvidenceProofRequirements,
@@ -1162,6 +1164,98 @@ describe('platform native export rendering rules', () => {
     expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(audit.summary.completedRequirements)
     expect(audit.summary.unsafeToAutomateRequirements).toBeGreaterThan(0)
     expect(audit.summary.blockedByExternalRequirements).toBeGreaterThan(0)
+  })
+
+  it('builds committed local evidence manifests without claiming external style proof gates', () => {
+    const manifests = getCommittedStyleProofLocalEvidenceManifests()
+    const secondRead = getCommittedStyleProofLocalEvidenceManifests()
+    const choiceIds = manifests.map(manifest => manifest.choiceId)
+    const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
+    const artifactRefs = manifests.flatMap(manifest =>
+      manifest.artifacts.map(artifact => artifact.artifactRef).filter((ref): ref is string => Boolean(ref)),
+    )
+
+    expect(manifests).toHaveLength(3)
+    expect(secondRead[0]).not.toBe(manifests[0])
+    expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
+    expect(choiceIds).toEqual([
+      'wechat-flagship-kiln',
+      'wechat-flagship-tempera',
+      'wechat-flagship-amber',
+    ])
+    expect(new Set(artifactIds).size).toBe(artifactIds.length)
+    expect(manifests.every(manifest =>
+      manifest.platform === 'wechat'
+      && manifest.scope === 'style-choice'
+      && manifest.claimedEvidence.includes('unit-tested')
+      && manifest.claimedEvidence.includes('local-browser')
+    )).toBe(true)
+    expect(manifests.flatMap(manifest => manifest.artifacts).every(artifact =>
+      artifact.committed === true && artifact.safeForCommit === true,
+    )).toBe(true)
+    expect(artifactRefs.every(ref => ref.startsWith('prompts/0601/evidence/'))).toBe(true)
+
+    const packReport = getStyleProofManifestPackReport(manifests)
+    const issueIds = packReport.issues.map(issue => issue.id)
+    const wechatProgress = packReport.platformReports.wechat
+    const kilnProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-kiln')
+    const temperaProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')
+    const amberProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+    const kilnRequirementStatus = new Map(
+      kilnProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
+    )
+
+    expect(packReport.summary).toMatchObject({
+      manifestCount: 3,
+      validManifestCount: 0,
+      invalidManifestCount: 3,
+      usableManifestCount: 3,
+      artifactCount: 12,
+      duplicateArtifactIdCount: 0,
+    })
+    expect(issueIds).not.toContain('style-proof-manifest-sensitive-artifact')
+    expect(issueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+    expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
+    expect(wechatProgress.ignoredManifestCount).toBe(0)
+    expect(wechatProgress.summary.choicesWithManifest).toBe(3)
+    expect(wechatProgress.summary.proofSatisfiedChoices).toBe(0)
+    expect(wechatProgress.summary.proofInvalidChoices).toBeGreaterThan(0)
+
+    expect(kilnProgress?.manifestCount).toBe(1)
+    expect(kilnProgress?.status).toBe('missing')
+    expect(kilnProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status).toBe('satisfied')
+    expect(kilnProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status).toBe('satisfied')
+    expect(kilnRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(kilnRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
+    expect(kilnRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(kilnRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(kilnRequirementStatus.get('pc-editor-paste-event')).toBe('missing')
+    expect(kilnRequirementStatus.get('phone-preview-readback')).toBe('missing')
+    expect(kilnRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+
+    expect(temperaProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status).toBe('satisfied')
+    expect(temperaProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status).toBe('satisfied')
+    expect(amberProgress?.blockedByCatalog).toBe(true)
+    expect(amberProgress?.status).toBe('invalid')
+    expect(amberProgress?.report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+
+    const audit = getCommittedStyleProofLocalEvidenceAuditReport()
+    const wechatAudit = audit.platformReports.wechat
+    const cannotClaimIds = wechatAudit.cannotClaim.map(requirement => requirement.requirement.id)
+
+    expect(audit.summary.manifestCount).toBe(3)
+    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
+    expect(wechatAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
+    expect(wechatAudit.nextPhoneAction?.gate).toBe('phone-preview')
+    expect(wechatAudit.nextUnsafeToAutomateAction?.gate).toBe('authenticated-pc-editor')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'sync-readback',
+      'published-url-or-platform-preview',
+    ]))
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

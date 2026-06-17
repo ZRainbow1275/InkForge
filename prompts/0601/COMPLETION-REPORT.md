@@ -374,3 +374,31 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail
   acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload,
   or publish success.
+
+---
+
+## 2026-06-17 Committed Local Style Proof Evidence Addendum
+
+- Added `getCommittedStyleProofLocalEvidenceManifests()` and
+  `getCommittedStyleProofLocalEvidenceAuditReport()` as explicit local-evidence helpers above the
+  existing `StyleProofManifest` validator, progress report, manifest pack report, and acceptance
+  audit.
+- The helper records three repo-committed WeChat flagship local/Tauri evidence manifests:
+  `wechat-flagship-kiln`, `wechat-flagship-tempera`, and `wechat-flagship-amber`.
+- The helper references only repository-safe evidence paths under `prompts/0601/evidence/`, returns
+  cloned manifests, uses twelve safe committed artifacts, and has zero duplicate artifact ids.
+- Runtime summary from the helper: `manifestCount=3`, `artifactCount=12`,
+  `validManifestCount=0`, `invalidManifestCount=3`, `wechatChoicesWithManifest=3`,
+  `wechatCannotClaimRequirements=15`, `nextPhoneGate=phone-preview`, and
+  `nextUnsafeGate=authenticated-pc-editor`.
+- The zero valid manifests are intentional: this local pack satisfies local evidence rows only.
+  External PC editor paste, safe disposable draft, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, public host, scheduled-send, and publish claims remain absent. Amber also
+  remains blocked/invalid because ordinary Ctrl+V/mobile/publish proof is still missing.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 69 tests.
+- Boundary: this addendum proves committed local evidence accounting only. It does not prove WeChat
+  ordinary Ctrl+V rich HTML paste, phone preview, mobile Dark Mode, mobile SMIL/click interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance,
+  XHS/Zhihu account upload, or publish success.
