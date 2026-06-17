@@ -10,6 +10,7 @@ import {
   copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
+  getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
@@ -22,8 +23,9 @@ import type {
   ExportFontFamily, ExportFontSize,
   StyleArtifactType, StyleChoiceApplication, StyleChoiceApplicationAvailability,
   StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
-  StyleMotionLevel, StyleProofCollectionGate, StyleProofCollectionStep,
-  StyleRuleGroup, StyleVisualStrength
+  StyleMotionLevel, StyleProofAcceptanceAuditStatus,
+  StyleProofAcceptanceRequirementAudit, StyleProofCollectionGate, StyleProofCollectionStep,
+  StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -123,6 +125,8 @@ interface StyleChoiceDisplay {
   detail: string
   proofSummary: string
   proofGateLabels: string[]
+  acceptanceSummary: string
+  cannotClaimLabels: string[]
   actionLabel: string
 }
 
@@ -178,6 +182,7 @@ const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityRepor
 const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(selectedPlatform.value))
 const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionPlan(selectedPlatform.value))
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
+const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofStepsByChoice = computed(() => {
   const grouped = new Map<string, StyleProofCollectionStep[]>()
   for (const step of styleProofCollectionPlan.value.steps) {
@@ -187,9 +192,25 @@ const styleProofStepsByChoice = computed(() => {
   }
   return grouped
 })
+const styleProofCannotClaimByChoice = computed(() => {
+  const grouped = new Map<string, StyleProofAcceptanceRequirementAudit[]>()
+  for (const requirement of styleProofAcceptanceAudit.value.cannotClaim) {
+    for (const choiceId of requirement.choiceIds) {
+      const requirements = grouped.get(choiceId) ?? []
+      requirements.push(requirement)
+      grouped.set(choiceId, requirements)
+    }
+  }
+  return grouped
+})
 const styleProofNextGateLabel = computed(() => {
   const gate = styleProofCollectionQueue.value.nextSafeGate ?? styleProofCollectionQueue.value.nextGate
   return gate ? styleProofGateLabel(gate) : '无待补门禁'
+})
+const styleProofAcceptanceSummary = computed(() => {
+  const audit = styleProofAcceptanceAudit.value
+  const external = audit.summary.externalAccountOpenRequirements + audit.summary.phoneOpenRequirements
+  return `不可宣称 ${audit.summary.cannotClaimRequirements}；外部/手机 ${external}；安全本地待补 ${audit.summary.safeToAutomateOpenRequirements}`
 })
 const selectedStyleChoiceApplication = computed(() =>
   styleApplicationReport.value.find(item =>
@@ -231,9 +252,38 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   }
 })
 
+const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
+  const audit = styleProofAcceptanceAudit.value
+  const summary = audit.summary
+
+  if (summary.cannotClaimRequirements === 0) {
+    return {
+      key: 'style-acceptance',
+      label: '验收宣称审计',
+      state: 'ready',
+      detail: '当前 redacted proof 已覆盖全部宣称项；最终仍以平台证据文件为准。',
+    }
+  }
+
+  const nextParts = [
+    audit.nextLocalSafeAction ? `本地：${styleProofGateLabel(audit.nextLocalSafeAction.gate)}` : '',
+    audit.nextPhoneAction ? `手机：${styleProofGateLabel(audit.nextPhoneAction.gate)}` : '',
+    audit.nextExternalAccountAction ? `外部：${styleProofGateLabel(audit.nextExternalAccountAction.gate)}` : '',
+    audit.nextUnsafeToAutomateAction ? `需人工：${styleProofGateLabel(audit.nextUnsafeToAutomateAction.gate)}` : '',
+  ].filter(Boolean)
+
+  return {
+    key: 'style-acceptance',
+    label: '验收宣称审计',
+    state: 'warning',
+    detail: `${styleProofAcceptanceSummary.value}；不得声明手机预览、同步、发布或 public host 已完成。${nextParts.length ? ` 下一步 ${nextParts.join('；')}` : ''}`,
+  }
+})
+
 const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
   styleApplicationReport.value.map(item => {
     const proofSteps = styleProofStepsByChoice.value.get(item.availability.choice.id) ?? []
+    const cannotClaim = styleProofCannotClaimByChoice.value.get(item.availability.choice.id) ?? []
     return {
       availability: item.availability,
       application: item.application,
@@ -249,6 +299,8 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
       detail: styleChoiceDetail(item.availability),
       proofSummary: styleProofSummary(proofSteps),
       proofGateLabels: styleProofGateLabels(proofSteps),
+      acceptanceSummary: styleProofAcceptanceSummaryForChoice(cannotClaim),
+      cannotClaimLabels: styleProofCannotClaimLabels(cannotClaim),
       actionLabel: styleChoiceActionLabel(item),
     }
   }),
@@ -289,6 +341,75 @@ function styleProofGateLabel(gate: StyleProofCollectionGate): string {
     'sensitive-hygiene': '敏感清洁',
   }
   return labels[gate]
+}
+
+function styleProofAcceptanceSummaryForChoice(
+  requirements: readonly StyleProofAcceptanceRequirementAudit[],
+): string {
+  if (requirements.length === 0) return '验收审计：当前无不可宣称项，最终仍以平台证据为准'
+
+  const phone = requirements.filter(requirement => requirement.requiresPhone).length
+  const external = requirements.filter(requirement => requirement.requiresExternalAccount).length
+  const unsafe = requirements.filter(requirement => requirement.status === 'unsafe-to-automate').length
+  const invalid = requirements.filter(requirement => requirement.status === 'invalid').length
+  const invalidPart = invalid > 0 ? `；无效 ${invalid}` : ''
+  return `验收审计：不可宣称 ${requirements.length}${invalidPart}；手机 ${phone}；账号/平台 ${external}；需人工 ${unsafe}`
+}
+
+function styleProofCannotClaimLabels(
+  requirements: readonly StyleProofAcceptanceRequirementAudit[],
+): string[] {
+  return [...requirements]
+    .sort((a, b) => styleProofCannotClaimRank(a) - styleProofCannotClaimRank(b))
+    .slice(0, 4)
+    .map(requirement => `${styleProofRequirementLabel(requirement.requirement.id)} · ${styleProofAcceptanceStatusLabel(requirement.status)}`)
+}
+
+function styleProofCannotClaimRank(requirement: StyleProofAcceptanceRequirementAudit): number {
+  if (requirement.status === 'invalid') return 0
+  if (requirement.requiresPhone) return 1
+  if (requirement.requiresExternalAccount) return 2
+  if (requirement.status === 'unsafe-to-automate') return 3
+  if (requirement.status === 'blocked-by-external') return 4
+  return 5
+}
+
+function styleProofRequirementLabel(requirementId: StyleProofRequirementId): string {
+  const labels: Record<StyleProofRequirementId, string> = {
+    'catalog-source': '目录来源',
+    'market-applied-dom-readback': '市场元素读回',
+    'no-proprietary-template-source': '无第三方模板源',
+    'authenticated-editor-url': '登录编辑器 URL',
+    'pc-editor-dom-readback': 'PC DOM 读回',
+    'unit-test-coverage': '单测覆盖',
+    'local-browser-rendering': '本地浏览器渲染',
+    'exact-artifact': '同一导出产物',
+    'safe-disposable-draft': '安全草稿',
+    'pc-editor-paste-event': 'PC 粘贴事件',
+    'phone-preview-readback': '手机预览读回',
+    'phone-screenshot': '手机截图',
+    'dark-mode-check': '暗黑模式',
+    'cover-thumbnail-check': '封面缩略图',
+    'credentialed-channel-response': '授权通道响应',
+    'sync-readback': '同步读回',
+    'published-url-or-platform-preview': '发布/平台预览',
+    'public-image-host': '公开图片 host',
+    'xhs-artifact-manifest': '小红书图片清单',
+    'zhihu-artifact-manifest': '知乎图片清单',
+    'no-sensitive-artifact': '敏感材料清洁',
+  }
+  return labels[requirementId]
+}
+
+function styleProofAcceptanceStatusLabel(status: StyleProofAcceptanceAuditStatus): string {
+  const labels: Record<StyleProofAcceptanceAuditStatus, string> = {
+    completed: '完成',
+    missing: '缺失',
+    invalid: '无效',
+    'blocked-by-external': '外部阻断',
+    'unsafe-to-automate': '需人工',
+  }
+  return labels[status]
 }
 
 function styleChoiceActionLabel(item: StyleChoiceApplicationAvailability): string {
@@ -657,6 +778,7 @@ const preflightRows = computed<PreflightRow[]>(() => {
         : '等待质量检测结果',
     },
     styleCatalogPreflightRow.value,
+    styleAcceptancePreflightRow.value,
     {
       key: 'clipboard',
       label: '剪贴板权限',
@@ -1030,6 +1152,7 @@ onUnmounted(() => {
                   <span>{{ platformInfo.name }} 当前可用 {{ styleAvailabilityReport.stats.usable }}/{{ styleAvailabilityReport.stats.total }}</span>
                   <span>证据门禁由 runtime catalog 决定</span>
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
+                  <span>验收审计 {{ styleProofAcceptanceSummary }}</span>
                 </div>
                 <div class="style-choice-list">
                   <button
@@ -1075,6 +1198,21 @@ onUnmounted(() => {
                         :key="gateLabel"
                       >
                         {{ gateLabel }}
+                      </span>
+                    </div>
+                    <p class="style-choice-acceptance-summary">
+                      {{ row.acceptanceSummary }}
+                    </p>
+                    <div
+                      v-if="row.cannotClaimLabels.length"
+                      class="style-choice-cannot-claim"
+                      aria-label="不可宣称项"
+                    >
+                      <span
+                        v-for="claimLabel in row.cannotClaimLabels"
+                        :key="claimLabel"
+                      >
+                        {{ claimLabel }}
                       </span>
                     </div>
                     <div class="style-choice-action">
@@ -1956,7 +2094,23 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
+.style-choice-acceptance-summary {
+  margin: 5px 0 0;
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .style-choice-proof-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.style-choice-cannot-claim {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -1972,6 +2126,18 @@ onUnmounted(() => {
   font-size: 10px;
   font-weight: 800;
   line-height: 1.35;
+}
+
+.style-choice-cannot-claim span {
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, var(--warning) 42%, var(--hairline));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warning-light) 72%, var(--bg-surface));
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .style-choice-action {

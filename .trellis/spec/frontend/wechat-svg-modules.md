@@ -930,6 +930,13 @@ Contracts:
   UI, or release notes. They must include ordinary Ctrl+V rich HTML, phone preview, Dark Mode,
   cover thumbnail, credentialed sync, public host, and publish rows whenever those requirements are
   absent or invalid.
+- ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
+  be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
+  external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
+  `unavailable` decisions.
+- Per-choice acceptance labels must remain compact and wrap inside the 400px control column. The
+  UI must not use emoji icons and must not hide phone, credentialed sync, public host, or publish
+  gaps behind a generic "ready" status.
 
 Required tests:
 - A local/unit WeChat manifest must not complete PC paste, phone preview, Dark Mode, cover,
@@ -938,3 +945,5 @@ Required tests:
   unclaimable.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
+- The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
+  `cannotClaim` labels without changing the existing style capability counts.

@@ -1520,6 +1520,34 @@ git status --short --branch
   not prove platform paste, phone preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync,
   scheduled send, upload, public host acceptance, or publish success.
 
+## 2026-06-17 Style Proof Acceptance Audit UI Slice
+
+- Wired `getPlatformStyleProofAcceptanceAuditReport(platform)` into
+  `inkforge/src/components/export/ExportModal.vue`.
+- ExportModal now surfaces the acceptance audit as a read-only UI layer:
+  overall style catalog summary includes cannot-claim counts, each style choice card shows a compact
+  acceptance audit row plus up to four cannot-claim requirement labels, and export preflight adds a
+  `验收宣称审计` row with next local/phone/external/manual gates.
+- The UI does not alter style availability, selectable state, preset mapping, export rendering,
+  copy, download, draft creation, sync, or publish behavior.
+- Extended the real Tauri/WebView2 ExportModal e2e probe so style capability counts must remain
+  stable while WeChat/XHS/Zhihu expose the acceptance audit summary and preflight row.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-acceptance-ui-20260617.txt`.
+- Verification:
+  - `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet` passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+    passed 1 file / 68 tests.
+  - `cd inkforge && pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+    passed 1 file / 6 tests against the real Tauri/WebView2 runner.
+  - `pnpm -C inkforge test:e2e` passed 2 files / 17 tests against the real Tauri/WebView2 runner.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 39.18s.
+- Boundary:
+  this UI slice proves only local cannot-claim surfacing. It does not prove platform paste, phone
+  preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync, scheduled send, upload, public
+  host acceptance, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

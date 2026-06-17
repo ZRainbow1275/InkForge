@@ -99,6 +99,10 @@ focused Vitest 66 tests passed。该文件只证明本地 proof-gate enforcement
 redacted manifests 汇总为本地 acceptance audit，并把缺失、无效、external-blocked 和
 unsafe-to-automate 的 proof rows 暴露为 cannotClaim；该文件只证明本地 acceptance accounting
 和不能宣称规则，不证明平台粘贴、手机预览、同步、上传、public host acceptance 或发布成功）。
+`style-proof-acceptance-ui-20260617.txt`（当前 UI 实现：
+ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能力摘要、单个样式卡和
+导出预检里显示 cannotClaim / 验收宣称审计；该文件只证明本地 UI 防呆层，不证明平台粘贴、
+手机预览、同步、上传、public host acceptance 或发布成功）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -230,6 +234,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-manifest-pack-report-20260609.txt # 当前规则实现：redacted manifest pack -> three platform progress reports + pack issues
 [x] style-proof-strong-gate-regression-20260609.txt # 当前规则实现：弱证据不能满足 safe draft/mobile/sync/publish 强门禁
 [x] style-proof-acceptance-audit-20260609.txt # 当前规则实现：redacted manifests -> acceptance audit cannotClaim rows
+[x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

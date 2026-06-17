@@ -349,3 +349,28 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
   does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover
   thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-06-17 Style Proof Acceptance UI Addendum
+
+- ExportModal now consumes `getPlatformStyleProofAcceptanceAuditReport(platform)` and surfaces the
+  local acceptance audit directly in the style capability area.
+- The style catalog summary shows cannot-claim totals; each style choice card shows a compact
+  acceptance audit line and up to four cannot-claim requirement labels; export preflight now includes
+  a `验收宣称审计` row.
+- This is a read-only operator guard. It does not change style availability, selectable state,
+  preset mapping, export rendering, copy/download, draft creation, sync, upload, or publish behavior.
+- Verification:
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet` passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 68 tests.
+  `cd inkforge && pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 file / 6 tests against the real Tauri/WebView2 runner.
+  `pnpm -C inkforge test:e2e` passed 2 files / 17 tests against the real Tauri/WebView2 runner.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed, Vite built in 39.18s.
+- Boundary: this addendum proves local UI surfacing of cannot-claim accounting only. It does not
+  prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload,
+  or publish success.

@@ -368,6 +368,10 @@ function collectStyleCapabilityProbe() {
       summary: (document.querySelector('.export-panel .style-catalog-summary')?.textContent || '')
         .trim()
         .replace(/\s+/g, ' '),
+      acceptancePreflightText: Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+        .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+        .filter((text) => text.includes('验收宣称审计'))
+        .join(' | '),
       cardCount: cards.length,
       availableCount: byClass('style-choice-available'),
       blockedCount: byClass('style-choice-blocked'),
@@ -482,17 +486,29 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
 
     const wechat = await collectStyleCapabilityProbe();
     expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 7/15');
+    expect(wechat.summary, 'WeChat acceptance audit summary').to.include('验收审计 不可宣称');
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(15);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(7);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
     expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(4);
     expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 7/15；受限 4；不可用 4');
+    expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
+      .to.include('验收宣称审计不可宣称');
+    expect(wechat.acceptancePreflightText, 'WeChat preflight points phone-preview next action')
+      .to.include('手机：手机预览');
+    expect(
+      wechat.cards.some((card) =>
+        card.text.includes('验收审计：不可宣称') &&
+        /验收审计：不可宣称[^]*；手机 [1-9]/.test(card.text) &&
+        card.text.includes('手机预览')),
+      'WeChat cards expose phone-preview cannot-claim counts and gates',
+    ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Amber business flagship') &&
-        card.text.includes('real WeChat PC paste reduced the rich HTML artifact to plain text')),
+        card.text.includes('ordinary Ctrl+V reduced the rich HTML artifact to plain text')),
       'Amber stays blocked after the ordinary WeChat paste failure evidence',
     ).to.equal(true);
     expect(
@@ -547,12 +563,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();
     expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/7');
+    expect(xhs.summary, 'XHS acceptance audit summary').to.include('验收审计 不可宣称');
     expect(xhs.cardCount, 'XHS choice card count').to.equal(7);
     expect(xhs.availableCount, 'XHS available choice count').to.equal(4);
     expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(2);
     expect(xhs.unavailableCount, 'XHS unavailable choice count').to.equal(1);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+    expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
+      .to.include('验收宣称审计不可宣称');
     expect(
       xhs.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
@@ -569,12 +588,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     await selectExportPlatform('知乎');
     const zhihu = await collectStyleCapabilityProbe();
     expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 4/7');
+    expect(zhihu.summary, 'Zhihu acceptance audit summary').to.include('验收审计 不可宣称');
     expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(7);
     expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(4);
     expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(2);
     expect(zhihu.unavailableCount, 'Zhihu unavailable choice count').to.equal(1);
     expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+    expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes cannot-claim audit')
+      .to.include('验收宣称审计不可宣称');
     expect(
       zhihu.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
@@ -691,11 +713,6 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     // letter-spacing regressions like a stray U+202F injected into CJK runs).
     const layout = await browser.execute(() => {
       const render = document.querySelector('.export-panel .preview-render');
-      const niceEl =
-        render.querySelector('#nice') ||
-        render.querySelector('section[id="nice"]') ||
-        render;
-      const niceBox = niceEl.getBoundingClientRect();
 
       // Longest body <p> NOT inside an injected SVG module (decorative).
       const paras = Array.from(render.querySelectorAll('p'))
@@ -706,6 +723,14 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         if (!text) continue;
         if (!best || text.length > best.text.length) best = { text, el: p };
       }
+
+      const niceEl =
+        best?.el.closest('#nice') ||
+        Array.from(render.querySelectorAll('#nice, section[id="nice"]')).find(
+          (el) => !el.closest('[data-ink-svg]'),
+        ) ||
+        render;
+      const niceBox = niceEl.getBoundingClientRect();
 
       const SHIP_FONT_PX = 17; // generatePersonaBaseCSS #nice font-size lock
       const MOBILE_COL_PX = 360; // ~375px phone − WeChat body padding

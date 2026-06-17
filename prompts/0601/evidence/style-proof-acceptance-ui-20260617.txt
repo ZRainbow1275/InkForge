@@ -1,0 +1,42 @@
+Style Proof Acceptance UI Surface - 2026-06-17
+
+Scope:
+- ExportModal read-only UI surface for style proof acceptance audit.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- ExportModal imports getPlatformStyleProofAcceptanceAuditReport(platform).
+- The style catalog summary shows overall acceptance audit cannotClaim counts.
+- Each style choice card shows a compact acceptance audit row and up to four cannot-claim requirement labels.
+- Export preflight adds a read-only "验收宣称审计" row with next local, phone, external, and manual gates.
+
+Behavior:
+- The UI consumes the existing audit report with no caller-supplied manifests, so missing external proof stays visible.
+- The UI does not change style availability, application mapping, selectable state, preset selection, export rendering, copy, download, draft creation, sync, or publish behavior.
+- Phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, and publish rows remain unclaimable until real redacted proof manifests exist.
+- Existing collection queue/gate labels remain visible; the acceptance audit is an additional cannot-claim layer.
+
+Regression coverage:
+- The existing real Tauri/WebView2 ExportModal e2e probe was extended to require:
+  - platform style capability summary still reports the same available/blocked/unavailable counts,
+  - acceptance audit summary appears for WeChat/XHS/Zhihu,
+  - the "验收宣称审计" preflight row appears for WeChat/XHS/Zhihu,
+  - WeChat style cards expose phone-preview cannot-claim counts and phone-preview gates.
+
+Verification:
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 68 tests
+- cd inkforge && pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+  PASS: 1 file / 6 tests, real Tauri/WebView2
+- pnpm -C inkforge test:e2e
+  PASS: 2 files / 17 tests, real Tauri/WebView2
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite build completed in 39.18s
+
+Boundary:
+- This proves only local UI surfacing of cannot-claim accounting.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
