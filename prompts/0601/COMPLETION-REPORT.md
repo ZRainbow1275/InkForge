@@ -455,3 +455,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   credentialed sync, scheduled send, upload, or publish requirements.
 - Boundary: no platform mutation, paste, draft creation, cleanup action, preview, sync, upload,
   schedule, or publish was performed.
+
+---
+
+## 2026-06-17 Tauri/WebView2 E2E Refresh Addendum
+
+- Added `prompts/0601/evidence/tauri-e2e-refresh-20260617.txt`.
+- Ran `pnpm -C inkforge test:e2e` against the real Tauri/WebView2 runner.
+- Result: 2 spec files / 17 tests passed:
+  - `svg-render.spec.cjs`: 6 passing.
+  - `visual.spec.cjs`: 11 passing.
+- The export-rendering spec verified ExportModal style capability gates, acceptance audit
+  cannot-claim messaging, flagship SVG injection for kiln/tempera/amber, and a 20 chars/line
+  mobile-emulated body layout.
+- The visual spec verified desktop titlebar controls, brand mark rendering, motion ladder,
+  typography rhythm, easing, focus ring, and light/dark theme cascade.
+- Boundary: this addendum proves current local desktop rendering and local UI gate surfacing only.
+  It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover
+  thumbnail acceptance, ordinary Ctrl+V paste, safe disposable draft cleanup, credentialed sync,
+  scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

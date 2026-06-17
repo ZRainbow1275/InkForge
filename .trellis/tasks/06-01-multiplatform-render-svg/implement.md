@@ -1682,6 +1682,25 @@ git status --short --branch
   cleanup, PC paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   upload, or publish.
 
+## 2026-06-17 Tauri/WebView2 E2E Refresh Slice
+
+- Ran `pnpm -C inkforge test:e2e` against the real Tauri/WebView2 runner.
+- Result: 2 spec files / 17 tests passed.
+- `svg-render.spec.cjs` verified ExportModal style gates, acceptance audit cannot-claim UI,
+  flagship SVG module injection for kiln/tempera/amber, and 20 chars/line mobile-emulated layout.
+- `visual.spec.cjs` verified titlebar/chrome controls, brand mark rendering, motion tokens,
+  typography rhythm, focus ring, and light/dark theme cascade.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/tauri-e2e-refresh-20260617.txt`.
+- Boundary:
+  this slice proves local Tauri/WebView2 rendering and UI-gate behavior only. It does not prove
+  WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
+  ordinary Ctrl+V paste, safe disposable draft cleanup, credentialed sync, scheduled send,
+  public host acceptance, XHS/Zhihu account upload, or publish success.
+- Note:
+  WDIO rewrote local `prompts/0601/evidence/e2e/flagship-*.png` files as part of existing spec
+  behavior. Those PNGs were pre-existing dirty runtime artifacts and are not staged in this slice.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

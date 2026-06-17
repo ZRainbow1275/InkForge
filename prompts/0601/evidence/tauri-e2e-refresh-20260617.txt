@@ -1,0 +1,74 @@
+Tauri/WebView2 E2E Refresh - 2026-06-17
+
+Scope:
+- Local InkForge desktop E2E verification only.
+- No Playwright.
+- No platform editor action, no phone preview, no sync, no upload, no schedule, and no publish.
+
+Command:
+- pnpm -C inkforge test:e2e
+
+Runtime:
+- WebView2: 149.0.4022.69 on Windows
+- Tauri dev binary compiled before the run.
+- WDIO spec files:
+  - tests/e2e/specs/svg-render.spec.cjs
+  - tests/e2e/specs/visual.spec.cjs
+
+Result:
+- PASS: 2 spec files / 17 tests
+- svg-render.spec.cjs: 6 passing
+- visual.spec.cjs: 11 passing
+
+Observed export-rendering evidence:
+- ExportModal surfaced style capability gates for all platforms.
+- ExportModal surfaced the acceptance audit row and cannot-claim messaging.
+- WeChat style catalog state in the real ExportModal:
+  - cardCount: 15
+  - availableCount: 7
+  - blockedCount: 4
+  - unavailableCount: 4
+  - cannot-claim requirements: 15
+  - external/phone open requirements: 10
+  - safe local open requirements: 5
+- The WeChat draft row stayed blocked because WECHAT_APP_ID and WECHAT_APP_SECRET were not
+  configured in the local desktop environment.
+
+SVG flagship evidence:
+- flagship-kiln:
+  - 2 data-ink-svg modules
+  - cover-title viewBox: 0 0 1080 620
+  - divider-forge viewBox: 0 0 1080 60
+  - deltaToParent: 0
+- flagship-tempera:
+  - 2 data-ink-svg modules
+  - cover-title viewBox: 0 0 1080 620
+  - divider-diamond viewBox: 0 0 1080 60
+  - deltaToParent: 0
+- flagship-amber:
+  - 2 data-ink-svg modules
+  - cover-title viewBox: 0 0 1080 620
+  - divider-grid viewBox: 0 0 1080 60
+  - deltaToParent: 0
+- Mobile-emulated flagship body layout:
+  - charsPerLine: 20
+  - sampleChars: 99
+  - lineCount: 5
+  - probe width: 360px
+  - ship font size: 17px
+
+Chrome/theme evidence:
+- TitleBar rendered with 3 control buttons and seal slot.
+- Min/max control button clicks round-tripped without throwing.
+- TitleBar mark rendered expected drop, anvil, carved slice, and ember paths.
+- Settings About hero mark and wordmark rendered.
+- Motion ladder, typography rhythm, easing, focus ring, and light/dark theme cascade checks passed.
+
+Boundary:
+- This refresh proves current local Tauri/WebView2 rendering and UI gating only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  ordinary Ctrl+V paste, safe disposable draft cleanup, credentialed sync, scheduled send,
+  public host acceptance, XHS/Zhihu account upload, or publish success.
+- The run updated local screenshot files under prompts/0601/evidence/e2e/ as part of the existing
+  WDIO spec behavior. Those PNGs were already dirty before this slice and are not part of this
+  evidence commit.

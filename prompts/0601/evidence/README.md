@@ -301,3 +301,11 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   reported a timed-out session and exposed no workbench/editor controls.
 - It is blocked evidence, not platform proof. It does not satisfy authenticated editor,
   safe-draft cleanup, paste, phone preview, sync, upload, schedule, or publish gates.
+
+## 2026-06-17 Tauri/WebView2 E2E Refresh
+
+- [x] tauri-e2e-refresh-20260617.txt
+- `pnpm -C inkforge test:e2e` passed 2 spec files / 17 tests in the real Tauri/WebView2 runner.
+- This proves current local desktop rendering, ExportModal style-gate UI, acceptance audit
+  cannot-claim UI, flagship SVG injection, and chrome/theme smoke coverage only. It is not phone,
+  account sync, upload, schedule, or publish proof.
