@@ -1,0 +1,52 @@
+WeChat Draftbox Cleanup Path Read-only Preflight - 2026-06-18
+
+Scope:
+- CloakBrowser-only authenticated WeChat draftbox cleanup-path read-only preflight.
+- No create, no edit, no delete, no paste, no save, no preview, no sync, no upload, no schedule,
+  and no publish action was performed.
+- No account secret, browser runtime material, QR material, local capture location, network capture,
+  account identifier, or private draft content is recorded in this evidence file.
+
+Observed:
+- The authenticated WeChat backend session was valid and the draftbox list was reachable.
+- The draftbox page exposed five article draft cards.
+- Draft cards exposed separate action taxonomy for delete, edit, and publish.
+- The delete affordance included a confirmation state with confirm and cancel controls.
+- One incomplete draft card exposed a platform-side incomplete-content warning and could not be
+  published without required article fields.
+- The draftbox page stated that the draftbox stores unpublished content and that a draft is removed
+  from the draftbox after group send.
+- The "new creation" dropdown was opened without creating content. It listed article, existing
+  content, sticker/image material, video, podcast, and repost-style options.
+- The article creation entry was front-end event handled rather than a non-persistent href. Because
+  clicking it can create or mutate account state, it was not clicked during this unattended proof
+  pass.
+
+Interpretation:
+- This proves draftbox reachability and cleanup affordance discovery only.
+- It is useful for planning a later disposable-draft rollback path because the platform exposes a
+  visible delete/confirm/cancel taxonomy.
+- It does not prove that a disposable draft was created, edited, deleted, rolled back, or absent
+  after cleanup.
+
+Must not claim:
+- Do not set `cleanupPathVerified:true` from this evidence.
+- Do not set `disposableDraft:true` from this evidence.
+- Do not satisfy `safe-disposable-draft` from this evidence.
+- Do not satisfy `pc-editor-paste-event`, `mobile-preview`, `dark-mode-check`,
+  `cover-thumbnail-check`, `sync-readback`, `scheduled-send`, or `published-url-or-platform-preview`
+  from this evidence.
+
+Next required proof:
+- Create or otherwise enter an explicitly disposable draft with a unique redacted sentinel.
+- Prove the draft is safe to mutate before any paste or preview action.
+- Prove no publish/schedule/send action is triggered.
+- Execute the cleanup action on the same disposable draft.
+- Read the draftbox/editor state back after cleanup and prove the sentinel draft is absent or
+  reverted.
+- Bind that cleanup proof to the same exact proof artifact before setting
+  `cleanupPathVerified:true`.
+
+Boundary:
+- This evidence is intentionally weaker than `safe-disposable-draft`.
+- It is a platform cleanup-affordance preflight, not a completed cleanup path.

@@ -2007,6 +2007,23 @@ git status --short --branch
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
   passed with 35 files / 1009 tests.
 
+## 2026-06-18 WeChat Draftbox Cleanup Path Read-only Preflight
+
+- Added `prompts/0601/evidence/wechat-draftbox-cleanup-path-readonly-20260618.txt`.
+- CloakBrowser reached the authenticated WeChat draftbox list and observed five draft cards.
+- Draft cards exposed separate delete, edit, and publish action taxonomy, including delete
+  confirmation and cancel affordances.
+- The "new creation" dropdown was readable, but its article entry was front-end event handled
+  rather than a non-persistent href. It was not clicked because it can create or mutate account
+  state.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+- Boundary:
+  this is cleanup-affordance evidence only. It does not create, edit, delete, paste, save, preview,
+  sync, upload, schedule, publish, set `cleanupPathVerified:true`, or satisfy
+  `safe-disposable-draft`.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

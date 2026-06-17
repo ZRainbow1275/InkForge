@@ -138,6 +138,10 @@ invalid for ordinary Ctrl+V paste）。
 CloakBrowser 本地受控 textarea 页面可被前台化，Win32 `SendInput` 可被系统接受并产生
 `Unidentified` keydown，但未产生 `paste` / `input`，哨兵字符串未插入；该结果不证明普通
 Ctrl+V，且在建立可靠非 Playwright 键盘通道或人工隔离粘贴证明前，不应触碰真实微信草稿）。
+`wechat-draftbox-cleanup-path-readonly-20260618.txt`（CloakBrowser-only 微信草稿箱清理路径
+只读预检：草稿箱可达，草稿卡片暴露 delete/edit/publish 动作分类，删除确认/取消控件可发现，
+“新的创作”下拉可读但文章创建入口为前端事件处理；本证据只证明清理 affordance，不创建、
+编辑或删除草稿，不设置 `cleanupPathVerified:true`，不满足 `safe-disposable-draft`）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -282,6 +286,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-editor-dom-readonly-refresh-20260618.txt # 当前平台状态：CloakBrowser 微信 PC 编辑器可达且 DOM 可读；未粘贴/保存/预览/发布
 [x] wechat-ordinary-paste-os-clipboard-preflight-20260618.txt # 当前本机工具预检：三旗舰可生成 CF_HTML；不是微信 Ctrl+V 证明
 [x] cloakbrowser-os-ctrlv-local-probe-20260618.txt # 当前本机工具负向预检：OS SendInput 在 CloakBrowser 控制页只产生 Unidentified keydown；不是普通 Ctrl+V 证明
+[x] wechat-draftbox-cleanup-path-readonly-20260618.txt # 当前平台状态：草稿箱清理 affordance 可读；未创建/删除 disposable draft，不满足 cleanupPathVerified
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -429,3 +434,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor DOM appeared.
 - This is draftbox reachability and action-taxonomy proof only, not editor paste, phone, sync,
   upload, schedule, or publish proof.
+
+## 2026-06-18 WeChat Draftbox Cleanup Path Read-only Preflight
+
+- [x] wechat-draftbox-cleanup-path-readonly-20260618.txt
+- CloakBrowser reached the authenticated WeChat draftbox list and observed five draft cards.
+- Draft cards exposed separate delete, edit, and publish actions, with delete confirmation and
+  cancel controls discoverable in the DOM.
+- The "new creation" dropdown was readable, but the article creation entry was front-end event
+  handled rather than a non-persistent href, so it was not clicked.
+- This is cleanup-affordance proof only. It does not create, edit, delete, paste, save, preview,
+  sync, upload, schedule, publish, set `cleanupPathVerified:true`, or satisfy
+  `safe-disposable-draft`.

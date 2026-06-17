@@ -958,6 +958,10 @@ Contracts:
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
   mutation.
+- Draftbox delete/edit/publish action taxonomy, visible delete confirmation text, and cancel
+  controls are cleanup affordances only. They must not set `cleanupPathVerified:true` until the same
+  explicitly disposable draft is created or opened for mutation, cleaned up by deletion or rollback,
+  and read back from the draftbox/editor state with the redacted sentinel absent or reverted.
 - `cover-thumbnail-check` requires `channel:'phone-preview'`.
 - `dark-mode-check` requires `channel:'phone-preview'` plus `darkModeEnabledVerified:true` on the
   same proof artifact; a generic phone screenshot remains invalid until the mobile Dark Mode state
@@ -984,6 +988,8 @@ Required tests:
   foreground-window evidence are not sufficient.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
+- A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and
+  post-cleanup readback must keep `safe-disposable-draft` missing or invalid.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,
   credentialed sync, and publish requirements invalid.
 - The matching `getPlatformStyleProofProgressReport()` gate rows must remain invalid, not
