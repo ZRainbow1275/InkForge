@@ -309,3 +309,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - This proves current local desktop rendering, ExportModal style-gate UI, acceptance audit
   cannot-claim UI, flagship SVG injection, and chrome/theme smoke coverage only. It is not phone,
   account sync, upload, schedule, or publish proof.
+
+## 2026-06-17 Local Sensitive Path Redaction
+
+- [x] local-sensitive-path-redaction-20260617.txt
+- Historical evidence files were redacted to remove local executable absolute paths and an absolute
+  CloakBrowser profile directory while preserving proof results and non-sensitive profile labels.
+- This is evidence hygiene only. It does not create new platform proof or close external gates.

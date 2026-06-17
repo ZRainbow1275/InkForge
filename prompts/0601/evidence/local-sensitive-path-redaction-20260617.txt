@@ -1,0 +1,26 @@
+Local Sensitive Path Redaction - 2026-06-17
+
+Scope:
+- Documentation and evidence hygiene only.
+- No code, renderer, browser, platform editor, phone preview, sync, upload, schedule, or publish
+  action was executed.
+
+Redacted:
+- `prompts/0601/evidence/probe-svg-render-20260608-082919.txt`
+  - Replaced local tauri-driver, msedgedriver, and debug binary absolute paths with redacted
+    placeholders.
+- `prompts/0601/evidence/market-editor-element-probe-20260608.txt`
+  - Replaced the absolute CloakBrowser persistent profile path with the non-sensitive profile label
+    `inkforge-0601` and an explicit redaction note.
+
+Rationale:
+- Evidence files may record proof results, commands, counts, DOM states, and non-sensitive runtime
+  summaries.
+- Evidence files must not record browser profile directories, local executable absolute paths,
+  local image locations, credential values, network-capture files, scan-login material, account
+  identifiers, or credential artifacts.
+
+Boundary:
+- This redaction preserves the meaning of the historical evidence while removing local machine
+  path details.
+- It does not create new rendering proof or satisfy WeChat/XHS/Zhihu external platform gates.

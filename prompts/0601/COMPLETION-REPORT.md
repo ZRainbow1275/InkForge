@@ -474,3 +474,16 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover
   thumbnail acceptance, ordinary Ctrl+V paste, safe disposable draft cleanup, credentialed sync,
   scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-17 Local Sensitive Path Redaction Addendum
+
+- Added `prompts/0601/evidence/local-sensitive-path-redaction-20260617.txt`.
+- Redacted historical local executable absolute paths from
+  `prompts/0601/evidence/probe-svg-render-20260608-082919.txt`.
+- Redacted the historical absolute CloakBrowser persistent profile path from
+  `prompts/0601/evidence/market-editor-element-probe-20260608.txt`, preserving only the
+  non-sensitive profile label `inkforge-0601`.
+- Boundary: this is evidence hygiene only. It does not create new platform proof, mutate an editor,
+  open phone preview, sync, upload, schedule, or publish.

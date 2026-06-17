@@ -155,7 +155,8 @@ Runtime rule outcome:
 
 Scope:
 - Tooling: CloakBrowser only. No Playwright was used for this applied-element editor probe.
-- Browser profile: `C:/Users/HP/.codex/tools/cloakbrowser-mcp/profiles/inkforge-0601`.
+- Browser profile: required persistent CloakBrowser profile label `inkforge-0601`; absolute local
+  profile path redacted.
 - User had re-logged into 135, Xiumi, and WeChat before the rerun.
 - Screenshots were used only as local visual checks in the CloakBrowser screenshot area and were
   not committed.

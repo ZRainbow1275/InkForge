@@ -1,6 +1,6 @@
-[probe] spawning tauri-driver: C:\Users\HP\.cargo\bin\tauri-driver.exe
-[probe] msedgedriver: C:\Users\HP\.local\bin\msedgedriver.exe
-[probe] app binary: D:\Desktop\Inkforge\inkforge\src-tauri\target\debug\InkForge.exe
+[probe] spawning tauri-driver: <local-tauri-driver-path-redacted>
+[probe] msedgedriver: <local-msedgedriver-path-redacted>
+[probe] app binary: <local-inkforge-debug-binary-path-redacted>
 Asset `favicon.ico` not found; fallback to favicon.ico.html
 Asset `favicon.ico` not found; fallback to favicon.ico/index.html
 Asset `favicon.ico` not found; fallback to index.html

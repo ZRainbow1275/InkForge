@@ -1701,6 +1701,19 @@ git status --short --branch
   WDIO rewrote local `prompts/0601/evidence/e2e/flagship-*.png` files as part of existing spec
   behavior. Those PNGs were pre-existing dirty runtime artifacts and are not staged in this slice.
 
+## 2026-06-17 Local Sensitive Path Redaction Slice
+
+- Reviewed committed `prompts/0601` evidence for local path/profile leakage after the E2E refresh
+  commit.
+- Redacted local tauri-driver, msedgedriver, debug binary, and CloakBrowser profile absolute paths
+  from historical evidence text while preserving the proof results and non-sensitive profile label.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/local-sensitive-path-redaction-20260617.txt`.
+- Boundary:
+  this is documentation/evidence hygiene only. It does not create new rendering proof, mutate a
+  live editor, open phone preview, sync, upload, schedule, publish, or close external platform
+  gates.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
