@@ -158,6 +158,9 @@ focused regression 确认 draftbox affordance doc-reference 仍不能通过 safe
 通过草稿卡 Vue 组件的 `editUrl` 与当前 authenticated backend session 参数进入 PC editor；
 `#js_appmsg_editor` / `#js_ueditor` / `#js_editor` / `.edui-editor` / `.ProseMirror` 可读；
 未粘贴、编辑、保存、预览、同步、上传、定时、发布或删除）。
+`wechat-disposable-draft-runbook-20260618.md`（真实微信 disposable draft 运行手册：
+规定创建、普通 OS Ctrl+V、手机预览、清理和 manifest flag 映射的唯一安全路径；当前只是
+pre-mutation contract，尚未创建、粘贴、预览、删除或证明 disposable draft 缺失）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -307,6 +310,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-session-expired-gate-20260618.txt # 当前平台状态：微信后台要求重新登录；登录/过期页不能满足 authenticated editor 或 PC DOM proof
 [x] wechat-auth-draftbox-readonly-refresh-20260618.txt # 当前平台状态：微信后台/草稿箱重新可达；本轮 edit 仍未进入 PC editor DOM
 [x] wechat-editor-dom-current-readonly-20260618.txt # 当前平台状态：微信 PC editor DOM 重新可读；未粘贴/保存/预览/发布
+[x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -513,3 +517,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - This is current authenticated editor reachability and PC editor DOM evidence only. It does not
   prove ordinary paste, artifact-specific SVG readback, phone preview, Dark Mode, cover thumbnail,
   cleanup, sync, schedule, or publish gates.
+
+## 2026-06-18 WeChat Disposable Draft Runbook
+
+- [x] wechat-disposable-draft-runbook-20260618.md
+- Defines the only acceptable live-mutation path for disposable WeChat proof.
+- Separates create, ordinary OS Ctrl+V paste, phone/preview, cleanup, abort conditions, redaction,
+  and manifest flag mapping.
+- Records that current editor DOM reachability exists, but ordinary keyboard paste remains blocked
+  by the negative CloakBrowser OS-key probe.
+- This is a pre-mutation contract only. It does not create, paste into, preview, delete, or prove
+  absence of a disposable draft.

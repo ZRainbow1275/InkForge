@@ -23,6 +23,8 @@ Scope:
   `wechat-auth-draftbox-readonly-refresh-20260618.txt`.
 - Latest current WeChat editor DOM refresh reviewed:
   `wechat-editor-dom-current-readonly-20260618.txt`.
+- Latest disposable draft runbook reviewed:
+  `wechat-disposable-draft-runbook-20260618.md`.
 - This audit does not create platform proof, does not mutate a live editor, does not open phone
   preview, does not sync, upload, schedule, or publish.
 
@@ -98,6 +100,8 @@ Current strongest evidence:
   WeChat ordinary-paste attempt under the current no-Playwright constraint.
 - The committed local manifest pack intentionally remains invalid as full proof because it records
   local evidence only; that is correct and prevents false platform claims.
+- A disposable-draft pre-mutation runbook now exists. It defines the required create, paste, phone,
+  cleanup, redaction, abort, and manifest-flag mapping steps before any live WeChat mutation proof.
 
 Remaining hard gates:
 - WeChat phone preview for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
@@ -121,9 +125,9 @@ Remaining hard gates:
 
 Safe next actions:
 1. Keep all local accounting/reporting helpers honest: local evidence cannot close external gates.
-2. Before any live WeChat mutation, prepare a disposable draft plan that names the exact artifact,
-   target channel, cleanup path, redaction boundary, expected DOM/readback evidence, and post-cleanup
-   absence/readback check.
+2. Before any live WeChat mutation, follow `wechat-disposable-draft-runbook-20260618.md`: name the
+   exact artifact, target channel, cleanup path, redaction boundary, expected DOM/readback evidence,
+   and post-cleanup absence/readback check.
 3. For ordinary PC paste, use the Windows CF_HTML helper only after the safe disposable draft,
    cleanup path, and reliable ordinary keyboard channel are verified; the proof still needs OS
    Ctrl+V, editor DOM readback, and cleanup readback.

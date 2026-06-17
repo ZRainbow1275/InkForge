@@ -2153,6 +2153,26 @@ git status --short --branch
   editor reachability and PC editor DOM readback are refreshed, while ordinary paste, artifact
   readback, safe cleanup, phone, Dark Mode, cover, sync, schedule, and publish gates remain open.
 
+## 2026-06-18 WeChat Disposable Draft Runbook
+
+- Added `prompts/0601/evidence/wechat-disposable-draft-runbook-20260618.md`.
+- The runbook defines the pre-mutation safety contract for any live WeChat proof:
+  - authenticated backend/editor preconditions;
+  - redaction boundary;
+  - disposable draft creation;
+  - ordinary OS Ctrl+V paste requirements;
+  - phone/preview checks;
+  - cleanup and post-cleanup absence readback;
+  - abort conditions;
+  - manifest flag mapping.
+- It records that current editor DOM reachability is refreshed, but ordinary keyboard paste remains
+  blocked by the negative CloakBrowser OS-key probe.
+- This is documentation only: no disposable draft was created, pasted into, previewed, deleted, or
+  proven absent in this slice.
+- Updated `prompts/0601/evidence/README.md` and
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt` to point future live-mutation proof at
+  the runbook instead of ad hoc account actions.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
