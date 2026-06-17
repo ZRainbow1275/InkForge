@@ -9,6 +9,8 @@ Scope:
 - Latest WeChat platform preflights reviewed:
   `wechat-home-readonly-preflight-20260617.txt` and
   `wechat-draftbox-readonly-preflight-20260617.txt`.
+- Latest WeChat editor refresh reviewed:
+  `wechat-editor-dom-readonly-refresh-20260618.txt`.
 - This audit does not create platform proof, does not mutate a live editor, does not open phone
   preview, does not sync, upload, schedule, or publish.
 
@@ -26,7 +28,7 @@ Requirement matrix:
 
 | Requirement | Current evidence | Audit result | Next required proof |
 | --- | --- | --- | --- |
-| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. 2026-06-17 CloakBrowser reached backend home and draftbox list, but the isolated edit action did not open the article editor. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; editor-open/readback refresh when a safe draft path is available. |
+| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. 2026-06-17 CloakBrowser reached backend home and draftbox list. 2026-06-18 CloakBrowser loaded the session-bound PC article editor and read `#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`, and `.ProseMirror ProseMirror-focused` without mutating content. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; ordinary Ctrl+V paste/readback from a safe disposable draft. |
 | AC2 module family and persona coverage | `svg-modules` registry/family tests and completion report record 26 modules / 7 families across personas. | `complete-local` | Re-run module and export suites after any module changes. |
 | AC3 20-22 CJK chars per line | Real Tauri/WebView2 e2e and probe evidence cover local/mobile-width layout. | `complete-local` | Refresh e2e after layout or typography changes. |
 | AC4 existing 12 WeChat + 5 XHS + 3 Zhihu presets preserved | Export suites, migration tests, and completion report show preset counts and regression coverage. | `complete-local` | Re-run full export suite before final archive. |
@@ -42,7 +44,7 @@ Cross-platform proof matrix:
 | Platform / channel | Current proof | Cannot claim yet |
 | --- | --- | --- |
 | WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
-| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; authenticated backend home and draftbox list reachable; draftbox action taxonomy separates delete/edit/publish. | Article editor did not open from the isolated edit action in the current preflight; Amber ordinary Ctrl+V rich HTML success; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; authenticated backend home and draftbox list reachable; draftbox action taxonomy separates delete/edit/publish; PC article editor reachable through a session-bound edit entry; editor DOM and ProseMirror body are readable. | Amber ordinary Ctrl+V rich HTML success; safe disposable draft and cleanup proof before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -60,8 +62,9 @@ Current strongest evidence:
   proof rows, preventing ClipboardEvent, scan/setup, ordinary screenshot, or cover-setting states
   from satisfying stronger platform claims.
 - CloakBrowser can currently reach WeChat backend home and the draftbox list. The target draft is
-  visible, and delete/edit/publish actions are distinguishable, but the isolated edit action did
-  not open an article editor DOM in the current preflight.
+  visible, and delete/edit/publish actions are distinguishable. The 2026-06-18 refresh reached the
+  PC article editor by preserving the active backend session in the editor entry URL and read the
+  editor shell plus ProseMirror body DOM without live mutation.
 - The committed local manifest pack intentionally remains invalid as full proof because it records
   local evidence only; that is correct and prevents false platform claims.
 
@@ -72,9 +75,8 @@ Remaining hard gates:
 - WeChat cover thumbnail / preview-entry acceptance.
 - Amber ordinary Ctrl+V rich HTML success. Programmatic ClipboardEvent/DataTransfer readback is now
   explicitly invalid for ordinary paste proof unless `ordinaryClipboardPasteVerified:true` exists.
-- WeChat article editor open/readback refresh from a safe draft/editor route; current draftbox edit
-  preflight did not open the editor.
 - Safe disposable draft or equivalent cleanup path before mutating live WeChat editor state.
+- Ordinary Ctrl+V rich HTML/SVG paste readback from that safe draft path.
 - Credentialed sync/draft readback, scheduled send, and publish proof if those claims are needed.
 - XHS real account upload/preview/publish if platform publication is claimed.
 - Zhihu public-host acceptance and real account upload/preview/publish if platform publication is

@@ -1,0 +1,44 @@
+WeChat Editor DOM Read-only Refresh - 2026-06-18
+
+Scope:
+- CloakBrowser-only authenticated WeChat Official Account backend check.
+- Objective: prove the PC article editor can be reached from the current backend session and
+  that its editor DOM can be read without mutating the live draft.
+- No paste, save, preview, sync, upload, scheduled send, publish, deletion, or draft creation was
+  performed.
+
+Observed path:
+- The authenticated backend home page loaded and showed the recent draft cards.
+- The draft cards exposed distinct card actions for delete, edit, and publish.
+- The visible title link did not open the editor.
+- The hidden edit icon was controlled by card hover state and was not directly clickable through
+  the CloakBrowser selector-visible gate.
+- The card's Vue component exposed an `editAppmsg` method and a session-bound editor URL.
+- A direct editor URL without the current backend session parameter produced a relogin page.
+- Rebuilding the same editor URL with the active backend session parameter loaded the PC article
+  editor in the current tab.
+
+Editor DOM readback:
+- `#js_appmsg_editor`: present.
+- `#editor_pannel`: present.
+- `#js_ueditor`: present.
+- `#js_editor`: present.
+- `.edui-editor`: present.
+- Toolbar shell: present.
+- Visible `contenteditable=true` editors: 2.
+- Main body editor class: `.ProseMirror ProseMirror-focused`.
+- Hidden article-preview iframe: present with a WeChat article preview host path.
+- Bottom actions visible: save as draft, preview, publish.
+- Media/import controls visible in the editor chrome: image, video, audio, link, mini program,
+  template, vote, search, location, video account, account card, and document import.
+
+Important boundary:
+- This is `authenticated-editor-reachable` and `pc-editor-dom-readable` evidence only.
+- It does not prove ordinary Ctrl+V rich HTML/SVG paste.
+- It does not prove PC paste readback for a specific InkForge flagship artifact.
+- It does not prove phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu account upload,
+  or publish success.
+- Because the editor opened an existing live draft body, no content mutation was attempted. A safe
+  disposable draft and cleanup path are still required before live paste or phone-preview proof can
+  be collected.

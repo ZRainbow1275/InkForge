@@ -125,6 +125,10 @@ invalid for ordinary Ctrl+V paste）。
 后台首页与近期草稿可读；未粘贴、保存、预览、同步、上传、定时、发布或创建草稿）。
 `wechat-draftbox-readonly-preflight-20260617.txt`（CloakBrowser-only 微信草稿箱只读预检：
 草稿箱列表和目标草稿可读，delete/edit/publish 动作结构可区分；edit 点击未进入文章编辑器）。
+`wechat-editor-dom-readonly-refresh-20260618.txt`（CloakBrowser-only 微信 PC 编辑器只读复核：
+后台首页草稿卡片可读，卡片组件的 session-bound 编辑入口可进入 PC 图文编辑器，`#js_appmsg_editor` /
+`#js_ueditor` / `#js_editor` / `.edui-editor` / `.ProseMirror ProseMirror-focused` 可读；未粘贴、
+保存、预览、同步、上传、定时、发布或创建草稿，不升级为普通 Ctrl+V、手机预览或发布证明）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -266,6 +270,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] pc-ordinary-paste-gate-20260617.txt # 当前规则实现：ordinary PC paste requires ordinaryClipboardPasteVerified:true
 [x] wechat-home-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信后台首页可达；只读，不证明编辑器/手机/发布
 [x] wechat-draftbox-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信草稿箱可达；edit 未进入文章编辑器
+[x] wechat-editor-dom-readonly-refresh-20260618.txt # 当前平台状态：CloakBrowser 微信 PC 编辑器可达且 DOM 可读；未粘贴/保存/预览/发布
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual

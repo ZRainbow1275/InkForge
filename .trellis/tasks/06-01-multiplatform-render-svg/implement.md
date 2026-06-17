@@ -1916,6 +1916,31 @@ git status --short --branch
   safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
 
+## 2026-06-18 WeChat Editor DOM Read-only Refresh
+
+- Added `prompts/0601/evidence/wechat-editor-dom-readonly-refresh-20260618.txt`.
+- CloakBrowser reached the authenticated WeChat backend home page and read the recent draft cards.
+- The visible draft title did not open the editor, and the hidden edit icon was controlled by
+  card hover visibility.
+- The card Vue component exposed a session-bound editor entry. Rebuilding that entry with the
+  active backend session loaded the PC article editor in the current tab.
+- DOM readback confirmed:
+  - `#js_appmsg_editor`
+  - `#editor_pannel`
+  - `#js_ueditor`
+  - `#js_editor`
+  - `.edui-editor`
+  - `.ProseMirror ProseMirror-focused`
+  - two visible `contenteditable=true` editor nodes
+  - bottom actions for save as draft, preview, and publish
+- No paste, save, preview, sync, upload, schedule, publish, deletion, or draft creation action was
+  performed.
+- Updated `prompts/0601/evidence/README.md` and
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt` so the previous editor-entry gap is
+  narrowed to PC editor reachability/DOM readback while ordinary Ctrl+V, safe disposable draft,
+  phone preview, Dark Mode, cover, sync, schedule, publish, XHS upload, and Zhihu public-host gates
+  remain open.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
