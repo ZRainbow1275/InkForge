@@ -99,6 +99,10 @@ focused Vitest 66 tests passed。该文件只证明本地 proof-gate enforcement
 redacted manifests 汇总为本地 acceptance audit，并把缺失、无效、external-blocked 和
 unsafe-to-automate 的 proof rows 暴露为 cannotClaim；该文件只证明本地 acceptance accounting
 和不能宣称规则，不证明平台粘贴、手机预览、同步、上传、public host acceptance 或发布成功）。
+`style-proof-acceptance-issueids-20260618.txt`（当前规则实现：
+acceptance audit 的 cannotClaim requirement rows 暴露具体 `StyleProofManifestIssueId`；
+expired-session / generic DOM 证据会显示 authenticated-session 与 editor-DOM issue ids，但不
+升级任何平台门禁为已完成）。
 `style-proof-acceptance-ui-20260617.txt`（当前 UI 实现：
 ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能力摘要、单个样式卡和
 导出预检里显示 cannotClaim / 验收宣称审计；该文件只证明本地 UI 防呆层，不证明平台粘贴、
@@ -278,6 +282,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-manifest-pack-report-20260609.txt # 当前规则实现：redacted manifest pack -> three platform progress reports + pack issues
 [x] style-proof-strong-gate-regression-20260609.txt # 当前规则实现：弱证据不能满足 safe draft/mobile/sync/publish 强门禁
 [x] style-proof-acceptance-audit-20260609.txt # 当前规则实现：redacted manifests -> acceptance audit cannotClaim rows
+[x] style-proof-acceptance-issueids-20260618.txt # 当前规则实现：acceptance audit cannotClaim rows expose concrete issue ids
 [x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
 [x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成

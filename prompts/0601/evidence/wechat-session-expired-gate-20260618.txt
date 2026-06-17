@@ -35,6 +35,9 @@ Regression coverage:
   `style-proof-manifest-platform-editor-dom-not-verified`.
 - The collection plan and queue expose `authenticatedSessionVerified:true` and
   `platformEditorDomVerified:true` in the `authenticated-pc-editor` gate note.
+- Follow-up acceptance audit coverage now carries those concrete issue ids into the relevant
+  `cannotClaim` requirement rows, so operator-facing reports explain why authenticated editor and
+  PC editor DOM proof cannot be claimed.
 
 Verification:
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
@@ -60,6 +63,13 @@ Verification:
   `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed; and
   `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with generated cache
   output restored before commit.
+- Follow-up acceptance issue-id verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 80 tests;
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 119 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1013 tests; `vue-tsc`, targeted ESLint, and production build passed.
 
 Boundary:
 - This evidence proves only that the current browser session cannot be used for live WeChat proof.

@@ -289,6 +289,14 @@ export function getPlatformStyleProofCollectionPlan(platform: Platform): Platfor
 export function getPlatformStyleProofCollectionQueue(platform: Platform): PlatformStyleProofCollectionQueue
 export type StyleProofAcceptanceAuditStatus =
   | 'completed' | 'missing' | 'invalid' | 'blocked-by-external' | 'unsafe-to-automate'
+export interface StyleProofAcceptanceRequirementAudit {
+  requirement: StyleProofRequirement
+  gate: StyleProofCollectionGate
+  status: StyleProofAcceptanceAuditStatus
+  issueCount: number
+  issueIds: readonly StyleProofManifestIssueId[]
+  cannotClaim: boolean
+}
 export interface PlatformStyleProofAcceptanceAuditReport {
   platform: Platform
   progress: PlatformStyleProofProgressReport
@@ -1040,6 +1048,11 @@ Contracts:
   UI, or release notes. They must include ordinary Ctrl+V rich HTML, phone preview, Dark Mode,
   cover thumbnail, credentialed sync, public host, and publish rows whenever those requirements are
   absent or invalid.
+- Each acceptance requirement row must expose both `issueCount` and sorted `issueIds` so the
+  operator can distinguish missing proof from concrete invalid proof such as
+  `style-proof-manifest-authenticated-session-not-verified` or
+  `style-proof-manifest-platform-editor-dom-not-verified`. `issueIds` must be collected through the
+  manifest/progress reports and must not invent new reasons outside `StyleProofManifestIssueId`.
 - ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
   be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
   external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
@@ -1053,6 +1066,8 @@ Required tests:
   credentialed sync, or publish proof rows.
 - A weak WeChat PC DOM/ClipboardEvent-style manifest must leave phone preview and publish proof
   unclaimable.
+- A login/re-login/expired-session WeChat manifest must keep authenticated editor and PC DOM rows
+  unclaimable and surface the concrete session/editor DOM issue ids in those `cannotClaim` rows.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card

@@ -249,6 +249,41 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-pack-artifact-id-duplicate'
   | 'style-proof-manifest-pack-fingerprint-mismatch'
 
+const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
+  'style-proof-manifest-choice-unknown',
+  'style-proof-manifest-platform-mismatch',
+  'style-proof-manifest-choice-blocked',
+  'style-proof-manifest-evidence-too-weak',
+  'style-proof-manifest-requirement-missing',
+  'style-proof-manifest-artifact-mismatch',
+  'style-proof-manifest-sensitive-artifact',
+  'style-proof-manifest-unsafe-commit-artifact',
+  'style-proof-manifest-exact-artifact-missing',
+  'style-proof-manifest-market-editor-not-applied',
+  'style-proof-manifest-authenticated-session-not-verified',
+  'style-proof-manifest-platform-editor-dom-not-verified',
+  'style-proof-manifest-ordinary-paste-not-verified',
+  'style-proof-manifest-phone-content-missing',
+  'style-proof-manifest-dark-mode-not-verified',
+  'style-proof-manifest-cover-thumbnail-not-accepted',
+  'style-proof-manifest-disposable-draft-missing',
+  'style-proof-manifest-cleanup-path-missing',
+  'style-proof-manifest-platform-action-missing',
+  'style-proof-manifest-readback-missing',
+  'style-proof-manifest-public-image-host-missing',
+  'style-proof-manifest-validation-missing',
+  'style-proof-manifest-pack-choice-unknown',
+  'style-proof-manifest-pack-platform-mismatch',
+  'style-proof-manifest-pack-artifact-id-duplicate',
+  'style-proof-manifest-pack-fingerprint-mismatch',
+] as const satisfies readonly StyleProofManifestIssueId[]
+
+const STYLE_PROOF_MANIFEST_ISSUE_ID_SET = new Set<string>(STYLE_PROOF_MANIFEST_ISSUE_IDS)
+
+function isStyleProofManifestIssueId(issueId: string): issueId is StyleProofManifestIssueId {
+  return STYLE_PROOF_MANIFEST_ISSUE_ID_SET.has(issueId)
+}
+
 export interface StyleProofManifest {
   platform: Platform
   claimedEvidence: readonly StyleEvidenceLabel[]
@@ -565,6 +600,7 @@ export interface StyleProofAcceptanceRequirementAudit {
   sensitiveArtifactCount: number
   unsafeCommitArtifactCount: number
   issueCount: number
+  issueIds: readonly StyleProofManifestIssueId[]
   blockedChoiceCount: number
   mutatesPlatform: boolean
   requiresExternalAccount: boolean
@@ -3130,6 +3166,7 @@ interface StyleProofRequirementAcceptanceAccumulator {
   choiceIds: Set<string>
   blockedChoiceIds: Set<string>
   issueKeys: Set<string>
+  issueIds: Set<StyleProofManifestIssueId>
   required: number
   satisfied: number
   missing: number
@@ -3142,6 +3179,15 @@ interface StyleProofRequirementAcceptanceAccumulator {
 
 function getStyleProofIssueKey(issue: QualityIssue): string {
   return `${issue.id}\u0000${issue.location ?? ''}\u0000${issue.message}`
+}
+
+function addStyleProofManifestIssueId(
+  accumulator: StyleProofRequirementAcceptanceAccumulator,
+  issueId: string,
+): void {
+  if (isStyleProofManifestIssueId(issueId)) {
+    accumulator.issueIds.add(issueId)
+  }
 }
 
 function getOrCreateStyleProofRequirementAcceptanceAccumulator(
@@ -3158,6 +3204,7 @@ function getOrCreateStyleProofRequirementAcceptanceAccumulator(
     choiceIds: new Set<string>(),
     blockedChoiceIds: new Set<string>(),
     issueKeys: new Set<string>(),
+    issueIds: new Set<StyleProofManifestIssueId>(),
     required: 0,
     satisfied: 0,
     missing: 0,
@@ -3193,6 +3240,7 @@ function buildStyleProofAcceptanceRequirementAudits(
 
       for (const issue of requirementReport.issues) {
         accumulator.issueKeys.add(getStyleProofIssueKey(issue))
+        addStyleProofManifestIssueId(accumulator, issue.id)
       }
 
       for (const artifactReport of choiceProgress.report.artifacts) {
@@ -3205,6 +3253,7 @@ function buildStyleProofAcceptanceRequirementAudits(
 
         for (const issue of artifactReport.issues) {
           accumulator.issueKeys.add(getStyleProofIssueKey(issue))
+          addStyleProofManifestIssueId(accumulator, issue.id)
         }
       }
     }
@@ -3235,6 +3284,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         sensitiveArtifactCount: accumulator.sensitiveArtifactCount,
         unsafeCommitArtifactCount: accumulator.unsafeCommitArtifactCount,
         issueCount: accumulator.issueKeys.size,
+        issueIds: Array.from(accumulator.issueIds).sort(),
         blockedChoiceCount: accumulator.blockedChoiceIds.size,
         mutatesPlatform: doesStyleProofGateMutatePlatform(accumulator.gate),
         requiresExternalAccount: doesStyleProofGateRequireExternalAccount(accumulator.gate),

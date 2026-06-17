@@ -1068,6 +1068,78 @@ describe('platform native export rendering rules', () => {
     ]))
   })
 
+  it('surfaces session and editor DOM issue ids in acceptance cannot-claim rows', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['pc-editor-dom-readable'],
+        artifactFingerprint: 'sha256:redacted-expired-session-dom',
+        artifacts: [
+          {
+            id: 'expired-session-editor-url',
+            requirementId: 'authenticated-editor-url',
+            kind: 'browser-readback',
+            label: 'expired session URL is not authenticated editor proof',
+            evidenceLabel: 'pc-editor-dom-readable',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'platform-editor',
+            action: 'authenticated-editor-opened',
+            readback: 'dom',
+            artifactFingerprint: 'sha256:redacted-expired-session-dom',
+            safeForCommit: true,
+          },
+          {
+            id: 'expired-session-editor-dom',
+            requirementId: 'pc-editor-dom-readback',
+            kind: 'browser-readback',
+            label: 'expired session DOM is not verified editor body proof',
+            evidenceLabel: 'pc-editor-dom-readable',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'platform-editor',
+            action: 'pc-editor-dom-readback',
+            readback: 'dom',
+            artifactFingerprint: 'sha256:redacted-expired-session-dom',
+            safeForCommit: true,
+          },
+          {
+            id: 'expired-session-sensitive-hygiene',
+            requirementId: 'no-sensitive-artifact',
+            kind: 'hygiene-review',
+            label: 'redacted sensitive hygiene proof',
+            evidenceLabel: 'pc-editor-dom-readable',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'local-artifact',
+            action: 'sensitive-hygiene-review',
+            readback: 'hygiene-log',
+            artifactFingerprint: 'sha256:redacted-expired-session-dom',
+            safeForCommit: true,
+          },
+        ],
+      },
+    ]
+
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', manifests)
+    const authenticatedUrlAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'authenticated-editor-url',
+    )
+    const pcDomAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'pc-editor-dom-readback',
+    )
+
+    expect(authenticatedUrlAudit?.status).toBe('unsafe-to-automate')
+    expect(authenticatedUrlAudit?.issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(pcDomAudit?.status).toBe('unsafe-to-automate')
+    expect(pcDomAudit?.issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-authenticated-session-not-verified',
+      'style-proof-manifest-platform-editor-dom-not-verified',
+    ]))
+  })
+
   it('reports cross-platform acceptance gaps without leaking manifest proof between platforms', () => {
     const manifests: StyleProofManifest[] = [
       {

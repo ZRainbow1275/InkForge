@@ -2078,6 +2078,36 @@ git status --short --branch
   `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
   passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
 
+## 2026-06-18 Style Proof Acceptance Issue IDs Slice
+
+- Added `StyleProofAcceptanceRequirementAudit.issueIds` so acceptance audit requirement rows expose
+  the concrete `StyleProofManifestIssueId` values behind `cannotClaim` rows.
+- Preserved `issueCount` and all existing progress/availability semantics.
+- Added an explicit `StyleProofManifestIssueId` runtime type guard so arbitrary `QualityIssue.id`
+  strings are not promoted into the acceptance-audit issue id list.
+- Added focused regression coverage proving expired-session / generic DOM WeChat proof remains
+  `unsafe-to-automate` and surfaces:
+  - `style-proof-manifest-authenticated-session-not-verified`
+  - `style-proof-manifest-platform-editor-dom-not-verified`
+- Added `prompts/0601/evidence/style-proof-acceptance-issueids-20260618.txt`.
+- Verification:
+  `npx gitnexus impact getPlatformStyleProofAcceptanceAuditReport -r InkForge --depth 3`
+  passed with LOW risk, 1 direct upstream consumer, and 0 affected processes.
+  `npx gitnexus impact buildStyleProofAcceptanceRequirementAudits -r InkForge --depth 3`
+  passed with LOW risk, 1 direct caller, Export module impact, and 0 affected processes.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 80 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 119 tests.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1013 tests.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

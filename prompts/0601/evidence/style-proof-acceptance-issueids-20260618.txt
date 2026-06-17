@@ -1,0 +1,54 @@
+Style Proof Acceptance Issue IDs - 2026-06-18
+
+Scope:
+- Local acceptance audit contract for redacted StyleProofManifest records.
+- No platform action, draft mutation, paste, save, preview, sync, upload, schedule, or publish
+  action was performed.
+- This file records only local proof-accounting behavior and regression coverage.
+
+Implemented:
+- `StyleProofAcceptanceRequirementAudit.issueIds` now exposes the concrete
+  `StyleProofManifestIssueId` values behind each acceptance requirement row.
+- `issueCount` remains unchanged for summary/accounting compatibility.
+- Issue ids are collected through the existing manifest/progress reports and filtered through an
+  explicit StyleProofManifestIssueId type guard instead of a broad type assertion.
+
+Behavior:
+- `cannotClaim` rows can now explain why a claim is blocked or unsafe, not just how many issues
+  were found.
+- A login, re-login, expired-session, or generic non-editor DOM proof remains unsafe to automate
+  for authenticated editor / PC editor DOM requirements.
+- Such rows surface concrete issue ids including
+  `style-proof-manifest-authenticated-session-not-verified` and
+  `style-proof-manifest-platform-editor-dom-not-verified`.
+- The added ids are diagnostic only. They do not change style availability, proof completion,
+  platform mutation status, or external-gate status.
+
+Regression coverage:
+- Added a WeChat acceptance audit test for an expired-session/generic DOM manifest.
+- The test asserts that authenticated-editor and PC editor DOM rows remain `unsafe-to-automate`
+  and that their `cannotClaim` rows expose the concrete issue ids.
+
+Verification:
+- `npx gitnexus impact getPlatformStyleProofAcceptanceAuditReport -r InkForge --depth 3`
+  passed with LOW risk, 1 upstream direct consumer, and 0 affected processes.
+- `npx gitnexus impact buildStyleProofAcceptanceRequirementAudits -r InkForge --depth 3`
+  passed with LOW risk, 1 direct caller, Export module impact, and 0 affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 80 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 119 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1013 tests.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` cache output was restored before commit.
+
+Boundary:
+- This proves only local acceptance-audit explainability for cannot-claim rows.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, mobile preview, mobile Dark Mode,
+  mobile SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform upload, public host acceptance, or publish success.
