@@ -1903,6 +1903,19 @@ git status --short --branch
   interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-17 Completion Gap Audit Refresh
+
+- Updated `prompts/0601/evidence/completion-gap-audit-20260617.txt` with:
+  - WeChat backend home and draftbox read-only preflight evidence.
+  - The stronger proof-gate flags required for ordinary PC paste, phone content, Dark Mode, and
+    cover-thumbnail acceptance.
+  - The current blocker that the isolated draftbox edit action did not open an article editor DOM.
+- Boundary:
+  this is a current-state audit refresh only. It does not prove ordinary WeChat Ctrl+V paste,
+  PC editor paste, phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
