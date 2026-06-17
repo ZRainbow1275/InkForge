@@ -3,7 +3,7 @@
 - **任务**：`.trellis/tasks/06-01-multiplatform-render-svg`
 - **分支基线**：`dev/visual-fixes`（活体应用树 `inkforge/`）
 - **配套契约**：`prompts/0601/PRD.md`（AC1–AC10 / R1–R8）、`prompts/0601/SPEC.md`（实现契约 / 26 变体清单）、`prompts/0601/research/*.md`（5 份一手调研）
-- **验证日期**：2026-06-01；最新证据刷新：2026-06-09
+- **验证日期**：2026-06-01；最新证据刷新：2026-06-18
 - **验证类型**：对抗式终审（adversarial verification）—— 所有断言均经实测复核，未采信未验证的声称。
 
 ---
@@ -26,8 +26,8 @@
 - 小红书海报栅格化已通过真实浏览器 canvas 证明：实际动态导入 `renderXhsPosterCard()`，从 `cover-grid` 的 `data-ink-svg` wrapper 产出 1080×1440 PNG。
 
 **诚实声明（剩余人工门禁）**：
-- 真实微信公众号后台 **PC 编辑器粘贴路径** 已通过 Playwright + 用户扫码登录验证：`flagship-kiln` 与 `flagship-tempera` 均有真实 `mp.weixin.qq.com` PC 编辑器证据；微信 paste sanitizer 在实测样本中保留 8 个 inline SVG 和全部 `data-ink-svg`，并暴露/修复了封面长标题溢出。
-- `flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e、本地 artifact probe，以及 2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel 的真实微信 PC 编辑器 DOM readback 覆盖。普通 Ctrl+V 仍在 2026-06-08 被微信降级为纯文本，因此不得把该 channel 证据外推成 ordinary clipboard、手机预览、同步或发布证明。
+- 真实微信公众号后台 **PC 编辑器粘贴路径** 已通过历史 Playwright + 用户扫码登录样本验证：`flagship-kiln` 与 `flagship-tempera` 均有真实 `mp.weixin.qq.com` PC 编辑器 sanitizer/可视化证据；微信 paste sanitizer 在实测样本中保留 8 个 inline SVG 和全部 `data-ink-svg`，并暴露/修复了封面长标题溢出。这些历史样本不等于当前普通 OS Ctrl+V 富 HTML/SVG 证明。
+- `flagship-amber` 已由真实导出管线、Tauri/WebView2 e2e、本地 artifact probe、2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel DOM readback，以及 2026-06-18 普通 OS Ctrl+V disposable draft 证明覆盖。`flagship-kiln` 在 2026-06-18 当前 CloakBrowser type=10/type=77 普通 OS Ctrl+V 重试中进入正文但退化为纯文本（0 SVG / 0 `data-ink-svg`）并已清理失败草稿，因此不得把 Kiln 当前普通 Ctrl+V 视为通过，也不得把 Amber exact-artifact 成功外推到 Kiln/Tempera、手机预览、同步或发布。
 - 仍未由当前自动化完全证明的是：微信「预览」扫码后的**手机微信端最终渲染 / SMIL 交互 / 暗黑模式人工确认**。该门禁依赖账号封面图、微信手机客户端和扫码预览，不应被本地测试、Tauri e2e 或 PC 后台 DOM 证据冒充。
 - 2026-06-09 已用 CloakBrowser `inkforge-0601` 复核真实微信公众号 PC 图文编辑器：编辑器可达，标题/正文 `.ProseMirror` DOM 可读，底部保存/预览/发表按钮可见且未点击。当前草稿正文含真实音频卡，本轮未做粘贴/保存/预览/发布，因此该证据只标记为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不能升级 `flagship-amber` 的 `pc-editor-paste` 门禁。
 - 2026-06-09 随后已用 CloakBrowser 在真实微信 PC 图文编辑器中对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')` + `DataTransfer`。微信 paste handler 接管并阻止默认行为，正文读回 `data-ink-svg=3`、`svg=35`、`styleAttr=195`、`classAttr=30`、`hasFlagshipFooter=true`、`hasInteractiveStretch=true`、`hasCover=true`。未点击保存、预览或发表；重启后只读复核首页无 `.ProseMirror` 挂载，近期草稿列表仍为原有四项，未发现新增可见草稿。该证据只升级 amber 的特定 PC ClipboardEvent channel readback，不证明普通 Ctrl+V、手机预览、暗黑模式、封面缩略图、同步、定时发送或发布。
@@ -61,7 +61,7 @@
 | PR4 | SMIL 交互族 | `interactive.ts`（i-clickswitch / i-scrollcards / i-fadein / i-sequence，4 变体）+ 静态兜底 + 单测 | ✅ 完成 · 测试绿 |
 | PR5 | 小红书海报 + 知乎适配 | `raster.ts`（`rasterizeSvg` 真 canvas / `buildSvgDataUri` / `svgToImgTag` / `posterViewBox`）+ 单测 | ✅ 完成 · 测试绿 |
 | PR6 | 冗余双做预设 | `ExportOptions` 加 `enableSvgModules`/`svgInjectionPlan`（默认关，零回归）+ 3 个旗舰预设接入 `themes.ts` + `iconography.ts` lucide 映射 + `flagship-svg.test.ts` | ✅ 完成 · 测试绿 |
-| PR7 | 验证与证据 | `flagship-pipeline-smoke.test.ts`（端到端真测）+ e2e 探针 `svg-render.cjs`/`.spec.cjs` + 本报告 + 证据指南 | 自动化与真实 Tauri e2e 已覆盖三旗舰；公众号后台 PC 粘贴路径已覆盖 kiln/tempera，amber 已补特定 ClipboardEvent channel 读回；手机扫码预览仍为人工门禁 |
+| PR7 | 验证与证据 | `flagship-pipeline-smoke.test.ts`（端到端真测）+ e2e 探针 `svg-render.cjs`/`.spec.cjs` + 本报告 + 证据指南 | 自动化与真实 Tauri e2e 已覆盖三旗舰；历史公众号后台 PC sanitizer 样本覆盖 kiln/tempera，amber 已补特定 ClipboardEvent channel 和普通 OS Ctrl+V exact-artifact proof；Kiln 当前普通 OS Ctrl+V 为纯文本负向证据；手机扫码预览仍为人工门禁 |
 
 ---
 
@@ -239,7 +239,7 @@ WeChat-safe SVG 安全子集，也不把插件/同步/授权/定时群发视作�
 
 | AC | 结论 | 证据 |
 |----|------|------|
-| **AC1** 微信真机粘贴渲染正确 | PC 后台粘贴路径已实测；amber 有特定 ClipboardEvent channel 读回；手机扫码预览仍为人工门禁 | `flagship-pipeline-smoke.test.ts` 证明产物经完整微信管线后 SVG 存活且 safe；`pnpm -C inkforge test:e2e` 已用真实 Tauri/WebView2 二进制验证三旗舰响应式 SVG 与 20 字/行；真实 `mp.weixin.qq.com` 后台 PC 编辑器 paste sanitizer 已在 kiln/tempera 样本中保留 8 个 inline SVG / 8 个 `data-ink-svg`。`flagship-amber` 的普通 Ctrl+V 在 2026-06-08 降级为纯文本，但 2026-06-09 CloakBrowser 程序化 `ClipboardEvent` + `DataTransfer` channel 读回 `data-ink-svg=3` / `svg=35`。尚缺手机微信扫码预览截图来证明最终手机端渲染、暗黑模式、封面缩略图与 SMIL 交互。 |
+| **AC1** 微信真机粘贴渲染正确 | PC 后台粘贴路径已实测；amber 有特定 ClipboardEvent channel 与普通 OS Ctrl+V exact proof；手机扫码预览仍为人工门禁 | `flagship-pipeline-smoke.test.ts` 证明产物经完整微信管线后 SVG 存活且 safe；`pnpm -C inkforge test:e2e` 已用真实 Tauri/WebView2 二进制验证三旗舰响应式 SVG 与 20 字/行；真实 `mp.weixin.qq.com` 后台 PC 编辑器 paste sanitizer 已在 kiln/tempera 历史样本中保留 8 个 inline SVG / 8 个 `data-ink-svg`。`flagship-amber` 在 2026-06-09 CloakBrowser 程序化 `ClipboardEvent` + `DataTransfer` channel 读回 `data-ink-svg=3` / `svg=35`，并在 2026-06-18 普通 OS Ctrl+V disposable draft 中读回 `svg=35` / `data-ink-svg=3`。`flagship-kiln` 当前普通 OS Ctrl+V 重试退化为纯文本并已清理，不能 claim ordinary rich paste。尚缺手机微信扫码预览截图来证明最终手机端渲染、暗黑模式、封面缩略图与 SMIL 交互。 |
 | **AC2** ≥7 族 × persona 可复用 | ✅ 实测绿 | `svg-modules/__tests__/registry.test.ts`（26 模块 / 7 族）+ 各族 `*.test.ts` × 4 persona 快照 + safe 校验；`flagship-pipeline-smoke.test.ts` 逐 module-id 命中。 |
 | **AC3** 20-22 字/行不破坏 | 实测绿 | `flagship-pipeline-smoke.test.ts` 断言 `generatePersonaBaseCSS` 仍含 `min(22em` + `font-size: 17px`；真实 Tauri/WebView2 e2e 在 360px 移动列测得 **20 字/行**，落在目标带内。 |
 | **AC4** 12+5+3 预设 + 既有测试零回归 | ✅ 实测绿 | 完整 export 套件 33 文件 / 822 用例全绿（含 `themes-migration`/`platform-export-rendering`/`pipeline-cross-platform`）；预设计数 12+5+3 原样；`flagship-svg.test.ts` + `flagship-pipeline-smoke.test.ts` 非旗舰守护实测「无 data-ink-svg / 无 `<svg`」。 |
@@ -254,7 +254,7 @@ WeChat-safe SVG 安全子集，也不把插件/同步/授权/定时群发视作�
 
 ## 7. 已知限制（诚实披露）
 
-1. **GUI e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera；amber 已补特定 ClipboardEvent channel；剩余手动门禁 = 微信手机端扫码预览确认**。tauri-driver 真二进制几何探针已跑通（含 prod 加密路径），真实公众号后台 PC 编辑器 paste sanitizer 也已证明 inline SVG 在已测样本中被保留并渲染。`flagship-amber` 的普通 Ctrl+V 仍被微信降级为纯文本，但 2026-06-09 CloakBrowser 程序化 `ClipboardEvent` + `DataTransfer` channel 已在真实微信 PC 编辑器读回 SVG。剩下需要补齐的，是微信手机客户端扫码预览后的最终移动端渲染、SMIL 交互、暗黑模式和封面缩略图门槛；若要对外声称普通 Ctrl+V、插件传输或授权同步可用，需要单独渠道证明。
+1. **GUI e2e 已覆盖三旗舰；真实公众号后台 PC sanitizer 样本已覆盖 kiln/tempera；amber 已补特定 ClipboardEvent channel 和普通 OS Ctrl+V exact proof；剩余手动门禁仍包括微信手机端扫码预览确认和 Kiln/Tempera 当前 ordinary-rich-paste 证明**。tauri-driver 真二进制几何探针已跑通（含 prod 加密路径），真实公众号后台 PC 编辑器 paste sanitizer 也已证明 inline SVG 在已测样本中被保留并渲染。`flagship-kiln` 在 2026-06-18 当前普通 OS Ctrl+V 重试中退化为纯文本并完成失败草稿清理。剩下需要补齐的，是微信手机客户端扫码预览后的最终移动端渲染、SMIL 交互、暗黑模式和封面缩略图门槛；若要对外声称 Kiln/Tempera 普通 Ctrl+V、插件传输或授权同步可用，需要单独渠道证明。
 2. **旗舰 SVG 为品牌色锁定（by design）**。3 个旗舰预设 primaryColor 固定为 `#D95B3F`/`#3B7A6B`/`#C19A56`，体现「静谧刊印」品牌门面；如需任意色，使用既有 12 预设 + `ExportOptions.enableSvgModules` 开关（默认关，零回归）按需注入。
 3. **真 canvas 栅格化（`rasterizeSvg`）仅在浏览器 / Tauri WebView 运行**。Node 单测覆盖纯函数（viewBox / data-URI / img-tag）与无 DOM 守卫抛错路径；2026-06-08 追加真实浏览器证据：动态导入实际 `renderXhsPosterCard()`，由 `cover-grid` 的 `data-ink-svg` wrapper 产出 `data:image/png;base64,`，自然尺寸 1080×1440，字节数 99114，SHA-256 `1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d`。证据见 `evidence/xhs-raster/`。
 4. **知乎图片 manifest 是 preflight，不是发布证明**。`ZhihuImageArtifactManifest` 可证明图片 fallback 的 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 Markdown 引用一致性；没有真实知乎账号上传响应、编辑器预览读回、同步或发布回执时，平台状态仍应是 `blocked` / `unavailable`。
@@ -309,16 +309,16 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 
 ### 10.3 真实微信公众号后台「PC 编辑器粘贴渲染」验证（Playwright 驱动真浏览器 + 用户扫码登录）
 在**真实公众号后台**（账号「高天方寒」，`mp.weixin.qq.com` 图文编辑器）经 Playwright 模拟**真实 paste 事件**（`text/html` 经 `DataTransfer`，触发微信 ProseMirror 自身 paste sanitizer）灌入 `flagship-kiln` 产物，并读回 sanitizer 实际保留的 DOM：
-- **inline SVG 穿透微信编辑器 paste sanitizer**：粘贴前 8 `<svg>` → 保留 **8**；`data-ink-svg` 8 → **8**；`<rect>` 22 / `<text>` 10 / `<path>` 11 全部保留；`<img>` 0（SVG 保持内联，无需降级栅格化）。这证明 `flagship-kiln` / `flagship-tempera` 样本在真实公众号 **PC 编辑器 paste sanitizer** 中可保留并渲染 inline SVG；`flagship-amber` 在 2026-06-09 也通过 CloakBrowser 程序化 `ClipboardEvent` channel 读回 `data-ink-svg=3` / `svg=35`。这些 PC 证据仍不代表普通 Ctrl+V、手机微信端最终预览、SMIL 触发或暗黑模式已通过。
-- **PC 编辑器可视化渲染**（实测此版编辑器**会**渲染 inline SVG，非 README 旧设想）：`flagship-kiln` 的封面 `cover-grid`（网格 + ember 点 + 标题）、`divider-forge`（线 + 中心 ember）、`quote-mark` 大引号、文末 `endmark-vessel`（鼎×笔尖 + "InkForge·墨铸" 署名）均正确渲染；`flagship-tempera` 的 `cover-title`（96px 大标题）+ `quote-corner`（铜绿角括号）亦验证。证据截图见 `evidence/wechat-paste/wechat-*.png`。`flagship-amber` 已补程序化 ClipboardEvent channel 的 PC DOM readback；普通 Ctrl+V、手机预览、暗黑模式和发布仍需另证。
+- **inline SVG 穿透微信编辑器 paste sanitizer**：历史 sanitizer 样本粘贴前 8 `<svg>` → 保留 **8**；`data-ink-svg` 8 → **8**；`<rect>` 22 / `<text>` 10 / `<path>` 11 全部保留；`<img>` 0（SVG 保持内联，无需降级栅格化）。这证明 `flagship-kiln` / `flagship-tempera` 样本在真实公众号 **PC 编辑器 paste sanitizer** 中可保留并渲染 inline SVG；`flagship-amber` 在 2026-06-09 通过 CloakBrowser 程序化 `ClipboardEvent` channel 读回 `data-ink-svg=3` / `svg=35`，并在 2026-06-18 普通 OS Ctrl+V 中读回 `svg=35` / `data-ink-svg=3`。这些 PC 证据仍不代表手机微信端最终预览、SMIL 触发或暗黑模式已通过；当前 Kiln 普通 OS Ctrl+V 重试已记录为纯文本负向证据。
+- **PC 编辑器可视化渲染**（实测此版编辑器**会**渲染 inline SVG，非 README 旧设想）：`flagship-kiln` 的封面 `cover-grid`（网格 + ember 点 + 标题）、`divider-forge`（线 + 中心 ember）、`quote-mark` 大引号、文末 `endmark-vessel`（鼎×笔尖 + "InkForge·墨铸" 署名）曾在历史 PC sanitizer 样本中正确渲染；`flagship-tempera` 的 `cover-title`（96px 大标题）+ `quote-corner`（铜绿角括号）亦验证。证据截图见 `evidence/wechat-paste/wechat-*.png`。`flagship-amber` 已补程序化 ClipboardEvent channel 的 PC DOM readback和普通 OS Ctrl+V exact proof；Kiln/Tempera 当前 ordinary-rich-paste、手机预览、暗黑模式和发布仍需另证。
 - **真机暴露并修复封面长标题溢出**：长标题「静谧刊印：当排版成为一种克制的力量」(17 字) 在 `cover-grid` 第一行排 14 字、字号 84、溢出 viewBox 122px。根因：`covers.ts` `splitLines` 的 `maxCharsPerLine` 硬编码 14、不随字号/可用宽度自适应。修复：新增 `fitCharsPerLine(availableW, fontSize, letterSpacing)`，三封面变体改按可用宽度推导每行字数（cover-title 9 / cover-grid 10 / cover-quote 16）。重生成产物后真机重粘验证：两封面变体 `coverMaxOverflowPx` 分别 −62 / −63（落在 viewBox 内，**不再溢出**），svg-modules 13 文件/264 测试绿（含新增溢出守卫）。
-- **仍需人工补证**：微信「预览/群发到手机」要求先插一张封面缩略图（微信硬性要求，与正文无关）——手机微信端最终渲染、SMIL 交互、暗黑模式和封面缩略图由用户完成最后确认。PC 后台 paste 成功不能替代手机端最终预览；amber 的普通 Ctrl+V、插件传输或授权同步若要对外宣称，也必须按渠道单独证明。
+- **仍需人工补证**：微信「预览/群发到手机」要求先插一张封面缩略图（微信硬性要求，与正文无关）——手机微信端最终渲染、SMIL 交互、暗黑模式和封面缩略图由用户完成最后确认。PC 后台 paste 成功不能替代手机端最终预览；Kiln/Tempera 普通 Ctrl+V、插件传输或授权同步若要对外宣称，也必须按渠道单独证明。
 
 ---
 
 ## 9. 结论
 
-自动化门禁（单测/冒烟/typecheck/lint/build）全绿，真实 Tauri/WebView2 e2e 全绿：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。真实微信公众号后台 PC 编辑器粘贴路径已证明 inline SVG 能在已测样本中穿透 paste sanitizer 并可视化渲染；该实测还暴露并修复了封面长标题溢出。`flagship-amber` 已补充 CloakBrowser 程序化 `ClipboardEvent` channel 的 PC DOM readback，但普通 Ctrl+V 仍阻断。AC2/AC3/AC4/AC6/AC7/AC8/AC9/AC10 已由自动化与真实运行证据覆盖；AC5 的安全 SMIL 结构与静态兜底由自动化覆盖，但手机微信点击/SMIL 触发仍并入 AC1 人工门禁。**剩余门禁** = 微信手机端扫码预览中的最终渲染、SMIL 交互、暗黑模式、封面缩略图要求确认，以及普通 Ctrl+V/插件/同步等其他渠道如需宣称时的单独证明。
+自动化门禁（单测/冒烟/typecheck/lint/build）全绿，真实 Tauri/WebView2 e2e 全绿：3 旗舰预设在真 WebView2 注入响应式 SVG、20 字/行铁律实证、prod 加密路径打通。真实微信公众号后台 PC 编辑器粘贴路径已证明 inline SVG 能在历史样本中穿透 paste sanitizer 并可视化渲染；该实测还暴露并修复了封面长标题溢出。`flagship-amber` 已补充 CloakBrowser 程序化 `ClipboardEvent` channel 的 PC DOM readback 和 2026-06-18 ordinary OS Ctrl+V exact proof；`flagship-kiln` 当前 ordinary OS Ctrl+V 重试已记录为纯文本负向证据。AC2/AC3/AC4/AC6/AC7/AC8/AC9/AC10 已由自动化与真实运行证据覆盖；AC5 的安全 SMIL 结构与静态兜底由自动化覆盖，但手机微信点击/SMIL 触发仍并入 AC1 人工门禁。**剩余门禁** = 微信手机端扫码预览中的最终渲染、SMIL 交互、暗黑模式、封面缩略图要求确认，以及 Kiln/Tempera 普通 Ctrl+V/插件/同步等其他渠道如需宣称时的单独证明。
 
 ---
 
@@ -657,3 +657,19 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
   cleanup only. It does not prove Kiln/Tempera ordinary paste, phone preview, mobile Dark Mode,
   mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync/draft readback,
   scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-06-18 WeChat Kiln Ordinary Ctrl+V Plain-Text Addendum
+
+- Added `prompts/0601/evidence/wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`.
+- In CloakBrowser only, wrote exact `flagship-kiln.html` to Windows CF_HTML clipboard with SHA-256
+  `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- Authenticated WeChat PC editor attempts for both `type=10` and `type=77` used ordinary OS Ctrl+V
+  through Windows `keybd_event`. The editor body received content, but readback degraded to plain
+  text: `bodyTextLength=1790`, `bodyHtmlLength=1800`, `svgCount=0`, `dataInkSvgCount=0`,
+  `dataInkBlockCount=0`, and `sectionNice=false`.
+- Cleanup was completed after the negative attempts: stable/reloaded draftbox readback showed
+  `Article 5`, current-run failed title count `0`, recent draft count `0`, Kiln marker/fingerprint
+  count `0`, and local path count `0`.
+- Boundary: this is negative evidence. It does not prove Kiln ordinary rich HTML/SVG Ctrl+V, must
+  not set `ordinaryClipboardPasteVerified:true`, and does not affect the exact-artifact Amber proof
+  or prove Tempera, phone preview, Dark Mode, cover, sync, schedule, XHS/Zhihu upload, or publish.

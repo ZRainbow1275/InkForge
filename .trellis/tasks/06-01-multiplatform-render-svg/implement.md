@@ -2247,6 +2247,33 @@ git status --short --branch
   phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync,
   scheduled send, public URL, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-18 WeChat Kiln Ordinary Ctrl+V Plain-Text Negative Proof
+
+- Added `prompts/0601/evidence/wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`.
+- Wrote the exact `flagship-kiln.html` artifact to Windows CF_HTML clipboard:
+  SHA-256 `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`,
+  `htmlBytes=41800`, `cfHtmlBytes=41969`, source `svgCount=35`, source
+  `dataInkSvgCount=3`, and source `dataInkBlockCount=23`.
+- Ran authenticated WeChat PC editor ordinary OS Ctrl+V attempts in a single visible CloakBrowser
+  tab for both `type=10` and `type=77` editor URLs. The body editor received content in both
+  attempts, but DOM readback degraded to plain text: `bodyTextLength=1790`,
+  `bodyHtmlLength=1800`, `svgCount=0`, `dataInkSvgCount=0`, `dataInkBlockCount=0`,
+  `sectionNice=false`, and `placeholder=false`.
+- The run did not use synthetic ClipboardEvent/DataTransfer, plugin transfer, sync, upload,
+  schedule, publish, or DOM source injection for the body content.
+- Cleanup succeeded: after returning to draftbox and reloading, the list count was `Article 5`
+  with current-run failed title count `0`, recent draft count `0`, Kiln marker/fingerprint count
+  `0`, and local path count `0`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`,
+  `prompts/0601/evidence/wechat-disposable-draft-runbook-20260618.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+- Boundary:
+  this is negative evidence for `flagship-kiln.html` ordinary OS Ctrl+V rich HTML/SVG in the
+  current WeChat session. It must not set `ordinaryClipboardPasteVerified:true`, must not satisfy
+  `pc-editor-paste-event` or `safe-disposable-draft`, and must not be generalized to Tempera,
+  phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail, sync, schedule, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

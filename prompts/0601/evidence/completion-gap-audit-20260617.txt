@@ -63,7 +63,7 @@ Cross-platform proof matrix:
 | Platform / channel | Current proof | Cannot claim yet |
 | --- | --- | --- |
 | WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
-| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable; local CloakBrowser rich HTML Ctrl+V is now positive only on a controlled local contenteditable, while WeChat ordinary paste remains unproven; an expired-session state was captured as a negative proof-gate sample, and a later read-only refresh reached authenticated backend/draftbox plus current PC editor DOM through the card Vue component `editUrl`. Runtime proof gates now require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Amber ordinary Ctrl+V rich HTML success in WeChat; actual safe disposable draft creation/deletion/rollback plus list readback before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| WeChat PC editor | Kiln/Tempera historical PC editor sanitizer samples exist; Amber has both channel-specific PC DOM readback and exact ordinary OS Ctrl+V rich HTML/SVG disposable-draft proof. Kiln now has current exact ordinary OS Ctrl+V negative evidence: authenticated type=10/type=77 attempts reached the editor but read back plain text only, then cleanup returned the draftbox to `Article 5` with no current-run markers. Prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable. Runtime proof gates require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Kiln/Tempera ordinary Ctrl+V rich HTML/SVG passing readback in WeChat; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -128,7 +128,10 @@ Remaining hard gates:
 - Kiln/Tempera ordinary Ctrl+V rich HTML/SVG paste in the current WeChat session. Amber now has
   exact ordinary OS Ctrl+V PC editor readback and cleanup proof in
   `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`; that proof must not be generalized
-  to other artifacts or to phone/publish gates.
+  to other artifacts or to phone/publish gates. Kiln now also has current negative ordinary OS
+  Ctrl+V evidence in `wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`: authenticated
+  type=10/type=77 WeChat editor attempts inserted only plain text (`svgCount=0`,
+  `dataInkSvgCount=0`) and the failed disposable drafts were cleaned up.
 - Login/expired-session states must remain invalid evidence even though a later authenticated
   backend/draftbox/editor DOM readback exists.
 - Safe disposable draft or equivalent cleanup path before any future live WeChat editor mutation.
@@ -145,9 +148,11 @@ Safe next actions:
 2. Before any live WeChat mutation, follow `wechat-disposable-draft-runbook-20260618.md`: name the
    exact artifact, target channel, cleanup path, redaction boundary, expected DOM/readback evidence,
    and post-cleanup absence/readback check.
-3. For ordinary PC paste, Amber has a completed exact-artifact WeChat PC proof. Reuse the same
-   `keybd_event` plus Windows CF_HTML discipline for Kiln/Tempera or future artifacts only with a
-   fresh deterministic disposable draft, exact DOM readback, and post-cleanup absence proof.
+3. For ordinary PC paste, Amber has a completed exact-artifact WeChat PC proof, while Kiln has a
+   current exact-artifact negative proof showing plain-text fallback in authenticated type=10/type=77
+   WeChat editor attempts. Future Kiln/Tempera attempts need a changed channel or revised artifact
+   strategy plus a fresh deterministic disposable draft, exact DOM readback, and post-cleanup
+   absence proof before any claim can be made.
 4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
 5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host

@@ -1,7 +1,7 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
 本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：PC 粘贴路径证据覆盖 `flagship-kiln` 与 `flagship-tempera`；`flagship-amber` 另有 2026-06-09 CloakBrowser `ClipboardEvent` channel 的 PC DOM readback 证据，但普通 Ctrl+V 仍阻断，且三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：历史 PC sanitizer 样本覆盖 `flagship-kiln` 与 `flagship-tempera` 的程序化/浏览器 paste 路径；`flagship-amber` 已有 2026-06-09 CloakBrowser `ClipboardEvent` channel 读回和 2026-06-18 普通 OS Ctrl+V 成功证据。2026-06-18 `flagship-kiln` 普通 OS Ctrl+V 当前重试为纯文本负向证据，且三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
@@ -252,7 +252,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 - 已完成：真实 `mp.weixin.qq.com` PC 图文编辑器粘贴路径验证。Playwright 触发真实 `text/html` paste 事件后，微信编辑器 paste sanitizer 在 `flagship-kiln` / `flagship-tempera` 样本中保留 inline SVG / `data-ink-svg`，并在 PC 编辑器中可视化渲染封面、分隔线、引用卡和文末结束标。
 - 已完成：PC 粘贴验证暴露的封面长标题溢出已修复，并通过重粘验证 `coverMaxOverflowPx` 为负值，标题落在 viewBox 内。
-- 已补充：`flagship-amber` 的 CloakBrowser 程序化 `ClipboardEvent` PC 编辑器读回证据（同一 artifact 读回 `data-ink-svg=3` / `svg=35`）。普通 Ctrl+V 仍在 2026-06-08 被微信降级为纯文本。未完成：微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式 / 封面缩略图确认。手机端步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
+- 已补充：`flagship-amber` 的 CloakBrowser 程序化 `ClipboardEvent` PC 编辑器读回证据（同一 artifact 读回 `data-ink-svg=3` / `svg=35`），以及 2026-06-18 普通 OS Ctrl+V 成功读回（`svg=35` / `data-ink-svg=3`）和 disposable draft 清理证据。`flagship-kiln` 在 2026-06-18 type=10/type=77 普通 OS Ctrl+V 重试中均降级为纯文本并已清理失败草稿。未完成：微信手机端扫码预览 / 最终手机渲染 / SMIL 交互 / 暗黑模式 / 封面缩略图确认。手机端步骤需要公众号后台封面缩略图、手机微信和扫码预览，不能用本地浏览器或 PC 后台 DOM 证据替代。
 
 对**每个旗舰预设**（赤陶旗舰 / 铜绿旗舰 / 黄铜旗舰）执行：
 
@@ -323,6 +323,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-editor-dom-current-readonly-20260618.txt # 当前平台状态：微信 PC editor DOM 重新可读；未粘贴/保存/预览/发布
 [x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
 [x] wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt # 当前平台状态：Amber 在微信 PC editor 通过普通 OS Ctrl+V 保留 35 SVG/3 data-ink-svg，并完成 disposable draft 删除/缺失读回；手机/同步/发布仍未证明
+[x] wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt # 当前平台负向证据：Kiln 在 type=10/type=77 微信 PC editor 中普通 OS Ctrl+V 只进入纯文本，0 SVG/0 data-ink-svg；失败草稿已清理且不得设置 ordinaryClipboardPasteVerified:true
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -349,7 +350,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 ## D. 说明（与 COMPLETION-REPORT 一致）
 
-- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本；2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel 对 exact artifact 的 PC DOM readback 保留 `data-ink-svg=3` / `svg=35`。因此当前剩余手动门禁是：微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认、封面缩略图入口确认，以及普通 Ctrl+V/插件/授权同步等其他渠道若要对外宣称时的单独证明。
+- 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；历史真实公众号后台 PC 粘贴路径覆盖 kiln/tempera 的 PC sanitizer 可视化样本，但不等同于当前普通 OS Ctrl+V 富 HTML/SVG 证明。`flagship-amber` 已在 2026-06-18 用普通 OS Ctrl+V 保留 35 个 SVG 并完成 disposable draft 清理；`flagship-kiln` 在同日 CloakBrowser type=10/type=77 微信 PC editor 普通 OS Ctrl+V 重试中只进入纯文本，0 SVG / 0 `data-ink-svg`，失败草稿已清理。2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel 对 exact amber artifact 的 PC DOM readback 保留 `data-ink-svg=3` / `svg=35`。因此当前剩余手动门禁是：微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认、封面缩略图入口确认，以及 Kiln/Tempera 普通 Ctrl+V 富 HTML/SVG、插件/授权同步等其他渠道若要对外宣称时的单独证明。
 - 2026-06-09 CloakBrowser `inkforge-0601` 复核证明当前账号可进入微信 PC 图文编辑器，并能读取顶层 `.ProseMirror` 标题/正文 DOM；但当前草稿正文含真实音频卡，未执行任何粘贴、保存、预览或发布。该证据只能作为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不得外推为 `pc-editor-paste` 或手机端证明。
 - 2026-06-09 runtime proof checklist 已落到 `style-catalog.ts`：`pc-editor-paste` 的安全前置包括 `safe-disposable-draft`；本轮只读探测到的 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为粘贴测试入口。
 - 2026-06-18 CloakBrowser 本地 OS 键盘探针只能在受控 textarea 页面产生
@@ -560,3 +561,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves Amber PC ordinary Ctrl+V rich HTML/SVG insertion plus cleanup only. It does
   not prove phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance,
   credentialed sync, scheduled send, public URL, XHS/Zhihu account upload, or publish success.
+
+## 2026-06-18 WeChat Kiln Ordinary Ctrl+V Plain-Text Negative Proof
+
+- [x] wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt
+- Wrote exact `flagship-kiln.html` to Windows CF_HTML clipboard with SHA-256
+  `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- In authenticated WeChat PC editor attempts for both `type=10` and `type=77`, ordinary OS
+  Ctrl+V via Windows `keybd_event` reached the body editor and inserted content, but the editor
+  readback degraded to plain text: `bodyTextLength=1790`, `bodyHtmlLength=1800`, `svgCount=0`,
+  `dataInkSvgCount=0`, `dataInkBlockCount=0`, and `sectionNice=false`.
+- Cleanup was verified after reload: draftbox returned to `Article 5`, with current-run failed
+  title count `0`, current-run recent draft count `0`, Kiln marker/fingerprint count `0`, and
+  local path count `0`.
+- Boundary: this is negative evidence for Kiln ordinary OS Ctrl+V rich HTML/SVG in the current
+  WeChat session. It must not set `ordinaryClipboardPasteVerified:true`, and it does not weaken the
+  exact-artifact Amber proof or prove Tempera, phone preview, sync, schedule, or publish gates.

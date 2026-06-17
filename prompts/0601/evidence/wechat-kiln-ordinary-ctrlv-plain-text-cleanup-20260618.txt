@@ -1,0 +1,88 @@
+WeChat Kiln Ordinary Ctrl+V Plain-Text Negative Proof - 2026-06-18
+
+Scope:
+- Live WeChat PC editor negative proof for the exact `flagship-kiln.html` artifact.
+- CloakBrowser only. Playwright was not used.
+- The run used deterministic disposable proof titles and cleaned every current-run draft residue.
+- No phone preview, Dark Mode, cover thumbnail, sync, scheduled send, upload, or publish action was performed.
+
+Clipboard artifact:
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-kiln.html`.
+- Clipboard format: Windows `HTML Format` plus `UnicodeText`.
+- Clipboard writer: `inkforge/scripts/set-windows-html-clipboard.ps1`.
+- HTML bytes: 41800.
+- CF_HTML bytes: 41969.
+- StartHTML: 105.
+- StartFragment: 137.
+- EndFragment: 41937.
+- EndHTML: 41969.
+- SHA-256: `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- Source SVG count: 35.
+- Source `data-ink-svg` count: 3.
+- Source `data-ink-block` count: 23.
+- Plain text chars: 1357.
+
+Attempt 1: WeChat type=10 editor:
+- Disposable title: `InkForge disposable proof kiln 20260618-0635`.
+- The WeChat body editor was focused in an authenticated PC editor.
+- The artifact was inserted by ordinary OS Ctrl+V using the Windows `keybd_event` path.
+- The body content changed, proving input reached the editor, but WeChat accepted only the plain-text fallback.
+- PC editor DOM readback:
+  - `titleMatched`: true.
+  - `titleLength`: 44.
+  - `bodyTextLength`: 1790.
+  - `bodyHtmlLength`: 1800.
+  - `svgCount`: 0.
+  - `dataInkSvgCount`: 0.
+  - `dataInkBlockCount`: 0.
+  - `sectionNice`: false.
+  - `placeholder`: false.
+  - `localPathLeakInEditor`: false.
+- Cleanup/readback:
+  - Draftbox returned to `Article 5`.
+  - Current-run failed title count: 0.
+  - Current-run recent draft count: 0.
+  - Current-run Kiln fingerprint/marker count: 0.
+  - Current-run local path count: 0.
+
+Attempt 2: WeChat type=77 editor:
+- Disposable title: `InkForge disposable proof kiln 20260618-0643`.
+- The run used a single visible CloakBrowser tab for the authenticated WeChat PC editor.
+- The WeChat body editor was focused, and the artifact was inserted by ordinary OS Ctrl+V using
+  the Windows `keybd_event` path.
+- The keyboard channel matched one Chromium window and foreground remained on that window.
+- The body content changed, proving input reached the editor, but WeChat again accepted only the
+  plain-text fallback.
+- PC editor DOM readback:
+  - `titleMatched`: true.
+  - `titleLength`: 44.
+  - `bodyTextLength`: 1790.
+  - `bodyHtmlLength`: 1800.
+  - `svgCount`: 0.
+  - `dataInkSvgCount`: 0.
+  - `dataInkBlockCount`: 0.
+  - `sectionNice`: false.
+  - `placeholder`: false.
+  - `localPathLeakInEditor`: false.
+- Cleanup/readback after returning to draftbox and reloading:
+  - Draftbox showed `Article 5`.
+  - Item count: 5.
+  - Current-run failed title count: 0.
+  - Current-run recent draft count: 0.
+  - Current-run Kiln fingerprint/marker count: 0.
+  - Current-run local path count: 0.
+
+Interpretation:
+- This is a negative ordinary Ctrl+V proof for `flagship-kiln.html` in the current WeChat session.
+- It proves the OS Ctrl+V path can reach the authenticated WeChat PC editor, but the rich
+  HTML/SVG payload is not preserved for this artifact/channel in these attempts.
+- It must not set `ordinaryClipboardPasteVerified:true`.
+- It must not satisfy `pc-editor-paste-event`, `safe-disposable-draft`, phone preview, mobile
+  Dark Mode, mobile SMIL/click, cover thumbnail, sync, scheduled send, upload, or publish gates.
+- The 2026-06-18 Amber ordinary OS Ctrl+V success remains exact-artifact evidence for
+  `flagship-amber.html` only and must not be generalized to Kiln or Tempera.
+
+Boundary:
+- This file intentionally records the failed Kiln rich HTML/SVG ordinary paste and cleanup outcome.
+- It does not contain account screenshots, QR codes, browser profile paths, cookies, tokens, HAR,
+  full page HTML, full editor HTML, or private draft content.

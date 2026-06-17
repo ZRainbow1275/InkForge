@@ -977,6 +977,14 @@ Contracts:
   that exact Amber fingerprint. It must not be generalized to Kiln/Tempera, phone preview, mobile
   Dark Mode, mobile SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled
   send, or publish success.
+- 2026-06-18 live WeChat Kiln negative proof:
+  `wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt` records that exact
+  `flagship-kiln.html` was written as Windows CF_HTML and inserted into authenticated WeChat PC
+  editors through ordinary OS Ctrl+V via `keybd_event`, but both type=10 and type=77 readbacks were
+  plain text only (`svgCount=0`, `dataInkSvgCount=0`, `dataInkBlockCount=0`). The failed
+  disposable drafts were cleaned up and post-cleanup readback found no current-run Kiln marker,
+  failed title, recent draft, or local path residue. This is negative proof and must not satisfy
+  `pc-editor-paste-event`, `safe-disposable-draft`, or `ordinaryClipboardPasteVerified:true`.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.

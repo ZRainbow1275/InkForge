@@ -123,6 +123,11 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   CF_HTML artifact was inserted into an authenticated WeChat PC editor by ordinary OS Ctrl+V, read
   back with `svgCount=35` and `dataInkSvgCount=3`, then cleaned up through a deterministic
   disposable draft deletion and post-reload absence readback.
+- Live WeChat Kiln ordinary OS Ctrl+V is currently negative in
+  `wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`: the exact `flagship-kiln.html`
+  CF_HTML artifact reached authenticated type=10/type=77 WeChat PC editors, but readback degraded
+  to plain text with `svgCount=0` and `dataInkSvgCount=0`; all current-run failed drafts were
+  cleaned up and therefore this must not set `ordinaryClipboardPasteVerified:true`.
 - That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
   only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
   thumbnail acceptance, credentialed sync, scheduled send, or publish success.
