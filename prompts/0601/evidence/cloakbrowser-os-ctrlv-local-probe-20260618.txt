@@ -55,6 +55,12 @@ Regression coverage:
 - Verification:
   `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
   passed with 1 file / 76 tests.
+- Follow-up regression verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 115 tests.
+- Full export verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1009 tests.
 
 Required next step before any live WeChat ordinary-paste mutation:
 - Establish a reliable non-Playwright ordinary keyboard channel for CloakBrowser, or perform a

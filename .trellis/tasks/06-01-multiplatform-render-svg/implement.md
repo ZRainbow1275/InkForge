@@ -2000,6 +2000,12 @@ git status --short --branch
   passed with 1 file / 76 tests. The command initially failed after reboot because
   `inkforge/node_modules/.bin/vitest` was missing; `pnpm -C inkforge install --frozen-lockfile`
   restored dependencies from the existing lockfile without package-version changes.
+- Follow-up verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 115 tests.
+- Full export verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1009 tests.
 
 ## Remaining Checks Before Commit
 
