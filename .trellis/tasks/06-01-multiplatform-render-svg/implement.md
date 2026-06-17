@@ -2023,6 +2023,17 @@ git status --short --branch
   this is cleanup-affordance evidence only. It does not create, edit, delete, paste, save, preview,
   sync, upload, schedule, publish, set `cleanupPathVerified:true`, or satisfy
   `safe-disposable-draft`.
+- Follow-up regression:
+  added `platform-export-rendering.test.ts` coverage proving a draftbox delete-confirmation
+  affordance doc-reference/source-hygiene artifact keeps `safe-disposable-draft` invalid and
+  surfaces both disposable-draft-missing and cleanup-path-missing issues.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 77 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 116 tests.
+  `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
 
 ## Remaining Checks Before Commit
 

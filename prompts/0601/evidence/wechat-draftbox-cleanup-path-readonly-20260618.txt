@@ -47,6 +47,21 @@ Next required proof:
 - Bind that cleanup proof to the same exact proof artifact before setting
   `cleanupPathVerified:true`.
 
+Follow-up regression:
+- Added `platform-export-rendering.test.ts` coverage for a manifest that cites draftbox delete
+  confirmation affordance as a doc-reference/source-hygiene note.
+- The regression requires `safe-disposable-draft` to remain invalid and requires both
+  `style-proof-manifest-disposable-draft-missing` and
+  `style-proof-manifest-cleanup-path-missing`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 77 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 116 tests.
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+
 Boundary:
 - This evidence is intentionally weaker than `safe-disposable-draft`.
 - It is a platform cleanup-affordance preflight, not a completed cleanup path.

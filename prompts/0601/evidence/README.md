@@ -141,7 +141,8 @@ Ctrl+V，且在建立可靠非 Playwright 键盘通道或人工隔离粘贴证�
 `wechat-draftbox-cleanup-path-readonly-20260618.txt`（CloakBrowser-only 微信草稿箱清理路径
 只读预检：草稿箱可达，草稿卡片暴露 delete/edit/publish 动作分类，删除确认/取消控件可发现，
 “新的创作”下拉可读但文章创建入口为前端事件处理；本证据只证明清理 affordance，不创建、
-编辑或删除草稿，不设置 `cleanupPathVerified:true`，不满足 `safe-disposable-draft`）。
+编辑或删除草稿，不设置 `cleanupPathVerified:true`，不满足 `safe-disposable-draft`；后续
+focused regression 确认 draftbox affordance doc-reference 仍不能通过 safe draft gate）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -446,3 +447,6 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - This is cleanup-affordance proof only. It does not create, edit, delete, paste, save, preview,
   sync, upload, schedule, publish, set `cleanupPathVerified:true`, or satisfy
   `safe-disposable-draft`.
+- Follow-up regression: `platform-export-rendering.test.ts` now rejects draftbox cleanup affordance
+  notes as `safe-disposable-draft` proof; focused Vitest passed with 1 file / 77 tests and
+  4-file export regression passed with 4 files / 116 tests.

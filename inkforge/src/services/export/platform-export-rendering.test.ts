@@ -1401,6 +1401,41 @@ describe('platform native export rendering rules', () => {
     expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-disposable-draft-missing')
   })
 
+  it('rejects draftbox cleanup affordance notes as safe disposable draft proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-draftbox-affordance',
+      artifacts: [
+        {
+          id: 'draftbox-delete-affordance-note',
+          requirementId: 'safe-disposable-draft',
+          kind: 'doc-reference',
+          label: 'draftbox delete confirmation affordance is not cleanup proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'docs',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-draftbox-affordance',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(issueIds).toContain('style-proof-manifest-disposable-draft-missing')
+    expect(issueIds).toContain('style-proof-manifest-cleanup-path-missing')
+  })
+
   it('rejects programmatic ClipboardEvent proof as ordinary PC clipboard paste', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
