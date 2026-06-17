@@ -506,3 +506,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this addendum is market-learning and blocked platform-state evidence only. It does not
   prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
   safe draft cleanup, credentialed sync, scheduled send, XHS/Zhihu account upload, or publish.
+
+---
+
+## 2026-06-17 Market Editor Applied Gate Addendum
+
+- Added `centralEditorChanged?: boolean` to `StyleProofArtifact`.
+- Strengthened `market-applied-dom-readback`: `applied-editor-element` now requires a concrete
+  market-editor readback and `centralEditorChanged:true`.
+- Added `style-proof-manifest-market-editor-not-applied` so left library/category/item selection,
+  settings-panel readback, and preview-library SVG count changes stay invalid unless the center
+  editor/canvas/paper actually changed.
+- The rule preserves missing proof semantics when no applied market readback exists at all, and it
+  does not change style availability, selectable, usable, blocked, or unavailable states.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 72 tests.
+- Broader verification:
+  4-file export regression passed 111 tests; full export serial run passed 35 files / 1005 tests;
+  targeted export ESLint passed; `vue-tsc --noEmit --pretty false` passed; direct Vite production
+  build passed with exit 0. The combined `pnpm -C inkforge build` script hit a Node heap
+  out-of-memory failure during `vue-tsc -b` on this low-free-memory host, so the type and Vite
+  build gates were rerun separately.
+- Boundary: this addendum proves local proof-gate enforcement only. It does not prove WeChat phone
+  preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.

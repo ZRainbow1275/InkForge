@@ -1736,6 +1736,42 @@ git status --short --branch
   prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
   safe draft cleanup, credentialed sync, scheduled send, XHS/Zhihu account upload, or publish.
 
+## 2026-06-17 Market Editor Applied Proof Gate Slice
+
+- Added `centralEditorChanged?: boolean` to `StyleProofArtifact`.
+- Strengthened `market-applied-dom-readback` validation in
+  `inkforge/src/services/export/style-catalog.ts`: a market-editor readback now requires
+  `action:'applied-market-element'`, `channel:'market-editor'`, DOM or visual+DOM readback, and
+  `centralEditorChanged:true` before `applied-editor-element` can be satisfied.
+- Added `style-proof-manifest-market-editor-not-applied` so a left library/category/item click,
+  settings-panel readback, or preview-library SVG count change cannot be mistaken for a style
+  applied into the center editor/canvas/paper.
+- Preserved the old missing status when no applied market readback artifact exists at all.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the tests prove a
+  center-unchanged Xiumi-style library selection stays invalid while a center-changed market
+  editor proof plus hygiene review remains valid.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/market-editor-applied-gate-20260617.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 72 tests passed.
+- Final verification:
+  - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+    4 files / 111 tests passed.
+  - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+    35 files / 1005 tests passed.
+  - `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+    passed.
+  - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+  - `NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build`: exit 0,
+    built in 1m 48s.
+  - `pnpm -C inkforge build` hit a Node heap out-of-memory failure during `vue-tsc -b` on this
+    low-free-memory host; the type and Vite build gates above were rerun separately and passed.
+- Boundary:
+  this slice proves only local proof-gate enforcement. It does not mutate a live editor, create a
+  draft, open phone preview, sync, upload, schedule, publish, or close external platform gates.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

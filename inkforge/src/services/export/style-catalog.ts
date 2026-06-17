@@ -206,6 +206,7 @@ export interface StyleProofArtifact {
   artifactFingerprint?: string
   artifactRef?: string
   exactArtifact?: boolean
+  centralEditorChanged?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
   safeForCommit?: boolean
@@ -224,6 +225,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-sensitive-artifact'
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
+  | 'style-proof-manifest-market-editor-not-applied'
   | 'style-proof-manifest-disposable-draft-missing'
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-platform-action-missing'
@@ -1997,13 +1999,29 @@ function validateStyleProofRequirementCoverage(
     case 'catalog-source':
       requireStyleProof(issues, requirementId, has(artifact => artifact.action === 'catalog-source'))
       break
-    case 'market-applied-dom-readback':
-      requireStyleProof(issues, requirementId, has(artifact =>
+    case 'market-applied-dom-readback': {
+      const hasAppliedMarketReadback = has(artifact =>
         artifact.action === 'applied-market-element'
         && artifact.channel === 'market-editor'
         && isDomOrVisualReadback(artifact.readback)
-      ))
+      )
+      if (!hasAppliedMarketReadback) {
+        requireStyleProof(issues, requirementId, false)
+      } else if (!has(artifact =>
+        artifact.action === 'applied-market-element'
+        && artifact.channel === 'market-editor'
+        && isDomOrVisualReadback(artifact.readback)
+        && artifact.centralEditorChanged === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-market-editor-not-applied',
+          message: 'Market editor proof does not prove that the central editor or canvas changed after applying the element.',
+          suggestion: 'Record centralEditorChanged:true only after a concrete 135/Xiumi style or effect visibly changes the center editor/canvas and the applied DOM or controls are read back.',
+          location: requirementId,
+        })
+      }
       break
+    }
     case 'no-proprietary-template-source':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'source-hygiene-review'

@@ -152,6 +152,11 @@ construct breaks.
   editor/canvas/paper changes and the after-state DOM is read. In this refresh, 135 SVG and 135
   ordinary editor clicks met that bar; Xiumi did not because the page showed a non-authenticated
   state plus a draft-recovery confirmation and the central paper stayed unchanged.
+- 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
+  is now required for `market-applied-dom-readback`. A library/category/item selection,
+  preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
+  remain invalid for `applied-editor-element` until the center editor/canvas/paper visibly changes
+  and the after-state DOM/controls are read.
 - 2026-06-09 runtime gate: the export quality detector now turns that no-copy boundary into
   platform errors. `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
   `zhihu-market-editor-residue` block 135/Xiumi authoring classes, `data-tools`, copied numeric
@@ -361,6 +366,9 @@ Evidence labels for UI state:
 - `applied-editor-element`: a concrete 135/Xiumi style/effect was clicked, visibly applied in
   the central editor/canvas, and DOM/controls were read. This proves market authoring structure
   and rewrite/fallback requirements only; it does not satisfy `unit-tested` or platform proof.
+  `StyleProofManifest` evidence for this label must set `centralEditorChanged:true` on the
+  `market-applied-dom-readback` artifact; center-unchanged library/listing probes must surface
+  `style-proof-manifest-market-editor-not-applied`.
 - `authenticated-editor-reachable`: the real WeChat PC article editor is reachable in an
   authenticated browser profile. This proves login/editor access only.
 - `pc-editor-dom-readable`: the real WeChat PC editor title/body DOM is readable and visually

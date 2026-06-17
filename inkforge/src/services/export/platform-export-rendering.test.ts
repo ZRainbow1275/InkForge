@@ -1396,6 +1396,86 @@ describe('platform native export rendering rules', () => {
     expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-disposable-draft-missing')
   })
 
+  it('rejects market library selection when the central editor did not change', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [
+        {
+          id: 'xiumi-library-selection',
+          requirementId: 'market-applied-dom-readback',
+          kind: 'editor-readback',
+          label: 'Xiumi library item selected while central paper stayed unchanged',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          channel: 'market-editor',
+          action: 'applied-market-element',
+          readback: 'visual-and-dom',
+          centralEditorChanged: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'market-source-hygiene',
+          requirementId: 'no-proprietary-template-source',
+          kind: 'hygiene-review',
+          label: 'No copied market source',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          channel: 'market-editor',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-market-editor-not-applied')
+    expect(requirementStatus.get('market-applied-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-proprietary-template-source')).toBe('satisfied')
+  })
+
+  it('accepts applied-editor-element proof only after central editor readback changes', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [
+        {
+          id: 'market-applied-center-readback',
+          requirementId: 'market-applied-dom-readback',
+          kind: 'editor-readback',
+          label: 'Applied market style changed the central editor',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          channel: 'market-editor',
+          action: 'applied-market-element',
+          readback: 'visual-and-dom',
+          centralEditorChanged: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'market-source-hygiene',
+          requirementId: 'no-proprietary-template-source',
+          kind: 'hygiene-review',
+          label: 'No copied market source',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          channel: 'market-editor',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    expect(validateStyleProofManifest(manifest)).toEqual([])
+    expect(getStyleProofManifestReport(manifest).valid).toBe(true)
+  })
+
   it('does not let a style proof manifest promote blocked choices', () => {
     const amber = getStyleChoiceById('wechat-flagship-amber')
     expect(amber).toBeDefined()
