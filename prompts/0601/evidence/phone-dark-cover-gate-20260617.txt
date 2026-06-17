@@ -1,0 +1,53 @@
+Phone Dark Mode and Cover Thumbnail Gate - 2026-06-17
+
+Scope:
+- Local executable proof-gate hardening for redacted StyleProofManifest records.
+- Prevents ordinary phone screenshots or cover setup screenshots from satisfying Dark Mode or
+  cover-thumbnail acceptance.
+- No platform mutation, phone preview opening, sync, upload, schedule, or publish action was
+  performed.
+
+Implemented:
+- Added StyleProofArtifact.darkModeEnabledVerified?: boolean.
+- Added StyleProofArtifact.coverThumbnailAccepted?: boolean.
+- Strengthened dark-mode-check and cover-thumbnail-check validation.
+- Added style-proof-manifest-dark-mode-not-verified.
+- Added style-proof-manifest-cover-thumbnail-not-accepted.
+
+Behavior:
+- dark-mode-check still requires action dark-mode-check, channel phone-preview, and
+  phone/screenshot/visual readback.
+- It now also needs darkModeEnabledVerified:true before it can satisfy Dark Mode proof.
+- cover-thumbnail-check still requires action cover-thumbnail-check, channel phone-preview, and
+  phone/screenshot/visual readback.
+- It now also needs coverThumbnailAccepted:true before it can satisfy cover thumbnail proof.
+- The rules preserve missing status when no matching readback artifact exists at all.
+- The rules do not change style availability, selectable, usable, blocked, or unavailable states.
+
+Regression coverage:
+- A manifest with phone body readback and phone screenshot proof remains invalid when the Dark Mode
+  artifact does not prove mobile Dark Mode was enabled.
+- A cover setup screenshot remains invalid when it does not prove platform preview-entry/share/list
+  acceptance.
+- Phone readback and phone screenshot rows remain independently satisfied when their own artifacts
+  are present.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 74 tests
+- cd inkforge && ./node_modules/.bin/vitest.cmd run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 113 tests
+- cd inkforge && ./node_modules/.bin/vitest.cmd run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1007 tests
+- cd inkforge && ./node_modules/.bin/eslint.cmd src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- cd inkforge && ./node_modules/.bin/vue-tsc.cmd --noEmit --pretty false
+  PASS
+- cd inkforge && NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite.cmd build
+  PASS: built in 30.52s
+
+Boundary:
+- This proves local proof-gate enforcement only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  ordinary rich paste, safe draft cleanup, credentialed sync, scheduled send, public host
+  acceptance, XHS/Zhihu account upload, or publish success.

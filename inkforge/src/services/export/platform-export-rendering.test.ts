@@ -802,6 +802,7 @@ describe('platform native export rendering rules', () => {
           action: 'dark-mode-check',
           readback: 'screenshot',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          darkModeEnabledVerified: true,
           safeForCommit: true,
         },
         {
@@ -815,6 +816,7 @@ describe('platform native export rendering rules', () => {
           action: 'cover-thumbnail-check',
           readback: 'screenshot',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          coverThumbnailAccepted: true,
           safeForCommit: true,
         },
         {
@@ -1581,6 +1583,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'dark-mode-check',
           readback: 'screenshot',
+          darkModeEnabledVerified: true,
           safeForCommit: true,
         },
         {
@@ -1594,6 +1597,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'cover-thumbnail-check',
           readback: 'screenshot',
+          coverThumbnailAccepted: true,
           safeForCommit: true,
         },
       ],
@@ -1609,6 +1613,83 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('phone-screenshot')).toBe('satisfied')
     expect(requirementStatus.get('dark-mode-check')).toBe('satisfied')
     expect(requirementStatus.get('cover-thumbnail-check')).toBe('satisfied')
+  })
+
+  it('rejects Dark Mode and cover thumbnail proof without verified mobile states', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      claimedEvidence: ['mobile-preview'],
+      artifacts: [
+        {
+          id: 'phone-preview-body-readback',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'redacted phone article body readback',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-preview-screenshot',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'redacted phone screenshot proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          safeForCommit: true,
+        },
+        {
+          id: 'dark-mode-screenshot-without-enabled-state',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'ordinary screenshot cannot prove mobile Dark Mode',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          darkModeEnabledVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'cover-setting-screenshot-without-entry-acceptance',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'cover setup screenshot cannot prove preview entry acceptance',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          coverThumbnailAccepted: false,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-dark-mode-not-verified')
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-cover-thumbnail-not-accepted')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('satisfied')
+    expect(requirementStatus.get('phone-screenshot')).toBe('satisfied')
+    expect(requirementStatus.get('dark-mode-check')).toBe('invalid')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
   })
 
   it('keeps weak editor and browser evidence out of mobile sync publish and draft-safety gates', () => {

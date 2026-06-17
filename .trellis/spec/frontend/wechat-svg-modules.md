@@ -40,6 +40,11 @@ construct breaks.
   `phone-preview-readback`. A scan page, preview entry, setup dialog, cover-setting page, or PC
   backend DOM readback is not phone-side final article content. Keep those as blocked/setup
   evidence until the exact artifact is visible in the phone preview article body.
+- `StyleProofArtifact.darkModeEnabledVerified === true` is required for `dark-mode-check`, and
+  `StyleProofArtifact.coverThumbnailAccepted === true` is required for
+  `cover-thumbnail-check`. An ordinary phone screenshot, cover setup page, or draft-settings
+  panel can show progress, but it cannot prove the phone preview was inspected with mobile Dark
+  Mode enabled or that the platform preview/share/list entry accepted the exact cover thumbnail.
 - `validateStyleProofManifest()` is the executable validator for those proof items. It accepts
   redacted `StyleProofManifest` records, returns `QualityIssue[]`, and verifies requirement
   coverage, exact-artifact continuity, platform/choice consistency, action/channel/readback
@@ -383,7 +388,8 @@ Evidence labels for UI state:
 - `mobile-preview`: phone preview proved final mobile visibility/interaction/Dark Mode target.
   `phone-preview-readback` requires `phonePreviewContentVerified:true`; phone screenshot,
   Dark Mode, and cover-thumbnail checks remain separate proof rows and cannot substitute for
-  the final article-body readback.
+  the final article-body readback. `dark-mode-check` requires `darkModeEnabledVerified:true`;
+  `cover-thumbnail-check` requires `coverThumbnailAccepted:true`.
 - `credentialed-sync`: real account sync created draft/material, still not publish proof.
 - `published`: final platform publish/preview was inspected.
 - `blocked` / `unavailable`: show blocker and fallback, never report success.
@@ -935,6 +941,12 @@ Contracts:
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
   mutation.
 - `cover-thumbnail-check` requires `channel:'phone-preview'`.
+- `dark-mode-check` requires `channel:'phone-preview'` plus `darkModeEnabledVerified:true` on the
+  same proof artifact; a generic phone screenshot remains invalid until the mobile Dark Mode state
+  is explicitly verified.
+- `cover-thumbnail-check` also requires `coverThumbnailAccepted:true` on the same proof artifact;
+  a cover crop/setup page remains invalid until the platform preview/share/list entry shows the
+  exact accepted thumbnail.
 - `sync-readback` requires `channel:'credentialed-channel'`.
 - `published-url-or-platform-preview` requires `channel:'public-web'` or `channel:'phone-preview'`.
 - Progress reports must surface these failures as invalid authenticated-PC, phone-preview,

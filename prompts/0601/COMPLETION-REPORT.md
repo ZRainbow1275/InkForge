@@ -558,3 +558,28 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
   safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-06-17 Phone Dark Mode and Cover Thumbnail Gate Addendum
+
+- Added `darkModeEnabledVerified?: boolean` to `StyleProofArtifact`.
+- Added `coverThumbnailAccepted?: boolean` to `StyleProofArtifact`.
+- Strengthened `dark-mode-check`: a phone-preview readback artifact must also prove that mobile
+  Dark Mode was enabled for the exact inspected phone preview.
+- Strengthened `cover-thumbnail-check`: a phone-preview readback artifact must also prove that the
+  platform preview/share/list entry accepted the exact cover thumbnail.
+- Added `style-proof-manifest-dark-mode-not-verified` and
+  `style-proof-manifest-cover-thumbnail-not-accepted` so ordinary phone screenshots and cover setup
+  pages stay invalid for those strong proof rows.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 74 tests.
+- Broader verification:
+  4-file export regression passed 113 tests in serial mode; full export serial run passed
+  35 files / 1007 tests; targeted export ESLint passed; `vue-tsc --noEmit --pretty false`
+  passed; direct Vite production build passed with exit 0.
+- Boundary: this addendum proves local proof-gate enforcement only. It does not prove WeChat phone
+  preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail, ordinary rich paste,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.

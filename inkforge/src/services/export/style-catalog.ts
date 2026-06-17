@@ -208,6 +208,8 @@ export interface StyleProofArtifact {
   exactArtifact?: boolean
   centralEditorChanged?: boolean
   phonePreviewContentVerified?: boolean
+  darkModeEnabledVerified?: boolean
+  coverThumbnailAccepted?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
   safeForCommit?: boolean
@@ -228,6 +230,8 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
   | 'style-proof-manifest-phone-content-missing'
+  | 'style-proof-manifest-dark-mode-not-verified'
+  | 'style-proof-manifest-cover-thumbnail-not-accepted'
   | 'style-proof-manifest-disposable-draft-missing'
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-platform-action-missing'
@@ -2149,20 +2153,52 @@ function validateStyleProofRequirementCoverage(
         && artifact.readback === 'screenshot'
       ))
       break
-    case 'dark-mode-check':
-      requireStyleProof(issues, requirementId, has(artifact =>
+    case 'dark-mode-check': {
+      const hasDarkModeReadback = has(artifact =>
         artifact.action === 'dark-mode-check'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-      ))
+      )
+      if (!hasDarkModeReadback) {
+        requireStyleProof(issues, requirementId, false)
+      } else if (!has(artifact =>
+        artifact.action === 'dark-mode-check'
+        && artifact.channel === 'phone-preview'
+        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+        && artifact.darkModeEnabledVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-dark-mode-not-verified',
+          message: 'Dark Mode proof does not prove that mobile Dark Mode was enabled for the phone preview.',
+          suggestion: 'Record darkModeEnabledVerified:true only after inspecting the exact phone preview artifact with mobile Dark Mode enabled.',
+          location: requirementId,
+        })
+      }
       break
-    case 'cover-thumbnail-check':
-      requireStyleProof(issues, requirementId, has(artifact =>
+    }
+    case 'cover-thumbnail-check': {
+      const hasCoverThumbnailReadback = has(artifact =>
         artifact.action === 'cover-thumbnail-check'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-      ))
+      )
+      if (!hasCoverThumbnailReadback) {
+        requireStyleProof(issues, requirementId, false)
+      } else if (!has(artifact =>
+        artifact.action === 'cover-thumbnail-check'
+        && artifact.channel === 'phone-preview'
+        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+        && artifact.coverThumbnailAccepted === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-cover-thumbnail-not-accepted',
+          message: 'Cover thumbnail proof does not prove that the cover thumbnail was accepted in the phone preview entry.',
+          suggestion: 'Record coverThumbnailAccepted:true only after the platform preview entry or phone share/list entry shows the exact accepted cover thumbnail.',
+          location: requirementId,
+        })
+      }
       break
+    }
     case 'credentialed-channel-response':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'credentialed-sync'
