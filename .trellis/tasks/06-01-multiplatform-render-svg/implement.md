@@ -1965,6 +1965,33 @@ git status --short --branch
   thumbnail, sync, scheduled send, XHS/Zhihu upload, or publish success. The next live proof still
   needs a safe disposable draft, real OS Ctrl+V, editor DOM readback, and verified cleanup.
 
+## 2026-06-18 CloakBrowser OS Ctrl+V Local Probe
+
+- Added `prompts/0601/evidence/cloakbrowser-os-ctrlv-local-probe-20260618.txt`.
+- Used CloakBrowser only against a local controlled `data:` page with a focused textarea and
+  event listeners for `focus`, `keydown`, `keyup`, `paste`, and `input`.
+- Verified the local browser/window path in stages:
+  - `WScript.Shell.SendKeys("^v")` after `AppActivate=True` produced no page events.
+  - `System.Windows.Forms.SendKeys.SendWait("ABC")` after `AppActivate=True` produced no page
+    events.
+  - Win32 `keybd_event` produced no textarea value or paste/input event.
+  - Win32 `SendInput` needed the correct x64 40-byte `INPUT` union before Windows accepted the
+    call.
+  - After real window-coordinate clicking, Win32 `SendInput` reached the page only as
+    `keydown` events with `key:"Unidentified"`.
+  - Scancode and virtual-key-plus-scancode `Ctrl+V` wrote a sentinel to the OS clipboard and
+    returned accepted input counts, but the page still reported `valueLength=0`,
+    `sentinelMatched=false`, and no `paste` / `input`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+- Boundary:
+  this is negative local tooling evidence only. It does not prove ordinary WeChat Ctrl+V paste or
+  justify `ordinaryClipboardPasteVerified:true`. Under the current no-Playwright constraint, a live
+  WeChat ordinary-paste attempt remains blocked until a reliable non-Playwright keyboard channel or
+  a clearly separated operator-driven paste proof is available, and the safe disposable draft plus
+  cleanup readback gate is still required.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

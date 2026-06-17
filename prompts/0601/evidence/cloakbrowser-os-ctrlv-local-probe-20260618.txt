@@ -1,0 +1,62 @@
+CloakBrowser OS Ctrl+V Local Probe - 2026-06-18
+
+Scope:
+- Local controlled-page probe for the ordinary OS keyboard/clipboard channel.
+- Browser tool: CloakBrowser only.
+- Test page: local data URL with a textarea and event listeners for focus, keydown, keyup, paste,
+  and input.
+- No WeChat editor, no 135/Xiumi editor, no phone preview, no account upload, no sync, no save, no
+  schedule, no publish, and no live draft mutation.
+
+Positive observations:
+- CloakBrowser loaded the controlled probe page and focused `#target`.
+- Windows `AppActivate` could foreground the Chromium window for the probe page.
+- Win32 `GetWindowRect` confirmed the actual Chromium window rectangle after the JavaScript
+  `screenX/screenY` values proved stale for OS-coordinate clicking.
+- Win32 `SendInput` accepted keyboard input only after the x64 `INPUT` union was modeled with the
+  full 40-byte structure.
+- The focused page recorded OS-originated `keydown` events after the real Chromium window rectangle
+  was used for the mouse click and foreground handoff.
+
+Negative observations:
+- `WScript.Shell.SendKeys("^v")` returned after `AppActivate=True`, but the page recorded no
+  `keydown`, `paste`, or `input` events.
+- `System.Windows.Forms.SendKeys.SendWait("ABC")` returned after `AppActivate=True`, but the page
+  recorded no events and no text.
+- Win32 `keybd_event` produced no page input.
+- Win32 `SendInput` with virtual-key events initially reached the foreground Chromium window but
+  did not produce textarea text.
+- Win32 `SendInput` with scancode `Ctrl+V` wrote the sentinel to the OS clipboard and returned
+  `sendInputCount=4`, but the page recorded only `keydown` events with `key:"Unidentified"` and
+  `ctrlKey:false`; it did not record `paste` or `input`, and the sentinel was not inserted.
+- Win32 `SendInput` with virtual-key plus scan-code `Ctrl+V` also returned `sendInputCount=4`, but
+  again produced only `Unidentified` keydown events, no paste/input, and no inserted sentinel.
+
+Final local readback:
+- `valueLength=0`
+- `sentinelMatched=false`
+- `eventTypes=["keydown","keydown"]`
+- `events[0].extra.key="Unidentified"`
+- `events[0].extra.ctrlKey=false`
+- `events[1].extra.key="Unidentified"`
+- `events[1].extra.ctrlKey=false`
+
+Decision:
+- This probe does not satisfy ordinary user Ctrl+V rich HTML/SVG paste proof.
+- It does not set or justify `ordinaryClipboardPasteVerified:true`.
+- It does not unlock a WeChat live editor paste attempt, because the local CloakBrowser + OS input
+  path cannot currently prove a reliable ordinary keyboard paste event even on a controlled page.
+
+Required next step before any live WeChat ordinary-paste mutation:
+- Establish a reliable non-Playwright ordinary keyboard channel for CloakBrowser, or perform a
+  clearly separated operator-driven paste proof inside a verified safe disposable draft with cleanup
+  readback.
+- The proof still needs exact artifact CF_HTML on the OS clipboard, authenticated PC editor DOM
+  readback after ordinary Ctrl+V, and verified cleanup/deletion/rollback for the same disposable
+  draft.
+
+Boundary:
+- This is negative local tooling evidence only.
+- It does not prove WeChat ordinary Ctrl+V, PC editor paste, safe disposable draft cleanup, phone
+  preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail acceptance,
+  credentialed sync, scheduled send, XHS/Zhihu upload, public-host acceptance, or publish success.

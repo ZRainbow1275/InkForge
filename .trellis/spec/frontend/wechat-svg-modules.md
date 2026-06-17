@@ -949,6 +949,11 @@ Contracts:
   until the exact artifact is written to the OS clipboard, inserted by ordinary Ctrl+V into an
   authenticated WeChat PC editor, read back from the editor DOM, and cleaned up through a verified
   disposable draft path.
+- A local CloakBrowser OS-keyboard probe that only produces `keydown` events such as
+  `key:"Unidentified"` without a `paste` event, `input` event, inserted sentinel, and editor DOM
+  readback is negative tooling evidence. It must not be treated as ordinary Ctrl+V proof, and it
+  must not trigger a live WeChat paste attempt without a reliable keyboard channel or an explicitly
+  separated operator-driven proof path.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -974,6 +979,9 @@ Required tests:
 - A manifest that cites CF_HTML dry-run metadata without a real OS Ctrl+V editor DOM readback must
   keep `pc-editor-paste-event` missing or invalid; local clipboard preparation is not platform
   paste proof.
+- A manifest that cites a local OS keyboard probe with no `paste` / `input` event and no inserted
+  sentinel must keep `pc-editor-paste-event` missing or invalid; accepted Win32 input counts and
+  foreground-window evidence are not sufficient.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,

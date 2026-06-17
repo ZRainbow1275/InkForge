@@ -134,6 +134,10 @@ invalid for ordinary Ctrl+V paste）。
 剪贴板 payload metadata；dry-run 显示每个 artifact 均为 `svgCount=35` / `dataInkSvgCount=3`。
 该预检不写微信、不粘贴、不保存、不证明普通 Ctrl+V；只有后续在安全可清理草稿中完成 OS
 剪贴板 Ctrl+V、DOM 读回和清理复核后，才能设置 `ordinaryClipboardPasteVerified:true`）。
+`cloakbrowser-os-ctrlv-local-probe-20260618.txt`（当前本机工具负向预检：
+CloakBrowser 本地受控 textarea 页面可被前台化，Win32 `SendInput` 可被系统接受并产生
+`Unidentified` keydown，但未产生 `paste` / `input`，哨兵字符串未插入；该结果不证明普通
+Ctrl+V，且在建立可靠非 Playwright 键盘通道或人工隔离粘贴证明前，不应触碰真实微信草稿）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -277,6 +281,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-draftbox-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信草稿箱可达；edit 未进入文章编辑器
 [x] wechat-editor-dom-readonly-refresh-20260618.txt # 当前平台状态：CloakBrowser 微信 PC 编辑器可达且 DOM 可读；未粘贴/保存/预览/发布
 [x] wechat-ordinary-paste-os-clipboard-preflight-20260618.txt # 当前本机工具预检：三旗舰可生成 CF_HTML；不是微信 Ctrl+V 证明
+[x] cloakbrowser-os-ctrlv-local-probe-20260618.txt # 当前本机工具负向预检：OS SendInput 在 CloakBrowser 控制页只产生 Unidentified keydown；不是普通 Ctrl+V 证明
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -306,6 +311,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - 最新自动化门禁与真实 Tauri e2e 已覆盖三旗舰；真实公众号后台 PC 粘贴路径已覆盖 kiln/tempera。`flagship-amber` 普通剪贴板 `text/html` 粘贴在 2026-06-08 已认证编辑器重试中被微信降级为纯文本；2026-06-09 CloakBrowser 程序化 `ClipboardEvent` channel 对 exact artifact 的 PC DOM readback 保留 `data-ink-svg=3` / `svg=35`。因此当前剩余手动门禁是：微信手机端扫码预览截图、SMIL/点击交互确认、三旗舰手机暗黑模式确认、封面缩略图入口确认，以及普通 Ctrl+V/插件/授权同步等其他渠道若要对外宣称时的单独证明。
 - 2026-06-09 CloakBrowser `inkforge-0601` 复核证明当前账号可进入微信 PC 图文编辑器，并能读取顶层 `.ProseMirror` 标题/正文 DOM；但当前草稿正文含真实音频卡，未执行任何粘贴、保存、预览或发布。该证据只能作为 `authenticated-editor-reachable` / `pc-editor-dom-readable`，不得外推为 `pc-editor-paste` 或手机端证明。
 - 2026-06-09 runtime proof checklist 已落到 `style-catalog.ts`：`pc-editor-paste` 的安全前置包括 `safe-disposable-draft`；本轮只读探测到的 `#js_add_appmsg` 会改变真实多图文草稿结构，未点击，不能作为粘贴测试入口。
+- 2026-06-18 CloakBrowser 本地 OS 键盘探针只能在受控 textarea 页面产生
+  `Unidentified` keydown，不能产生 `paste` / `input`，因此不能作为普通 Ctrl+V 证据。
+  在建立可靠非 Playwright 键盘通道或明确隔离的人工粘贴证明前，不应对真实微信草稿执行自动
+  ordinary-paste 验收。
 - 2026-06-09 `validateStyleProofManifest()` 已落到 `style-catalog.ts`：它验证 redacted proof manifest 是否覆盖 required proof items、是否同一 artifact、是否真实平台 action/readback、是否误用弱证据、是否引用敏感本地/profile/HAR/QR/token/cookie 材料。它不改变 style availability、selectable 状态，也不等于平台预览、同步或发布成功。
 - 真 canvas 栅格化（小红书海报）仅在浏览器/Tauri 有 DOM 时运行；2026-06-08 已用 Playwright Chromium 动态导入实际 `renderXhsPosterCard()` 产出 1080×1440 PNG。2026-06-09 已补强知乎 preview-fidelity：`renderZhihuMockHtml()` 会把 `section[data-ink-svg]` inline SVG 转成 `<img data-ink-svg src="data:image/svg+xml...">` image fallback，并由 focused Vitest 覆盖。该本地预览证据不等于知乎 public host、上传、同步或发布成功。
 - 2026-06-09 小红书 image artifact manifest 已落到 runtime preflight：`XhsImageArtifactManifest`
