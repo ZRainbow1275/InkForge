@@ -909,7 +909,9 @@ Contracts:
   `pc-editor-paste` evidence. It must not satisfy `safe-disposable-draft`; draft safety requires
   an explicit safe-draft artifact, not an inferred paste/readback artifact.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
-  and `disposableDraft:true`.
+  `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
+  draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
+  mutation.
 - `cover-thumbnail-check` requires `channel:'phone-preview'`.
 - `sync-readback` requires `channel:'credentialed-channel'`.
 - `published-url-or-platform-preview` requires `channel:'public-web'` or `channel:'phone-preview'`.
@@ -919,6 +921,8 @@ Contracts:
 Required tests:
 - A manifest that tries to satisfy safe draft with a PC paste/ClipboardEvent artifact must keep
   `safe-disposable-draft` invalid.
+- A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
+  `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,
   credentialed sync, and publish requirements invalid.
 - The matching `getPlatformStyleProofProgressReport()` gate rows must remain invalid, not
@@ -941,7 +945,8 @@ Contracts:
   proof reports.
 - Safe local gaps are only `local-evidence` and `sensitive-hygiene`. Authenticated PC editor,
   credentialed-channel, and platform-publish gates are `unsafe-to-automate` until a human/operator
-  intentionally executes that real account action with a safe disposable draft or cleanup path.
+  intentionally executes that real account action with a safe disposable draft and verified cleanup
+  path bound to the same proof artifact.
 - Phone preview, Dark Mode, cover thumbnail, and phone-side SMIL/click proof are
   `blocked-by-external` until actual phone-preview readback exists. PC DOM, local browser, and
   ClipboardEvent readback must not complete those rows.

@@ -1645,6 +1645,30 @@ git status --short --branch
   this slice is evidence accounting only. It does not change runtime code, execute platform
   actions, mutate a live editor, open phone preview, sync, upload, schedule, or publish.
 
+## 2026-06-17 Safe Draft Cleanup Proof Gate Slice
+
+- Added `cleanupPathVerified?: boolean` to `StyleProofArtifact`.
+- Strengthened `safe-disposable-draft` validation in
+  `inkforge/src/services/export/style-catalog.ts`: a PC editor paste proof now needs a
+  `safe-disposable-draft` platform-editor artifact with both `disposableDraft:true` and
+  `cleanupPathVerified:true` on the same artifact before the draft-safety requirement can be
+  satisfied.
+- Added the explicit `style-proof-manifest-cleanup-path-missing` issue so manifests that prove a
+  disposable draft but not its cleanup/deletion/rollback path stay invalid.
+- Added focused regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`; the new test proves that a
+  disposable draft without cleanup proof cannot satisfy PC editor paste evidence, while existing
+  weak PC/DOM/local artifacts still cannot satisfy phone, sync, publish, or draft-safety gates.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/style-proof-safe-draft-cleanup-gate-20260617.txt`.
+- Initial verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  1 file / 70 tests passed.
+- Boundary:
+  this slice proves only local proof-gate enforcement. It does not create a disposable draft,
+  verify a live platform cleanup path, mutate an editor, open phone preview, sync, upload,
+  schedule, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

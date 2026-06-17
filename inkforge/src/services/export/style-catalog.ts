@@ -207,6 +207,7 @@ export interface StyleProofArtifact {
   artifactRef?: string
   exactArtifact?: boolean
   disposableDraft?: boolean
+  cleanupPathVerified?: boolean
   safeForCommit?: boolean
   committed?: boolean
   sensitive?: boolean
@@ -224,6 +225,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-disposable-draft-missing'
+  | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-platform-action-missing'
   | 'style-proof-manifest-readback-missing'
   | 'style-proof-manifest-public-image-host-missing'
@@ -667,7 +669,7 @@ export const STYLE_PROOF_REQUIREMENTS = [
   {
     id: 'safe-disposable-draft',
     label: 'safe disposable draft',
-    description: 'The target platform draft is disposable or has a verified cleanup path before mutation.',
+    description: 'The target platform test draft is disposable and has a verified cleanup path before mutation.',
   },
   {
     id: 'pc-editor-paste-event',
@@ -2045,21 +2047,43 @@ function validateStyleProofRequirementCoverage(
         })
       }
       break
-    case 'safe-disposable-draft':
-      if (!has(artifact =>
+    case 'safe-disposable-draft': {
+      const isSafeDraftProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'safe-disposable-draft'
         && artifact.channel === 'platform-editor'
-        && artifact.disposableDraft === true
         && (artifact.readback === 'dom' || artifact.readback === 'visual-and-dom' || artifact.readback === 'hygiene-log')
-      )) {
+      const hasDisposableDraftProof = has(artifact =>
+        isSafeDraftProofArtifact(artifact)
+        && artifact.disposableDraft === true
+      )
+      const hasCleanupPathProof = has(artifact =>
+        isSafeDraftProofArtifact(artifact)
+        && artifact.cleanupPathVerified === true
+      )
+      const hasBoundSafeDraftProof = has(artifact =>
+        isSafeDraftProofArtifact(artifact)
+        && artifact.disposableDraft === true
+        && artifact.cleanupPathVerified === true
+      )
+
+      if (!hasDisposableDraftProof) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-disposable-draft-missing',
-          message: 'PC editor proof lacks a safe disposable draft or verified cleanup path.',
-          suggestion: 'Do not mutate a real account draft until the proof manifest records a safe-disposable-draft platform-editor proof for the test draft/channel.',
+          message: 'PC editor proof lacks a safe disposable test draft bound to the platform-editor proof artifact.',
+          suggestion: 'Do not mutate a real account draft until one safe-disposable-draft platform-editor proof records disposableDraft:true for the test draft/channel.',
+          location: requirementId,
+        })
+      }
+      if (!hasCleanupPathProof || (!hasBoundSafeDraftProof && hasDisposableDraftProof && hasCleanupPathProof)) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-cleanup-path-missing',
+          message: 'PC editor proof lacks a cleanup, deletion, or rollback path bound to the safe disposable draft proof.',
+          suggestion: 'Record cleanupPathVerified:true on the same safe-disposable-draft platform-editor proof before any real editor mutation.',
           location: requirementId,
         })
       }
       break
+    }
     case 'pc-editor-paste-event':
       if (!has(artifact => artifact.action === 'pc-paste' && artifact.channel === 'platform-editor')) {
         addStyleProofIssue(issues, {

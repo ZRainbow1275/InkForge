@@ -424,3 +424,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   send, or publish gates.
 - Boundary: this addendum is evidence accounting only. It does not create platform proof, mutate a
   live editor, open phone preview, sync, upload, schedule, or publish.
+
+---
+
+## 2026-06-17 Safe Draft Cleanup Gate Addendum
+
+- Added `cleanupPathVerified?: boolean` to `StyleProofArtifact`.
+- Strengthened `safe-disposable-draft` validation: a platform-editor safe-draft proof must now
+  record both `disposableDraft:true` and `cleanupPathVerified:true` on the same proof artifact.
+- A PC editor paste manifest with exact artifact, PC paste, PC DOM, and sensitive-hygiene proof now
+  remains invalid when the safe-draft artifact lacks cleanup proof, surfacing
+  `style-proof-manifest-cleanup-path-missing`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 70 tests.
+- Boundary: this addendum proves local proof-gate enforcement only. It does not prove a real
+  disposable platform draft, real cleanup path, phone preview, mobile Dark Mode, mobile SMIL/click,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance,
+  XHS/Zhihu account upload, or publish success.

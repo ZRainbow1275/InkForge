@@ -1,0 +1,41 @@
+Style Proof Safe Draft Cleanup Gate - 2026-06-17
+
+Scope:
+- Local proof-manifest validation only.
+- No platform editor mutation, no draft creation, no cleanup action, no phone preview, no sync,
+  no upload, no schedule, and no publish.
+
+Implemented:
+- Added cleanupPathVerified to StyleProofArtifact.
+- Strengthened safe-disposable-draft validation so a platform-editor safe-draft artifact must bind:
+  - action: safe-disposable-draft
+  - channel: platform-editor
+  - disposableDraft: true
+  - cleanupPathVerified: true
+  - DOM, visual-and-DOM, or hygiene-log readback
+
+Behavior:
+- A disposable draft without a verified cleanup, deletion, or rollback path remains invalid.
+- A cleanup proof that is split away from the disposable draft proof remains invalid.
+- PC paste events, PC editor DOM readbacks, authenticated editor reachability, and local browser
+  readbacks still cannot satisfy draft safety, phone preview, credentialed sync, or publish gates.
+- The rule does not change style availability, selectability, rendering, export, copy, sync, or
+  publish behavior.
+
+Regression coverage:
+- A WeChat PC editor paste manifest with exact artifact, PC paste, PC DOM, and sensitive-hygiene
+  proof stays invalid when the safe-draft artifact lacks cleanupPathVerified:true.
+- The invalid row surfaces style-proof-manifest-cleanup-path-missing while not reporting a missing
+  disposable draft.
+- Existing weak-evidence regression still keeps draft safety, phone preview, sync, and publish
+  requirements invalid.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 70 tests
+
+Boundary:
+- This proves local cannot-claim enforcement for the safe-draft cleanup path only.
+- It does not prove a real disposable platform draft, a real cleanup path, WeChat phone rendering,
+  mobile Dark Mode, mobile SMIL/click behavior, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

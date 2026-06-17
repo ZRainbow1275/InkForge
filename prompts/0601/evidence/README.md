@@ -285,3 +285,11 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   与 `validateZhihuImageArtifactManifest()` 只证明公式图、图表图、表格图、正文图和封面图 fallback
   的 host、上传证明、本地文件、alt/caption、格式、尺寸、bytes 与 final Markdown 引用一致性；
   `NativeExportResult.artifacts.zhihuImageArtifactManifest` 不是知乎账号上传、编辑器预览、同步或发布证明。
+
+## 2026-06-17 Safe Draft Cleanup Gate
+
+- [x] style-proof-safe-draft-cleanup-gate-20260617.txt
+- This local proof-gate entry records that `safe-disposable-draft` now requires
+  `disposableDraft:true` and `cleanupPathVerified:true` on the same platform-editor proof artifact.
+- It is not platform proof. It does not claim a real draft, cleanup action, phone preview, sync,
+  upload, schedule, or publish.
