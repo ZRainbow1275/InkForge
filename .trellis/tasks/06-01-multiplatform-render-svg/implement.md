@@ -1887,6 +1887,22 @@ git status --short --branch
   safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
   upload, or publish success.
 
+## 2026-06-17 WeChat Draftbox Read-only Preflight
+
+- Added `prompts/0601/evidence/wechat-draftbox-readonly-preflight-20260617.txt`.
+- CloakBrowser reached the authenticated WeChat draftbox list through content management.
+- A previously created draft titled `静谧刊印：当排版成为一种克制的力量` was visible.
+- The target draft card exposed separate hidden hover actions for delete, edit, and publish.
+- The isolated edit action was clicked, but the page stayed on the draftbox list and no article
+  editor DOM appeared.
+- No paste, save, preview, sync, upload, schedule, publish, deletion, or draft creation action was
+  performed.
+- Boundary:
+  this proves draftbox-list reachability and action taxonomy only. It does not prove ordinary
+  WeChat Ctrl+V paste, PC editor paste, phone preview, mobile Dark Mode, mobile SMIL/click
+  interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

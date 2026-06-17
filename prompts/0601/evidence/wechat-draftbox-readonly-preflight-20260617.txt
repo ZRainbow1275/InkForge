@@ -1,0 +1,29 @@
+WeChat Draftbox Read-only Preflight - 2026-06-17
+
+Scope:
+- CloakBrowser-only read-only preflight of the WeChat official account draftbox.
+- No paste, save, preview, sync, upload, schedule, publish, deletion, or draft creation action was
+  performed.
+
+Observed:
+- The authenticated backend home page exposed the content-management menu.
+- Expanding content management exposed a draftbox menu entry with a `/cgi-bin/appmsg` target. Only
+  path and parameter names were inspected; parameter values were not recorded.
+- The draftbox list loaded and displayed article drafts.
+- The existing draft titled "静谧刊印：当排版成为一种克制的力量" was visible in the draftbox.
+- The target draft card exposed separate hidden hover actions for delete, edit, and publish.
+- The edit action was structurally distinct from delete and publish. It was clicked after being
+  isolated from the target card, but the page stayed on the draftbox list and no article editor DOM
+  appeared.
+
+Sanitization:
+- Account name, URL parameter values, browser runtime directory, local image locations,
+  authentication material, and session credentials are intentionally omitted.
+- No screenshots or browser runtime artifacts are committed.
+
+Boundary:
+- This proves current draftbox-list reachability and action taxonomy only.
+- It does not prove the article editor opened, PC editor DOM readback, PC editor paste, ordinary
+  Ctrl+V rich HTML/SVG paste, phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.

@@ -618,3 +618,18 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
   WeChat Ctrl+V paste, PC editor paste, phone preview, mobile Dark Mode, mobile SMIL/click
   interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-17 WeChat Draftbox Read-only Preflight Addendum
+
+- Added `prompts/0601/evidence/wechat-draftbox-readonly-preflight-20260617.txt`.
+- CloakBrowser reached the authenticated WeChat draftbox list through content management.
+- The existing draft titled `静谧刊印：当排版成为一种克制的力量` was visible in the draftbox list.
+- The target draft card exposed separate hidden hover actions for delete, edit, and publish.
+- The isolated edit action was clicked, but the page stayed on the draftbox list and no article
+  editor DOM appeared.
+- Boundary: this addendum proves draftbox-list reachability and action taxonomy only. It does not
+  prove ordinary WeChat Ctrl+V paste, PC editor paste, phone preview, mobile Dark Mode, mobile
+  SMIL/click interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send,
+  public host acceptance, XHS/Zhihu account upload, or publish success.
