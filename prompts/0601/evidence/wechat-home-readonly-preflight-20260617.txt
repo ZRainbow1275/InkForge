@@ -1,0 +1,28 @@
+WeChat Backend Read-only Preflight - 2026-06-17
+
+Scope:
+- CloakBrowser-only read-only preflight of the WeChat official account backend.
+- The existing persistent browser context reached the WeChat backend home page.
+- No paste, save, preview, sync, upload, schedule, publish, deletion, or draft creation action was
+  performed.
+
+Observed:
+- Backend home navigation and account dashboard text were visible.
+- The recent draft list was visible and readable.
+- A previously created draft titled "静谧刊印：当排版成为一种克制的力量" was visible in the recent
+  draft list.
+- The creation menu exposed article and existing-content entry points.
+- A DOM-only attempt to open the existing draft did not navigate away from the home page. After the
+  interaction, a publish action became visible in the draft card area, so no further click was
+  attempted.
+
+Sanitization:
+- Account name, URL parameters, browser runtime directory, local image locations, authentication
+  material, and session credentials are intentionally omitted.
+- No screenshots or browser runtime artifacts are committed.
+
+Boundary:
+- This proves current backend-home reachability only.
+- It does not prove PC editor paste, ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile
+  Dark Mode, mobile SMIL/click, cover thumbnail, safe draft cleanup, credentialed sync, scheduled
+  send, public host acceptance, XHS/Zhihu account upload, or publish success.

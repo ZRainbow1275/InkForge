@@ -121,6 +121,8 @@ ordinary phone screenshots and cover setup pages stay invalid）。
 `pc-ordinary-paste-gate-20260617.txt`（当前规则实现：`pc-editor-paste-event` requires
 `ordinaryClipboardPasteVerified:true`; programmatic ClipboardEvent/DataTransfer readback stays
 invalid for ordinary Ctrl+V paste）。
+`wechat-home-readonly-preflight-20260617.txt`（CloakBrowser-only 微信后台首页只读预检：
+后台首页与近期草稿可读；未粘贴、保存、预览、同步、上传、定时、发布或创建草稿）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -260,6 +262,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
 [x] pc-ordinary-paste-gate-20260617.txt # 当前规则实现：ordinary PC paste requires ordinaryClipboardPasteVerified:true
+[x] wechat-home-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信后台首页可达；只读，不证明编辑器/手机/发布
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -382,4 +385,13 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Focused export tests, 4-file export serial regression, full export serial run, targeted ESLint,
   `vue-tsc --noEmit`, and direct Vite production build passed.
 - This is local validator proof only, not ordinary PC paste, phone, sync, upload, schedule, or
+  publish proof.
+
+## 2026-06-17 WeChat Backend Read-only Preflight
+
+- [x] wechat-home-readonly-preflight-20260617.txt
+- CloakBrowser reached the authenticated WeChat backend home page and read the recent draft list.
+- Existing draft navigation was not completed; a publish action became visible in the draft card
+  area, so no further click was attempted.
+- This is backend-home reachability proof only, not editor paste, phone, sync, upload, schedule, or
   publish proof.

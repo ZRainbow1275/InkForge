@@ -1872,6 +1872,21 @@ git status --short --branch
   draft, paste into WeChat, open phone preview, sync, upload, schedule, publish, or close external
   platform gates.
 
+## 2026-06-17 WeChat Backend Read-only Preflight
+
+- Added `prompts/0601/evidence/wechat-home-readonly-preflight-20260617.txt`.
+- CloakBrowser reached the authenticated WeChat backend home page and read the recent draft list.
+- A previously created draft titled `静谧刊印：当排版成为一种克制的力量` was visible.
+- A DOM-only attempt to open that existing draft did not navigate away from the home page. A publish
+  action became visible in the draft card area, so no further click was attempted.
+- No paste, save, preview, sync, upload, schedule, publish, deletion, or draft creation action was
+  performed.
+- Boundary:
+  this proves backend-home reachability only. It does not prove ordinary WeChat Ctrl+V paste,
+  PC editor paste, phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
+  safe draft cleanup, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account
+  upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

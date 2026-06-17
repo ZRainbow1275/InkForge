@@ -604,3 +604,17 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
   WeChat Ctrl+V paste, WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction,
   cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-17 WeChat Backend Read-only Preflight Addendum
+
+- Added `prompts/0601/evidence/wechat-home-readonly-preflight-20260617.txt`.
+- CloakBrowser reached the authenticated WeChat backend home page and read the recent draft list.
+- A previously created draft titled `静谧刊印：当排版成为一种克制的力量` was visible.
+- Attempting to open that existing draft did not navigate away from the home page; a publish action
+  became visible in the draft card area, so no further click was attempted.
+- Boundary: this addendum proves backend-home reachability only. It does not prove ordinary
+  WeChat Ctrl+V paste, PC editor paste, phone preview, mobile Dark Mode, mobile SMIL/click
+  interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send, public host
+  acceptance, XHS/Zhihu account upload, or publish success.
