@@ -1,0 +1,40 @@
+WeChat Authenticated Draftbox Read-only Refresh - 2026-06-18
+
+Scope:
+- CloakBrowser-only WeChat backend and draftbox read-only refresh after the earlier expired-session
+  negative gate.
+- No screenshot, full HTML dump, runtime URL parameter, account identifier, private draft title, or
+  private draft body is recorded in this file.
+- No login attempt, credential entry, new draft creation, paste, edit, delete, save, preview, sync,
+  upload, schedule, or publish action was performed.
+
+Observed:
+- The WeChat backend home opened as an authenticated backend page rather than a login wall.
+- The draftbox page loaded at the backend draftbox path and exposed draftbox signals without a
+  re-login or expired-session page.
+- The draftbox list exposed five visible existing draft title candidates, a search input, the
+  "new creation" control, and per-card action taxonomy.
+- The first visible draft card exposed delete, edit, and publish controls.
+- The delete icon was identified from its trash SVG path and was not clicked.
+- The edit icon was identified from its pencil SVG path.
+- Title click, DOM-dispatched edit events, and precise CloakBrowser click on the edit icon all left
+  the page on the draftbox list in this run.
+- No PC article editor DOM, iframe, editable editor body, or editor shell selector was present after
+  those non-mutating open attempts.
+
+Conclusion:
+- This proves the current CloakBrowser session can reach authenticated WeChat backend home and the
+  draftbox list.
+- This proves draftbox action taxonomy and a safer delete/edit distinction for the inspected card.
+- This does not prove PC article editor DOM readback for the current run because the editor did not
+  open from the draftbox list.
+- This does not set `platformEditorDomVerified:true`, `ordinaryClipboardPasteVerified:true`, or
+  `cleanupPathVerified:true`.
+
+Boundary:
+- The earlier expired-session evidence remains useful as a negative proof-gate sample: login,
+  re-login, expired-session, and generic non-editor DOM states still cannot satisfy authenticated
+  editor or PC editor DOM proof.
+- This refresh only updates current platform reachability: backend and draftbox are reachable again,
+  but editor DOM, ordinary paste, phone preview, mobile Dark Mode, mobile SMIL/click, cover
+  thumbnail, safe cleanup, credentialed sync, scheduled send, and publish gates remain open.

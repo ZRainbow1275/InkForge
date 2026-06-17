@@ -151,6 +151,9 @@ focused regression 确认 draftbox affordance doc-reference 仍不能通过 safe
 当前微信后台入口返回重新登录状态；新增 `authenticatedSessionVerified:true` 与
 `platformEditorDomVerified:true` 运行时门禁，登录/重登/过期会话页不能满足 authenticated editor
 或 PC editor DOM 证明）。
+`wechat-auth-draftbox-readonly-refresh-20260618.txt`（CloakBrowser-only 微信后台/草稿箱只读复核：
+后续会话已回到 authenticated backend / draftbox 状态，草稿箱可读且 delete/edit/publish 动作可区分；
+本轮 edit 打开尝试仍停留在草稿箱列表，未读到 PC editor DOM，未粘贴/保存/预览/发布/删除）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -298,6 +301,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] cloakbrowser-os-ctrlv-local-probe-20260618.txt # 当前本机工具负向预检：OS SendInput 在 CloakBrowser 控制页只产生 Unidentified keydown；不是普通 Ctrl+V 证明
 [x] wechat-draftbox-cleanup-path-readonly-20260618.txt # 当前平台状态：草稿箱清理 affordance 可读；未创建/删除 disposable draft，不满足 cleanupPathVerified
 [x] wechat-session-expired-gate-20260618.txt # 当前平台状态：微信后台要求重新登录；登录/过期页不能满足 authenticated editor 或 PC DOM proof
+[x] wechat-auth-draftbox-readonly-refresh-20260618.txt # 当前平台状态：微信后台/草稿箱重新可达；本轮 edit 仍未进入 PC editor DOM
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -478,3 +482,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   serial suite passed with 35 files / 1012 tests, ESLint/vue-tsc/build passed. Follow-up
   collection-plan assertion confirms the authenticated-PC-editor queue note includes both new
   required flags.
+
+## 2026-06-18 WeChat Authenticated Draftbox Read-only Refresh
+
+- [x] wechat-auth-draftbox-readonly-refresh-20260618.txt
+- CloakBrowser later reached the authenticated WeChat backend home and draftbox list again.
+- The draftbox list exposed five visible existing draft title candidates and a safer delete/edit/
+  publish control distinction; the delete icon was identified and not clicked.
+- The edit icon was identified, but title click, DOM-dispatched edit events, and precise
+  CloakBrowser click all left this run on the draftbox list, so no current PC editor DOM proof was
+  collected.
+- This refresh updates current reachability only. It does not prove editor DOM, ordinary paste,
+  cleanup, phone preview, Dark Mode, cover thumbnail, sync, schedule, or publish gates.

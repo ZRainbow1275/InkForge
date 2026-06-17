@@ -2108,6 +2108,26 @@ git status --short --branch
   `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
   passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
 
+## 2026-06-18 WeChat Authenticated Draftbox Read-only Refresh
+
+- Added `prompts/0601/evidence/wechat-auth-draftbox-readonly-refresh-20260618.txt`.
+- CloakBrowser later reached authenticated WeChat backend home and draftbox list after the earlier
+  expired-session negative sample.
+- The draftbox list exposed five visible existing draft title candidates, a search input, the
+  "new creation" control, and per-card delete/edit/publish action taxonomy.
+- The delete icon was identified from its trash SVG path and was not clicked.
+- The edit icon was identified from its pencil SVG path, but title click, DOM-dispatched edit
+  events, and precise CloakBrowser click all left this run on the draftbox list.
+- No PC article editor DOM, iframe, editable editor body, or editor shell selector was present
+  after those non-mutating open attempts.
+- Updated `prompts/0601/evidence/README.md` and
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt` so the evidence timeline is clear:
+  the expired-session file remains a negative proof-gate sample, while the later refresh proves
+  authenticated backend/draftbox reachability only.
+- Boundary: this refresh does not set `platformEditorDomVerified:true`,
+  `ordinaryClipboardPasteVerified:true`, or `cleanupPathVerified:true`, and it does not prove paste,
+  phone preview, Dark Mode, cover thumbnail, sync, schedule, or publish gates.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
