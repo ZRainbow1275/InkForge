@@ -2128,6 +2128,31 @@ git status --short --branch
   `ordinaryClipboardPasteVerified:true`, or `cleanupPathVerified:true`, and it does not prove paste,
   phone preview, Dark Mode, cover thumbnail, sync, schedule, or publish gates.
 
+## 2026-06-18 WeChat Current Editor DOM Read-only Refresh
+
+- Added `prompts/0601/evidence/wechat-editor-dom-current-readonly-20260618.txt`.
+- Continued from the authenticated draftbox read-only refresh without creating, deleting, editing,
+  saving, previewing, syncing, scheduling, or publishing any content.
+- Inspected the draft card Vue component and confirmed it exposes `editAppmsg`, `editUrl`, and
+  editable permission state.
+- Rebuilt the editor URL inside the browser with the current authenticated backend session
+  parameters; no runtime parameter values were written to docs.
+- The PC article editor loaded in the current tab.
+- Read-only DOM checks found:
+  - `#js_appmsg_editor`
+  - `#editor_pannel`
+  - `#js_ueditor`
+  - `#js_editor`
+  - `.edui-editor`
+  - `.ProseMirror`
+  - toolbar shell
+  - two visible `contenteditable=true` editors
+  - hidden platform article-preview iframe
+- Updated `prompts/0601/evidence/README.md` and
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt` to record that current authenticated
+  editor reachability and PC editor DOM readback are refreshed, while ordinary paste, artifact
+  readback, safe cleanup, phone, Dark Mode, cover, sync, schedule, and publish gates remain open.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

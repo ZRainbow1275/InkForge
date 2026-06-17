@@ -1,0 +1,46 @@
+WeChat Current Editor DOM Read-only Refresh - 2026-06-18
+
+Scope:
+- CloakBrowser-only authenticated WeChat Official Account PC editor read-only refresh.
+- No screenshot, full HTML dump, runtime URL parameter, account identifier, private draft title, or
+  private draft body is recorded in this file.
+- No paste, content edit, delete, save, preview, sync, upload, schedule, publish, or new draft
+  creation was performed.
+
+Observed path:
+- The authenticated backend home and draftbox were reachable in the current CloakBrowser session.
+- The draftbox list exposed existing draft cards and delete/edit/publish action taxonomy.
+- The visible title link and ordinary edit-icon click attempts did not open the editor.
+- The card Vue component exposed an `editAppmsg` method, `editUrl`, and an active editor path.
+- The editor path was used inside the browser with the current authenticated backend session
+  parameters. No runtime parameter values are retained in this evidence file.
+- The PC article editor loaded in the current tab.
+
+Editor DOM readback:
+- Login/re-login/expired-session text: absent.
+- `#js_appmsg_editor`: present.
+- `#editor_pannel`: present.
+- `#js_ueditor`: present.
+- `#js_editor`: present.
+- `.edui-editor`: present.
+- `.ProseMirror`: present.
+- Toolbar shell: present.
+- Visible `contenteditable=true` editors: 2.
+- Hidden article-preview iframe: present with a platform article preview path.
+- Editor chrome signals visible: save draft, preview, cover, title, body, and media/import controls.
+
+Conclusion:
+- This is current authenticated editor reachability and PC editor DOM readback evidence.
+- If represented as a redacted proof manifest, the editor-reachability artifact would need
+  `authenticatedSessionVerified:true`, and the PC editor DOM artifact would need both
+  `authenticatedSessionVerified:true` and `platformEditorDomVerified:true`.
+
+Boundary:
+- This does not prove ordinary Ctrl+V rich HTML/SVG paste.
+- This does not prove artifact-specific InkForge SVG readback.
+- This does not prove phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+- Because the editor opened an existing live draft body, no content mutation was attempted. A safe
+  disposable draft and verified cleanup path are still required before live paste or phone-preview
+  proof can be collected.
