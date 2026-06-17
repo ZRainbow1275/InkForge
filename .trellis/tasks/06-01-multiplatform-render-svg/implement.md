@@ -2034,6 +2034,8 @@ git status --short --branch
   passed with 4 files / 116 tests.
   `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
   passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1010 tests.
 
 ## Remaining Checks Before Commit
 

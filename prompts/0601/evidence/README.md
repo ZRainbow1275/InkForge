@@ -449,4 +449,5 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `safe-disposable-draft`.
 - Follow-up regression: `platform-export-rendering.test.ts` now rejects draftbox cleanup affordance
   notes as `safe-disposable-draft` proof; focused Vitest passed with 1 file / 77 tests and
-  4-file export regression passed with 4 files / 116 tests.
+  4-file export regression passed with 4 files / 116 tests; full export serial suite passed with
+  35 files / 1010 tests.
