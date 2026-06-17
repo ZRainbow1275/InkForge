@@ -2216,6 +2216,37 @@ git status --short --branch
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
   passed with 35 files / 1014 tests.
 
+## 2026-06-18 WeChat Amber Ordinary Ctrl+V Disposable Draft Proof
+
+- Added `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
+- Created deterministic WeChat disposable draft `InkForge disposable proof 20260618-0515`.
+- Wrote the exact `flagship-amber.html` artifact to Windows CF_HTML clipboard:
+  SHA-256 `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`,
+  `htmlBytes=42096`, `cfHtmlBytes=42265`, source `svgCount=35`, and source
+  `dataInkSvgCount=3`.
+- Inserted body content into the authenticated WeChat PC editor by ordinary OS Ctrl+V through the
+  Windows `keybd_event` path. The run did not use synthetic ClipboardEvent/DataTransfer, plugin
+  transfer, sync, upload, schedule, or publish APIs for body insertion.
+- PC editor DOM readback for the disposable draft reported `bodyHtmlLength=43939`,
+  `bodyTextLength=1796`, `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`,
+  `sectionNice=true`, and `placeholder=false`.
+- Cleanup succeeded: the draftbox showed the disposable title before deletion, then the target was
+  absent after deletion, absent again on stable DOM readback, and absent after page reload. The list
+  count changed from `Article 7` to `Article 6`.
+- Follow-up cleanup found one untitled InkForge/Amber residual draft left by earlier Amber attempts.
+  It was deleted through the card-level content delete confirmation, not the material delete
+  confirmation. Stable and post-reload readbacks reported untitled InkForge/Amber residual count
+  `0`, and the final list count was `Article 5`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`,
+  `prompts/0601/evidence/wechat-disposable-draft-runbook-20260618.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+- Boundary:
+  this closes the WeChat PC ordinary OS Ctrl+V rich HTML/SVG insertion and safe disposable draft
+  cleanup proof for `flagship-amber.html` only. It does not prove Kiln/Tempera ordinary paste,
+  phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public URL, XHS/Zhihu account upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

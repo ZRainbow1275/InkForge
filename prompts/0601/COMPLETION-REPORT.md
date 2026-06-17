@@ -633,3 +633,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   prove ordinary WeChat Ctrl+V paste, PC editor paste, phone preview, mobile Dark Mode, mobile
   SMIL/click interaction, cover thumbnail, safe draft cleanup, credentialed sync, scheduled send,
   public host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-18 WeChat Amber Ordinary Ctrl+V Disposable Draft Addendum
+
+- Added `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
+- In CloakBrowser only, created deterministic disposable draft
+  `InkForge disposable proof 20260618-0515`.
+- Wrote exact `flagship-amber.html` to Windows CF_HTML clipboard with SHA-256
+  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- Inserted the artifact into the authenticated WeChat PC editor body by ordinary OS Ctrl+V through
+  the Windows `keybd_event` path. No synthetic ClipboardEvent/DataTransfer, plugin transfer, sync,
+  upload, schedule, or publish API was used for body insertion.
+- PC editor DOM readback preserved `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `sectionNice=true`, and `placeholder=false`.
+- Cleanup was completed for the same disposable draft: after deletion, stable DOM and post-reload
+  draftbox readbacks both showed the deterministic title absent and list count `Article 6`.
+- A remaining untitled InkForge/Amber residual draft from earlier Amber attempts was also deleted;
+  stable and post-reload readbacks reported untitled InkForge/Amber residual count `0` and final
+  list count `Article 5`.
+- Boundary: this closes Amber PC ordinary Ctrl+V rich HTML/SVG insertion plus disposable draft
+  cleanup only. It does not prove Kiln/Tempera ordinary paste, phone preview, mobile Dark Mode,
+  mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync/draft readback,
+  scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

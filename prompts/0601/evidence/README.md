@@ -165,6 +165,12 @@ focused regression 确认 draftbox affordance doc-reference 仍不能通过 safe
 `wechat-disposable-draft-runbook-20260618.md`（真实微信 disposable draft 运行手册：
 规定创建、普通 OS Ctrl+V、手机预览、清理和 manifest flag 映射的唯一安全路径；当前只是
 pre-mutation contract，尚未创建、粘贴、预览、删除或证明 disposable draft 缺失）。
+`wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`（CloakBrowser-only 真实微信 PC
+编辑器验收：`flagship-amber.html` 通过 Windows `keybd_event` 普通 OS Ctrl+V 写入 disposable draft；
+PC editor DOM 读回 `svgCount=35` / `dataInkSvgCount=3` / `dataInkBlockCount=23`；同一
+disposable draft 已删除，并经稳定 DOM 与刷新后草稿箱读回证明标题缺失；后续还清理了一个
+无标题 InkForge/Amber 残留草稿并刷新验证计数为 0。仅证明 Amber PC 普通粘贴与清理，
+不证明手机预览、Dark Mode、封面、同步、定时或发布）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -316,6 +322,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-auth-draftbox-readonly-refresh-20260618.txt # 当前平台状态：微信后台/草稿箱重新可达；本轮 edit 仍未进入 PC editor DOM
 [x] wechat-editor-dom-current-readonly-20260618.txt # 当前平台状态：微信 PC editor DOM 重新可读；未粘贴/保存/预览/发布
 [x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
+[x] wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt # 当前平台状态：Amber 在微信 PC editor 通过普通 OS Ctrl+V 保留 35 SVG/3 data-ink-svg，并完成 disposable draft 删除/缺失读回；手机/同步/发布仍未证明
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -529,7 +536,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Defines the only acceptable live-mutation path for disposable WeChat proof.
 - Separates create, ordinary OS Ctrl+V paste, phone/preview, cleanup, abort conditions, redaction,
   and manifest flag mapping.
-- Records that current editor DOM reachability exists, but ordinary keyboard paste remains blocked
-  by the negative CloakBrowser OS-key probe.
+- Records the pre-mutation contract. A later Amber-only run completed the PC ordinary Ctrl+V and
+  cleanup portion of that contract; phone/preview and publish gates remain separate.
 - This is a pre-mutation contract only. It does not create, paste into, preview, delete, or prove
   absence of a disposable draft.
+
+## 2026-06-18 WeChat Amber Ordinary Ctrl+V Disposable Draft Proof
+
+- [x] wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt
+- Created deterministic disposable draft `InkForge disposable proof 20260618-0515`.
+- Wrote exact `flagship-amber.html` to Windows CF_HTML clipboard with SHA-256
+  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- Inserted the artifact into the authenticated WeChat PC editor body through ordinary OS Ctrl+V
+  via Windows `keybd_event`; no synthetic ClipboardEvent/DataTransfer, plugin transfer, sync,
+  upload, or publish API was used for body insertion.
+- PC editor DOM readback preserved `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `sectionNice=true`, and `placeholder=false`.
+- The same disposable draft was deleted from the draftbox; stable DOM and post-reload readbacks
+  both reported the deterministic title absent and list count `Article 6`.
+- A remaining untitled InkForge/Amber residual draft from earlier Amber attempts was also deleted
+  through the card-level content delete confirmation; stable and post-reload readbacks both
+  reported untitled InkForge/Amber residual count `0` and final list count `Article 5`.
+- Boundary: this proves Amber PC ordinary Ctrl+V rich HTML/SVG insertion plus cleanup only. It does
+  not prove phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public URL, XHS/Zhihu account upload, or publish success.

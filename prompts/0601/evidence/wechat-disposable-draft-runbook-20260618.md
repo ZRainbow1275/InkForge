@@ -118,6 +118,11 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   `cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt`: `keybd_event` plus calibrated OS
   click can produce trusted local Ctrl+V, and the CF_HTML helper can feed a real flagship HTML/SVG
   payload into a controlled local contenteditable.
-- This local tooling proof still does not prove WeChat editor acceptance.
-- No disposable draft has been created, pasted into, previewed, deleted, or proven absent in this
-  run.
+- Live WeChat Amber proof is refreshed in
+  `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`: the exact `flagship-amber.html`
+  CF_HTML artifact was inserted into an authenticated WeChat PC editor by ordinary OS Ctrl+V, read
+  back with `svgCount=35` and `dataInkSvgCount=3`, then cleaned up through a deterministic
+  disposable draft deletion and post-reload absence readback.
+- That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
+  only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
+  thumbnail acceptance, credentialed sync, scheduled send, or publish success.

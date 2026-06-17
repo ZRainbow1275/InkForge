@@ -1,0 +1,103 @@
+WeChat Amber Ordinary Ctrl+V Disposable Draft Proof - 2026-06-18
+
+Scope:
+- Live WeChat PC editor proof for the exact `flagship-amber.html` artifact.
+- CloakBrowser only. Playwright was not used.
+- The run created and deleted a deterministic disposable draft.
+- No phone preview, Dark Mode, cover thumbnail, sync, scheduled send, upload, or publish action was performed.
+
+Disposable draft:
+- Title: `InkForge disposable proof 20260618-0515`.
+- The title was created only for this proof and contains no private account content.
+- The title was used as the cleanup sentinel.
+
+Clipboard artifact:
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-amber.html`.
+- Clipboard format: Windows `HTML Format` plus `UnicodeText`.
+- Clipboard writer: `inkforge/scripts/set-windows-html-clipboard.ps1`.
+- HTML bytes: 42096.
+- CF_HTML bytes: 42265.
+- StartHTML: 105.
+- StartFragment: 137.
+- EndFragment: 42233.
+- EndHTML: 42265.
+- SHA-256: `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- Source SVG count: 35.
+- Source `data-ink-svg` count: 3.
+- Plain text chars: 1365.
+
+Paste channel:
+- The WeChat body editor was focused in the authenticated PC editor.
+- The artifact was inserted by ordinary OS Ctrl+V using the Windows `keybd_event` path.
+- No synthetic `ClipboardEvent`, synthetic `DataTransfer`, paste-event constructor, DOM source injection, plugin transfer, sync API, upload API, or publish API was used for the body content.
+
+PC editor DOM readback:
+- `titleMatched`: true.
+- `titleLength`: 39.
+- `bodyTextLength`: 1796.
+- `bodyHtmlLength`: 43939.
+- `svgCount`: 35.
+- `dataInkSvgCount`: 3.
+- `dataInkBlockCount`: 23.
+- `sectionNice`: true.
+- `placeholder`: false.
+- First block classes/markers included `section data-ink-svg=cover-title`, `section id=nice`, `section data-ink-block=flagship-readbar`, and inline SVG blocks.
+- WeChat autosave/readiness text was observed after insertion.
+
+Cleanup:
+- The authenticated WeChat draftbox list was opened through the live session.
+- Before deletion, the disposable draft was visible in the draftbox and the list count showed `Article 7`.
+- The target card exposed separate delete, edit, and publish actions.
+- The delete confirmation belonged to the disposable draft card and contained a delete/cancel confirmation affordance.
+- The delete confirmation was accepted for the disposable draft only.
+- First post-delete readback:
+  - target title absent: true.
+  - list count: `Article 6`.
+- Stable DOM readback:
+  - target title absent: true.
+  - list count: `Article 6`.
+  - loaded-all marker present: true.
+- Post-reload readback:
+  - target title absent: true.
+  - list count: `Article 6`.
+  - loaded-all marker present: true.
+
+Residual orphan cleanup:
+- After the deterministic-title draft was deleted, the draftbox still contained one untitled
+  WeChat draft whose redacted backend item content contained InkForge Amber / `flagship-amber` /
+  `data-ink-svg` markers.
+- This item matched the proof artifact content and did not have a private title.
+- The item was deleted through its card-level content delete confirmation, not through the material
+  delete confirmation.
+- First post-delete residual readback:
+  - list count: `Article 5`.
+  - untitled InkForge/Amber residual count: 0.
+- Stable residual DOM readback:
+  - list count: `Article 5`.
+  - untitled InkForge/Amber residual count: 0.
+  - card count: 5.
+- Post-reload residual readback:
+  - list count: `Article 5`.
+  - untitled InkForge/Amber residual count: 0.
+  - loaded-all marker present: true.
+- Remaining cards after reload did not include any untitled InkForge/Amber residual.
+
+Manifest interpretation:
+- This evidence can support `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `pc-editor-paste-event`, and `safe-disposable-draft` for the exact
+  `flagship-amber.html` artifact when represented as a redacted `StyleProofManifest`
+  with:
+  - `authenticatedSessionVerified:true`;
+  - `platformEditorDomVerified:true`;
+  - `ordinaryClipboardPasteVerified:true`;
+  - `disposableDraft:true`;
+  - `cleanupPathVerified:true`;
+  - exact artifact continuity bound to SHA-256
+    `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+
+Boundary:
+- This proves WeChat PC ordinary OS Ctrl+V rich HTML/SVG insertion and disposable-draft cleanup for `flagship-amber.html` only.
+- It does not prove `flagship-kiln` or `flagship-tempera` ordinary Ctrl+V in the current session.
+- It does not prove phone preview content, mobile screenshot, mobile Dark Mode, mobile SMIL/click behavior, cover thumbnail acceptance, credentialed sync/draft readback, scheduled send, public URL, upload, or publish success.
+- It also records cleanup of the untitled InkForge/Amber residual draft that remained after earlier Amber attempts.
+- It does not authorize committing any browser runtime state, credential material, account captures, platform scan assets, local capture paths, or private draft material.

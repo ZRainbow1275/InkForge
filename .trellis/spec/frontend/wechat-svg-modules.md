@@ -968,6 +968,15 @@ Contracts:
   local `contenteditable`, it must not satisfy `pc-editor-paste-event` until the same exact artifact
   is pasted into an authenticated WeChat PC editor through a disposable draft, read back from the
   editor DOM, and cleaned up with absence/rollback proof.
+- 2026-06-18 live WeChat Amber exception: `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`
+  proves that exact `flagship-amber.html` was written as Windows CF_HTML, inserted into an
+  authenticated WeChat PC editor through ordinary OS Ctrl+V via `keybd_event`, read back from the PC
+  editor DOM with `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23`, then deleted from
+  the deterministic disposable draft with stable and post-reload title-absence checks. This may
+  satisfy `pc-editor-paste-event` and `safe-disposable-draft` only for a redacted manifest bound to
+  that exact Amber fingerprint. It must not be generalized to Kiln/Tempera, phone preview, mobile
+  Dark Mode, mobile SMIL/click behavior, cover thumbnail acceptance, credentialed sync, scheduled
+  send, or publish success.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
