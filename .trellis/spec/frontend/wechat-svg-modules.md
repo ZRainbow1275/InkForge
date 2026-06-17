@@ -961,6 +961,9 @@ Contracts:
   `platformEditorDomVerified:true` on a platform-editor DOM/visual-DOM artifact. Generic DOM
   readback from a login page, shell page, blocked page, or expired session must not satisfy PC
   editor DOM proof.
+- The `authenticated-pc-editor` collection plan/queue note must mention
+  `authenticatedSessionVerified:true` and `platformEditorDomVerified:true` so ExportModal/operator
+  workflows collect the same proof flags enforced by `validateStyleProofManifest()`.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform

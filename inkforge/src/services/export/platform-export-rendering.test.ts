@@ -456,6 +456,9 @@ describe('platform native export rendering rules', () => {
       && step.requiresExternalAccount
       && !step.safeToAutomate
     )).toBe(true)
+    const authenticatedEditorStep = amberSteps.find(step => step.gate === 'authenticated-pc-editor')
+    expect(authenticatedEditorStep?.note).toContain('authenticatedSessionVerified:true')
+    expect(authenticatedEditorStep?.note).toContain('platformEditorDomVerified:true')
     expect(amberSteps.filter(step => step.gate === 'phone-preview').map(step => step.requirement.id)).toEqual(
       expect.arrayContaining(['phone-preview-readback', 'phone-screenshot', 'dark-mode-check', 'cover-thumbnail-check']),
     )
@@ -506,6 +509,8 @@ describe('platform native export rendering rules', () => {
     )
     expect(wechatQueue.groups.find(group => group.gate === 'authenticated-pc-editor')?.choiceIds)
       .toContain('wechat-flagship-amber')
+    expect(wechatQueue.groups.find(group => group.gate === 'authenticated-pc-editor')?.note)
+      .toContain('authenticatedSessionVerified:true')
     expect(wechatQueue.summary.blockedChoices).toBeGreaterThan(0)
     expect(getPlatformStyleAvailabilityReport('wechat').choices.find(choice =>
       choice.choice.id === 'wechat-flagship-amber',

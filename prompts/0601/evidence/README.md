@@ -466,7 +466,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   or publish action was performed.
 - Runtime proof gates now require `authenticatedSessionVerified:true` for authenticated editor
   reachability and both `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true`
-  for PC editor DOM readback.
+  for PC editor DOM readback; the `authenticated-pc-editor` collection plan/queue note also
+  surfaces both flags for operator collection.
 - Focused regression: login/expired-session style manifests remain invalid for authenticated editor
   and PC editor DOM proof; 4-file export regression passed with 4 files / 118 tests, full export
-  serial suite passed with 35 files / 1012 tests, ESLint/vue-tsc/build passed.
+  serial suite passed with 35 files / 1012 tests, ESLint/vue-tsc/build passed. Follow-up
+  collection-plan assertion confirms the authenticated-PC-editor queue note includes both new
+  required flags.

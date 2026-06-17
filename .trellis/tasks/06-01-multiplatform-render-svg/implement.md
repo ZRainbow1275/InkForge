@@ -2051,6 +2051,8 @@ git status --short --branch
     `platformEditorDomVerified:true`.
 - Added focused regression coverage proving login/expired-session pages cannot satisfy
   authenticated editor reachability or PC editor DOM proof.
+- Updated the `authenticated-pc-editor` collection plan/queue note so operator-facing steps mention
+  both `authenticatedSessionVerified:true` and `platformEditorDomVerified:true`.
 - Verification:
   `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
   passed with 1 file / 79 tests.
@@ -2062,6 +2064,17 @@ git status --short --branch
   passed.
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
   passed with 35 files / 1012 tests.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
+- Follow-up collection-plan verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 79 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 118 tests.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1012 tests.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
   `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
   passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
 

@@ -857,7 +857,7 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
   'sensitive-hygiene': 'Review proof references for tokens, cookies, QR codes, HAR files, browser profiles, account screenshots, and local credential paths.',
   'market-editor': 'Use CloakBrowser to apply a concrete market editor element, visually confirm insertion, and record DOM/controls without copying template source.',
-  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact and safe disposable-draft cleanup proof are ready.',
+  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
   'phone-preview': 'Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.',
   'public-host': 'Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.',
   'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',

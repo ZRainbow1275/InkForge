@@ -20,6 +20,8 @@ Runtime rule implemented:
 - `pc-editor-dom-readback` now requires both
   `StyleProofArtifact.authenticatedSessionVerified === true` and
   `StyleProofArtifact.platformEditorDomVerified === true`.
+- The `authenticated-pc-editor` collection plan/queue note now surfaces both required flags so the
+  operator-facing proof queue does not ask for a weaker generic editor readback.
 - Login, re-login, expired-session, scan-entry, or other non-editor pages must remain invalid even
   when a manifest records a platform-editor URL open or a generic DOM readback.
 
@@ -31,6 +33,8 @@ Regression coverage:
   editor-node verification keeps `pc-editor-dom-readback` invalid and surfaces both
   `style-proof-manifest-authenticated-session-not-verified` and
   `style-proof-manifest-platform-editor-dom-not-verified`.
+- The collection plan and queue expose `authenticatedSessionVerified:true` and
+  `platformEditorDomVerified:true` in the `authenticated-pc-editor` gate note.
 
 Verification:
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
@@ -45,6 +49,17 @@ Verification:
   passed with 35 files / 1012 tests.
 - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
   passed; generated `tsconfig.tsbuildinfo` cache output was restored before commit.
+- Follow-up collection-plan verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 79 tests, and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 118 tests.
+- Final verification after collection-plan note update:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1012 tests;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed; and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with generated cache
+  output restored before commit.
 
 Boundary:
 - This evidence proves only that the current browser session cannot be used for live WeChat proof.
