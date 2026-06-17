@@ -487,3 +487,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   non-sensitive profile label `inkforge-0601`.
 - Boundary: this is evidence hygiene only. It does not create new platform proof, mutate an editor,
   open phone preview, sync, upload, schedule, or publish.
+
+---
+
+## 2026-06-17 CloakBrowser Market Editor Applied Refresh Addendum
+
+- Added `prompts/0601/evidence/market-editor-applied-refresh-20260617.txt`.
+- 135 SVG editor: a visible free-trial SVG effect click changed the center 336px canvas from
+  4 to 5 blocks, `htmlLen` 13636 to 15500, `svg` 5 to 6, with `img` unchanged at 4.
+- 135 ordinary editor: a visible non-VIP style item click changed the center UEditor iframe from
+  5 to 6 `section._135editor` blocks and from 101 to 102 sections, with `svg` and `img` counts
+  unchanged.
+- Xiumi: the SVG category exposed SVG/H5 families, and a visible SVG library item could be
+  selected, but the center paper did not change because the page was not authenticated and a
+  draft-recovery confirmation was present. This remains taxonomy/listing evidence, not applied
+  editor evidence.
+- WeChat: backend home still reported a timed-out session and exposed no editor controls.
+- Boundary: this addendum is market-learning and blocked platform-state evidence only. It does not
+  prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
+  safe draft cleanup, credentialed sync, scheduled send, XHS/Zhihu account upload, or publish.

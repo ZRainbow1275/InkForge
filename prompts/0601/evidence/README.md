@@ -316,3 +316,12 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Historical evidence files were redacted to remove local executable absolute paths and an absolute
   CloakBrowser profile directory while preserving proof results and non-sensitive profile labels.
 - This is evidence hygiene only. It does not create new platform proof or close external gates.
+
+## 2026-06-17 CloakBrowser Market Editor Applied Refresh
+
+- [x] market-editor-applied-refresh-20260617.txt
+- 135 SVG and ordinary editor clicks produced measurable center editor/canvas changes.
+- Xiumi SVG library selection remained taxonomy-only in the current login/recovery-dialog state
+  because the central paper did not change.
+- WeChat backend still reported a timed-out session. This refresh is market-learning and blocked
+  evidence only, not phone, sync, upload, schedule, or publish proof.

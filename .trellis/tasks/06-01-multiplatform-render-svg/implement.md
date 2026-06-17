@@ -1714,6 +1714,28 @@ git status --short --branch
   live editor, open phone preview, sync, upload, schedule, publish, or close external platform
   gates.
 
+## 2026-06-17 CloakBrowser Market Editor Applied Refresh Slice
+
+- Used CloakBrowser only to refresh market-editor learning and external platform status.
+- 135 SVG editor:
+  clicked a visible free-trial SVG effect. The center 336px canvas changed from 4 to 5 blocks,
+  `htmlLen` 13636 to 15500, `svg` 5 to 6, and `img` stayed 4.
+- 135 ordinary editor:
+  clicked a visible non-VIP style item. The center UEditor iframe changed from 5 to 6
+  `section._135editor` blocks, 101 to 102 sections, and `svg`/`img` counts stayed stable.
+- Xiumi:
+  clicked the SVG category and a visible SVG library item. The library exposed SVG/H5 families,
+  but the central paper stayed unchanged because the current page was not authenticated and a
+  draft-recovery confirmation was present. Neither confirm nor cancel was clicked.
+- WeChat:
+  backend home still reported a timed-out session and exposed no editor controls.
+- Added non-sensitive evidence file:
+  `prompts/0601/evidence/market-editor-applied-refresh-20260617.txt`.
+- Boundary:
+  this slice proves market authoring-rule learning and blocked platform state only. It does not
+  prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click interaction, cover thumbnail,
+  safe draft cleanup, credentialed sync, scheduled send, XHS/Zhihu account upload, or publish.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

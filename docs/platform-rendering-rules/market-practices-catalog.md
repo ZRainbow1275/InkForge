@@ -603,6 +603,25 @@ This trace maps existing InkForge style assets to user-facing choices so future 
 - Transparent images or SVGs with dark strokes need light/dark contrast review.
 - Do not use `data-no-dark` as a blanket escape hatch; it only solves a narrow class of cases.
 
+### 4.4 Market editor evidence split
+
+- A visible 135/Xiumi library category or selected library item is `market-template-listing`.
+  It can update taxonomy, vocabulary, and risk labels only.
+- A market editor click becomes `applied-editor-element` only when the center editor, canvas, or
+  paper changes and the after-state DOM can be read.
+- 135 SVG editor examples may inform trigger zones, image slots, motion parameters, static
+  fallback, raster fallback, and phone-preview gates. Do not copy trial effect source, market ids,
+  exact coordinates, paid material, or authoring wrappers.
+- 135 ordinary editor examples may inform title/body rhythm, nested hierarchy, and block insertion
+  risk. Do not retain `_135editor`, helper classes, `data-tools`, `data-id`, editor metadata,
+  transforms, or market image dependencies.
+- Xiumi SVG/H5 examples may inform image carousel, click-expand, path animation, draw, slide,
+  transition, parallax, click switch, flip, zoom, quiz, bullet text, popup, print, jump, play,
+  long-press, and region-trigger taxonomies. If the center paper does not change, keep the evidence
+  at `market-template-listing`.
+- Neither `market-template-listing` nor `applied-editor-element` proves WeChat phone rendering,
+  Dark Mode, mobile interaction, cover acceptance, account sync, scheduled send, or publish.
+
 ## 5. Verification Contract
 
 Docs/spec changes are not enough. Any renderer change must be proven by:
@@ -647,6 +666,8 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
   `prompts/0601/evidence/market-editor-live-taxonomy-refresh-20260608.txt`
 - InkForge CloakBrowser applied-element market evidence:
   `prompts/0601/evidence/market-editor-element-probe-20260608.txt`
+- InkForge CloakBrowser market applied refresh evidence:
+  `prompts/0601/evidence/market-editor-applied-refresh-20260617.txt`
 - InkForge WeChat authenticated editor proof checklist evidence:
   `prompts/0601/evidence/style-proof-checklist-20260609.txt`
 - InkForge real PC paste evidence path: `prompts/0601/evidence/wechat-paste/`

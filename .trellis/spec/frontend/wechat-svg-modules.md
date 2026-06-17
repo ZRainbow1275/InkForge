@@ -145,6 +145,13 @@ construct breaks.
   SVG availability from Xiumi library preview SVG counts. Xiumi `tn-*`, `ng-*`, action/layer,
   flow-canvas, third-party asset host, plugin/copy/sync/export, and line-height-zero authoring
   state must become readable DOM order, image manifests, layout reports, or fallback artifacts.
+- 2026-06-17 CloakBrowser refresh adds a stricter evidence split: a library/category/item click
+  that changes only the left library or settings panel is `market-template-listing`, not
+  `applied-editor-element`. It may update taxonomy and risk labels, but cannot justify a runtime
+  rule by itself. A market editor click is `applied-editor-element` only when the central
+  editor/canvas/paper changes and the after-state DOM is read. In this refresh, 135 SVG and 135
+  ordinary editor clicks met that bar; Xiumi did not because the page showed a non-authenticated
+  state plus a draft-recovery confirmation and the central paper stayed unchanged.
 - 2026-06-09 runtime gate: the export quality detector now turns that no-copy boundary into
   platform errors. `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
   `zhihu-market-editor-residue` block 135/Xiumi authoring classes, `data-tools`, copied numeric

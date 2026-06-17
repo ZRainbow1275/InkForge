@@ -1,0 +1,77 @@
+CloakBrowser Market Editor Applied Refresh - 2026-06-17
+
+Scope:
+- Real-browser platform learning with CloakBrowser only.
+- Platforms checked: 135 SVG editor, 135 ordinary editor, Xiumi paper editor, and WeChat Official
+  Account backend home.
+- No platform save, sync, export, upload, phone preview, scheduled send, publish, draft creation,
+  draft recovery, or draft deletion action was executed.
+- No account identifiers, local browser directories, private template source, paid/trial source
+  body, credential material, network capture, scan-login material, or local image location is
+  recorded here.
+
+135 SVG editor:
+- Opened the live 135 SVG editor and read the visible left taxonomy plus the center 336px canvas.
+- Visible SVG families included all/recommended/basic/image/click/carousel/slide/auto/audio-video/
+  expand/long-press/layout/official-account/link-mini-program/other.
+- Clicked the first visible free-trial SVG effect from the left list.
+- The center canvas changed from 4 block children to 5 block children.
+- Center canvas metrics changed from htmlLen 13636, svg 5, img 4 to htmlLen 15500, svg 6, img 4.
+- The inserted effect was a cover/click trigger and hot-area style skeleton. The image count did
+  not increase, so this was treated as authoring-structure evidence rather than material-copy
+  evidence.
+- Translation rule: 135 SVG trial effects can inform InkForge-owned trigger-zone manifests,
+  image-slot manifests, motion parameters, static-expanded fallback, raster fallback, and mobile
+  proof requirements. They cannot be copied as source and cannot prove WeChat mobile interaction
+  by themselves.
+
+135 ordinary editor:
+- Opened the live 135 ordinary editor and read the same-origin UEditor iframe.
+- Before click: center iframe had 5 `section._135editor` blocks, 101 sections, 5 svg nodes,
+  12 images, and htmlLen 20537.
+- Clicked one visible non-VIP style item from the left style list.
+- After click: center iframe had 6 `section._135editor` blocks, 102 sections, 5 svg nodes,
+  12 images, and htmlLen 20627.
+- Translation rule: the click proves an applied editor element and block insertion behavior only.
+  Nested sections, inline styles, helper classes, market ids, image metadata, transforms, and
+  editor residue may inform InkForge-owned hierarchy and rhythm, but must not survive in
+  WeChat/XHS/Zhihu runtime output.
+
+Xiumi paper editor:
+- Opened the live Xiumi paper editor. The page showed the login entry, so this was not treated as
+  authenticated account proof.
+- A recovery confirmation was visible: the editor detected a previous unsaved draft and asked
+  whether to restore it. Neither confirm nor cancel was clicked.
+- Clicked the left SVG category. The left library changed from ordinary article material to SVG/H5
+  effect families, and total page SVG count increased from 0 to 241 while total image count
+  increased from 147 to 191.
+- Visible SVG/H5 families included basic SVG, image carousel, click-expand, path animation, draw,
+  fun slide, transition, branch transition, slide trigger, parallax, click switch, flip, zoom,
+  quiz, bullet text, click show, click change image, click open, click disappear, click popup,
+  click enlarge, click print, click jump, click play, long press, region trigger, falling, and
+  click plus auto.
+- Clicking a visible SVG library item selected the library item and opened its settings/metadata
+  state, but the central paper remained unchanged: htmlLen 3749, svg 0, img 0, component count 1,
+  and section count 1 both before and after.
+- Translation rule: Xiumi library selection and SVG-preview counts are taxonomy evidence only
+  unless the central paper changes. In the current blocked state, it must be recorded as
+  market-template-listing, not applied-editor-element.
+
+WeChat Official Account backend:
+- Opened the backend home path with CloakBrowser.
+- The page reported a timed-out session and exposed only the login link plus footer links.
+- Safe DOM counts: anchors 8, buttons 0, iframes 0, inputs/editables 0, svg 0, img 0.
+- No editor hints were present.
+- Translation rule: this is blocked evidence only. It does not satisfy authenticated editor,
+  safe draft, paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, or publish
+  proof.
+
+Cross-platform rule outcome:
+- `market-template-listing`: a library/category/item was visible or selected, but the center editor
+  did not change. It can inform taxonomy and risk labels only.
+- `applied-editor-element`: a concrete item was clicked and the center editor/canvas changed. It
+  can inform rewrite/fallback requirements only.
+- `platform-proof`: phone preview, account sync, scheduled-send, upload, public-host, or publish
+  proof. None was collected in this refresh.
+- Final InkForge output must remain source-owned and pass market-residue gates before it can be
+  considered publishable for WeChat/XHS/Zhihu.
