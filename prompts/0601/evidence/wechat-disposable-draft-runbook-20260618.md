@@ -114,6 +114,10 @@ Only run this phase after paste readback and disposable cleanup controls are rea
 
 - Current editor DOM reachability is refreshed in
   `wechat-editor-dom-current-readonly-20260618.txt`.
-- Current ordinary keyboard paste remains blocked by the negative CloakBrowser OS-key probe.
+- Current local ordinary keyboard paste tooling is refreshed in
+  `cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt`: `keybd_event` plus calibrated OS
+  click can produce trusted local Ctrl+V, and the CF_HTML helper can feed a real flagship HTML/SVG
+  payload into a controlled local contenteditable.
+- This local tooling proof still does not prove WeChat editor acceptance.
 - No disposable draft has been created, pasted into, previewed, deleted, or proven absent in this
   run.

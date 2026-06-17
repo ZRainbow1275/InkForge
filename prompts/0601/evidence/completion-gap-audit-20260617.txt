@@ -15,6 +15,8 @@ Scope:
   `wechat-ordinary-paste-os-clipboard-preflight-20260618.txt`.
 - Latest CloakBrowser local OS keyboard probe reviewed:
   `cloakbrowser-os-ctrlv-local-probe-20260618.txt`.
+- Latest CloakBrowser local OS rich HTML paste probe reviewed:
+  `cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt`.
 - Latest WeChat draftbox cleanup-path read-only preflight reviewed:
   `wechat-draftbox-cleanup-path-readonly-20260618.txt`.
 - Latest WeChat session-state proof gate reviewed:
@@ -42,7 +44,7 @@ Requirement matrix:
 
 | Requirement | Current evidence | Audit result | Next required proof |
 | --- | --- | --- | --- |
-| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains blocked. 2026-06-17 CloakBrowser reached backend home and draftbox list. 2026-06-18 CloakBrowser loaded the session-bound PC article editor and read `#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`, and `.ProseMirror ProseMirror-focused` without mutating content. A later 2026-06-18 session refresh reached authenticated backend home and draftbox again; title/edit-icon attempts stayed on the list, then the card Vue component `editUrl` plus current backend session parameters loaded the PC editor and read the same editor shell/body selectors without mutation. The Windows CF_HTML helper dry-run generated payload metadata for all three flagship artifacts. The 2026-06-18 CloakBrowser local OS keyboard probe foregrounded Chromium and sent Win32 input, but the controlled page recorded only `Unidentified` keydown events and no `paste` / `input`. The 2026-06-18 draftbox cleanup preflight confirmed delete/edit/publish action taxonomy and delete confirmation/cancel affordances, but did not create or delete a disposable draft. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; ordinary Ctrl+V paste/readback from a safe disposable draft after a reliable non-Playwright keyboard channel or isolated operator-driven paste proof exists; actual disposable-draft deletion/rollback and list readback before `cleanupPathVerified:true`. |
+| AC1 WeChat real rendering for new SVG modules | Tauri/WebView2 e2e screenshots and PC editor evidence exist for selected samples. Kiln/Tempera have PC paste evidence; Amber has channel-specific PC DOM readback, while ordinary Ctrl+V remains unproven in a safe WeChat draft. 2026-06-17 CloakBrowser reached backend home and draftbox list. 2026-06-18 CloakBrowser loaded the session-bound PC article editor and read `#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`, and `.ProseMirror ProseMirror-focused` without mutating content. A later 2026-06-18 session refresh reached authenticated backend home and draftbox again; title/edit-icon attempts stayed on the list, then the card Vue component `editUrl` plus current backend session parameters loaded the PC editor and read the same editor shell/body selectors without mutation. The Windows CF_HTML helper dry-run generated payload metadata for all three flagship artifacts. The earlier 2026-06-18 CloakBrowser local OS keyboard probe showed `SendInput` is invalid because it produced only `Unidentified` keydown events. The later 2026-06-18 local rich HTML probe closed the local tooling gap: after a clean visible local page, calibrated OS click, and Windows `keybd_event` Ctrl+V, a real `flagship-tempera.html` CF_HTML payload produced trusted `paste` / `input` and preserved `svgCount=35` / `dataInkSvgCount=3` in a controlled contenteditable. The 2026-06-18 draftbox cleanup preflight confirmed delete/edit/publish action taxonomy and delete confirmation/cancel affordances, but did not create or delete a disposable draft. | `partial` | Phone WeChat preview screenshots/readback for all three flagships; cover entry check; mobile Dark Mode check; mobile SMIL/click check; ordinary Ctrl+V paste/readback from a safe disposable draft using the now-proven local keybd_event path; actual disposable-draft deletion/rollback and list readback before `cleanupPathVerified:true`. |
 | AC2 module family and persona coverage | `svg-modules` registry/family tests and completion report record 26 modules / 7 families across personas. | `complete-local` | Re-run module and export suites after any module changes. |
 | AC3 20-22 CJK chars per line | Real Tauri/WebView2 e2e and probe evidence cover local/mobile-width layout. | `complete-local` | Refresh e2e after layout or typography changes. |
 | AC4 existing 12 WeChat + 5 XHS + 3 Zhihu presets preserved | Export suites, migration tests, and completion report show preset counts and regression coverage. | `complete-local` | Re-run full export suite before final archive. |
@@ -58,7 +60,7 @@ Cross-platform proof matrix:
 | Platform / channel | Current proof | Cannot claim yet |
 | --- | --- | --- |
 | WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
-| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable; local CloakBrowser OS-key probe is currently negative for ordinary paste; an expired-session state was captured as a negative proof-gate sample, and a later read-only refresh reached authenticated backend/draftbox plus current PC editor DOM through the card Vue component `editUrl`. Runtime proof gates now require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Amber ordinary Ctrl+V rich HTML success; reliable non-Playwright ordinary keyboard channel or isolated operator-driven paste proof; actual safe disposable draft creation/deletion/rollback plus list readback before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable; local CloakBrowser rich HTML Ctrl+V is now positive only on a controlled local contenteditable, while WeChat ordinary paste remains unproven; an expired-session state was captured as a negative proof-gate sample, and a later read-only refresh reached authenticated backend/draftbox plus current PC editor DOM through the card Vue component `editUrl`. Runtime proof gates now require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Amber ordinary Ctrl+V rich HTML success in WeChat; actual safe disposable draft creation/deletion/rollback plus list readback before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -94,10 +96,14 @@ Current strongest evidence:
 - `inkforge/scripts/set-windows-html-clipboard.ps1` can build Windows CF_HTML clipboard payload
   metadata for `flagship-amber`, `flagship-kiln`, and `flagship-tempera`; this is local tooling
   readiness only and is not ordinary Ctrl+V proof.
-- The 2026-06-18 CloakBrowser local OS keyboard probe is negative: Win32 input could foreground
-  Chromium and emit `Unidentified` keydown events on a controlled textarea page, but it did not
-  produce `paste` / `input` or insert the clipboard sentinel. This blocks an unattended live
-  WeChat ordinary-paste attempt under the current no-Playwright constraint.
+- The 2026-06-18 CloakBrowser local OS keyboard probe now has a resolved local path:
+  `SendInput` remains invalid because Chromium reads it as `Unidentified` keydown only, but
+  `keybd_event` plus a calibrated OS click produces trusted `Ctrl+V`, `paste`, `beforeinput`, and
+  `input` on a controlled local page.
+- The 2026-06-18 CloakBrowser rich HTML local probe used the real `flagship-tempera.html`
+  CF_HTML payload and preserved `svgCount=35` / `dataInkSvgCount=3` in a controlled
+  contenteditable. This proves local tooling readiness only; it does not prove WeChat editor
+  acceptance.
 - The committed local manifest pack intentionally remains invalid as full proof because it records
   local evidence only; that is correct and prevents false platform claims.
 - A disposable-draft pre-mutation runbook now exists. It defines the required create, paste, phone,
@@ -110,8 +116,8 @@ Remaining hard gates:
 - WeChat cover thumbnail / preview-entry acceptance.
 - Amber ordinary Ctrl+V rich HTML success. Programmatic ClipboardEvent/DataTransfer readback is now
   explicitly invalid for ordinary paste proof unless `ordinaryClipboardPasteVerified:true` exists.
-- Reliable non-Playwright ordinary keyboard paste channel for CloakBrowser, or a clearly separated
-  operator-driven paste proof under the same redaction and safe-draft cleanup rules.
+- WeChat ordinary Ctrl+V rich HTML/SVG paste using the locally proven `keybd_event` path, bound to a
+  safe disposable draft and editor DOM readback.
 - Login/expired-session states must remain invalid evidence even though a later authenticated
   backend/draftbox/editor DOM readback exists.
 - Safe disposable draft or equivalent cleanup path before mutating live WeChat editor state.
@@ -128,9 +134,10 @@ Safe next actions:
 2. Before any live WeChat mutation, follow `wechat-disposable-draft-runbook-20260618.md`: name the
    exact artifact, target channel, cleanup path, redaction boundary, expected DOM/readback evidence,
    and post-cleanup absence/readback check.
-3. For ordinary PC paste, use the Windows CF_HTML helper only after the safe disposable draft,
-   cleanup path, and reliable ordinary keyboard channel are verified; the proof still needs OS
-   Ctrl+V, editor DOM readback, and cleanup readback.
+3. For ordinary PC paste, the local non-Playwright keyboard path is now `keybd_event` plus
+   calibrated OS click. Use the Windows CF_HTML helper and `probe-windows-foreground-input.ps1
+   -PreserveClipboard` only after the safe disposable draft and cleanup path are ready; the proof
+   still needs WeChat OS Ctrl+V, editor DOM readback, and cleanup readback.
 4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
 5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host

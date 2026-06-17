@@ -1763,6 +1763,41 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
   })
 
+  it('keeps local keybd_event CF_HTML success separate from WeChat PC paste proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-local-keybd-cfhtml',
+      artifacts: [
+        {
+          id: 'local-keybd-event-cfhtml-success',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'test-log',
+          label: 'local keybd_event Ctrl+V preserved CF_HTML SVG in controlled contenteditable',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-browser',
+          action: 'pc-paste',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-local-keybd-cfhtml',
+          exactArtifact: true,
+          ordinaryClipboardPasteVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
   it('rejects market library selection when the central editor did not change', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',

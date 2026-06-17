@@ -2173,6 +2173,49 @@ git status --short --branch
   `prompts/0601/evidence/completion-gap-audit-20260617.txt` to point future live-mutation proof at
   the runbook instead of ad hoc account actions.
 
+## 2026-06-18 CloakBrowser OS Ctrl+V Rich HTML Local Probe
+
+- Added `inkforge/scripts/probe-windows-foreground-input.ps1`.
+- The helper restores/foregrounds a matching Chromium window, clicks a caller-provided screen
+  coordinate, and sends either diagnostic `A` or `Ctrl+V`.
+- It keeps `SendInput` available for regression comparison, but the working local keyboard path is
+  Windows `keybd_event`.
+- Added `-PreserveClipboard` so the helper can send Ctrl+V after
+  `inkforge/scripts/set-windows-html-clipboard.ps1` writes a real Windows `HTML Format` payload.
+- CloakBrowser-only local controlled-page findings:
+  - A stale reused browser state had the CDP target and visible OS tab out of sync, so OS input was
+    unsafe there; the browser was restarted before final local proof.
+  - `SendInput` still produced only `Unidentified` keydown events in Chromium and no paste/input.
+  - `keybd_event` plus calibrated OS click produced trusted local `Control` + `v`, `paste`,
+    `beforeinput`, `input`, and sentinel insertion on a textarea page.
+  - With `flagship-tempera.html` written to the Windows clipboard as CF_HTML, the same local
+    `keybd_event` Ctrl+V path pasted into a controlled contenteditable and read back:
+    `paste types=["text/plain","text/html"]`, paste `htmlLength=40474`, resulting
+    `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`, and `sectionNice=true`.
+- Added `prompts/0601/evidence/cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/evidence/completion-gap-audit-20260617.txt`,
+  `prompts/0601/evidence/wechat-disposable-draft-runbook-20260618.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+- Boundary:
+  this unblocks the local non-Playwright ordinary keyboard/CF_HTML precondition only. It does not
+  set `ordinaryClipboardPasteVerified:true`, does not prove WeChat editor acceptance, and does not
+  remove the safe disposable draft, editor DOM readback, cleanup, phone, Dark Mode, cover, sync,
+  schedule, or publish gates.
+- Follow-up regression:
+  added a `platform-export-rendering.test.ts` manifest case proving local `keybd_event` / CF_HTML
+  success on a controlled local page remains invalid for WeChat `pc-editor-paste-event` unless
+  authenticated platform-editor paste/readback proof exists.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 81 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 120 tests.
+  `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1014 tests.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

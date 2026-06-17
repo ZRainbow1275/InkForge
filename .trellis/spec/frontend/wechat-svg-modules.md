@@ -962,6 +962,12 @@ Contracts:
   readback is negative tooling evidence. It must not be treated as ordinary Ctrl+V proof, and it
   must not trigger a live WeChat paste attempt without a reliable keyboard channel or an explicitly
   separated operator-driven proof path.
+- A local CloakBrowser OS-keyboard probe that uses `keybd_event` plus calibrated OS click and
+  produces trusted local `Ctrl+V`, `paste`, `beforeinput`, and `input` events is local tooling
+  readiness only. Even when a real CF_HTML flagship artifact preserves inline SVG in a controlled
+  local `contenteditable`, it must not satisfy `pc-editor-paste-event` until the same exact artifact
+  is pasted into an authenticated WeChat PC editor through a disposable draft, read back from the
+  editor DOM, and cleaned up with absence/rollback proof.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1004,6 +1010,9 @@ Required tests:
 - A manifest that cites a local OS keyboard probe with no `paste` / `input` event and no inserted
   sentinel must keep `pc-editor-paste-event` missing or invalid; accepted Win32 input counts and
   foreground-window evidence are not sufficient.
+- A manifest that cites local `keybd_event` / CF_HTML success on a controlled local page must still
+  keep WeChat `pc-editor-paste-event` missing or invalid unless it also includes authenticated
+  platform-editor paste/readback proof for the exact artifact and ordinary channel.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and

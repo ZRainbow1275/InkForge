@@ -142,6 +142,10 @@ invalid for ordinary Ctrl+V paste）。
 CloakBrowser 本地受控 textarea 页面可被前台化，Win32 `SendInput` 可被系统接受并产生
 `Unidentified` keydown，但未产生 `paste` / `input`，哨兵字符串未插入；该结果不证明普通
 Ctrl+V，且在建立可靠非 Playwright 键盘通道或人工隔离粘贴证明前，不应触碰真实微信草稿）。
+`cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt`（当前本机工具正向预检：
+CloakBrowser 干净本地受控页 + 校准 OS 点击 + Windows `keybd_event` Ctrl+V 可产生 trusted
+`paste` / `input`；真实 `flagship-tempera.html` CF_HTML 粘贴到本地 contenteditable 后读回
+`svgCount=35` / `dataInkSvgCount=3`。该结果只解锁本地工具链前置门槛，不证明微信草稿粘贴）。
 `wechat-draftbox-cleanup-path-readonly-20260618.txt`（CloakBrowser-only 微信草稿箱清理路径
 只读预检：草稿箱可达，草稿卡片暴露 delete/edit/publish 动作分类，删除确认/取消控件可发现，
 “新的创作”下拉可读但文章创建入口为前端事件处理；本证据只证明清理 affordance，不创建、
@@ -306,6 +310,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-editor-dom-readonly-refresh-20260618.txt # 当前平台状态：CloakBrowser 微信 PC 编辑器可达且 DOM 可读；未粘贴/保存/预览/发布
 [x] wechat-ordinary-paste-os-clipboard-preflight-20260618.txt # 当前本机工具预检：三旗舰可生成 CF_HTML；不是微信 Ctrl+V 证明
 [x] cloakbrowser-os-ctrlv-local-probe-20260618.txt # 当前本机工具负向预检：OS SendInput 在 CloakBrowser 控制页只产生 Unidentified keydown；不是普通 Ctrl+V 证明
+[x] cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt # 当前本机工具正向预检：keybd_event Ctrl+V + CF_HTML 在本地 contenteditable 中保留 SVG；不是微信草稿证明
 [x] wechat-draftbox-cleanup-path-readonly-20260618.txt # 当前平台状态：草稿箱清理 affordance 可读；未创建/删除 disposable draft，不满足 cleanupPathVerified
 [x] wechat-session-expired-gate-20260618.txt # 当前平台状态：微信后台要求重新登录；登录/过期页不能满足 authenticated editor 或 PC DOM proof
 [x] wechat-auth-draftbox-readonly-refresh-20260618.txt # 当前平台状态：微信后台/草稿箱重新可达；本轮 edit 仍未进入 PC editor DOM

@@ -1,0 +1,104 @@
+CloakBrowser OS Ctrl+V Rich HTML Local Probe - 2026-06-18
+
+Scope:
+- Local controlled-page probe for the ordinary Windows keyboard and clipboard channel.
+- Browser tool: CloakBrowser only.
+- No WeChat draft creation, edit, save, preview, upload, sync, schedule, publish, deletion, or
+  phone action was performed.
+- This file records local tooling readiness only. It does not set
+  `ordinaryClipboardPasteVerified:true` for WeChat.
+
+Reusable helper added:
+- `inkforge/scripts/probe-windows-foreground-input.ps1`
+
+Helper behavior:
+- Restores and foregrounds a matching Chromium window.
+- Clicks a caller-supplied screen coordinate, or derives one from viewport defaults.
+- Sends `Ctrl+V` or a diagnostic `A` key.
+- Supports both:
+  - `SendInput` for regression comparison.
+  - `KeybdEvent` for the working Windows key path.
+- Supports `-PreserveClipboard` so a previously prepared Windows `HTML Format` payload is not
+  overwritten before Ctrl+V.
+
+Important discovery:
+- A previous reused browser state had a CloakBrowser-controlled local page while the visible OS tab
+  still showed an older WeChat editor surface. OS input was not safe to continue in that state.
+- The browser was closed and restarted with the same persistent CloakBrowser state before the final
+  local probe. The final probe used a visible local `about:blank` controlled page whose OS window
+  title and DOM target were aligned.
+
+Negative comparison:
+- `SendInput` reached the focused textarea only as `keydown` events with:
+  - `key:"Unidentified"`
+  - empty `code`
+  - `ctrlKey:false`
+- It produced no `paste`, no `beforeinput`, no `input`, and no inserted sentinel.
+- This matches the earlier negative local evidence and remains invalid for ordinary paste proof.
+
+Positive plain-text Ctrl+V probe:
+- Clipboard payload: `INKFORGE_OS_PASTE_SENTINEL_20260618`
+- Input path: calibrated OS mouse click + `keybd_event` Control+V.
+- Controlled textarea DOM readback:
+  - `keydown` Control with `ctrlKey:true`
+  - `keydown` v with `ctrlKey:true`
+  - trusted `paste`
+  - trusted `beforeinput` with `inputType:"insertFromPaste"`
+  - trusted `input` with `inputType:"insertFromPaste"`
+  - `keyup` v
+  - `keyup` Control
+  - `sentinelMatched:true`
+  - `valueLength:35`
+
+Positive rich HTML / SVG Ctrl+V probe:
+- Clipboard writer:
+  `powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File inkforge/scripts/set-windows-html-clipboard.ps1 -HtmlPath prompts/0601/evidence/wechat-paste/flagship-tempera.html`
+- Clipboard metadata:
+  - `file:"flagship-tempera.html"`
+  - `dryRun:false`
+  - `htmlBytes:41754`
+  - `cfHtmlBytes:41923`
+  - `startHtml:105`
+  - `startFragment:137`
+  - `endFragment:41891`
+  - `endHtml:41923`
+  - `sha256:"d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585"`
+  - `svgCount:35`
+  - `dataInkSvgCount:3`
+  - `plainTextChars:1367`
+  - `clipboardFormats:["HTML Format","UnicodeText"]`
+- Paste command shape:
+  `powershell.exe -NoProfile -ExecutionPolicy Bypass -File inkforge/scripts/probe-windows-foreground-input.ps1 -Action CtrlV -InputMethod KeybdEvent -WindowTitlePattern InkForge -ClickScreenX 513 -ClickScreenY 379 -PreserveClipboard`
+- Controlled contenteditable DOM readback:
+  - trusted `keydown` Control with `ctrlKey:true`
+  - trusted `keydown` v with `ctrlKey:true`
+  - trusted `paste`
+  - paste `types:["text/plain","text/html"]`
+  - paste `plainLength:1367`
+  - paste `htmlLength:40474`
+  - trusted `input` with `inputType:"insertFromPaste"`
+  - resulting `htmlLength:40123`
+  - resulting `textLength:1810`
+  - resulting inline `svgCount:35`
+  - resulting `dataInkSvgCount:3`
+  - resulting `dataInkBlockCount:23`
+  - resulting `sectionNice:true`
+
+Decision:
+- The local non-Playwright ordinary OS Ctrl+V keyboard channel is now usable when:
+  - CloakBrowser visible OS window and controlled DOM target are aligned.
+  - The click coordinate is calibrated from the visible window.
+  - `KeybdEvent` is used instead of `SendInput`.
+  - `-PreserveClipboard` is used after preparing CF_HTML.
+- This unblocks the local tooling precondition for a future WeChat disposable-draft paste attempt.
+- It still does not prove WeChat accepts the same artifact through its editor.
+
+Boundary:
+- Do not claim WeChat ordinary Ctrl+V success from this local probe.
+- Do not set `ordinaryClipboardPasteVerified:true` from this local probe.
+- Do not use this probe to satisfy `safe-disposable-draft`, phone preview, mobile Dark Mode,
+  mobile SMIL/click, cover thumbnail, credentialed sync, scheduled send, public host, XHS/Zhihu
+  upload, or publish gates.
+- The next live WeChat step must follow `wechat-disposable-draft-runbook-20260618.md`, create or
+  open only a disposable proof draft, paste through the ordinary OS channel, read back the editor
+  DOM, and verify cleanup/absence before any platform proof row can be claimed.
