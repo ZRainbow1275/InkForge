@@ -1991,6 +1991,15 @@ git status --short --branch
   WeChat ordinary-paste attempt remains blocked until a reliable non-Playwright keyboard channel or
   a clearly separated operator-driven paste proof is available, and the safe disposable draft plus
   cleanup readback gate is still required.
+- Follow-up regression:
+  added a `platform-export-rendering.test.ts` manifest case proving a Win32 `SendInput`
+  foreground/key-count artifact without paste/input/sentinel keeps `pc-editor-paste-event`
+  invalid and surfaces `style-proof-manifest-ordinary-paste-not-verified`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 76 tests. The command initially failed after reboot because
+  `inkforge/node_modules/.bin/vitest` was missing; `pnpm -C inkforge install --frozen-lockfile`
+  restored dependencies from the existing lockfile without package-version changes.
 
 ## Remaining Checks Before Commit
 

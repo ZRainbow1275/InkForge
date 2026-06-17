@@ -47,6 +47,15 @@ Decision:
 - It does not unlock a WeChat live editor paste attempt, because the local CloakBrowser + OS input
   path cannot currently prove a reliable ordinary keyboard paste event even on a controlled page.
 
+Regression coverage:
+- Added a manifest regression for a claimed `pc-editor-paste` artifact labeled as Win32
+  `SendInput` foreground/key-count proof without paste/input/sentinel.
+- The manifest keeps `pc-editor-paste-event` invalid and surfaces
+  `style-proof-manifest-ordinary-paste-not-verified`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 76 tests.
+
 Required next step before any live WeChat ordinary-paste mutation:
 - Establish a reliable non-Playwright ordinary keyboard channel for CloakBrowser, or perform a
   clearly separated operator-driven paste proof inside a verified safe disposable draft with cleanup

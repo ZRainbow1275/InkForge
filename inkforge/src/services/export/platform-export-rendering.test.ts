@@ -1497,6 +1497,40 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
   })
 
+  it('rejects local OS key probes without paste or input as ordinary PC clipboard paste', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-os-key-probe',
+      artifacts: [
+        {
+          id: 'local-os-key-probe',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'test-assertion',
+          label: 'Win32 SendInput foreground and key count without paste/input/sentinel',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-os-key-probe',
+          ordinaryClipboardPasteVerified: false,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-ordinary-paste-not-verified')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
   it('rejects market library selection when the central editor did not change', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
