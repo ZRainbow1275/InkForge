@@ -1,0 +1,53 @@
+WeChat Session Expired Proof Gate - 2026-06-18
+
+Scope:
+- CloakBrowser-only WeChat backend session-state preflight.
+- No login attempt, credential entry, draft creation, edit, delete, paste, save, preview, sync,
+  upload, schedule, or publish action was performed.
+- No account secret, browser runtime material, local capture location, network capture, account
+  identifier, or private draft content is recorded in this evidence file.
+
+Observed:
+- Opening the WeChat backend home entry returned a re-login state.
+- The page body indicated that the account must log in again.
+- The authenticated home, draftbox, and article editor surfaces were not available in this state.
+- Because the page was not an authenticated backend/editor surface, no platform mutation or proof
+  collection action was attempted.
+
+Runtime rule implemented:
+- `StyleProofArtifact.authenticatedSessionVerified === true` is now required for
+  `authenticated-editor-url`.
+- `pc-editor-dom-readback` now requires both
+  `StyleProofArtifact.authenticatedSessionVerified === true` and
+  `StyleProofArtifact.platformEditorDomVerified === true`.
+- Login, re-login, expired-session, scan-entry, or other non-editor pages must remain invalid even
+  when a manifest records a platform-editor URL open or a generic DOM readback.
+
+Regression coverage:
+- A manifest that cites a re-login page as `authenticated-editor-reachable` keeps
+  `authenticated-editor-url` invalid and surfaces
+  `style-proof-manifest-authenticated-session-not-verified`.
+- A manifest that cites DOM-like PC editor readback without explicit authenticated session and
+  editor-node verification keeps `pc-editor-dom-readback` invalid and surfaces both
+  `style-proof-manifest-authenticated-session-not-verified` and
+  `style-proof-manifest-platform-editor-dom-not-verified`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 79 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 118 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed after correcting the local OS-key probe fixture to use the valid `test-log` artifact kind.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1012 tests.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `tsconfig.tsbuildinfo` cache output was restored before commit.
+
+Boundary:
+- This evidence proves only that the current browser session cannot be used for live WeChat proof.
+- It does not prove authenticated editor reachability, PC editor DOM readback, ordinary paste,
+  safe disposable draft cleanup, phone preview, Dark Mode, cover thumbnail acceptance, sync,
+  scheduled send, or publish.

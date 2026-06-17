@@ -143,6 +143,10 @@ Ctrl+V，且在建立可靠非 Playwright 键盘通道或人工隔离粘贴证�
 “新的创作”下拉可读但文章创建入口为前端事件处理；本证据只证明清理 affordance，不创建、
 编辑或删除草稿，不设置 `cleanupPathVerified:true`，不满足 `safe-disposable-draft`；后续
 focused regression 确认 draftbox affordance doc-reference 仍不能通过 safe draft gate）。
+`wechat-session-expired-gate-20260618.txt`（CloakBrowser-only 微信会话状态预检：
+当前微信后台入口返回重新登录状态；新增 `authenticatedSessionVerified:true` 与
+`platformEditorDomVerified:true` 运行时门禁，登录/重登/过期会话页不能满足 authenticated editor
+或 PC editor DOM 证明）。
 `market-editor-residue-gate-20260609.txt`（CloakBrowser applied-element 规则落地为 runtime
 质量门禁：WeChat/XHS/Zhihu 分别阻断 135/秀米 authoring residue，普通文字提到 135/秀米不误报；
 focused Vitest 42 tests passed，4-file export regression 81 tests passed，full export serial 975
@@ -288,6 +292,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-ordinary-paste-os-clipboard-preflight-20260618.txt # 当前本机工具预检：三旗舰可生成 CF_HTML；不是微信 Ctrl+V 证明
 [x] cloakbrowser-os-ctrlv-local-probe-20260618.txt # 当前本机工具负向预检：OS SendInput 在 CloakBrowser 控制页只产生 Unidentified keydown；不是普通 Ctrl+V 证明
 [x] wechat-draftbox-cleanup-path-readonly-20260618.txt # 当前平台状态：草稿箱清理 affordance 可读；未创建/删除 disposable draft，不满足 cleanupPathVerified
+[x] wechat-session-expired-gate-20260618.txt # 当前平台状态：微信后台要求重新登录；登录/过期页不能满足 authenticated editor 或 PC DOM proof
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -451,3 +456,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   notes as `safe-disposable-draft` proof; focused Vitest passed with 1 file / 77 tests and
   4-file export regression passed with 4 files / 116 tests; full export serial suite passed with
   35 files / 1010 tests.
+
+## 2026-06-18 WeChat Session Expired Proof Gate
+
+- [x] wechat-session-expired-gate-20260618.txt
+- CloakBrowser opened the WeChat backend home entry and reached a re-login state, not an
+  authenticated backend/editor surface.
+- No login attempt, credential entry, draft mutation, paste, save, preview, sync, upload, schedule,
+  or publish action was performed.
+- Runtime proof gates now require `authenticatedSessionVerified:true` for authenticated editor
+  reachability and both `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true`
+  for PC editor DOM readback.
+- Focused regression: login/expired-session style manifests remain invalid for authenticated editor
+  and PC editor DOM proof; 4-file export regression passed with 4 files / 118 tests, full export
+  serial suite passed with 35 files / 1012 tests, ESLint/vue-tsc/build passed.

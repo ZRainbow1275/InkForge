@@ -763,6 +763,8 @@ describe('platform native export rendering rules', () => {
           action: 'pc-editor-dom-readback',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          authenticatedSessionVerified: true,
+          platformEditorDomVerified: true,
           safeForCommit: true,
         },
         {
@@ -1371,6 +1373,8 @@ describe('platform native export rendering rules', () => {
           action: 'pc-editor-dom-readback',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          authenticatedSessionVerified: true,
+          platformEditorDomVerified: true,
           safeForCommit: true,
         },
         {
@@ -1434,6 +1438,120 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
     expect(issueIds).toContain('style-proof-manifest-disposable-draft-missing')
     expect(issueIds).toContain('style-proof-manifest-cleanup-path-missing')
+  })
+
+  it('rejects login or expired-session pages as authenticated editor reachability proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['authenticated-editor-reachable'],
+      artifactFingerprint: 'sha256:redacted-session-expired',
+      artifacts: [
+        {
+          id: 'wechat-relogin-page',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'WeChat relogin page is not authenticated editor reachability',
+          evidenceLabel: 'authenticated-editor-reachable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-session-expired',
+          safeForCommit: true,
+        },
+        {
+          id: 'session-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'authenticated-editor-reachable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-session-expired',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
+  })
+
+  it('rejects PC editor DOM-like proof without authenticated session and editor DOM verification flags', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-dom-readable'],
+      artifactFingerprint: 'sha256:redacted-pc-dom-login-page',
+      artifacts: [
+        {
+          id: 'wechat-editor-url-without-session',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'URL open without authenticated session cannot prove editor reachability',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-pc-dom-login-page',
+          safeForCommit: true,
+        },
+        {
+          id: 'wechat-editor-dom-without-verified-nodes',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'browser-readback',
+          label: 'DOM readback without authenticated editor nodes cannot prove PC editor DOM',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-pc-dom-login-page',
+          safeForCommit: true,
+        },
+        {
+          id: 'pc-dom-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-pc-dom-login-page',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-dom-not-verified')
   })
 
   it('rejects programmatic ClipboardEvent proof as ordinary PC clipboard paste', () => {
@@ -1501,6 +1619,8 @@ describe('platform native export rendering rules', () => {
           action: 'pc-editor-dom-readback',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          authenticatedSessionVerified: true,
+          platformEditorDomVerified: true,
           safeForCommit: true,
         },
         {
@@ -1542,7 +1662,7 @@ describe('platform native export rendering rules', () => {
         {
           id: 'local-os-key-probe',
           requirementId: 'pc-editor-paste-event',
-          kind: 'test-assertion',
+          kind: 'test-log',
           label: 'Win32 SendInput foreground and key count without paste/input/sentinel',
           evidenceLabel: 'pc-editor-paste',
           platform: 'wechat',

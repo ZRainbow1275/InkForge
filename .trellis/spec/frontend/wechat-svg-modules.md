@@ -954,6 +954,13 @@ Contracts:
   readback is negative tooling evidence. It must not be treated as ordinary Ctrl+V proof, and it
   must not trigger a live WeChat paste attempt without a reliable keyboard channel or an explicitly
   separated operator-driven proof path.
+- `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
+  proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
+  must remain invalid even if it was opened through the WeChat backend URL path.
+- `pc-editor-dom-readback` requires both `authenticatedSessionVerified:true` and
+  `platformEditorDomVerified:true` on a platform-editor DOM/visual-DOM artifact. Generic DOM
+  readback from a login page, shell page, blocked page, or expired session must not satisfy PC
+  editor DOM proof.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -990,6 +997,12 @@ Required tests:
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and
   post-cleanup readback must keep `safe-disposable-draft` missing or invalid.
+- A manifest that cites a login/re-login/expired-session page as authenticated editor reachability
+  must keep `authenticated-editor-url` invalid and surface
+  `style-proof-manifest-authenticated-session-not-verified`.
+- A manifest that cites generic DOM readback without explicit authenticated session and editor-node
+  verification must keep `pc-editor-dom-readback` invalid and surface
+  `style-proof-manifest-platform-editor-dom-not-verified`.
 - PC DOM, authenticated editor, and local browser artifacts must keep phone preview,
   credentialed sync, and publish requirements invalid.
 - The matching `getPlatformStyleProofProgressReport()` gate rows must remain invalid, not

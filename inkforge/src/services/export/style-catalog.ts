@@ -206,6 +206,8 @@ export interface StyleProofArtifact {
   artifactFingerprint?: string
   artifactRef?: string
   exactArtifact?: boolean
+  authenticatedSessionVerified?: boolean
+  platformEditorDomVerified?: boolean
   centralEditorChanged?: boolean
   ordinaryClipboardPasteVerified?: boolean
   phonePreviewContentVerified?: boolean
@@ -230,6 +232,8 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
+  | 'style-proof-manifest-authenticated-session-not-verified'
+  | 'style-proof-manifest-platform-editor-dom-not-verified'
   | 'style-proof-manifest-ordinary-paste-not-verified'
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
@@ -2037,17 +2041,59 @@ function validateStyleProofRequirementCoverage(
       ))
       break
     case 'authenticated-editor-url':
-      requireStyleProof(issues, requirementId, has(artifact =>
+      if (!has(artifact =>
         artifact.action === 'authenticated-editor-opened'
         && artifact.channel === 'platform-editor'
-      ))
+      )) {
+        requireStyleProof(issues, requirementId, false)
+      } else if (!has(artifact =>
+        artifact.action === 'authenticated-editor-opened'
+        && artifact.channel === 'platform-editor'
+        && artifact.authenticatedSessionVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-authenticated-session-not-verified',
+          message: 'Authenticated editor proof does not prove that the platform session is still authenticated.',
+          suggestion: 'Record authenticatedSessionVerified:true only after the platform page is not a login, QR, expired-session, or re-login page and the authenticated backend/editor state is read back.',
+          location: requirementId,
+        })
+      }
       break
     case 'pc-editor-dom-readback':
-      requireStyleProof(issues, requirementId, has(artifact =>
+      if (!has(artifact =>
         artifact.action === 'pc-editor-dom-readback'
         && artifact.channel === 'platform-editor'
         && isDomOrVisualReadback(artifact.readback)
-      ))
+      )) {
+        requireStyleProof(issues, requirementId, false)
+      } else {
+        if (!has(artifact =>
+          artifact.action === 'pc-editor-dom-readback'
+          && artifact.channel === 'platform-editor'
+          && isDomOrVisualReadback(artifact.readback)
+          && artifact.authenticatedSessionVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-authenticated-session-not-verified',
+            message: 'PC editor DOM proof does not prove that the platform session is authenticated.',
+            suggestion: 'Record authenticatedSessionVerified:true only after the PC editor DOM is read back from an authenticated backend/editor page, not from a login or expired-session page.',
+            location: requirementId,
+          })
+        }
+        if (!has(artifact =>
+          artifact.action === 'pc-editor-dom-readback'
+          && artifact.channel === 'platform-editor'
+          && isDomOrVisualReadback(artifact.readback)
+          && artifact.platformEditorDomVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-dom-not-verified',
+            message: 'PC editor proof does not prove that platform editor DOM nodes were read back.',
+            suggestion: 'Record platformEditorDomVerified:true only after concrete editor shell/body nodes are read from the authenticated PC editor, such as the article editor container and editable body.',
+            location: requirementId,
+          })
+        }
+      }
       break
     case 'unit-test-coverage':
       requireStyleProof(issues, requirementId, has(artifact =>

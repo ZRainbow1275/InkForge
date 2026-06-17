@@ -17,6 +17,8 @@ Scope:
   `cloakbrowser-os-ctrlv-local-probe-20260618.txt`.
 - Latest WeChat draftbox cleanup-path read-only preflight reviewed:
   `wechat-draftbox-cleanup-path-readonly-20260618.txt`.
+- Latest WeChat session-state proof gate reviewed:
+  `wechat-session-expired-gate-20260618.txt`.
 - This audit does not create platform proof, does not mutate a live editor, does not open phone
   preview, does not sync, upload, schedule, or publish.
 
@@ -50,7 +52,7 @@ Cross-platform proof matrix:
 | Platform / channel | Current proof | Cannot claim yet |
 | --- | --- | --- |
 | WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
-| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; authenticated backend home and draftbox list reachable; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable; PC article editor reachable through a session-bound edit entry; editor DOM and ProseMirror body are readable; local CloakBrowser OS-key probe is currently negative for ordinary paste. | Amber ordinary Ctrl+V rich HTML success; reliable non-Playwright ordinary keyboard channel or isolated operator-driven paste proof; actual safe disposable draft creation/deletion/rollback plus list readback before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| WeChat PC editor | Kiln/Tempera PC editor paste evidence; Amber channel-specific PC DOM readback; prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable; local CloakBrowser OS-key probe is currently negative for ordinary paste; current WeChat backend entry returns a re-login state, and runtime proof gates now require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Fresh authenticated session proof after login; Amber ordinary Ctrl+V rich HTML success; reliable non-Playwright ordinary keyboard channel or isolated operator-driven paste proof; actual safe disposable draft creation/deletion/rollback plus list readback before live mutation; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -74,6 +76,10 @@ Current strongest evidence:
 - CloakBrowser can also discover draftbox cleanup affordances: draft cards expose delete
   confirmation/cancel controls, but this is not a verified cleanup path because no disposable draft
   was created, deleted, rolled back, or proven absent after cleanup.
+- Current CloakBrowser WeChat backend access is not authenticated: the backend home entry returns
+  a re-login state. This cannot satisfy authenticated editor reachability or PC editor DOM proof,
+  and the runtime manifest validator now requires explicit authenticated session and editor DOM
+  verification flags.
 - `inkforge/scripts/set-windows-html-clipboard.ps1` can build Windows CF_HTML clipboard payload
   metadata for `flagship-amber`, `flagship-kiln`, and `flagship-tempera`; this is local tooling
   readiness only and is not ordinary Ctrl+V proof.
@@ -93,6 +99,8 @@ Remaining hard gates:
   explicitly invalid for ordinary paste proof unless `ordinaryClipboardPasteVerified:true` exists.
 - Reliable non-Playwright ordinary keyboard paste channel for CloakBrowser, or a clearly separated
   operator-driven paste proof under the same redaction and safe-draft cleanup rules.
+- Fresh authenticated WeChat backend/editor session proof after re-login; login/expired-session
+  states must remain invalid evidence.
 - Safe disposable draft or equivalent cleanup path before mutating live WeChat editor state.
 - Actual disposable-draft cleanup readback. Current draftbox affordance evidence must not set
   `cleanupPathVerified:true`.

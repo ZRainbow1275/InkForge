@@ -2037,6 +2037,34 @@ git status --short --branch
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
   passed with 35 files / 1010 tests.
 
+## 2026-06-18 WeChat Session Expired Proof Gate
+
+- Added `prompts/0601/evidence/wechat-session-expired-gate-20260618.txt`.
+- CloakBrowser opened the WeChat backend home entry and reached a re-login state rather than an
+  authenticated backend/editor surface.
+- Added explicit `StyleProofArtifact` flags:
+  - `authenticatedSessionVerified`
+  - `platformEditorDomVerified`
+- Updated `validateStyleProofManifest()` so:
+  - `authenticated-editor-url` requires `authenticatedSessionVerified:true`.
+  - `pc-editor-dom-readback` requires both `authenticatedSessionVerified:true` and
+    `platformEditorDomVerified:true`.
+- Added focused regression coverage proving login/expired-session pages cannot satisfy
+  authenticated editor reachability or PC editor DOM proof.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 79 tests.
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 118 tests.
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1012 tests.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; generated `inkforge/tsconfig.tsbuildinfo` was restored before commit.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.
