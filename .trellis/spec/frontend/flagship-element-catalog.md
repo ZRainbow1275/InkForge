@@ -209,6 +209,9 @@ Evidence gate:
 
 - Learn visual grammar such as section roots, inline paragraph rhythm, image ratio metadata,
   small geometric/SVG motifs, and card/body hierarchy.
+- 2026-06-17 applied DOM proof: clicking a concrete free 135 style changed the readable center
+  UEditor iframe from five to six `section._135editor` blocks. Treat nested sections, image
+  metadata, title/body/card cadence, and insertion behavior as design input only.
 - Do not keep `_135editor`, `135brush`, `135bg`, `data-tools`, `data-id`, market CDN image URLs,
   copied section geometry, copied text, or template-specific source.
 - Rewrite flex/transform/gradient/fixed-size/`!important` constructs into InkForge-owned flow
@@ -227,6 +230,9 @@ Xiumi authoring components:
 
 - `.tn-page`, `.tn-comp`, `.tn-cell`, `.tn-cell-group`, and `contenteditable` cells are authoring
   implementation details. They do not enter InkForge output.
+- 2026-06-17 applied DOM proof: a clicked Xiumi SVG-gallery sample inserted image/action/layer
+  cells and descriptive content while the sampled center document had zero literal SVG/SMIL nodes.
+  Library preview SVG counts therefore do not prove final inline-SVG availability.
 - SVG gallery/action samples that appear as image/layer/action trees map to `interactive-system`
   manifests and fallback artifacts, not to direct inline SVG availability.
 - Free layout, z-order, background images, fixed geometry, overflow clipping, invisible hit
@@ -239,6 +245,9 @@ Xiumi authoring components:
 
 135 SVG builder effects:
 
+- 2026-06-17 applied DOM proof: sampled trial effects were authoring canvas blocks with image
+  placeholders, hidden controls, parameter panels, and editor icon SVGs. They define effect
+  taxonomy and schema requirements only, not reusable source.
 - Convert image roles such as cover, moving element, and bottom/background into a typed image-slot
   manifest with ratio/dimension/source/fallback fields.
 - Convert duration, scale, expansion, movement direction, and ordering controls into typed

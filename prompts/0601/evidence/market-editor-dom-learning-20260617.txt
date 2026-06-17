@@ -1,0 +1,81 @@
+Market Editor DOM Learning Refresh - 2026-06-17
+
+Scope:
+- CloakBrowser-only real-browser learning from logged-in market editor surfaces.
+- Platforms inspected: Xiumi paper editor, 135 ordinary editor, and 135 SVG editor.
+- The evidence is a DOM/rule-learning refresh only.
+- No platform copy, sync, preview, upload, scheduled send, or publish action was executed.
+- No account data, local browser directory, credential material, scan-login material, network
+  capture artifact, local image location, full asset URL, paid/trial template source, or private
+  SVG source is recorded here.
+
+Xiumi paper editor observations:
+- The visible library exposed SVG categories including carousel, click-expand, path animation,
+  draw, slide, transition, click-switch, flip, quiz, popup, zoom, print, jump, play, long-press,
+  region trigger, falling, and click-plus-auto families.
+- Clicking a visible SVG gallery sample changed the central paper document and inserted a
+  layered image/action component tree.
+- The inserted document sample contained three image cells and descriptive sample text, but the
+  central document had zero literal SVG/SMIL nodes in this sampled state.
+- The authoring tree used Xiumi-specific `tn-*`, Angular-style `ng-*`, `tn-animate`, flow-canvas,
+  image-presenter, line-height-zero wrappers, overflow/clipping, plugin/copy/sync/export controls,
+  and third-party asset hosts as editor state.
+
+Xiumi rule translation:
+- Treat Xiumi SVG gallery and H5 effects as taxonomy plus action/layer/layout evidence, not as
+  direct proof of inline SVG availability.
+- Convert the learning into InkForge-owned interactive manifests, image-slot manifests, layout
+  reports, readable DOM order, static-expanded fallback, raster fallback, or long-image fallback.
+- Keep `.tn-*`, `tn-*`, `ng-*`, third-party asset hosts, editor copy/sync controls, and free-canvas
+  authoring state out of final WeChat/XHS/Zhihu output.
+
+135 ordinary editor observations:
+- A non-VIP/free style item was clicked from the left style list after visual inspection.
+- The same-origin UEditor iframe was readable before and after insertion.
+- The center editor changed from five to six `section._135editor` blocks after the click, proving
+  concrete style insertion rather than taxonomy-only browsing.
+- Sampled 135 style blocks used nested sections, inline styles, `data-tools`, `data-id`,
+  data-role/title markers, image metadata, assistant classes, third-party image hosts, flex layout,
+  transforms, rotations, max-width important rules, and small SVG/image motifs.
+
+135 ordinary editor rule translation:
+- Learn hierarchy, rhythm, card grouping, title/body composition, image-ratio metadata, and
+  insertion-risk patterns only.
+- Do not retain `_135editor`, `data-tools`, `data-id`, assistant classes, numeric market style ids,
+  third-party image sources, copied text, copied geometry, flex/transform/gradient/important
+  dependencies, or platform template source in runtime output.
+- InkForge insertions inspired by market styles must pass block-boundary insertion rules and the
+  market-editor residue detector.
+
+135 SVG editor observations:
+- The SVG editor showed taxonomy such as recent/all/recommended/basic/image/click/carousel/slide/
+  auto/audio-video/expand/long-press/layout/official-account/link-mini-program/other.
+- The central SVG canvas contained previously applied trial effect blocks on a 336px editor canvas.
+- Sampled blocks included authoring data names for popup, carousel slide, fan carousel/red-packet,
+  and click-move/scale/disappear/expand effects.
+- The sampled selected block exposed placeholder/image-slot structures, Ant Design icon SVGs,
+  hidden authoring controls, and a right-side parameter panel. The selected canvas sample contained
+  five SVG nodes, four images, no SMIL animation nodes, and many authoring div wrappers.
+- The background panel warned that full background images above 4000px can create Android display
+  risk. This is recorded as a layout-risk heuristic, not as a universal platform limit.
+
+135 SVG editor rule translation:
+- Treat 135 SVG trial effects as authoring skeletons for effect categories, trigger zones, image
+  slots, motion parameters, block ordering, spacing controls, and fallback requirements.
+- Do not copy trial block source, private SVG, paid material, Vue/Ant DOM, exact coordinates, or
+  editor component markup.
+- Any InkForge interactive rule derived from these observations needs source-owned implementation,
+  static fallback, mobile-preview proof for mobile/touch interaction, Dark Mode checks for SVG text,
+  and cannot be claimed as publish-ready from PC/editor DOM evidence alone.
+
+Applied conclusions for InkForge:
+- `applied-editor-element` means: a concrete style/effect was clicked, the central editor/canvas
+  visibly changed, and the current editor DOM/controls were read.
+- `applied-editor-element` proves market authoring structure and rewrite/fallback requirements
+  only. It does not satisfy WeChat mobile preview, mobile SMIL/click interaction, Dark Mode,
+  cover thumbnail, plugin transfer, credentialed sync, public-host acceptance, scheduled send,
+  XHS/Zhihu account upload, or publish success.
+- Final platform output must be InkForge-owned: inline HTML/SVG for WeChat-safe static cases,
+  clean text/image manifests for XHS, clean Markdown/public-host image fallback for Zhihu.
+- The existing market-editor residue gates remain mandatory for WeChat/XHS/Zhihu publishable
+  output.

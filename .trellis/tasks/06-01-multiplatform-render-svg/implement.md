@@ -1582,6 +1582,43 @@ git status --short --branch
   phone preview, SMIL/click behavior, Dark Mode, cover thumbnail, sync, scheduled send, upload,
   public host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-17 Market Editor DOM Learning Refresh
+
+- Continued the user-directed CloakBrowser-only market-editor learning path without opening
+  Playwright or changing browser profile state.
+- Recorded a non-sensitive evidence note:
+  `prompts/0601/evidence/market-editor-dom-learning-20260617.txt`.
+- 135 ordinary editor finding:
+  a concrete free style click changed the same-origin center UEditor iframe from five to six
+  `section._135editor` blocks. The sampled DOM proves applied style insertion and informs
+  hierarchy, rhythm, image-ratio metadata, title/body/card grouping, and insertion-risk rules only.
+  `_135editor`, `data-tools`, `data-id`, assistant/editor classes, third-party image hosts,
+  copied geometry, copied text, flex/transform/gradient/important dependencies, and template
+  source remain forbidden runtime residue.
+- 135 SVG editor finding:
+  sampled free/trial effects were authoring canvas blocks with data-name effect categories, image
+  placeholders, hidden controls, parameter panels, and editor icon SVGs. They convert into
+  source-owned image-slot manifests, trigger-zone manifests, motion parameter schema,
+  block-order schema, static-expanded fallback, raster fallback, and mobile-preview gates; they do
+  not provide reusable private SVG/template source.
+- Xiumi finding:
+  clicking a visible SVG-gallery sample changed the central paper document, but the sampled center
+  document contained image/action/layer cells and zero literal SVG/SMIL nodes. Xiumi preview-library
+  SVG counts therefore do not prove final inline-SVG availability. `.tn-*`, `tn-*`, `ng-*`,
+  flow-canvas, action/layer, third-party asset host, plugin/copy/sync/export, overflow, and
+  line-height-zero authoring state convert into readable DOM order, image manifests, layout
+  reports, and fallback artifacts.
+- Updated docs/spec surfaces:
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `.trellis/spec/frontend/flagship-element-catalog.md`, and
+  `prompts/0601/evidence/README.md`.
+- Boundary:
+  this slice is documentation and evidence only. It does not change runtime code, does not create
+  or claim new platform artifacts, and does not prove WeChat mobile preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail, ordinary Ctrl+V, plugin transfer, credentialed sync, scheduled
+  send, public host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## Remaining Checks Before Commit
 
 - [x] Run focused artifact/export tests.

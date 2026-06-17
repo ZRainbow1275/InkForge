@@ -29,6 +29,7 @@
 | 2026-06-08 public source hygiene refresh | Grok/Exa 公开检索复核了微信 inline-style/clipboard、XHS 3:4/image-page、Zhihu Markdown/image fallback 方向；其中部分结果带弱来源或不可核验的统计/上限说法 | 只保留与现有规则一致且可落成检测项的部分；无可核验来源的百分比、固定上限、平台能力升级不得写入 runtime catalog |
 | 2026-06-08 135/Xiumi logged-in Playwright taxonomy refresh | 135 当前编辑器确认 toolbar 参数、样式族、SVG/长图、复制/保存/同步/预览、深色模式、授权公众号/定时群发/团队权限；秀米当前图文编辑器确认导入 Word/Excel/Markdown、导入公众号文章、同步/插件/复制、生成长图/PDF/视频、动作/图层/背景图/定位、SVG 图集、4000px 背景图安卓风险、公众号认证/留言权限 | 作为 `editor-workflow-system` 与 `layout-and-layer-system` 的当前实机 taxonomy 证据；未执行同步、复制、预览、导出或发布，不升级任何 runtime availability |
 | 2026-06-08 CloakBrowser applied-element rerun | 使用 `inkforge-0601` profile，仅用 CloakBrowser 在 135 普通编辑器、135 SVG 编辑器、秀米图文编辑器中点击免费样式/SVG 效果，确认中间编辑区/画布真实出现内容后读取 DOM | 作为 `applied-editor-element` 证据：可转化为 InkForge 规则、布局风险、插入风险、manifest/schema/fallback 要求；不复制模板源码、私有 SVG、会员素材或账号数据，也不升级为 WeChat mobile/published 证据 |
+| 2026-06-17 CloakBrowser DOM learning refresh | CloakBrowser-only applied-element refresh: 135 ordinary editor insertion increased the readable UEditor iframe from five to six `section._135editor` blocks; 135 SVG editor trial effects exposed authoring effect blocks, image slots, hidden controls, and parameter panels; Xiumi SVG-gallery click inserted an image/layer/action tree with zero literal SVG/SMIL in the sampled center document | Strengthens the conversion rules for hierarchy, rhythm, image metadata, trigger zones, motion schema, layout reports, static-expanded/raster/long-image fallback, and residue blocking. It is not template source, platform paste proof, mobile preview proof, sync proof, or publish proof |
 | 2026-06-09 WeChat authenticated editor read-only proof checklist | CloakBrowser `inkforge-0601` 能进入真实微信 PC 图文编辑器并读取标题/正文 `.ProseMirror`；当前正文已有真实音频卡，且 `#js_add_appmsg` / `data-action="add"` 会改变多图文草稿结构 | 只升级 `authenticated-editor-reachable` 与 `pc-editor-dom-readable`；`pc-editor-paste` 仍必须另有 exact artifact、safe disposable draft、真实粘贴/channel event、DOM readback 与敏感证据隔离 |
 | 2026-06-09 WeChat amber PC ClipboardEvent readback | CloakBrowser 在真实微信 PC 图文编辑器中对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')` + `DataTransfer`；微信 paste handler 接管，DOM 读回 `data-ink-svg=3` / `svg=35` / `styleAttr=195` / `classAttr=30` | 作为 channel-specific `pc-editor-paste` 证据；不推翻 2026-06-08 普通 Ctrl+V 阻断，也不升级手机预览、Dark Mode、封面缩略图、同步、定时发送或发布 |
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
@@ -106,6 +107,24 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   or raster/long-image fallback before it can be reported as exportable.
 - Normal InkForge-owned inline flow blocks using `background-color`, borders, padding, margins,
   readable line-height, and source-owned SVG motifs should not trigger this gate.
+
+2026-06-17 CloakBrowser DOM learning refresh:
+
+- 135 ordinary style insertion was verified inside the center UEditor iframe: a concrete free
+  style click changed `section._135editor` count from 5 to 6. The sampled blocks used nested
+  sections, inline styles, data metadata, image-ratio metadata, third-party image hosts, flex,
+  transforms, rotations, and assistant/editor classes. InkForge may learn hierarchy, rhythm,
+  image ratio, title/body/card grouping, and insertion-risk patterns only.
+- 135 SVG editor trial effects are authoring blocks, not reusable source. The sampled canvas used
+  effect block names, image placeholders, Ant Design icon SVGs, hidden editor controls, and a
+  parameter panel. Convert these observations into source-owned image-slot manifests, trigger-zone
+  manifests, motion parameters, block-order schemas, static-expanded fallback, raster fallback, and
+  mobile-preview gates.
+- Xiumi SVG-gallery insertion can produce an image/layer/action tree rather than literal SVG. In
+  the sampled document, the library showed many SVG preview nodes, but the inserted center document
+  contained three image cells and zero literal SVG/SMIL nodes. Do not infer inline-SVG availability
+  from library preview counts; translate Xiumi `tn-*`/`ng-*`/flow-canvas/action/layer state into
+  readable DOM order, layout reports, image manifests, and fallback artifacts.
 
 ## 2. 平台输出合同
 

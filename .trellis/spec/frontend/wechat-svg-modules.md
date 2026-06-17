@@ -129,6 +129,22 @@ construct breaks.
   `.tn-*`, private SVG source, Vue/Ant DOM, trial/paid material, copied layout geometry, or third-
   party image CDN dependencies into runtime modules. Convert them into InkForge-owned HTML/SVG
   primitives, manifest fields, fallback states, and validator rules.
+- 2026-06-17 CloakBrowser DOM refresh strengthens that rule with concrete applied evidence:
+  a 135 ordinary style click changed the center UEditor iframe from five to six
+  `section._135editor` blocks. Nested sections, inline styles, `data-tools`, `data-id`,
+  image metadata, third-party image hosts, flex, transforms, rotations, and assistant/editor
+  classes may inform InkForge-owned hierarchy and rhythm only; none may be retained in runtime
+  output.
+- 2026-06-17 135 SVG editor proof remains authoring-structure proof. Trial effects such as
+  popup, carousel, fan-carousel/red-packet, and click-move/scale/disappear/expand appeared as
+  canvas blocks with image placeholders, hidden controls, parameter panels, and editor SVG icons.
+  Translate them into source-owned image-slot manifests, trigger-zone manifests, motion parameter
+  schema, block ordering, static-expanded fallback, raster fallback, and mobile-preview gates.
+- 2026-06-17 Xiumi SVG-gallery proof showed that a clicked SVG-gallery sample can insert
+  image/layer/action cells with zero literal SVG/SMIL in the center document. Do not infer inline
+  SVG availability from Xiumi library preview SVG counts. Xiumi `tn-*`, `ng-*`, action/layer,
+  flow-canvas, third-party asset host, plugin/copy/sync/export, and line-height-zero authoring
+  state must become readable DOM order, image manifests, layout reports, or fallback artifacts.
 - 2026-06-09 runtime gate: the export quality detector now turns that no-copy boundary into
   platform errors. `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
   `zhihu-market-editor-residue` block 135/Xiumi authoring classes, `data-tools`, copied numeric
