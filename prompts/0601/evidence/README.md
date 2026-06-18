@@ -601,3 +601,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is candidate/local proof only. It must not set
   `ordinaryClipboardPasteVerified:true`, must not satisfy `pc-editor-paste-event` or
   `safe-disposable-draft`, and does not prove phone, sync, schedule, or publish gates.
+
+## 2026-06-18 WeChat Kiln Paste-Safe Ctrl+V Tab-Mismatch Cleanup
+
+- [x] wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt
+- Wrote exact `flagship-kiln-paste-safe.html` to Windows CF_HTML clipboard with SHA-256
+  `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- Authenticated WeChat PC editor attempts used CloakBrowser plus Windows `keybd_event` Ctrl+V.
+- The intended deterministic-title editor stayed unchanged (`svgCount=0`,
+  `dataInkSvgCount=0`, `dataInkBlockCount=0`, body placeholder still present).
+- A later foreground paste hit a different visible WeChat editor tab than the CloakBrowser-bound
+  DOM target. That wrong-tab body contained large InkForge HTML/SVG residue but was
+  mojibake-damaged and therefore invalid as proof.
+- Cleanup was completed: the recent empty-title InkForge-like residue was identified by content
+  fingerprint, deleted through WeChat `operate_appmsg` with `ret=0`, and post-delete checks
+  returned deterministic title matches `0`, deleted-candidate matches `0`, and current-run
+  empty/default-title InkForge-like residue candidates `0`.
+- Boundary: this is negative evidence and cleanup proof only. It must not set
+  `ordinaryClipboardPasteVerified:true`, must not satisfy `pc-editor-paste-event` or
+  `safe-disposable-draft`, and does not prove phone, Dark Mode, cover, sync, schedule, or publish
+  gates.

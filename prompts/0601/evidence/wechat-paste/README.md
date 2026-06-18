@@ -133,3 +133,18 @@ the candidate's rich HTML/SVG. This is local candidate evidence only. It does no
 ordinary paste, phone preview, Dark Mode, cover thumbnail, sync, schedule, or publish. Any future
 platform claim must use a deterministic disposable WeChat draft, exact ordinary OS Ctrl+V readback,
 and verified cleanup/absence readback.
+
+### 2026-06-18 WeChat Ctrl+V retry result
+
+The first authenticated WeChat retry for `flagship-kiln-paste-safe.html` is negative:
+
+- The intended deterministic-title editor stayed unchanged after OS Ctrl+V.
+- A later foreground paste hit a different WeChat editor tab than the CloakBrowser DOM readback
+  target.
+- The wrong-tab body had large InkForge SVG/block counts but was mojibake-damaged and titleless,
+  so it is invalid as proof.
+- The current-run empty-title residue was deleted by content fingerprint and verified absent.
+
+This retry does not prove WeChat ordinary rich HTML/SVG paste. Future proof must first force a
+single visible editor tab or otherwise prove that the OS foreground tab and DOM readback target are
+the same editor before sending Ctrl+V.

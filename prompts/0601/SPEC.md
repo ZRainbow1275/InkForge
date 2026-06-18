@@ -371,3 +371,29 @@ Required regression:
 - Theme migration, preset decoration, flagship SVG, artifact emitter, pipeline smoke, style catalog,
   iconography, lint, typecheck, and build gates must include the candidate without deleting any
   existing preset or module.
+
+## 2026-06-18 Addendum: WeChat Ctrl+V Tab Identity Gate
+
+Live WeChat ordinary OS Ctrl+V proof must establish tab identity before the paste:
+
+- The visible Windows foreground tab that receives OS keyboard input and the CloakBrowser DOM
+  readback target must be the same WeChat editor.
+- Multiple open WeChat editor tabs are an abort condition unless non-target tabs are closed or
+  navigated away before the OS input run.
+- A wrong-tab insertion cannot be converted into success by reading a different tab's DOM or by
+  citing large SVG/block counts from the wrong tab.
+- Mojibake/replacement-character damage, duplicated source artifact counts, empty-title wrong-tab
+  insertion, or title/body mismatch keeps `pc-editor-paste-event` invalid.
+- Any current-run wrong-tab residue must be cleaned up by deterministic title or content
+  fingerprint, and the cleanup must be verified by post-delete absence checks before the failed
+  attempt can be cited as safe cleanup evidence.
+
+Recorded evidence:
+
+- `wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt` is the current negative
+  example. It used the exact `flagship-kiln-paste-safe.html` CF_HTML artifact, found the intended
+  deterministic-title editor unchanged, detected a separate wrong-tab mojibake insertion, deleted
+  the current-run residue through WeChat with `ret=0`, and verified zero post-cleanup title,
+  deleted-candidate, or recent InkForge-like residue matches.
+- This evidence must not set `ordinaryClipboardPasteVerified:true`, must not satisfy
+  `pc-editor-paste-event`, and must not satisfy `safe-disposable-draft`.

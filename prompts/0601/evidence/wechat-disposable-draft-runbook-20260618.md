@@ -11,6 +11,9 @@ It is a pre-mutation safety contract, not a completed proof artifact.
 
 - CloakBrowser must be on an authenticated WeChat backend/editor session.
 - The current PC editor DOM must be readable through non-sensitive selector checks.
+- The visible OS foreground tab and the CloakBrowser-bound DOM target must be proven to be the same
+  WeChat editor before any OS Ctrl+V proof attempt. If multiple WeChat editor tabs are open, close
+  or navigate away from non-target disposable tabs before sending keyboard input.
 - The target InkForge artifact must be named before the run, for example one of:
   `flagship-amber`, `flagship-kiln`, or `flagship-tempera`.
 - The operator must decide whether the proof target is ordinary OS Ctrl+V, phone preview, Dark Mode,
@@ -61,9 +64,14 @@ Only run this phase after a reliable non-Playwright ordinary keyboard path is pr
    - `data-ink-svg` count;
    - inline `svg` count;
    - absence of authoring-tool residues;
+   - zero mojibake/replacement-character damage in the pasted body;
+   - proof that the readback editor title/body belong to the same visible foreground tab that
+     received OS Ctrl+V;
    - no unsafe sensitive artifact capture.
 5. Abort without claiming ordinary paste if the editor receives plain text only, no paste/input event
-   is observed, the page loses focus, or the keyboard path reports only generic keydown events.
+   is observed, the page loses focus, the OS foreground tab does not match the DOM readback target,
+   the body contains mojibake/replacement-character damage, or the keyboard path reports only
+   generic keydown events.
 
 ## Phone / Preview Phase
 
@@ -97,6 +105,8 @@ Only run this phase after paste readback and disposable cleanup controls are rea
 - Delete/edit/publish controls cannot be distinguished.
 - The selected action could target an existing private draft.
 - The keyboard path is not ordinary OS Ctrl+V.
+- The visible OS foreground tab and the CloakBrowser DOM target diverge.
+- The editor body receives mojibake-damaged or duplicated rich content.
 - The platform shows any publish/sync/schedule flow instead of draft-only editing.
 - Any evidence capture would include private account material.
 
@@ -135,6 +145,12 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   WeChat draftbox no-mutation check stayed at `Article 5` with zero candidate/current-run markers.
   This candidate must still follow this runbook from disposable draft creation through cleanup
   before any WeChat ordinary paste, phone, sync, schedule, or publish claim is made.
+- A later WeChat attempt for the same Kiln paste-safe candidate is negative and cleaned up in
+  `wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt`: the intended editor DOM
+  target stayed unchanged, a different visible WeChat editor tab received mojibake-damaged
+  InkForge content, the current-run empty-title residue was deleted with `ret=0`, and post-delete
+  checks found zero deterministic-title, deleted-candidate, or recent InkForge-like residue
+  matches. This does not satisfy ordinary paste or safe disposable draft proof.
 - That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
   only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
   thumbnail acceptance, credentialed sync, scheduled send, or publish success.

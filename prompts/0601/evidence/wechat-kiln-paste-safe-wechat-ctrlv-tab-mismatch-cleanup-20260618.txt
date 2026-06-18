@@ -1,0 +1,60 @@
+WeChat Kiln Paste-Safe Ctrl+V Tab-Mismatch Cleanup - 2026-06-18
+
+Scope:
+- Authenticated WeChat PC editor attempt for
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- Browser automation: CloakBrowser only.
+- Input channel: Windows CF_HTML clipboard plus OS `keybd_event` Ctrl+V.
+- No phone preview, sync, upload, schedule, or publish action was performed.
+
+Source artifact:
+- File: flagship-kiln-paste-safe.html
+- SHA-256: 338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491
+- Source HTML bytes: 41618
+- CF_HTML bytes: 41787
+- Source svgCount: 35
+- Source dataInkSvgCount: 3
+- Source dataInkBlockCount: 23
+
+Attempt summary:
+- Deterministic titles used during safe probes:
+  - InkForge paste-safe proof 20260618-1606
+  - InkForge paste-safe proof 20260618-1620
+- The first target editor readback stayed unchanged after OS Ctrl+V:
+  - bodyTextStart: WeChat body placeholder
+  - bodyTextLength: 8
+  - bodyHtmlLength: 298
+  - svgCount: 0
+  - dataInkSvgCount: 0
+  - dataInkBlockCount: 0
+- A later visible Windows foreground paste hit a different WeChat editor tab than the
+  CloakBrowser-bound DOM target. The visible tab received a large HTML/SVG body, but the content
+  was mojibake-damaged and had no deterministic title. This must not be counted as target editor
+  proof.
+
+Residual cleanup:
+- The deterministic titles were absent from the WeChat page text and from title-query list probes.
+- A constrained recent-empty-title audit found one current-run candidate with a redacted AppMsgId.
+- That candidate's content fingerprint uniquely matched the failed InkForge paste residue:
+  - contentLength: 209829
+  - svgCount: 175
+  - dataInkBlockCount: 115
+  - dataInkSvgCount: 15
+  - replacementCharCount: 5720
+  - mojibakeHintCount: 5720
+  - known InkForge/source markers present: true
+- The candidate was deleted through WeChat `operate_appmsg` with response `ret=0`.
+- Post-delete verification:
+  - deterministic title matches: 0
+  - deleted redacted AppMsgId matches: 0
+  - recent empty/default-title InkForge-like paste residue candidates: 0
+
+Conclusion:
+- This is negative WeChat evidence for `flagship-kiln-paste-safe.html`.
+- It proves the cleanup of the current-run tab-mismatch/mojibake residue.
+- It must not set `ordinaryClipboardPasteVerified:true`.
+- It must not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
+- Future ordinary Ctrl+V proof must first enforce a single visible WeChat editor tab or otherwise
+  prove that the OS foreground tab and the CloakBrowser DOM readback target are the same editor.
+- Future proof must also reject any result with mojibake/replacement-character counts above zero
+  or with source artifact counts multiplied by duplicate/garbled insertion.

@@ -997,6 +997,18 @@ Contracts:
   satisfy `pc-editor-paste-event`, `safe-disposable-draft`, `ordinaryClipboardPasteVerified:true`,
   phone preview, Dark Mode, cover thumbnail, sync, schedule, publish, or any XHS/Zhihu external
   gate until an exact WeChat disposable-draft proof is collected for that candidate artifact.
+- 2026-06-18 WeChat Kiln paste-safe tab-mismatch negative proof:
+  `wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt` records that the exact
+  `flagship-kiln-paste-safe.html` CF_HTML artifact was used in authenticated WeChat PC editor
+  attempts, but the intended deterministic-title DOM target stayed unchanged and a later OS
+  foreground paste hit a different WeChat editor tab. The wrong-tab content had large InkForge
+  SVG/block counts but also thousands of replacement/mojibake characters, so it is invalid as
+  proof. The current-run residue was identified by content fingerprint, deleted through WeChat with
+  `ret=0`, and post-delete checks found zero deterministic-title, deleted-candidate, or recent
+  empty/default-title InkForge-like residue matches. This must not satisfy
+  `pc-editor-paste-event`, `safe-disposable-draft`, or `ordinaryClipboardPasteVerified:true`.
+  Future ordinary paste proof must prove visible OS foreground tab and CloakBrowser DOM readback
+  target identity before sending Ctrl+V, and must reject mojibake-damaged rich body readbacks.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1046,6 +1058,13 @@ Required tests:
   presets, using `cover-title` and `divider-forge` while leaving original `flagship-kiln` on
   `cover-grid`. Its style choice must map to the real `flagship-kiln-paste-safe` preset and remain
   selectable only as a local/browser candidate until exact WeChat disposable-draft proof exists.
+- A WeChat platform-editor paste artifact must prove that the visible OS foreground editor tab and
+  the DOM readback target are the same editor. Multi-tab foreground/DOM mismatch, hidden-tab
+  readback, or same-window wrong-tab paste must keep `pc-editor-paste-event` invalid even if a
+  different tab receives content.
+- A platform-editor paste artifact with mojibake/replacement-character damage, duplicated source
+  artifact counts, or titleless wrong-tab insertion must keep `pc-editor-paste-event` invalid and
+  must require cleanup evidence before it can be cited as a safe failed attempt.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and

@@ -699,3 +699,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   `safe-disposable-draft`, and does not prove WeChat phone preview, mobile Dark Mode,
   mobile SMIL/click, cover thumbnail, credentialed sync, scheduled send, XHS/Zhihu upload, public
   URL, or publish success.
+
+## 2026-06-18 WeChat Kiln Paste-Safe Ctrl+V Tab-Mismatch Cleanup Addendum
+
+- Added `prompts/0601/evidence/wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt`.
+- In CloakBrowser only, wrote exact `flagship-kiln-paste-safe.html` to Windows CF_HTML clipboard
+  with SHA-256 `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- Authenticated WeChat PC editor attempts used ordinary OS Ctrl+V through Windows `keybd_event`.
+  The intended deterministic-title DOM target stayed unchanged with the WeChat body placeholder
+  still present and `svgCount=0`.
+- A later foreground paste hit a different visible WeChat editor tab than the CloakBrowser-bound
+  DOM target. That wrong-tab body contained large InkForge SVG/block counts, but it was
+  mojibake-damaged and titleless, so it is invalid as platform proof.
+- Cleanup was completed: the current-run empty-title residue was identified by content fingerprint
+  (`contentLength=209829`, `svgCount=175`, `dataInkBlockCount=115`, `dataInkSvgCount=15`,
+  `replacementCharCount=5720`), deleted through WeChat with `ret=0`, and post-delete checks found
+  zero deterministic-title, deleted-candidate, or recent empty/default-title InkForge-like residue
+  matches.
+- Boundary: this is negative evidence and cleanup proof only. It does not prove Kiln paste-safe
+  ordinary rich HTML/SVG Ctrl+V, must not set `ordinaryClipboardPasteVerified:true`, must not
+  satisfy `pc-editor-paste-event` or `safe-disposable-draft`, and does not prove phone preview,
+  Dark Mode, cover, sync, schedule, XHS/Zhihu upload, public URL, or publish success.
