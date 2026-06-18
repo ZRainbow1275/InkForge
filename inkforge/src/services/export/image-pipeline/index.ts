@@ -27,10 +27,15 @@ export {
 
 export {
     createXhsImageArtifactManifestFromRaster,
+    createZhihuImageArtifactManifest,
     getDataUrlByteLength,
     inferXhsImageArtifactFormat,
     inferXhsImageArtifactRatio,
+    inferZhihuImageArtifactFormat,
+    inferZhihuImageHostStatus,
     type XhsRasterArtifactManifestOptions,
+    type ZhihuImageArtifactManifestItemInput,
+    type ZhihuImageArtifactManifestOptions,
 } from './artifact-manifest'
 
 export { WechatUploader } from './uploaders/wechat'

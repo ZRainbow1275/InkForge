@@ -2751,6 +2751,58 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 Zhihu Image Manifest Builder Slice
+
+Impact:
+- `npx gitnexus impact validateZhihuImageArtifactManifest -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 1 direct dependent, and 0 affected processes.
+- `npx gitnexus impact File:inkforge/src/services/export/image-pipeline/index.ts -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 1 direct dependent, 2 impacted items, and 0 affected processes.
+- `npx gitnexus impact File:inkforge/src/services/export/index.ts -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 1 direct dependent, and 0 affected processes.
+- The newly added `artifact-manifest.ts` symbol was not yet visible to the GitNexus index after
+  the immediately preceding commit, so file/symbol coverage is compensated by focused unit,
+  cross-platform export, typecheck, build, and staged `detect_changes`.
+
+Implementation:
+- Added `createZhihuImageArtifactManifest()`, `inferZhihuImageArtifactFormat()`, and
+  `inferZhihuImageHostStatus()` to `image-pipeline/artifact-manifest.ts`.
+- Exported the helper and option types through `image-pipeline/index.ts` and
+  `services/export/index.ts`.
+- The builder fails closed: local/public fallback artifacts require `exists:true`, positive bytes,
+  non-empty alt, and semantic caption or text fallback; platform upload proof requires explicit
+  `uploaded:true` plus a recognized platform-hosted final URL; fake hostStatus overrides and
+  incomplete platform-upload manifests throw.
+- The helper still delegates the final readiness decision to `validateZhihuImageArtifactManifest()`
+  and does not change default Zhihu export behavior when no manifest is supplied.
+- Added evidence:
+  `prompts/0601/evidence/zhihu-image-manifest-builder-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default`
+  passed with 1 file / 20 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 94 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 133 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1065 tests.
+- `pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 23.79s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+- `git diff --check` passed for the target paths.
+- Pre-stage and staged sensitive scans over the target diff returned no matches for profile paths,
+  credential strings, HTTP archives, QR artifacts, operator-captured images, local capture file
+  references, or raw platform-response markers.
+- GitNexus staged `detect_changes` reported LOW risk, 10 changed files, 0 affected processes.
+
+Boundary:
+- This is local Zhihu manifest construction only.
+- It does not prove Zhihu account upload, editor preview, public article rendering, sync,
+  scheduled publish, publish success, or any WeChat/XHS external gate.
+
 ## 2026-06-19 XHS Committed Local Evidence Manifest Slice
 
 Impact:

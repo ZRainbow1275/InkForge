@@ -726,16 +726,60 @@ export interface ZhihuImageArtifactManifest {
   allowedFormats?: readonly ZhihuImageArtifactFormat[]
 }
 
+export interface ZhihuImageArtifactManifestItemInput {
+  id: string
+  kind: ZhihuImageArtifactKind
+  sourceSrc: string
+  finalSrc: string
+  fileName?: string
+  exists?: boolean
+  uploaded?: boolean
+  hostStatus?: ZhihuImageHostStatus
+  width?: number
+  height?: number
+  format?: ZhihuImageArtifactFormat
+  bytes?: number
+  alt: string
+  caption?: string
+  textFallback?: boolean
+  referencedByMarkdown?: boolean
+}
+
+export interface ZhihuImageArtifactManifestOptions {
+  artifacts: readonly ZhihuImageArtifactManifestItemInput[]
+  markdownReferences?: readonly string[]
+  requirePlatformUpload?: boolean
+  allowedFormats?: readonly ZhihuImageArtifactFormat[]
+}
+
 export function validateZhihuImageArtifactManifest(
   manifest: ZhihuImageArtifactManifest,
   finalMarkdown?: string,
 ): QualityIssue[]
+export function inferZhihuImageArtifactFormat(input: {
+  mime?: string
+  fileName?: string
+  src?: string
+}): ZhihuImageArtifactFormat | null
+export function inferZhihuImageHostStatus(src: string): ZhihuImageHostStatus
+export function createZhihuImageArtifactManifest(
+  options: ZhihuImageArtifactManifestOptions,
+): ZhihuImageArtifactManifest
 ```
 
 `convertToNativeFormat(markdown, 'zhihu', { zhihuImageArtifactManifest })` may echo the manifest
 in `NativeExportResult.artifacts.zhihuImageArtifactManifest`. That field means local/platform-host
 preflight only. It must not be displayed or logged as Zhihu upload, preview, sync, or publish
 success.
+
+`createZhihuImageArtifactManifest()` is the preferred bridge from real fallback/public-host
+metadata to the Zhihu image artifact validator. It infers final image format and host status, derives
+Markdown references when the caller does not supply them, and fails closed: a caller cannot mark a
+local/blob/data/http/private/WeChat-CDN URL as `public-https`, cannot mark a public URL as uploaded
+platform proof, and cannot satisfy `requirePlatformUpload:true` without explicit
+`uploaded:true` plus a recognized platform-hosted final URL. For local/public-HTTPS fallback
+records it requires `exists:true`, positive `bytes`, non-empty `alt`, and semantic `caption` or
+`textFallback:true`; the returned manifest must still pass `validateZhihuImageArtifactManifest()`.
 
 #### 3. Contracts
 
@@ -785,6 +829,9 @@ success.
 
 - Unit/regression tests must call `validateZhihuImageArtifactManifest()` directly for both bad
   and valid manifests.
+- Unit tests must cover `inferZhihuImageArtifactFormat()`, `inferZhihuImageHostStatus()`, and
+  `createZhihuImageArtifactManifest()` for public-HTTPS fallback, explicit platform upload proof,
+  and rejected fake host/upload metadata.
 - `convertToNativeFormat(..., 'zhihu')` tests must assert valid manifests appear in
   `artifacts.zhihuImageArtifactManifest` and that manifest issue ids merge into `qualityReport`.
 - Cross-platform export tests must continue proving WeChat and XHS behavior does not change when

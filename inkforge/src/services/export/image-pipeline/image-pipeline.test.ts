@@ -4,15 +4,18 @@ import { resolveImage, resolveInkforgeAsset } from './asset-resolver'
 import { extractFromDataUrl } from './dimension-extractor'
 import {
     createXhsImageArtifactManifestFromRaster,
+    createZhihuImageArtifactManifest,
     getDataUrlByteLength,
     inferXhsImageArtifactFormat,
     inferXhsImageArtifactRatio,
+    inferZhihuImageArtifactFormat,
+    inferZhihuImageHostStatus,
 } from './artifact-manifest'
 import { NotImplementedError } from './types'
 import { WechatUploader } from './uploaders/wechat'
 import { ZhihuUploader } from './uploaders/zhihu-stub'
 import { XiaohongshuUploader } from './uploaders/xhs-stub'
-import { validateXhsImageArtifactManifest } from '../quality-detector'
+import { validateXhsImageArtifactManifest, validateZhihuImageArtifactManifest } from '../quality-detector'
 
 const uploadWechatArticleImageMock = vi.fn()
 
@@ -176,6 +179,141 @@ describe('XHS raster artifact manifests', () => {
                 height: 1440,
                 exists: true,
                 cropStatus: 'ok',
+            }),
+        ).toThrow(/bytes must be a positive number/)
+    })
+})
+
+describe('Zhihu image artifact manifests', () => {
+    it('infers Zhihu-supported image formats and host status from final artifact URLs', () => {
+        expect(inferZhihuImageArtifactFormat({ mime: 'image/gif' })).toBe('gif')
+        expect(inferZhihuImageArtifactFormat({ fileName: 'diagram.jpeg' })).toBe('jpeg')
+        expect(inferZhihuImageArtifactFormat({ src: 'https://static.example.com/table.png?x=1' })).toBe('png')
+        expect(inferZhihuImageArtifactFormat({ src: 'https://static.example.com/table.webp' })).toBeNull()
+
+        expect(inferZhihuImageHostStatus('https://picx.zhimg.com/v2-diagram.png')).toBe('platform-hosted')
+        expect(inferZhihuImageHostStatus('https://cdn.example.com/diagram.png')).toBe('public-https')
+        expect(inferZhihuImageHostStatus('blob:http://localhost/diagram')).toBe('local-only')
+        expect(inferZhihuImageHostStatus('http://cdn.example.com/diagram.png')).toBe('blocked')
+        expect(inferZhihuImageHostStatus('https://mmbiz.qpic.cn/wechat.png')).toBe('blocked')
+        expect(inferZhihuImageHostStatus('')).toBe('missing')
+    })
+
+    it('builds a validator-clean public HTTPS fallback manifest from local file metadata', () => {
+        const finalSrc = 'https://static.example.com/inkforge-diagram.png'
+        const manifest = createZhihuImageArtifactManifest({
+            artifacts: [
+                {
+                    id: 'diagram-1',
+                    kind: 'diagram-image',
+                    sourceSrc: 'inkforge-asset://diagram-1',
+                    finalSrc,
+                    fileName: 'inkforge-diagram.png',
+                    exists: true,
+                    width: 1200,
+                    height: 720,
+                    bytes: 98_000,
+                    alt: '架构图',
+                    caption: '图 1: 架构图说明',
+                    referencedByMarkdown: true,
+                },
+            ],
+        })
+
+        expect(manifest).toMatchObject({
+            markdownReferences: [finalSrc],
+            artifacts: [
+                {
+                    id: 'diagram-1',
+                    hostStatus: 'public-https',
+                    uploaded: false,
+                    exists: true,
+                    format: 'png',
+                    bytes: 98_000,
+                    referencedByMarkdown: true,
+                },
+            ],
+        })
+        expect(validateZhihuImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('builds a validator-clean platform-upload manifest only when upload proof is explicit', () => {
+        const finalSrc = 'https://picx.zhimg.com/v2-inkforge-figure.png'
+        const manifest = createZhihuImageArtifactManifest({
+            requirePlatformUpload: true,
+            artifacts: [
+                {
+                    id: 'figure-1',
+                    kind: 'inline-image',
+                    sourceSrc: 'inkforge-asset://figure-1',
+                    finalSrc,
+                    uploaded: true,
+                    width: 1280,
+                    height: 720,
+                    alt: '配图',
+                    referencedByMarkdown: true,
+                },
+            ],
+        })
+
+        expect(manifest.artifacts[0]).toMatchObject({
+            hostStatus: 'platform-hosted',
+            uploaded: true,
+            format: 'png',
+        })
+        expect(validateZhihuImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('rejects unsafe Zhihu metadata instead of fabricating public host or upload proof', () => {
+        expect(() =>
+            createZhihuImageArtifactManifest({
+                artifacts: [
+                    {
+                        id: 'diagram-1',
+                        kind: 'diagram-image',
+                        sourceSrc: 'inkforge-asset://diagram-1',
+                        finalSrc: 'blob:http://localhost/diagram',
+                        hostStatus: 'public-https',
+                        exists: true,
+                        bytes: 10_000,
+                        alt: '架构图',
+                        caption: '图 1: 架构图说明',
+                    },
+                ],
+            }),
+        ).toThrow(/hostStatus public-https does not match/)
+
+        expect(() =>
+            createZhihuImageArtifactManifest({
+                requirePlatformUpload: true,
+                artifacts: [
+                    {
+                        id: 'diagram-1',
+                        kind: 'diagram-image',
+                        sourceSrc: 'inkforge-asset://diagram-1',
+                        finalSrc: 'https://picx.zhimg.com/v2-diagram.png',
+                        exists: true,
+                        bytes: 10_000,
+                        alt: '架构图',
+                        caption: '图 1: 架构图说明',
+                    },
+                ],
+            }),
+        ).toThrow(/requires uploaded platform-hosted artifacts/)
+
+        expect(() =>
+            createZhihuImageArtifactManifest({
+                artifacts: [
+                    {
+                        id: 'diagram-1',
+                        kind: 'diagram-image',
+                        sourceSrc: 'inkforge-asset://diagram-1',
+                        finalSrc: 'https://static.example.com/diagram.png',
+                        exists: true,
+                        alt: '架构图',
+                        caption: '图 1: 架构图说明',
+                    },
+                ],
             }),
         ).toThrow(/bytes must be a positive number/)
     })

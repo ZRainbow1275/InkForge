@@ -132,13 +132,18 @@ export type {
 
 export {
   createXhsImageArtifactManifestFromRaster,
+  createZhihuImageArtifactManifest,
   getDataUrlByteLength,
   inferXhsImageArtifactFormat,
   inferXhsImageArtifactRatio,
+  inferZhihuImageArtifactFormat,
+  inferZhihuImageHostStatus,
 } from './image-pipeline'
 
 export type {
   XhsRasterArtifactManifestOptions,
+  ZhihuImageArtifactManifestItemInput,
+  ZhihuImageArtifactManifestOptions,
 } from './image-pipeline'
 
 // 主题相关导出

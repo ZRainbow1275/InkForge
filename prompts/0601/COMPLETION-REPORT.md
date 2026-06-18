@@ -1053,3 +1053,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   132 tests, full export serial suite at 1060 tests, ESLint, `vue-tsc`, and production build.
 - Boundary: local manifest construction only. It does not prove Xiaohongshu upload, platform
   preview, public URL acceptance, publish success, or any WeChat/Zhihu external gate.
+
+## 2026-06-19 Zhihu Image Manifest Builder Addendum
+
+- Added `prompts/0601/evidence/zhihu-image-manifest-builder-20260619.txt`.
+- Added `createZhihuImageArtifactManifest()`, `inferZhihuImageArtifactFormat()`, and
+  `inferZhihuImageHostStatus()` in `image-pipeline/artifact-manifest.ts`, exported through the
+  image-pipeline and export facades.
+- The helper turns real public-host or platform-host image metadata into
+  `ZhihuImageArtifactManifest`, derives Markdown references when needed, and still relies on
+  `validateZhihuImageArtifactManifest()` for the final local/platform-host preflight decision.
+- It rejects fake hostStatus overrides, public URLs marked as upload proof, local/blob/data/http/
+  private URLs, missing local bytes/existence, blank alt text, and semantic images without caption
+  or text fallback instead of fabricating readiness.
+- Verification passed with focused `image-pipeline.test.ts` at 20 tests, focused
+  `platform-export-rendering.test.ts` at 94 tests, 4-file cross-platform export regression at
+  133 tests, full export serial suite at 1065 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local manifest construction only. It does not prove Zhihu account upload, editor
+  preview, public article rendering, sync, scheduled publish, or publish success.

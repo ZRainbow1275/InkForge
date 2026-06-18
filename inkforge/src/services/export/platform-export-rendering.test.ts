@@ -8,6 +8,7 @@ import {
   convertToNativeFormat,
   convertToWechatWithStats,
   createXhsImageArtifactManifestFromRaster,
+  createZhihuImageArtifactManifest,
   createStyleProofManifestDraft,
   detectQuality,
   evaluateStyleChoiceApplication,
@@ -3661,6 +3662,38 @@ describe('platform native export rendering rules', () => {
     })
 
     expect(result.format).toBe('markdown')
+    expect(result.artifacts?.zhihuImageArtifactManifest).toEqual(manifest)
+    expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('zhihu-image-manifest-'))).toBe(false)
+  })
+
+  it('builds Zhihu image artifact manifests from public host metadata before native export', async () => {
+    const imageUrl = 'https://static.example.com/inkforge-chart.png'
+    const manifest = createZhihuImageArtifactManifest({
+      artifacts: [
+        {
+          id: 'chart-1',
+          kind: 'diagram-image',
+          sourceSrc: 'inkforge-asset://chart-1',
+          finalSrc: imageUrl,
+          fileName: 'inkforge-chart.png',
+          exists: true,
+          width: 1200,
+          height: 720,
+          bytes: 120_000,
+          alt: '数据图表',
+          caption: '图 1: 数据图表说明',
+          referencedByMarkdown: true,
+        },
+      ],
+    })
+    const markdown = `![数据图表](${imageUrl})\n\n图 1: 数据图表说明`
+
+    expect(validateZhihuImageArtifactManifest(manifest, markdown)).toEqual([])
+
+    const result = await convertToNativeFormat(markdown, 'zhihu', {
+      zhihuImageArtifactManifest: manifest,
+    })
+
     expect(result.artifacts?.zhihuImageArtifactManifest).toEqual(manifest)
     expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('zhihu-image-manifest-'))).toBe(false)
   })

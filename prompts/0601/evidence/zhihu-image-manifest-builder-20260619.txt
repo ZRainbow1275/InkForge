@@ -1,0 +1,43 @@
+Zhihu Image Manifest Builder - 2026-06-19
+
+Scope:
+- Local/public-host image artifact manifest construction for Zhihu fallback images.
+- No account upload, no editor preview, no sync, no publish.
+
+Implemented:
+- createZhihuImageArtifactManifest(options)
+- inferZhihuImageArtifactFormat(input)
+- inferZhihuImageHostStatus(src)
+
+Behavior:
+- Infers JPG/JPEG/PNG/GIF formats from MIME, file names, or final URLs.
+- Classifies final image hosts as platform-hosted, public-https, local-only, missing, or blocked.
+- Derives markdownReferences from referenced artifacts when the caller does not supply them.
+- Requires local fallback records to carry exists:true, positive bytes, non-empty alt, and semantic caption or textFallback.
+- Requires platform upload proof to be explicit uploaded:true plus a recognized platform-hosted final URL.
+- Rejects fake hostStatus overrides, public URLs marked as uploaded proof, local/blob/data/http/private URLs, and incomplete platform-upload manifests.
+- Still relies on validateZhihuImageArtifactManifest() for the final preflight decision.
+
+Regression coverage:
+- Unit tests cover format inference, host inference, public HTTPS fallback manifests, explicit platform-upload manifests, and rejected fake host/upload metadata.
+- Cross-platform export tests cover creating a Zhihu manifest from public host metadata before convertToNativeFormat(..., 'zhihu').
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default
+  PASS: 1 file / 20 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 94 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 133 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1065 tests
+- pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 23.79s
+
+Boundary:
+- This proves local manifest construction and validator preflight only.
+- It does not prove Zhihu account upload, editor preview, public article rendering, sync, scheduled publish, or publish success.
