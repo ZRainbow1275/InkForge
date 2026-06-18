@@ -1245,3 +1245,20 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   editor URL, editor DOM readback, safe disposable draft, ordinary Ctrl+V paste, phone preview,
   Dark Mode, cover thumbnail, credentialed sync, scheduled-send, upload, public host, platform
   preview, public article rendering, or publish success.
+
+## 2026-06-19 Completion Gap Audit Refresh Addendum
+
+- Added `prompts/0601/evidence/completion-gap-audit-20260619.txt`.
+- The audit refresh summarizes the current 06-01 status after committed local evidence,
+  committed WeChat PC proof, market-editor rule extraction, E2E SVG render proof, WeChat
+  dashboard/draftbox/create-menu readbacks, draftbox article-menu block, and OS-click calibration
+  abort.
+- Amber remains the only committed exact WeChat PC ordinary OS Ctrl+V proof with safe disposable
+  draft cleanup; it must not generalize to Kiln, Tempera, phone preview, Dark Mode, cover thumbnail,
+  sync, scheduled-send, platform preview, public rendering, or publish.
+- WeChat article-editor entry remains blocked-safe-abort until actual OS cursor path and exact DOM
+  target identity can be proved without intersecting account content.
+- XHS and Zhihu local artifact manifests remain preflight only until real account/platform or
+  public-host proof exists.
+- Boundary: gap audit only. It does not create new platform proof or close phone, sync, upload,
+  public-host, platform preview, public article rendering, scheduled-send, or publish gates.

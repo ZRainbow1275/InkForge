@@ -1000,3 +1000,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   readback, safe disposable draft, ordinary Ctrl+V paste, phone preview, Dark Mode, cover
   thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
   or publish success.
+
+## 2026-06-19 Completion Gap Audit Refresh
+
+- [x] completion-gap-audit-20260619.txt
+- Current-state audit refresh across committed local evidence, committed WeChat PC proof, market
+  editor rule extraction, E2E SVG render proof, WeChat dashboard/draftbox/create-menu readbacks,
+  draftbox article-menu block, and OS-click calibration abort.
+- The audit keeps Amber as the only committed exact WeChat PC ordinary OS Ctrl+V proof with safe
+  disposable draft cleanup, and explicitly prevents generalizing Amber proof to Kiln, Tempera,
+  phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, or publish.
+- It marks WeChat article-editor entry as blocked-safe-abort until OS cursor path and exact DOM
+  target identity can be proved without intersecting account content.
+- It keeps XHS/Zhihu local artifact manifests as preflight only until real account/platform or
+  public-host proof exists.
+- Boundary: gap audit only. It does not create new platform proof or close phone, sync, upload,
+  public-host, platform preview, public article rendering, scheduled-send, or publish gates.

@@ -1,0 +1,109 @@
+06-01 Completion Gap Audit Refresh - 2026-06-19
+
+Scope:
+- Current-state audit for `.trellis/tasks/06-01-multiplatform-render-svg/`.
+- This refresh supersedes the older 2026-06-17 gap snapshot for planning purposes, but does not
+  delete or rewrite historical evidence.
+- Inputs reviewed include the committed local evidence pack, committed WeChat PC evidence pack,
+  style proof acceptance/runbook reports, market-editor rule refreshes, E2E SVG render refresh,
+  WeChat dashboard/draftbox/create-menu readbacks, draftbox article-menu block, and OS-click
+  calibration abort evidence.
+- No platform action, editor mutation, phone preview, sync, upload, scheduled-send, or publish
+  action is claimed by this audit.
+
+Status Labels:
+- `complete-local`: repository tests, local browser/Tauri proof, committed artifacts, or local
+  validators prove the exact local requirement.
+- `complete-pc-editor-exact`: committed WeChat PC editor evidence proves one exact artifact/channel
+  only.
+- `partial`: useful evidence exists, but stronger proof is still required for the acceptance gate.
+- `missing-external`: the requirement still needs real phone, account, host, sync, upload, preview,
+  scheduled-send, or publish proof.
+- `blocked-safe-abort`: continuing automatically would risk mutating real account content without a
+  verified safe target and cleanup path.
+
+Current Completed Local Work:
+- WeChat-safe SVG renderer, flagship presets, HTML block decorators, and cross-platform export
+  guards remain covered by local unit/integration tests and real Tauri/WebView2 SVG e2e evidence.
+- Market-editor learning from 135 and Xiumi has been converted into InkForge-owned rules and
+  residue blockers. Third-party authoring DOM, classes, data attributes, hosted assets, and runtime
+  editor surfaces remain publish-blocking residue rather than reusable output.
+- OSS converter research has been folded into the platform rules: WeChat keeps the inline-style /
+  `juice` / cleanup pipeline; XHS resolves visual richness to image-page/long-image artifacts;
+  Zhihu resolves visual richness to semantic Markdown or public-host image fallback.
+- Local proof accounting now includes acceptance audit reports, execution runbooks, committed local
+  evidence helpers, committed WeChat PC evidence helpers, and UI surfacing of cannot-claim rows.
+- XHS and Zhihu image artifact manifest validation now requires validator-passed fields and
+  redacted artifact references before local manifest rows can count.
+
+Current WeChat PC Evidence:
+- `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt` remains the only committed exact
+  WeChat PC ordinary OS Ctrl+V proof that also includes same-draft cleanup and absence readback.
+- That Amber proof may satisfy only the exact Amber PC editor rows: authenticated editor, PC DOM,
+  exact artifact, safe disposable draft, ordinary PC paste, and hygiene.
+- The Amber proof must not generalize to Kiln, Tempera, phone preview, mobile Dark Mode, mobile
+  SMIL/click behavior, cover-thumbnail acceptance, sync, scheduled-send, public preview, or publish.
+- Kiln original ordinary OS Ctrl+V remains negative because authenticated WeChat editor readbacks
+  degraded to plain text and were cleaned up.
+- Kiln paste-safe remains a local-ready candidate only. Its local controlled contenteditable proof
+  preserved SVG/block counts, but authenticated WeChat attempts later hit tab-mismatch or no-paste
+  conditions and therefore do not satisfy PC paste or safe-draft rows.
+
+Current WeChat Entry/Mutation State:
+- Authenticated WeChat backend dashboard and draftbox routes are reachable in the persistent
+  browser session.
+- A bare draftbox backend path can return a relogin prompt; session-bearing backend navigation is
+  required for valid proof.
+- The draftbox create menu can be opened and redacted menu families can be read.
+- The visible article menu item could not be selected into an article editor through DOM click,
+  CloakBrowser selector click, calibrated OS mouse click, or diagnostic in-page event dispatch.
+- Win32 `mouse_event` / `SendInput` targeting is aborted for this session because hover diagnostics
+  showed the OS cursor path was not safely bound to the intended create-button DOM target and could
+  intersect draft-card regions.
+- Post-attempt readbacks stayed on `/cgi-bin/appmsg` with no editor shell, no ProseMirror, no
+  article-body contenteditable, no iframe/textarea editor surface, no create-menu items, and no
+  deterministic sentinel.
+
+Remaining WeChat External Gates:
+- Same-session article editor opening through a reliable visible path.
+- PC editor DOM readback for any new exact artifact beyond committed Amber.
+- Safe disposable draft create/delete or rollback with post-cleanup absence proof for each new
+  artifact.
+- Exact ordinary OS Ctrl+V proof for Kiln, Tempera, and the Kiln paste-safe candidate.
+- Same-editor-tab identity, paste/input event observation, body DOM mutation, and mojibake-free
+  readback bound to the same `platform-editor` / `pc-paste` artifact.
+- Phone preview content readback for all flagship artifacts.
+- Mobile SMIL/click interaction proof for interactive artifacts.
+- Mobile Dark Mode proof.
+- Cover thumbnail acceptance proof.
+- Credentialed sync or draft readback.
+- Scheduled-send, platform preview, public article rendering, and publish success.
+
+Remaining XHS External Gates:
+- Real account upload or editor import for the image-page/long-image artifacts.
+- Platform preview readback.
+- Publish success or public platform rendering, if those claims are needed.
+- The local artifact manifest and raster evidence remain necessary preflight only.
+
+Remaining Zhihu External Gates:
+- Public HTTPS image-host acceptance for fallback images.
+- Real account editor upload/import and preview readback.
+- Public article rendering or publish success, if those claims are needed.
+- The local Markdown/image manifest evidence remains necessary preflight only.
+
+Safe Next Actions:
+- Do not continue blind OS-coordinate clicking in WeChat until actual OS cursor path and exact DOM
+  target identity can be proved without intersecting account content.
+- Keep `wechat-draftbox-article-menu-click-blocked-20260619.txt` and
+  `wechat-os-click-calibration-abort-20260619.txt` as cannot-claim evidence, not as progress toward
+  editor/paste gates.
+- For any future WeChat mutation attempt, first re-establish a visible and reliable editor-entry
+  path, deterministic disposable title, same-session DOM target identity, and cleanup/absence
+  contract.
+- For XHS/Zhihu, collect only redacted manifest-backed artifact proof until real account/platform
+  actions can be executed and safely recorded.
+
+Closeout Decision:
+- The 06-01 task is not complete as of this refresh.
+- Local renderer, market-rule extraction, quality gates, proof accounting, and documentation are
+  substantial and committed, but the external phone/sync/upload/publish gates above remain open.
