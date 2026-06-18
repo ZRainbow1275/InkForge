@@ -1328,18 +1328,18 @@ describe('platform native export rendering rules', () => {
       manifest.artifacts.map(artifact => artifact.artifactRef).filter((ref): ref is string => Boolean(ref)),
     )
 
-    expect(manifests).toHaveLength(3)
+    expect(manifests).toHaveLength(4)
     expect(secondRead[0]).not.toBe(manifests[0])
     expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
     expect(choiceIds).toEqual([
       'wechat-flagship-kiln',
       'wechat-flagship-tempera',
       'wechat-flagship-amber',
+      'xhs-cover-carousel',
     ])
     expect(new Set(artifactIds).size).toBe(artifactIds.length)
     expect(manifests.every(manifest =>
-      manifest.platform === 'wechat'
-      && manifest.scope === 'style-choice'
+      manifest.scope === 'style-choice'
       && manifest.claimedEvidence.includes('unit-tested')
       && manifest.claimedEvidence.includes('local-browser')
     )).toBe(true)
@@ -1359,17 +1359,17 @@ describe('platform native export rendering rules', () => {
     )
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 3,
+      manifestCount: 4,
       validManifestCount: 0,
-      invalidManifestCount: 3,
-      usableManifestCount: 3,
-      artifactCount: 12,
+      invalidManifestCount: 4,
+      usableManifestCount: 4,
+      artifactCount: 17,
       duplicateArtifactIdCount: 0,
     })
     expect(issueIds).not.toContain('style-proof-manifest-sensitive-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
-    expect(wechatProgress.ignoredManifestCount).toBe(0)
+    expect(wechatProgress.ignoredManifestCount).toBe(1)
     expect(wechatProgress.summary.choicesWithManifest).toBe(3)
     expect(wechatProgress.summary.proofSatisfiedChoices).toBe(0)
     expect(wechatProgress.summary.proofInvalidChoices).toBeGreaterThan(0)
@@ -1392,15 +1392,40 @@ describe('platform native export rendering rules', () => {
     expect(amberProgress?.status).toBe('invalid')
     expect(amberProgress?.report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
 
+    const xhsProgress = packReport.platformReports.xiaohongshu
+    const xhsCoverProgress = xhsProgress.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')
+    const xhsRequirementStatus = new Map(
+      xhsCoverProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
+    )
+
+    expect(xhsProgress.ignoredManifestCount).toBe(3)
+    expect(xhsProgress.summary.choicesWithManifest).toBe(1)
+    expect(xhsCoverProgress?.manifestCount).toBe(1)
+    expect(xhsCoverProgress?.status).toBe('missing')
+    expect(xhsCoverProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status).toBe('satisfied')
+    expect(xhsCoverProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status).toBe('satisfied')
+    expect(xhsCoverProgress?.gates.find(gate => gate.gate === 'platform-publish')?.status).toBe('missing')
+    expect(xhsRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(xhsRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
+    expect(xhsRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(xhsRequirementStatus.get('xhs-artifact-manifest')).toBe('satisfied')
+    expect(xhsRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(xhsRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+
     const audit = getCommittedStyleProofLocalEvidenceAuditReport()
     const wechatAudit = audit.platformReports.wechat
+    const xhsAudit = audit.platformReports.xiaohongshu
     const cannotClaimIds = wechatAudit.cannotClaim.map(requirement => requirement.requirement.id)
+    const xhsCannotClaimIds = xhsAudit.cannotClaim.map(requirement => requirement.requirement.id)
 
-    expect(audit.summary.manifestCount).toBe(3)
+    expect(audit.summary.manifestCount).toBe(4)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
+    expect(xhsAudit.progress.summary.choicesWithManifest).toBe(1)
     expect(wechatAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
+    expect(xhsAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
     expect(wechatAudit.nextPhoneAction?.gate).toBe('phone-preview')
     expect(wechatAudit.nextUnsafeToAutomateAction?.gate).toBe('authenticated-pc-editor')
+    expect(xhsAudit.nextUnsafeToAutomateAction?.gate).toBe('platform-publish')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
       'pc-editor-paste-event',
       'phone-preview-readback',
@@ -1409,6 +1434,7 @@ describe('platform native export rendering rules', () => {
       'sync-readback',
       'published-url-or-platform-preview',
     ]))
+    expect(xhsCannotClaimIds).toContain('published-url-or-platform-preview')
   })
 
   it('builds style proof execution runbooks with exact external proof contracts', () => {

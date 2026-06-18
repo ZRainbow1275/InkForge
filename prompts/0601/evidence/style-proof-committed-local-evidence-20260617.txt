@@ -14,37 +14,56 @@ Evidence sources referenced by the helper:
 - prompts/0601/evidence/e2e/flagship-kiln.png
 - prompts/0601/evidence/e2e/flagship-tempera.png
 - prompts/0601/evidence/e2e/flagship-amber.png
+- prompts/0601/evidence/xhs-raster/README.md
+- prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png
+- prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt
 
 Runtime summary from the helper:
-- manifests: 3
-- artifacts: 12
+- manifests: 4
+- artifacts: 17
 - duplicateArtifactIdCount: 0
 - validManifestCount: 0
-- invalidManifestCount: 3
+- invalidManifestCount: 4
 - wechatChoicesWithManifest: 3
-- wechatIgnoredManifestCount: 0
+- wechatIgnoredManifestCount: 1
+- xhsChoicesWithManifest: 1
+- xhsIgnoredManifestCount: 3
 - wechatCannotClaimRequirements: 15
+- xhsCannotClaimRequirements: greater than 0
 - nextPhoneGate: phone-preview
 - nextUnsafeGate: authenticated-pc-editor
 
 Behavior:
 - Each manifest is cloned before returning so callers cannot mutate the internal committed-evidence table.
 - The pack records unit-test-coverage, local-browser-rendering, exact-artifact, and no-sensitive-artifact rows for the three WeChat flagship local/Tauri artifacts.
+- The pack records unit-test-coverage, local-browser-rendering, exact-artifact, xhs-artifact-manifest, and no-sensitive-artifact rows for the committed XHS cover-carousel local raster artifact.
 - Kiln and Tempera can satisfy their local evidence and sensitive-hygiene gates.
 - Amber remains blocked/invalid because ordinary Ctrl+V, mobile preview, and publish blockers remain unresolved.
-- PC editor paste, safe disposable draft, phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, and publish gates remain unclaimable.
+- The XHS cover-carousel local-evidence and sensitive-hygiene gates can be satisfied, including the local artifact-manifest row.
+- PC editor paste, safe disposable draft, phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, account upload, platform preview, and publish gates remain unclaimable.
 
 Regression coverage:
-- getCommittedStyleProofLocalEvidenceManifests returns three WeChat flagship manifests and twelve safe committed artifacts.
+- getCommittedStyleProofLocalEvidenceManifests returns three WeChat flagship manifests, one XHS cover-carousel manifest, and seventeen safe committed artifacts.
 - The returned manifests are cloned.
 - Artifact ids are unique.
 - Artifact references are repository-safe prompts/0601/evidence paths.
 - The pack report has zero sensitive artifact issues, zero unsafe commit issues, and zero duplicate artifact id issues.
 - The acceptance audit still reports cannot-claim rows for PC paste, phone preview, Dark Mode, cover, sync, and publish proof.
+- The XHS cover-carousel manifest satisfies local evidence, xhs-artifact-manifest, and sensitive hygiene, while published-url-or-platform-preview remains missing/unsafe-to-automate.
 
 Verification:
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
-  PASS: 1 file / 69 tests
+  PASS: 1 file / 92 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 131 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1054 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 51.07s
 
 Boundary:
 - This proves committed local evidence accounting only.

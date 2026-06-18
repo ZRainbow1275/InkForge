@@ -107,6 +107,10 @@ expired-session / generic DOM 证据会显示 authenticated-session 与 editor-D
 ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能力摘要、单个样式卡和
 导出预检里显示 cannotClaim / 验收宣称审计；该文件只证明本地 UI 防呆层，不证明平台粘贴、
 手机预览、同步、上传、public host acceptance 或发布成功）。
+`style-proof-committed-xhs-local-evidence-20260619.txt`（当前规则实现：
+committed local manifest pack 已包含 `xhs-cover-carousel`，引用 tracked browser-canvas raster PNG
+和 XHS image-manifest gate report，只满足本地 raster / manifest / exact-artifact / sensitive-hygiene
+rows；不证明 XHS account upload、platform preview、public URL acceptance 或 publish 成功）。
 `completion-gap-audit-20260617.txt`（06-01 当前完成度缺口审计：按 AC1-AC10、WeChat/XHS/Zhihu
 平台 proof channel 和 hard gates 逐项标记 complete-local / partial / missing-external /
 unsafe-to-automate-now；结论是本地 renderer、质量门禁和 proof accounting 已充分推进，但手机预览、
@@ -305,6 +309,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-acceptance-issueids-20260618.txt # 当前规则实现：acceptance audit cannotClaim rows expose concrete issue ids
 [x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
 [x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
+[x] style-proof-committed-xhs-local-evidence-20260619.txt # 当前规则实现：XHS committed local raster + manifest rows; upload/preview/publish remain open
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid

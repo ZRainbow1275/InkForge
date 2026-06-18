@@ -1018,3 +1018,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   ordinary Ctrl+V rich HTML/SVG paste, safe disposable draft cleanup, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
   publish gates.
+
+## 2026-06-19 XHS Committed Local Evidence Addendum
+
+- Added `prompts/0601/evidence/style-proof-committed-xhs-local-evidence-20260619.txt`.
+- Extended `getCommittedStyleProofLocalEvidenceManifests()` so the committed local evidence pack
+  now includes `xhs-cover-carousel` in addition to the three WeChat flagship manifests.
+- The XHS manifest references only repository-safe local evidence: the tracked browser-canvas
+  raster PNG, `xhs-raster/README.md`, and `xhs-image-manifest-gate-20260609.txt`.
+- The XHS local rows satisfy `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
+  `xhs-artifact-manifest`, and `no-sensitive-artifact` for that exact raster artifact.
+- Cross-platform accounting remains isolated: WeChat ignores the XHS manifest, XHS ignores the
+  WeChat manifests, and Zhihu still has no committed public-host/platform-host proof.
+- Verification passed with focused `platform-export-rendering.test.ts` at 92 tests, 4-file
+  cross-platform export regression at 131 tests, full export serial suite at 1054 tests, ESLint,
+  `vue-tsc`, and production build.
+- Boundary: committed local XHS artifact accounting only. It does not prove Xiaohongshu account
+  upload, platform preview, public URL acceptance, publish success, or any WeChat/Zhihu external
+  gate.

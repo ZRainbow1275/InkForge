@@ -1280,12 +1280,15 @@ gates have been completed.
 Contracts:
 - The helper may reference only repository-safe evidence paths, currently
   `prompts/0601/evidence/style-proof-acceptance-ui-20260617.txt`,
-  `prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt`, and the tracked
-  `prompts/0601/evidence/e2e/flagship-*.png` screenshots.
+  `prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt`, the tracked
+  `prompts/0601/evidence/e2e/flagship-*.png` screenshots,
+  `prompts/0601/evidence/xhs-raster/README.md`,
+  `prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png`,
+  and `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`.
 - Returned manifests must be cloned before leaving the helper so callers cannot mutate the internal
   committed-evidence table.
 - The helper may satisfy local `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
-  and `no-sensitive-artifact` rows for the referenced exact artifacts.
+  `xhs-artifact-manifest`, and `no-sensitive-artifact` rows for the referenced exact artifacts.
 - The helper must not claim `pc-editor-paste`, `safe-disposable-draft`, `pc-editor-dom-readback`,
   `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, `cover-thumbnail-check`,
   `credentialed-channel-response`, `sync-readback`, `public-image-host`, or
@@ -1296,15 +1299,25 @@ Contracts:
 - `getCommittedStyleProofLocalEvidenceAuditReport()` is only shorthand for running the existing
   audit over those manifests. It must keep `cannotClaim` rows and next phone/manual gate actions
   visible.
+- XHS committed local evidence may satisfy only the chosen image artifact's local browser/raster
+  and manifest-validation rows. It must leave XHS account upload, platform preview, and publish
+  rows unclaimable.
+- Zhihu image fallback choices must not enter the committed local pack until public HTTPS or
+  platform-host image proof is available. A local manifest validator log alone is insufficient for
+  the `public-image-host` gate.
 
 Required tests:
-- The committed pack returns three WeChat flagship manifests and twelve safe committed artifacts,
-  with no duplicate artifact ids and no sensitive/unsafe commit issues.
-- The pack report has `validManifestCount:0` and `invalidManifestCount:3` because external proof is
-  intentionally absent and amber is still blocked; this is expected and must not be relaxed.
+- The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
+  manifest, all as safe committed artifacts, with no duplicate artifact ids and no
+  sensitive/unsafe commit issues.
+- The pack report has `validManifestCount:0` because external proof is intentionally absent and
+  amber is still blocked; this is expected and must not be relaxed.
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber remains blocked/invalid even with local WebView2 evidence.
+- The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
+  `xhs-artifact-manifest`, while `published-url-or-platform-preview` remains missing and
+  unsafe-to-automate.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

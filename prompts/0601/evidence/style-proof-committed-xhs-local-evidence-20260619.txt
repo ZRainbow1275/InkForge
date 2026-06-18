@@ -1,0 +1,53 @@
+Style Proof Committed XHS Local Evidence Addendum - 2026-06-19
+
+Scope:
+- Extend the repository-committed redacted StyleProofManifest pack with one Xiaohongshu local artifact manifest.
+- No Xiaohongshu account upload, platform preview, phone/mobile preview, sync, or publish action was executed or claimed.
+- No Zhihu public-host or platform-host proof is claimed by this slice.
+
+Implemented:
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes `xhs-cover-carousel`.
+- The XHS committed manifest references only repository-safe local evidence:
+  - `prompts/0601/evidence/xhs-raster/README.md`
+  - `prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png`
+  - `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`
+
+Behavior:
+- The XHS manifest satisfies local `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, `xhs-artifact-manifest`, and `no-sensitive-artifact` rows for the committed
+  cover-carousel raster artifact.
+- The pack still returns cloned manifests so callers cannot mutate the internal committed-evidence table.
+- Cross-platform progress remains isolated: WeChat ignores the XHS manifest, and XHS ignores the
+  three WeChat manifests.
+- `published-url-or-platform-preview` remains missing and unsafe-to-automate for the XHS manifest.
+
+Regression coverage:
+- `getCommittedStyleProofLocalEvidenceManifests()` returns four manifests: three WeChat flagship
+  manifests and one XHS cover-carousel manifest.
+- The pack has seventeen committed artifacts, zero duplicate artifact ids, zero sensitive-artifact
+  issues, and zero unsafe-commit issues.
+- The XHS cover-carousel local-evidence and sensitive-hygiene gates are satisfied, while the
+  platform-publish gate remains missing.
+- WeChat cannot-claim rows for PC paste, phone preview, Dark Mode, cover thumbnail, sync, and
+  publish remain unchanged.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 92 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 131 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1054 tests
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS: Vite built in 51.07s
+- `inkforge/tsconfig.tsbuildinfo`
+  - restored after typecheck/build; generated cache is intentionally not part of this slice.
+
+Boundary:
+- This proves committed local XHS artifact accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  publish success, or any WeChat/Zhihu external gate.

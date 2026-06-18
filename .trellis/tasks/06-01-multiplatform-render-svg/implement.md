@@ -2751,6 +2751,48 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 XHS Committed Local Evidence Manifest Slice
+
+Impact:
+- GitNexus MCP `impact(createCommittedStyleProofLocalEvidenceManifest, upstream)` reported LOW
+  risk, 2 impacted items, and 0 affected processes. The new XHS helper is additive and keeps the
+  existing WeChat manifest constructor unchanged.
+
+Implementation:
+- Added a Xiaohongshu committed local manifest for `xhs-cover-carousel` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The manifest references only repository-safe local evidence:
+  `prompts/0601/evidence/xhs-raster/README.md`,
+  `prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png`,
+  and `prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt`.
+- Updated committed-pack regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`: the pack now has four
+  manifests and seventeen committed artifacts; XHS local evidence, `xhs-artifact-manifest`, and
+  sensitive hygiene pass, while `published-url-or-platform-preview` remains missing.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt`.
+- Added evidence:
+  `prompts/0601/evidence/style-proof-committed-xhs-local-evidence-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 92 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 131 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1054 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 51.07s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is committed local XHS artifact accounting only.
+- It does not prove Xiaohongshu account upload, platform preview, public URL acceptance, publish
+  success, Zhihu public-host proof, or any WeChat external gate.
+
 ## 2026-06-19 ExportModal Execution Runbook UI Slice
 
 Impact:

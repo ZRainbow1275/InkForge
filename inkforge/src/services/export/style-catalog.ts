@@ -1935,11 +1935,25 @@ interface CommittedStyleProofLocalEvidenceManifestOptions {
   localRenderArtifactRef: string
 }
 
+interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
+  choiceId: 'xhs-cover-carousel'
+  label: string
+  artifactFingerprint: string
+  localRenderArtifactRef: string
+  manifestArtifactRef: string
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF =
   'prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt'
 
 const COMMITTED_STYLE_PROOF_ACCEPTANCE_UI_REPORT_REF =
   'prompts/0601/evidence/style-proof-acceptance-ui-20260617.txt'
+
+const COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF =
+  'prompts/0601/evidence/xhs-raster/README.md'
+
+const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
+  'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
 
 function createCommittedStyleProofLocalEvidenceManifest(
   options: CommittedStyleProofLocalEvidenceManifestOptions,
@@ -2018,6 +2032,98 @@ function createCommittedStyleProofLocalEvidenceManifest(
   }
 }
 
+function createCommittedStyleProofXhsLocalEvidenceManifest(
+  options: CommittedStyleProofXhsLocalEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId
+
+  return {
+    platform: 'xiaohongshu',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested', 'local-browser'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-local-render-proof`,
+        requirementId: 'local-browser-rendering',
+        kind: 'screenshot',
+        label: `${options.label} committed browser canvas raster proof`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-browser',
+        action: 'local-render',
+        readback: 'visual',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.localRenderArtifactRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact raster artifact binding`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-manifest-proof`,
+        requirementId: 'xhs-artifact-manifest',
+        kind: 'artifact-manifest',
+        label: `${options.label} committed image artifact manifest validation`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'artifact-manifest-validation',
+        readback: 'manifest',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.manifestArtifactRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',
@@ -2036,6 +2142,15 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     label: 'Amber business flagship',
     artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-amber.png@tauri-webview-e2e',
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-amber.png',
+  }),
+  createCommittedStyleProofXhsLocalEvidenceManifest({
+    choiceId: 'xhs-cover-carousel',
+    label: 'XHS cover carousel',
+    artifactFingerprint:
+      'prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png@sha256:1132933ecec1828c0129e8e92ec2553b4c54264ecda70ad228f15e7c62db101d',
+    localRenderArtifactRef:
+      'prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png',
+    manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
   }),
 ] as const satisfies readonly StyleProofManifest[]
 
