@@ -877,6 +877,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - The validator keeps manifest-shaped proof rows invalid until the matching
   `validateXhsImageArtifactManifest()` or `validateZhihuImageArtifactManifest()` call has passed
   for the exact redacted manifest.
+- Validator-passed rows also require a non-empty `artifactRef` to the redacted manifest report.
 - The execution runbook exposes the same required field so UI/operator checklists cannot diverge
   from the proof validator.
 - Runbook next actions and failure signals name `validateXhsImageArtifactManifest()` for XHS and

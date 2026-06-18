@@ -1362,6 +1362,9 @@ Contracts:
   issues for the exact redacted manifest. The execution runbook's next action, success criteria,
   and failure signals must name the matching validator so operator checklists cannot treat a
   manifest-shaped row as validator-passed proof.
+- XHS/Zhihu artifact-manifest rows without a non-empty `artifactRef` must surface
+  `style-proof-manifest-artifact-ref-missing` and stay invalid, because the proof cannot be traced
+  to the redacted manifest report that was validated.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
@@ -1383,6 +1386,7 @@ Required tests:
 - The runbook must expose the exact required fields for ordinary PC paste and phone preview.
 - The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
   validator-shaped rows missing that flag must keep the requirement invalid.
+- A validator-passed artifact-manifest row missing `artifactRef` must also remain invalid.
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.

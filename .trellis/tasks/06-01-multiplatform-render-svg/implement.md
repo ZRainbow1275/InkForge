@@ -2760,6 +2760,8 @@ Scope:
 Implementation:
 - Added `artifactManifestValidated?: boolean` to `StyleProofArtifact`.
 - Added `style-proof-manifest-artifact-manifest-not-validated` to the executable proof issue ids.
+- Added `style-proof-manifest-artifact-ref-missing` for validator-passed artifact-manifest rows
+  that cannot be traced to a redacted manifest report.
 - Updated XHS/Zhihu artifact-manifest runbook contracts so `artifactRef`,
   `artifactManifestValidated`, and `safeForCommit` are required fields.
 - Updated `validateStyleProofManifest()` so a manifest-shaped artifact row is not enough; it must

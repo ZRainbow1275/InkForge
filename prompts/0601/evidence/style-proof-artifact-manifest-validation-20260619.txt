@@ -12,6 +12,8 @@ Implemented:
   - safeForCommit
 - validateStyleProofManifest now rejects manifest-shaped proof rows unless the row also proves the
   matching platform manifest validator passed.
+- validateStyleProofManifest now rejects validator-passed artifact-manifest rows that do not carry a
+  non-empty artifactRef to the redacted manifest report.
 - The execution runbook next action, success criteria, and failure signals name the matching
   platform validator so operator checklists do not drift from validator behavior.
 - The committed XHS local evidence manifest sets artifactManifestValidated:true only for the
@@ -22,6 +24,8 @@ Behavior:
   manifest is still insufficient by itself.
 - Missing artifactManifestValidated:true produces:
   style-proof-manifest-artifact-manifest-not-validated.
+- Missing artifactRef produces:
+  style-proof-manifest-artifact-ref-missing.
 - The flag may be set only after validateXhsImageArtifactManifest() or
   validateZhihuImageArtifactManifest() returns no issues for the exact redacted manifest being
   referenced.
@@ -31,6 +35,8 @@ Behavior:
 Regression coverage:
 - XHS cover-carousel proof with unit/local/exact/hygiene rows and a manifest-shaped proof row stays
   invalid when artifactManifestValidated is absent.
+- XHS cover-carousel proof stays invalid when artifactManifestValidated is present but artifactRef
+  is missing, because the validated redacted manifest report is not traceable.
 - Committed XHS local evidence still satisfies xhs-artifact-manifest because it references the
   validator-passed committed report and sets artifactManifestValidated:true.
 - The execution runbook exposes artifactManifestValidated for XHS and Zhihu artifact-manifest rows.

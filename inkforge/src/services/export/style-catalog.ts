@@ -255,6 +255,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-public-image-host-missing'
   | 'style-proof-manifest-validation-missing'
   | 'style-proof-manifest-artifact-manifest-not-validated'
+  | 'style-proof-manifest-artifact-ref-missing'
   | 'style-proof-manifest-pack-choice-unknown'
   | 'style-proof-manifest-pack-platform-mismatch'
   | 'style-proof-manifest-pack-artifact-id-duplicate'
@@ -289,6 +290,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-public-image-host-missing',
   'style-proof-manifest-validation-missing',
   'style-proof-manifest-artifact-manifest-not-validated',
+  'style-proof-manifest-artifact-ref-missing',
   'style-proof-manifest-pack-choice-unknown',
   'style-proof-manifest-pack-platform-mismatch',
   'style-proof-manifest-pack-artifact-id-duplicate',
@@ -2859,6 +2861,20 @@ function validateStyleProofRequirementCoverage(
           id: 'style-proof-manifest-validation-missing',
           message: `${requirementId} proof lacks a validated artifact manifest entry.`,
           suggestion: 'Run the platform-specific image artifact manifest validator first, then reference only the redacted validation result in style proof.',
+          location: requirementId,
+        })
+      }
+      else if (!has(artifact =>
+        artifact.kind === 'artifact-manifest'
+        && artifact.action === 'artifact-manifest-validation'
+        && artifact.readback === 'manifest'
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-artifact-ref-missing',
+          message: `${requirementId} proof does not reference the redacted artifact manifest report that was validated.`,
+          suggestion: 'Attach artifactRef to the exact redacted manifest validator report; do not rely on an untraceable local artifact-manifest row.',
           location: requirementId,
         })
       }

@@ -2699,7 +2699,7 @@ describe('platform native export rendering rules', () => {
     )?.selectable).toBe(true)
   })
 
-  it('requires platform artifact manifest validator proof before satisfying XHS image artifact manifests', () => {
+  it('requires platform artifact manifest validator proof and redacted report reference before satisfying XHS image artifact manifests', () => {
     const artifactFingerprint = 'xhs-cover-carousel-proof@sha256:validator-required'
     const manifest: StyleProofManifest = {
       platform: 'xiaohongshu',
@@ -2790,6 +2790,23 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+
+    const missingRefManifest: StyleProofManifest = {
+      ...manifest,
+      artifacts: manifest.artifacts.map(artifact =>
+        artifact.requirementId === 'xhs-artifact-manifest'
+          ? { ...artifact, artifactManifestValidated: true, artifactRef: undefined }
+          : artifact
+      ),
+    }
+    const missingRefReport = getStyleProofManifestReport(missingRefManifest)
+    const missingRefRequirementStatus = new Map(
+      missingRefReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const missingRefIssueIds = missingRefReport.issues.map(issue => issue.id)
+
+    expect(missingRefIssueIds).toContain('style-proof-manifest-artifact-ref-missing')
+    expect(missingRefRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

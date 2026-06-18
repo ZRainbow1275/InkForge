@@ -1095,6 +1095,8 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Added `style-proof-manifest-artifact-manifest-not-validated` so a manifest-shaped local proof row
   remains invalid until the matching XHS or Zhihu artifact manifest validator returns no issues for
   the exact redacted manifest.
+- Added `style-proof-manifest-artifact-ref-missing` so validator-passed manifest rows still remain
+  invalid when they do not point to the redacted manifest report that was validated.
 - Updated the execution runbook contracts so operator/UI checklists expose
   `artifactManifestValidated` alongside `artifactRef` and `safeForCommit`.
 - Updated runbook next actions and failure signals so XHS rows point to
