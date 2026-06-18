@@ -731,3 +731,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   1048 tests, ESLint, `vue-tsc`, and production build.
 - Boundary: local detector proof only. It does not prove phone preview, mobile interaction, Dark
   Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.
+
+## 2026-06-18 135 SVG Builder Canvas Residue Gate
+
+- [x] 135-svg-builder-canvas-residue-gate-20260618.txt
+- CloakBrowser-only 135 SVG editor sampling read the center `#app-content-canvas` after opening
+  `https://www.135editor.com/svgeditor/`.
+- The center canvas contained 8 blocks, 8 SVG previews, 0 images, and HTML length `11946`.
+- Observed builder identities included `multiselectpopup`, `carouselslide`,
+  `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
+  `coverclickmovewithspread`.
+- The first visible `免费试用` click did not change the current canvas counts, so it was recorded as
+  no-delta; the existing center canvas DOM still supplied authoring-structure rules.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks copied 135 SVG builder `data-name` values and canvas
+  placeholder/block classes across WeChat, Xiaohongshu, and Zhihu.
+- Verification passed: focused 87 tests, 4-file export regression 126 tests, full export serial
+  1049 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof only. It does not prove phone preview, mobile interaction, Dark
+  Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.

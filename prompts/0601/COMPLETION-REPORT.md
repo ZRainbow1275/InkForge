@@ -847,3 +847,22 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 - Boundary: local detector proof only. It does not prove WeChat phone preview, mobile interaction,
   Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance, sync,
   scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 135 SVG Builder Canvas Residue Gate Addendum
+
+- Added `prompts/0601/evidence/135-svg-builder-canvas-residue-gate-20260618.txt`.
+- In CloakBrowser-only 135 SVG editor sampling, the center `#app-content-canvas` was readable and
+  contained 8 blocks, 8 SVG previews, 0 images, and HTML length `11946`.
+- Observed builder effect identities included `multiselectpopup`, `carouselslide`,
+  `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
+  `coverclickmovewithspread`.
+- The first visible `免费试用` click did not change current canvas counts, so it is recorded as a
+  no-delta click, not insertion proof.
+- `MARKET_EDITOR_RESIDUE_RULES` now rejects copied 135 SVG builder effect `data-name` values and
+  canvas placeholder/block classes as market residue.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu reject those residues;
+  verification passed with focused 87 tests, 4-file export regression 126 tests, full export serial
+  1049 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof only. It does not prove WeChat phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance, sync,
+  scheduled-send, XHS/Zhihu upload, public host, or publish success.

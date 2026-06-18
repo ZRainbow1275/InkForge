@@ -125,6 +125,15 @@ const MARKET_EDITOR_SLOT_RESIDUE_HTML = [
   '</li>',
 ].join('')
 
+const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
+  '<div id="app-content-canvas" class="content-wrapper">',
+  '<div id="block-1781688485697" class="block" data-name="coverclickmovewithspread">',
+  '<div class="block-img__content"><section><svg viewBox="0 0 1080 1920"></svg></section></div>',
+  '</div>',
+  '<div class="edit-placeholder block-img__default"><div class="placeholder__name">封面图点击移除并展开</div></div>',
+  '</div>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -2942,6 +2951,24 @@ describe('platform native export rendering rules', () => {
       .toContain('135 editable brush slot')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 editable brush slot')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG builder canvas blocks from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

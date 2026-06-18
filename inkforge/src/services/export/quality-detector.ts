@@ -61,6 +61,14 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 style-list metadata',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread)["']/i,
+    label: '135 SVG builder effect data-name',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|edit-placeholder|placeholder__name)[^"']*["']/i,
+    label: '135 SVG builder canvas residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\bdata-id\s*=\s*["']\d{3,}["'][^>]*(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])|(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])[^>]*\bdata-id\s*=\s*["']\d{3,}["'])/i,
     label: '135 numeric style id on copied market block',
   },

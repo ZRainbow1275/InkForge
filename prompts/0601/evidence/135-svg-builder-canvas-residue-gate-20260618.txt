@@ -1,0 +1,62 @@
+135 SVG Builder Canvas Residue Gate - 2026-06-18
+
+Scope:
+- CloakBrowser-only live sampling of the authenticated 135 SVG editor page.
+- No save, no copy, no sync, no upload, no preview-share, no scheduled-send, no publish.
+
+Canvas readback:
+- Active page: `https://www.135editor.com/svgeditor/`.
+- The left SVG effects list exposed many `免费试用` buttons and effect entries such as `ID:1054`.
+- The center SVG editor canvas was readable through `#app-content-canvas`.
+- Before clicking the first visible trial button, the center canvas contained:
+  - `blockCount=8`
+  - `svgCount=8`
+  - `imgCount=0`
+  - `htmlLength=11946`
+- The first visible trial button click did not change those counts in the current workspace.
+  This was recorded as a no-delta click, not as proof of a new insertion.
+
+Observed center canvas structure:
+- Center blocks are not publishable WeChat output; they are 135 builder authoring blocks.
+- Observed block identities included:
+  - `data-name="multiselectpopup"`
+  - `data-name="carouselslide"`
+  - `data-name="slidesectorclickredpacket"`
+  - `data-name="clickelementscaleimagesspread"`
+  - `data-name="coverclickmovewithspread"`
+- The applied/trial block grammar used:
+  - `id="app-content-canvas"`
+  - `class="content-wrapper"`
+  - `class="block"`
+  - `class="block-img__content"`
+  - `class="edit-placeholder block-img__default"`
+  - `class="placeholder__name"`
+- One visible `coverclickmovewithspread` block occupied a 336 x 596 canvas area and contained a
+  literal SVG preview.
+
+Implementation:
+- Added `MARKET_EDITOR_RESIDUE_RULES` detection for:
+  - `135 SVG builder effect data-name`
+  - `135 SVG builder canvas residue`
+- Added `MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML` regression coverage proving WeChat,
+  Xiaohongshu, and Zhihu reject copied 135 SVG builder canvas blocks.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 87 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 126 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1049 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS.
+
+Boundary:
+- This is 135 SVG builder rule extraction plus local detector proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.

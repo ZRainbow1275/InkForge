@@ -2658,3 +2658,50 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
+
+## 2026-06-18 135 SVG Builder Canvas Residue Gate Slice
+
+Impact:
+- `npx gitnexus impact collectMarketEditorResidues -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted items, 1 direct caller, 0 affected processes, and only the Export
+  module affected.
+
+Market editor readback:
+- Continued the CloakBrowser-only 135 SVG editor path at `https://www.135editor.com/svgeditor/`.
+- The left SVG effects list exposed many `免费试用` buttons and effect entries such as `ID:1054`.
+- The center `#app-content-canvas` was readable and contained 8 blocks, 8 SVG previews, 0 images,
+  and HTML length `11946`.
+- Observed builder effect identities:
+  `multiselectpopup`, `carouselslide`, `slidesectorclickredpacket`,
+  `clickelementscaleimagesspread`, and `coverclickmovewithspread`.
+- The first visible trial-button click did not change the current canvas counts. This is recorded
+  as a no-delta click, not insertion proof; the existing center canvas still provided concrete
+  authoring DOM rules.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` with:
+  - `135 SVG builder effect data-name`
+  - `135 SVG builder canvas residue`
+- Added `MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML` regression coverage proving WeChat, Xiaohongshu,
+  and Zhihu reject copied 135 SVG builder canvas blocks.
+- Added evidence:
+  `prompts/0601/evidence/135-svg-builder-canvas-residue-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 87 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 126 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1049 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local detector proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.

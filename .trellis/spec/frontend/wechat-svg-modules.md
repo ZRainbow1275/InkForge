@@ -1204,6 +1204,12 @@ Contracts:
 - 135 applied ordinary styles can leak text-slot metadata even if wrapper classes are removed.
   `data-brushtype`, `autonum[data-num]`, and library `style_id/style_name/style_price` metadata
   must fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
+- 135 SVG builder canvas blocks are authoring DOM, not publishable output. Known effect
+  `data-name` values such as `multiselectpopup`, `carouselslide`,
+  `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
+  `coverclickmovewithspread`, plus canvas placeholders such as `app-content-canvas`,
+  `block-img__content`, `block-img__default`, `edit-placeholder`, and `placeholder__name`, must
+  fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -1229,8 +1235,9 @@ Required tests/checks:
   authenticated editor DOM.
 - Any future detector/parser rule must fail fast on `_135editor`, `135brush`, `135bg`,
   `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
-  `style_id/style_name/style_price`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in
-  publishable output.
+  `style_id/style_name/style_price`, known 135 SVG builder `data-name` values,
+  `app-content-canvas`, `block-img__content`, `block-img__default`, `edit-placeholder`,
+  `placeholder__name`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in
