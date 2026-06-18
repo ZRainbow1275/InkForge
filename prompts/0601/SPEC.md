@@ -509,3 +509,33 @@ Recorded evidence:
 
 - `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 12.
+
+## 2026-06-18 Addendum: Style Proof Execution Runbook
+
+The style proof system now exposes an execution runbook for operator/deployment acceptance. This
+is a local accounting and checklist API only; it does not automate account actions or prove any
+external gate by itself.
+
+Contract:
+
+- `getPlatformStyleProofExecutionRunbook(platform, manifests)` and
+  `getStyleProofExecutionRunbook(manifests)` must derive from the acceptance audit and manifest
+  pack report. They must not fork platform isolation, duplicate artifact id checks, fingerprint
+  mismatch handling, or blocked-choice invalidation.
+- Every proof requirement maps to a concrete `StyleProofExecutionArtifactContract` with required
+  `StyleProofChannel`, `StyleProofAction`, `StyleProofReadback`, artifact fields, redaction
+  boundary, success criteria, and failure signals.
+- Ordinary WeChat PC paste requires one same `platform-editor` / `pc-paste` artifact with
+  `artifactFingerprint`, `exactArtifact`, authenticated editor/DOM flags,
+  `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`,
+  `editorBodyMutationVerified`, `mojibakeFreeVerified`, and `safeForCommit`.
+- Phone preview, Dark Mode, and cover thumbnail proof remain separate phone-preview rows requiring
+  `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`.
+- Public host proof must identify `artifactRef`, `hostStatus`, `safeForCommit`, and a host status
+  of `public-https` or `platform-hosted`.
+- Credentialed sync, scheduled-send, upload, and publish rows remain external/manual gates until
+  exact artifact readback exists.
+
+Recorded evidence:
+
+- `prompts/0601/evidence/style-proof-execution-runbook-20260618.txt`

@@ -807,3 +807,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - This evidence is local detector proof only. It does not prove WeChat phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
   XHS/Zhihu upload, public host acceptance, or publish success.
+
+## 2026-06-18 Style Proof Execution Runbook
+
+- [x] style-proof-execution-runbook-20260618.txt
+- Added a local operator runbook layer above the style proof acceptance audit.
+- `getPlatformStyleProofExecutionRunbook()` and `getStyleProofExecutionRunbook()` map every open
+  proof requirement to required proof channel/action/readback, artifact fields, success criteria,
+  failure signals, redaction boundary, and cannot-claim reason.
+- Ordinary WeChat PC paste now has a machine-readable proof contract requiring the same
+  `platform-editor` / `pc-paste` artifact to carry the bound paste flags, including
+  `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`,
+  `editorBodyMutationVerified`, and `mojibakeFreeVerified`.
+- Phone preview, Dark Mode, cover thumbnail, public host, credentialed channel, and publish gates
+  remain separate cannot-claim rows until exact external proof exists.
+- Verification passed: focused 92 tests, 4-file export regression 131 tests, full export serial
+  1054 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local execution-runbook proof only. It does not prove phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
+  gates.

@@ -1,0 +1,49 @@
+Style Proof Execution Runbook - 2026-06-18
+
+Scope:
+- Added a local operator execution runbook for redacted StyleProofManifest packs.
+- No browser automation, no phone preview, no platform sync, no upload, no scheduled send, and no publish action were performed by this slice.
+
+Implemented:
+- getPlatformStyleProofExecutionRunbook(platform, manifests)
+- getStyleProofExecutionRunbook(manifests)
+- StyleProofExecutionArtifactContract
+- StyleProofExecutionRunbookStep
+- PlatformStyleProofExecutionRunbook
+- StyleProofExecutionRunbook
+
+Behavior:
+- Derives from getPlatformStyleProofAcceptanceAuditReport() and getStyleProofManifestPackReport().
+- Maps every StyleProofRequirementId to required proof channel, action, readback, artifact fields, host statuses, redaction boundary, success criteria, failure signals, and cannot-claim reason.
+- Keeps local/sensitive hygiene steps separate from market-editor, authenticated PC editor, phone-preview, public-host, credentialed-channel, and platform-publish steps.
+- Does not fabricate artifacts and does not change selectable, usable, blocked, or unavailable style-catalog decisions.
+
+Key proof contracts:
+- Ordinary WeChat PC paste requires one same platform-editor / pc-paste artifact with artifactFingerprint, exactArtifact, authenticatedSessionVerified, platformEditorDomVerified, ordinaryClipboardPasteVerified, sameEditorTabVerified, pasteInputEventVerified, editorBodyMutationVerified, mojibakeFreeVerified, and safeForCommit.
+- Phone preview readback requires a phone-preview artifact with phonePreviewContentVerified for the exact artifact.
+- Dark Mode and cover thumbnail checks remain separate phone-preview rows requiring darkModeEnabledVerified and coverThumbnailAccepted.
+- Published/platform-preview proof uses public-web or credentialed-channel evidence with published-url or visual-and-dom readback.
+- Zhihu public-host proof requires artifactRef, hostStatus, safeForCommit, and hostStatus public-https or platform-hosted.
+
+Regression coverage:
+- Committed local WeChat evidence produces a runbook where PC paste remains unsafe-to-automate and phone preview remains blocked-by-external.
+- Runbook rows expose exact required fields for ordinary PC paste, phone preview, Dark Mode, cover thumbnail, and publish proof.
+- Cross-platform runbook keeps an XHS manifest out of WeChat, keeps XHS publish unsafe-to-automate, and keeps Zhihu public-host proof blocked-by-external with public-host contract fields.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 92 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 131 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1054 tests
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves local execution-runbook accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, ordinary rich Ctrl+V for all flagship artifacts, credentialed sync, scheduled send, platform publish, XHS upload/publish, Zhihu upload, or Zhihu public-host acceptance.

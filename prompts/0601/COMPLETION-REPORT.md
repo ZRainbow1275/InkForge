@@ -955,3 +955,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
   phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
   acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 Style Proof Execution Runbook Addendum
+
+- Added `prompts/0601/evidence/style-proof-execution-runbook-20260618.txt`.
+- Implemented `getPlatformStyleProofExecutionRunbook(platform, manifests)` and
+  `getStyleProofExecutionRunbook(manifests)` as a local operator runbook above the acceptance audit.
+- The runbook maps every proof requirement to required channel/action/readback, required artifact
+  fields, accepted host statuses, redaction boundary, success criteria, failure signals, and
+  cannot-claim reason.
+- Ordinary WeChat PC paste now has a machine-readable contract requiring one same
+  `platform-editor` / `pc-paste` artifact with the bound paste flags
+  `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`,
+  `editorBodyMutationVerified`, and `mojibakeFreeVerified`.
+- Phone preview, Dark Mode, cover thumbnail, public host, credentialed channel, and publish gates
+  remain separate cannot-claim rows and cannot be completed by local, PC DOM, or weak browser
+  evidence.
+- Verification passed with focused `platform-export-rendering.test.ts` at 92 tests, 4-file export
+  regression at 131 tests, full export serial suite at 1054 tests, ESLint, `vue-tsc`, and
+  production build.
+- Boundary: local execution-runbook proof only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, ordinary rich Ctrl+V for all flagship artifacts,
+  credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
+  success.

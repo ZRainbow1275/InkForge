@@ -2659,6 +2659,49 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-18 Style Proof Execution Runbook Slice
+
+Scope:
+- Added a read-only local operator runbook above the style proof acceptance audit.
+- The runbook consumes caller-supplied redacted `StyleProofManifest[]` and does not create
+  artifacts, mutate platforms, sync, upload, schedule, or publish.
+
+Implementation:
+- Added `StyleProofExecutionArtifactContract`, `StyleProofExecutionRunbookStep`,
+  `PlatformStyleProofExecutionRunbook`, and `StyleProofExecutionRunbook`.
+- Added `getPlatformStyleProofExecutionRunbook(platform, manifests)` and
+  `getStyleProofExecutionRunbook(manifests)`.
+- Exported the new types/functions through `inkforge/src/services/export/index.ts`.
+- Added regression tests in `platform-export-rendering.test.ts` for committed local evidence and
+  cross-platform runbook isolation.
+
+Proof contract highlights:
+- Ordinary WeChat PC paste requires one same `platform-editor` / `pc-paste` artifact with
+  `artifactFingerprint`, `exactArtifact`, authenticated editor/DOM flags,
+  `ordinaryClipboardPasteVerified`, same-tab/paste-input/body-mutation/mojibake flags, and
+  `safeForCommit`.
+- Phone preview, Dark Mode, and cover thumbnail remain separate phone-preview proof rows.
+- Zhihu public-host proof exposes accepted host statuses `public-https` and `platform-hosted`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 92 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 131 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1054 tests.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local execution-runbook proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.
+
 ## 2026-06-18 Xiumi Applied Runtime Binding Residue Gate Slice
 
 Impact:

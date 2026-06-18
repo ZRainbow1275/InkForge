@@ -24,12 +24,14 @@ import {
   getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofProgressReport,
   getPlatformStyleProofReadinessReport,
+  getPlatformStyleProofExecutionRunbook,
   getPresetById,
   getStyleChoiceApplication,
   getStyleChoiceById,
   getStyleChoiceCatalog,
   getStyleChoiceProofRequirements,
   getStyleProofAcceptanceAuditReport,
+  getStyleProofExecutionRunbook,
   getStyleProofManifestPackReport,
   getStyleProofManifestReport,
   markdownToWechatWithStats,
@@ -1406,6 +1408,109 @@ describe('platform native export rendering rules', () => {
       'cover-thumbnail-check',
       'sync-readback',
       'published-url-or-platform-preview',
+    ]))
+  })
+
+  it('builds style proof execution runbooks with exact external proof contracts', () => {
+    const runbook = getPlatformStyleProofExecutionRunbook(
+      'wechat',
+      getCommittedStyleProofLocalEvidenceManifests(),
+    )
+    const pcPasteStep = runbook.steps.find(step => step.requirement.id === 'pc-editor-paste-event')
+    const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
+    const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
+    const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
+    const publishStep = runbook.steps.find(step => step.requirement.id === 'published-url-or-platform-preview')
+
+    expect(runbook.platform).toBe('wechat')
+    expect(runbook.summary.cannotClaimSteps).toBeGreaterThan(0)
+    expect(runbook.nextPhoneStep?.gate).toBe('phone-preview')
+    expect(runbook.nextUnsafeToAutomateStep?.gate).toBe('authenticated-pc-editor')
+    expect(pcPasteStep?.status).toBe('unsafe-to-automate')
+    expect(pcPasteStep?.boundary).toBe('authenticated-pc-editor')
+    expect(pcPasteStep?.requiredArtifact.requiredChannels).toEqual(['platform-editor'])
+    expect(pcPasteStep?.requiredArtifact.requiredActions).toEqual(['pc-paste'])
+    expect(pcPasteStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'artifactFingerprint',
+      'exactArtifact',
+      'authenticatedSessionVerified',
+      'platformEditorDomVerified',
+      'ordinaryClipboardPasteVerified',
+      'sameEditorTabVerified',
+      'pasteInputEventVerified',
+      'editorBodyMutationVerified',
+      'mojibakeFreeVerified',
+      'safeForCommit',
+    ]))
+    expect(pcPasteStep?.cannotClaimReason).toContain('cannot be claimed')
+    expect(pcPasteStep?.redactionBoundary).toContain('account')
+
+    expect(phoneStep?.status).toBe('blocked-by-external')
+    expect(phoneStep?.boundary).toBe('phone-preview')
+    expect(phoneStep?.requiresPhone).toBe(true)
+    expect(phoneStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'phonePreviewContentVerified',
+      'exactArtifact',
+    ]))
+    expect(phoneStep?.failureSignals.join(' ')).toContain('PC editor DOM')
+    expect(darkModeStep?.requiredArtifact.requiredFields).toContain('darkModeEnabledVerified')
+    expect(coverStep?.requiredArtifact.requiredFields).toContain('coverThumbnailAccepted')
+    expect(publishStep?.status).toBe('unsafe-to-automate')
+    expect(publishStep?.mutatesPlatform).toBe(true)
+    expect(publishStep?.requiredArtifact.requiredReadbacks).toEqual(expect.arrayContaining(['published-url']))
+  })
+
+  it('keeps style proof execution runbooks isolated by platform and host gate', () => {
+    const manifests: StyleProofManifest[] = [
+      {
+        platform: 'xiaohongshu',
+        choiceId: 'xhs-clean-text',
+        scope: 'style-choice',
+        claimedEvidence: ['unit-tested'],
+        artifacts: [
+          {
+            id: 'xhs-runbook-unit-proof',
+            requirementId: 'unit-test-coverage',
+            kind: 'test-log',
+            label: 'xhs unit proof',
+            platform: 'xiaohongshu',
+            choiceId: 'xhs-clean-text',
+            channel: 'unit-test',
+            action: 'test-run',
+            readback: 'test-assertion',
+            safeForCommit: true,
+          },
+        ],
+      },
+    ]
+
+    const runbook = getStyleProofExecutionRunbook(manifests)
+    const wechatPcPaste = runbook.platformReports.wechat.steps.find(step =>
+      step.requirement.id === 'pc-editor-paste-event'
+    )
+    const xhsPublish = runbook.platformReports.xiaohongshu.steps.find(step =>
+      step.requirement.id === 'published-url-or-platform-preview'
+    )
+    const zhihuPublicHost = runbook.platformReports.zhihu.steps.find(step =>
+      step.requirement.id === 'public-image-host'
+    )
+
+    expect(runbook.summary.manifestCount).toBe(1)
+    expect(runbook.platformReports.wechat.acceptance.progress.ignoredManifestCount).toBe(1)
+    expect(runbook.platformReports.xiaohongshu.acceptance.progress.ignoredManifestCount).toBe(0)
+    expect(wechatPcPaste?.status).toBe('unsafe-to-automate')
+    expect(xhsPublish?.status).toBe('unsafe-to-automate')
+    expect(xhsPublish?.boundary).toBe('platform-publish')
+    expect(zhihuPublicHost?.status).toBe('blocked-by-external')
+    expect(zhihuPublicHost?.boundary).toBe('public-host')
+    expect(zhihuPublicHost?.requiredArtifact.acceptedHostStatuses).toEqual([
+      'public-https',
+      'platform-hosted',
+    ])
+    expect(zhihuPublicHost?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'artifactRef',
+      'hostStatus',
+      'safeForCommit',
     ]))
   })
 

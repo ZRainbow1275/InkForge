@@ -676,6 +676,122 @@ export interface StyleProofAcceptanceAuditReport {
   }
 }
 
+export type StyleProofArtifactVerificationField =
+  | 'artifactFingerprint'
+  | 'artifactRef'
+  | 'exactArtifact'
+  | 'authenticatedSessionVerified'
+  | 'platformEditorDomVerified'
+  | 'centralEditorChanged'
+  | 'ordinaryClipboardPasteVerified'
+  | 'sameEditorTabVerified'
+  | 'pasteInputEventVerified'
+  | 'editorBodyMutationVerified'
+  | 'mojibakeFreeVerified'
+  | 'phonePreviewContentVerified'
+  | 'darkModeEnabledVerified'
+  | 'coverThumbnailAccepted'
+  | 'disposableDraft'
+  | 'cleanupPathVerified'
+  | 'safeForCommit'
+  | 'committed'
+  | 'sensitive'
+  | 'hostStatus'
+
+export type StyleProofExecutionBoundary =
+  | 'local-only'
+  | 'market-editor-account'
+  | 'authenticated-pc-editor'
+  | 'phone-preview'
+  | 'public-host'
+  | 'credentialed-channel'
+  | 'platform-publish'
+
+export interface StyleProofExecutionArtifactContract {
+  requirementId: StyleProofRequirementId
+  requiredChannels: readonly StyleProofChannel[]
+  requiredActions: readonly StyleProofAction[]
+  requiredReadbacks: readonly StyleProofReadback[]
+  requiredFields: readonly StyleProofArtifactVerificationField[]
+  forbiddenFields?: readonly StyleProofArtifactVerificationField[]
+  acceptedHostStatuses?: readonly StyleProofHostStatus[]
+}
+
+export interface StyleProofExecutionRunbookStep {
+  platform: Platform
+  requirement: StyleProofRequirement
+  gate: StyleProofCollectionGate
+  order: number
+  status: StyleProofAcceptanceAuditStatus
+  boundary: StyleProofExecutionBoundary
+  choiceIds: readonly string[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  blockedChoiceCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  cannotClaim: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  requiredArtifact: StyleProofExecutionArtifactContract
+  successCriteria: readonly string[]
+  failureSignals: readonly string[]
+  redactionBoundary: string
+}
+
+export interface PlatformStyleProofExecutionRunbook {
+  platform: Platform
+  acceptance: PlatformStyleProofAcceptanceAuditReport
+  steps: readonly StyleProofExecutionRunbookStep[]
+  openSteps: readonly StyleProofExecutionRunbookStep[]
+  cannotClaim: readonly StyleProofExecutionRunbookStep[]
+  nextLocalSafeStep: StyleProofExecutionRunbookStep | null
+  nextExternalDependencyStep: StyleProofExecutionRunbookStep | null
+  nextPhoneStep: StyleProofExecutionRunbookStep | null
+  nextUnsafeToAutomateStep: StyleProofExecutionRunbookStep | null
+  summary: {
+    totalSteps: number
+    completedSteps: number
+    openSteps: number
+    cannotClaimSteps: number
+    safeToAutomateOpenSteps: number
+    externalDependencyOpenSteps: number
+    phoneOpenSteps: number
+    mutatingOpenSteps: number
+    unsafeToAutomateOpenSteps: number
+  }
+}
+
+export interface StyleProofExecutionRunbook {
+  platformReports: Record<Platform, PlatformStyleProofExecutionRunbook>
+  issues: readonly QualityIssue[]
+  duplicateArtifactIds: readonly string[]
+  summary: {
+    manifestCount: number
+    validManifestCount: number
+    invalidManifestCount: number
+    usableManifestCount: number
+    duplicateArtifactIdCount: number
+    issueCount: number
+    totalSteps: number
+    completedSteps: number
+    openSteps: number
+    cannotClaimSteps: number
+    safeToAutomateOpenSteps: number
+    externalDependencyOpenSteps: number
+    phoneOpenSteps: number
+    mutatingOpenSteps: number
+    unsafeToAutomateOpenSteps: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -913,6 +1029,176 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',
   'platform-publish': 'Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste or sync success.',
 } as const satisfies Record<StyleProofCollectionGate, string>
+
+const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
+  'catalog-source': {
+    requirementId: 'catalog-source',
+    requiredChannels: ['local-artifact'],
+    requiredActions: ['catalog-source'],
+    requiredReadbacks: ['none'],
+    requiredFields: ['safeForCommit'],
+  },
+  'market-applied-dom-readback': {
+    requirementId: 'market-applied-dom-readback',
+    requiredChannels: ['market-editor'],
+    requiredActions: ['applied-market-element'],
+    requiredReadbacks: ['visual-and-dom'],
+    requiredFields: ['centralEditorChanged', 'safeForCommit'],
+  },
+  'no-proprietary-template-source': {
+    requirementId: 'no-proprietary-template-source',
+    requiredChannels: ['local-artifact'],
+    requiredActions: ['source-hygiene-review'],
+    requiredReadbacks: ['hygiene-log'],
+    requiredFields: ['safeForCommit'],
+    forbiddenFields: ['sensitive'],
+  },
+  'authenticated-editor-url': {
+    requirementId: 'authenticated-editor-url',
+    requiredChannels: ['platform-editor'],
+    requiredActions: ['authenticated-editor-opened'],
+    requiredReadbacks: ['dom', 'visual-and-dom'],
+    requiredFields: ['authenticatedSessionVerified', 'safeForCommit'],
+  },
+  'pc-editor-dom-readback': {
+    requirementId: 'pc-editor-dom-readback',
+    requiredChannels: ['platform-editor'],
+    requiredActions: ['pc-editor-dom-readback'],
+    requiredReadbacks: ['dom', 'visual-and-dom'],
+    requiredFields: ['authenticatedSessionVerified', 'platformEditorDomVerified', 'safeForCommit'],
+  },
+  'unit-test-coverage': {
+    requirementId: 'unit-test-coverage',
+    requiredChannels: ['unit-test'],
+    requiredActions: ['test-run'],
+    requiredReadbacks: ['test-assertion'],
+    requiredFields: ['safeForCommit'],
+  },
+  'local-browser-rendering': {
+    requirementId: 'local-browser-rendering',
+    requiredChannels: ['local-browser'],
+    requiredActions: ['local-render'],
+    requiredReadbacks: ['visual', 'visual-and-dom', 'screenshot'],
+    requiredFields: ['safeForCommit'],
+  },
+  'exact-artifact': {
+    requirementId: 'exact-artifact',
+    requiredChannels: ['local-artifact', 'local-browser'],
+    requiredActions: ['local-render', 'source-hygiene-review'],
+    requiredReadbacks: ['manifest', 'visual-and-dom', 'hygiene-log'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'safeForCommit'],
+  },
+  'safe-disposable-draft': {
+    requirementId: 'safe-disposable-draft',
+    requiredChannels: ['platform-editor'],
+    requiredActions: ['safe-disposable-draft'],
+    requiredReadbacks: ['hygiene-log'],
+    requiredFields: ['disposableDraft', 'cleanupPathVerified', 'safeForCommit'],
+  },
+  'pc-editor-paste-event': {
+    requirementId: 'pc-editor-paste-event',
+    requiredChannels: ['platform-editor'],
+    requiredActions: ['pc-paste'],
+    requiredReadbacks: ['visual-and-dom'],
+    requiredFields: [
+      'artifactFingerprint',
+      'exactArtifact',
+      'authenticatedSessionVerified',
+      'platformEditorDomVerified',
+      'ordinaryClipboardPasteVerified',
+      'sameEditorTabVerified',
+      'pasteInputEventVerified',
+      'editorBodyMutationVerified',
+      'mojibakeFreeVerified',
+      'safeForCommit',
+    ],
+  },
+  'phone-preview-readback': {
+    requirementId: 'phone-preview-readback',
+    requiredChannels: ['phone-preview'],
+    requiredActions: ['phone-preview'],
+    requiredReadbacks: ['phone'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
+  },
+  'phone-screenshot': {
+    requirementId: 'phone-screenshot',
+    requiredChannels: ['phone-preview'],
+    requiredActions: ['phone-preview'],
+    requiredReadbacks: ['screenshot'],
+    requiredFields: ['phonePreviewContentVerified', 'safeForCommit'],
+  },
+  'dark-mode-check': {
+    requirementId: 'dark-mode-check',
+    requiredChannels: ['phone-preview'],
+    requiredActions: ['dark-mode-check'],
+    requiredReadbacks: ['phone', 'screenshot'],
+    requiredFields: [
+      'artifactFingerprint',
+      'exactArtifact',
+      'phonePreviewContentVerified',
+      'darkModeEnabledVerified',
+      'safeForCommit',
+    ],
+  },
+  'cover-thumbnail-check': {
+    requirementId: 'cover-thumbnail-check',
+    requiredChannels: ['phone-preview'],
+    requiredActions: ['cover-thumbnail-check'],
+    requiredReadbacks: ['screenshot'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'coverThumbnailAccepted', 'safeForCommit'],
+  },
+  'credentialed-channel-response': {
+    requirementId: 'credentialed-channel-response',
+    requiredChannels: ['credentialed-channel'],
+    requiredActions: ['credentialed-sync'],
+    requiredReadbacks: ['api-response'],
+    requiredFields: ['artifactFingerprint', 'safeForCommit'],
+  },
+  'sync-readback': {
+    requirementId: 'sync-readback',
+    requiredChannels: ['credentialed-channel'],
+    requiredActions: ['sync-readback'],
+    requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
+    requiredFields: ['artifactFingerprint', 'safeForCommit'],
+  },
+  'published-url-or-platform-preview': {
+    requirementId: 'published-url-or-platform-preview',
+    requiredChannels: ['public-web', 'credentialed-channel'],
+    requiredActions: ['published-preview'],
+    requiredReadbacks: ['published-url', 'visual-and-dom'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'safeForCommit'],
+  },
+  'public-image-host': {
+    requirementId: 'public-image-host',
+    requiredChannels: ['public-web'],
+    requiredActions: ['public-image-host-check'],
+    requiredReadbacks: ['visual', 'dom', 'manifest'],
+    requiredFields: ['artifactRef', 'hostStatus', 'safeForCommit'],
+    acceptedHostStatuses: ['public-https', 'platform-hosted'],
+  },
+  'xhs-artifact-manifest': {
+    requirementId: 'xhs-artifact-manifest',
+    requiredChannels: ['local-artifact'],
+    requiredActions: ['artifact-manifest-validation'],
+    requiredReadbacks: ['manifest'],
+    requiredFields: ['artifactRef', 'safeForCommit'],
+  },
+  'zhihu-artifact-manifest': {
+    requirementId: 'zhihu-artifact-manifest',
+    requiredChannels: ['local-artifact'],
+    requiredActions: ['artifact-manifest-validation'],
+    requiredReadbacks: ['manifest'],
+    requiredFields: ['artifactRef', 'safeForCommit'],
+  },
+  'no-sensitive-artifact': {
+    requirementId: 'no-sensitive-artifact',
+    requiredChannels: ['local-artifact'],
+    requiredActions: ['sensitive-hygiene-review'],
+    requiredReadbacks: ['hygiene-log'],
+    requiredFields: ['safeForCommit'],
+    forbiddenFields: ['sensitive'],
+  },
+} as const satisfies Record<StyleProofRequirementId, StyleProofExecutionArtifactContract>
 
 function doesStyleProofGateMutatePlatform(gate: StyleProofCollectionGate): boolean {
   return gate === 'authenticated-pc-editor'
@@ -3508,6 +3794,237 @@ export function getStyleProofAcceptanceAuditReport(
         total + report.summary.unsafeToAutomateRequirements, 0),
       safeToAutomateOpenRequirements: platformReportValues.reduce((total, report) =>
         total + report.summary.safeToAutomateOpenRequirements, 0),
+    },
+  }
+}
+
+function getStyleProofExecutionBoundary(gate: StyleProofCollectionGate): StyleProofExecutionBoundary {
+  if (gate === 'market-editor') return 'market-editor-account'
+  if (gate === 'authenticated-pc-editor') return 'authenticated-pc-editor'
+  if (gate === 'phone-preview') return 'phone-preview'
+  if (gate === 'public-host') return 'public-host'
+  if (gate === 'credentialed-channel') return 'credentialed-channel'
+  if (gate === 'platform-publish') return 'platform-publish'
+  return 'local-only'
+}
+
+function getStyleProofExecutionCannotClaimReason(
+  audit: StyleProofAcceptanceRequirementAudit,
+): string | null {
+  if (audit.status === 'completed') return null
+  if (audit.status === 'unsafe-to-automate') {
+    return `${audit.requirement.label} cannot be claimed because it requires a mutating credentialed platform action and exact readback.`
+  }
+  if (audit.status === 'blocked-by-external') {
+    if (audit.requiresPhone) {
+      return `${audit.requirement.label} cannot be claimed until phone-side preview evidence is collected for the exact artifact.`
+    }
+    if (audit.gate === 'public-host') {
+      return `${audit.requirement.label} cannot be claimed until a public HTTPS or platform-hosted artifact is verified.`
+    }
+    return `${audit.requirement.label} cannot be claimed until the required external account/editor dependency is verified.`
+  }
+  if (audit.status === 'invalid') {
+    return `${audit.requirement.label} cannot be claimed because supplied proof is invalid for this requirement.`
+  }
+  return `${audit.requirement.label} cannot be claimed because required proof is missing.`
+}
+
+function getStyleProofExecutionRedactionBoundary(gate: StyleProofCollectionGate): string {
+  if (gate === 'sensitive-hygiene') {
+    return 'Only commit redacted hygiene summaries; never commit cookies, tokens, QR images, account screenshots, HAR files, browser profiles, or local credential paths.'
+  }
+  if (gate === 'market-editor') {
+    return 'Record taxonomy and redacted DOM/control summaries only; do not copy proprietary 135/Xiumi template source, paid assets, account data, or third-party private CDN dependencies.'
+  }
+  if (gate === 'authenticated-pc-editor' || gate === 'credentialed-channel' || gate === 'platform-publish') {
+    return 'Keep account identifiers, draft URLs, request payloads, cookies, QR codes, screenshots with account data, and raw platform responses out of committed evidence.'
+  }
+  if (gate === 'phone-preview') {
+    return 'Keep phone screenshots redacted and local unless they contain no account, QR, draft URL, or personal notification data.'
+  }
+  return 'Committed evidence must be redacted local artifacts, logs, manifests, or summaries that contain no credentials, account data, QR codes, or local browser profile paths.'
+}
+
+function buildStyleProofExecutionSuccessCriteria(
+  audit: StyleProofAcceptanceRequirementAudit,
+  contract: StyleProofExecutionArtifactContract,
+): string[] {
+  const criteria = [
+    `Add at least one StyleProofArtifact with requirementId "${audit.requirement.id}".`,
+    `Use channel ${contract.requiredChannels.join(' or ')} and action ${contract.requiredActions.join(' or ')}.`,
+    `Use readback ${contract.requiredReadbacks.join(' or ')} for the same exact artifact under review.`,
+  ]
+
+  if (contract.requiredFields.length > 0) {
+    criteria.push(`Set required artifact fields: ${contract.requiredFields.join(', ')}.`)
+  }
+  if (contract.forbiddenFields && contract.forbiddenFields.length > 0) {
+    criteria.push(`Do not set forbidden artifact fields: ${contract.forbiddenFields.join(', ')}.`)
+  }
+  if (contract.acceptedHostStatuses && contract.acceptedHostStatuses.length > 0) {
+    criteria.push(`Host status must be ${contract.acceptedHostStatuses.join(' or ')}.`)
+  }
+  if (audit.blockedChoiceCount > 0) {
+    criteria.push('The catalog choice must be unblocked before this proof can complete acceptance.')
+  }
+
+  return criteria
+}
+
+function buildStyleProofExecutionFailureSignals(
+  audit: StyleProofAcceptanceRequirementAudit,
+  contract: StyleProofExecutionArtifactContract,
+): string[] {
+  const signals = [
+    'Proof is collected from a different platform, style choice, channel, or artifact fingerprint.',
+    'Artifact references contain sensitive account, browser profile, token, QR, HAR, or local credential material.',
+  ]
+
+  if (contract.requiredFields.length > 0) {
+    signals.push(`Any missing, false, or unbound required field invalidates this row: ${contract.requiredFields.join(', ')}.`)
+  }
+  if (audit.issueIds.length > 0) {
+    signals.push(`Current validator issue ids: ${audit.issueIds.join(', ')}.`)
+  }
+  if (audit.requiresPhone) {
+    signals.push('PC editor DOM, local browser screenshots, scan pages, or setup screens do not prove phone final-article rendering.')
+  }
+  if (audit.mutatesPlatform) {
+    signals.push('Request success alone is insufficient; the created draft, preview, or published result must be read back.')
+  }
+
+  return signals
+}
+
+function getStyleProofExecutionNextOperatorAction(
+  audit: StyleProofAcceptanceRequirementAudit,
+): string {
+  if (audit.status === 'completed') return 'No action required for this requirement.'
+  if (audit.safeToAutomate) return STYLE_PROOF_COLLECTION_NOTES[audit.gate]
+  if (audit.requiresPhone) return STYLE_PROOF_COLLECTION_NOTES['phone-preview']
+  if (audit.gate === 'public-host') return STYLE_PROOF_COLLECTION_NOTES['public-host']
+  return STYLE_PROOF_COLLECTION_NOTES[audit.gate]
+}
+
+function buildStyleProofExecutionRunbookStep(
+  platform: Platform,
+  audit: StyleProofAcceptanceRequirementAudit,
+): StyleProofExecutionRunbookStep {
+  const requiredArtifact = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[audit.requirement.id]
+
+  return {
+    platform,
+    requirement: audit.requirement,
+    gate: audit.gate,
+    order: audit.order,
+    status: audit.status,
+    boundary: getStyleProofExecutionBoundary(audit.gate),
+    choiceIds: audit.choiceIds,
+    issueIds: audit.issueIds,
+    required: audit.required,
+    satisfied: audit.satisfied,
+    missing: audit.missing,
+    invalid: audit.invalid,
+    artifactCount: audit.artifactCount,
+    acceptedArtifactCount: audit.acceptedArtifactCount,
+    blockedChoiceCount: audit.blockedChoiceCount,
+    mutatesPlatform: audit.mutatesPlatform,
+    requiresExternalAccount: audit.requiresExternalAccount,
+    requiresPhone: audit.requiresPhone,
+    safeToAutomate: audit.safeToAutomate,
+    cannotClaim: audit.cannotClaim,
+    cannotClaimReason: getStyleProofExecutionCannotClaimReason(audit),
+    nextOperatorAction: getStyleProofExecutionNextOperatorAction(audit),
+    requiredArtifact,
+    successCriteria: buildStyleProofExecutionSuccessCriteria(audit, requiredArtifact),
+    failureSignals: buildStyleProofExecutionFailureSignals(audit, requiredArtifact),
+    redactionBoundary: getStyleProofExecutionRedactionBoundary(audit.gate),
+  }
+}
+
+function countStyleProofExecutionSteps(
+  steps: readonly StyleProofExecutionRunbookStep[],
+  predicate: (step: StyleProofExecutionRunbookStep) => boolean,
+): number {
+  return steps.filter(predicate).length
+}
+
+export function getPlatformStyleProofExecutionRunbook(
+  platform: Platform,
+  manifests: readonly StyleProofManifest[] = [],
+): PlatformStyleProofExecutionRunbook {
+  const acceptance = getPlatformStyleProofAcceptanceAuditReport(platform, manifests)
+  const steps = acceptance.requirements.map(requirement =>
+    buildStyleProofExecutionRunbookStep(platform, requirement)
+  )
+  const openSteps = steps.filter(step => step.status !== 'completed')
+  const cannotClaim = steps.filter(step => step.cannotClaim)
+
+  return {
+    platform,
+    acceptance,
+    steps,
+    openSteps,
+    cannotClaim,
+    nextLocalSafeStep: openSteps.find(step => step.safeToAutomate) ?? null,
+    nextExternalDependencyStep: openSteps.find(step =>
+      step.requiresExternalAccount || step.gate === 'public-host'
+    ) ?? null,
+    nextPhoneStep: openSteps.find(step => step.requiresPhone) ?? null,
+    nextUnsafeToAutomateStep: openSteps.find(step => step.status === 'unsafe-to-automate') ?? null,
+    summary: {
+      totalSteps: steps.length,
+      completedSteps: countStyleProofExecutionSteps(steps, step => step.status === 'completed'),
+      openSteps: openSteps.length,
+      cannotClaimSteps: cannotClaim.length,
+      safeToAutomateOpenSteps: countStyleProofExecutionSteps(openSteps, step => step.safeToAutomate),
+      externalDependencyOpenSteps: countStyleProofExecutionSteps(openSteps, step =>
+        step.requiresExternalAccount || step.gate === 'public-host'
+      ),
+      phoneOpenSteps: countStyleProofExecutionSteps(openSteps, step => step.requiresPhone),
+      mutatingOpenSteps: countStyleProofExecutionSteps(openSteps, step => step.mutatesPlatform),
+      unsafeToAutomateOpenSteps: countStyleProofExecutionSteps(openSteps, step =>
+        step.status === 'unsafe-to-automate'
+      ),
+    },
+  }
+}
+
+export function getStyleProofExecutionRunbook(
+  manifests: readonly StyleProofManifest[] = [],
+): StyleProofExecutionRunbook {
+  const packReport = getStyleProofManifestPackReport(manifests)
+  const platformReports: Record<Platform, PlatformStyleProofExecutionRunbook> = {
+    wechat: getPlatformStyleProofExecutionRunbook('wechat', manifests),
+    xiaohongshu: getPlatformStyleProofExecutionRunbook('xiaohongshu', manifests),
+    zhihu: getPlatformStyleProofExecutionRunbook('zhihu', manifests),
+  }
+  const platformReportValues = Object.values(platformReports)
+
+  return {
+    platformReports,
+    issues: packReport.issues,
+    duplicateArtifactIds: packReport.duplicateArtifactIds,
+    summary: {
+      manifestCount: packReport.summary.manifestCount,
+      validManifestCount: packReport.summary.validManifestCount,
+      invalidManifestCount: packReport.summary.invalidManifestCount,
+      usableManifestCount: packReport.summary.usableManifestCount,
+      duplicateArtifactIdCount: packReport.summary.duplicateArtifactIdCount,
+      issueCount: packReport.summary.issueCount,
+      totalSteps: platformReportValues.reduce((total, report) => total + report.summary.totalSteps, 0),
+      completedSteps: platformReportValues.reduce((total, report) => total + report.summary.completedSteps, 0),
+      openSteps: platformReportValues.reduce((total, report) => total + report.summary.openSteps, 0),
+      cannotClaimSteps: platformReportValues.reduce((total, report) => total + report.summary.cannotClaimSteps, 0),
+      safeToAutomateOpenSteps: platformReportValues.reduce((total, report) =>
+        total + report.summary.safeToAutomateOpenSteps, 0),
+      externalDependencyOpenSteps: platformReportValues.reduce((total, report) =>
+        total + report.summary.externalDependencyOpenSteps, 0),
+      phoneOpenSteps: platformReportValues.reduce((total, report) => total + report.summary.phoneOpenSteps, 0),
+      mutatingOpenSteps: platformReportValues.reduce((total, report) => total + report.summary.mutatingOpenSteps, 0),
+      unsafeToAutomateOpenSteps: platformReportValues.reduce((total, report) =>
+        total + report.summary.unsafeToAutomateOpenSteps, 0),
     },
   }
 }

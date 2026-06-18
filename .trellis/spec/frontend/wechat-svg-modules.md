@@ -80,6 +80,12 @@ construct breaks.
   `nextSafeGate`, and count blocked choices, mutating steps, external-account steps, phone steps,
   and safe-to-automate steps. It is a queue for real proof collection, not an availability or
   publish-success shortcut.
+- `getPlatformStyleProofExecutionRunbook()` is the executable operator runbook above the
+  acceptance audit. It maps each proof requirement to the required channel/action/readback,
+  artifact fields such as `ordinaryClipboardPasteVerified` and `phonePreviewContentVerified`,
+  redaction boundary, failure signals, and `cannotClaimReason`. It is still a local accounting
+  layer: it must not click platforms, create artifacts, sync, upload, publish, or upgrade
+  `selectable` / `usable` decisions.
 - ExportModal may surface this plan in the style capability cards as proof summaries and gate
   labels. That UI is informational only: it must not change `selectable`, `usable`, `blocked`, or
   `unavailable` decisions, and it must keep local evidence, PC editor proof, phone preview,
@@ -333,6 +339,40 @@ export function getPlatformStyleProofAcceptanceAuditReport(
 export function getStyleProofAcceptanceAuditReport(
   manifests?: readonly StyleProofManifest[],
 ): StyleProofAcceptanceAuditReport
+export type StyleProofArtifactVerificationField =
+  | 'artifactFingerprint' | 'artifactRef' | 'exactArtifact'
+  | 'ordinaryClipboardPasteVerified' | 'phonePreviewContentVerified'
+  | 'darkModeEnabledVerified' | 'coverThumbnailAccepted'
+  | 'safeForCommit' | 'hostStatus' // representative; see runtime type for the full union
+export type StyleProofExecutionBoundary =
+  | 'local-only' | 'market-editor-account' | 'authenticated-pc-editor' | 'phone-preview'
+  | 'public-host' | 'credentialed-channel' | 'platform-publish'
+export interface StyleProofExecutionArtifactContract {
+  requirementId: StyleProofRequirementId
+  requiredChannels: readonly StyleProofChannel[]
+  requiredActions: readonly StyleProofAction[]
+  requiredReadbacks: readonly StyleProofReadback[]
+  requiredFields: readonly StyleProofArtifactVerificationField[]
+}
+export interface StyleProofExecutionRunbookStep {
+  platform: Platform
+  requirement: StyleProofRequirement
+  gate: StyleProofCollectionGate
+  status: StyleProofAcceptanceAuditStatus
+  boundary: StyleProofExecutionBoundary
+  requiredArtifact: StyleProofExecutionArtifactContract
+  cannotClaimReason: string | null
+  successCriteria: readonly string[]
+  failureSignals: readonly string[]
+  redactionBoundary: string
+}
+export function getPlatformStyleProofExecutionRunbook(
+  platform: Platform,
+  manifests?: readonly StyleProofManifest[],
+): PlatformStyleProofExecutionRunbook
+export function getStyleProofExecutionRunbook(
+  manifests?: readonly StyleProofManifest[],
+): StyleProofExecutionRunbook
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }
@@ -1169,7 +1209,49 @@ Required tests:
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
   `cannotClaim` labels without changing the existing style capability counts.
 
-## 14. Committed Local Evidence Manifest Pack
+## 14. Style Proof Execution Runbook
+
+`getPlatformStyleProofExecutionRunbook(platform, manifests)` and
+`getStyleProofExecutionRunbook(manifests)` are the operator-facing execution layer above the
+acceptance audit. They are intended for preflight UI, evidence checklists, and deployment
+acceptance reports that need to know exactly which real proof must still be collected.
+
+Contracts:
+- The runbook must be derived from `getPlatformStyleProofAcceptanceAuditReport()` and
+  `getStyleProofManifestPackReport()`. It must not fork platform isolation, duplicate artifact id
+  detection, fingerprint mismatch handling, blocked-choice invalidation, or acceptance status
+  classification.
+- Every `StyleProofRequirementId` must have one `StyleProofExecutionArtifactContract` describing
+  allowed `StyleProofChannel`, `StyleProofAction`, `StyleProofReadback`, required artifact fields,
+  forbidden sensitive fields when applicable, and accepted host statuses for public-host proof.
+- WeChat ordinary PC paste proof requires the same `platform-editor` / `pc-paste` artifact to carry
+  `artifactFingerprint`, `exactArtifact`, `authenticatedSessionVerified`,
+  `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`,
+  `pasteInputEventVerified`, `editorBodyMutationVerified`, `mojibakeFreeVerified`, and
+  `safeForCommit`.
+- Phone preview, Dark Mode, and cover thumbnail rows must require phone-preview artifacts and must
+  keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`
+  separate. PC DOM, local browser screenshots, scan pages, or setup dialogs cannot complete them.
+- Credentialed sync and platform publish rows remain `unsafe-to-automate` until a human/operator
+  performs the real mutating account action and provides readback for the same artifact.
+- Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
+  Local, private, data, blob, localhost, WeChat-only, or temporary preview URLs remain invalid.
+- Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
+  `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
+  promote a style, create proof, or suppress validator issues.
+- Redaction boundaries must keep browser profiles, cookies, tokens, QR codes, HAR files, account
+  screenshots, local credential paths, and raw platform responses out of committed evidence.
+
+Required tests:
+- Committed local WeChat evidence must produce a runbook where PC paste is `unsafe-to-automate`,
+  phone preview is `blocked-by-external`, and Dark Mode / cover thumbnail require their dedicated
+  artifact flags.
+- The runbook must expose the exact required fields for ordinary PC paste and phone preview.
+- A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
+  `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
+  contract fields.
+
+## 15. Committed Local Evidence Manifest Pack
 
 `getCommittedStyleProofLocalEvidenceManifests()` is a narrow bridge from committed, redacted repo
 evidence into the normal `StyleProofManifest` validator/progress/audit pipeline. It exists so local
@@ -1205,7 +1287,7 @@ Required tests:
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber remains blocked/invalid even with local WebView2 evidence.
 
-## 15. Market Editor DOM/CSS Learning Contract - 2026-06-18
+## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 
 CloakBrowser sampling of Xiumi and 135 is permitted only as rule extraction. It must not become
 reusable source or implicit platform proof.
@@ -1265,7 +1347,7 @@ Required tests/checks:
 - Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
   DOM evidence alone.
 
-## 16. OSS Converter Source Contract - 2026-06-18
+## 17. OSS Converter Source Contract - 2026-06-18
 
 Public converter repositories such as doocs/md, mdnice/markdown-nice, and RedBookCards are
 acceptable rule sources, but only as architecture and degradation evidence.
