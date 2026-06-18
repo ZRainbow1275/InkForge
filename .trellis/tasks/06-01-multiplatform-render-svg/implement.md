@@ -2583,3 +2583,29 @@ Boundary:
 - This is local Tauri/WebView2 proof only.
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish success.
+
+## 2026-06-18 Full Tauri/WebView2 E2E Refresh Slice
+
+Scope:
+- Re-ran the full local Tauri/WebView2 WDIO suite after the ExportModal acceptance-count refresh.
+- No source behavior changed in this slice; this records the full-suite acceptance evidence.
+
+Verification:
+- `pnpm test:e2e` passed with 2 specs / 17 tests.
+- `tests/e2e/specs/svg-render.spec.cjs` passed with 6 tests:
+  real Pinia draft seeding, ExportModal style gates, cannot-claim UI, phone-preview next action,
+  Kiln/Tempera/Amber responsive `[data-ink-svg]`, and mobile-emulated `charsPerLine=20`.
+- `tests/e2e/specs/visual.spec.cjs` passed with 11 tests:
+  titlebar controls, brand mark, motion/type/easing/focus styles, and light/dark theme cascade.
+- The run emitted an EdgeDriver version warning for Edge 149 compatibility coverage, but all WDIO
+  assertions passed.
+
+Evidence:
+- Added `prompts/0601/evidence/full-tauri-e2e-refresh-20260618.txt`.
+
+Boundary:
+- This is local Tauri/WebView2 UI/rendering proof only.
+- It does not prove WeChat phone QR preview final rendering, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, ordinary WeChat Ctrl+V rich HTML/SVG acceptance,
+  credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
+  success.

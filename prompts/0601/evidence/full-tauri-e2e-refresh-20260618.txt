@@ -1,0 +1,40 @@
+Full Tauri/WebView2 E2E Refresh - 2026-06-18
+
+Scope:
+- Local full Tauri/WebView2 WDIO e2e suite for InkForge UI and SVG rendering acceptance.
+- No platform action, no phone preview, no sync, no upload, no scheduled-send, no publish.
+
+Command:
+- pnpm test:e2e
+
+Result:
+- PASS: 2 specs / 17 tests.
+
+Spec breakdown:
+- tests/e2e/specs/svg-render.spec.cjs
+  - PASS: 6 tests.
+  - Verified real Pinia draft seeding.
+  - Verified ExportModal style capability gates across WeChat, Xiaohongshu, and Zhihu.
+  - Verified acceptance cannot-claim UI and phone-preview next action.
+  - Verified flagship-kiln, flagship-tempera, and flagship-amber responsive `[data-ink-svg]`.
+  - Verified mobile-emulated `charsPerLine=20`.
+- tests/e2e/specs/visual.spec.cjs
+  - PASS: 11 tests.
+  - Verified titlebar controls.
+  - Verified brand mark rendering.
+  - Verified motion, typography, easing, and focus styles.
+  - Verified light/dark theme cascade.
+
+Runtime note:
+- The run emitted an EdgeDriver version warning that Microsoft Edge WebDriver was not tested with
+  Edge 149, but the WDIO/Tauri/WebView2 suite completed successfully.
+- The e2e run refreshed local screenshot artifacts under `prompts/0601/evidence/e2e/`, but those
+  tracked binary evidence files were pre-existing dirty artifacts and are not staged in this slice.
+  This slice records the text acceptance evidence only.
+
+Boundary:
+- This proves local Tauri/WebView2 UI and SVG rendering acceptance only.
+- It does not prove WeChat phone QR preview final rendering, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, ordinary WeChat Ctrl+V rich HTML/SVG acceptance,
+  credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
+  success.

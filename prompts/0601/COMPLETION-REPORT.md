@@ -814,3 +814,18 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local Tauri/WebView2 proof only. It does not prove WeChat phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
   publish success.
+
+## 2026-06-18 Full Tauri/WebView2 E2E Refresh Addendum
+
+- Added `prompts/0601/evidence/full-tauri-e2e-refresh-20260618.txt`.
+- Re-ran the complete local Tauri/WebView2 WDIO suite with `pnpm test:e2e`; it passed with 2 specs
+  / 17 tests.
+- `svg-render.spec.cjs` passed with 6 tests covering real Pinia draft seeding, ExportModal style
+  gates, cannot-claim UI, phone-preview next action, responsive flagship SVG injection, and
+  `charsPerLine=20`.
+- `visual.spec.cjs` passed with 11 tests covering titlebar controls, brand mark rendering,
+  motion/type/easing/focus styles, and light/dark theme cascade.
+- The run emitted an EdgeDriver compatibility warning for Edge 149, but all assertions passed.
+- Boundary: local Tauri/WebView2 UI/rendering proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance,
+  sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
