@@ -736,3 +736,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is negative evidence. It does not prove WeChat ordinary rich HTML/SVG Ctrl+V,
   must not set `ordinaryClipboardPasteVerified:true`, and must not satisfy `pc-editor-paste-event`
   or `safe-disposable-draft`.
+
+## 2026-06-18 WeChat PC Paste Strong Gate Addendum
+
+- Added `prompts/0601/evidence/wechat-pc-paste-strong-gate-20260618.txt`.
+- Added bound ordinary paste proof flags to `StyleProofArtifact`:
+  `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`, and
+  `mojibakeFreeVerified`.
+- `pc-editor-paste-event` now requires one same `platform-editor` / `pc-paste` artifact to carry
+  all strong flags together with `ordinaryClipboardPasteVerified:true`.
+- Added regression tests that keep same-tab no-paste evidence, wrong-tab/mojibake readback, and
+  split multi-artifact paste proof invalid.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 84 tests.
+- Broader verification:
+  4-file export regression passed with 4 files / 123 tests; full export serial run passed with
+  35 files / 1046 tests; targeted ESLint passed; `vue-tsc --noEmit --pretty false` passed; direct
+  Vite production build through `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed and `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+- Boundary: this is local validator proof only. It does not prove Kiln paste-safe WeChat ordinary
+  rich HTML/SVG Ctrl+V, phone preview, Dark Mode, cover, sync, schedule, XHS/Zhihu upload, public
+  URL, or publish success.

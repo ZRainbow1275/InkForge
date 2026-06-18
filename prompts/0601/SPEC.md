@@ -390,6 +390,11 @@ Live WeChat ordinary OS Ctrl+V proof must establish tab identity before the past
 - Same-tab focus is still not sufficient by itself. If the body editor is focused and OS key events
   are sent but no paste/input event or body DOM mutation occurs, `pc-editor-paste-event` remains
   invalid.
+- Local proof manifests now encode this as bound artifact flags. One same `platform-editor` /
+  `pc-paste` artifact must carry `ordinaryClipboardPasteVerified:true`,
+  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, and `mojibakeFreeVerified:true`; flags split across multiple
+  artifacts remain invalid.
 
 Recorded evidence:
 
@@ -401,5 +406,7 @@ Recorded evidence:
 - `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt` is the stricter same-tab
   negative example. It verified visible page focus and body focus, then showed SendKeys and
   `keybd_event -NoClick` left the body unchanged and created no residue.
+- `wechat-pc-paste-strong-gate-20260618.txt` records the local validator hardening and regression
+  coverage for the new bound paste flags.
 - This evidence must not set `ordinaryClipboardPasteVerified:true`, must not satisfy
   `pc-editor-paste-event`, and must not satisfy `safe-disposable-draft`.

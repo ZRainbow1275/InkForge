@@ -2447,3 +2447,44 @@ Boundary:
 - It must not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
 - Foreground-window match, page focus, body focus, and OS key event counts are insufficient without
   a real paste/input event or same-editor body DOM change.
+
+## 2026-06-18 WeChat PC Paste Strong Gate Slice
+
+- Added optional `StyleProofArtifact` fields:
+  `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`, and
+  `mojibakeFreeVerified`.
+- Strengthened `pc-editor-paste-event`: one same `platform-editor` / `pc-paste` artifact must now
+  carry all ordinary paste flags:
+  `ordinaryClipboardPasteVerified:true`, `sameEditorTabVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, and
+  `mojibakeFreeVerified:true`.
+- Added issue ids for weak or unbound paste proof:
+  `style-proof-manifest-paste-editor-tab-not-verified`,
+  `style-proof-manifest-paste-input-not-verified`,
+  `style-proof-manifest-editor-body-not-mutated`,
+  `style-proof-manifest-paste-mojibake-not-ruled-out`, and
+  `style-proof-manifest-paste-proof-not-bound`.
+- Added regression tests proving:
+  - same-tab focused OS key evidence with no paste/input and no body DOM mutation remains invalid;
+  - wrong-tab or mojibake-damaged readback remains invalid;
+  - strong paste flags split across multiple artifacts remain invalid.
+- Added evidence:
+  `prompts/0601/evidence/wechat-pc-paste-strong-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 84 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 123 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1046 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local manifest validator proof only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance for Kiln paste-safe, phone
+  preview, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload, public URL, or publish.

@@ -116,6 +116,9 @@ Only run this phase after paste readback and disposable cleanup controls are rea
 - `pc-editor-dom-readback` requires both `authenticatedSessionVerified:true` and
   `platformEditorDomVerified:true`.
 - `pc-editor-paste-event` requires `ordinaryClipboardPasteVerified:true`.
+- The same `pc-paste` artifact must also bind `sameEditorTabVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, and
+  `mojibakeFreeVerified:true`; foreground-window or key-event evidence alone is not enough.
 - `safe-disposable-draft` requires `disposableDraft:true` and `cleanupPathVerified:true`.
 - Phone preview, Dark Mode, cover, sync, schedule, and publish proof remain separate rows and must
   not be inferred from PC editor DOM or local browser evidence.
@@ -156,6 +159,9 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   visible, page/body focus was verified, CloakBrowser body click succeeded, and `keybd_event`
   `-NoClick` sent Ctrl+V without moving focus, but the body remained the placeholder. This confirms
   that foreground-window and key event counts are not proof without paste/input or body DOM change.
+- Local validator hardening is recorded in `wechat-pc-paste-strong-gate-20260618.txt`: ordinary
+  WeChat PC paste proof now requires same-artifact flags for same-tab identity, paste/input, body
+  mutation, and mojibake-free readback.
 - That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
   only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
   thumbnail acceptance, credentialed sync, scheduled send, or publish success.

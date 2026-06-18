@@ -37,6 +37,8 @@ Scope:
   `wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt`.
 - Latest Kiln paste-safe WeChat Ctrl+V single-tab no-paste reviewed:
   `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`.
+- Latest local PC paste strong-gate validator proof reviewed:
+  `wechat-pc-paste-strong-gate-20260618.txt`.
 - The original audit did not create platform proof or mutate a live editor. This living file now
   also records the later 2026-06-18 Amber disposable-draft PC paste/cleanup proof. No phone preview,
   sync, upload, schedule, or publish action is claimed here. The later Kiln paste-safe candidate
@@ -44,7 +46,8 @@ Scope:
   WeChat draft. The later Kiln paste-safe WeChat Ctrl+V attempt is negative: the intended editor
   stayed unchanged, a different foreground tab received mojibake-damaged InkForge content, and the
   current-run residue was deleted and verified absent. A stricter single-tab retry then verified
-  page/body focus but still produced no paste and no residue.
+  page/body focus but still produced no paste and no residue. The local validator now requires all
+  strong ordinary paste flags to be bound to the same `pc-paste` artifact.
 
 Audit labels:
 - `complete-local`: current repository tests, local runtime artifacts, or local manifests prove
@@ -153,6 +156,9 @@ Current strongest evidence:
   but SendKeys and `keybd_event -NoClick` still produced no paste and no body DOM mutation. This
   adds a second gate: key event counts and foreground-window match are still only diagnostics until
   the editor body actually changes through paste/input.
+- The 2026-06-18 PC paste strong-gate validator slice makes that gate executable: one same
+  `platform-editor` / `pc-paste` artifact must bind ordinary Ctrl+V, same-tab identity,
+  paste/input, body mutation, and mojibake-free readback. Split or partial artifacts remain invalid.
 
 Remaining hard gates:
 - WeChat phone preview for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
@@ -193,7 +199,7 @@ Safe next actions:
    still only local-ready until it passes the same disposable draft create -> ordinary Ctrl+V ->
    same-visible-tab DOM readback -> cleanup -> absence-readback sequence. The tab-mismatch cleanup
    run proves the need for this same-tab check, and the single-tab retry proves that key event
-   counts alone are still insufficient.
+   counts alone are still insufficient. The local strong-gate validator enforces both conclusions.
 4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
 5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host

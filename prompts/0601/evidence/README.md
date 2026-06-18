@@ -637,3 +637,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is negative evidence only. Foreground-window match, focused editor state, and
   key event counts are not enough; future proof must observe a paste/input event or same-editor DOM
   body change.
+
+## 2026-06-18 WeChat PC Paste Strong Gate
+
+- [x] wechat-pc-paste-strong-gate-20260618.txt
+- `StyleProofArtifact` now has additional optional bound proof flags for ordinary WeChat PC paste:
+  `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`, and
+  `mojibakeFreeVerified`.
+- `pc-editor-paste-event` now requires one same `platform-editor` / `pc-paste` artifact to bind
+  all strong paste flags together with `ordinaryClipboardPasteVerified:true`.
+- Regression tests reject same-tab no-paste evidence, wrong-tab/mojibake readback, and split
+  multi-artifact proof.
+- Focused verification passed: `platform-export-rendering.test.ts` 1 file / 84 tests.
+- Boundary: this is local validator proof only, not WeChat paste, phone, sync, schedule, or publish
+  proof.

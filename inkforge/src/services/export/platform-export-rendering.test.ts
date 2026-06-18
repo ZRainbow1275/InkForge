@@ -755,6 +755,10 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
           ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -1436,6 +1440,10 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
           ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -1798,6 +1806,136 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
   })
 
+  it('rejects same-tab focused OS key evidence when no paste event or body mutation occurred', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-kiln-paste-safe',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-kiln-paste-safe-single-tab',
+      artifacts: [
+        {
+          id: 'same-tab-no-paste-keybd-event',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'same-tab body-focused keybd_event left the WeChat body placeholder unchanged',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-kiln-paste-safe',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-kiln-paste-safe-single-tab',
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: false,
+          editorBodyMutationVerified: false,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-input-not-verified')
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-editor-body-not-mutated')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
+  it('rejects wrong-tab or mojibake-damaged rich body readback as ordinary PC paste proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-kiln-paste-safe',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-kiln-paste-safe-wrong-tab',
+      artifacts: [
+        {
+          id: 'wrong-tab-mojibake-readback',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'wrong visible tab received mojibake-damaged InkForge content',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-kiln-paste-safe',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-kiln-paste-safe-wrong-tab',
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: false,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: false,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-editor-tab-not-verified')
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-mojibake-not-ruled-out')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
+  it('rejects ordinary paste flags split across multiple PC paste artifacts', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-split-paste-proof',
+      artifacts: [
+        {
+          id: 'split-paste-key-event',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'ordinary key event and same tab evidence only',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-split-paste-proof',
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'split-paste-body-readback',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'body mutation and mojibake-free evidence only',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-split-paste-proof',
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-proof-not-bound')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
   it('rejects market library selection when the central editor did not change', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
@@ -1902,6 +2040,10 @@ describe('platform native export rendering rules', () => {
           exactArtifact: true,
           disposableDraft: true,
           ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
       ],
