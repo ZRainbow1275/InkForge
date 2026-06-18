@@ -2801,6 +2801,38 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat Draftbox Create Menu Readback Slice
+
+Browser readback:
+- Used CloakBrowser only.
+- Returned to the authenticated WeChat backend home route after the previous no-op create-entry
+  block.
+- Direct navigation to the bare draftbox path returned a relogin prompt, proving naked backend
+  paths cannot be treated as valid editor/draftbox proof.
+- Triggering the authenticated backend DOM draftbox link reached the draftbox route without
+  relogin.
+- The draftbox page had no editor shell, no `.ProseMirror`, and no `contenteditable` body.
+- The toolbar create menu opened and exposed an article-like item plus non-article/import choices.
+  The article item was not selected, and no editor/draft/paste/preview/sync/upload/publish action
+  occurred.
+
+Docs/evidence:
+- Added `prompts/0601/evidence/wechat-draftbox-create-menu-readback-20260619.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- `git diff --check -- <slice docs>` passed.
+- Staged sensitive scan passed with zero output for local profile paths, query parameters, cookies,
+  HAR, QR, capture artifacts, and browser-state markers.
+
+Boundary:
+- This is redacted create-menu reachability only.
+- It does not prove safe-disposable-draft, authenticated editor URL, editor DOM readback, ordinary
+  Ctrl+V rich HTML/SVG acceptance, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, upload, public host acceptance, platform preview, public
+  article rendering, or publish success.
+
 ## 2026-06-19 E2E SVG Render Refresh Slice
 
 Scope:

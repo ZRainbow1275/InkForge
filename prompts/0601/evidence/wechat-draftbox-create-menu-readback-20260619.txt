@@ -1,0 +1,23 @@
+WeChat Draftbox Create Menu Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat backend/draftbox navigation preflight.
+- No article type was selected, no editor was opened, no draft was created, no paste was attempted, no preview was opened, no sync/upload/publish action was triggered.
+- No raw account text, article titles, query parameters, browser state, screenshots, or raw markup are recorded here.
+
+Readback:
+- The authenticated backend home route was reachable.
+- A direct bare draftbox path without the backend session query/context returned a relogin prompt. This proves the proof runner must not use naked backend paths as if they were valid editor navigation.
+- Triggering the draftbox menu link already present in the authenticated backend DOM reached the draftbox route without relogin.
+- The draftbox page had no editor shell, no `.ProseMirror`, and no `contenteditable` article body.
+- The visible create menu button could be opened from the draftbox toolbar.
+- The opened create menu exposed an article-like item plus non-article creation/import choices. The article-like item was not selected in this pass.
+
+Decision:
+- This evidence upgrades only the no-mutation navigation map from backend home -> draftbox -> create menu.
+- It does not satisfy `safe-disposable-draft`, `authenticated-editor-url`, `pc-editor-dom-readback`, `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`, `cover-thumbnail-check`, `credentialed-sync`, scheduled send, or publish proof.
+- A future mutation pass must select the article item only with a deterministic disposable-draft sentinel, same-session editor DOM readback, exact artifact fingerprint, ordinary paste channel proof, and verified cleanup/absence readback.
+
+Boundary:
+- This is a redacted create-menu reachability preflight only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, XHS/Zhihu account upload, public host acceptance, platform preview, public article rendering, or publish success.

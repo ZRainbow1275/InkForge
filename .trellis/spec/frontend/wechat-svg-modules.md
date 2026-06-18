@@ -1195,6 +1195,14 @@ Contracts:
   (`bodyTextLength=8`, `svgCount=0`). This must not satisfy `pc-editor-paste-event`; foreground
   window match, body focus, and key event counts are insufficient without an actual paste/input
   event or same-editor body DOM change.
+- 2026-06-19 WeChat draftbox create-menu readback:
+  `wechat-draftbox-create-menu-readback-20260619.txt` records that the authenticated backend home
+  route can reach draftbox only through the backend DOM menu link with active session context; a
+  bare `/cgi-bin/appmsg` navigation can fall to a relogin prompt. The draftbox toolbar exposes a
+  visible create menu and an article item, but that is only create-menu reachability. It must not
+  satisfy `safe-disposable-draft`, `authenticated-editor-url`, `pc-editor-dom-readback`, or
+  `pc-editor-paste-event` until a same-session article editor is opened, a deterministic disposable
+  draft is created, the exact artifact is pasted/read back, and cleanup is verified.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.

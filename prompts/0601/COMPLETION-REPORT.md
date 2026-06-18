@@ -1191,3 +1191,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   Ctrl+V rich HTML/SVG acceptance, phone preview, mobile interaction, Dark Mode, cover thumbnail,
   sync, scheduled-send, XHS/Zhihu upload, public host acceptance, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 WeChat Draftbox Create Menu Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-draftbox-create-menu-readback-20260619.txt`.
+- CloakBrowser-only navigation confirmed that a bare draftbox backend path can return a relogin
+  prompt, while the authenticated backend DOM menu link can reach the draftbox route with active
+  session context.
+- The draftbox page exposed no editor shell, no `.ProseMirror`, and no `contenteditable` article
+  body before mutation.
+- The draftbox toolbar create menu opened and exposed an article-like item plus non-article/import
+  choices. The article item was not selected in this pass.
+- No editor opened, no draft was created, no paste was attempted, no preview/sync/upload/publish
+  action was triggered, and no raw account text, article titles, query parameters, browser state,
+  screenshots, or raw markup were committed.
+- Boundary: create-menu reachability only. It does not prove safe-disposable-draft, editor DOM
+  readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, credentialed sync,
+  scheduled-send, upload, public host, platform preview, public article rendering, or publish
+  success.

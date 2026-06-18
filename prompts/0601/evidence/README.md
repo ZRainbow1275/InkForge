@@ -953,3 +953,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local detector and documentation proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, XHS/Zhihu
   upload, public host acceptance, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 WeChat Draftbox Create Menu Readback
+
+- [x] wechat-draftbox-create-menu-readback-20260619.txt
+- CloakBrowser-only authenticated navigation reached the draftbox route through the backend DOM menu
+  link with active session context; a bare draftbox path returned a relogin prompt.
+- The draftbox toolbar create menu was reachable and exposed an article-like item, but no article
+  type was selected.
+- No editor opened, no draft was created, no paste was attempted, no preview/sync/upload/publish
+  action was triggered, and no raw account text, article titles, query parameters, browser state,
+  screenshots, or raw markup were committed.
+- Boundary: create-menu reachability only. It does not prove safe-disposable-draft, editor DOM
+  readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send,
+  upload, public host, platform preview, public article rendering, or publish success.
