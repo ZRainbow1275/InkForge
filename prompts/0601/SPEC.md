@@ -533,9 +533,13 @@ Contract:
   `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`.
 - Public host proof must identify `artifactRef`, `hostStatus`, `safeForCommit`, and a host status
   of `public-https` or `platform-hosted`.
+- XHS and Zhihu artifact-manifest proof must identify `artifactRef`, `safeForCommit`, and
+  `artifactManifestValidated:true`. The flag may be set only after the matching platform manifest
+  validator returns no issues for the exact redacted manifest being referenced.
 - Credentialed sync, scheduled-send, upload, and publish rows remain external/manual gates until
   exact artifact readback exists.
 
 Recorded evidence:
 
 - `prompts/0601/evidence/style-proof-execution-runbook-20260618.txt`
+- `prompts/0601/evidence/style-proof-artifact-manifest-validation-20260619.txt`

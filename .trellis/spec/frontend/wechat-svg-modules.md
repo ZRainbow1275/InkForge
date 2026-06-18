@@ -626,6 +626,11 @@ deterministically, defaults cover to page 1, derives body references from pages 
 uniqueness, reference mismatch, file proof, ratio, format, bytes, and crop checks to
 `validateXhsImageArtifactManifest()`. It does not upload images or prove XHS platform preview.
 
+Any `StyleProofManifest` artifact that satisfies `xhs-artifact-manifest` must set
+`artifactManifestValidated:true` only after `validateXhsImageArtifactManifest()` returns no issues
+for the exact redacted manifest being referenced. A manifest-shaped proof row without this flag is
+invalid local evidence and must not be treated as XHS upload, platform preview, or publish proof.
+
 #### 3. Contracts
 
 - Pages are ordered 1..N without gaps or duplicates.
@@ -800,6 +805,12 @@ platform proof, and cannot satisfy `requirePlatformUpload:true` without explicit
 `uploaded:true` plus a recognized platform-hosted final URL. For local/public-HTTPS fallback
 records it requires `exists:true`, positive `bytes`, non-empty `alt`, and semantic `caption` or
 `textFallback:true`; the returned manifest must still pass `validateZhihuImageArtifactManifest()`.
+
+Any `StyleProofManifest` artifact that satisfies `zhihu-artifact-manifest` must set
+`artifactManifestValidated:true` only after `validateZhihuImageArtifactManifest()` returns no
+issues for the exact redacted manifest being referenced. This is a local/preflight validator flag;
+it does not satisfy Zhihu account upload, editor preview, public article rendering, sync, scheduled
+publish, or publish success.
 
 #### 3. Contracts
 
@@ -1345,6 +1356,10 @@ Contracts:
   performs the real mutating account action and provides readback for the same artifact.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   Local, private, data, blob, localhost, WeChat-only, or temporary preview URLs remain invalid.
+- XHS and Zhihu artifact-manifest proof must require `artifactManifestValidated:true` in addition
+  to `artifactRef` and `safeForCommit`. The flag is set only when the matching
+  `validateXhsImageArtifactManifest()` or `validateZhihuImageArtifactManifest()` call returns no
+  issues for the exact redacted manifest.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
@@ -1364,6 +1379,8 @@ Required tests:
   phone preview is `blocked-by-external`, and Dark Mode / cover thumbnail require their dedicated
   artifact flags.
 - The runbook must expose the exact required fields for ordinary PC paste and phone preview.
+- The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
+  validator-shaped rows missing that flag must keep the requirement invalid.
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.
@@ -1405,8 +1422,9 @@ Contracts:
   audit over those manifests. It must keep `cannotClaim` rows and next phone/manual gate actions
   visible.
 - XHS committed local evidence may satisfy only the chosen image artifact's local browser/raster
-  and manifest-validation rows. It must leave XHS account upload, platform preview, and publish
-  rows unclaimable.
+  and manifest-validation rows, and its `xhs-artifact-manifest` artifact must set
+  `artifactManifestValidated:true` only for the committed validator-passed report. It must leave
+  XHS account upload, platform preview, and publish rows unclaimable.
 - Zhihu image fallback choices must not enter the committed local pack until public HTTPS or
   platform-host image proof is available. A local manifest validator log alone is insufficient for
   the `public-image-host` gate.
@@ -1421,8 +1439,8 @@ Required tests:
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber remains blocked/invalid even with local WebView2 evidence.
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
-  `xhs-artifact-manifest`, while `published-url-or-platform-preview` remains missing and
-  unsafe-to-automate.
+  `xhs-artifact-manifest` with `artifactManifestValidated:true`, while
+  `published-url-or-platform-preview` remains missing and unsafe-to-automate.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

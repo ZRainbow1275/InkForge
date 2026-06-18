@@ -2751,6 +2751,40 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 Style Proof Artifact Manifest Validation Slice
+
+Scope:
+- Tightened the local style proof layer for XHS/Zhihu artifact-manifest requirements.
+- No platform action, phone preview, upload, sync, scheduled send, or publish action was attempted.
+
+Implementation:
+- Added `artifactManifestValidated?: boolean` to `StyleProofArtifact`.
+- Added `style-proof-manifest-artifact-manifest-not-validated` to the executable proof issue ids.
+- Updated XHS/Zhihu artifact-manifest runbook contracts so `artifactRef`,
+  `artifactManifestValidated`, and `safeForCommit` are required fields.
+- Updated `validateStyleProofManifest()` so a manifest-shaped artifact row is not enough; it must
+  carry `artifactManifestValidated:true` after the corresponding platform manifest validator passes.
+- Updated the committed XHS local evidence manifest to set the flag only for the committed
+  validator-passed report.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 96 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 135 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1069 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts src/services/export/index.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This proves local validator-passed accounting only.
+- It does not prove Xiaohongshu upload, platform preview, public URL acceptance, Zhihu account
+  upload/editor preview/public article rendering, sync, scheduled publish, or publish success.
+
 ## 2026-06-19 Zhihu Image Manifest Builder Slice
 
 Impact:

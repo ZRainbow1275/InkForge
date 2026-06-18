@@ -219,6 +219,7 @@ export interface StyleProofArtifact {
   coverThumbnailAccepted?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
+  artifactManifestValidated?: boolean
   safeForCommit?: boolean
   committed?: boolean
   sensitive?: boolean
@@ -253,6 +254,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-readback-missing'
   | 'style-proof-manifest-public-image-host-missing'
   | 'style-proof-manifest-validation-missing'
+  | 'style-proof-manifest-artifact-manifest-not-validated'
   | 'style-proof-manifest-pack-choice-unknown'
   | 'style-proof-manifest-pack-platform-mismatch'
   | 'style-proof-manifest-pack-artifact-id-duplicate'
@@ -286,6 +288,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-readback-missing',
   'style-proof-manifest-public-image-host-missing',
   'style-proof-manifest-validation-missing',
+  'style-proof-manifest-artifact-manifest-not-validated',
   'style-proof-manifest-pack-choice-unknown',
   'style-proof-manifest-pack-platform-mismatch',
   'style-proof-manifest-pack-artifact-id-duplicate',
@@ -693,6 +696,7 @@ export type StyleProofArtifactVerificationField =
   | 'coverThumbnailAccepted'
   | 'disposableDraft'
   | 'cleanupPathVerified'
+  | 'artifactManifestValidated'
   | 'safeForCommit'
   | 'committed'
   | 'sensitive'
@@ -1181,14 +1185,14 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['local-artifact'],
     requiredActions: ['artifact-manifest-validation'],
     requiredReadbacks: ['manifest'],
-    requiredFields: ['artifactRef', 'safeForCommit'],
+    requiredFields: ['artifactRef', 'artifactManifestValidated', 'safeForCommit'],
   },
   'zhihu-artifact-manifest': {
     requirementId: 'zhihu-artifact-manifest',
     requiredChannels: ['local-artifact'],
     requiredActions: ['artifact-manifest-validation'],
     requiredReadbacks: ['manifest'],
-    requiredFields: ['artifactRef', 'safeForCommit'],
+    requiredFields: ['artifactRef', 'artifactManifestValidated', 'safeForCommit'],
   },
   'no-sensitive-artifact': {
     requirementId: 'no-sensitive-artifact',
@@ -2102,6 +2106,7 @@ function createCommittedStyleProofXhsLocalEvidenceManifest(
         readback: 'manifest',
         artifactFingerprint: options.artifactFingerprint,
         artifactRef: options.manifestArtifactRef,
+        artifactManifestValidated: true,
         committed: true,
         safeForCommit: true,
       },
@@ -2854,6 +2859,19 @@ function validateStyleProofRequirementCoverage(
           id: 'style-proof-manifest-validation-missing',
           message: `${requirementId} proof lacks a validated artifact manifest entry.`,
           suggestion: 'Run the platform-specific image artifact manifest validator first, then reference only the redacted validation result in style proof.',
+          location: requirementId,
+        })
+      }
+      else if (!has(artifact =>
+        artifact.kind === 'artifact-manifest'
+        && artifact.action === 'artifact-manifest-validation'
+        && artifact.readback === 'manifest'
+        && artifact.artifactManifestValidated === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-artifact-manifest-not-validated',
+          message: `${requirementId} proof references an artifact manifest but does not prove the platform manifest validator passed.`,
+          suggestion: 'Set artifactManifestValidated:true only after validateXhsImageArtifactManifest() or validateZhihuImageArtifactManifest() returns no issues for the exact redacted artifact manifest.',
           location: requirementId,
         })
       }

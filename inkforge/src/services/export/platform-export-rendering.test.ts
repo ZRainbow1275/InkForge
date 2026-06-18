@@ -1397,6 +1397,9 @@ describe('platform native export rendering rules', () => {
 
     const xhsProgress = packReport.platformReports.xiaohongshu
     const xhsCoverProgress = xhsProgress.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')
+    const xhsArtifactManifest = xhsCoverProgress?.manifest.artifacts.find(artifact =>
+      artifact.requirementId === 'xhs-artifact-manifest'
+    )
     const xhsRequirementStatus = new Map(
       xhsCoverProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
     )
@@ -1412,6 +1415,7 @@ describe('platform native export rendering rules', () => {
     expect(xhsRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(xhsRequirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(xhsRequirementStatus.get('xhs-artifact-manifest')).toBe('satisfied')
+    expect(xhsArtifactManifest?.artifactManifestValidated).toBe(true)
     expect(xhsRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(xhsRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
 
@@ -1520,8 +1524,14 @@ describe('platform native export rendering rules', () => {
     const xhsPublish = runbook.platformReports.xiaohongshu.steps.find(step =>
       step.requirement.id === 'published-url-or-platform-preview'
     )
+    const xhsArtifactManifest = runbook.platformReports.xiaohongshu.steps.find(step =>
+      step.requirement.id === 'xhs-artifact-manifest'
+    )
     const zhihuPublicHost = runbook.platformReports.zhihu.steps.find(step =>
       step.requirement.id === 'public-image-host'
+    )
+    const zhihuArtifactManifest = runbook.platformReports.zhihu.steps.find(step =>
+      step.requirement.id === 'zhihu-artifact-manifest'
     )
 
     expect(runbook.summary.manifestCount).toBe(1)
@@ -1530,6 +1540,11 @@ describe('platform native export rendering rules', () => {
     expect(wechatPcPaste?.status).toBe('unsafe-to-automate')
     expect(xhsPublish?.status).toBe('unsafe-to-automate')
     expect(xhsPublish?.boundary).toBe('platform-publish')
+    expect(xhsArtifactManifest?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'artifactRef',
+      'artifactManifestValidated',
+      'safeForCommit',
+    ]))
     expect(zhihuPublicHost?.status).toBe('blocked-by-external')
     expect(zhihuPublicHost?.boundary).toBe('public-host')
     expect(zhihuPublicHost?.requiredArtifact.acceptedHostStatuses).toEqual([
@@ -1539,6 +1554,11 @@ describe('platform native export rendering rules', () => {
     expect(zhihuPublicHost?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
       'artifactRef',
       'hostStatus',
+      'safeForCommit',
+    ]))
+    expect(zhihuArtifactManifest?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'artifactRef',
+      'artifactManifestValidated',
       'safeForCommit',
     ]))
   })
@@ -2672,6 +2692,99 @@ describe('platform native export rendering rules', () => {
     expect(getPlatformStyleApplicationReport('zhihu').find(item =>
       item.availability.choice.id === 'zhihu-clean-column',
     )?.selectable).toBe(true)
+  })
+
+  it('requires platform artifact manifest validator proof before satisfying XHS image artifact manifests', () => {
+    const artifactFingerprint = 'xhs-cover-carousel-proof@sha256:validator-required'
+    const manifest: StyleProofManifest = {
+      platform: 'xiaohongshu',
+      choiceId: 'xhs-cover-carousel',
+      scope: 'style-choice',
+      claimedEvidence: ['unit-tested', 'local-browser'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'xhs-validator-unit-proof',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'xhs validator unit proof',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+        {
+          id: 'xhs-validator-browser-proof',
+          requirementId: 'local-browser-rendering',
+          kind: 'screenshot',
+          label: 'xhs validator local render proof',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-browser',
+          action: 'local-render',
+          readback: 'visual',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+        {
+          id: 'xhs-validator-exact-proof',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'xhs validator exact artifact proof',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'xhs-validator-manifest-proof',
+          requirementId: 'xhs-artifact-manifest',
+          kind: 'artifact-manifest',
+          label: 'xhs validator manifest proof without validator result',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-artifact',
+          action: 'artifact-manifest-validation',
+          readback: 'manifest',
+          artifactFingerprint,
+          artifactRef: 'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt',
+          safeForCommit: true,
+        },
+        {
+          id: 'xhs-validator-hygiene-proof',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'xhs validator hygiene proof',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const issueIds = validateStyleProofManifest(manifest).map(issue => issue.id)
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(issueIds).toContain('style-proof-manifest-artifact-manifest-not-validated')
+    expect(requirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
+    expect(requirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(requirementStatus.get('local-browser-rendering')).toBe('satisfied')
+    expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

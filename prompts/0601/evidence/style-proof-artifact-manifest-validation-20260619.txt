@@ -1,0 +1,53 @@
+Style Proof Artifact Manifest Validation - 2026-06-19
+
+Scope:
+- Local style proof validation for XHS and Zhihu artifact-manifest requirements.
+- No platform action, phone preview, upload, sync, scheduled send, or publish action.
+
+Implemented:
+- StyleProofArtifact now supports artifactManifestValidated.
+- xhs-artifact-manifest and zhihu-artifact-manifest execution contracts require:
+  - artifactRef
+  - artifactManifestValidated
+  - safeForCommit
+- validateStyleProofManifest now rejects manifest-shaped proof rows unless the row also proves the
+  matching platform manifest validator passed.
+- The committed XHS local evidence manifest sets artifactManifestValidated:true only for the
+  committed validator-passed manifest report.
+
+Behavior:
+- A local artifact with kind artifact-manifest, action artifact-manifest-validation, and readback
+  manifest is still insufficient by itself.
+- Missing artifactManifestValidated:true produces:
+  style-proof-manifest-artifact-manifest-not-validated.
+- The flag may be set only after validateXhsImageArtifactManifest() or
+  validateZhihuImageArtifactManifest() returns no issues for the exact redacted manifest being
+  referenced.
+- The flag does not prove account upload, platform preview, public article rendering, sync,
+  scheduled publish, or publish success.
+
+Regression coverage:
+- XHS cover-carousel proof with unit/local/exact/hygiene rows and a manifest-shaped proof row stays
+  invalid when artifactManifestValidated is absent.
+- Committed XHS local evidence still satisfies xhs-artifact-manifest because it references the
+  validator-passed committed report and sets artifactManifestValidated:true.
+- The execution runbook exposes artifactManifestValidated for XHS and Zhihu artifact-manifest rows.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 96 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 135 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1069 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts src/services/export/index.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves local validator-passed proof accounting only.
+- It does not prove Xiaohongshu upload, platform preview, public URL acceptance, Zhihu account
+  upload/editor preview/public article rendering, sync, scheduled publish, or publish success.

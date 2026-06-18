@@ -1086,3 +1086,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   134 tests, full export serial suite at 1068 tests, ESLint, `vue-tsc`, and production build.
 - Boundary: local multi-page manifest construction only. It does not prove Xiaohongshu account
   upload, platform preview, public URL acceptance, scheduled publish, or publish success.
+
+## 2026-06-19 Style Proof Artifact Manifest Validation Addendum
+
+- Added `prompts/0601/evidence/style-proof-artifact-manifest-validation-20260619.txt`.
+- Added `artifactManifestValidated?: boolean` to style proof artifacts and required it for
+  `xhs-artifact-manifest` and `zhihu-artifact-manifest` proof rows.
+- Added `style-proof-manifest-artifact-manifest-not-validated` so a manifest-shaped local proof row
+  remains invalid until the matching XHS or Zhihu artifact manifest validator returns no issues for
+  the exact redacted manifest.
+- Updated the execution runbook contracts so operator/UI checklists expose
+  `artifactManifestValidated` alongside `artifactRef` and `safeForCommit`.
+- Updated committed XHS local evidence to set the field only for the committed validator-passed
+  local manifest report.
+- Verification passed with focused `platform-export-rendering.test.ts` at 96 tests, 4-file
+  cross-platform export regression at 135 tests, full export serial suite at 1069 tests, ESLint,
+  `vue-tsc`, and production build.
+- Boundary: local validator-passed accounting only. It does not prove Xiaohongshu upload, platform
+  preview, public URL acceptance, Zhihu account upload/editor preview/public article rendering,
+  sync, scheduled publish, or publish success.
