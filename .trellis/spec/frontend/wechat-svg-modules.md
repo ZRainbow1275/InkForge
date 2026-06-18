@@ -1213,6 +1213,15 @@ Contracts:
   sentinel stayed absent. This must not satisfy `authenticated-editor-url`,
   `pc-editor-dom-readback`, `safe-disposable-draft`, `pc-editor-paste-event`,
   `ordinaryClipboardPasteVerified:true`, or `cleanupPathVerified:true`.
+- 2026-06-19 WeChat OS-click calibration abort:
+  `wechat-os-click-calibration-abort-20260619.txt` records that Win32 `mouse_event` / `SendInput`
+  targeting was not safely bound to the intended create-button DOM target. The candidate point hit a
+  Chromium render window and the intended page coordinate matched the visible create button, but the
+  menu did not open; CSS hover diagnostics showed intersection with a draft-card region. The hover
+  text was private and must not be committed. Further OS-coordinate article-creation clicks must
+  abort until actual cursor-path identity to the exact DOM target is demonstrated without
+  intersecting account content. This must not satisfy authenticated editor, PC DOM, safe draft, paste,
+  or cleanup proof rows.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1286,6 +1295,10 @@ Required tests:
   calibrated OS mouse clicks, or untrusted in-page pointer/mouse events without same-session editor
   DOM readback must keep `authenticated-editor-url`, `pc-editor-dom-readback`,
   `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid.
+- A manifest that cites OS-coordinate calibration, Win32 render-window hit testing, or hover-chain
+  diagnostics must keep WeChat editor, paste, safe-draft, and cleanup rows missing or invalid unless
+  the same artifact also proves exact DOM target identity, trusted editor opening, deterministic
+  disposable draft handling, and post-cleanup absence.
 - A manifest that cites a login/re-login/expired-session page as authenticated editor reachability
   must keep `authenticated-editor-url` invalid and surface
   `style-proof-manifest-authenticated-session-not-verified`.

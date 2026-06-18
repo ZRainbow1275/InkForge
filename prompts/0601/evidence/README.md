@@ -984,3 +984,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   safe-disposable-draft, editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode,
   cover thumbnail, sync, scheduled-send, upload, public host, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 WeChat OS Click Calibration Abort
+
+- [x] wechat-os-click-calibration-abort-20260619.txt
+- A follow-up tried to validate Win32 `mouse_event` / `SendInput` targeting against the visible
+  create button before any further article-item selection.
+- The candidate point landed on a Chromium render window and the intended page coordinate matched
+  the visible create button, but the create menu did not open. CSS hover diagnostics showed the OS
+  cursor path was not safely bound to the intended DOM target and intersected a draft-card region.
+- The hover diagnostic exposed private draft/card text, so only the redacted conclusion is recorded.
+- Post-attempt readback stayed on `/cgi-bin/appmsg`; no editor shell, article-body contenteditable,
+  iframe, textarea, create-menu item, or deterministic sentinel appeared.
+- Boundary: OS-coordinate clicking is aborted for this session. This does not prove editor DOM
+  readback, safe disposable draft, ordinary Ctrl+V paste, phone preview, Dark Mode, cover
+  thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
+  or publish success.

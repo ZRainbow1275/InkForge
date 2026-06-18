@@ -1,0 +1,41 @@
+WeChat OS Click Calibration Abort - 2026-06-19
+
+Scope:
+- CloakBrowser-only follow-up after the draftbox article-menu click block.
+- The goal was to verify whether Win32 mouse input could safely target the draftbox create button before attempting any article-item selection.
+- No editor opened, no draft was created, no title/body was changed, no clipboard/paste action was attempted, and no preview/sync/upload/publish action was triggered.
+
+Redaction:
+- Existing draft titles and card text observed in hover diagnostics are intentionally not recorded.
+- Credential-bearing URL parameter values, account identifiers, private content, browser state locations, screenshots, local capture paths, raw DOM, and raw platform responses are not recorded.
+- Only sanitized selector/state outcomes and the abort decision are recorded.
+
+Calibration Attempts:
+- Read browser-exposed geometry for the create button and the top-level window.
+- Read the Win32 top-level Chromium window rectangle.
+- Verified that a candidate screen point landed on a `Chrome_RenderWidgetHostHWND` render window.
+- Used `document.elementFromPoint()` to confirm the corresponding intended page coordinate was the visible create button.
+- Sent Win32 `mouse_event` and `SendInput` down/up sequences to the intended create-button screen point.
+
+Observed:
+- The create menu did not open from the Win32 click attempts.
+- CSS hover diagnostics after the click showed the pointer path was not safely bound to the intended create button; it intersected a draft-card region instead.
+- The hover diagnostic contained private draft/card text, so only this redacted conclusion is committed.
+- Post-attempt readback stayed on `/cgi-bin/appmsg`.
+- The page did not become a relogin page.
+- Editor shell selectors stayed absent:
+  `#js_appmsg_editor`, `#editor_pannel`, `#js_ueditor`, `#js_editor`, `.edui-editor`, `.ProseMirror`.
+- Article-body `contenteditable` count stayed 0.
+- Iframe count stayed 0.
+- Textarea count stayed 0.
+- Deterministic sentinel matches stayed 0.
+- Create-menu visible item count stayed 0.
+
+Decision:
+- Abort further OS-coordinate clicking for article creation in this session.
+- Do not attempt article-item selection again until the proof runner can demonstrate target identity from the actual OS cursor path to the exact DOM target without intersecting private draft cards or other account content.
+- Do not claim `authenticated-editor-url`, `pc-editor-dom-readback`, `safe-disposable-draft`, `pc-editor-paste-event`, `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`, or `cleanupPathVerified` from this run.
+
+Boundary:
+- This is OS-click calibration abort evidence only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, XHS/Zhihu account upload, public host acceptance, platform preview, public article rendering, or publish success.

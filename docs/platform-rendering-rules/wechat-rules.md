@@ -142,6 +142,7 @@ Mode, cover thumbnail, sync, or publish success.
 - 同一只读复核还观察到当前真实草稿存在 `#js_add_appmsg` / `data-action="add"` 的“增加一条/新建内容”入口；该入口会改变多图文草稿结构，未在没有 disposable draft 和 cleanup proof 的情况下点击，不能作为安全粘贴测试入口。
 - 2026-06-09 后续 CloakBrowser 证据对 exact `flagship-amber.html` 执行程序化 `ClipboardEvent('paste')` + `DataTransfer`，真实微信 PC 编辑器 paste handler 接管并读回 `data-ink-svg=3` / `svg=35`。这只证明该 PC channel 的 DOM readback；普通 Ctrl+V、手机预览、Dark Mode、封面缩略图、同步、定时发送和发布仍必须分开验收。
 - 2026-06-19 CloakBrowser 证据证明：认证态草稿箱可以打开“新的创作”菜单并看到文章入口，但 DOM click、CloakBrowser selector click、校准后的 OS mouse click 和未受信 in-page pointer/mouse event 都没有打开文章编辑器。该证据只能记录为 article-menu selection block；没有 same-session editor DOM、deterministic disposable title、paste readback 和 cleanup absence proof 时，不得满足 `authenticated-editor-reachable`、`pc-editor-dom-readable`、`pc-editor-paste` 或 `safe-disposable-draft`。
+- 2026-06-19 OS click calibration 进一步证明：Win32 `mouse_event` / `SendInput` 在当前浏览器窗口中无法安全绑定到预期 create-button DOM target；hover 诊断显示实际 cursor path 可能穿过草稿卡片区域。继续坐标点击会增加误触账号内容风险，必须 abort，直到能证明 actual OS cursor path 与 exact DOM target identity 一致。
 
 ### 0.4 禁止项
 

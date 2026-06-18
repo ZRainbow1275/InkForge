@@ -1227,3 +1227,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   authenticated editor URL, editor DOM readback, safe disposable draft, ordinary Ctrl+V paste,
   phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, upload, public
   host, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 WeChat OS Click Calibration Abort Addendum
+
+- Added `prompts/0601/evidence/wechat-os-click-calibration-abort-20260619.txt`.
+- CloakBrowser-only follow-up compared browser geometry, Win32 top-level window geometry,
+  render-window hit testing, and `document.elementFromPoint()` before any further article-entry
+  selection.
+- The candidate point landed on a Chromium render window and the intended page coordinate matched
+  the visible create button, but Win32 `mouse_event` and `SendInput` did not open the create menu.
+- CSS hover diagnostics showed the OS cursor path was not safely bound to the intended DOM target
+  and intersected a draft-card region; private hover text was not committed.
+- Final readback stayed on `/cgi-bin/appmsg`; editor shell selectors, `.ProseMirror`, article-body
+  contenteditable nodes, iframe nodes, textarea nodes, create-menu items, and the deterministic
+  sentinel all stayed absent.
+- Boundary: OS-coordinate clicking is aborted for this session. This does not prove authenticated
+  editor URL, editor DOM readback, safe disposable draft, ordinary Ctrl+V paste, phone preview,
+  Dark Mode, cover thumbnail, credentialed sync, scheduled-send, upload, public host, platform
+  preview, public article rendering, or publish success.

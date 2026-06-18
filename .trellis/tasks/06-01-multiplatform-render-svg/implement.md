@@ -2865,6 +2865,39 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
   public host, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat OS Click Calibration Abort Slice
+
+Scope:
+- Continued the same authenticated draftbox route with CloakBrowser only.
+- Tested whether Win32 mouse injection could safely target the visible create button before any
+  further article-item selection.
+- No editor opened, no draft was created, no title/body was changed, no clipboard/paste action was
+  attempted, and no preview/sync/upload/publish action was triggered.
+
+Observed:
+- Browser geometry, Win32 top-level window rectangle, render-window hit testing, and
+  `document.elementFromPoint()` were compared for the intended create-button point.
+- The candidate screen point landed on a Chromium render window and the intended page coordinate
+  matched the visible create button, but Win32 `mouse_event` and `SendInput` did not open the
+  create menu.
+- CSS hover diagnostics showed the actual OS cursor path was not safely bound to the intended DOM
+  target and intersected a draft-card region.
+- The hover diagnostic contained private draft/card text, so only the redacted conclusion is
+  recorded.
+- Final readback stayed on `/cgi-bin/appmsg`; editor shell selectors, `.ProseMirror`, article-body
+  contenteditable nodes, iframe nodes, textarea nodes, create-menu items, and the deterministic
+  sentinel all stayed absent.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-os-click-calibration-abort-20260619.txt`.
+
+Boundary:
+- This is OS-click calibration abort evidence only.
+- It does not prove `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `safe-disposable-draft`, `pc-editor-paste-event`, ordinary Ctrl+V rich HTML/SVG acceptance,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
+  public host, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 E2E SVG Render Refresh Slice
 
 Scope:
