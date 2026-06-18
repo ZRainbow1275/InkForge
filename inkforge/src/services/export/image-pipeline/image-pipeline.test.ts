@@ -2,10 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resolveImage, resolveInkforgeAsset } from './asset-resolver'
 import { extractFromDataUrl } from './dimension-extractor'
+import {
+    createXhsImageArtifactManifestFromRaster,
+    getDataUrlByteLength,
+    inferXhsImageArtifactFormat,
+    inferXhsImageArtifactRatio,
+} from './artifact-manifest'
 import { NotImplementedError } from './types'
 import { WechatUploader } from './uploaders/wechat'
 import { ZhihuUploader } from './uploaders/zhihu-stub'
 import { XiaohongshuUploader } from './uploaders/xhs-stub'
+import { validateXhsImageArtifactManifest } from '../quality-detector'
 
 const uploadWechatArticleImageMock = vi.fn()
 
@@ -15,6 +22,7 @@ vi.mock('@/services/export/wechat-publish', () => ({
 
 const TINY_PNG_1X1_BASE64 =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=='
+const TINY_PNG_1X1_BYTES = 70
 
 describe('resolveInkforgeAsset', () => {
     it('returns the registered URL when the id is in the registry', () => {
@@ -74,6 +82,102 @@ describe('extractFromDataUrl', () => {
         // "hello" base64 — not a recognized image header
         const dataUrl = 'data:application/octet-stream;base64,aGVsbG8='
         expect(extractFromDataUrl(dataUrl)).toBeNull()
+    })
+})
+
+describe('XHS raster artifact manifests', () => {
+    it('computes bytes from base64 data URLs without decoding through mock file metadata', () => {
+        const dataUrl = `data:image/png;base64,${TINY_PNG_1X1_BASE64}`
+        expect(getDataUrlByteLength(dataUrl)).toBe(TINY_PNG_1X1_BYTES)
+        expect(getDataUrlByteLength('https://example.com/cover.png')).toBeNull()
+    })
+
+    it('infers Xiaohongshu-supported image format and ratio from real artifact metadata', () => {
+        expect(inferXhsImageArtifactFormat({ mime: 'image/png' })).toBe('png')
+        expect(inferXhsImageArtifactFormat({ fileName: 'cover.jpeg' })).toBe('jpeg')
+        expect(inferXhsImageArtifactRatio(1080, 1440)).toBe('3:4')
+        expect(inferXhsImageArtifactRatio(1080, 1080)).toBe('1:1')
+        expect(inferXhsImageArtifactRatio(1200, 800)).toBeNull()
+    })
+
+    it('builds a validator-clean manifest from a generated PNG data URL', () => {
+        const dataUrl = `data:image/png;base64,${TINY_PNG_1X1_BASE64}`
+        const manifest = createXhsImageArtifactManifestFromRaster({
+            fileName: 'cover.png',
+            src: 'inkforge-asset://cover',
+            dataUrl,
+            cropStatus: 'ok',
+        })
+
+        expect(manifest).toMatchObject({
+            kind: 'image-page',
+            bodyReferences: [1],
+            pages: [
+                {
+                    page: 1,
+                    fileName: 'cover.png',
+                    src: 'inkforge-asset://cover',
+                    exists: true,
+                    width: 1,
+                    height: 1,
+                    ratio: '1:1',
+                    format: 'png',
+                    cover: true,
+                    referencedByBody: true,
+                    cropStatus: 'ok',
+                },
+            ],
+        })
+        expect(manifest.pages[0]?.bytes).toBe(TINY_PNG_1X1_BYTES)
+        expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('builds a validator-clean manifest from an exported local raster file record', () => {
+        const manifest = createXhsImageArtifactManifestFromRaster({
+            fileName: 'cover-grid.png',
+            src: 'inkforge-asset://cover-grid',
+            width: 1080,
+            height: 1440,
+            format: 'png',
+            bytes: 99_114,
+            exists: true,
+            cropStatus: 'ok',
+        })
+
+        expect(manifest.pages[0]).toMatchObject({
+            width: 1080,
+            height: 1440,
+            ratio: '3:4',
+            format: 'png',
+            bytes: 99_114,
+            exists: true,
+        })
+        expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('rejects incomplete raster metadata instead of fabricating a manifest pass', () => {
+        expect(() =>
+            createXhsImageArtifactManifestFromRaster({
+                fileName: 'cover.webp',
+                src: 'inkforge-asset://cover',
+                width: 1200,
+                height: 800,
+                bytes: 10_000,
+                exists: true,
+                cropStatus: 'ok',
+            }),
+        ).toThrow(/Unable to infer supported XHS image ratio/)
+
+        expect(() =>
+            createXhsImageArtifactManifestFromRaster({
+                fileName: 'cover.png',
+                src: 'inkforge-asset://cover',
+                width: 1080,
+                height: 1440,
+                exists: true,
+                cropStatus: 'ok',
+            }),
+        ).toThrow(/bytes must be a positive number/)
     })
 })
 

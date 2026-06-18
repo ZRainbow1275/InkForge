@@ -1036,3 +1036,20 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: committed local XHS artifact accounting only. It does not prove Xiaohongshu account
   upload, platform preview, public URL acceptance, publish success, or any WeChat/Zhihu external
   gate.
+
+## 2026-06-19 XHS Raster Manifest Builder Addendum
+
+- Added `prompts/0601/evidence/xhs-raster-manifest-builder-20260619.txt`.
+- Added `createXhsImageArtifactManifestFromRaster()` plus small inference helpers in
+  `image-pipeline/artifact-manifest.ts`, exported through the image-pipeline and export facades.
+- The helper turns real raster data URLs or explicit local raster metadata into
+  `XhsImageArtifactManifest`, while still relying on `validateXhsImageArtifactManifest()` for the
+  final local preflight decision.
+- It computes bytes from base64 data URLs, infers PNG/JPEG formats and 3:4 / 1:1 ratios, and
+  rejects missing dimensions, missing bytes, unsupported ratio, or unsupported format instead of
+  fabricating a local pass.
+- Verification passed with focused `image-pipeline.test.ts` at 16 tests, focused
+  `platform-export-rendering.test.ts` at 93 tests, 4-file cross-platform export regression at
+  132 tests, full export serial suite at 1060 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local manifest construction only. It does not prove Xiaohongshu upload, platform
+  preview, public URL acceptance, publish success, or any WeChat/Zhihu external gate.

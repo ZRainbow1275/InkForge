@@ -130,6 +130,17 @@ export type {
   ZhihuImageHostStatus,
 } from './image-pipeline'
 
+export {
+  createXhsImageArtifactManifestFromRaster,
+  getDataUrlByteLength,
+  inferXhsImageArtifactFormat,
+  inferXhsImageArtifactRatio,
+} from './image-pipeline'
+
+export type {
+  XhsRasterArtifactManifestOptions,
+} from './image-pipeline'
+
 // 主题相关导出
 export {
   themePresets,

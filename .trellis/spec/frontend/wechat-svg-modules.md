@@ -567,12 +567,47 @@ export interface XhsImageArtifactManifest {
 }
 
 export function validateXhsImageArtifactManifest(manifest: XhsImageArtifactManifest): QualityIssue[]
+export interface XhsRasterArtifactManifestOptions {
+  kind?: XhsImageArtifactKind
+  page?: number
+  fileName: string
+  src: string
+  dataUrl?: string
+  width?: number
+  height?: number
+  ratio?: XhsImageArtifactRatio
+  format?: XhsImageArtifactFormat
+  bytes?: number
+  exists?: boolean
+  cover?: boolean
+  referencedByBody?: boolean
+  bodyReferences?: readonly number[]
+  cropStatus: XhsImageCropStatus
+  limits?: XhsImageArtifactLimits
+}
+export function getDataUrlByteLength(dataUrl: string): number | null
+export function inferXhsImageArtifactFormat(input: {
+  mime?: string
+  fileName?: string
+  src?: string
+}): XhsImageArtifactFormat | null
+export function inferXhsImageArtifactRatio(width: number, height: number): XhsImageArtifactRatio | null
+export function createXhsImageArtifactManifestFromRaster(
+  options: XhsRasterArtifactManifestOptions,
+): XhsImageArtifactManifest
 ```
 
 `convertToNativeFormat(markdown, 'xiaohongshu', { xiaohongshuImageManifest })` may echo the
 manifest in `NativeExportResult.artifacts.xiaohongshuImageManifest`. That field means local
 preflight only. It must not be displayed or logged as platform upload, preview, sync, or publish
 success.
+
+`createXhsImageArtifactManifestFromRaster()` is the preferred bridge from a real browser/Tauri
+raster output to the manifest validator. It may compute byte length from a PNG/JPEG data URL or
+accept explicit local file metadata, but it must still pass `validateXhsImageArtifactManifest()`
+before any UI or export report marks the artifact locally ready. Missing dimensions, unsupported
+ratio/format, missing bytes, missing file existence, or crop uncertainty must stay as thrown errors
+or validator issues, not fabricated success.
 
 #### 3. Contracts
 
@@ -616,6 +651,9 @@ success.
 
 - Unit/regression tests must call `validateXhsImageArtifactManifest()` directly for both bad and
   valid manifests.
+- Unit tests must cover `createXhsImageArtifactManifestFromRaster()` for data URL and explicit
+  file-metadata paths, and must prove bad or incomplete raster metadata is rejected instead of
+  producing a fake pass.
 - `convertToNativeFormat(..., 'xiaohongshu')` tests must assert that valid manifests appear in
   `artifacts.xiaohongshuImageManifest` and that manifest issue ids merge into `qualityReport`.
 - Cross-platform export tests must continue proving that WeChat/Zhihu behavior does not change

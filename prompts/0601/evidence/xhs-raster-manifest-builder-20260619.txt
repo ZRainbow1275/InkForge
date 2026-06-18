@@ -1,0 +1,54 @@
+XHS Raster Manifest Builder - 2026-06-19
+
+Scope:
+- Add a local helper that turns real raster artifact metadata into `XhsImageArtifactManifest`.
+- No Xiaohongshu account upload, platform preview, mobile preview, sync, or publish action is
+  executed or claimed.
+
+Implemented:
+- `createXhsImageArtifactManifestFromRaster(options)`
+- `getDataUrlByteLength(dataUrl)`
+- `inferXhsImageArtifactFormat({ mime, fileName, src })`
+- `inferXhsImageArtifactRatio(width, height)`
+
+Behavior:
+- Data URL path:
+  - parses real PNG/JPEG/WebP dimensions through existing `extractFromDataUrl()`;
+  - computes byte length from the base64 payload;
+  - builds a one-page XHS manifest with cover/body-reference defaults.
+- Local file metadata path:
+  - accepts explicit width, height, format, bytes, existence, and crop status;
+  - infers `3:4` or `1:1` from dimensions when ratio is not provided.
+- The helper does not bypass `validateXhsImageArtifactManifest()`.
+- Unsupported ratio, unsupported/missing format, missing dimensions, or missing bytes throws instead
+  of creating a fake manifest pass.
+
+Regression coverage:
+- Computes bytes for the real tiny PNG fixture data URL.
+- Infers PNG/JPEG formats and XHS-supported 3:4 / 1:1 ratios.
+- Builds a validator-clean manifest from a generated PNG data URL.
+- Builds a validator-clean manifest from explicit 1080x1440 local raster metadata.
+- Rejects incomplete or unsupported raster metadata.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default`
+  - PASS: 1 file / 16 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 93 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 132 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1060 tests
+- `pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS: Vite built in 46.11s
+- `inkforge/tsconfig.tsbuildinfo`
+  - restored after typecheck/build; generated cache is intentionally not part of this slice.
+
+Boundary:
+- This proves local manifest construction only.
+- It does not prove Xiaohongshu upload, platform preview, public URL acceptance, publish success,
+  or any WeChat/Zhihu external gate.

@@ -25,6 +25,14 @@ export {
     type ImageDimensions,
 } from './dimension-extractor'
 
+export {
+    createXhsImageArtifactManifestFromRaster,
+    getDataUrlByteLength,
+    inferXhsImageArtifactFormat,
+    inferXhsImageArtifactRatio,
+    type XhsRasterArtifactManifestOptions,
+} from './artifact-manifest'
+
 export { WechatUploader } from './uploaders/wechat'
 export { ZhihuUploader } from './uploaders/zhihu-stub'
 export { XiaohongshuUploader } from './uploaders/xhs-stub'

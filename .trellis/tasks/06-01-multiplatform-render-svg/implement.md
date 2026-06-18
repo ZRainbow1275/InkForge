@@ -2793,6 +2793,48 @@ Boundary:
 - It does not prove Xiaohongshu account upload, platform preview, public URL acceptance, publish
   success, Zhihu public-host proof, or any WeChat external gate.
 
+## 2026-06-19 XHS Raster Manifest Builder Slice
+
+Impact:
+- GitNexus MCP `impact(extractFromDataUrl, upstream, includeTests=true)` reported LOW risk, 1
+  direct test dependent, and 0 affected processes.
+
+Implementation:
+- Added `inkforge/src/services/export/image-pipeline/artifact-manifest.ts` with:
+  `createXhsImageArtifactManifestFromRaster()`, `getDataUrlByteLength()`,
+  `inferXhsImageArtifactFormat()`, and `inferXhsImageArtifactRatio()`.
+- Re-exported the helper through `inkforge/src/services/export/image-pipeline/index.ts` and
+  `inkforge/src/services/export/index.ts`.
+- The helper converts real raster data URLs or explicit local raster metadata into
+  `XhsImageArtifactManifest`, then keeps the existing `validateXhsImageArtifactManifest()` as the
+  authoritative local readiness gate.
+- The helper throws on missing dimensions, missing bytes, unsupported ratio, or unsupported
+  format, rather than creating a fake local pass.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `prompts/0601/COMPLETION-REPORT.md`, and `prompts/0601/evidence/README.md`.
+- Added evidence:
+  `prompts/0601/evidence/xhs-raster-manifest-builder-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default`
+  passed with 1 file / 16 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 93 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 132 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1060 tests.
+- `pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 46.11s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local XHS manifest construction only.
+- It does not prove Xiaohongshu account upload, platform preview, public URL acceptance, publish
+  success, Zhihu public-host proof, or any WeChat external gate.
+
 ## 2026-06-19 ExportModal Execution Runbook UI Slice
 
 Impact:

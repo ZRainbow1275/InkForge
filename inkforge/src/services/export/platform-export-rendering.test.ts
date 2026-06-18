@@ -7,6 +7,7 @@ import type { StyleProofManifest } from './index'
 import {
   convertToNativeFormat,
   convertToWechatWithStats,
+  createXhsImageArtifactManifestFromRaster,
   createStyleProofManifestDraft,
   detectQuality,
   evaluateStyleChoiceApplication,
@@ -3548,6 +3549,28 @@ describe('platform native export rendering rules', () => {
     })
 
     expect(result.format).toBe('text')
+    expect(result.artifacts?.xiaohongshuImageManifest).toEqual(manifest)
+    expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('xhs-image-manifest-'))).toBe(false)
+  })
+
+  it('builds Xiaohongshu image manifests from raster metadata before native export', async () => {
+    const manifest = createXhsImageArtifactManifestFromRaster({
+      fileName: 'cover-grid.png',
+      src: 'inkforge-asset://cover-grid',
+      width: 1080,
+      height: 1440,
+      format: 'png',
+      bytes: 99_114,
+      exists: true,
+      cropStatus: 'ok',
+    })
+
+    expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+
+    const result = await convertToNativeFormat('这是正文，请见第1张图。', 'xiaohongshu', {
+      xiaohongshuImageManifest: manifest,
+    })
+
     expect(result.artifacts?.xiaohongshuImageManifest).toEqual(manifest)
     expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('xhs-image-manifest-'))).toBe(false)
   })
