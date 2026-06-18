@@ -673,3 +673,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is negative evidence. It does not prove Kiln ordinary rich HTML/SVG Ctrl+V, must
   not set `ordinaryClipboardPasteVerified:true`, and does not affect the exact-artifact Amber proof
   or prove Tempera, phone preview, Dark Mode, cover, sync, schedule, XHS/Zhihu upload, or publish.
+
+## 2026-06-18 Kiln Paste-Safe Candidate Addendum
+
+- Added additive preset `flagship-kiln-paste-safe`.
+- Added style catalog choice `wechat-flagship-kiln-paste-safe`, mapped to the real
+  `flagship-kiln-paste-safe` preset.
+- The original `flagship-kiln` preset, `cover-grid` module, and current Kiln negative proof remain
+  unchanged.
+- Generated `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html` through the real
+  flagship artifact emitter. The candidate keeps the Kiln palette, creative persona, Forge divider,
+  and flagship HTML block chain, but uses `cover-title` as the first SVG module.
+- Candidate artifact metadata: SHA-256
+  `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`,
+  `htmlBytes=41618`, `cfHtmlBytes=41787`, `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, first module `cover-title`.
+- Local CloakBrowser controlled-contenteditable proof with Windows CF_HTML plus `keybd_event`
+  Ctrl+V preserved rich HTML/SVG and read back `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `sectionNice=true`, and first module `cover-title`.
+- Authenticated WeChat draftbox no-mutation check stayed at `Article 5` with candidate title count
+  `0` and current-run marker count `0`. The article creation entry did not open a safe disposable
+  editor in this state, so the run stopped before platform mutation.
+- Boundary: this is candidate/local proof only. It does not set
+  `ordinaryClipboardPasteVerified:true`, does not satisfy `pc-editor-paste-event` or
+  `safe-disposable-draft`, and does not prove WeChat phone preview, mobile Dark Mode,
+  mobile SMIL/click, cover thumbnail, credentialed sync, scheduled send, XHS/Zhihu upload, public
+  URL, or publish success.

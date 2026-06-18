@@ -57,6 +57,21 @@ const FLAGSHIPS: FlagshipFixture[] = [
     ],
   },
   {
+    id: 'flagship-kiln-paste-safe',
+    persona: 'creative',
+    expectedModuleIds: [
+      'cover-title',
+      'divider-forge',
+    ],
+    expectedBlockIds: [
+      'flagship-h2',
+      'flagship-h3',
+      'flagship-quote',
+      'flagship-ul',
+      'flagship-footer',
+    ],
+  },
+  {
     id: 'flagship-tempera',
     persona: 'academic',
     expectedModuleIds: [

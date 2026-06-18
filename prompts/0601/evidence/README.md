@@ -577,3 +577,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is negative evidence for Kiln ordinary OS Ctrl+V rich HTML/SVG in the current
   WeChat session. It must not set `ordinaryClipboardPasteVerified:true`, and it does not weaken the
   exact-artifact Amber proof or prove Tempera, phone preview, sync, schedule, or publish gates.
+
+## 2026-06-18 Kiln Paste-Safe Candidate Local Probe
+
+- [x] wechat-kiln-paste-safe-candidate-local-probe-20260618.txt
+- Added an additive `flagship-kiln-paste-safe` candidate preset and
+  `wechat-flagship-kiln-paste-safe` style choice. The original `flagship-kiln`, `cover-grid`, and
+  Kiln negative proof remain unchanged.
+- Generated `wechat-paste/flagship-kiln-paste-safe.html` through the real flagship artifact
+  emitter. The candidate keeps Kiln palette, creative persona, Forge divider, and flagship HTML
+  blocks, but uses `cover-title` as the first SVG module.
+- Candidate artifact metadata: SHA-256
+  `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`,
+  `htmlBytes=41618`, `cfHtmlBytes=41787`, `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, first module `cover-title`.
+- Local CloakBrowser contenteditable probe with Windows `HTML Format` plus `keybd_event` Ctrl+V
+  read back `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`, `sectionNice=true`, and
+  first module `cover-title`.
+- Authenticated WeChat draftbox was restored for a no-mutation check. The list still reported
+  `Article 5`, candidate title count `0`, current-run marker count `0`, and no paste-safe/Kiln
+  residue. The article creation entry did not open a safe disposable editor in this state, so the
+  run stopped before platform mutation.
+- Boundary: this is candidate/local proof only. It must not set
+  `ordinaryClipboardPasteVerified:true`, must not satisfy `pc-editor-paste-event` or
+  `safe-disposable-draft`, and does not prove phone, sync, schedule, or publish gates.

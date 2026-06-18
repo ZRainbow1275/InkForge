@@ -111,6 +111,11 @@ const flagshipKilnPlan: SvgInjectionPlan = {
   replaceHr: 'divider-forge',
 }
 
+const flagshipKilnPasteSafePlan: SvgInjectionPlan = {
+  cover: 'cover-title',
+  replaceHr: 'divider-forge',
+}
+
 const flagshipTemperaPlan: SvgInjectionPlan = {
   cover: 'cover-title',
   replaceHr: 'divider-diamond',
@@ -143,6 +148,26 @@ const FLAGSHIP_BRAND = { brand: '墨铸 · InkForge', tagline: '成为作者吧'
 //   9. decorateFlagshipFooterCard — 文末落款卡（append-once）
 const flagshipKilnDecorate = chainDecorators(
   composeSvgDecorate(flagshipKilnPlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+  decorateFlagshipReadingBar(kilnPalette, { variant: 'kiln' }),
+  decorateFlagshipStat(kilnPalette),
+  decorateFlagshipBanner(kilnPalette),
+  decorateFlagshipCompare(kilnPalette),
+  decorateFlagshipTimeline(kilnPalette),
+  decorateFlagshipGallery(kilnPalette),
+  decorateFlagshipCitation(kilnPalette),
+  decorateFlagshipStretch(kilnPalette, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
+  decorateFlagshipFigure(kilnPalette),
+  decorateFlagshipLede(kilnPalette),
+  decorateFlagshipTOC(kilnPalette),
+  decorateFlagshipH2(kilnPalette, { variant: 'kiln' }),
+  decorateFlagshipH3(kilnPalette),
+  decorateFlagshipBlockquote(kilnPalette),
+  decorateFlagshipLists(kilnPalette),
+  decorateFlagshipFooterCard(kilnPalette, FLAGSHIP_BRAND),
+)
+
+const flagshipKilnPasteSafeDecorate = chainDecorators(
+  composeSvgDecorate(flagshipKilnPasteSafePlan, { primaryColor: FLAGSHIP_KILN, persona: 'creative' }),
   decorateFlagshipReadingBar(kilnPalette, { variant: 'kiln' }),
   decorateFlagshipStat(kilnPalette),
   decorateFlagshipBanner(kilnPalette),
@@ -1224,6 +1249,37 @@ ${techRecipesExport.css}`,
 #nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
     // 品牌锁定：SVG 图形 + HTML 色块装饰器全用 Kiln 品牌色（见上方注释）。
     decorate: flagshipKilnDecorate,
+    customCSS: ''
+  },
+  // FLAGSHIP-KILN-PASTE-SAFE: additive ordinary-paste compatibility candidate.
+  // Keeps the Kiln palette and HTML block chain, but uses the cover-title first block so the
+  // original cover-grid identity remains available while operators can test a safer Ctrl+V shape.
+  {
+    id: 'flagship-kiln-paste-safe',
+    name: '赤陶兼容旗舰',
+    icon: 'flagship-kiln-paste-safe',
+    description: 'SVG 旗舰 · 赤陶普通粘贴兼容候选，保留 Kiln 色板与 Forge 分隔',
+    theme: 'default',
+    fontFamily: 'sans-serif',
+    fontSize: '15px',
+    primaryColor: FLAGSHIP_KILN,
+    isUseIndent: false,
+    isUseJustify: false,
+    persona: 'creative',
+    fonts: PERSONA_FONTS.creative,
+    previewCSS: `${creativeBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.18); border-bottom: 2px solid rgba(217,91,63,0.5); padding: 0 0.12em; border-radius: 3px; }
+#nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
+#nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
+    exportCSS: `${creativeBaseCSS}
+#nice { background: #ffffff; color: #1a1a1a; }
+#nice strong { color: ${FLAGSHIP_KILN}; font-weight: 700; background: rgba(217,91,63,0.18); border-bottom: 2px solid rgba(217,91,63,0.5); padding: 0 0.12em; border-radius: 3px; }
+#nice a { color: ${FLAGSHIP_KILN}; border-bottom: 1px solid ${FLAGSHIP_KILN}; text-decoration: none; }
+#nice code { background: rgba(217,91,63,0.08); color: ${FLAGSHIP_KILN}; padding: 0.1em 0.35em; border-radius: 3px; }
+#nice table th { background: ${FLAGSHIP_KILN}; color: #fff; font-weight: 700; }`,
+    decorate: flagshipKilnPasteSafeDecorate,
     customCSS: ''
   },
   // FLAGSHIP-TEMPERA: 铜绿旗舰, academic, Tempera #3B7A6B; cover-title +

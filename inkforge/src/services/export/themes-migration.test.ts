@@ -18,12 +18,13 @@ const WECHAT_IDS = [
   'tech',
   // PR6 (R7): SVG 旗舰预设族 — 双轨 schema 同样合规
   'flagship-kiln',
+  'flagship-kiln-paste-safe',
   'flagship-tempera',
   'flagship-amber',
 ]
 
 // 旗舰预设全量使用 svg-modules，视觉身份由 decorate 注入的 inline-SVG 承载
-const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-tempera', 'flagship-amber']
+const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-kiln-paste-safe', 'flagship-tempera', 'flagship-amber']
 
 const XHS_IDS = ['xhs-fresh', 'xhs-simple', 'xhs-warm', 'xhs-tech', 'xhs-nature']
 
@@ -31,7 +32,7 @@ const ZHIHU_IDS = ['zhihu-academic', 'zhihu-tech', 'zhihu-insight']
 
 const ALL_PERSONAS = ['academic', 'business', 'lifestyle', 'creative']
 
-describe('PR4 migration — all 15 wechat presets have dual-track schema', () => {
+describe('PR4 migration — all 16 wechat presets have dual-track schema', () => {
   for (const id of WECHAT_IDS) {
     describe(id, () => {
       const preset = getPresetById(id)
@@ -94,8 +95,8 @@ describe('PR4 migration — all 15 wechat presets have dual-track schema', () =>
     })
   }
 
-  it('themePresets array has 15 wechat presets', () => {
-    expect(themePresets).toHaveLength(15)
+  it('themePresets array has 16 wechat presets', () => {
+    expect(themePresets).toHaveLength(16)
   })
 })
 

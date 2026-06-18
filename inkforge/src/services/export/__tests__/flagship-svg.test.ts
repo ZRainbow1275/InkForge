@@ -17,7 +17,7 @@ import { convertToWechatWithStats } from '../wechat'
 import { getPresetById } from '../themes'
 import { checkWechatSafe } from '../svg-modules'
 
-const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-tempera', 'flagship-amber'] as const
+const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-kiln-paste-safe', 'flagship-tempera', 'flagship-amber'] as const
 
 // 简单文档：h2 标题 + 正文 + hr + 引用块。命中每个旗舰 plan 的 heading /
 // replaceHr / blockquote 锚点；cover + endmark 由 plan 自动前插/追加。

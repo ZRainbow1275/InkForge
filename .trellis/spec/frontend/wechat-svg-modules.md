@@ -985,6 +985,18 @@ Contracts:
   disposable drafts were cleaned up and post-cleanup readback found no current-run Kiln marker,
   failed title, recent draft, or local path residue. This is negative proof and must not satisfy
   `pc-editor-paste-event`, `safe-disposable-draft`, or `ordinaryClipboardPasteVerified:true`.
+- 2026-06-18 Kiln paste-safe candidate:
+  `flagship-kiln-paste-safe` and `wechat-flagship-kiln-paste-safe` are additive candidates created
+  after the exact `flagship-kiln.html` ordinary Ctrl+V negative proof. They preserve the original
+  `flagship-kiln` preset, `cover-grid` module, Kiln palette, creative persona, Forge divider, and
+  flagship HTML block chain, but use `cover-title` as the first SVG module because that first-block
+  shape has a stronger WeChat paste precedent in the Amber proof. The candidate's local CF_HTML /
+  `keybd_event` CloakBrowser contenteditable probe preserved `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `sectionNice=true`, and first module `cover-title`. This is local
+  candidate evidence only: it may satisfy local/browser artifact readiness rows, but it must not
+  satisfy `pc-editor-paste-event`, `safe-disposable-draft`, `ordinaryClipboardPasteVerified:true`,
+  phone preview, Dark Mode, cover thumbnail, sync, schedule, publish, or any XHS/Zhihu external
+  gate until an exact WeChat disposable-draft proof is collected for that candidate artifact.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1030,6 +1042,10 @@ Required tests:
 - A manifest that cites local `keybd_event` / CF_HTML success on a controlled local page must still
   keep WeChat `pc-editor-paste-event` missing or invalid unless it also includes authenticated
   platform-editor paste/readback proof for the exact artifact and ordinary channel.
+- `flagship-kiln-paste-safe` must render through the same flagship pipeline as the other flagship
+  presets, using `cover-title` and `divider-forge` while leaving original `flagship-kiln` on
+  `cover-grid`. Its style choice must map to the real `flagship-kiln-paste-safe` preset and remain
+  selectable only as a local/browser candidate until exact WeChat disposable-draft proof exists.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and

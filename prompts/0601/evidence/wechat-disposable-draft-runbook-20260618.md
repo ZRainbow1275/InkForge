@@ -128,6 +128,13 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   CF_HTML artifact reached authenticated type=10/type=77 WeChat PC editors, but readback degraded
   to plain text with `svgCount=0` and `dataInkSvgCount=0`; all current-run failed drafts were
   cleaned up and therefore this must not set `ordinaryClipboardPasteVerified:true`.
+- Kiln paste-safe candidate evidence is local-only in
+  `wechat-kiln-paste-safe-candidate-local-probe-20260618.txt`: `flagship-kiln-paste-safe.html`
+  preserved `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23` in a controlled
+  CloakBrowser contenteditable through Windows CF_HTML plus `keybd_event`, while the authenticated
+  WeChat draftbox no-mutation check stayed at `Article 5` with zero candidate/current-run markers.
+  This candidate must still follow this runbook from disposable draft creation through cleanup
+  before any WeChat ordinary paste, phone, sync, schedule, or publish claim is made.
 - That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
   only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
   thumbnail acceptance, credentialed sync, scheduled send, or publish success.

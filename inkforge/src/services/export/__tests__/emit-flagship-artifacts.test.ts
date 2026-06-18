@@ -15,7 +15,7 @@
  * 项目级 TS2322），此处仅在文件内**局部**声明本测试用到的极小 Node 表面，
  * 既能通过 vue-tsc 类型检查，又不污染全局 lib 重载。运行时由 vitest（node）真实提供。
  *
- * 为三个 SVG 旗舰预设（flagship-kiln / flagship-tempera / flagship-amber）跑
+ * 为 SVG 旗舰预设（flagship-kiln / flagship-kiln-paste-safe / flagship-tempera / flagship-amber）跑
  * 真实微信导出管线，把结果包成可在 Chrome/Edge 直接打开、Ctrl+A → Ctrl+C 后
  * 粘进公众号后台的 STANDALONE HTML 文件，落盘到
  *   prompts/0601/evidence/wechat-paste/<presetId>.html
@@ -48,7 +48,7 @@ const OUT_DIR = resolve(
   '../../../../../prompts/0601/evidence/wechat-paste',
 )
 
-const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-tempera', 'flagship-amber'] as const
+const FLAGSHIP_IDS = ['flagship-kiln', 'flagship-kiln-paste-safe', 'flagship-tempera', 'flagship-amber'] as const
 
 // ─── 富 CJK 样例文章 ──────────────────────────────────────────────────────
 // 覆盖所有旗舰注入锚点：H1 标题 + 多个 H2 + 至少一个 H3 + 多段 CJK 正文（足以
@@ -186,7 +186,7 @@ ${bodyHtml}
 const SHOULD_EMIT = Boolean(process.env.EMIT_ARTIFACTS)
 
 describe('emit flagship WeChat paste artifacts', () => {
-  it('renders the 3 flagship presets through the real pipeline and (optionally) writes paste-ready HTML', async () => {
+  it('renders flagship presets through the real pipeline and (optionally) writes paste-ready HTML', async () => {
     if (SHOULD_EMIT) {
       mkdirSync(OUT_DIR, { recursive: true })
     }

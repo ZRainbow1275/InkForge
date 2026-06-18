@@ -2342,3 +2342,44 @@ git status --short --branch
 - This slice does not change Xiaohongshu/Zhihu publishable body contracts.
 - This slice does not archive the broader 06-01 task unless all acceptance criteria are later
   proven current-state complete.
+
+## 2026-06-18 Kiln Paste-Safe Candidate Slice
+
+- Added additive WeChat preset `flagship-kiln-paste-safe`.
+- Added style choice `wechat-flagship-kiln-paste-safe`, mapped to the real
+  `flagship-kiln-paste-safe` preset.
+- Preserved the existing `flagship-kiln` preset and `cover-grid` module unchanged.
+- The candidate keeps Kiln palette, creative persona, Forge divider, and flagship HTML block
+  decorators, but uses `cover-title` as the first SVG module.
+- Generated committed candidate artifact:
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- Added evidence:
+  `prompts/0601/evidence/wechat-kiln-paste-safe-candidate-local-probe-20260618.txt`.
+- Candidate artifact metadata:
+  SHA-256 `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`,
+  `htmlBytes=41618`, `cfHtmlBytes=41787`, `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, first module `cover-title`.
+- Local CloakBrowser controlled-contenteditable proof with Windows CF_HTML and `keybd_event`
+  Ctrl+V preserved `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`,
+  `sectionNice=true`, and first module `cover-title`.
+- Authenticated WeChat draftbox no-mutation check stayed at `Article 5` with candidate title count
+  `0` and current-run marker count `0`. The creation entry did not open a safe disposable editor
+  in that state, so the run stopped before platform mutation.
+
+Boundary:
+- This is a candidate/local-readiness slice only.
+- It must not set `ordinaryClipboardPasteVerified:true`.
+- It must not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail,
+  credentialed sync, scheduled send, XHS/Zhihu upload, public URL, or publish success.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/__tests__/emit-flagship-artifacts.test.ts src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 6 files / 456 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1043 tests.
+- `pnpm -C inkforge exec eslint src/services/export/themes.ts src/services/export/style-catalog.ts src/services/export/__tests__/emit-flagship-artifacts.test.ts src/services/export/__tests__/flagship-svg.test.ts src/services/export/__tests__/flagship-pipeline-smoke.test.ts src/services/export/themes-migration.test.ts src/services/export/preset-decorations.test.ts src/services/export/platform-export-rendering.test.ts src/utils/iconography.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.

@@ -2422,22 +2422,26 @@ describe('platform native export rendering rules', () => {
 
   it('separates available style choices from selectable preset-backed actions', () => {
     const kiln = getStyleChoiceById('wechat-flagship-kiln')
+    const kilnPasteSafe = getStyleChoiceById('wechat-flagship-kiln-paste-safe')
     const amber = getStyleChoiceById('wechat-flagship-amber')
     const toolbarMap = getStyleChoiceById('wechat-toolbar-parameter-map')
     const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
     const xhsClean = getStyleChoiceById('xhs-clean-text')
     const zhihuTable = getStyleChoiceById('zhihu-data-table')
     expect(kiln).toBeDefined()
+    expect(kilnPasteSafe).toBeDefined()
     expect(amber).toBeDefined()
     expect(toolbarMap).toBeDefined()
     expect(xhsCarousel).toBeDefined()
     expect(xhsClean).toBeDefined()
     expect(zhihuTable).toBeDefined()
 
-    if (!kiln || !amber || !toolbarMap || !xhsCarousel || !xhsClean || !zhihuTable) return
+    if (!kiln || !kilnPasteSafe || !amber || !toolbarMap || !xhsCarousel || !xhsClean || !zhihuTable) return
 
     expect(getStyleChoiceApplication('wechat-flagship-kiln')?.presetId).toBe('flagship-kiln')
+    expect(getStyleChoiceApplication('wechat-flagship-kiln-paste-safe')?.presetId).toBe('flagship-kiln-paste-safe')
     expect(evaluateStyleChoiceApplication(kiln, ['local-browser']).selectable).toBe(true)
+    expect(evaluateStyleChoiceApplication(kilnPasteSafe, ['local-browser']).selectable).toBe(true)
 
     const amberApplication = evaluateStyleChoiceApplication(amber, ['pc-editor-paste', 'mobile-preview'])
     expect(amberApplication.application?.presetId).toBe('flagship-amber')
@@ -2490,6 +2494,7 @@ describe('platform native export rendering rules', () => {
     const zhihuApplications = getPlatformStyleApplicationReport('zhihu')
 
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln')?.selectable).toBe(true)
+    expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-kiln-paste-safe')?.selectable).toBe(true)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-flagship-amber')?.selectable).toBe(false)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-mobile-only-effect')?.selectable).toBe(false)
     expect(wechatApplications.find(item => item.availability.choice.id === 'wechat-toolbar-parameter-map')?.selectable).toBe(false)

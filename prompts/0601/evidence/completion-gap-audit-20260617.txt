@@ -29,9 +29,15 @@ Scope:
   `wechat-disposable-draft-runbook-20260618.md`.
 - Latest WeChat Amber ordinary Ctrl+V disposable draft proof reviewed:
   `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
+- Latest WeChat Kiln ordinary Ctrl+V plain-text negative proof reviewed:
+  `wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`.
+- Latest Kiln paste-safe candidate local probe reviewed:
+  `wechat-kiln-paste-safe-candidate-local-probe-20260618.txt`.
 - The original audit did not create platform proof or mutate a live editor. This living file now
   also records the later 2026-06-18 Amber disposable-draft PC paste/cleanup proof. No phone preview,
-  sync, upload, schedule, or publish action is claimed here.
+  sync, upload, schedule, or publish action is claimed here. The later Kiln paste-safe candidate
+  local probe also did not create, edit, paste into, save, preview, sync, schedule, or publish a
+  WeChat draft.
 
 Audit labels:
 - `complete-local`: current repository tests, local runtime artifacts, or local manifests prove
@@ -54,6 +60,7 @@ Requirement matrix:
 | AC5 SMIL/click interaction | Unit tests prove safe SMIL structure and static fallback; local/e2e proves visible first-frame behavior. | `partial` | Exact phone WeChat before/after evidence for interactive artifact. |
 | AC6 XHS poster/image and Zhihu image fallback | Browser canvas raster evidence, XHS image manifest gate, Zhihu image manifest gate, and focused tests exist. | `complete-local` for local artifacts; `missing-external` for platform upload/publish | Real XHS/Zhihu account upload/editor/publish or public-host proof if those claims are needed. |
 | AC7 at least three SVG flagship presets | `flagship-kiln`, `flagship-tempera`, and `flagship-amber` exist and are exercised by local tests/e2e. | `complete-local`; PC proof is only partial by channel | Do not claim all channels until phone and ordinary-paste/channel-specific proofs exist. |
+| Additive Kiln paste-safe candidate | `flagship-kiln-paste-safe` and `wechat-flagship-kiln-paste-safe` add a local/browser candidate that keeps the Kiln palette, creative persona, Forge divider, and flagship HTML blocks while using `cover-title` as the first SVG module. The generated candidate artifact has SHA-256 `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`, `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`, and the local CloakBrowser contenteditable Ctrl+V probe preserved the same counts. | `complete-local` for candidate artifact readiness; `missing-external` for WeChat acceptance | Exact WeChat disposable-draft ordinary Ctrl+V paste/readback and cleanup for `flagship-kiln-paste-safe.html`; then separate phone, Dark Mode, cover, sync, schedule, and publish proof if those claims are needed. |
 | AC8 unit, smoke, e2e, lint, typecheck, build | Prior verification logs cover export tests, full export serial tests, e2e, lint, typecheck, and build for code slices. | `complete-local` for the recorded code state | Refresh after any new source-code change. |
 | AC9 WeChat-safe validator zero violations | `wechat-safe` tests and pipeline smoke tests verify owned SVG output. | `complete-local` | Keep validator mandatory for any new SVG/H5 module. |
 | AC10 no emoji UI icons | Existing icon rules use installed icon libraries or source-owned SVG paths; no UI icon change in recent slices. | `complete-local` | Keep review gate for any new UI control. |
@@ -64,6 +71,7 @@ Cross-platform proof matrix:
 | --- | --- | --- |
 | WeChat local/Tauri | Committed local evidence manifests, e2e screenshots, export tests, and acceptance UI proof. | Real phone rendering, account channel transfer, scheduled send, publish. |
 | WeChat PC editor | Kiln/Tempera historical PC editor sanitizer samples exist; Amber has both channel-specific PC DOM readback and exact ordinary OS Ctrl+V rich HTML/SVG disposable-draft proof. Kiln now has current exact ordinary OS Ctrl+V negative evidence: authenticated type=10/type=77 attempts reached the editor but read back plain text only, then cleanup returned the draftbox to `Article 5` with no current-run markers. Prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable. Runtime proof gates require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Kiln/Tempera ordinary Ctrl+V rich HTML/SVG passing readback in WeChat; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
+| WeChat Kiln paste-safe candidate | `flagship-kiln-paste-safe.html` exists as an additive candidate and passed the local Windows CF_HTML + `keybd_event` controlled contenteditable probe with `svgCount=35`, `dataInkSvgCount=3`, and first module `cover-title`. The authenticated draftbox no-mutation check found `Article 5` and zero candidate/current-run markers. | Any WeChat editor acceptance, disposable draft safety, phone preview, mobile Dark Mode, mobile click/SMIL, cover thumbnail, sync, schedule, or publish claim for this candidate. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -119,6 +127,12 @@ Current strongest evidence:
   stable DOM readback and a page reload. The same cleanup pass also removed an untitled
   InkForge/Amber residual from earlier Amber attempts and verified the untitled InkForge/Amber
   residual count stayed `0` after reload.
+- The 2026-06-18 Kiln paste-safe candidate local probe generated
+  `flagship-kiln-paste-safe.html` from the real exporter, wrote the exact artifact as Windows
+  CF_HTML, and preserved rich HTML/SVG in a controlled local CloakBrowser contenteditable through
+  ordinary OS `keybd_event` Ctrl+V. This proves candidate readiness only; the subsequent
+  authenticated WeChat draftbox check intentionally stopped before mutation because the safe
+  creation path did not open an editor in that state.
 
 Remaining hard gates:
 - WeChat phone preview for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
@@ -132,6 +146,8 @@ Remaining hard gates:
   Ctrl+V evidence in `wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt`: authenticated
   type=10/type=77 WeChat editor attempts inserted only plain text (`svgCount=0`,
   `dataInkSvgCount=0`) and the failed disposable drafts were cleaned up.
+- Exact WeChat ordinary Ctrl+V proof for `flagship-kiln-paste-safe.html`. The candidate local probe
+  does not close this gate.
 - Login/expired-session states must remain invalid evidence even though a later authenticated
   backend/draftbox/editor DOM readback exists.
 - Safe disposable draft or equivalent cleanup path before any future live WeChat editor mutation.
@@ -153,6 +169,9 @@ Safe next actions:
    WeChat editor attempts. Future Kiln/Tempera attempts need a changed channel or revised artifact
    strategy plus a fresh deterministic disposable draft, exact DOM readback, and post-cleanup
    absence proof before any claim can be made.
+   The additive `flagship-kiln-paste-safe` candidate is such a revised artifact strategy, but it is
+   still only local-ready until it passes the same disposable draft create -> ordinary Ctrl+V ->
+   DOM readback -> cleanup -> absence-readback sequence.
 4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
 5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host

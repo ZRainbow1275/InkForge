@@ -1,0 +1,69 @@
+WeChat Kiln Paste-Safe Candidate Local Probe - 2026-06-18
+
+Scope:
+- Additive InkForge candidate preset and artifact for WeChat ordinary rich paste investigation.
+- Candidate preset: `flagship-kiln-paste-safe`.
+- Candidate style choice: `wechat-flagship-kiln-paste-safe`.
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- No WeChat draft was created, edited, pasted into, saved, previewed, synced, scheduled, or
+  published in this candidate proof.
+
+Why this exists:
+- `flagship-kiln.html` has a current live WeChat negative proof: authenticated type=10/type=77
+  ordinary OS Ctrl+V inserted only plain text in the PC editor (`svgCount=0`,
+  `dataInkSvgCount=0`).
+- The same exact `flagship-kiln.html` was then pasted into a controlled local contenteditable
+  through Windows CF_HTML plus Win32 `keybd_event` and preserved rich HTML/SVG. That narrowed the
+  failure away from the local clipboard helper and toward WeChat's ordinary paste path for that
+  artifact shape.
+- This candidate keeps Kiln palette, creative persona, Forge divider, and the existing flagship
+  HTML block chain, but changes the first SVG module from `cover-grid` to `cover-title`.
+
+Generated candidate artifact:
+- `flagship-kiln-paste-safe.html`
+- `htmlBytes`: 41618
+- `cfHtmlBytes`: 41787
+- `StartHTML`: 105
+- `StartFragment`: 137
+- `EndFragment`: 41755
+- `EndHTML`: 41787
+- SHA-256: `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`
+- Source `svgCount`: 35
+- Source `dataInkSvgCount`: 3
+- Source `dataInkBlockCount`: 23
+- First `data-ink-svg`: `cover-title`
+- Plain-text chars: 1377
+
+Local ordinary OS Ctrl+V probe:
+- Browser surface: controlled local contenteditable page in CloakBrowser, not WeChat.
+- Clipboard format: Windows `HTML Format` plus `UnicodeText`.
+- Input path: calibrated OS click plus Windows `keybd_event` Ctrl+V.
+- Paste event was trusted and exposed both `text/plain` and `text/html`.
+- Paste event `htmlLength`: 40336
+- Paste event `textLength`: 1377
+- Local DOM readback:
+  - `htmlLength`: 40547
+  - `textLength`: 1897
+  - `svgCount`: 35
+  - `dataInkSvgCount`: 3
+  - `dataInkBlockCount`: 23
+  - `firstModule`: `cover-title`
+  - `sectionNice`: true
+
+Authenticated WeChat draftbox no-mutation check:
+- The authenticated draftbox list was restored after the local probe.
+- The list still reported `Article 5`.
+- Candidate title count: 0.
+- Paste-safe/Kiln current-run marker count: 0.
+- Current-run recent marker count: 0.
+- The "new creation" UI and page Vue component were inspected, but the article creation entry did
+  not open an editor in this run. The run stopped before any platform mutation because the exact
+  safe disposable draft path could not be established from that state.
+
+Boundary:
+- This is local tooling and candidate artifact evidence only.
+- It does not set `ordinaryClipboardPasteVerified:true`.
+- It does not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
+- It does not prove WeChat editor acceptance, phone preview, mobile Dark Mode, mobile SMIL/click,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public URL, or publish success.
+- The existing `flagship-kiln` preset, `cover-grid` module, and negative Kiln proof remain intact.

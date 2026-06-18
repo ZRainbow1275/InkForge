@@ -52,6 +52,7 @@ const exportIconMap: Record<string, IconComponent> = {
   'zhihu-insight': PenLine,
   // PR6 (R7): SVG 旗舰预设族 — 品牌门面图标（lucide, 无 emoji）
   'flagship-kiln': Flame,
+  'flagship-kiln-paste-safe': Flame,
   'flagship-tempera': BookOpen,
   'flagship-amber': Award,
 }
