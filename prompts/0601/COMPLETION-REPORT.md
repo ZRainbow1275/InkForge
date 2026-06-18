@@ -1170,3 +1170,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: committed Amber PC proof accounting only. It does not prove Kiln/Tempera ordinary
   Ctrl+V, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
   upload, public host, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Market Editor Applied Rule Refresh Addendum
+
+- Added `prompts/0601/evidence/market-editor-applied-rule-refresh-20260619.txt`.
+- Converted the latest CloakBrowser-only 135/Xiumi applied-rule observations into local detector
+  and spec/doc rules without committing raw platform DOM, account artifacts, capture references, or
+  browser state.
+- 135 ordinary style clicks that only create an empty `_135editor` center placeholder now remain
+  insertion-risk evidence instead of applied style proof.
+- 135 SVG trigger-canvas wrappers such as `app-content-canvas`, `block-img__content`, and
+  `ant-tooltip-open` are documented as authoring residue and local schema inputs only.
+- Xiumi SVG carousel/flow-canvas authoring metadata such as `tn-svg-animation-*`, flow-canvas,
+  `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, Angular `ng-*`, and `ui-sortable` is now
+  covered by explicit regression labels.
+- Verification passed with focused `platform-export-rendering.test.ts` at 99 tests, 4-file
+  cross-platform export regression at 138 tests, full export serial suite at 1072 tests, targeted
+  ESLint, `vue-tsc`, and production build.
+- Boundary: local detector and documentation proof only. It does not prove WeChat ordinary
+  Ctrl+V rich HTML/SVG acceptance, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  sync, scheduled-send, XHS/Zhihu upload, public host acceptance, platform preview, public article
+  rendering, or publish success.

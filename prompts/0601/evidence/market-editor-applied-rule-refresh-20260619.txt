@@ -1,0 +1,44 @@
+Market Editor Applied Rule Refresh - 2026-06-19
+
+Scope:
+- CloakBrowser-only market-editor learning refresh for 135 Editor, 135 SVG Editor, and Xiumi v5 paper editor.
+- Local runtime hardening for copied authoring residue in WeChat, Xiaohongshu, and Zhihu export quality checks.
+- No platform publish, no phone preview, no sync, no upload, no screenshot artifact, and no raw platform DOM is recorded here.
+
+135 ordinary editor findings:
+- A real click on a free ordinary style can mutate the center UEditor iframe without producing a meaningful applied block.
+- If the center delta is only an empty `_135editor` placeholder, it is insertion-risk evidence, not reusable style evidence.
+- A 135 ordinary style rule may be learned only after the center editor visibly changes and the inserted block has meaningful text, SVG, image, `data-tools`, or `data-id` structure that is read back in redacted form.
+
+135 SVG editor findings:
+- A free-trial SVG effect can expose a tall trigger canvas, trigger-hot-area prompt, image/expanded-content slots, and direction/background controls.
+- Editor wrappers such as `app-content-canvas`, `block-img__content`, and `ant-tooltip-open` are authoring DOM, not publishable output.
+- These observations may inform InkForge-owned trigger-zone manifests, image-slot manifests, expanded-content models, motion/direction schema, static-expanded fallback, raster fallback, and phone-preview gates only.
+
+Xiumi findings:
+- Clicking an SVG category and a visible SVG sample can mutate the center `.tn-editing-panel` as an authoring tree while exposing no literal inline SVG in the center document.
+- Residues such as `tn-svg-animation-carousel`, `tn-child-orientation="flow-canvas"`, `tn-group-usage-flow-canvas`, `tn-animate`, `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, Angular `ng-*`, and `ui-sortable` are authoring-state markers.
+- These observations may inform image manifests, action/motion schema, readable DOM order, and static/raster/long-image fallback only.
+
+Implemented:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` so 135 SVG trigger-canvas wrappers and Xiumi SVG carousel/flow-canvas authoring metadata remain blocked from publishable output.
+- Added regression fixtures for 135 SVG trigger canvas prompts and Xiumi SVG carousel/flow-canvas metadata in `platform-export-rendering.test.ts`.
+- The detector still allows plain prose that mentions 135 Editor or Xiumi; it only blocks structural HTML, authoring metadata, and third-party/editor dependencies.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 99 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 138 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1072 tests
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: Vite built in 36.30s
+
+Boundary:
+- This proves local detector behavior and documentation/spec alignment only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, XHS/Zhihu account upload, public host acceptance, platform preview, public article rendering, or publish success.

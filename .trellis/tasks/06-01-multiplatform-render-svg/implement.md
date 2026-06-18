@@ -2751,6 +2751,56 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 CloakBrowser Market Editor Applied Rule Refresh
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 3` reported LOW risk, 4 directly
+  impacted symbols, 1 affected module, and 0 affected processes. Direct callers remain
+  `convertToNativeFormat`, `detectQualityAll`, `quickCheck`, and `ExportModal.vue`.
+
+Market editor readback:
+- Continued the CloakBrowser-only 135/Xiumi market-editor learning path, without saving,
+  exporting, syncing, uploading, phone previewing, scheduling, or publishing.
+- 135 ordinary editor: a free style click that mutates the center iframe with only an empty
+  `_135editor` placeholder is recorded as insertion-risk evidence, not applied style proof.
+- 135 SVG editor: free-trial trigger-canvas effects exposed authoring wrappers such as
+  `app-content-canvas`, `block-img__content`, and `ant-tooltip-open`, plus trigger-zone and
+  expanded-content concepts.
+- Xiumi SVG sample: center paper mutation can appear as `tn-svg-animation-carousel`,
+  flow-canvas, `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, and Angular authoring state
+  rather than literal inline SVG.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` so 135 SVG trigger canvas wrappers and Xiumi SVG
+  carousel/flow-canvas authoring metadata fail as market editor residue across WeChat,
+  Xiaohongshu, and Zhihu.
+- Added `MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML` and
+  `MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML` regression coverage.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `docs/platform-rendering-rules/wechat-rules.md`, `docs/微信渲染规则.md`, and evidence docs.
+- Added evidence:
+  `prompts/0601/evidence/market-editor-applied-rule-refresh-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 99 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 138 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1072 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 36.30s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build generated-cache updates.
+
+Boundary:
+- This is local detector proof and market-editor rule extraction only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 E2E SVG Render Refresh Slice
 
 Scope:

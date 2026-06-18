@@ -65,7 +65,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG builder effect data-name',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|edit-placeholder|placeholder__name)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|edit-placeholder|placeholder__name|ant-tooltip-open)[^"']*["']/i,
     label: '135 SVG builder canvas residue',
   },
   {
@@ -87,6 +87,14 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   {
     pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,
     label: 'Xiumi tn-* attribute',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:\btn-svg-animation-[\w-]+(?=[\s"'=/>])|\btn-child-orientation\s*=\s*["']flow-canvas["']|\btn-(?:child-orientation|group-usage)-flow-canvas(?=[\s"'=/>]))/i,
+    label: 'Xiumi SVG carousel flow-canvas residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:\btn-yzk-font-[\w-]+(?=[\s"'=/>])|\btn-placeholder(?=[\s"'=/>]))/i,
+    label: 'Xiumi text authoring metadata',
   },
   {
     pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,

@@ -141,6 +141,17 @@ const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
   '</div>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML = [
+  '<section id="app-content-canvas" class="content-wrapper">',
+  '<div class="content-background">',
+  '<div class="block-img">',
+  '<span class="ant-tooltip-open">点击可设置触发热区显示触发热区</span>',
+  '<svg viewBox="0 0 1080 1920"><path d="M0 0h1080v1920H0z"></path></svg>',
+  '</div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0" disable-tn-group-flex-box="block">',
@@ -157,6 +168,18 @@ const MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML = [
   '<select ng-options="category for category in status.animatedArgs.transitionCategoryList" ng-model="status.animatedArgs.transitionCategory"></select>',
   '</div>',
   '<span class="ng-binding ng-scope">Xiumi Angular runtime controls</span>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
+  '<section class="tn-comp-top-level tn-comp-inst">',
+  '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
+  ' tn-cell-type="group" tn-child-orientation="flow-canvas"',
+  ' tn-svg-animation-carousel="cell" tn-animate="cell.anim"',
+  ' tn-yzk-font-usage-id="xiumi-font" tn-placeholder="{ 点击编辑 }"',
+  ' opera-tn-ra-cell="_$.pages:0.layers:0.comps:0.col1" ng-style="cell.style">',
+  'SVG互动效果丨图集滚动',
+  '</div>',
   '</section>',
 ].join('')
 
@@ -3351,6 +3374,22 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
+  it('blocks 135 SVG trigger canvas prompts from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
   it('blocks Xiumi applied-editor runtime binding attributes from publishable outputs', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'xiaohongshu')
@@ -3362,6 +3401,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi runtime binding attribute')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi runtime binding attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi SVG carousel and flow-canvas authoring metadata from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi SVG carousel flow-canvas residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi text authoring metadata')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi SVG carousel flow-canvas residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi text authoring metadata')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi SVG carousel flow-canvas residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi text authoring metadata')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

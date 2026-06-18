@@ -33,6 +33,7 @@
 | 2026-06-09 WeChat authenticated editor read-only proof checklist | CloakBrowser `inkforge-0601` 能进入真实微信 PC 图文编辑器并读取标题/正文 `.ProseMirror`；当前正文已有真实音频卡，且 `#js_add_appmsg` / `data-action="add"` 会改变多图文草稿结构 | 只升级 `authenticated-editor-reachable` 与 `pc-editor-dom-readable`；`pc-editor-paste` 仍必须另有 exact artifact、safe disposable draft、真实粘贴/channel event、DOM readback 与敏感证据隔离 |
 | 2026-06-09 WeChat amber PC ClipboardEvent readback | CloakBrowser 在真实微信 PC 图文编辑器中对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')` + `DataTransfer`；微信 paste handler 接管，DOM 读回 `data-ink-svg=3` / `svg=35` / `styleAttr=195` / `classAttr=30` | 作为 channel-specific `pc-editor-paste` 证据；不推翻 2026-06-08 普通 Ctrl+V 阻断，也不升级手机预览、Dark Mode、封面缩略图、同步、定时发送或发布 |
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
+| 2026-06-19 CloakBrowser applied-rule refresh | 135 普通编辑器点击免费样式后若只插入空白 `_135editor` 占位，不足以学习 applied style；135 SVG 编辑器免费试用可暴露 trigger canvas、trigger-hot-area、`app-content-canvas`、`block-img__content`、`ant-tooltip-open`；秀米 SVG 样本可把中心纸张变成 `tn-svg-animation-carousel`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*` 和 `ng-*` 作者态树，且中心可没有 literal SVG | 强化 runtime gate：这些强特征只转译为 InkForge 自有 trigger-zone/image-slot/motion/action/schema/fallback/layout-report；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error。该证据不证明手机预览、暗黑模式、同步、上传、公开预览或发布 |
 
 ### 1.2 不进入实现的内容
 
@@ -612,6 +613,12 @@ This trace maps existing InkForge style assets to user-facing choices so future 
 - 135 SVG editor examples may inform trigger zones, image slots, motion parameters, static
   fallback, raster fallback, and phone-preview gates. Do not copy trial effect source, market ids,
   exact coordinates, paid material, or authoring wrappers.
+- 135 ordinary editor examples must include a meaningful center-editor delta before a style rule is
+  learned. A click that only inserts an empty `_135editor` placeholder is insertion-risk evidence,
+  not reusable title/card/body style evidence.
+- 135 SVG trigger-canvas wrappers such as `app-content-canvas`, `block-img__content`, and
+  `ant-tooltip-open` are residue signals. They can inform InkForge trigger-zone and expanded-
+  content schema only after being rewritten as source-owned modules.
 - 135 ordinary editor examples may inform title/body rhythm, nested hierarchy, and block insertion
   risk. Do not retain `_135editor`, helper classes, `data-tools`, `data-id`, editor metadata,
   transforms, or market image dependencies.
@@ -619,6 +626,11 @@ This trace maps existing InkForge style assets to user-facing choices so future 
   transition, parallax, click switch, flip, zoom, quiz, bullet text, popup, print, jump, play,
   long-press, and region-trigger taxonomies. If the center paper does not change, keep the evidence
   at `market-template-listing`.
+- Xiumi SVG/H5 examples that do change the center paper may still be authoring-state only.
+  `tn-svg-animation-*`, `tn-child-orientation="flow-canvas"`, `tn-group-usage-flow-canvas`,
+  `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, Angular `ng-*`, and `ui-sortable` must be
+  blocked from publishable output and converted to image manifests, action schema, readable DOM
+  order, or raster/long-image fallback.
 - Neither `market-template-listing` nor `applied-editor-element` proves WeChat phone rendering,
   Dark Mode, mobile interaction, cover acceptance, account sync, scheduled send, or publish.
 

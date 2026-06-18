@@ -98,6 +98,9 @@ Mode, cover thumbnail, sync, or publish success.
 - 135 SVG builder 是 effect builder，不是 raw template source。`封面图`、`元素图`、`底层片` 等槽位应转为 InkForge image-slot manifest。
 - `动画时长`、`放大时长`、`展开时长`、`元素缩小比例`、`元素图移动方向` 等参数应转为 motion parameter schema 和 direction enum。
 - `展开内容背景`、`去缝隙`、`上移`、`下移`、`间距`、`复制`、`删除` 等操作说明互动效果需要 expanded-content model、block order/spacing model 和 fallback plan。
+- `app-content-canvas`、`block-img__content`、`ant-tooltip-open`、触发热区提示和 1080x1920
+  画布链路是 135 SVG 编辑器作者态，不是微信可发布 HTML。它们只能转译为 InkForge 自有
+  trigger-zone manifest、expanded-content model、direction controls 和 mobile-preview gate。
 - 全文背景高度超过 4000px 的风险仍按移动端/Android layout gate 处理。
 - 免费试用、购买提示、Vue/Ant DOM、私有 SVG 源码和素材要求只作为规则参考，不进入 InkForge 实现。
 
@@ -108,6 +111,9 @@ Mode, cover thumbnail, sync, or publish success.
 - 阻断对象包括 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN 图片源、
   `.tn-page/.tn-comp/.tn-cell/.tn-cell-group/.tn-comp-pin`、`tn-*` authoring 属性、`ng-click` /
   `ng-style` / `ng-repeat` 等创作态属性和秀米素材源。
+- 2026-06-19 起，135 SVG trigger canvas 残留（例如 `ant-tooltip-open`）以及秀米
+  `tn-svg-animation-*`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*`、
+  Angular `ng-*` / `ui-sortable` 作者态残留也必须在微信/XHS/知乎发布前失败关闭。
 - 普通正文提到“135编辑器”“秀米”不会触发该错误；必须出现结构性 HTML、authoring metadata
   或第三方素材依赖才会阻断。
 - 阻断后的安全路径是重写为 InkForge 自有 inline HTML、WeChat-safe SVG、image manifest、

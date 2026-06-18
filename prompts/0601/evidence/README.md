@@ -938,3 +938,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: no mutation occurred and no proof gate is satisfied. This does not prove
   safe-disposable-draft, editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode,
   cover thumbnail, sync, scheduled-send, upload, public host, or publish success.
+
+## 2026-06-19 Market Editor Applied Rule Refresh
+
+- [x] market-editor-applied-rule-refresh-20260619.txt
+- CloakBrowser-only refresh converted 135 ordinary editor, 135 SVG trigger-canvas, and Xiumi SVG
+  carousel/flow-canvas observations into local detector/spec rules.
+- Empty 135 `_135editor` placeholders are recorded as insertion-risk evidence, not applied style
+  proof.
+- 135 SVG trigger-canvas wrappers and Xiumi flow-canvas / SVG-carousel authoring metadata now stay
+  publish-blocking residue for WeChat, Xiaohongshu, and Zhihu outputs.
+- Verification passed: focused export rendering test, 4-file cross-platform export regression,
+  full export serial suite, targeted ESLint, `vue-tsc`, and production build.
+- Boundary: local detector and documentation proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, XHS/Zhihu
+  upload, public host acceptance, platform preview, public article rendering, or publish success.

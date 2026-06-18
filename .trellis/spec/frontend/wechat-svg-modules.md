@@ -1492,6 +1492,16 @@ Contracts:
   `coverclickmovewithspread`, plus canvas placeholders such as `app-content-canvas`,
   `block-img__content`, `block-img__default`, `edit-placeholder`, and `placeholder__name`, must
   fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
+- 2026-06-19 CloakBrowser applied-rule refresh: a 135 ordinary style click that changes only the
+  center editor with an empty `section._135editor` placeholder is not enough to learn an applied
+  style rule. Treat it as insertion-risk evidence until the inserted block has meaningful
+  `data-tools` / `data-id` / text / SVG / image structure and the center iframe delta is read.
+- 2026-06-19 135 SVG editor trigger-canvas evidence: free-trial effects selected without third-
+  party material can expose a tall trigger canvas, trigger-hot-area prompts, `app-content-canvas`,
+  `block-img__content`, and Vue/Ant editor wrappers such as `ant-tooltip-open`. These are schema
+  inputs for InkForge-owned trigger-zone manifests, expanded-content models, direction controls,
+  and mobile-preview gates only. They must fail as market editor residue if copied into WeChat,
+  Xiaohongshu, or Zhihu publishable output.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -1499,6 +1509,13 @@ Contracts:
 - Xiumi SVG category previews can contain `svg`, `animateTransform`, and `foreignObject`, but the
   applied center canvas may materialize as image cells and authoring layers. Therefore Xiumi SVG
   evidence maps to interactive manifests and fallback artifacts, not direct inline-SVG availability.
+- 2026-06-19 Xiumi SVG carousel/flow-canvas evidence: clicked SVG samples may mutate the center
+  `.tn-editing-panel` as authoring cells with no literal inline SVG. Residues such as
+  `tn-svg-animation-carousel`, `tn-child-orientation="flow-canvas"`,
+  `tn-child-orientation-flow-canvas`, `tn-group-usage-flow-canvas`, `tn-animate`,
+  `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, Angular `ng-*`, and `ui-sortable` must stay
+  publish-blocking market-editor residue. Convert them into image manifests, motion/action schema,
+  readable DOM order, and static/raster/long-image fallback plans.
 - 135 SVG effects map to typed image slots, hot zones, motion schema, trigger type, and fallback
   plans. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
   layout-report heuristics only.
@@ -1519,8 +1536,10 @@ Required tests/checks:
   `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
   `style_id/style_name/style_price`, known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `edit-placeholder`,
-  `placeholder__name`, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and
-  `disable-tn-*` in publishable output.
+  `placeholder__name`, `ant-tooltip-open`, `tn-*`, `tn-svg-animation-*`,
+  `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
+  `tn-group-usage-flow-canvas`, `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`,
+  `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in
