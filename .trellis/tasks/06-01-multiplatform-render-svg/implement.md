@@ -2553,3 +2553,33 @@ Boundary:
 - This is a local detector gate only.
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish success.
+
+## 2026-06-18 Style Acceptance ExportModal E2E Refresh Slice
+
+Impact:
+- `npx gitnexus impact "File:inkforge/tests/e2e/specs/svg-render.spec.cjs" -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+
+Initial run:
+- `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  failed with 5 passing / 1 failing.
+- Failure reason: the spec still expected WeChat `7/15`, but real ExportModal reported
+  `8/16`, `cardCount=16`, `availableCount=8`, `blockedCount=4`, and `unavailableCount=4`.
+
+Implementation:
+- Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` to assert the current runtime WeChat
+  catalog counts.
+- Added evidence:
+  `prompts/0601/evidence/style-acceptance-exportmodal-e2e-20260618.txt`.
+
+Verification:
+- Re-ran `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`.
+- Result: passed with 1 spec / 6 tests.
+- The passing spec verified real Pinia draft seeding, ExportModal style gates, acceptance
+  cannot-claim UI, phone-preview next action, Kiln/Tempera/Amber responsive `[data-ink-svg]`
+  rendering, and mobile-emulated `charsPerLine=20`.
+
+Boundary:
+- This is local Tauri/WebView2 proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish success.

@@ -1,0 +1,45 @@
+Style Acceptance ExportModal E2E Refresh - 2026-06-18
+
+Scope:
+- Real Tauri/WebView2 WDIO e2e for `tests/e2e/specs/svg-render.spec.cjs`.
+- Verifies ExportModal style capability counts, style proof acceptance cannot-claim UI, flagship
+  SVG rendering, and mobile-readable body layout.
+- No platform account, phone preview, sync, upload, scheduled-send, or publish action was used.
+
+Initial failure:
+- Command:
+  `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+- Result: failed with 5 passing / 1 failing.
+- Failure reason: the test still expected the old WeChat style catalog summary
+  `微信公众号 当前可用 7/15`, while the runtime ExportModal now reports
+  `微信公众号 当前可用 8/16`.
+- The runtime UI also reported:
+  - `cardCount=16`
+  - `availableCount=8`
+  - `blockedCount=4`
+  - `unavailableCount=4`
+  - preflight `样式能力目录可用 8/16；受限 4；不可用 4`
+  - acceptance audit `不可宣称 15；外部/手机 10；安全本地待补 5`
+
+Fix:
+- Updated `tests/e2e/specs/svg-render.spec.cjs` to assert the current runtime catalog counts:
+  `8/16`, `cardCount=16`, `availableCount=8`, `blockedCount=4`, and `unavailableCount=4`.
+- The cannot-claim, mobile preview, blocked Amber, mobile-only SVG, plugin transfer, XHS, Zhihu,
+  flagship SVG, and mobile chars-per-line assertions were kept intact.
+
+Verification:
+- Re-ran:
+  `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+- Result: PASS, 1 spec / 6 tests.
+- Verified rows:
+  - real draft seeded through the live Pinia article store;
+  - ExportModal style capability gates surfaced for WeChat, Xiaohongshu, and Zhihu;
+  - acceptance audit preflight exposed cannot-claim rows and phone-preview next action;
+  - Kiln, Tempera, and Amber flagship presets injected responsive `[data-ink-svg]` modules;
+  - body layout measured `charsPerLine=20` at the mobile-emulated width.
+
+Boundary:
+- This proves local Tauri/WebView2 ExportModal UI and flagship rendering only.
+- It does not prove WeChat phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, Xiaohongshu/Zhihu account upload, public host acceptance, or
+  publish success.

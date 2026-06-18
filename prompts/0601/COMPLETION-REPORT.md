@@ -798,3 +798,19 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is a local detector gate only. It does not prove WeChat phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
   publish success.
+
+## 2026-06-18 Style Acceptance ExportModal E2E Refresh Addendum
+
+- Added `prompts/0601/evidence/style-acceptance-exportmodal-e2e-20260618.txt`.
+- Real Tauri/WebView2 WDIO e2e initially failed because the spec expected stale WeChat style
+  catalog count `7/15`, while runtime ExportModal now reports `8/16`.
+- Updated `tests/e2e/specs/svg-render.spec.cjs` to assert the current runtime counts:
+  `8/16`, `cardCount=16`, `availableCount=8`, `blockedCount=4`, and `unavailableCount=4`.
+- Re-ran `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`;
+  it passed with 1 spec / 6 tests.
+- The passing run still verifies cannot-claim preflight, phone-preview next action, blocked Amber,
+  mobile-only SVG blockers, plugin transfer unavailability, XHS/Zhihu summaries, responsive
+  flagship SVG injection, and `charsPerLine=20`.
+- Boundary: local Tauri/WebView2 proof only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
+  publish success.

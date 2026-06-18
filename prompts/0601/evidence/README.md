@@ -686,3 +686,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   - full export serial run: 35 files / 1047 tests.
 - Boundary: this is a local detector gate only. It does not prove phone preview, mobile interaction,
   Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.
+
+## 2026-06-18 Style Acceptance ExportModal E2E Refresh
+
+- [x] style-acceptance-exportmodal-e2e-20260618.txt
+- Real Tauri/WebView2 WDIO e2e initially failed because the spec still expected the old WeChat
+  style catalog count `7/15` while runtime ExportModal now reports `8/16`.
+- Updated `tests/e2e/specs/svg-render.spec.cjs` to assert the current WeChat counts:
+  `8/16`, `cardCount=16`, `availableCount=8`, `blockedCount=4`, and `unavailableCount=4`.
+- Re-ran `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  and it passed with 1 spec / 6 tests.
+- The passing e2e still verifies cannot-claim preflight, phone-preview next action, blocked Amber,
+  blocked mobile-only SVG effects, unavailable plugin transfer, XHS/Zhihu gate summaries, flagship
+  SVG injection, and `charsPerLine=20`.
+- Boundary: local Tauri/WebView2 proof only. It does not prove phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.

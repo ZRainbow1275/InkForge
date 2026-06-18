@@ -485,14 +485,14 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     await openExportPanel('微信');
 
     const wechat = await collectStyleCapabilityProbe();
-    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 7/15');
+    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 8/16');
     expect(wechat.summary, 'WeChat acceptance audit summary').to.include('验收审计 不可宣称');
-    expect(wechat.cardCount, 'WeChat choice card count').to.equal(15);
-    expect(wechat.availableCount, 'WeChat available choice count').to.equal(7);
+    expect(wechat.cardCount, 'WeChat choice card count').to.equal(16);
+    expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
     expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(4);
     expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 7/15；受限 4；不可用 4');
+      .to.include('样式能力目录可用 8/16；受限 4；不可用 4');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(wechat.acceptancePreflightText, 'WeChat preflight points phone-preview next action')
