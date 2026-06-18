@@ -449,3 +449,5 @@ Implemented gate:
   `market editor hosted background source`.
 - The gate applies to WeChat, Xiaohongshu, and Zhihu quality reports and is covered by
   `platform-export-rendering.test.ts`.
+- `PLATFORM_STYLE_CHOICES` injects the platform-specific market-residue detector blocker into every
+  style choice, so catalog preflight semantics cannot drift from the quality detector.

@@ -162,6 +162,15 @@ describe('platform native export rendering rules', () => {
     expect(ids).toContain('zhihu-public-image-upload-checklist')
 
     expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
+    expect(getPlatformStyleChoices('wechat').every(choice =>
+      choice.detectorBlockers.includes('wechat-market-editor-residue')
+    )).toBe(true)
+    expect(getPlatformStyleChoices('xiaohongshu').every(choice =>
+      choice.detectorBlockers.includes('xhs-market-editor-residue')
+    )).toBe(true)
+    expect(getPlatformStyleChoices('zhihu').every(choice =>
+      choice.detectorBlockers.includes('zhihu-market-editor-residue')
+    )).toBe(true)
     expect(catalog.every(choice => choice.evidenceFloor !== 'published')).toBe(true)
 
     const classicInline = getStyleChoiceById('wechat-classic-inline')

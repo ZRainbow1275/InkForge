@@ -1225,5 +1225,8 @@ Required tests/checks:
   output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
+- Every platform style choice must expose the matching market-residue quality issue in
+  `detectorBlockers`: `wechat-market-editor-residue`, `xhs-market-editor-residue`, or
+  `zhihu-market-editor-residue`.
 - Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
   DOM evidence alone.

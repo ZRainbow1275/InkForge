@@ -11,6 +11,8 @@ Implemented:
   market editor residue.
 - The new rule reports `market editor hosted background source`.
 - Existing image/source tag residue rules remain unchanged.
+- `PLATFORM_STYLE_CHOICES` now injects the platform-specific market-residue detector blocker into
+  every style choice, so future WeChat/Xiaohongshu/Zhihu choices inherit the same preflight guard.
 
 Behavior:
 - WeChat publishable output receives `wechat-market-editor-residue` with severity `error`.
@@ -23,6 +25,8 @@ Regression coverage:
 - Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` with 135 and Xiumi CSS background media references.
 - Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu all fail the quality
   report when those hosted background sources are present.
+- Added a style catalog regression proving every WeChat, Xiaohongshu, and Zhihu style choice lists
+  its matching market-residue issue id in `detectorBlockers`.
 
 Verification:
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`

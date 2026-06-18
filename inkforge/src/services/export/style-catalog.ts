@@ -1048,7 +1048,13 @@ const STYLE_CHOICE_APPLICATIONS = [
   },
 ] as const satisfies readonly StyleChoiceApplication[]
 
-export const PLATFORM_STYLE_CHOICES = [
+const MARKET_RESIDUE_DETECTOR_BLOCKER_BY_PLATFORM = {
+  wechat: 'wechat-market-editor-residue',
+  xiaohongshu: 'xhs-market-editor-residue',
+  zhihu: 'zhihu-market-editor-residue',
+} as const satisfies Record<Platform, string>
+
+const PLATFORM_STYLE_CHOICES_BASE = [
   {
     id: 'wechat-classic-inline',
     platform: 'wechat',
@@ -1546,6 +1552,14 @@ export const PLATFORM_STYLE_CHOICES = [
     detectorBlockers: ['zhihu-image-host-blocked', 'zhihu-image-alt-missing', 'zhihu-image-caption-missing'],
   },
 ] as const satisfies readonly PlatformStyleChoice[]
+
+export const PLATFORM_STYLE_CHOICES = PLATFORM_STYLE_CHOICES_BASE.map(choice => ({
+  ...choice,
+  detectorBlockers: [
+    ...choice.detectorBlockers,
+    MARKET_RESIDUE_DETECTOR_BLOCKER_BY_PLATFORM[choice.platform],
+  ],
+})) satisfies readonly PlatformStyleChoice[]
 
 export function getStyleChoiceCatalog(): readonly PlatformStyleChoice[] {
   return PLATFORM_STYLE_CHOICES

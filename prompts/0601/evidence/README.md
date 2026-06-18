@@ -678,6 +678,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `market editor hosted background source`.
 - Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu quality reports all fail
   when copied market editor hosted background sources are present.
+- `PLATFORM_STYLE_CHOICES` now injects the platform-specific market-residue detector blocker into
+  every current and future style choice.
 - Verification passed:
   - `platform-export-rendering.test.ts`: 1 file / 85 tests.
   - cross-platform export regression: 4 files / 124 tests.

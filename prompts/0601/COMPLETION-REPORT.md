@@ -786,6 +786,8 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Added `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`.
 - Hardened `MARKET_EDITOR_RESIDUE_RULES` so CSS `url(...)` references to 135/Xiumi hosted media are
   blocked as `market editor hosted background source`, not only `<img>`/`<image>` sources.
+- Added centralized `PLATFORM_STYLE_CHOICES` market-residue blocker injection so style catalog
+  preflight semantics stay aligned with the quality detector.
 - Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` and a three-platform regression proving WeChat,
   Xiaohongshu, and Zhihu quality reports all fail when copied 135/Xiumi hosted background sources
   are present.

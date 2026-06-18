@@ -2536,6 +2536,8 @@ Implementation:
   media.
 - Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` and a three-platform regression proving WeChat,
   Xiaohongshu, and Zhihu fail quality reports with `market editor hosted background source`.
+- Added centralized style catalog blocker injection so all WeChat, Xiaohongshu, and Zhihu style
+  choices expose the matching market-residue detector blocker.
 - Added evidence:
   `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`.
 
