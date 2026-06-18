@@ -1201,6 +1201,13 @@ Contracts:
 - 135 ordinary output residue (`_135editor`, `135brush`, `135bg`, `data-tools`, market `data-id`)
   and Xiumi authoring residue (`tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`) are quality-detector
   blockers for InkForge publishable output.
+- 135 applied ordinary styles can leak text-slot metadata even if wrapper classes are removed.
+  `data-brushtype`, `autonum[data-num]`, and library `style_id/style_name/style_price` metadata
+  must fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
+- 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
+  does not mutate the central editor iframe is only a listing/selection probe; applied evidence
+  requires central editor DOM counts or HTML/text length to change and the inserted block to be
+  read back.
 - Xiumi SVG category previews can contain `svg`, `animateTransform`, and `foreignObject`, but the
   applied center canvas may materialize as image cells and authoring layers. Therefore Xiumi SVG
   evidence maps to interactive manifests and fallback artifacts, not direct inline-SVG availability.
@@ -1221,8 +1228,9 @@ Required tests/checks:
 - Market-rule additions must add no dependency on vendor class names, vendor hosted media, or
   authenticated editor DOM.
 - Any future detector/parser rule must fail fast on `_135editor`, `135brush`, `135bg`,
-  `data-tools`, market `data-id`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in publishable
-  output.
+  `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
+  `style_id/style_name/style_price`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in
+  publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in

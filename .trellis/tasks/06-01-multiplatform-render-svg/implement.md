@@ -2609,3 +2609,52 @@ Boundary:
   Dark Mode, cover thumbnail acceptance, ordinary WeChat Ctrl+V rich HTML/SVG acceptance,
   credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
   success.
+
+## 2026-06-18 135 Applied Text Slot Residue Gate Slice
+
+Impact:
+- `npx gitnexus impact collectMarketEditorResidues -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted items, 1 direct caller, 0 affected processes, and only the Export
+  module affected.
+
+Market editor readback:
+- Continued the CloakBrowser-only 135 ordinary editor path.
+- The first click on free style `#style-173703` did not mutate the center editor because no valid
+  UEditor insertion range was established.
+- After focusing the central UEditor iframe body and setting a collapsed insertion range, clicking
+  `#style-173703` changed the central editor iframe:
+  `data-id="173703"` changed from `0` to `1`, body child count changed from `4` to `5`, and body
+  HTML length changed from `20627` to `22552`.
+- The applied block used nested sections, inline flex/gradient/border/margin layout, and 135 text
+  slot metadata: `data-brushtype`, `autonum[data-num]`, plus style-list metadata
+  `style_id/style_name/style_price`.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` with:
+  - `135 editable brush slot`
+  - `135 automatic numbering marker`
+  - `135 style-list metadata`
+- Added `MARKET_EDITOR_SLOT_RESIDUE_HTML` regression coverage proving WeChat, Xiaohongshu, and
+  Zhihu reject those residues even when `_135editor`, `135brush`, and `data-tools` wrappers are
+  absent.
+- Added evidence:
+  `prompts/0601/evidence/135-applied-text-slot-residue-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 86 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 125 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1048 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local detector proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.

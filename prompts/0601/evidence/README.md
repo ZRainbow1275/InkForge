@@ -715,3 +715,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local Tauri/WebView2 UI/rendering proof only. It does not prove phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
   gates.
+
+## 2026-06-18 135 Applied Text Slot Residue Gate
+
+- [x] 135-applied-text-slot-residue-gate-20260618.txt
+- CloakBrowser-only 135 ordinary editor sampling now includes a real left-style click that mutated
+  the central UEditor iframe after the editor body selection was established.
+- `#style-173703` inserted one central editor block: `data-id="173703"` changed from `0` to `1`,
+  editor body children changed from `4` to `5`, and HTML length changed from `20627` to `22552`.
+- The applied DOM confirmed additional authoring residue beyond wrapper classes:
+  `data-brushtype`, `autonum[data-num]`, and `style_id/style_name/style_price`.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks those 135 text-slot/list metadata residues across
+  WeChat, Xiaohongshu, and Zhihu.
+- Verification passed: focused 86 tests, 4-file export regression 125 tests, full export serial
+  1048 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof only. It does not prove phone preview, mobile interaction, Dark
+  Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.

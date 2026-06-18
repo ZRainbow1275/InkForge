@@ -829,3 +829,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local Tauri/WebView2 UI/rendering proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance,
   sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 135 Applied Text Slot Residue Gate Addendum
+
+- Added `prompts/0601/evidence/135-applied-text-slot-residue-gate-20260618.txt`.
+- In CloakBrowser-only 135 ordinary editor sampling, free style `#style-173703` was inserted into
+  the central UEditor iframe after the iframe body had a collapsed insertion range.
+- The central editor readback changed `data-id="173703"` from `0` to `1`, body children from `4`
+  to `5`, and body HTML length from `20627` to `22552`.
+- The applied block confirmed 135 text-slot/list metadata that can survive beyond wrapper class
+  detection: `data-brushtype`, `autonum[data-num]`, and `style_id/style_name/style_price`.
+- `MARKET_EDITOR_RESIDUE_RULES` now rejects those residues as `135 editable brush slot`,
+  `135 automatic numbering marker`, and `135 style-list metadata`.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu reject those residues;
+  verification passed with focused 86 tests, 4-file export regression 125 tests, full export serial
+  1048 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof only. It does not prove WeChat phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance, sync,
+  scheduled-send, XHS/Zhihu upload, public host, or publish success.

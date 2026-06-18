@@ -115,6 +115,16 @@ const MARKET_EDITOR_BACKGROUND_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_SLOT_RESIDUE_HTML = [
+  '<section style="margin:10px auto;display:flex;justify-content:center">',
+  '<strong data-brushtype="text">平台样式文本槽</strong>',
+  '<strong class="autonum" data-num="4">4</strong>',
+  '</section>',
+  '<li style_id="173703" style_name="端午节传统节日编号标题古风绿色样式" style_price="9.9">',
+  '135 样式列表元数据残留',
+  '</li>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -2912,6 +2922,26 @@ describe('platform native export rendering rules', () => {
       .toContain('market editor hosted background source')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('market editor hosted background source')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 applied-editor text slot metadata even without 135 wrapper classes', () => {
+    const wechat = detectQuality(MARKET_EDITOR_SLOT_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_SLOT_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_SLOT_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 editable brush slot')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 automatic numbering marker')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 style-list metadata')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 editable brush slot')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 editable brush slot')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -49,6 +49,18 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 data-tools marker',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bdata-brushtype\s*=\s*["'][^"']+["']/i,
+    label: '135 editable brush slot',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:\bclass\s*=\s*["'][^"']*\bautonum\b[^"']*["'][^>]*\bdata-num\s*=|\bdata-num\s*=\s*["']?\d+["']?[^>]*\bclass\s*=\s*["'][^"']*\bautonum\b[^"']*["'])/i,
+    label: '135 automatic numbering marker',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\bstyle_(?:id|name|price)\s*=/i,
+    label: '135 style-list metadata',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\bdata-id\s*=\s*["']\d{3,}["'][^>]*(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])|(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])[^>]*\bdata-id\s*=\s*["']\d{3,}["'])/i,
     label: '135 numeric style id on copied market block',
   },
