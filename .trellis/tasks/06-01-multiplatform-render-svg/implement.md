@@ -2779,6 +2779,33 @@ Boundary:
   cover-thumbnail acceptance, credentialed sync, scheduled-send, Xiaohongshu account upload,
   Zhihu public-host acceptance, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat Create Entry No-op Readback Slice
+
+Scope:
+- Non-paste authenticated browser preflight for the next disposable-draft proof step.
+- No editor opened, no title/body mutation, no clipboard write, no paste, no save, no preview, no
+  delete, no sync, no scheduled-send, and no publish.
+
+Observed:
+- Authenticated backend home remained reachable and was not a login page.
+- The deterministic disposable-draft sentinel prefix `InkForge disposable proof 20260619` had 0
+  matches before and after the attempts.
+- The visible article create entry existed.
+- A DOM click plus two browser-layer clicks against the visible article create nodes did not open
+  the editor.
+- Post-attempt readback stayed on `/cgi-bin/home`, with editor shell count 0, ProseMirror count 0,
+  contenteditable count 0, sentinel count 0, and no visible blocking dialog.
+- Redacted anchor scanning found draftbox/publish-record/public article path families, but no safe
+  visible new-editor href suitable for a runbook-compliant creation path.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-create-entry-noop-readback-20260619.txt`.
+
+Boundary:
+- This is a no-mutation blocked attempt. It does not satisfy safe-disposable-draft,
+  cleanupPathVerified, authenticated editor DOM, ordinary PC paste, phone preview, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled-send, upload, public host, or publish proof.
+
 ## 2026-06-19 Style Proof Artifact Manifest Validation Slice
 
 Scope:

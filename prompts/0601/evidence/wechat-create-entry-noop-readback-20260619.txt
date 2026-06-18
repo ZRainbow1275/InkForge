@@ -1,0 +1,43 @@
+WeChat Create Entry No-op Readback - 2026-06-19
+
+Scope:
+- Authenticated browser-only preflight for the WeChat disposable-draft path after machine reboot.
+- No editor opened, no title written, no body edited, no clipboard write, no paste, no save, no preview, no delete, no sync, no scheduled-send, and no publish.
+
+Redaction:
+- Credential-bearing URL parameters were not recorded.
+- Account identifiers, private titles, private body text, full markup, screenshots, local browser state, and image material were not recorded.
+- Only selector counts, boolean states, path names, and deterministic proof sentinel counts are recorded here.
+
+Preflight:
+- Active host was the WeChat Official Account backend.
+- Redacted path remained /cgi-bin/home.
+- Login panel count: 0.
+- Editor shell selector count before attempts: 0.
+- Contenteditable count before attempts: 0.
+- Deterministic sentinel prefix checked: InkForge disposable proof 20260619.
+- Sentinel matches before attempts: 0.
+- Visible article create entry: true.
+- Visible draft-card-like count: 12.
+
+Attempts:
+- Dispatched a DOM click to the visible article create entry.
+- Clicked the visible article create-content node through the browser automation layer.
+- Clicked the visible article create-title node through the browser automation layer.
+- Waited after each click and performed selector readback.
+
+Observed after attempts:
+- Redacted path still remained /cgi-bin/home.
+- Login panel count stayed 0.
+- Editor shell selector count stayed 0.
+- ProseMirror count stayed 0.
+- Contenteditable count stayed 0.
+- Deterministic sentinel matches stayed 0.
+- No visible blocking dialog was detected.
+- The article create entry remained visible.
+- A redacted anchor scan exposed draftbox, publish-record, and public article path families, but no safe visible new-editor href that could be used without bypassing the normal creation path.
+
+Decision:
+- Treat this as a no-mutation blocked attempt.
+- Do not claim safe-disposable-draft, cleanupPathVerified, authenticated editor DOM, ordinary PC paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, or publish proof from this run.
+- A future live paste attempt still needs a disposable draft created through a reliable visible path, deterministic title assignment, same-editor readback, ordinary OS Ctrl+V, exact artifact DOM readback, deletion, and post-cleanup absence readback.

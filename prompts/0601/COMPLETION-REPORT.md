@@ -1127,3 +1127,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
   scheduled-send, XHS/Zhihu upload, public host acceptance, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 WeChat Create Entry No-op Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-create-entry-noop-readback-20260619.txt`.
+- Performed a redacted authenticated browser-only preflight for the next WeChat disposable-draft
+  proof step.
+- The backend home path remained reachable, was not a login page, and the deterministic
+  disposable-draft sentinel prefix had 0 matches before any mutation attempt.
+- The visible article create entry existed, but DOM click plus two browser-layer clicks against the
+  visible create nodes did not open the editor.
+- Post-attempt readback stayed on `/cgi-bin/home`; editor shell, ProseMirror, contenteditable, and
+  sentinel counts all stayed 0, with no visible blocking dialog.
+- A redacted anchor scan found draftbox/publish-record/public article path families, but no safe
+  visible new-editor href suitable for a runbook-compliant creation path.
+- Boundary: this is a no-mutation blocked attempt. It does not prove safe-disposable-draft,
+  editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, upload, public host, platform preview, public article
+  rendering, or publish success.

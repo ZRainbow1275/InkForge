@@ -917,3 +917,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local production build and real Tauri/WebView2 ExportModal proof only. It does not
   prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
   scheduled-send, XHS/Zhihu upload, public host acceptance, or publish success.
+
+## 2026-06-19 WeChat Create Entry No-op Readback
+
+- [x] wechat-create-entry-noop-readback-20260619.txt
+- Authenticated browser-only preflight stayed on the WeChat backend home path and verified the
+  deterministic disposable-draft sentinel count was 0 before any mutation attempt.
+- The visible article creation entry was present, but DOM click plus two browser-layer clicks on
+  the visible create-content/title nodes did not open the editor.
+- Post-attempt readback stayed on `/cgi-bin/home`; editor shell, ProseMirror, contenteditable, and
+  sentinel counts all stayed 0, with no visible blocking dialog.
+- A redacted anchor scan found draftbox/publish-record/public article path families but no safe
+  visible new-editor href to use without bypassing the normal creation path.
+- Boundary: no mutation occurred and no proof gate is satisfied. This does not prove
+  safe-disposable-draft, editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode,
+  cover thumbnail, sync, scheduled-send, upload, public host, or publish success.
