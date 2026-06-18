@@ -1033,3 +1033,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Ctrl+V rich paste success, safe disposable draft cleanup, phone preview, Dark Mode, cover
   thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
   or publish success.
+
+## 2026-06-19 WeChat Create Entry CloakBrowser Stability Block
+
+- [x] wechat-create-entry-cloakbrowser-stability-blocked-20260619.txt
+- Current platform state: authenticated `/cgi-bin/appmsg` remained reachable, but no article editor
+  shell, contenteditable article body, iframe, textarea, or deterministic sentinel was present.
+- The visible new-creation control had stable geometry, but CloakBrowser selector clicks against
+  the button, operation group, and default span all failed the element-stability gate.
+- The toolbar contained hidden create-option DOM text, but the dropdown menu stayed `display:none`
+  with zero-size menu item rects.
+- Boundary: hidden dropdown DOM text and click-stability failures are blocked evidence only. They
+  do not prove article editor target identity, editor DOM readback, safe draft, PC paste, phone
+  preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, platform preview,
+  public article rendering, or publish success.

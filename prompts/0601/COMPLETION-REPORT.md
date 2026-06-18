@@ -1284,3 +1284,20 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   Ctrl+V rich paste success, safe disposable draft cleanup, phone preview, Dark Mode, cover
   thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
   or publish success.
+
+## 2026-06-19 WeChat Create Entry CloakBrowser Stability Block Addendum
+
+- Added `prompts/0601/evidence/wechat-create-entry-cloakbrowser-stability-blocked-20260619.txt`.
+- CloakBrowser-only readback stayed on authenticated `/cgi-bin/appmsg`; login containers were
+  absent, but editor shell selectors, article-body contenteditable nodes, iframe nodes, textarea
+  nodes, and deterministic sentinels were also absent.
+- The visible new-creation button geometry stayed stable across repeated samples, and its center
+  hit the intended button.
+- CloakBrowser selector clicks against the button, outer operation group, and default span all
+  failed the element-stability gate; no menu item was selected.
+- The toolbar DOM contained article/create-option text, but the real dropdown menu remained
+  `display:none` and its menu item rects stayed zero-size.
+- Boundary: visible create controls, hidden dropdown DOM text, and CloakBrowser click-stability
+  failures do not prove article editor target identity, editor DOM readback, safe disposable draft,
+  ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
+  public host, platform preview, public article rendering, or publish success.

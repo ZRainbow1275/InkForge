@@ -1,0 +1,36 @@
+WeChat Create Entry CloakBrowser Stability Block - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated readback and selector-click attempts on the WeChat draftbox/create-entry area.
+- No OS-coordinate click, JavaScript synthetic click, paste, draft mutation, phone preview, sync, upload, scheduled-send, or publish action.
+- No raw DOM, account text, credential values, or browser/account runtime artifacts are recorded here.
+
+Readback:
+- Current page stayed on the WeChat backend draftbox/appmsg route.
+- Login containers were absent.
+- Editor shell selectors were absent.
+- Article-body contenteditable nodes were absent.
+- iframe and textarea nodes were absent.
+- Deterministic sentinel text was absent.
+- Redacted counts: appmsg-family links 5, draft/create-related links 2, button-like controls 31, create-related text matches 6.
+
+Visible create control:
+- One visible primary button matched the new-creation control.
+- Repeated geometry samples kept the control at the same position and size.
+- The button center resolved to the same button text and class in `document.elementFromPoint()`.
+- The toolbar operation group contained create-option DOM text for article and other content types.
+
+CloakBrowser click attempts:
+- Selector click on the visible new-creation button failed CloakBrowser's element-stability gate twice.
+- Selector click on the outer operation group failed the same stability gate.
+- Selector click on the default operation span failed the same stability gate.
+- No dropdown item was clicked and no article editor opened.
+
+Dropdown state:
+- The real dropdown container remained `display:none`.
+- The dropdown list and all create-option list items had zero-size rects.
+- Hidden dropdown DOM text is not visible menu proof and must not be treated as a selectable article-entry proof.
+
+Boundary:
+- This is blocked platform evidence only.
+- It does not satisfy platformEditorTargetVerified, authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft, pc-editor-paste-event, ordinaryClipboardPasteVerified, cleanupPathVerified, phonePreviewContentVerified, darkModeEnabledVerified, coverThumbnailAccepted, sync-readback, scheduled-send, platform preview, public article rendering, or publish proof.

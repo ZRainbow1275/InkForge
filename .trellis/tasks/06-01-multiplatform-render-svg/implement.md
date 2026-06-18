@@ -2751,6 +2751,38 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 WeChat Create Entry CloakBrowser Stability Block Slice
+
+Scope:
+- Continued the WeChat article-editor target identity gate with CloakBrowser only.
+- Performed authenticated readback and CloakBrowser selector-click attempts on the visible
+  new-creation control.
+- No Playwright, OS-coordinate click, JavaScript synthetic click, paste, draft mutation, phone
+  preview, sync, upload, scheduled send, or publish action was performed.
+
+Observed:
+- Current page stayed on authenticated `/cgi-bin/appmsg`; login containers were absent.
+- Editor shell selectors, article-body contenteditable nodes, iframe nodes, textarea nodes, and
+  deterministic sentinels were absent.
+- Redacted counts: appmsg-family links 5, draft/create-related links 2, button-like controls 31,
+  create-related text matches 6.
+- One visible primary new-creation button was present. Repeated geometry samples kept the same
+  position and size, and `document.elementFromPoint()` at the center resolved to the same button.
+- CloakBrowser selector clicks against the visible button failed the element-stability gate twice.
+- CloakBrowser selector clicks against the outer operation group and default span also failed the
+  element-stability gate.
+- The toolbar operation group contained create-option DOM text, but the real dropdown container
+  remained `display:none`; dropdown list items had zero-size rects.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-create-entry-cloakbrowser-stability-blocked-20260619.txt`.
+
+Boundary:
+- This is blocked platform evidence only.
+- It does not prove `platformEditorTargetVerified`, authenticated editor URL, PC editor DOM
+  readback, safe disposable draft, ordinary PC paste, cleanup, phone preview, Dark Mode, cover
+  thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Platform Editor Target Identity Gate Slice
 
 Impact:

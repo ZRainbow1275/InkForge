@@ -1222,6 +1222,14 @@ Contracts:
   abort until actual cursor-path identity to the exact DOM target is demonstrated without
   intersecting account content. This must not satisfy authenticated editor, PC DOM, safe draft, paste,
   or cleanup proof rows.
+- 2026-06-19 WeChat create-entry CloakBrowser stability block:
+  `wechat-create-entry-cloakbrowser-stability-blocked-20260619.txt` records that the authenticated
+  `/cgi-bin/appmsg` page exposed a visible new-creation control and hidden dropdown DOM entries, but
+  CloakBrowser selector clicks against the button, operation group, and default span all failed the
+  element-stability gate. Geometry samples kept the button center stable, while the real dropdown
+  menu stayed `display:none` with zero-size menu item rects. Hidden dropdown DOM text, a visible
+  create button, or a CloakBrowser click-stability failure must not satisfy article editor target,
+  PC DOM, safe draft, paste, or cleanup proof rows.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` and
   `platformEditorTargetVerified:true` on the platform-editor proof artifact. A login, re-login,
   expired-session, scan-entry, dashboard, draftbox, create-menu, or other authenticated shell page
@@ -1299,6 +1307,10 @@ Required tests:
   `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid, and surface
   `style-proof-manifest-platform-editor-target-not-verified` once it claims authenticated editor,
   PC DOM, or paste proof from that non-editor target.
+- A manifest that cites hidden WeChat create-entry dropdown DOM text or CloakBrowser
+  element-stability failures without an actually visible dropdown item and same-session article
+  editor readback must keep `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid.
 - A manifest that cites OS-coordinate calibration, Win32 render-window hit testing, or hover-chain
   diagnostics must keep WeChat editor, paste, safe-draft, and cleanup rows missing or invalid unless
   the same artifact also proves exact DOM target identity, trusted editor opening, deterministic
