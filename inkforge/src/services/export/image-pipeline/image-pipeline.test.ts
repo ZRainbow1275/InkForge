@@ -4,6 +4,7 @@ import { resolveImage, resolveInkforgeAsset } from './asset-resolver'
 import { extractFromDataUrl } from './dimension-extractor'
 import {
     createXhsImageArtifactManifestFromRaster,
+    createXhsImageArtifactManifestFromRasterArtifacts,
     createZhihuImageArtifactManifest,
     getDataUrlByteLength,
     inferXhsImageArtifactFormat,
@@ -156,6 +157,99 @@ describe('XHS raster artifact manifests', () => {
             exists: true,
         })
         expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('builds a validator-clean multi-page carousel manifest from exported raster records', () => {
+        const manifest = createXhsImageArtifactManifestFromRasterArtifacts({
+            artifacts: [
+                {
+                    fileName: 'page-2.png',
+                    src: 'inkforge-asset://page-2',
+                    page: 2,
+                    width: 1080,
+                    height: 1440,
+                    bytes: 101_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+                {
+                    fileName: 'page-1.png',
+                    src: 'inkforge-asset://page-1',
+                    page: 1,
+                    width: 1080,
+                    height: 1440,
+                    bytes: 100_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+            ],
+        })
+
+        expect(manifest.kind).toBe('image-page')
+        expect(manifest.bodyReferences).toEqual([1, 2])
+        expect(manifest.pages.map(page => page.page)).toEqual([1, 2])
+        expect(manifest.pages.find(page => page.page === 1)?.cover).toBe(true)
+        expect(manifest.pages.find(page => page.page === 2)?.cover).toBe(false)
+        expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+    })
+
+    it('keeps explicit XHS carousel references and lets the validator catch inconsistent page packs', () => {
+        const missingReferencedPageManifest = createXhsImageArtifactManifestFromRasterArtifacts({
+            bodyReferences: [1, 3],
+            artifacts: [
+                {
+                    fileName: 'page-1.png',
+                    src: 'inkforge-asset://page-1',
+                    width: 1080,
+                    height: 1440,
+                    bytes: 100_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+                {
+                    fileName: 'page-2.png',
+                    src: 'inkforge-asset://page-2',
+                    width: 1080,
+                    height: 1440,
+                    bytes: 101_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+            ],
+        })
+        expect(validateXhsImageArtifactManifest(missingReferencedPageManifest).map(issue => issue.id))
+            .toContain('xhs-image-manifest-reference-mismatch')
+
+        const duplicatePageManifest = createXhsImageArtifactManifestFromRasterArtifacts({
+            artifacts: [
+                {
+                    fileName: 'page-a.png',
+                    src: 'inkforge-asset://page-a',
+                    page: 1,
+                    width: 1080,
+                    height: 1440,
+                    bytes: 100_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+                {
+                    fileName: 'page-b.png',
+                    src: 'inkforge-asset://page-b',
+                    page: 1,
+                    width: 1080,
+                    height: 1440,
+                    bytes: 101_000,
+                    exists: true,
+                    cropStatus: 'ok',
+                },
+            ],
+        })
+        expect(validateXhsImageArtifactManifest(duplicatePageManifest).map(issue => issue.id))
+            .toContain('xhs-image-manifest-page-order')
+
+        expect(() =>
+            createXhsImageArtifactManifestFromRasterArtifacts({ artifacts: [] }),
+        ).toThrow(/must contain at least one artifact/)
     })
 
     it('rejects incomplete raster metadata instead of fabricating a manifest pass', () => {

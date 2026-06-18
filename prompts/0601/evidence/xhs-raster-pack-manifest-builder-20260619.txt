@@ -1,0 +1,43 @@
+XHS Raster Pack Manifest Builder - 2026-06-19
+
+Scope:
+- Local multi-page Xiaohongshu raster artifact manifest construction.
+- Covers carousel/page-pack metadata before native export preflight.
+- No account upload, no platform preview, no public URL acceptance, no publish.
+
+Implemented:
+- createXhsImageArtifactManifestFromRasterArtifacts(options)
+
+Behavior:
+- Reuses createXhsImageArtifactManifestFromRaster() for each real raster artifact.
+- Sorts pages deterministically by page number.
+- Defaults cover to page 1 unless an explicit cover/coverPage is supplied.
+- Derives bodyReferences from pages whose referencedByBody is not false unless the caller supplies bodyReferences.
+- Keeps validator authority in validateXhsImageArtifactManifest().
+- Empty artifact packs throw immediately.
+- Duplicate pages, gapped pages, invalid body references, duplicate cover, missing files, bad ratio/format/bytes, and crop overflow remain validator failures, not fabricated readiness.
+
+Regression coverage:
+- Unit tests cover a validator-clean two-page carousel pack.
+- Unit tests cover explicit mismatched bodyReferences and duplicate page numbers being caught by validateXhsImageArtifactManifest().
+- Native export tests cover passing the multi-page manifest through convertToNativeFormat(..., 'xiaohongshu') without manifest quality issues.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default
+  PASS: 1 file / 22 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 95 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 134 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1068 tests
+- pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 23.72s
+
+Boundary:
+- This proves local multi-page manifest construction and validator preflight only.
+- It does not prove Xiaohongshu upload, platform preview, public URL acceptance, scheduled publish, or publish success.

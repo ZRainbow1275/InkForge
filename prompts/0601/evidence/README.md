@@ -195,6 +195,11 @@ exit 0，CloakBrowser `inkforge-0601` local visual check done；不含截图路�
 `createXhsImageArtifactManifestFromRaster()` 将真实 raster metadata/data URL 转为
 `XhsImageArtifactManifest`，并继续要求 `validateXhsImageArtifactManifest()` 通过；缺 bytes、
 不支持比例、缺尺寸或不支持格式会抛错，不伪造本地 readiness，不证明 XHS 上传、预览、public URL 或发布）。
+`xhs-raster-pack-manifest-builder-20260619.txt`（当前规则实现：
+`createXhsImageArtifactManifestFromRasterArtifacts()` 将多页/轮播真实 raster metadata 转为
+`XhsImageArtifactManifest`，排序页码、默认首图封面、派生正文引用，并继续让
+`validateXhsImageArtifactManifest()` 阻断重复页、引用不一致、缺文件、比例/格式/bytes/crop 问题；
+不证明 XHS 上传、预览、public URL 或发布）。
 `zhihu-image-manifest-builder-20260619.txt`（当前规则实现：
 `createZhihuImageArtifactManifest()` 将真实 public-host / platform-host image metadata 转为
 `ZhihuImageArtifactManifest`，并继续要求 `validateZhihuImageArtifactManifest()` 通过；local fallback

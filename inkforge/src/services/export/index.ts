@@ -132,6 +132,7 @@ export type {
 
 export {
   createXhsImageArtifactManifestFromRaster,
+  createXhsImageArtifactManifestFromRasterArtifacts,
   createZhihuImageArtifactManifest,
   getDataUrlByteLength,
   inferXhsImageArtifactFormat,
@@ -142,6 +143,7 @@ export {
 
 export type {
   XhsRasterArtifactManifestOptions,
+  XhsRasterArtifactManifestPackOptions,
   ZhihuImageArtifactManifestItemInput,
   ZhihuImageArtifactManifestOptions,
 } from './image-pipeline'

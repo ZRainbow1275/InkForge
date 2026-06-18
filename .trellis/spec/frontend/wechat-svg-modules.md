@@ -585,6 +585,13 @@ export interface XhsRasterArtifactManifestOptions {
   cropStatus: XhsImageCropStatus
   limits?: XhsImageArtifactLimits
 }
+export interface XhsRasterArtifactManifestPackOptions {
+  kind?: XhsImageArtifactKind
+  artifacts: readonly XhsRasterArtifactManifestOptions[]
+  coverPage?: number
+  bodyReferences?: readonly number[]
+  limits?: XhsImageArtifactLimits
+}
 export function getDataUrlByteLength(dataUrl: string): number | null
 export function inferXhsImageArtifactFormat(input: {
   mime?: string
@@ -594,6 +601,9 @@ export function inferXhsImageArtifactFormat(input: {
 export function inferXhsImageArtifactRatio(width: number, height: number): XhsImageArtifactRatio | null
 export function createXhsImageArtifactManifestFromRaster(
   options: XhsRasterArtifactManifestOptions,
+): XhsImageArtifactManifest
+export function createXhsImageArtifactManifestFromRasterArtifacts(
+  options: XhsRasterArtifactManifestPackOptions,
 ): XhsImageArtifactManifest
 ```
 
@@ -608,6 +618,13 @@ accept explicit local file metadata, but it must still pass `validateXhsImageArt
 before any UI or export report marks the artifact locally ready. Missing dimensions, unsupported
 ratio/format, missing bytes, missing file existence, or crop uncertainty must stay as thrown errors
 or validator issues, not fabricated success.
+
+`createXhsImageArtifactManifestFromRasterArtifacts()` is the multi-page bridge for carousel and
+long-image/page packs. It reuses the single-page raster bridge for each real artifact, sorts pages
+deterministically, defaults cover to page 1, derives body references from pages whose
+`referencedByBody` is not false, and still delegates page continuity, duplicate pages, cover
+uniqueness, reference mismatch, file proof, ratio, format, bytes, and crop checks to
+`validateXhsImageArtifactManifest()`. It does not upload images or prove XHS platform preview.
 
 #### 3. Contracts
 
@@ -654,6 +671,9 @@ or validator issues, not fabricated success.
 - Unit tests must cover `createXhsImageArtifactManifestFromRaster()` for data URL and explicit
   file-metadata paths, and must prove bad or incomplete raster metadata is rejected instead of
   producing a fake pass.
+- Unit tests must cover `createXhsImageArtifactManifestFromRasterArtifacts()` for multi-page
+  carousel packs, deterministic page ordering, derived body references, and validator-caught
+  duplicate or mismatched page references.
 - `convertToNativeFormat(..., 'xiaohongshu')` tests must assert that valid manifests appear in
   `artifacts.xiaohongshuImageManifest` and that manifest issue ids merge into `qualityReport`.
 - Cross-platform export tests must continue proving that WeChat/Zhihu behavior does not change

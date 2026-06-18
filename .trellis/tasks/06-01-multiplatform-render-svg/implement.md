@@ -2803,6 +2803,56 @@ Boundary:
 - It does not prove Zhihu account upload, editor preview, public article rendering, sync,
   scheduled publish, publish success, or any WeChat/XHS external gate.
 
+## 2026-06-19 XHS Raster Pack Manifest Builder Slice
+
+Impact:
+- `npx gitnexus analyze` refreshed the GitNexus index after the prior helper commits.
+- `npx gitnexus impact createXhsImageArtifactManifestFromRaster -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 2 direct dependents, and 0 affected processes.
+- `npx gitnexus impact validateXhsImageArtifactManifest -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 2 direct dependents, and 0 affected processes.
+- `npx gitnexus impact File:inkforge/src/services/export/image-pipeline/index.ts -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 1 direct dependent, 2 impacted items, and 0 affected processes.
+- `npx gitnexus impact File:inkforge/src/services/export/index.ts -r InkForge --depth 2 --include-tests`
+  reported LOW risk, 1 direct dependent, and 0 affected processes.
+
+Implementation:
+- Added `createXhsImageArtifactManifestFromRasterArtifacts()` to build multi-page Xiaohongshu
+  carousel/page-pack manifests from real raster metadata.
+- The helper reuses the single-page raster builder, sorts pages by page number, defaults cover to
+  page 1, derives body references from referenced pages, and keeps
+  `validateXhsImageArtifactManifest()` as the final authority for continuity, duplicate pages,
+  cover uniqueness, references, file proof, ratio, format, bytes, and crop status.
+- Exported the helper and pack option type through `image-pipeline/index.ts` and
+  `services/export/index.ts`.
+- Added evidence:
+  `prompts/0601/evidence/xhs-raster-pack-manifest-builder-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/image-pipeline/image-pipeline.test.ts --reporter=default`
+  passed with 1 file / 22 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 95 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 134 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1068 tests.
+- `pnpm -C inkforge exec eslint src/services/export/image-pipeline/artifact-manifest.ts src/services/export/image-pipeline/index.ts src/services/export/image-pipeline/image-pipeline.test.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 23.72s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+- `git diff --check` passed for the target paths and staged diff.
+- Pre-stage and staged sensitive scans over the target diff returned no matches for local profile
+  paths, credential strings, HTTP archive artifacts, QR artifacts, operator-captured images, local
+  capture file references, or raw platform-response markers.
+- GitNexus staged `detect_changes` reported LOW risk, 10 changed files, 0 affected processes.
+
+Boundary:
+- This is local multi-page XHS manifest construction only.
+- It does not prove Xiaohongshu upload, platform preview, public URL acceptance, scheduled publish,
+  publish success, or any WeChat/Zhihu external gate.
+
 ## 2026-06-19 XHS Committed Local Evidence Manifest Slice
 
 Impact:

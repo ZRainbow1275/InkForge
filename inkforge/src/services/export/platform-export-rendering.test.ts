@@ -8,6 +8,7 @@ import {
   convertToNativeFormat,
   convertToWechatWithStats,
   createXhsImageArtifactManifestFromRaster,
+  createXhsImageArtifactManifestFromRasterArtifacts,
   createZhihuImageArtifactManifest,
   createStyleProofManifestDraft,
   detectQuality,
@@ -3569,6 +3570,44 @@ describe('platform native export rendering rules', () => {
     expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
 
     const result = await convertToNativeFormat('这是正文，请见第1张图。', 'xiaohongshu', {
+      xiaohongshuImageManifest: manifest,
+    })
+
+    expect(result.artifacts?.xiaohongshuImageManifest).toEqual(manifest)
+    expect(result.qualityReport?.issues.some(issue => issue.id.startsWith('xhs-image-manifest-'))).toBe(false)
+  })
+
+  it('builds multi-page Xiaohongshu carousel manifests before native export', async () => {
+    const manifest = createXhsImageArtifactManifestFromRasterArtifacts({
+      artifacts: [
+        {
+          fileName: 'cover-grid-1.png',
+          src: 'inkforge-asset://cover-grid-1',
+          width: 1080,
+          height: 1440,
+          format: 'png',
+          bytes: 99_114,
+          exists: true,
+          cropStatus: 'ok',
+        },
+        {
+          fileName: 'cover-grid-2.png',
+          src: 'inkforge-asset://cover-grid-2',
+          width: 1080,
+          height: 1440,
+          format: 'png',
+          bytes: 100_256,
+          exists: true,
+          cropStatus: 'ok',
+        },
+      ],
+    })
+
+    expect(manifest.pages.map(page => page.page)).toEqual([1, 2])
+    expect(manifest.bodyReferences).toEqual([1, 2])
+    expect(validateXhsImageArtifactManifest(manifest)).toEqual([])
+
+    const result = await convertToNativeFormat('这是正文，请见第1张图和第2张图。', 'xiaohongshu', {
       xiaohongshuImageManifest: manifest,
     })
 

@@ -32,6 +32,14 @@ export interface XhsRasterArtifactManifestOptions {
     limits?: XhsImageArtifactLimits
 }
 
+export interface XhsRasterArtifactManifestPackOptions {
+    kind?: XhsImageArtifactKind
+    artifacts: readonly XhsRasterArtifactManifestOptions[]
+    coverPage?: number
+    bodyReferences?: readonly number[]
+    limits?: XhsImageArtifactLimits
+}
+
 export interface ZhihuImageArtifactManifestItemInput {
     id: string
     kind: ZhihuImageArtifactKind
@@ -185,6 +193,47 @@ export function createXhsImageArtifactManifestFromRaster(
                 cropStatus: options.cropStatus,
             },
         ],
+        bodyReferences,
+        ...(options.limits ? { limits: options.limits } : {}),
+    }
+}
+
+export function createXhsImageArtifactManifestFromRasterArtifacts(
+    options: XhsRasterArtifactManifestPackOptions,
+): XhsImageArtifactManifest {
+    if (options.artifacts.length === 0) {
+        throw new Error('XHS raster artifact manifest pack must contain at least one artifact')
+    }
+
+    const kind = options.kind ?? options.artifacts.find(artifact => artifact.kind)?.kind ?? 'image-page'
+    const coverPage = normalizePositiveInteger(options.coverPage ?? 1, 'coverPage')
+    const pages = options.artifacts
+        .map((artifact, index) => {
+            const page = normalizePositiveInteger(artifact.page ?? index + 1, 'page')
+            const manifest = createXhsImageArtifactManifestFromRaster({
+                ...artifact,
+                kind,
+                page,
+                cover: artifact.cover ?? page === coverPage,
+                bodyReferences: undefined,
+                limits: undefined,
+            })
+            const manifestPage = manifest.pages[0]
+            if (!manifestPage) {
+                throw new Error(`XHS raster artifact page ${page} did not produce manifest data`)
+            }
+            return manifestPage
+        })
+        .sort((left, right) => left.page - right.page)
+    const bodyReferences = options.bodyReferences
+        ? [...options.bodyReferences]
+        : pages
+            .filter(page => page.referencedByBody !== false)
+            .map(page => page.page)
+
+    return {
+        kind,
+        pages,
         bodyReferences,
         ...(options.limits ? { limits: options.limits } : {}),
     }

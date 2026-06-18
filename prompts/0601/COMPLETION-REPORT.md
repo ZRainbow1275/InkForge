@@ -1071,3 +1071,18 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   133 tests, full export serial suite at 1065 tests, ESLint, `vue-tsc`, and production build.
 - Boundary: local manifest construction only. It does not prove Zhihu account upload, editor
   preview, public article rendering, sync, scheduled publish, or publish success.
+
+## 2026-06-19 XHS Raster Pack Manifest Builder Addendum
+
+- Added `prompts/0601/evidence/xhs-raster-pack-manifest-builder-20260619.txt`.
+- Added `createXhsImageArtifactManifestFromRasterArtifacts()` in
+  `image-pipeline/artifact-manifest.ts`, exported through the image-pipeline and export facades.
+- The helper builds multi-page Xiaohongshu carousel/page-pack manifests from real raster metadata,
+  sorts pages deterministically, defaults cover to page 1, and derives body references while still
+  relying on `validateXhsImageArtifactManifest()` for page-order, cover, reference, file, ratio,
+  format, bytes, and crop validation.
+- Verification passed with focused `image-pipeline.test.ts` at 22 tests, focused
+  `platform-export-rendering.test.ts` at 95 tests, 4-file cross-platform export regression at
+  134 tests, full export serial suite at 1068 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local multi-page manifest construction only. It does not prove Xiaohongshu account
+  upload, platform preview, public URL acceptance, scheduled publish, or publish success.

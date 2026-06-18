@@ -27,6 +27,7 @@ export {
 
 export {
     createXhsImageArtifactManifestFromRaster,
+    createXhsImageArtifactManifestFromRasterArtifacts,
     createZhihuImageArtifactManifest,
     getDataUrlByteLength,
     inferXhsImageArtifactFormat,
@@ -34,6 +35,7 @@ export {
     inferZhihuImageArtifactFormat,
     inferZhihuImageHostStatus,
     type XhsRasterArtifactManifestOptions,
+    type XhsRasterArtifactManifestPackOptions,
     type ZhihuImageArtifactManifestItemInput,
     type ZhihuImageArtifactManifestOptions,
 } from './artifact-manifest'
