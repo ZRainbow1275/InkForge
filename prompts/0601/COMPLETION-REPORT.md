@@ -890,3 +890,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
   phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
   acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 Xiumi Angular Runtime Residue Gate Addendum
+
+- Added `prompts/0601/evidence/xiumi-angular-runtime-residue-gate-20260618.txt`.
+- Continued CloakBrowser-only Xiumi v5 center-editor sampling without save, export, sync, upload,
+  phone preview, scheduled send, or publish actions.
+- The active `.tn-editing-panel` contained `htmlLength 706660`, 5093 elements, 19 contenteditable
+  nodes, 99 images, and 0 center inline SVG elements.
+- The same readback counted 4905 Angular `ng-*` attributes, 83 `tn-uuid` values, 184
+  `opera-tn-ra-*` bindings, 38 `statics.xiumi.us` references, and 14 CSS `url(...)` occurrences.
+- `MARKET_EDITOR_RESIDUE_RULES` now rejects Angular/Vue runtime controls such as `ng-model`,
+  `ng-include`, `ng-controller`, `ng-change`, and `ng-hide`, plus Angular runtime classes such as
+  `ng-scope`, `ng-binding`, `ng-hide`, `ng-pristine`, `ng-valid`, `ng-empty`, `ng-not-empty`, and
+  `ui-sortable`.
+- Added a three-platform regression fixture without `tn-*` markers, proving WeChat, Xiaohongshu,
+  and Zhihu reject Angular-only Xiumi authoring residue.
+- Verification passed with focused `platform-export-rendering.test.ts` at 89 tests, 4-file export
+  regression at 128 tests, full export serial suite at 1051 tests, ESLint, `vue-tsc`, and
+  production build.
+- Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
+  acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.

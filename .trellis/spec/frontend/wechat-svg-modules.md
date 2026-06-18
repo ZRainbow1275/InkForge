@@ -168,6 +168,13 @@ construct breaks.
   respectively). These are authoring DOM lessons only: `tn-comp-inst`, `tn-cell-inst`, `tn-uuid`,
   `tn-cell-type`, `opera-tn-ra-*`, `disable-tn-*`, `ng-*`, and `statics.xiumi.us` references are
   residue signals or fallback-manifest inputs, not reusable InkForge source and not WeChat proof.
+- 2026-06-18 Xiumi Angular runtime refresh: applied Xiumi SVG/title/card content left the center
+  `.tn-editing-panel` with 4905 `ng-*` attributes, 83 `tn-uuid` values, 184 `opera-tn-ra-*`
+  bindings, 38 `statics.xiumi.us` references, 99 images, and zero center inline SVG. Treat
+  Angular/Vue authoring attributes such as `ng-model`, `ng-include`, `ng-controller`,
+  `ng-change`, `ng-hide`, and authoring classes such as `ng-scope`, `ng-binding`, `ng-hide`,
+  `ng-pristine`, `ng-valid`, and `ui-sortable` as publish-blocking residue even when a copied
+  fragment no longer includes `tn-*` markers.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must

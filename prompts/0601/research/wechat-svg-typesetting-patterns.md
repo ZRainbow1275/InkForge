@@ -310,6 +310,11 @@ reusable source. No save, copy, sync, upload, phone-share, scheduled-send, or pu
 - Applied readback exposed runtime bindings such as `opera-tn-ra-comp`, `opera-tn-ra-cell`, and
   preview-side `disable-tn-group-flex-box`. Treat those as authoring residue and detector inputs,
   not as reusable markup.
+- A deeper center-panel readback counted 4905 `ng-*` attributes, 83 `tn-uuid` values, 184
+  `opera-tn-ra-*` bindings, 38 `statics.xiumi.us` references, 99 images, and zero center inline
+  SVG. Angular controls such as `ng-model`, `ng-change`, `ng-include`, `ng-controller`, and
+  `ng-hide`, plus classes such as `ng-scope`, `ng-binding`, `ng-pristine`, `ng-valid`, and
+  `ui-sortable`, are authoring residue even when copied without `tn-*` markers.
 - Title and card templates rely heavily on nested authoring layers, image ornaments, background
   images, transforms, negative margins, width/height constraints, and dense inline styling. InkForge
   should translate those patterns into source-owned title, card, callout, timeline, QA, image-frame,

@@ -436,6 +436,11 @@ Contract:
   `data-tools`, market data ids, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`,
   `opera-tn-ra-*`, `disable-tn-*`, vendor class names, vendor hosted media, private editor source,
   and paid/member assets.
+- Xiumi/Angular authoring residue remains forbidden even if copied without `tn-*` markers:
+  `ng-model`, `ng-include`, `ng-controller`, `ng-change`, `ng-hide`, `ng-show`, Vue-style
+  authoring directives, and Angular runtime classes such as `ng-scope`, `ng-binding`, `ng-hide`,
+  `ng-pristine`, `ng-valid`, `ng-empty`, `ng-not-empty`, and `ui-sortable` must fail publishable
+  output quality checks.
 - WeChat must still pass `convertToWechatWithStats`, `checkWechatSafe`, quality detector, style
   catalog gates, and style proof manifests. Xiaohongshu and Zhihu must receive platform-specific
   plain-text/image/Markdown fallbacks rather than rich HTML copied from market editors.
@@ -447,6 +452,7 @@ Recorded evidence:
 - `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`
 - `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`
 - `prompts/0601/evidence/xiumi-applied-runtime-binding-residue-gate-20260618.txt`
+- `prompts/0601/evidence/xiumi-angular-runtime-residue-gate-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 11.
 
 Implemented gate:
@@ -455,6 +461,8 @@ Implemented gate:
   `market editor hosted background source`.
 - `MARKET_EDITOR_RESIDUE_RULES` blocks copied Xiumi runtime binding attributes as
   `Xiumi runtime binding attribute`.
+- `MARKET_EDITOR_RESIDUE_RULES` blocks Xiumi Angular/Vue runtime controls and Angular authoring
+  classes as `Angular/Vue authoring attribute` and `Angular authoring class`.
 - The gate applies to WeChat, Xiaohongshu, and Zhihu quality reports and is covered by
   `platform-export-rendering.test.ts`.
 - `PLATFORM_STYLE_CHOICES` injects the platform-specific market-residue detector blocker into every

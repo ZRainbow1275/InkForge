@@ -143,6 +143,16 @@ const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<input ng-model="status.animatedArgs.duration" ng-change="onTransitionDurationChanged()" class="ng-pristine ng-untouched ng-valid ng-not-empty">',
+  '<div ng-include="::/views/app/studio/OutCompEditOp/OpCarouselTplSet.html" ng-controller="OpCarouselTplSetController" class="op-loader ng-scope ng-hide">',
+  '<select ng-options="category for category in status.animatedArgs.transitionCategoryList" ng-model="status.animatedArgs.transitionCategory"></select>',
+  '</div>',
+  '<span class="ng-binding ng-scope">Xiumi Angular runtime controls</span>',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -2994,6 +3004,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi runtime binding attribute')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi runtime binding attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi Angular runtime controls and classes without tn-* markers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Angular authoring class')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Angular authoring class')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Angular authoring class')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

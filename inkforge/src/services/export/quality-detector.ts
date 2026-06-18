@@ -93,8 +93,12 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi runtime binding attribute',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\bng-(?:click|style|repeat|class|show|if|switch|bind)[\w-]*\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\b(?:(?:data-)?ng-(?:click|style|repeat|class|show|hide|if|switch|bind|model|include|controller|change|blur|focus|dblclick|options|disabled|value|submit)[\w-]*|v-(?:if|show|for|model|bind|on|html|text|cloak|slot)[\w-]*)\s*=/i,
     label: 'Angular/Vue authoring attribute',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:ng-scope|ng-binding|ng-hide|ng-pristine|ng-untouched|ng-valid|ng-empty|ng-not-empty|ui-sortable)\b[^"']*["']/i,
+    label: 'Angular authoring class',
   },
   {
     pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,

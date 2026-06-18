@@ -2754,3 +2754,50 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
+## 2026-06-18 Xiumi Angular Runtime Residue Gate Slice
+
+Impact:
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes. The rule is consumed through the
+  existing `collectMarketEditorResidues` detector path.
+
+Market editor readback:
+- Continued the CloakBrowser-only Xiumi v5 paper editor path, without saving, exporting, syncing,
+  uploading, phone previewing, scheduling, or publishing.
+- The active center `.tn-editing-panel` contained `htmlLength 706660`, 5093 elements,
+  19 contenteditable nodes, 99 images, and 0 center inline SVG elements.
+- The same center readback counted 83 `tn-uuid` values, 184 `opera-tn-ra-*` bindings, 38
+  `statics.xiumi.us` references, 14 CSS `url(...)` occurrences, and 4905 Angular `ng-*`
+  attributes.
+- New residue forms included `ng-model`, `ng-change`, `ng-include`, `ng-controller`,
+  `ng-hide` / `ng-show`, and authoring classes such as `ng-scope`, `ng-binding`, `ng-hide`,
+  `ng-pristine`, `ng-untouched`, `ng-valid`, `ng-empty`, `ng-not-empty`, and `ui-sortable`.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` so `Angular/Vue authoring attribute` covers Xiumi's
+  applied-editor runtime controls beyond the older `ng-click/ng-style/ng-repeat` subset.
+- Added `Angular authoring class` as a separate market-residue label.
+- Added `MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML`, intentionally without any `tn-*`
+  marker, and a regression proving WeChat, Xiaohongshu, and Zhihu reject Angular-only runtime
+  residues.
+- Added evidence:
+  `prompts/0601/evidence/xiumi-angular-runtime-residue-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 89 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 128 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1051 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local detector proof and market-editor rule extraction only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.

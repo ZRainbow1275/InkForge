@@ -768,3 +768,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local detector proof and market-editor rule extraction only. It does not prove phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host,
   or publish gates.
+## 2026-06-18 Xiumi Angular Runtime Residue Gate
+
+- `xiumi-angular-runtime-residue-gate-20260618.txt` records the CloakBrowser-only
+  Xiumi center-editor readback where `.tn-editing-panel` contained 4905 `ng-*`
+  authoring attributes, 83 `tn-uuid` values, 184 `opera-tn-ra-*` bindings,
+  38 `statics.xiumi.us` references, 99 images, and zero center inline SVG.
+- The executable gate blocks copied Angular/Vue authoring attributes such as
+  `ng-model`, `ng-include`, `ng-controller`, `ng-change`, and `ng-hide`, plus
+  Angular runtime classes such as `ng-scope`, `ng-binding`, `ng-hide`,
+  `ng-pristine`, `ng-valid`, and `ui-sortable`.
+- This evidence is local detector proof only. It does not prove WeChat phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
+  XHS/Zhihu upload, public host acceptance, or publish success.

@@ -1,0 +1,68 @@
+Xiumi Angular Runtime Residue Gate - 2026-06-18
+
+Scope:
+- CloakBrowser-only readback of the already-open Xiumi v5 paper editor draft.
+- No save, export, sync, upload, phone preview, scheduled send, or publish action.
+- Evidence is market-editor authoring DOM learning plus local detector regression only.
+
+Live editor readback:
+- Page title: Xiumi paper draft editor.
+- Center root: .tn-editing-panel.
+- Center htmlLength: 706660.
+- Center element count: 5093.
+- contenteditable: 19.
+- img: 99.
+- inline svg in the center panel: 0.
+- tn-comp-inst: 83.
+- tn-cell-inst: 100.
+- tn-uuid: 83.
+- tn-cell-type: 106.
+- opera-tn-ra-* occurrences: 184.
+- Angular ng-* attribute occurrences: 4905.
+- statics.xiumi.us occurrences: 38.
+- CSS url(...) occurrences: 14.
+
+New observed residue forms:
+- ng-model on controls such as status.animatedArgs.duration and status.animatedArgs.trigger.
+- ng-change handlers such as onTransitionDurationChanged() and onTriggerSelected(...).
+- ng-include references to Xiumi editor partials under /views/app/studio/OutCompEditOp/.
+- ng-controller values such as OpCarouselTplSetController.
+- ng-hide/ng-show state predicates for editor parameter panels.
+- Angular runtime classes such as ng-scope, ng-binding, ng-hide, ng-pristine, ng-untouched,
+  ng-valid, ng-empty, ng-not-empty, and ui-sortable.
+
+Implementation:
+- Extended MARKET_EDITOR_RESIDUE_RULES so Angular/Vue authoring attributes cover
+  ng-model, ng-include, ng-controller, ng-change, ng-hide, and related runtime controls.
+- Added a dedicated Angular authoring class rule for copied ng-* runtime classes.
+- Added MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML without tn-* markers to prove the
+  new rule catches Angular-only leakage.
+
+Regression coverage:
+- WeChat quality reports fail with wechat-market-editor-residue containing:
+  Angular/Vue authoring attribute
+  Angular authoring class
+- Xiaohongshu quality reports fail with xhs-market-editor-residue containing the same labels.
+- Zhihu quality reports fail with zhihu-market-editor-residue containing the same labels.
+- The fixture intentionally excludes tn-* markers so this remains independent from the existing
+  Xiumi tn-* tree and runtime binding gates.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 89 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 128 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1051 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves a local publishable-output detector gate only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  ordinary WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send,
+  Xiaohongshu/Zhihu account upload, public host acceptance, or publish success.
