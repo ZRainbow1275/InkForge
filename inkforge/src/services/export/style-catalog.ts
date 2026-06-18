@@ -207,6 +207,7 @@ export interface StyleProofArtifact {
   artifactRef?: string
   exactArtifact?: boolean
   authenticatedSessionVerified?: boolean
+  platformEditorTargetVerified?: boolean
   platformEditorDomVerified?: boolean
   centralEditorChanged?: boolean
   ordinaryClipboardPasteVerified?: boolean
@@ -238,6 +239,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
   | 'style-proof-manifest-authenticated-session-not-verified'
+  | 'style-proof-manifest-platform-editor-target-not-verified'
   | 'style-proof-manifest-platform-editor-dom-not-verified'
   | 'style-proof-manifest-ordinary-paste-not-verified'
   | 'style-proof-manifest-paste-editor-tab-not-verified'
@@ -273,6 +275,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-exact-artifact-missing',
   'style-proof-manifest-market-editor-not-applied',
   'style-proof-manifest-authenticated-session-not-verified',
+  'style-proof-manifest-platform-editor-target-not-verified',
   'style-proof-manifest-platform-editor-dom-not-verified',
   'style-proof-manifest-ordinary-paste-not-verified',
   'style-proof-manifest-paste-editor-tab-not-verified',
@@ -686,6 +689,7 @@ export type StyleProofArtifactVerificationField =
   | 'artifactRef'
   | 'exactArtifact'
   | 'authenticatedSessionVerified'
+  | 'platformEditorTargetVerified'
   | 'platformEditorDomVerified'
   | 'centralEditorChanged'
   | 'ordinaryClipboardPasteVerified'
@@ -1029,7 +1033,7 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
   'sensitive-hygiene': 'Review proof references for tokens, cookies, QR codes, HAR files, browser profiles, account screenshots, and local credential paths.',
   'market-editor': 'Use CloakBrowser to apply a concrete market editor element, visually confirm insertion, and record DOM/controls without copying template source.',
-  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
+  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
   'phone-preview': 'Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.',
   'public-host': 'Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.',
   'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',
@@ -1064,14 +1068,14 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['platform-editor'],
     requiredActions: ['authenticated-editor-opened'],
     requiredReadbacks: ['dom', 'visual-and-dom'],
-    requiredFields: ['authenticatedSessionVerified', 'safeForCommit'],
+    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'safeForCommit'],
   },
   'pc-editor-dom-readback': {
     requirementId: 'pc-editor-dom-readback',
     requiredChannels: ['platform-editor'],
     requiredActions: ['pc-editor-dom-readback'],
     requiredReadbacks: ['dom', 'visual-and-dom'],
-    requiredFields: ['authenticatedSessionVerified', 'platformEditorDomVerified', 'safeForCommit'],
+    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'platformEditorDomVerified', 'safeForCommit'],
   },
   'unit-test-coverage': {
     requirementId: 'unit-test-coverage',
@@ -1110,6 +1114,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'artifactFingerprint',
       'exactArtifact',
       'authenticatedSessionVerified',
+      'platformEditorTargetVerified',
       'platformEditorDomVerified',
       'ordinaryClipboardPasteVerified',
       'sameEditorTabVerified',
@@ -2161,6 +2166,7 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         artifactFingerprint,
         artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
         authenticatedSessionVerified: true,
+        platformEditorTargetVerified: true,
         committed: true,
         safeForCommit: true,
       },
@@ -2177,6 +2183,7 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         artifactFingerprint,
         artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
         authenticatedSessionVerified: true,
+        platformEditorTargetVerified: true,
         platformEditorDomVerified: true,
         committed: true,
         safeForCommit: true,
@@ -2228,6 +2235,7 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
         exactArtifact: true,
         authenticatedSessionVerified: true,
+        platformEditorTargetVerified: true,
         platformEditorDomVerified: true,
         ordinaryClipboardPasteVerified: true,
         sameEditorTabVerified: true,
@@ -2694,6 +2702,18 @@ function validateStyleProofRequirementCoverage(
           suggestion: 'Record authenticatedSessionVerified:true only after the platform page is not a login, QR, expired-session, or re-login page and the authenticated backend/editor state is read back.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        artifact.action === 'authenticated-editor-opened'
+        && artifact.channel === 'platform-editor'
+        && artifact.authenticatedSessionVerified === true
+        && artifact.platformEditorTargetVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-platform-editor-target-not-verified',
+          message: 'Authenticated editor proof does not prove that the target is the article editor, not a dashboard, draftbox, create menu, or other authenticated shell page.',
+          suggestion: 'Record platformEditorTargetVerified:true only after the same-session article editor target is opened and the proof runner can distinguish it from draftbox/menu/dashboard surfaces.',
+          location: requirementId,
+        })
       }
       break
     case 'pc-editor-dom-readback':
@@ -2714,6 +2734,19 @@ function validateStyleProofRequirementCoverage(
             id: 'style-proof-manifest-authenticated-session-not-verified',
             message: 'PC editor DOM proof does not prove that the platform session is authenticated.',
             suggestion: 'Record authenticatedSessionVerified:true only after the PC editor DOM is read back from an authenticated backend/editor page, not from a login or expired-session page.',
+            location: requirementId,
+          })
+        }
+        if (!has(artifact =>
+          artifact.action === 'pc-editor-dom-readback'
+          && artifact.channel === 'platform-editor'
+          && isDomOrVisualReadback(artifact.readback)
+          && artifact.platformEditorTargetVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-target-not-verified',
+            message: 'PC editor DOM proof does not prove that the DOM readback target is the same article editor target.',
+            suggestion: 'Record platformEditorTargetVerified:true only after the readback target is the same authenticated article editor, not a dashboard, draftbox, menu, hidden tab, or unrelated shell.',
             location: requirementId,
           })
         }
@@ -2801,6 +2834,7 @@ function validateStyleProofRequirementCoverage(
       const hasPcPasteEvent = pcPasteArtifacts.length > 0
       const hasCompleteOrdinaryPasteProof = pcPasteArtifacts.some(artifact =>
         artifact.ordinaryClipboardPasteVerified === true
+        && artifact.platformEditorTargetVerified === true
         && artifact.sameEditorTabVerified === true
         && artifact.pasteInputEventVerified === true
         && artifact.editorBodyMutationVerified === true
@@ -2831,6 +2865,14 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
+        if (!pcPasteArtifacts.some(artifact => artifact.platformEditorTargetVerified === true)) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-target-not-verified',
+            message: 'PC editor paste proof does not prove that the paste target is the intended article editor.',
+            suggestion: 'Record platformEditorTargetVerified:true only when the visible editor target, OS input target, and DOM readback target are all the same authenticated article editor.',
+            location: requirementId,
+          })
+        }
         if (!pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-paste-input-not-verified',
@@ -2857,6 +2899,7 @@ function validateStyleProofRequirementCoverage(
         }
         if (
           pcPasteArtifacts.some(artifact => artifact.ordinaryClipboardPasteVerified === true)
+          && pcPasteArtifacts.some(artifact => artifact.platformEditorTargetVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.sameEditorTabVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.editorBodyMutationVerified === true)

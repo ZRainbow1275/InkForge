@@ -1,0 +1,41 @@
+Platform Editor Target Identity Gate - 2026-06-19
+
+Scope:
+- Local validator/runbook hardening after WeChat draftbox article-menu and OS click calibration abort evidence.
+- No platform action, browser click, phone preview, sync, upload, scheduled-send, or publish action.
+
+Implemented:
+- Added StyleProofArtifact.platformEditorTargetVerified?: boolean.
+- Added StyleProofArtifactVerificationField 'platformEditorTargetVerified'.
+- Added issue id style-proof-manifest-platform-editor-target-not-verified.
+- Required platformEditorTargetVerified for authenticated-editor-url, pc-editor-dom-readback, and pc-editor-paste-event runbook artifact contracts.
+- Updated committed Amber PC proof artifacts to set the field only for the exact committed Amber proof.
+- Updated validator so authenticated shell, draftbox, create-menu, dashboard, or menu pages cannot satisfy article-editor target proof from authenticatedSessionVerified alone.
+- Updated validator so OS click, hover, or render-window diagnostics cannot satisfy PC paste without exact editor target identity.
+
+Regression coverage:
+- Authenticated draftbox create/article menu readbacks with active session but no article-editor target keep authenticated-editor-url and pc-editor-dom-readback invalid.
+- OS click calibration diagnostics keep safe-disposable-draft and pc-editor-paste-event unclaimable and emit target, paste, and cleanup issues.
+- Same-tab no-paste proof can isolate paste/input/body mutation failures without target false positives.
+- Wrong-tab or mojibake proof emits target identity failure.
+- Runbook required fields expose platformEditorTargetVerified for authenticated PC editor proof.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 101 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 140 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1074 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+- git restore -- inkforge/tsconfig.tsbuildinfo
+  Restored generated build cache before staging.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat editor opening, ordinary Ctrl+V rich paste success, safe disposable draft cleanup, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering, or publish success.

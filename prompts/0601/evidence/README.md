@@ -1016,3 +1016,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   public-host proof exists.
 - Boundary: gap audit only. It does not create new platform proof or close phone, sync, upload,
   public-host, platform preview, public article rendering, scheduled-send, or publish gates.
+
+## 2026-06-19 Platform Editor Target Identity Gate
+
+- [x] platform-editor-target-identity-gate-20260619.txt
+- Current local validator/runbook hardening: `platformEditorTargetVerified:true` is now required
+  for authenticated editor URL proof, PC editor DOM proof, and ordinary PC editor paste proof.
+- Draftbox/create-menu/article-menu readbacks and OS click calibration diagnostics remain blocked
+  or abort evidence; they cannot satisfy article editor target identity from active session,
+  render-window hit testing, hover chains, or body focus alone.
+- Regression coverage keeps authenticated draftbox/menu readbacks and OS click calibration aborts
+  invalid/cannot-claim while preserving the exact committed Amber PC proof.
+- Verification passed: focused export rendering test, 4-file cross-platform export regression,
+  full export serial suite, targeted ESLint, `vue-tsc`, and production build.
+- Boundary: local validator/runbook proof only. It does not prove WeChat editor opening, ordinary
+  Ctrl+V rich paste success, safe disposable draft cleanup, phone preview, Dark Mode, cover
+  thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
+  or publish success.

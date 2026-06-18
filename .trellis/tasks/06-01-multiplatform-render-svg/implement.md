@@ -2751,6 +2751,69 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 Platform Editor Target Identity Gate Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofManifest -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, and 1 affected process.
+- `npx gitnexus impact getPlatformStyleProofProgressReport -r InkForge -d upstream --include-tests`
+  reported LOW risk, 8 impacted items, 3 direct dependents, and 0 affected processes.
+- `npx gitnexus impact StyleProofArtifact -r InkForge -d upstream --include-tests`
+  reported LOW risk, 2 impacted items.
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk and 0 impacted items.
+
+Scope:
+- Converted the 2026-06-19 WeChat draftbox article-menu block and OS-click calibration abort into
+  executable local validator/runbook gates.
+- No platform action, browser click retry, phone preview, sync, upload, scheduled send, or publish
+  action was performed in this slice.
+
+Implementation:
+- Added `StyleProofArtifact.platformEditorTargetVerified?: boolean`.
+- Added `platformEditorTargetVerified` to `StyleProofArtifactVerificationField`.
+- Added `style-proof-manifest-platform-editor-target-not-verified`.
+- Required `platformEditorTargetVerified` for `authenticated-editor-url`,
+  `pc-editor-dom-readback`, and `pc-editor-paste-event` artifact contracts.
+- Updated committed Amber PC proof artifacts to set the field only for the exact committed Amber
+  ordinary OS Ctrl+V proof.
+- Updated manifest validation so an authenticated dashboard, draftbox, create-menu, menu, or shell
+  page cannot satisfy article-editor target proof from `authenticatedSessionVerified:true` alone.
+- Updated paste validation so OS click, hover, render-window, and wrong-tab diagnostics cannot
+  satisfy ordinary PC paste without exact editor target identity.
+
+Regression coverage:
+- Authenticated draftbox create/article-menu readbacks with active session but no article-editor
+  target keep `authenticated-editor-url` and `pc-editor-dom-readback` invalid.
+- OS click calibration diagnostics keep `safe-disposable-draft` and `pc-editor-paste-event`
+  unclaimable and emit target/paste/cleanup issues.
+- Same-tab no-paste proof can isolate paste/input/body mutation failures without target false
+  positives.
+- Wrong-tab or mojibake proof emits target identity failure.
+- Runbook required fields expose `platformEditorTargetVerified` for authenticated PC editor proof.
+
+Evidence:
+- Added `prompts/0601/evidence/platform-editor-target-identity-gate-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 101 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 140 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1074 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat editor opening, ordinary Ctrl+V rich paste success, safe disposable draft
+  cleanup, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host,
+  platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 CloakBrowser Market Editor Applied Rule Refresh
 
 Impact:

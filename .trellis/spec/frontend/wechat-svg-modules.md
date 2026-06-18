@@ -1222,16 +1222,18 @@ Contracts:
   abort until actual cursor-path identity to the exact DOM target is demonstrated without
   intersecting account content. This must not satisfy authenticated editor, PC DOM, safe draft, paste,
   or cleanup proof rows.
-- `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
-  proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
+- `authenticated-editor-url` requires `authenticatedSessionVerified:true` and
+  `platformEditorTargetVerified:true` on the platform-editor proof artifact. A login, re-login,
+  expired-session, scan-entry, dashboard, draftbox, create-menu, or other authenticated shell page
   must remain invalid even if it was opened through the WeChat backend URL path.
 - `pc-editor-dom-readback` requires both `authenticatedSessionVerified:true` and
-  `platformEditorDomVerified:true` on a platform-editor DOM/visual-DOM artifact. Generic DOM
-  readback from a login page, shell page, blocked page, or expired session must not satisfy PC
-  editor DOM proof.
+  `platformEditorTargetVerified:true` plus `platformEditorDomVerified:true` on a platform-editor
+  DOM/visual-DOM artifact. Generic DOM readback from a login page, shell page, blocked page,
+  draftbox/menu page, or expired session must not satisfy PC editor DOM proof.
 - The `authenticated-pc-editor` collection plan/queue note must mention
-  `authenticatedSessionVerified:true` and `platformEditorDomVerified:true` so ExportModal/operator
-  workflows collect the same proof flags enforced by `validateStyleProofManifest()`.
+  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`, and
+  `platformEditorDomVerified:true` so ExportModal/operator workflows collect the same proof flags
+  enforced by `validateStyleProofManifest()`.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -1282,9 +1284,9 @@ Required tests:
   paste/input event and no body DOM mutation must keep `pc-editor-paste-event` invalid.
 - `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind all
   strong ordinary paste flags:
-  `ordinaryClipboardPasteVerified:true`, `sameEditorTabVerified:true`,
-  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, and
-  `mojibakeFreeVerified:true`.
+  `ordinaryClipboardPasteVerified:true`, `platformEditorTargetVerified:true`,
+  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`,
+  and `mojibakeFreeVerified:true`.
 - Paste flags split across multiple artifacts must keep `pc-editor-paste-event` invalid and surface
   `style-proof-manifest-paste-proof-not-bound`.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
@@ -1294,11 +1296,14 @@ Required tests:
 - A manifest that cites draftbox create-menu or article-menu visibility, selector-click attempts,
   calibrated OS mouse clicks, or untrusted in-page pointer/mouse events without same-session editor
   DOM readback must keep `authenticated-editor-url`, `pc-editor-dom-readback`,
-  `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid.
+  `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid, and surface
+  `style-proof-manifest-platform-editor-target-not-verified` once it claims authenticated editor,
+  PC DOM, or paste proof from that non-editor target.
 - A manifest that cites OS-coordinate calibration, Win32 render-window hit testing, or hover-chain
   diagnostics must keep WeChat editor, paste, safe-draft, and cleanup rows missing or invalid unless
   the same artifact also proves exact DOM target identity, trusted editor opening, deterministic
-  disposable draft handling, and post-cleanup absence.
+  disposable draft handling, and post-cleanup absence. OS cursor/window hit tests alone must not
+  set `platformEditorTargetVerified:true`.
 - A manifest that cites a login/re-login/expired-session page as authenticated editor reachability
   must keep `authenticated-editor-url` invalid and surface
   `style-proof-manifest-authenticated-session-not-verified`.
@@ -1381,9 +1386,9 @@ Contracts:
   forbidden sensitive fields when applicable, and accepted host statuses for public-host proof.
 - WeChat ordinary PC paste proof requires the same `platform-editor` / `pc-paste` artifact to carry
   `artifactFingerprint`, `exactArtifact`, `authenticatedSessionVerified`,
-  `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`,
-  `pasteInputEventVerified`, `editorBodyMutationVerified`, `mojibakeFreeVerified`, and
-  `safeForCommit`.
+  `platformEditorTargetVerified`, `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`,
+  `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`,
+  `mojibakeFreeVerified`, and `safeForCommit`.
 - Phone preview, Dark Mode, and cover thumbnail rows must require phone-preview artifacts and must
   keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`
   separate. PC DOM, local browser screenshots, scan pages, or setup dialogs cannot complete them.

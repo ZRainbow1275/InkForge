@@ -1262,3 +1262,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   public-host proof exists.
 - Boundary: gap audit only. It does not create new platform proof or close phone, sync, upload,
   public-host, platform preview, public article rendering, scheduled-send, or publish gates.
+
+## 2026-06-19 Platform Editor Target Identity Gate Addendum
+
+- Added `prompts/0601/evidence/platform-editor-target-identity-gate-20260619.txt`.
+- Added `StyleProofArtifact.platformEditorTargetVerified?: boolean` and the validator issue
+  `style-proof-manifest-platform-editor-target-not-verified`.
+- Required `platformEditorTargetVerified:true` for authenticated editor URL proof, PC editor DOM
+  readback proof, and ordinary PC editor paste proof.
+- Draftbox/create-menu/article-menu readbacks with active session can no longer satisfy article
+  editor target proof from `authenticatedSessionVerified:true` alone.
+- OS click calibration, hover-chain diagnostics, render-window hit tests, wrong-tab paste, and
+  no-mutation body focus attempts cannot satisfy ordinary PC paste without exact editor target
+  identity.
+- Regression coverage proves authenticated draftbox/menu readbacks and OS click calibration aborts
+  remain invalid/cannot-claim while preserving the exact committed Amber PC proof.
+- Verification passed with focused `platform-export-rendering.test.ts` at 101 tests, 4-file
+  cross-platform export regression at 140 tests, full export serial suite at 1074 tests, targeted
+  ESLint, `vue-tsc`, and production build.
+- Boundary: local validator/runbook proof only. It does not prove WeChat editor opening, ordinary
+  Ctrl+V rich paste success, safe disposable draft cleanup, phone preview, Dark Mode, cover
+  thumbnail, sync, scheduled-send, upload, public host, platform preview, public article rendering,
+  or publish success.

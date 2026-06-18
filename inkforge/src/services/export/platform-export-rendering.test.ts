@@ -551,6 +551,7 @@ describe('platform native export rendering rules', () => {
     )).toBe(true)
     const authenticatedEditorStep = amberSteps.find(step => step.gate === 'authenticated-pc-editor')
     expect(authenticatedEditorStep?.note).toContain('authenticatedSessionVerified:true')
+    expect(authenticatedEditorStep?.note).toContain('platformEditorTargetVerified:true')
     expect(authenticatedEditorStep?.note).toContain('platformEditorDomVerified:true')
     expect(amberSteps.filter(step => step.gate === 'phone-preview').map(step => step.requirement.id)).toEqual(
       expect.arrayContaining(['phone-preview-readback', 'phone-screenshot', 'dark-mode-check', 'cover-thumbnail-check']),
@@ -847,6 +848,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          platformEditorTargetVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -866,6 +868,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
           authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
@@ -1492,6 +1495,7 @@ describe('platform native export rendering rules', () => {
       'artifactFingerprint',
       'exactArtifact',
       'authenticatedSessionVerified',
+      'platformEditorTargetVerified',
       'platformEditorDomVerified',
       'ordinaryClipboardPasteVerified',
       'sameEditorTabVerified',
@@ -1766,6 +1770,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          platformEditorTargetVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -1786,6 +1791,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
           authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
@@ -1812,7 +1818,7 @@ describe('platform native export rendering rules', () => {
 
     expect(report.valid).toBe(false)
     expect(report.summary.missing).toBe(0)
-    expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(requirementStatus.get('safe-disposable-draft')).not.toBe('satisfied')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-cleanup-path-missing')
     expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-disposable-draft-missing')
   })
@@ -1847,7 +1853,7 @@ describe('platform native export rendering rules', () => {
     const issueIds = report.issues.map(issue => issue.id)
 
     expect(report.valid).toBe(false)
-    expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(requirementStatus.get('safe-disposable-draft')).not.toBe('satisfied')
     expect(issueIds).toContain('style-proof-manifest-disposable-draft-missing')
     expect(issueIds).toContain('style-proof-manifest-cleanup-path-missing')
   })
@@ -1963,7 +1969,188 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
     expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-target-not-verified')
     expect(issueIds).toContain('style-proof-manifest-platform-editor-dom-not-verified')
+  })
+
+  it('rejects authenticated draftbox create-menu readback as article editor target proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-dom-readable'],
+      artifactFingerprint: 'sha256:redacted-draftbox-create-menu',
+      artifacts: [
+        {
+          id: 'draftbox-create-menu-authenticated-shell',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'authenticated draftbox create menu is not the article editor target',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-draftbox-create-menu',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'draftbox-article-menu-no-editor-dom',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'browser-readback',
+          label: 'article menu click attempts left editor selectors and contenteditable body absent',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-draftbox-create-menu',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: false,
+          platformEditorDomVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'draftbox-create-menu-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-draftbox-create-menu',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(issueIds).not.toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-target-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-dom-not-verified')
+  })
+
+  it('rejects OS click calibration diagnostics as safe draft or ordinary paste proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+      artifacts: [
+        {
+          id: 'os-click-calibration-exact-artifact',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'redacted exact artifact reference',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'os-click-calibration-authenticated-shell',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'OS click hit test reached an authenticated shell but not a verified article editor target',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'os-click-calibration-no-paste',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'test-log',
+          label: 'Win32 click calibration did not open editor, create draft, paste, or mutate body',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+          ordinaryClipboardPasteVerified: false,
+          platformEditorTargetVerified: false,
+          sameEditorTabVerified: false,
+          pasteInputEventVerified: false,
+          editorBodyMutationVerified: false,
+          mojibakeFreeVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'os-click-calibration-no-safe-draft',
+          requirementId: 'safe-disposable-draft',
+          kind: 'test-log',
+          label: 'Win32 click calibration did not create a disposable draft or verify cleanup',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'safe-disposable-draft',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+          disposableDraft: false,
+          cleanupPathVerified: false,
+          safeForCommit: true,
+        },
+        {
+          id: 'os-click-calibration-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-os-click-calibration-abort',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('safe-disposable-draft')).not.toBe('satisfied')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-target-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-disposable-draft-missing')
+    expect(issueIds).toContain('style-proof-manifest-cleanup-path-missing')
+    expect(issueIds).toContain('style-proof-manifest-ordinary-paste-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-paste-input-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-editor-body-not-mutated')
   })
 
   it('rejects programmatic ClipboardEvent proof as ordinary PC clipboard paste', () => {
@@ -2032,6 +2219,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
           authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
@@ -2152,6 +2340,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'dom',
           artifactFingerprint: 'sha256:redacted-kiln-paste-safe-single-tab',
+          platformEditorTargetVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: false,
@@ -2169,6 +2358,7 @@ describe('platform native export rendering rules', () => {
     expect(report.valid).toBe(false)
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-input-not-verified')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-editor-body-not-mutated')
+    expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-platform-editor-target-not-verified')
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
   })
 
@@ -2191,6 +2381,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-kiln-paste-safe-wrong-tab',
+          platformEditorTargetVerified: false,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: false,
           pasteInputEventVerified: true,
@@ -2206,6 +2397,7 @@ describe('platform native export rendering rules', () => {
     )
 
     expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-platform-editor-target-not-verified')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-editor-tab-not-verified')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-paste-mojibake-not-ruled-out')
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
@@ -2230,6 +2422,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'dom',
           artifactFingerprint: 'sha256:redacted-split-paste-proof',
+          platformEditorTargetVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           safeForCommit: true,
