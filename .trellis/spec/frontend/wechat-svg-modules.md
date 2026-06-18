@@ -1239,6 +1239,14 @@ Contracts:
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
+- ExportModal may surface the runbook through style capability summary text, acceptance preflight
+  text, per-choice execution summaries, and artifact-contract labels. This UI is informational
+  only: it must not fork acceptance logic, create artifacts, alter `selectable`, `usable`,
+  `blocked`, or `unavailable`, or blur local, phone, public-host, credentialed, and publish gates.
+- Per-choice runbook labels must wrap inside the 400px control column. Long required artifact-field
+  names such as `phonePreviewContentVerified` and `ordinaryClipboardPasteVerified` must not shrink
+  the preview column, trigger horizontal overflow, or hide the article body used by real e2e
+  probes.
 - Redaction boundaries must keep browser profiles, cookies, tokens, QR codes, HAR files, account
   screenshots, local credential paths, and raw platform responses out of committed evidence.
 
@@ -1250,6 +1258,13 @@ Required tests:
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.
+- The real ExportModal e2e must show the runbook summary, acceptance preflight totals, and per-card
+  artifact-contract labels for WeChat, Xiaohongshu, and Zhihu while preserving existing style
+  capability counts.
+- The same e2e must prove long runbook labels do not collapse the preview body: the `#nice` probe
+  must stay in the mobile-comfortable width range and preserve the expected chars-per-line target.
+- The responsive `max-width: 980px` branch must reset the fixed desktop control-column max-width so
+  narrow single-column layouts are not capped at 400px.
 
 ## 15. Committed Local Evidence Manifest Pack
 

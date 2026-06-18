@@ -12,6 +12,7 @@ import {
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
+  getPlatformStyleProofExecutionRunbook,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
@@ -25,7 +26,7 @@ import type {
   StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
   StyleMotionLevel, StyleProofAcceptanceAuditStatus,
   StyleProofAcceptanceRequirementAudit, StyleProofCollectionGate, StyleProofCollectionStep,
-  StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength
+  StyleProofExecutionRunbookStep, StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
 import type { ExportPreset } from '@/types'
 import type { Component } from 'vue'
@@ -127,6 +128,8 @@ interface StyleChoiceDisplay {
   proofGateLabels: string[]
   acceptanceSummary: string
   cannotClaimLabels: string[]
+  executionSummary: string
+  executionLabels: string[]
   actionLabel: string
 }
 
@@ -183,6 +186,7 @@ const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(
 const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionPlan(selectedPlatform.value))
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
+const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
 const styleProofStepsByChoice = computed(() => {
   const grouped = new Map<string, StyleProofCollectionStep[]>()
   for (const step of styleProofCollectionPlan.value.steps) {
@@ -203,9 +207,29 @@ const styleProofCannotClaimByChoice = computed(() => {
   }
   return grouped
 })
+const styleProofExecutionOpenByChoice = computed(() => {
+  const grouped = new Map<string, StyleProofExecutionRunbookStep[]>()
+  for (const step of styleProofExecutionRunbook.value.openSteps) {
+    for (const choiceId of step.choiceIds) {
+      const steps = grouped.get(choiceId) ?? []
+      steps.push(step)
+      grouped.set(choiceId, steps)
+    }
+  }
+  return grouped
+})
 const styleProofNextGateLabel = computed(() => {
   const gate = styleProofCollectionQueue.value.nextSafeGate ?? styleProofCollectionQueue.value.nextGate
   return gate ? styleProofGateLabel(gate) : '无待补门禁'
+})
+const styleProofNextRunbookLabel = computed(() => {
+  const runbook = styleProofExecutionRunbook.value
+  const step = runbook.nextLocalSafeStep
+    ?? runbook.nextPhoneStep
+    ?? runbook.nextExternalDependencyStep
+    ?? runbook.nextUnsafeToAutomateStep
+
+  return step ? `${styleProofGateLabel(step.gate)} · ${styleProofRequirementLabel(step.requirement.id)}` : '无待执行步骤'
 })
 const styleProofAcceptanceSummary = computed(() => {
   const audit = styleProofAcceptanceAudit.value
@@ -222,9 +246,10 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
   const report = styleAvailabilityReport.value
   const proofPlan = styleProofCollectionPlan.value
   const proofQueue = styleProofCollectionQueue.value
+  const runbook = styleProofExecutionRunbook.value
   const limitedCount = report.stats.blocked + report.stats.unavailable
   const selectedAction = selectedStyleChoiceApplication.value
-  const proofTail = `待补证据 ${proofPlan.summary.total}；门禁 ${proofQueue.summary.totalGates}；下一步 ${styleProofNextGateLabel.value}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
+  const proofTail = `待补证据 ${proofPlan.summary.total}；门禁 ${proofQueue.summary.totalGates}；下一步 ${styleProofNextGateLabel.value}；执行手册 ${runbook.summary.openSteps}；不可宣称 ${runbook.summary.cannotClaimSteps}；本地 ${proofPlan.summary.safeToAutomate}；手机 ${proofPlan.summary.phoneSteps}；账号/平台 ${proofPlan.summary.externalAccountSteps}`
 
   if (selectedAction?.selectable && selectedAction.application) {
     return {
@@ -254,6 +279,7 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
 
 const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
   const audit = styleProofAcceptanceAudit.value
+  const runbook = styleProofExecutionRunbook.value
   const summary = audit.summary
 
   if (summary.cannotClaimRequirements === 0) {
@@ -261,7 +287,7 @@ const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
       key: 'style-acceptance',
       label: '验收宣称审计',
       state: 'ready',
-      detail: '当前 redacted proof 已覆盖全部宣称项；最终仍以平台证据文件为准。',
+      detail: `当前 redacted proof 已覆盖全部宣称项；执行手册开放 ${runbook.summary.openSteps}；不可宣称步骤 ${runbook.summary.cannotClaimSteps}；下一手册 ${styleProofNextRunbookLabel.value}；最终仍以平台证据文件为准。`,
     }
   }
 
@@ -276,7 +302,7 @@ const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
     key: 'style-acceptance',
     label: '验收宣称审计',
     state: 'warning',
-    detail: `${styleProofAcceptanceSummary.value}；不得声明手机预览、同步、发布或 public host 已完成。${nextParts.length ? ` 下一步 ${nextParts.join('；')}` : ''}`,
+    detail: `${styleProofAcceptanceSummary.value}；执行手册开放 ${runbook.summary.openSteps}；不可宣称步骤 ${runbook.summary.cannotClaimSteps}；下一手册 ${styleProofNextRunbookLabel.value}；不得声明手机预览、同步、发布或 public host 已完成。${nextParts.length ? ` 下一步 ${nextParts.join('；')}` : ''}`,
   }
 })
 
@@ -284,6 +310,7 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
   styleApplicationReport.value.map(item => {
     const proofSteps = styleProofStepsByChoice.value.get(item.availability.choice.id) ?? []
     const cannotClaim = styleProofCannotClaimByChoice.value.get(item.availability.choice.id) ?? []
+    const executionSteps = styleProofExecutionOpenByChoice.value.get(item.availability.choice.id) ?? []
     return {
       availability: item.availability,
       application: item.application,
@@ -301,6 +328,8 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
       proofGateLabels: styleProofGateLabels(proofSteps),
       acceptanceSummary: styleProofAcceptanceSummaryForChoice(cannotClaim),
       cannotClaimLabels: styleProofCannotClaimLabels(cannotClaim),
+      executionSummary: styleProofExecutionSummary(executionSteps),
+      executionLabels: styleProofExecutionLabels(executionSteps),
       actionLabel: styleChoiceActionLabel(item),
     }
   }),
@@ -372,6 +401,71 @@ function styleProofCannotClaimRank(requirement: StyleProofAcceptanceRequirementA
   if (requirement.status === 'unsafe-to-automate') return 3
   if (requirement.status === 'blocked-by-external') return 4
   return 5
+}
+
+function styleProofExecutionSummary(steps: readonly StyleProofExecutionRunbookStep[]): string {
+  if (steps.length === 0) return '执行手册：当前无开放步骤，仍以平台证据为准'
+
+  const cannotClaim = steps.filter(step => step.cannotClaim).length
+  const localSafe = steps.filter(step => step.safeToAutomate).length
+  const phone = steps.filter(step => step.requiresPhone).length
+  const external = steps.filter(step => step.requiresExternalAccount || step.gate === 'public-host').length
+  const unsafe = steps.filter(step => step.status === 'unsafe-to-automate').length
+
+  return `执行手册：开放 ${steps.length}；不可宣称 ${cannotClaim}；本地 ${localSafe}；手机 ${phone}；外部 ${external}；需人工 ${unsafe}`
+}
+
+function styleProofExecutionLabels(steps: readonly StyleProofExecutionRunbookStep[]): string[] {
+  return [...steps]
+    .sort((a, b) => styleProofExecutionStepRank(a) - styleProofExecutionStepRank(b))
+    .slice(0, 4)
+    .map(step => `${styleProofRequirementLabel(step.requirement.id)} · ${styleProofExecutionBoundaryLabel(step.boundary)} · ${styleProofExecutionContractLabel(step)}`)
+}
+
+function styleProofExecutionStepRank(step: StyleProofExecutionRunbookStep): number {
+  if (step.status === 'invalid') return 0
+  if (step.requiresPhone) return 1
+  if (step.mutatesPlatform) return 2
+  if (step.gate === 'public-host') return 3
+  if (step.requiresExternalAccount) return 4
+  if (step.safeToAutomate) return 5
+  return 6
+}
+
+function styleProofExecutionBoundaryLabel(boundary: StyleProofExecutionRunbookStep['boundary']): string {
+  const labels: Record<StyleProofExecutionRunbookStep['boundary'], string> = {
+    'local-only': '本地',
+    'market-editor-account': '市场账号',
+    'authenticated-pc-editor': 'PC 账号',
+    'phone-preview': '手机',
+    'public-host': '公网',
+    'credentialed-channel': '授权',
+    'platform-publish': '发布',
+  }
+  return labels[boundary]
+}
+
+function styleProofExecutionContractLabel(step: StyleProofExecutionRunbookStep): string {
+  switch (step.requirement.id) {
+    case 'pc-editor-paste-event':
+      return '字段 ordinaryClipboardPasteVerified / pasteInputEventVerified'
+    case 'phone-preview-readback':
+      return '字段 phonePreviewContentVerified'
+    case 'dark-mode-check':
+      return '字段 phonePreviewContentVerified / darkModeEnabledVerified'
+    case 'cover-thumbnail-check':
+      return '字段 coverThumbnailAccepted'
+    case 'public-image-host':
+      return step.requiredArtifact.acceptedHostStatuses
+        ? `host ${step.requiredArtifact.acceptedHostStatuses.join('/')}`
+        : 'host public-https'
+    default: {
+      const fields = step.requiredArtifact.requiredFields
+      if (fields.length === 0) return styleProofGateLabel(step.gate)
+      const tail = fields.length > 2 ? '/...' : ''
+      return `字段 ${fields.slice(0, 2).join('/')}${tail}`
+    }
+  }
 }
 
 function styleProofRequirementLabel(requirementId: StyleProofRequirementId): string {
@@ -1153,6 +1247,7 @@ onUnmounted(() => {
                   <span>证据门禁由 runtime catalog 决定</span>
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
                   <span>验收审计 {{ styleProofAcceptanceSummary }}</span>
+                  <span>执行手册 开放 {{ styleProofExecutionRunbook.summary.openSteps }}；不可宣称 {{ styleProofExecutionRunbook.summary.cannotClaimSteps }}；下一手册 {{ styleProofNextRunbookLabel }}</span>
                 </div>
                 <div class="style-choice-list">
                   <button
@@ -1203,6 +1298,9 @@ onUnmounted(() => {
                     <p class="style-choice-acceptance-summary">
                       {{ row.acceptanceSummary }}
                     </p>
+                    <p class="style-choice-execution-summary">
+                      {{ row.executionSummary }}
+                    </p>
                     <div
                       v-if="row.cannotClaimLabels.length"
                       class="style-choice-cannot-claim"
@@ -1213,6 +1311,18 @@ onUnmounted(() => {
                         :key="claimLabel"
                       >
                         {{ claimLabel }}
+                      </span>
+                    </div>
+                    <div
+                      v-if="row.executionLabels.length"
+                      class="style-choice-execution-contracts"
+                      aria-label="执行手册契约"
+                    >
+                      <span
+                        v-for="executionLabel in row.executionLabels"
+                        :key="executionLabel"
+                      >
+                        {{ executionLabel }}
                       </span>
                     </div>
                     <div class="style-choice-action">
@@ -1822,7 +1932,9 @@ onUnmounted(() => {
    ═══════════════════════════════════════════════════════════ */
 .control-column {
   width: 400px;
-  flex-shrink: 0;
+  max-width: 400px;
+  min-width: 0;
+  flex: 0 0 400px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--hairline);
@@ -1831,6 +1943,7 @@ onUnmounted(() => {
 
 .control-scroll {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
@@ -1838,6 +1951,7 @@ onUnmounted(() => {
 
 /* Section spacing */
 .ctrl-section {
+  min-width: 0;
   padding: 16px 20px;
   border-bottom: 1px solid var(--hairline);
 }
@@ -1976,6 +2090,7 @@ onUnmounted(() => {
 .style-catalog-summary {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 3px;
   margin-bottom: 10px;
   color: var(--text-secondary);
@@ -1983,15 +2098,22 @@ onUnmounted(() => {
   line-height: 1.45;
 }
 
+.style-catalog-summary span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .style-choice-list {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 8px;
 }
 
 .style-choice-card {
   display: block;
   width: 100%;
+  min-width: 0;
   padding: 10px;
   border: 1px solid var(--hairline);
   border-radius: 8px;
@@ -1999,6 +2121,7 @@ onUnmounted(() => {
   color: inherit;
   font: inherit;
   text-align: left;
+  overflow: hidden;
   cursor: default;
   transition: border-color var(--motion-fast) var(--ease-out-quart),
     background-color var(--motion-fast) var(--ease-out-quart),
@@ -2026,6 +2149,7 @@ onUnmounted(() => {
 
 .style-choice-head {
   display: flex;
+  min-width: 0;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
@@ -2062,6 +2186,7 @@ onUnmounted(() => {
 .style-choice-meta {
   display: flex;
   flex-wrap: wrap;
+  min-width: 0;
   gap: 5px;
   margin-top: 7px;
 }
@@ -2103,9 +2228,19 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
+.style-choice-execution-summary {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .style-choice-proof-gates {
   display: flex;
   flex-wrap: wrap;
+  min-width: 0;
   gap: 4px;
   margin-top: 6px;
 }
@@ -2113,6 +2248,15 @@ onUnmounted(() => {
 .style-choice-cannot-claim {
   display: flex;
   flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.style-choice-execution-contracts {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 4px;
   margin-top: 6px;
 }
@@ -2138,6 +2282,22 @@ onUnmounted(() => {
   font-weight: 800;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.style-choice-execution-contracts span {
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 38%, var(--hairline));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-surface) 84%, var(--warning-light));
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .style-choice-action {
@@ -2941,6 +3101,7 @@ onUnmounted(() => {
 
   .control-column {
     width: 100%;
+    max-width: none;
     min-width: 0;
     flex: 0 0 auto;
     border-right: none;

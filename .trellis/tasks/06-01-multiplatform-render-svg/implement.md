@@ -2751,6 +2751,55 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 ExportModal Execution Runbook UI Slice
+
+Impact:
+- `npx gitnexus impact File:inkforge/src/components/export/ExportModal.vue -r InkForge --depth 2`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+- `npx gitnexus impact styleProofAcceptanceSummaryForChoice -r InkForge --depth 2` reported LOW
+  risk, 1 direct dependent, and 0 affected processes.
+
+Implementation:
+- ExportModal now consumes `getPlatformStyleProofExecutionRunbook(selectedPlatform)` beside the
+  existing style capability, collection plan/queue, and acceptance audit reports.
+- The style capability summary shows open execution-runbook steps, cannot-claim count, and the next
+  runbook gate.
+- The acceptance preflight row shows execution-runbook open/cannot-claim totals and the next
+  operator gate without changing the existing cannot-claim audit.
+- Each style card now shows a read-only execution summary plus wrapped artifact-contract labels,
+  including explicit phone-preview and Dark Mode required fields such as
+  `phonePreviewContentVerified` and `darkModeEnabledVerified`.
+- The 400px control column now uses a fixed flex basis, `min-width:0`, and wrapping chips so long
+  proof field names cannot squeeze the preview body or cause horizontal overflow. The 980px
+  responsive branch resets `max-width` so the single-column control area can fill narrow screens.
+- WDIO now asserts per-card execution artifact-field contracts for WeChat, Xiaohongshu, and Zhihu,
+  not only summary/preflight totals.
+- Selectability, availability, blocked/unavailable state, preset application, clipboard, draft,
+  sync, upload, and publish behavior are unchanged.
+
+Verification:
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet` passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 92 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed on the final rerun.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with real Tauri/WebView2 149, 1 spec / 6 tests.
+
+Real UI regression:
+- WDIO caught that long execution contract labels initially squeezed the preview body to 61px even
+  after service tests, typecheck, and build passed.
+- The final WDIO run restored `#nice` width to 401px and kept `charsPerLine=20`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-execution-runbook-exportmodal-20260619.txt`.
+
+Boundary:
+- This proves local ExportModal runbook visibility and layout stability only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance,
+  or publish success.
+
 ## 2026-06-18 OSS Converter Source Refresh Slice
 
 Scope:

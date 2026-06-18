@@ -1,0 +1,51 @@
+Style Proof Execution Runbook ExportModal UI - 2026-06-19
+
+Scope:
+- Local ExportModal read-only UI integration for getPlatformStyleProofExecutionRunbook().
+- No platform account action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- ExportModal consumes getPlatformStyleProofExecutionRunbook(selectedPlatform).
+- Style capability summary shows open execution-runbook steps, cannot-claim count, and next
+  runbook step.
+- Acceptance preflight row shows execution-runbook open/cannot-claim totals and next runbook gate.
+- Each style capability card shows a read-only execution summary and top execution artifact
+  contracts across WeChat, Xiaohongshu, and Zhihu.
+- Long artifact-field labels wrap inside the 400px control column and do not shrink the preview
+  column; the responsive single-column branch resets the control-column max-width.
+- Selectability, availability, blocked/unavailable state, preset application, clipboard, and draft
+  creation logic are unchanged.
+
+Real UI regression caught and fixed:
+- Service, type, and build checks passed before the real WebView2 e2e run exposed that long
+  execution contract labels could squeeze the preview body to 61px.
+- CSS was tightened with fixed 400px control-column flex basis, max-width, min-width:0, chip
+  wrapping, and a narrow-screen max-width reset.
+- Final WDIO restored the preview body width to 401px and preserved 20 chars/line.
+
+Verification:
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 92 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 37.39s on the final rerun
+- pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+  PASS: real Tauri/WebView2 149, 1 spec / 6 tests
+  PASS detail: style capability gates, execution runbook summary/preflight/contracts, three
+  flagship SVG previews, and mobile-comfortable chars/line.
+  Final layout probe: niceWidth=401, charsPerLine=20.
+
+Known lint boundary:
+- Direct ESLint over tests/e2e/specs/svg-render.spec.cjs still hits existing WDIO config globals
+  and CommonJS lint gaps, including require/browser/describe/it/document globals and one existing
+  no-useless-assignment row. Component-specific ESLint passed and WDIO executed the real spec
+  successfully.
+
+Boundary:
+- This proves local ExportModal runbook visibility and layout stability only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

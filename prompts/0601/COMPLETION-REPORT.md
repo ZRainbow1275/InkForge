@@ -978,3 +978,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   interaction, Dark Mode, cover thumbnail, ordinary rich Ctrl+V for all flagship artifacts,
   credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
   success.
+
+## 2026-06-19 ExportModal Execution Runbook UI Addendum
+
+- Added `prompts/0601/evidence/style-proof-execution-runbook-exportmodal-20260619.txt`.
+- ExportModal now consumes the local style proof execution runbook and surfaces it as read-only UI:
+  global summary, acceptance preflight totals, next runbook gate, per-style execution summary, and
+  top artifact-contract labels across WeChat, Xiaohongshu, and Zhihu.
+- The UI explicitly exposes required proof fields such as `phonePreviewContentVerified`,
+  `darkModeEnabledVerified`, `coverThumbnailAccepted`, and ordinary PC paste flags without claiming
+  that phone preview, Dark Mode, cover, sync, public host, or publish proof has been completed.
+- A real WDIO/Tauri/WebView2 run caught and fixed a layout regression where long contract labels
+  could squeeze the preview body to 61px. The final run restored `#nice` width to 401px and kept
+  `charsPerLine=20`; the 980px responsive branch also resets the fixed desktop control-column
+  max-width.
+- Verification passed with component ESLint, focused `platform-export-rendering.test.ts` at
+  92 tests, `vue-tsc`, production build, and real `svg-render.spec.cjs` WDIO e2e at 1 spec /
+  6 tests.
+- Boundary: local ExportModal runbook visibility and layout stability only. It does not prove
+  WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
+  success.

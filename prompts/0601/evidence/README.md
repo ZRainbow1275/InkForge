@@ -826,3 +826,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local execution-runbook proof only. It does not prove phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
   gates.
+
+## 2026-06-19 Style Proof Execution Runbook ExportModal UI
+
+- [x] style-proof-execution-runbook-exportmodal-20260619.txt
+- ExportModal now surfaces the local execution runbook beside the existing style capability and
+  acceptance audit UI: summary, preflight row, per-card execution summary, and artifact-field
+  contract chips across WeChat, Xiaohongshu, and Zhihu.
+- The UI is read-only and does not change style selectability, availability, blocked/unavailable
+  state, preset application, clipboard, draft, sync, upload, or publish behavior.
+- Real Tauri/WebView2 WDIO caught and fixed a layout regression where long field-label chips could
+  squeeze the preview body to 61px. The final run restored `#nice` width to 401px and kept
+  `charsPerLine=20`; the 980px responsive branch resets the desktop control-column max-width.
+- Verification passed: component ESLint, focused style proof Vitest 92 tests, `vue-tsc`, production
+  build, and real WDIO SVG render spec with 1 spec / 6 tests.
+- Boundary: local UI visibility and layout proof only. It does not prove phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
+  gates.

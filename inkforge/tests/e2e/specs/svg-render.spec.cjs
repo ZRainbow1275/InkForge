@@ -487,6 +487,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     const wechat = await collectStyleCapabilityProbe();
     expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 8/16');
     expect(wechat.summary, 'WeChat acceptance audit summary').to.include('验收审计 不可宣称');
+    expect(wechat.summary, 'WeChat execution runbook summary').to.include('执行手册 开放');
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(16);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
@@ -495,6 +496,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('样式能力目录可用 8/16；受限 4；不可用 4');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
+    expect(wechat.acceptancePreflightText, 'WeChat preflight exposes execution runbook totals')
+      .to.include('执行手册开放');
     expect(wechat.acceptancePreflightText, 'WeChat preflight points phone-preview next action')
       .to.include('手机：手机预览');
     expect(
@@ -503,6 +506,12 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         /验收审计：不可宣称[^]*；手机 [1-9]/.test(card.text) &&
         card.text.includes('手机预览')),
       'WeChat cards expose phone-preview cannot-claim counts and gates',
+    ).to.equal(true);
+    expect(
+      wechat.cards.some((card) =>
+        card.text.includes('执行手册：开放') &&
+        card.text.includes('字段 phonePreviewContentVerified')),
+      'WeChat cards expose execution runbook field contracts without claiming phone proof',
     ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
@@ -564,6 +573,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     const xhs = await collectStyleCapabilityProbe();
     expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/7');
     expect(xhs.summary, 'XHS acceptance audit summary').to.include('验收审计 不可宣称');
+    expect(xhs.summary, 'XHS execution runbook summary').to.include('执行手册 开放');
     expect(xhs.cardCount, 'XHS choice card count').to.equal(7);
     expect(xhs.availableCount, 'XHS available choice count').to.equal(4);
     expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(2);
@@ -572,6 +582,14 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
+    expect(xhs.acceptancePreflightText, 'XHS preflight exposes execution runbook totals')
+      .to.include('执行手册开放');
+    expect(
+      xhs.cards.some((card) =>
+        card.text.includes('执行手册：开放') &&
+        /字段 [A-Za-z]/.test(card.text)),
+      'XHS cards expose execution runbook artifact field contracts',
+    ).to.equal(true);
     expect(
       xhs.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
@@ -589,6 +607,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     const zhihu = await collectStyleCapabilityProbe();
     expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 4/7');
     expect(zhihu.summary, 'Zhihu acceptance audit summary').to.include('验收审计 不可宣称');
+    expect(zhihu.summary, 'Zhihu execution runbook summary').to.include('执行手册 开放');
     expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(7);
     expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(4);
     expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(2);
@@ -597,6 +616,14 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
+    expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes execution runbook totals')
+      .to.include('执行手册开放');
+    expect(
+      zhihu.cards.some((card) =>
+        card.text.includes('执行手册：开放') &&
+        /字段 [A-Za-z]/.test(card.text)),
+      'Zhihu cards expose execution runbook artifact field contracts',
+    ).to.equal(true);
     expect(
       zhihu.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
