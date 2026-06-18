@@ -423,14 +423,19 @@ Contract:
 - Xiumi SVG preview markup may include `svg`, `animateTransform`, and `foreignObject`, but applied
   Xiumi canvas output can become image cells and `tn-*` authoring layers. That evidence maps to
   InkForge image-slot/fallback manifests, not direct inline-SVG availability.
+- 2026-06-18 Xiumi applied readback confirmed central editor mutation for SVG, title, and card
+  samples. SVG insertion changed `.tn-editing-panel` by `htmlLength +32007`, `tnComp +15`, and
+  `tnCell +18`; title insertion changed it by `htmlLength +15313`, `tnComp +6`, and `tnCell +7`;
+  card insertion changed it by `htmlLength +30728`, `tnComp +17`, and `tnCell +21`.
 - 135 SVG effects map to InkForge-owned image slots, hot zones, trigger type, motion schema,
   static-expanded fallback, raster fallback, and layout report.
 - 135 ordinary section styles and Xiumi title/card/card-like modules may influence InkForge only
   through source-owned title/card/callout/timeline/QA/image-frame/gallery/poster/long-image
   renderers.
 - Market residue is forbidden in publishable output: `_135editor`, `135brush`, `135bg`,
-  `data-tools`, market data ids, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, vendor class names,
-  vendor hosted media, private editor source, and paid/member assets.
+  `data-tools`, market data ids, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`,
+  `opera-tn-ra-*`, `disable-tn-*`, vendor class names, vendor hosted media, private editor source,
+  and paid/member assets.
 - WeChat must still pass `convertToWechatWithStats`, `checkWechatSafe`, quality detector, style
   catalog gates, and style proof manifests. Xiaohongshu and Zhihu must receive platform-specific
   plain-text/image/Markdown fallbacks rather than rich HTML copied from market editors.
@@ -441,12 +446,15 @@ Recorded evidence:
 
 - `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`
 - `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`
+- `prompts/0601/evidence/xiumi-applied-runtime-binding-residue-gate-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 11.
 
 Implemented gate:
 
 - `MARKET_EDITOR_RESIDUE_RULES` blocks CSS `url(...)` references to 135/Xiumi hosted media as
   `market editor hosted background source`.
+- `MARKET_EDITOR_RESIDUE_RULES` blocks copied Xiumi runtime binding attributes as
+  `Xiumi runtime binding attribute`.
 - The gate applies to WeChat, Xiaohongshu, and Zhihu quality reports and is covered by
   `platform-export-rendering.test.ts`.
 - `PLATFORM_STYLE_CHOICES` injects the platform-specific market-residue detector blocker into every

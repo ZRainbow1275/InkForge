@@ -89,6 +89,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi tn-* attribute',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,
+    label: 'Xiumi runtime binding attribute',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\bng-(?:click|style|repeat|class|show|if|switch|bind)[\w-]*\s*=/i,
     label: 'Angular/Vue authoring attribute',
   },

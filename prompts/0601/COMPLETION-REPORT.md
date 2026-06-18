@@ -866,3 +866,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local detector proof only. It does not prove WeChat phone preview, mobile interaction,
   Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG acceptance, sync,
   scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 Xiumi Applied Runtime Binding Residue Gate Addendum
+
+- Added `prompts/0601/evidence/xiumi-applied-runtime-binding-residue-gate-20260618.txt`.
+- In CloakBrowser-only Xiumi v5 paper editor sampling, SVG, Title, and Card categories were clicked
+  and one visible sample from each category was inserted into the center `.tn-editing-panel`.
+- Center editor deltas:
+  - SVG sample: `htmlLength +32007`, `tnComp +15`, `tnCell +18`, `contenteditable +1`,
+    `img +3`, `tnUuid +15`.
+  - Title sample: `htmlLength +15313`, `tnComp +6`, `tnCell +7`, `contenteditable +1`,
+    `img +6`.
+  - Card sample: `htmlLength +30728`, `tnComp +17`, `tnCell +21`, `contenteditable +7`,
+    `img +3`.
+- The applied readbacks exposed Xiumi runtime binding residues such as `opera-tn-ra-comp`,
+  `opera-tn-ra-cell`, and preview-side `disable-tn-*`; these are authoring DOM signals, not
+  publishable InkForge output.
+- `MARKET_EDITOR_RESIDUE_RULES` now rejects copied Xiumi runtime binding attributes as
+  `Xiumi runtime binding attribute`.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu reject those residues;
+  verification passed with focused 88 tests, 4-file export regression 127 tests, full export serial
+  1050 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
+  acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.

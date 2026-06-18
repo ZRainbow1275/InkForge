@@ -1,0 +1,99 @@
+Xiumi Applied Runtime Binding Residue Gate - 2026-06-18
+
+Scope:
+- CloakBrowser-only live sampling of the Xiumi v5 paper editor.
+- No save, export, sync, upload, schedule, or publish action was performed.
+- Evidence is redacted to DOM counts, category names, and residue-rule names.
+
+Observed Xiumi editor state:
+- The Xiumi v5 paper editor loaded at the paper editor route.
+- A local draft-recovery prompt was restored so the existing draft would not be discarded.
+- The center editor root was readable as `.tn-editing-panel`.
+- The center editor exposed authoring-layer structures such as `tn-comp`, `tn-comp-inst`,
+  `tn-cell`, `tn-cell-inst`, `tn-uuid`, `tn-cell-type`, `opera-tn-ra-comp`,
+  and `opera-tn-ra-cell`.
+
+SVG category:
+- Clicking the SVG category changed the visible template list from 23 to 43 template items.
+- Visible SVG items included text such as:
+  `SVG interactive effect - game-console screen smoothly scrolls multiple images left`.
+- The first visible SVG sample preview contained market-authoring markers:
+  `tn-tpl-comp-item`, `tn-cell-type`, `tn-from-house-paper-cp`, and hosted Xiumi media references.
+- Clicking that SVG sample changed the center `.tn-editing-panel`:
+  - `htmlLength`: 628877 -> 660884, delta +32007
+  - `tnComp`: 45 -> 60, delta +15
+  - `tnCompInst`: 45 -> 60, delta +15
+  - `tnCell`: 55 -> 73, delta +18
+  - `tnCellInst`: 54 -> 72, delta +18
+  - `contenteditable`: 10 -> 11, delta +1
+  - `img`: 87 -> 90, delta +3
+  - `tnUuid`: 45 -> 60, delta +15
+  - `tnCellType`: 60 -> 78, delta +18
+
+Title category:
+- Clicking the Title category changed the left list to title templates.
+- The first visible title sample preview carried `tn-tpl-comp-item`, `tn-cell-type`,
+  `tn-from-house-paper-cp`, hosted Xiumi media references, and preview-side `disable-tn-*`.
+- Clicking that title sample changed the center `.tn-editing-panel`:
+  - `htmlLength`: 660814 -> 676127, delta +15313
+  - `tnComp`: 60 -> 66, delta +6
+  - `tnCompInst`: 60 -> 66, delta +6
+  - `tnCell`: 73 -> 80, delta +7
+  - `tnCellInst`: 72 -> 79, delta +7
+  - `contenteditable`: 11 -> 12, delta +1
+  - `img`: 90 -> 96, delta +6
+  - `tnUuid`: 60 -> 66, delta +6
+  - `tnCellType`: 78 -> 85, delta +7
+  - `opera-tn-ra-comp`: 60 -> 66, delta +6
+  - `opera-tn-ra-cell`: 73 -> 80, delta +7
+
+Card category:
+- Clicking the Card category changed the left list to card templates.
+- The first visible card sample preview carried `tn-tpl-comp-item`, `tn-cell-type`,
+  `tn-from-house-paper-cp`, hosted Xiumi media references, and preview-side `disable-tn-*`.
+- Clicking that card sample changed the center `.tn-editing-panel`:
+  - `htmlLength`: 675896 -> 706624, delta +30728
+  - `tnComp`: 66 -> 83, delta +17
+  - `tnCompInst`: 66 -> 83, delta +17
+  - `tnCell`: 80 -> 101, delta +21
+  - `tnCellInst`: 79 -> 100, delta +21
+  - `contenteditable`: 12 -> 19, delta +7
+  - `img`: 96 -> 99, delta +3
+  - `tnUuid`: 66 -> 83, delta +17
+  - `tnCellType`: 85 -> 106, delta +21
+  - `opera-tn-ra-comp`: 66 -> 83, delta +17
+  - `opera-tn-ra-cell`: 80 -> 101, delta +21
+
+Rules extracted:
+- Xiumi applied editor samples are usable as schema and fallback lessons only.
+- InkForge may translate observed structure into source-owned title/card/gallery/image-slot,
+  fallback-poster, layout-report, and proof-manifest rules.
+- InkForge publishable output must not retain copied Xiumi authoring DOM or runtime bindings:
+  `tn-*`, `ng-*`, `tn-comp-inst`, `tn-cell-inst`, `tn-uuid`, `tn-cell-type`,
+  `opera-tn-ra-comp`, `opera-tn-ra-cell`, `disable-tn-*`, `tn-tpl-*`, or hosted Xiumi media.
+
+Implementation:
+- Added `Xiumi runtime binding attribute` to `MARKET_EDITOR_RESIDUE_RULES`.
+- Added `MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML`.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu reject copied
+  `opera-tn-ra-*` and `disable-tn-*` runtime binding attributes.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 88 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 127 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1050 tests
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: Vite built in 34.07s
+
+Boundary:
+- This is local detector proof and market-editor rule extraction only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  ordinary WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send,
+  XHS/Zhihu account upload, public host acceptance, or publish success.

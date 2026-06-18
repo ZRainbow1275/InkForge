@@ -303,6 +303,13 @@ reusable source. No save, copy, sync, upload, phone-share, scheduled-send, or pu
 - The SVG list preview can contain literal SVG, SMIL animation, and `foreignObject`, but the
   applied center canvas may convert the selected component into image cells and `tn-*` authoring
   layers. This means Xiumi SVG sampling is taxonomy/fallback evidence, not direct inline-SVG proof.
+- The 2026-06-18 applied rerun clicked SVG, Title, and Card categories plus one visible sample in
+  each category. All three changed the center `.tn-editing-panel`: SVG added `tnComp +15` and
+  `tnCell +18`, Title added `tnComp +6` and `tnCell +7`, and Card added `tnComp +17` and
+  `tnCell +21`.
+- Applied readback exposed runtime bindings such as `opera-tn-ra-comp`, `opera-tn-ra-cell`, and
+  preview-side `disable-tn-group-flex-box`. Treat those as authoring residue and detector inputs,
+  not as reusable markup.
 - Title and card templates rely heavily on nested authoring layers, image ornaments, background
   images, transforms, negative margins, width/height constraints, and dense inline styling. InkForge
   should translate those patterns into source-owned title, card, callout, timeline, QA, image-frame,

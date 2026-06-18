@@ -158,9 +158,16 @@ construct breaks.
   that changes only the left library or settings panel is `market-template-listing`, not
   `applied-editor-element`. It may update taxonomy and risk labels, but cannot justify a runtime
   rule by itself. A market editor click is `applied-editor-element` only when the central
-  editor/canvas/paper changes and the after-state DOM is read. In this refresh, 135 SVG and 135
-  ordinary editor clicks met that bar; Xiumi did not because the page showed a non-authenticated
-  state plus a draft-recovery confirmation and the central paper stayed unchanged.
+  editor/canvas/paper changes and the after-state DOM is read. In that 2026-06-17 refresh, 135 SVG
+  and 135 ordinary editor clicks met that bar; Xiumi remained a center-unchanged probe.
+- 2026-06-18 Xiumi v5 applied-element rerun met the central-change bar for SVG, title, and card
+  samples. The SVG category changed the left list from 23 to 43 template items, and clicking the
+  first visible SVG sample changed `.tn-editing-panel` by `htmlLength +32007`, `tnComp +15`,
+  `tnCell +18`, `contenteditable +1`, `img +3`, and `tnUuid +15`. Title and card samples also
+  mutated the center paper (`tnComp +6` / `tnCell +7` and `tnComp +17` / `tnCell +21`
+  respectively). These are authoring DOM lessons only: `tn-comp-inst`, `tn-cell-inst`, `tn-uuid`,
+  `tn-cell-type`, `opera-tn-ra-*`, `disable-tn-*`, `ng-*`, and `statics.xiumi.us` references are
+  residue signals or fallback-manifest inputs, not reusable InkForge source and not WeChat proof.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
@@ -1199,8 +1206,8 @@ Contracts:
   local runtime directories, credential material, HAR files, QR artifacts, and paid/member assets
   must never enter InkForge source, committed evidence, generated output, or release notes.
 - 135 ordinary output residue (`_135editor`, `135brush`, `135bg`, `data-tools`, market `data-id`)
-  and Xiumi authoring residue (`tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`) are quality-detector
-  blockers for InkForge publishable output.
+  and Xiumi authoring residue (`tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, `opera-tn-ra-*`,
+  `disable-tn-*`) are quality-detector blockers for InkForge publishable output.
 - 135 applied ordinary styles can leak text-slot metadata even if wrapper classes are removed.
   `data-brushtype`, `autonum[data-num]`, and library `style_id/style_name/style_price` metadata
   must fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
@@ -1237,7 +1244,8 @@ Required tests/checks:
   `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
   `style_id/style_name/style_price`, known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `edit-placeholder`,
-  `placeholder__name`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in publishable output.
+  `placeholder__name`, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and
+  `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in

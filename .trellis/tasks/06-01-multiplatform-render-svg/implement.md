@@ -2659,6 +2659,55 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-18 Xiumi Applied Runtime Binding Residue Gate Slice
+
+Impact:
+- `npx gitnexus impact collectMarketEditorResidues -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted items, 1 direct caller, 0 affected processes, and only the Export
+  module affected.
+
+Market editor readback:
+- Continued the CloakBrowser-only Xiumi v5 paper editor path after restoring the existing local
+  draft prompt, without saving, exporting, syncing, uploading, or publishing.
+- Clicking the `SVG` category changed the visible library from 23 to 43 template items. The first
+  visible SVG sample inserted into the center `.tn-editing-panel` with `htmlLength +32007`,
+  `tnComp +15`, `tnCell +18`, `contenteditable +1`, `img +3`, and `tnUuid +15`.
+- Clicking the `Title` category and first visible title sample inserted into the center editor with
+  `htmlLength +15313`, `tnComp +6`, `tnCell +7`, `contenteditable +1`, `img +6`, and
+  `opera-tn-ra-*` counts increasing with component/cell counts.
+- Clicking the `Card` category and first visible card sample inserted into the center editor with
+  `htmlLength +30728`, `tnComp +17`, `tnCell +21`, `contenteditable +7`, `img +3`, and
+  `opera-tn-ra-*` counts increasing with component/cell counts.
+- The applied readbacks exposed Xiumi runtime binding attributes such as `opera-tn-ra-comp`,
+  `opera-tn-ra-cell`, and preview-side `disable-tn-group-flex-box`, plus existing `tn-*`,
+  `ng-*`, and hosted `statics.xiumi.us` residue signals.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` with `Xiumi runtime binding attribute`.
+- Added `MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML` regression coverage proving WeChat,
+  Xiaohongshu, and Zhihu reject copied Xiumi runtime binding attributes.
+- Added evidence:
+  `prompts/0601/evidence/xiumi-applied-runtime-binding-residue-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 88 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 127 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1050 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored before staging.
+
+Boundary:
+- This is local detector proof and market-editor rule extraction only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
+  WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
+  upload, public host acceptance, or publish success.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate Slice
 
 Impact:

@@ -134,6 +134,15 @@ const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
   '</div>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0" disable-tn-group-flex-box="block">',
+  '<p>Xiumi editor runtime binding residue</p>',
+  '</div>',
+  '<div opera-tn-ra-cell="_$.pages:0.layers:0.comps:0.col1"></div>',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -2969,6 +2978,22 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG builder effect data-name')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG builder effect data-name')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi applied-editor runtime binding attributes from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi runtime binding attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi runtime binding attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi runtime binding attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

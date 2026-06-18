@@ -749,3 +749,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   1049 tests, ESLint, `vue-tsc`, and production build.
 - Boundary: local detector proof only. It does not prove phone preview, mobile interaction, Dark
   Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.
+
+## 2026-06-18 Xiumi Applied Runtime Binding Residue Gate
+
+- [x] xiumi-applied-runtime-binding-residue-gate-20260618.txt
+- CloakBrowser-only Xiumi v5 paper editor sampling clicked SVG, Title, and Card categories plus one
+  visible sample from each category, then read the center `.tn-editing-panel` DOM.
+- SVG insertion changed the center editor by `htmlLength +32007`, `tnComp +15`, `tnCell +18`,
+  `contenteditable +1`, `img +3`, and `tnUuid +15`.
+- Title insertion changed the center editor by `htmlLength +15313`, `tnComp +6`, `tnCell +7`,
+  `contenteditable +1`, and `img +6`.
+- Card insertion changed the center editor by `htmlLength +30728`, `tnComp +17`, `tnCell +21`,
+  `contenteditable +7`, and `img +3`.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks copied Xiumi runtime binding attributes
+  `opera-tn-ra-comp`, `opera-tn-ra-cell`, and `disable-tn-*` across WeChat, Xiaohongshu, and Zhihu.
+- Verification passed: focused 88 tests, 4-file export regression 127 tests, full export serial
+  1050 tests, ESLint, `vue-tsc`, and production build.
+- Boundary: local detector proof and market-editor rule extraction only. It does not prove phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host,
+  or publish gates.
