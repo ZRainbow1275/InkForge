@@ -1264,3 +1264,36 @@ Required tests/checks:
   `zhihu-market-editor-residue`.
 - Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
   DOM evidence alone.
+
+## 16. OSS Converter Source Contract - 2026-06-18
+
+Public converter repositories such as doocs/md, mdnice/markdown-nice, and RedBookCards are
+acceptable rule sources, but only as architecture and degradation evidence.
+
+Contracts:
+- WeChat converter-style output must keep the current InkForge pipeline discipline: source-owned
+  theme/render rules, export-fragment CSS collection, `juice` inlining, platform cleanup,
+  `checkWechatSafe`, quality detection, style catalog gates, and style proof manifests.
+- Theme injection or custom CSS editing is an authoring state, not publishable proof. The copied
+  WeChat artifact must contain inline, fragment-matching styles and must be verified separately from
+  preview CSS.
+- WeChat image width/height must be normalized into inline style data when the export path depends
+  on stable pasted dimensions.
+- SVG-derived math/diagram output needs explicit compatibility shims or fallback artifacts.
+  WeChat inline SVG availability remains exact-artifact and channel-bound; Zhihu and Xiaohongshu
+  must not inherit WeChat inline-SVG claims.
+- Xiaohongshu visual styles must resolve to real image pages, posters, carousel pages, or long
+  images with manifest-backed dimensions, file existence, format, count, cover/crop, and reference
+  consistency.
+- Zhihu visual styles must resolve to semantic Markdown or public-host image fallback with
+  alt/caption and URL safety checks.
+- Local clipboard/export success from OSS converter patterns must not satisfy authenticated PC
+  paste, safe disposable draft, phone preview, Dark Mode, cover thumbnail, credentialed sync,
+  public-host acceptance, platform upload, scheduled send, or publish requirements.
+
+Required checks:
+- Future renderer changes inspired by OSS converters must add negative tests proving copied
+  third-party wrappers, WeChat-only HTML, local/private image URLs, and unresolved diagram/formula
+  artifacts cannot cross into the wrong platform.
+- Documentation that cites OSS converters must distinguish source-backed rules from platform proof
+  and must name the remaining external gates explicitly.

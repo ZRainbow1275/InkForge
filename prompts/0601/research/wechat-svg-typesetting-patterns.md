@@ -350,3 +350,62 @@ reusable source. No save, copy, sync, upload, phone-share, scheduled-send, or pu
   the InkForge artifact.
 
 Evidence artifact: `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`.
+
+---
+
+## 12. 2026-06-18 OSS converter source refresh
+
+This pass used Grok Search for a narrow GitHub/source discovery check, then treated public raw
+source files as the primary evidence. It did not use browser accounts, phone preview, sync, upload,
+scheduled send, or publish flows.
+
+### Sources inspected
+
+- doocs/md:
+  `apps/web/src/services/export/{clipboard,html,html-content,share-styles}.ts`,
+  `apps/web/src/composables/useImageUploader.ts`, and
+  `packages/core/src/theme/{cssProcessor,themeExporter,themeInjector}.ts`.
+- mdnice/markdown-nice:
+  `src/utils/converter.js`, `src/component/Sidebar/{Wechat,Zhihu}.js`,
+  `src/component/MenuLeft/Theme.js`, `src/layout/StyleEditor.js`, and
+  `src/template/markdown/normal.js`.
+- pilipala5/RedBookCards:
+  `src/core/markdown_processor.py` and `src/utils/exporter.py`.
+
+### Converter rules confirmed
+
+- doocs/md and mdnice both use the converter-family model: collect theme CSS, de-scope or scope it
+  to the export fragment, inline with `juice`, then normalize the HTML before copy/export. This
+  reinforces InkForge's existing decision to keep WeChat output inside source-owned renderers and
+  platform gates rather than copying market editor DOM.
+- doocs/md's clipboard path explicitly waits for preview readiness, strips unresolved async
+  placeholders, moves list nesting out of fragile `li > ul/ol` positions, removes local anchor
+  hrefs, normalizes image dimensions into inline styles, adds boundary empty nodes, and applies SVG
+  text compatibility fixes for `tspan` fill plus diagram text baseline. These are export hardening
+  moves, not proof that every rich artifact survives WeChat.
+- doocs/md separates theme injection from the copied artifact. Runtime `<style>` injection is an
+  authoring/preview mechanism; publishable WeChat clipboard HTML still needs fragment-matching,
+  inlined styles.
+- mdnice keeps WeChat and Zhihu copy actions distinct. WeChat math is rewritten around SVG
+  compatibility, while Zhihu math is degraded to formula text before copy. This supports InkForge's
+  platform-specific degradation rule: do not reuse WeChat rich HTML/SVG assumptions for Zhihu.
+- RedBookCards follows the Xiaohongshu visual pattern: Markdown becomes pages, page breaks are
+  explicit, local images are normalized for a WebView renderer, and export captures fixed-size
+  1080x1440 image pages. This supports InkForge's XHS image-page/long-image manifest contract.
+
+### InkForge synthesis
+
+- WeChat rich styles should continue to use source-owned inline HTML/SVG modules plus `juice` and
+  platform sanitization, with local clipboard/export readiness separated from platform proof.
+- Image dimensions should be style-level data in WeChat-targeted HTML. Raw `width`/`height`
+  attributes alone are too fragile for editor paste behavior.
+- SVG-derived diagrams need explicit text/baseline/fill shims or a fallback artifact. Inline SVG
+  can remain an InkForge capability only behind exact artifact proof; it is not a blanket platform
+  claim.
+- Xiaohongshu should receive manifest-backed image pages, posters, carousel pages, or long images,
+  not rich HTML. The manifest must prove page count, dimensions, cover/crop consistency, file
+  existence, format, and reference consistency.
+- Zhihu should receive semantic Markdown or public-host image fallback with alt/caption. Local
+  `file:`, `blob:`, `data:`, localhost/private URLs, and WeChat-specific wrappers remain blocked.
+
+Evidence artifact: `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`.

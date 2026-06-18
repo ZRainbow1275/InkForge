@@ -2708,6 +2708,38 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-18 OSS Converter Source Refresh Slice
+
+Scope:
+- Refreshed source-backed market practice evidence from public OSS converters:
+  doocs/md, mdnice/markdown-nice, and RedBookCards.
+- Used Grok Search as a narrow GitHub/source discovery check, then read raw public source files as
+  primary evidence.
+- No source runtime code changed in this slice; this is documentation/spec/evidence hardening.
+
+Findings:
+- doocs/md and mdnice both confirm the WeChat converter-family pattern: collect theme CSS, make it
+  match the copied fragment, inline with `juice`, then perform platform-specific HTML cleanup before
+  clipboard/export.
+- WeChat image dimensions, SVG text fill/baseline handling, unresolved preview placeholders, and
+  local anchors need explicit export cleanup rather than relying on preview DOM.
+- WeChat and Zhihu copy workflows must stay separate: Zhihu math/diagram handling degrades to
+  semantic text or image fallback rather than inheriting WeChat inline-SVG behavior.
+- RedBookCards confirms the XHS-style high-visual path as fixed-size image pages/long images from a
+  real WebView render, not rich HTML body output.
+
+Artifacts:
+- Added `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`.
+- Updated `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 12.
+- Updated `prompts/0601/SPEC.md`, `.trellis/spec/frontend/wechat-svg-modules.md`, and
+  `docs/platform-rendering-rules/market-practices-catalog.md`.
+
+Boundary:
+- This is source-backed rule extraction only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  ordinary rich Ctrl+V for all flagship artifacts, credentialed sync, scheduled send,
+  XHS/Zhihu account upload, public host acceptance, or publish success.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate Slice
 
 Impact:

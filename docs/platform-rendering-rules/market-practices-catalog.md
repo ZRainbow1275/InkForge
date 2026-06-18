@@ -673,3 +673,34 @@ Docs/spec changes are not enough. Any renderer change must be proven by:
 - InkForge real PC paste evidence path: `prompts/0601/evidence/wechat-paste/`
 - InkForge real XHS browser raster evidence path: `prompts/0601/evidence/xhs-raster/`
 - InkForge WeChat SVG spec: `.trellis/spec/frontend/wechat-svg-modules.md`
+
+## 7. 2026-06-18 OSS Converter Source Refresh
+
+This refresh adds public source-backed converter rules to the market catalog. It complements the
+live 135/Xiumi CloakBrowser passes; it does not replace external platform proof.
+
+Sources:
+- doocs/md: clipboard/export/theme source under `apps/web/src/services/export/`,
+  `apps/web/src/composables/useImageUploader.ts`, and `packages/core/src/theme/`.
+- mdnice/markdown-nice: `src/utils/converter.js`, WeChat/Zhihu sidebar copy actions, theme menu,
+  style editor, and normal theme template.
+- pilipala5/RedBookCards: Markdown processor and fixed-size image/PDF exporter.
+
+Rules for InkForge:
+- WeChat output follows the converter-family pattern: collect the effective theme CSS, make it
+  match the export fragment, inline it, then run platform cleanup and quality gates. Preview theme
+  injection alone is not publishable proof.
+- WeChat images should carry stable style-level dimensions after conversion. Raw image attributes
+  alone are not a sufficient paste contract.
+- Math, Mermaid, and SVG diagrams require platform-specific treatment. WeChat may use exact inline
+  SVG proof; Zhihu and Xiaohongshu should use formula text, semantic Markdown, public-host image,
+  poster, or long-image fallback.
+- Xiaohongshu visual output is an image artifact workflow with real page files and manifest
+  consistency. It is not a rich HTML body workflow.
+- Zhihu visual output is Markdown or public-host image fallback with alt/caption and URL safety.
+- Local clipboard/export readiness cannot satisfy authenticated editor paste, phone preview, Dark
+  Mode, cover thumbnail, sync, public-host acceptance, upload, scheduled send, or publish gates.
+
+Evidence:
+- `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`
+- `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 12.

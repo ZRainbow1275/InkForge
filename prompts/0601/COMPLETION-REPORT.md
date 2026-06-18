@@ -891,6 +891,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
   acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
 
+## 2026-06-18 OSS Converter Source Refresh Addendum
+
+- Added `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`.
+- Used Grok Search as a narrow GitHub/source discovery pass and then inspected public raw source
+  from doocs/md, mdnice/markdown-nice, and RedBookCards.
+- doocs/md and mdnice confirm the converter-family WeChat pattern: collect effective theme CSS,
+  make it match the copied fragment, inline with `juice`, and run platform cleanup before
+  clipboard/export.
+- doocs/md source confirms hardening points already compatible with InkForge's direction: preview
+  readiness checks, unresolved placeholder stripping, local anchor removal, image dimension
+  normalization into style data, and SVG text/baseline compatibility handling.
+- mdnice source keeps WeChat and Zhihu copy workflows separate, supporting InkForge's rule that
+  Zhihu must receive semantic Markdown/formula text or public-host image fallback instead of
+  inheriting WeChat rich HTML/SVG assumptions.
+- RedBookCards source supports the XHS image-page/long-image contract: Markdown becomes WebView
+  pages and is captured as fixed-size 1080x1440 image artifacts.
+- Updated the 06-01 research report, product spec addendum, Trellis frontend spec, market-practice
+  catalog, task implementation log, and evidence index.
+- Boundary: this is source-backed rule extraction only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, ordinary rich Ctrl+V for all flagship artifacts,
+  credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+
 ## 2026-06-18 Xiumi Angular Runtime Residue Gate Addendum
 
 - Added `prompts/0601/evidence/xiumi-angular-runtime-residue-gate-20260618.txt`.

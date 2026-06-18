@@ -473,3 +473,39 @@ Implemented gate:
   `platform-export-rendering.test.ts`.
 - `PLATFORM_STYLE_CHOICES` injects the platform-specific market-residue detector blocker into every
   style choice, so catalog preflight semantics cannot drift from the quality detector.
+
+## 2026-06-18 Addendum: OSS Converter Source Rules
+
+Public OSS converter source is now part of the documented market-practice evidence base. This is
+source learning only and must not be treated as platform-account proof.
+
+Contract:
+
+- doocs/md and mdnice-style WeChat conversion confirms the required pipeline shape:
+  theme CSS -> export-fragment scoping/de-scoping -> `juice` inlining -> platform-specific HTML
+  cleanup -> clipboard/export artifact. InkForge must keep using its own renderers, sanitizer,
+  quality detector, style catalog gates, and proof manifests rather than importing third-party DOM
+  or template geometry.
+- Runtime theme injection and custom CSS editors are authoring conveniences. A style is publishable
+  only after the copied/exported artifact has inline, fragment-matching styles and passes the target
+  platform checks.
+- WeChat image dimensions should be normalized into inline style data before paste/export. Do not
+  rely on raw `width`/`height` attributes as the only layout contract.
+- Math, Mermaid, and SVG-derived diagrams must have platform shims or degradation paths. WeChat can
+  use exact-artifact inline SVG proof where available, while Zhihu and Xiaohongshu should receive
+  formula text, semantic Markdown, public-host images, posters, or long-image artifacts as
+  appropriate.
+- Xiaohongshu high-visual output is an image-page/long-image contract. It must be backed by a
+  manifest with real files, dimensions, format, page count, cover/crop/reference consistency, and
+  no market-editor residue.
+- Zhihu high-visual output is semantic Markdown or public-host image fallback with alt/caption.
+  Local/private/data/blob URLs, WeChat wrappers, raw diagram fences that need upload, and market
+  editor residue remain blocked.
+- Clipboard/export readiness does not complete authenticated PC editor paste, safe disposable draft,
+  phone preview, Dark Mode, cover thumbnail, credentialed sync, public-host acceptance, platform
+  upload, scheduled send, or publish gates.
+
+Recorded evidence:
+
+- `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`
+- `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 12.

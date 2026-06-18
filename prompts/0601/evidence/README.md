@@ -782,6 +782,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
   XHS/Zhihu upload, public host acceptance, or publish success.
 
+## 2026-06-18 OSS Converter Source Refresh
+
+- [x] oss-converter-source-refresh-20260618.txt
+- Public source-backed refresh inspected doocs/md, mdnice/markdown-nice, and RedBookCards with
+  Grok Search used only as a narrow GitHub/source discovery aid.
+- The refresh records converter-family rules: WeChat CSS must be made fragment-safe and inlined
+  before clipboard/export; preview theme injection is not proof; images need stable style-level
+  dimensions; math/SVG diagrams require platform shims or fallback artifacts.
+- It also records platform separation: XHS high-visual output is image-page/long-image manifest
+  work, while Zhihu output is semantic Markdown or public-host image fallback with alt/caption.
+- Boundary: source-backed rule extraction only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, ordinary rich Ctrl+V for all flagship artifacts,
+  credentialed sync, scheduled-send, XHS/Zhihu upload, public host acceptance, or publish success.
+
 ## 2026-06-18 Xiumi Editable Surface Residue Gate
 
 - `xiumi-editable-surface-residue-gate-20260618.txt` records the CloakBrowser-only

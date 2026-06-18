@@ -1,0 +1,82 @@
+OSS Converter Source Refresh - 2026-06-18
+
+Scope:
+- Source-backed refresh for market Markdown/editor conversion practices relevant to WeChat,
+  Xiaohongshu, and Zhihu rendering.
+- Read-only evidence only. No browser account action, no phone preview, no sync, no upload, no
+  scheduled send, and no publish action.
+- 135/Xiumi remain live market references from prior CloakBrowser passes; this refresh adds OSS
+  converter source evidence from public repositories.
+
+Primary sources inspected:
+- Grok Search, GitHub-focused query:
+  "2026 WeChat public account Markdown editor doocs md mdnice source copy to public account HTML
+  inline style clipboard export GitHub"
+  Session: b88eae850bd0
+  Sources returned: https://github.com/doocs/md and https://md.doocs.org/
+- doocs/md raw source:
+  - apps/web/src/services/export/clipboard.ts
+  - apps/web/src/services/export/share-styles.ts
+  - apps/web/src/services/export/html.ts
+  - apps/web/src/services/export/html-content.ts
+  - apps/web/src/composables/useImageUploader.ts
+  - packages/core/src/theme/cssProcessor.ts
+  - packages/core/src/theme/themeExporter.ts
+  - packages/core/src/theme/themeInjector.ts
+- mdnice/markdown-nice raw source:
+  - src/utils/converter.js
+  - src/component/Sidebar/Wechat.js
+  - src/component/Sidebar/Zhihu.js
+  - src/component/MenuLeft/Theme.js
+  - src/layout/StyleEditor.js
+  - src/template/markdown/normal.js
+- pilipala5/RedBookCards raw source:
+  - src/core/markdown_processor.py
+  - src/utils/exporter.py
+
+Findings:
+- doocs/md and mdnice converge on the same WeChat converter pattern:
+  theme CSS is collected, scoped or de-scoped for the export fragment, inlined with juice, then
+  normalized for platform paste behavior before the HTML is copied or exported.
+- doocs/md explicitly handles WeChat image width/height by converting raw image dimensions into
+  inline style values, strips unresolved preview placeholders, removes local anchor hrefs, inserts
+  boundary empty nodes, and applies SVG text compatibility fixes for tspan fill and diagram text
+  baseline handling.
+- doocs/md separates preview/share theme injection from clipboard/export content. Theme injection
+  and exported CSS are workflow aids; the publishable clipboard artifact still needs inline,
+  fragment-matching styles.
+- mdnice keeps WeChat and Zhihu sidebar actions as separate copy workflows. WeChat math keeps SVG
+  dimensions as style-level data, while Zhihu math is degraded to source formula text before copy.
+- mdnice exposes theme and custom-style editing, but that custom CSS is an authoring source. It is
+  not proof that arbitrary CSS survives a target platform; it still goes through converter logic.
+- RedBookCards is aligned with Xiaohongshu-style output: Markdown becomes HTML pages, local images
+  are normalized for the renderer, page breaks are explicit, and export captures fixed-size
+  1080x1440 image pages from a real WebView render.
+
+Rules added to project docs/specs:
+- WeChat-style rich output must remain fragment-safe: source-owned CSS may be authored and themed,
+  but export must resolve unsupported variables/calc where needed and inline the effective style
+  into the copied HTML fragment.
+- Clipboard/export readiness is not platform proof. A local copied HTML artifact does not satisfy
+  authenticated PC editor paste, phone preview, Dark Mode, cover thumbnail, sync, schedule, or
+  publish gates.
+- Image dimensions should be normalized as inline style rather than relying on raw width/height
+  attributes when targeting WeChat-like editors.
+- Math, Mermaid, and SVG-derived diagrams require explicit platform shims or degradation. WeChat
+  may preserve selected SVG shapes after exact proof, but Zhihu/XHS should receive semantic
+  Markdown, formula text, public-host image, poster, or long-image fallback.
+- XHS visual output should be treated as image-page or long-image artifacts with manifest
+  validation, page count, dimensions, crop/cover consistency, and real file evidence.
+- Zhihu and XHS workflows must stay separate from WeChat clipboard HTML; do not reuse WeChat
+  wrappers, market editor residues, or inline SVG assumptions as publishable output for them.
+
+No code change in this slice:
+- The current runtime detector already blocks the market editor residues discovered in prior
+  135/Xiumi CloakBrowser passes.
+- This OSS refresh strengthened docs/spec contracts and evidence provenance only.
+
+Boundary:
+- This evidence does not prove WeChat phone QR preview final rendering, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, ordinary rich HTML Ctrl+V for all flagship
+  artifacts, credentialed sync, scheduled send, XHS/Zhihu account upload, public host acceptance,
+  or publish success.
