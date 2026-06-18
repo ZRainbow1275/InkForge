@@ -1110,3 +1110,20 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local validator-passed accounting only. It does not prove Xiaohongshu upload, platform
   preview, public URL acceptance, Zhihu account upload/editor preview/public article rendering,
   sync, scheduled publish, or publish success.
+
+## 2026-06-19 E2E SVG Render Refresh Addendum
+
+- Added `prompts/0601/evidence/e2e-svg-render-refresh-20260619.txt`.
+- Rebuilt production assets with `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`;
+  Vite transformed 4652 modules and built in 24.15s.
+- Reran the real Tauri/WebView2 SVG render spec with
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`.
+- `wdio.conf.cjs` compiled the real Tauri debug binary via Cargo in 7.06s, then WebView2
+  149.0.4022.69 passed 1 spec / 6 tests.
+- The e2e run re-confirmed ExportModal style capability gates, responsive `[data-ink-svg]`
+  injection for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`, and the flagship body
+  mobile line-rhythm gate at `charsPerLine=20`.
+- Boundary: local production build and real Tauri/WebView2 ExportModal proof only. It does not
+  prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
+  scheduled-send, XHS/Zhihu upload, public host acceptance, platform preview, public article
+  rendering, or publish success.

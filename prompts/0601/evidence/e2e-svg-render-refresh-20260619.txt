@@ -1,0 +1,41 @@
+E2E SVG Render Refresh - 2026-06-19
+
+Scope:
+- Local real-binary verification after the style-proof artifact manifest validation slice.
+- No platform account action, no WeChat draft mutation, no phone preview, no sync, no upload, no publish.
+
+Commands:
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+- pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+
+Build result:
+- vue-tsc build phase completed.
+- Vite transformed 4652 modules.
+- Production build passed.
+- Vite built in 24.15s.
+
+WDIO / Tauri result:
+- wdio.conf.cjs onPrepare ran a real Cargo build for inkforge/src-tauri.
+- Cargo finished the dev profile in 7.06s.
+- WebView2 149.0.4022.69 was driven through WebDriver.
+- tests/e2e/specs/svg-render.spec.cjs passed.
+- 1 spec file passed.
+- 6 tests passed.
+
+Passed assertions:
+- Seeded a real draft and enabled the export pipeline through the real app store path.
+- Surfaced style capability gates for WeChat, Xiaohongshu, and Zhihu in the real ExportModal.
+- flagship-kiln injects responsive data-ink-svg modules into the export preview.
+- flagship-tempera injects responsive data-ink-svg modules into the export preview.
+- flagship-amber injects responsive data-ink-svg modules into the export preview.
+- Flagship body yields a mobile-comfortable 20 CJK chars per line using real layout and shipped font settings.
+
+Observed geometry:
+- The flagship-amber sample rendered 2 data-ink-svg modules in ExportModal.
+- cover-title: parent width 401px, SVG width 401px, height 230px, viewBox 0 0 1080 620, deltaToParent 0.
+- divider-grid: parent width 401px, SVG width 401px, height 22px, viewBox 0 0 1080 60, deltaToParent 0.
+- Mobile-emulated line rhythm: 99 chars over 5 lines at 360px / 17px, charsPerLine 20.
+
+Boundary:
+- This proves local production build and real Tauri/WebView2 SVG ExportModal behavior only.
+- It does not prove WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled-send, Xiaohongshu account upload, Zhihu public-host acceptance, platform preview, public article rendering, or publish success.

@@ -2751,6 +2751,34 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 E2E SVG Render Refresh Slice
+
+Scope:
+- Non-mutating local verification after the style-proof artifact manifest validation slice.
+- No WeChat draft mutation, no phone preview, no sync, no upload, no scheduled-send, and no publish.
+
+Verification:
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 24.15s.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with a real Cargo-built Tauri debug binary, WebView2 149.0.4022.69, 1 spec file, and 6
+  tests.
+- WDIO re-confirmed the real ExportModal style capability gates across WeChat, Xiaohongshu, and
+  Zhihu.
+- WDIO re-confirmed responsive `[data-ink-svg]` module injection for `flagship-kiln`,
+  `flagship-tempera`, and `flagship-amber`.
+- The flagship body line-rhythm assertion remained at `charsPerLine=20`.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build dirtied the generated cache.
+
+Evidence:
+- Added `prompts/0601/evidence/e2e-svg-render-refresh-20260619.txt`.
+
+Boundary:
+- This proves local production build and real Tauri/WebView2 SVG ExportModal behavior only.
+- It does not prove WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled-send, Xiaohongshu account upload,
+  Zhihu public-host acceptance, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Artifact Manifest Validation Slice
 
 Scope:
