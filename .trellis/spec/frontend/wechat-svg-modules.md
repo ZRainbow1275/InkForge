@@ -1429,6 +1429,10 @@ Contracts:
 - XHS/Zhihu artifact-manifest rows without a non-empty `artifactRef` must surface
   `style-proof-manifest-artifact-ref-missing` and stay invalid, because the proof cannot be traced
   to the redacted manifest report that was validated.
+- A CloakBrowser readback that reaches the Xiaohongshu creator login route or the Zhihu sign-in
+  route must keep account upload, editor preview, platform preview, public article rendering, and
+  publish rows missing or unclaimable. Login forms, verification-code inputs, password fields,
+  social-login buttons, or redirect query keys are external-account blockers, not platform proof.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.

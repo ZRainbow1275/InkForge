@@ -2751,6 +2751,32 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 XHS/Zhihu Account Login Gate Readback Slice
+
+Scope:
+- Continued external gate verification with CloakBrowser only.
+- Checked Xiaohongshu creator and Zhihu write-entry login/editor states without filling forms,
+  uploading assets, opening platform publish dialogs, syncing, scheduling, or publishing.
+
+Observed:
+- `https://creator.xiaohongshu.com/new/home` redirected to the Xiaohongshu creator login route.
+- The XHS page exposed login text, credential/verification inputs, and no file-upload input.
+- No XHS image upload, platform preview, or publish surface was reachable in the current browser
+  profile.
+- `https://zhuanlan.zhihu.com/write` redirected to the Zhihu sign-in route.
+- The Zhihu page exposed verification-code login controls, no `.ProseMirror`, no contenteditable
+  editor, no textarea, and no file-upload input.
+- No Zhihu editor preview, platform image upload, public-host readback, or publish surface was
+  reachable in the current browser profile.
+
+Evidence:
+- Added `prompts/0601/evidence/xhs-zhihu-account-login-gate-readback-20260619.txt`.
+
+Boundary:
+- This is external account gate readback only.
+- XHS/Zhihu local artifact manifests remain preflight proof and do not satisfy account upload,
+  platform preview, public article rendering, scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Create Entry CloakBrowser Stability Block Slice
 
 Scope:

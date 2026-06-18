@@ -1,0 +1,32 @@
+XHS/Zhihu Account Login Gate Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only external account gate readback for Xiaohongshu creator and Zhihu write entry.
+- No form filling, credential entry, image upload, editor mutation, platform preview action, scheduled-send, or publish action.
+- No account identifier, private form value, raw DOM, or browser/account runtime artifact is recorded here.
+
+Xiaohongshu creator readback:
+- Navigation target: Xiaohongshu creator home.
+- Final route: creator login route.
+- Login text was present.
+- Credential and verification-style inputs were present.
+- File-upload input count was zero.
+- No image upload surface was reachable.
+- No platform preview surface was reachable.
+- No publish surface was reachable.
+
+Zhihu write-entry readback:
+- Navigation target: Zhihu write entry.
+- Final route: Zhihu sign-in route.
+- Login and verification text was present.
+- `.ProseMirror` count was zero.
+- contenteditable editor count was zero.
+- textarea count was zero.
+- file-upload input count was zero.
+- No editor preview surface was reachable.
+- No platform upload or publish surface was reachable.
+
+Boundary:
+- This is external account blocker evidence only.
+- It does not satisfy XHS account upload, XHS platform preview, XHS publish, Zhihu editor preview, Zhihu public-host acceptance, Zhihu account upload, Zhihu public article rendering, scheduled-send, or publish proof.
+- Existing XHS/Zhihu local artifact manifests remain preflight proof only until real account/platform or accepted public-host readback exists.

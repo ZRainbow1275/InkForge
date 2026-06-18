@@ -1316,3 +1316,16 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   failures do not prove article editor target identity, editor DOM readback, safe disposable draft,
   ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
   public host, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 XHS/Zhihu Account Login Gate Readback Addendum
+
+- Added `prompts/0601/evidence/xhs-zhihu-account-login-gate-readback-20260619.txt`.
+- CloakBrowser navigation to the Xiaohongshu creator home redirected to the creator login route.
+- XHS login controls were visible, but no file-upload input, platform preview, or publish surface
+  was reachable in the current browser profile.
+- CloakBrowser navigation to the Zhihu write entry redirected to the Zhihu sign-in route.
+- Zhihu verification-code login controls were visible, but no `.ProseMirror`, contenteditable
+  editor, textarea, upload input, editor preview, or publish surface was reachable.
+- Boundary: this proves only the current external-account blocker. XHS/Zhihu local manifests remain
+  preflight proof and do not prove account upload, platform preview, public-host acceptance, public
+  article rendering, scheduled-send, or publish success.
