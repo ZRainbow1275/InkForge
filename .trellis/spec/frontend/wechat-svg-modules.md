@@ -1009,6 +1009,14 @@ Contracts:
   `pc-editor-paste-event`, `safe-disposable-draft`, or `ordinaryClipboardPasteVerified:true`.
   Future ordinary paste proof must prove visible OS foreground tab and CloakBrowser DOM readback
   target identity before sending Ctrl+V, and must reject mojibake-damaged rich body readbacks.
+- 2026-06-18 WeChat Kiln paste-safe single-tab no-paste proof:
+  `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt` records a stricter retry
+  after tab cleanup. In a same-tab authenticated WeChat editor, the page was visible, focused, and
+  the body ProseMirror was active. CloakBrowser body click succeeded. `SendKeys("^v")` and
+  `keybd_event` through the no-click foreground helper both left the body unchanged
+  (`bodyTextLength=8`, `svgCount=0`). This must not satisfy `pc-editor-paste-event`; foreground
+  window match, body focus, and key event counts are insufficient without an actual paste/input
+  event or same-editor body DOM change.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1065,6 +1073,8 @@ Required tests:
 - A platform-editor paste artifact with mojibake/replacement-character damage, duplicated source
   artifact counts, or titleless wrong-tab insertion must keep `pc-editor-paste-event` invalid and
   must require cleanup evidence before it can be cited as a safe failed attempt.
+- A same-tab platform-editor retry with focused body editor and OS key event counts but no
+  paste/input event and no body DOM mutation must keep `pc-editor-paste-event` invalid.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and

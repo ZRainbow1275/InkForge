@@ -387,6 +387,9 @@ Live WeChat ordinary OS Ctrl+V proof must establish tab identity before the past
 - Any current-run wrong-tab residue must be cleaned up by deterministic title or content
   fingerprint, and the cleanup must be verified by post-delete absence checks before the failed
   attempt can be cited as safe cleanup evidence.
+- Same-tab focus is still not sufficient by itself. If the body editor is focused and OS key events
+  are sent but no paste/input event or body DOM mutation occurs, `pc-editor-paste-event` remains
+  invalid.
 
 Recorded evidence:
 
@@ -395,5 +398,8 @@ Recorded evidence:
   deterministic-title editor unchanged, detected a separate wrong-tab mojibake insertion, deleted
   the current-run residue through WeChat with `ret=0`, and verified zero post-cleanup title,
   deleted-candidate, or recent InkForge-like residue matches.
+- `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt` is the stricter same-tab
+  negative example. It verified visible page focus and body focus, then showed SendKeys and
+  `keybd_event -NoClick` left the body unchanged and created no residue.
 - This evidence must not set `ordinaryClipboardPasteVerified:true`, must not satisfy
   `pc-editor-paste-event`, and must not satisfy `safe-disposable-draft`.

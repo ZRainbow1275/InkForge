@@ -16,7 +16,8 @@ param(
   [string]$InputMethod = 'KeybdEvent',
   [string]$ClipboardText = 'INKFORGE_OS_PASTE_SENTINEL_20260618',
   [switch]$PreserveClipboard,
-  [switch]$NoMove
+  [switch]$NoMove,
+  [switch]$NoClick
 )
 
 Set-StrictMode -Version Latest
@@ -225,12 +226,14 @@ $usesAbsoluteClick = $ClickScreenX -ge 0 -and $ClickScreenY -ge 0
 $clickX = if ($usesAbsoluteClick) { $ClickScreenX } else { $contentLeft + $ClickViewportX }
 $clickY = if ($usesAbsoluteClick) { $ClickScreenY } else { $contentTop + $ClickViewportY }
 
-[void][InkForgeForegroundInputProbe]::SetCursorPos($clickX, $clickY)
-Start-Sleep -Milliseconds 100
-[InkForgeForegroundInputProbe]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
-Start-Sleep -Milliseconds 80
-[InkForgeForegroundInputProbe]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
-Start-Sleep -Milliseconds 250
+if (-not $NoClick) {
+  [void][InkForgeForegroundInputProbe]::SetCursorPos($clickX, $clickY)
+  Start-Sleep -Milliseconds 100
+  [InkForgeForegroundInputProbe]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
+  Start-Sleep -Milliseconds 80
+  [InkForgeForegroundInputProbe]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
+  Start-Sleep -Milliseconds 250
+}
 
 if ($Action -eq 'CtrlV' -and -not $PreserveClipboard) {
   Set-Clipboard -Value $ClipboardText
@@ -295,6 +298,7 @@ Start-Sleep -Milliseconds 650
     absolute = $usesAbsoluteClick
     viewportX = $ClickViewportX
     viewportY = $ClickViewportY
+    skipped = [bool]$NoClick
   }
   inputSize = $inputSize
   requestedInputCount = $inputs.Length

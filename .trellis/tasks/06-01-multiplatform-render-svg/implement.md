@@ -2417,3 +2417,33 @@ Boundary:
 - Future ordinary Ctrl+V proof must first ensure the visible OS foreground WeChat tab and the
   CloakBrowser DOM readback target are the same editor, and must reject mojibake/replacement-char
   body readbacks even when large SVG counts are present.
+
+## 2026-06-18 WeChat Kiln Paste-Safe Single-Tab Ctrl+V No-Paste Slice
+
+- Added evidence:
+  `prompts/0601/evidence/wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`.
+- Added `-NoClick` to `inkforge/scripts/probe-windows-foreground-input.ps1`.
+  The helper can now foreground a matching Chromium window and send keyboard input without moving
+  the mouse or changing the already focused editor.
+- Reused the exact `flagship-kiln-paste-safe.html` artifact and Windows CF_HTML payload:
+  SHA-256 `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`,
+  `htmlBytes=41618`, `cfHtmlBytes=41787`, source `svgCount=35`, source
+  `dataInkSvgCount=3`, and source `dataInkBlockCount=23`.
+- In a fresh same-tab authenticated WeChat `type=77` editor, the shell existed, the page was
+  visible, `document.hasFocus()` was true, the body `.ProseMirror` was focused, and a CloakBrowser
+  click on that body editor succeeded.
+- `System.Windows.Forms.SendKeys("^v")` did not trigger paste. Readback stayed at
+  `bodyTextLength=8`, `bodyHtmlLength=298`, `svgCount=0`, `dataInkSvgCount=0`, and
+  `dataInkBlockCount=0`.
+- Windows `keybd_event` through the new `-NoClick` path also did not trigger paste. It matched one
+  foreground Chromium window and sent `keybdEventCount=4`, but the body stayed unchanged with the
+  same counts.
+- Cleanup/absence check after returning home found deterministic title `20260618-1650` matches
+  `0` and recent empty/default-title InkForge-like residue candidates `0`.
+
+Boundary:
+- This is negative WeChat evidence for `flagship-kiln-paste-safe.html`.
+- It must not set `ordinaryClipboardPasteVerified:true`.
+- It must not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
+- Foreground-window match, page focus, body focus, and OS key event counts are insufficient without
+  a real paste/input event or same-editor body DOM change.

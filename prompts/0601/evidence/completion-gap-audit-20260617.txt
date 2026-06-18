@@ -35,13 +35,16 @@ Scope:
   `wechat-kiln-paste-safe-candidate-local-probe-20260618.txt`.
 - Latest Kiln paste-safe WeChat Ctrl+V tab-mismatch cleanup reviewed:
   `wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt`.
+- Latest Kiln paste-safe WeChat Ctrl+V single-tab no-paste reviewed:
+  `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`.
 - The original audit did not create platform proof or mutate a live editor. This living file now
   also records the later 2026-06-18 Amber disposable-draft PC paste/cleanup proof. No phone preview,
   sync, upload, schedule, or publish action is claimed here. The later Kiln paste-safe candidate
   local probe also did not create, edit, paste into, save, preview, sync, schedule, or publish a
   WeChat draft. The later Kiln paste-safe WeChat Ctrl+V attempt is negative: the intended editor
   stayed unchanged, a different foreground tab received mojibake-damaged InkForge content, and the
-  current-run residue was deleted and verified absent.
+  current-run residue was deleted and verified absent. A stricter single-tab retry then verified
+  page/body focus but still produced no paste and no residue.
 
 Audit labels:
 - `complete-local`: current repository tests, local runtime artifacts, or local manifests prove
@@ -77,6 +80,7 @@ Cross-platform proof matrix:
 | WeChat PC editor | Kiln/Tempera historical PC editor sanitizer samples exist; Amber has both channel-specific PC DOM readback and exact ordinary OS Ctrl+V rich HTML/SVG disposable-draft proof. Kiln now has current exact ordinary OS Ctrl+V negative evidence: authenticated type=10/type=77 attempts reached the editor but read back plain text only, then cleanup returned the draftbox to `Article 5` with no current-run markers. Prior authenticated backend home/draftbox/editor readbacks exist; draftbox action taxonomy separates delete/edit/publish; delete confirmation/cancel affordances are discoverable. Runtime proof gates require explicit `authenticatedSessionVerified:true` plus `platformEditorDomVerified:true` for editor claims. | Kiln/Tempera ordinary Ctrl+V rich HTML/SVG passing readback in WeChat; mobile preview; mobile Dark Mode; mobile click/SMIL; cover thumbnail acceptance; sync/draft readback; scheduled send; publish. |
 | WeChat Kiln paste-safe candidate | `flagship-kiln-paste-safe.html` exists as an additive candidate and passed the local Windows CF_HTML + `keybd_event` controlled contenteditable probe with `svgCount=35`, `dataInkSvgCount=3`, and first module `cover-title`. The authenticated draftbox no-mutation check found `Article 5` and zero candidate/current-run markers. | Any WeChat editor acceptance, disposable draft safety, phone preview, mobile Dark Mode, mobile click/SMIL, cover thumbnail, sync, schedule, or publish claim for this candidate. |
 | WeChat Kiln paste-safe Ctrl+V retry | The exact candidate artifact was used in an authenticated WeChat OS Ctrl+V attempt. The intended deterministic-title editor DOM stayed unchanged, while a different visible editor tab received mojibake-damaged InkForge content. That current-run empty-title residue was identified by content fingerprint, deleted with WeChat `ret=0`, and post-delete checks found zero deterministic-title, deleted-candidate, or recent empty/default-title InkForge-like residue matches. | Any ordinary rich HTML/SVG paste success, safe-disposable-draft, phone preview, mobile Dark Mode, mobile click/SMIL, cover thumbnail, sync, schedule, or publish claim for this candidate. Future proof must first prove visible OS foreground tab and CloakBrowser DOM readback target identity. |
+| WeChat Kiln paste-safe single-tab no-paste | A stricter retry used one visible authenticated WeChat editor tab with `document.hasFocus() === true`, focused body ProseMirror, and a successful CloakBrowser body click. SendKeys and `keybd_event -NoClick` both left the body unchanged (`bodyTextLength=8`, `svgCount=0`), and post-home checks found zero deterministic-title or recent InkForge-like residue candidates. | Any ordinary rich HTML/SVG paste success or safe-disposable-draft claim. Future proof must observe paste/input or same-editor body DOM mutation, not just foreground-window/key event counts. |
 | XHS | Local text cleanup, image-page/long-image manifest gates, browser canvas raster evidence. | Real account upload, phone/editor preview, publish result. |
 | Zhihu | Clean Markdown gates, image fallback manifest gates, public-host requirement modeling. | Real public-host acceptance, account upload/editor preview, publish result. |
 | Market editors | CloakBrowser-only applied-element evidence from 135 ordinary editor, 135 SVG editor, and Xiumi SVG gallery. | Any claim that third-party authoring DOM or library preview equals InkForge runtime output or WeChat final rendering. |
@@ -145,6 +149,10 @@ Current strongest evidence:
   empty/default-title InkForge-like residue matches. This adds a new gate: future OS Ctrl+V proof
   must prove visible foreground tab and CloakBrowser DOM readback target identity before claiming
   WeChat editor acceptance.
+- The 2026-06-18 Kiln paste-safe single-tab retry removed the tab mismatch and verified body focus,
+  but SendKeys and `keybd_event -NoClick` still produced no paste and no body DOM mutation. This
+  adds a second gate: key event counts and foreground-window match are still only diagnostics until
+  the editor body actually changes through paste/input.
 
 Remaining hard gates:
 - WeChat phone preview for `flagship-kiln`, `flagship-tempera`, and `flagship-amber`.
@@ -159,7 +167,7 @@ Remaining hard gates:
   type=10/type=77 WeChat editor attempts inserted only plain text (`svgCount=0`,
   `dataInkSvgCount=0`) and the failed disposable drafts were cleaned up.
 - Exact WeChat ordinary Ctrl+V proof for `flagship-kiln-paste-safe.html`. The candidate local probe
-  and the later tab-mismatch cleanup run do not close this gate.
+  and the later tab-mismatch cleanup / single-tab no-paste runs do not close this gate.
 - Login/expired-session states must remain invalid evidence even though a later authenticated
   backend/draftbox/editor DOM readback exists.
 - Safe disposable draft or equivalent cleanup path before any future live WeChat editor mutation.
@@ -184,7 +192,8 @@ Safe next actions:
    The additive `flagship-kiln-paste-safe` candidate is such a revised artifact strategy, but it is
    still only local-ready until it passes the same disposable draft create -> ordinary Ctrl+V ->
    same-visible-tab DOM readback -> cleanup -> absence-readback sequence. The tab-mismatch cleanup
-   run proves the need for this same-tab check.
+   run proves the need for this same-tab check, and the single-tab retry proves that key event
+   counts alone are still insufficient.
 4. For phone gates, collect non-sensitive phone preview evidence only after cover setup and safe
    draft conditions are satisfied.
 5. For XHS/Zhihu, treat manifests as local preflight until a real account/editor/public-host

@@ -151,6 +151,11 @@ Only run this phase after paste readback and disposable cleanup controls are rea
   InkForge content, the current-run empty-title residue was deleted with `ret=0`, and post-delete
   checks found zero deterministic-title, deleted-candidate, or recent InkForge-like residue
   matches. This does not satisfy ordinary paste or safe disposable draft proof.
+- A stricter same-tab retry is negative in
+  `wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`: the WeChat editor tab was
+  visible, page/body focus was verified, CloakBrowser body click succeeded, and `keybd_event`
+  `-NoClick` sent Ctrl+V without moving focus, but the body remained the placeholder. This confirms
+  that foreground-window and key event counts are not proof without paste/input or body DOM change.
 - That Amber proof satisfies the runbook's PC paste and cleanup path for the exact Amber artifact
   only. It still does not prove phone preview, mobile Dark Mode, mobile SMIL/click behavior, cover
   thumbnail acceptance, credentialed sync, scheduled send, or publish success.

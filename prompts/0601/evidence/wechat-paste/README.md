@@ -148,3 +148,19 @@ The first authenticated WeChat retry for `flagship-kiln-paste-safe.html` is nega
 This retry does not prove WeChat ordinary rich HTML/SVG paste. Future proof must first force a
 single visible editor tab or otherwise prove that the OS foreground tab and DOM readback target are
 the same editor before sending Ctrl+V.
+
+### 2026-06-18 single-tab no-paste retry
+
+A stricter retry removed the tab mismatch:
+
+- One visible WeChat editor tab was used.
+- The page was focused and the body `.ProseMirror` was the active element.
+- A CloakBrowser body click succeeded.
+- `SendKeys("^v")` and `keybd_event -NoClick` both left the body as the WeChat placeholder with
+  `svgCount=0`, `dataInkSvgCount=0`, and `dataInkBlockCount=0`.
+- Returning home and querying recent candidates found no deterministic-title or InkForge-like
+  residue.
+
+This means the candidate remains unproven for WeChat ordinary rich HTML/SVG paste. Future evidence
+must include a same-editor paste/input event or body DOM mutation, not only a focused editor and
+key event counts.

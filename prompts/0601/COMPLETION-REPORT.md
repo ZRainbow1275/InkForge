@@ -720,3 +720,19 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   ordinary rich HTML/SVG Ctrl+V, must not set `ordinaryClipboardPasteVerified:true`, must not
   satisfy `pc-editor-paste-event` or `safe-disposable-draft`, and does not prove phone preview,
   Dark Mode, cover, sync, schedule, XHS/Zhihu upload, public URL, or publish success.
+
+## 2026-06-18 WeChat Kiln Paste-Safe Single-Tab Ctrl+V No-Paste Addendum
+
+- Added `prompts/0601/evidence/wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`.
+- Added `-NoClick` to `inkforge/scripts/probe-windows-foreground-input.ps1` for no-mouse
+  `keybd_event` Ctrl+V diagnostics.
+- In a single visible authenticated WeChat editor tab, page focus, body ProseMirror focus, and a
+  successful CloakBrowser body click were verified before the paste attempts.
+- `System.Windows.Forms.SendKeys("^v")` and Windows `keybd_event -NoClick` both left the body
+  unchanged: `bodyTextLength=8`, `bodyHtmlLength=298`, `svgCount=0`, `dataInkSvgCount=0`, and
+  `dataInkBlockCount=0`.
+- Cleanup/absence checks after returning home found deterministic title matches `0` and recent
+  empty/default-title InkForge-like residue candidates `0`.
+- Boundary: this is negative evidence. It does not prove WeChat ordinary rich HTML/SVG Ctrl+V,
+  must not set `ordinaryClipboardPasteVerified:true`, and must not satisfy `pc-editor-paste-event`
+  or `safe-disposable-draft`.

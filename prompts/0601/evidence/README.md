@@ -621,3 +621,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `ordinaryClipboardPasteVerified:true`, must not satisfy `pc-editor-paste-event` or
   `safe-disposable-draft`, and does not prove phone, Dark Mode, cover, sync, schedule, or publish
   gates.
+
+## 2026-06-18 WeChat Kiln Paste-Safe Single-Tab Ctrl+V No-Paste
+
+- [x] wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt
+- Added `-NoClick` to `inkforge/scripts/probe-windows-foreground-input.ps1` so Windows
+  `keybd_event` Ctrl+V can be sent without moving the mouse or changing an already focused editor.
+- In a single visible WeChat editor tab, the page was visible, `document.hasFocus()` was true, the
+  body `.ProseMirror` was focused, and a CloakBrowser body click succeeded.
+- Both `System.Windows.Forms.SendKeys("^v")` and `keybd_event -NoClick` left the body unchanged:
+  `bodyTextLength=8`, `bodyHtmlLength=298`, `svgCount=0`, `dataInkSvgCount=0`,
+  `dataInkBlockCount=0`.
+- Cleanup/absence checks after returning home found deterministic title matches `0` and recent
+  empty/default-title InkForge-like residue candidates `0`.
+- Boundary: this is negative evidence only. Foreground-window match, focused editor state, and
+  key event counts are not enough; future proof must observe a paste/input event or same-editor DOM
+  body change.

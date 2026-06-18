@@ -1,0 +1,63 @@
+WeChat Kiln Paste-Safe Single-Tab Ctrl+V No-Paste - 2026-06-18
+
+Scope:
+- Authenticated WeChat PC editor retry for
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- Browser automation: CloakBrowser only.
+- Browser state: single visible WeChat editor tab after the earlier tab-mismatch cleanup.
+- Input channel: Windows CF_HTML clipboard plus ordinary OS Ctrl+V attempts.
+- No phone preview, sync, upload, schedule, or publish action was performed.
+
+Source artifact:
+- File: flagship-kiln-paste-safe.html
+- SHA-256: 338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491
+- Source HTML bytes: 41618
+- CF_HTML bytes: 41787
+- Source svgCount: 35
+- Source dataInkSvgCount: 3
+- Source dataInkBlockCount: 23
+
+Preflight:
+- Opened a fresh same-tab `type=77` WeChat article editor.
+- Editor shell existed: `#js_appmsg_editor`, `#editor_pannel`, `#js_ueditor`, `#js_editor`,
+  and `.edui-editor`.
+- The page reported `document.hasFocus() === true`.
+- The active element was the body `.ProseMirror` with the WeChat body placeholder.
+- A CloakBrowser visible click on the body `.ProseMirror` succeeded and kept the body as the
+  active element.
+
+Ctrl+V attempts:
+- `System.Windows.Forms.SendKeys("^v")` was sent while the body editor was active.
+- DOM readback after SendKeys remained unchanged:
+  - bodyTextLength: 8
+  - bodyHtmlLength: 298
+  - svgCount: 0
+  - dataInkSvgCount: 0
+  - dataInkBlockCount: 0
+- `inkforge/scripts/probe-windows-foreground-input.ps1` was extended with `-NoClick` so the probe
+  can send `keybd_event` Ctrl+V without moving the mouse or changing the already focused editor.
+- `keybd_event` Ctrl+V with `-NoClick` reported one matched foreground Chromium window and
+  `keybdEventCount=4`.
+- DOM readback after `keybd_event -NoClick` also remained unchanged:
+  - bodyTextLength: 8
+  - bodyHtmlLength: 298
+  - svgCount: 0
+  - dataInkSvgCount: 0
+  - dataInkBlockCount: 0
+  - replacementCharCount: 0
+  - mojibakeHintCount: 0
+
+Cleanup / absence:
+- The page was navigated back to the authenticated WeChat backend home.
+- Deterministic title `InkForge paste-safe proof 20260618-1650` was absent from the page and from
+  title-query probes.
+- Recent empty/default-title InkForge-like residue candidates: 0.
+
+Conclusion:
+- This is negative WeChat evidence for `flagship-kiln-paste-safe.html`.
+- It is stronger than the tab-mismatch result because the visible tab and CloakBrowser DOM target
+  were aligned and the body editor was focused.
+- It still must not set `ordinaryClipboardPasteVerified:true`.
+- It must not satisfy `pc-editor-paste-event` or `safe-disposable-draft`.
+- Future proof must observe an actual paste/input event or a body DOM change in the same focused
+  editor; foreground-window and key event counts alone are insufficient.
