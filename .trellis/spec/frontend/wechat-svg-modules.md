@@ -1434,6 +1434,21 @@ Contracts:
 - Zhihu image fallback choices must not enter the committed local pack until public HTTPS or
   platform-host image proof is available. A local manifest validator log alone is insufficient for
   the `public-image-host` gate.
+- `getCommittedStyleProofWechatPcEvidenceManifests()` is the separate bridge for committed,
+  redacted WeChat PC editor proof. It must not be merged into the local evidence helper because the
+  PC paste artifact fingerprint is the exact exported HTML SHA, while local evidence rows may refer
+  to Tauri/WebView screenshots or raster outputs.
+- The current WeChat PC committed pack may include only `wechat-flagship-amber` evidence from
+  `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`. It may satisfy
+  `authenticated-editor-url`, `pc-editor-dom-readback`, `exact-artifact`,
+  `safe-disposable-draft`, `pc-editor-paste-event`, and `no-sensitive-artifact` for the exact
+  `flagship-amber.html` SHA-256 artifact.
+- The WeChat PC committed pack must keep Amber blocked/invalid at style-choice level until mobile
+  preview, Dark Mode, cover thumbnail, sync, scheduled-send, public URL/platform preview, and
+  publish proof exists. It must not generalize Amber PC proof to Kiln, Tempera, phone, sync, or
+  publish rows.
+- `getCommittedStyleProofWechatPcEvidenceAuditReport()` is only shorthand for auditing that
+  committed WeChat PC pack. It must keep cannot-claim rows visible.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -1447,6 +1462,12 @@ Required tests:
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
   `xhs-artifact-manifest` with `artifactManifestValidated:true`, while
   `published-url-or-platform-preview` remains missing and unsafe-to-automate.
+- The committed WeChat PC pack returns cloned Amber manifests, all artifacts point to the redacted
+  Amber PC evidence file, and all artifact fingerprints match
+  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- The committed WeChat PC pack must satisfy Amber's authenticated editor, PC DOM, exact artifact,
+  safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview, Dark
+  Mode, cover thumbnail, and publish rows missing/cannot-claim.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

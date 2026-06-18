@@ -1961,6 +1961,12 @@ const COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF =
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
 
+const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
+  'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT =
+  'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d'
+
 function createCommittedStyleProofLocalEvidenceManifest(
   options: CommittedStyleProofLocalEvidenceManifestOptions,
 ): StyleProofManifest {
@@ -2131,6 +2137,125 @@ function createCommittedStyleProofXhsLocalEvidenceManifest(
   }
 }
 
+function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofManifest {
+  const choiceId = 'wechat-flagship-amber'
+  const artifactFingerprint = COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT
+
+  return {
+    platform: 'wechat',
+    scope: 'style-choice',
+    choiceId,
+    artifactFingerprint,
+    claimedEvidence: ['pc-editor-dom-readable', 'pc-editor-paste'],
+    artifacts: [
+      {
+        id: 'wechat-flagship-amber-committed-authenticated-editor-proof',
+        requirementId: 'authenticated-editor-url',
+        kind: 'editor-readback',
+        label: 'Amber committed authenticated WeChat editor session proof',
+        platform: 'wechat',
+        choiceId,
+        channel: 'platform-editor',
+        action: 'authenticated-editor-opened',
+        readback: 'dom',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        authenticatedSessionVerified: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: 'wechat-flagship-amber-committed-pc-dom-proof',
+        requirementId: 'pc-editor-dom-readback',
+        kind: 'editor-readback',
+        label: 'Amber committed WeChat PC editor DOM readback proof',
+        platform: 'wechat',
+        choiceId,
+        channel: 'platform-editor',
+        action: 'pc-editor-dom-readback',
+        readback: 'visual-and-dom',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        authenticatedSessionVerified: true,
+        platformEditorDomVerified: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: 'wechat-flagship-amber-committed-exact-html-artifact-proof',
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: 'Amber committed exact WeChat HTML artifact binding',
+        platform: 'wechat',
+        choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: 'wechat-flagship-amber-committed-safe-draft-proof',
+        requirementId: 'safe-disposable-draft',
+        kind: 'editor-readback',
+        label: 'Amber committed disposable draft cleanup proof',
+        platform: 'wechat',
+        choiceId,
+        channel: 'platform-editor',
+        action: 'safe-disposable-draft',
+        readback: 'hygiene-log',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        disposableDraft: true,
+        cleanupPathVerified: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: 'wechat-flagship-amber-committed-ordinary-pc-paste-proof',
+        requirementId: 'pc-editor-paste-event',
+        kind: 'editor-readback',
+        label: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
+        platform: 'wechat',
+        choiceId,
+        channel: 'platform-editor',
+        action: 'pc-paste',
+        readback: 'visual-and-dom',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        exactArtifact: true,
+        authenticatedSessionVerified: true,
+        platformEditorDomVerified: true,
+        ordinaryClipboardPasteVerified: true,
+        sameEditorTabVerified: true,
+        pasteInputEventVerified: true,
+        editorBodyMutationVerified: true,
+        mojibakeFreeVerified: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: 'wechat-flagship-amber-committed-pc-sensitive-hygiene-proof',
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: 'Amber committed PC evidence hygiene review',
+        platform: 'wechat',
+        choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint,
+        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',
@@ -2161,6 +2286,10 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   }),
 ] as const satisfies readonly StyleProofManifest[]
 
+const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
+  createCommittedStyleProofWechatAmberPcEvidenceManifest(),
+] as const satisfies readonly StyleProofManifest[]
+
 function cloneStyleProofManifest(manifest: StyleProofManifest): StyleProofManifest {
   return {
     ...manifest,
@@ -2175,6 +2304,14 @@ export function getCommittedStyleProofLocalEvidenceManifests(): readonly StylePr
 
 export function getCommittedStyleProofLocalEvidenceAuditReport(): StyleProofAcceptanceAuditReport {
   return getStyleProofAcceptanceAuditReport(getCommittedStyleProofLocalEvidenceManifests())
+}
+
+export function getCommittedStyleProofWechatPcEvidenceManifests(): readonly StyleProofManifest[] {
+  return COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS.map(cloneStyleProofManifest)
+}
+
+export function getCommittedStyleProofWechatPcEvidenceAuditReport(): StyleProofAcceptanceAuditReport {
+  return getStyleProofAcceptanceAuditReport(getCommittedStyleProofWechatPcEvidenceManifests())
 }
 
 export function createStyleProofManifestDraft(options: StyleProofManifestDraftOptions): StyleProofManifest {

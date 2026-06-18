@@ -1,0 +1,60 @@
+Style Proof Committed WeChat PC Evidence - 2026-06-19
+
+Scope:
+- Runtime accounting for committed, redacted WeChat PC editor evidence.
+- The evidence pack currently contains only the exact Amber flagship PC ordinary Ctrl+V proof from 2026-06-18.
+- No new platform action was performed in this slice.
+
+Implemented:
+- getCommittedStyleProofWechatPcEvidenceManifests()
+- getCommittedStyleProofWechatPcEvidenceAuditReport()
+
+Source evidence:
+- prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt
+
+Exact artifact:
+- Choice: wechat-flagship-amber.
+- Source artifact: prompts/0601/evidence/wechat-paste/flagship-amber.html.
+- Artifact fingerprint: sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d.
+
+Satisfied rows in the committed WeChat PC evidence manifest:
+- authenticated-editor-url.
+- pc-editor-dom-readback.
+- exact-artifact.
+- safe-disposable-draft.
+- pc-editor-paste-event.
+- no-sensitive-artifact.
+
+Required proof fields represented:
+- authenticatedSessionVerified:true.
+- platformEditorDomVerified:true.
+- exactArtifact:true.
+- disposableDraft:true.
+- cleanupPathVerified:true.
+- ordinaryClipboardPasteVerified:true.
+- sameEditorTabVerified:true.
+- pasteInputEventVerified:true.
+- editorBodyMutationVerified:true.
+- mojibakeFreeVerified:true.
+- committed:true.
+- safeForCommit:true.
+
+Behavior:
+- The helper returns cloned manifests, not shared mutable objects.
+- It is independent from getCommittedStyleProofLocalEvidenceManifests() so the Tauri/WebView2 local evidence fingerprint is not mixed with the WeChat HTML artifact SHA.
+- The pack has no duplicate artifact ids, no fingerprint mismatch, no sensitive committed artifact, and no unsafe committed artifact.
+- Amber remains blocked/invalid at style-choice level because the runtime catalog still requires mobile preview and publish proof before availability can be upgraded.
+- Phone preview, mobile Dark Mode, cover thumbnail, sync, scheduled-send, public URL/platform preview, and publish rows remain missing or cannot-claim.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 97 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 136 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1070 tests
+
+Boundary:
+- This proves committed runtime accounting for the exact Amber WeChat PC ordinary Ctrl+V and disposable-draft cleanup evidence only.
+- It does not prove flagship-kiln or flagship-tempera ordinary Ctrl+V.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled-send, platform preview, public URL, upload, or publish success.

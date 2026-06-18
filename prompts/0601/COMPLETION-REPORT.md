@@ -1145,3 +1145,28 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail,
   credentialed sync, scheduled-send, upload, public host, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 Committed WeChat PC Evidence Addendum
+
+- Added `prompts/0601/evidence/style-proof-committed-wechat-pc-evidence-20260619.txt`.
+- Added `getCommittedStyleProofWechatPcEvidenceManifests()` and
+  `getCommittedStyleProofWechatPcEvidenceAuditReport()` as a separate committed evidence pack for
+  redacted WeChat PC editor proof.
+- The helper currently represents only the exact Amber PC ordinary OS Ctrl+V proof from
+  `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`, bound to SHA-256
+  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- The pack satisfies Amber's committed `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `exact-artifact`, `safe-disposable-draft`, `pc-editor-paste-event`, and
+  `no-sensitive-artifact` rows, with all proof artifacts marked `committed:true` and
+  `safeForCommit:true`.
+- It remains independent from `getCommittedStyleProofLocalEvidenceManifests()` so exact HTML
+  artifact proof is not merged with local Tauri/WebView2 screenshot fingerprints.
+- Regression coverage proves Amber remains catalog-blocked/invalid and phone preview, Dark Mode,
+  cover thumbnail, sync, scheduled-send, platform preview/public URL, and publish rows remain
+  missing/cannot-claim.
+- Verification passed with focused `platform-export-rendering.test.ts` at 97 tests, 4-file
+  cross-platform export regression at 136 tests, full export serial suite at 1070 tests, and
+  targeted ESLint.
+- Boundary: committed Amber PC proof accounting only. It does not prove Kiln/Tempera ordinary
+  Ctrl+V, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
+  upload, public host, platform preview, public article rendering, or publish success.

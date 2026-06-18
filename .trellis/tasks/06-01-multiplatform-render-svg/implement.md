@@ -2806,6 +2806,52 @@ Boundary:
   cleanupPathVerified, authenticated editor DOM, ordinary PC paste, phone preview, Dark Mode,
   cover thumbnail, credentialed sync, scheduled-send, upload, public host, or publish proof.
 
+## 2026-06-19 Committed WeChat PC Evidence Manifest Slice
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofLocalEvidenceManifests -r InkForge --depth 3`
+  reported LOW risk, 0 impacted items, and 0 affected processes. The existing local-evidence helper
+  was kept unchanged.
+
+Implementation:
+- Added `getCommittedStyleProofWechatPcEvidenceManifests()` and
+  `getCommittedStyleProofWechatPcEvidenceAuditReport()` in
+  `inkforge/src/services/export/style-catalog.ts`, exported through `index.ts`.
+- The new committed PC evidence pack is intentionally separate from
+  `getCommittedStyleProofLocalEvidenceManifests()` so the exact WeChat HTML artifact SHA is not
+  mixed with Tauri/WebView2 screenshot fingerprints.
+- The pack currently contains only the redacted `wechat-flagship-amber` PC proof from
+  `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
+- It records six safe committed proof rows for the exact `flagship-amber.html` SHA-256 artifact:
+  authenticated editor, PC editor DOM, exact artifact, safe disposable draft, ordinary OS Ctrl+V
+  paste, and sensitive hygiene.
+- Required flags are bound to the exact artifact rows:
+  `authenticatedSessionVerified`, `platformEditorDomVerified`, `exactArtifact`,
+  `disposableDraft`, `cleanupPathVerified`, `ordinaryClipboardPasteVerified`,
+  `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`,
+  `mojibakeFreeVerified`, `committed`, and `safeForCommit`.
+- Regression coverage proves Amber's PC rows are satisfied but the style choice remains
+  blocked/invalid and phone preview, Dark Mode, cover thumbnail, and publish rows remain
+  missing/cannot-claim.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-committed-wechat-pc-evidence-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 97 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 136 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1070 tests.
+
+Boundary:
+- This is committed runtime accounting for exact Amber WeChat PC ordinary Ctrl+V and disposable
+  cleanup proof only.
+- It does not prove Kiln or Tempera ordinary Ctrl+V, WeChat phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail, credentialed sync, scheduled-send, platform preview, public
+  URL, upload, or publish success.
+
 ## 2026-06-19 Style Proof Artifact Manifest Validation Slice
 
 Scope:

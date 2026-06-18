@@ -253,6 +253,8 @@ export {
   getBestEvidence,
   getCommittedStyleProofLocalEvidenceAuditReport,
   getCommittedStyleProofLocalEvidenceManifests,
+  getCommittedStyleProofWechatPcEvidenceAuditReport,
+  getCommittedStyleProofWechatPcEvidenceManifests,
   getDefaultStyleEvidence,
   getEvidenceProofRequirements,
   getPlatformStyleApplicationReport,
