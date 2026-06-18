@@ -758,3 +758,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator proof only. It does not prove Kiln paste-safe WeChat ordinary
   rich HTML/SVG Ctrl+V, phone preview, Dark Mode, cover, sync, schedule, XHS/Zhihu upload, public
   URL, or publish success.
+
+## 2026-06-18 Market Editor DOM/CSS Learning Addendum
+
+- Added `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`.
+- Updated the 06-01 evidence index, research report, product spec addendum, Trellis implementation
+  log, and WeChat SVG module spec with the CloakBrowser-only market editor findings.
+- Xiumi findings: the SVG category preview can contain literal SVG/SMIL/foreignObject, but applied
+  editor-canvas output may become image cells and `tn-*` authoring layers. InkForge must therefore
+  translate Xiumi-style SVG ideas into image-slot/fallback manifests instead of treating them as
+  direct inline-SVG proof.
+- 135 findings: SVG effects should map to typed image slots, hot zones, triggers, motion schema,
+  static-expanded fallback, raster fallback, and layout reports. Ordinary 135 styles are useful
+  nested-section references only.
+- Hardened documentation boundary: `_135editor`, `135brush`, `135bg`, market `data-tools`, market
+  data ids, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, vendor class names, hosted media URLs,
+  private editor source, and paid/member assets are forbidden in InkForge publishable output.
+- Public reference cross-check: doocs/md remains a relevant Markdown-to-WeChat theme pipeline
+  reference, and OpenSVG's public feature list aligns with the observed WeChat SVG effect taxonomy.
+  Grok Search returned no usable result content for this specific query.
+- Boundary: this is rule-extraction evidence and spec hardening only. It does not prove WeChat
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload,
+  public host, or publish success.

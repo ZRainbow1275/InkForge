@@ -1186,3 +1186,42 @@ Required tests:
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber remains blocked/invalid even with local WebView2 evidence.
+
+## 15. Market Editor DOM/CSS Learning Contract - 2026-06-18
+
+CloakBrowser sampling of Xiumi and 135 is permitted only as rule extraction. It must not become
+reusable source or implicit platform proof.
+
+Contracts:
+- Applied market evidence requires click -> central editor/canvas DOM change -> redacted DOM
+  summary. List previews alone are not enough to describe the applied rendering contract.
+- 135/Xiumi source snippets, vendor classes, vendor data ids, hosted media URLs, account state,
+  local runtime directories, credential material, HAR files, QR artifacts, and paid/member assets
+  must never enter InkForge source, committed evidence, generated output, or release notes.
+- 135 ordinary output residue (`_135editor`, `135brush`, `135bg`, `data-tools`, market `data-id`)
+  and Xiumi authoring residue (`tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`) are quality-detector
+  blockers for InkForge publishable output.
+- Xiumi SVG category previews can contain `svg`, `animateTransform`, and `foreignObject`, but the
+  applied center canvas may materialize as image cells and authoring layers. Therefore Xiumi SVG
+  evidence maps to interactive manifests and fallback artifacts, not direct inline-SVG availability.
+- 135 SVG effects map to typed image slots, hot zones, motion schema, trigger type, and fallback
+  plans. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
+  layout-report heuristics only.
+- Ordinary title/card styles from 135/Xiumi may influence InkForge modules only through
+  source-owned renderers: title, card, quote, callout, timeline, QA, image frame, gallery, fallback
+  poster, and long-image.
+- WeChat output still must pass `convertToWechatWithStats`, `checkWechatSafe`, style catalog
+  availability/application gates, market residue detection, and style proof manifest gates.
+- Xiaohongshu output must use plain text or manifest-backed image pages/posters/long images. Zhihu
+  output must use semantic Markdown or public-host image fallback with alt/caption.
+- Touch-only or mobile-only market effects remain blocked until exact phone-preview proof exists
+  for the InkForge artifact.
+
+Required tests/checks:
+- Market-rule additions must add no dependency on vendor class names, vendor hosted media, or
+  authenticated editor DOM.
+- Any future detector/parser rule must fail fast on `_135editor`, `135brush`, `135bg`,
+  `data-tools`, market `data-id`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in publishable
+  output.
+- Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
+  DOM evidence alone.

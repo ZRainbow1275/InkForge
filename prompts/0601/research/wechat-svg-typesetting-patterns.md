@@ -286,3 +286,52 @@ Snippet provenance: structure/constraints from doocs/md CSS + `微信渲染规�
 - **mdnice and Redink** were characterized via the InkForge synth docs + the shared `#nice` convention, not via live source fetch this session.
 - **Dedicated web/search tools (WebSearch/WebFetch/exa) were unavailable**; all external data came through `urllib` raw-file/registry fetches, which cannot render JS-driven docs/sites. A future pass with working web tools should pull: WeChat official 公众号 editor changelog on SVG, a 秀米 exported sample, and 135editor module HTML for byte-level confirmation.
 - No code files were modified. This report is the only artifact written, at the requested path.
+
+---
+
+## 11. 2026-06-18 CloakBrowser market editor DOM/CSS pass
+
+This pass used CloakBrowser only and treated 135/Xiumi as live design-system references, not as
+reusable source. No save, copy, sync, upload, phone-share, scheduled-send, or publish path was used.
+
+### Xiumi findings
+
+- In the Xiumi v5 paper editor, the SVG category exposed a broad interactive taxonomy: 基础SVG,
+  图片轮播, 点击展开, 路径动画, 抽签效果, 趣味滑动, 轮换转场, 分支转场, 滑动触发, 视差移动, 点击切换,
+  翻页/翻转, 缩放, 点击答题, 文字弹幕, 点击显示, 点击换图, 点击打开, 点击消失, 点击弹出, 点击放大,
+  点击打印, 点击跳转, 点击播放, 长按切换, 区域触发, 点击掉落, 点击+自动.
+- The SVG list preview can contain literal SVG, SMIL animation, and `foreignObject`, but the
+  applied center canvas may convert the selected component into image cells and `tn-*` authoring
+  layers. This means Xiumi SVG sampling is taxonomy/fallback evidence, not direct inline-SVG proof.
+- Title and card templates rely heavily on nested authoring layers, image ornaments, background
+  images, transforms, negative margins, width/height constraints, and dense inline styling. InkForge
+  should translate those patterns into source-owned title, card, callout, timeline, QA, image-frame,
+  gallery, poster, and long-image modules.
+
+### 135 findings
+
+- The 135 SVG editor organizes effects as SVG效果/SVG模板 plus categories such as 基础款, 图片, 点击,
+  轮播, 滑动, 自动, 音视频, 展开, 长按, 布局, 公众号, 超链接/小程序, and 其它.
+- Observed effect blocks used `block[data-name]` identities, placeholders, hidden trigger controls,
+  image slots, percentage/inset hot-zone adjusters, and tall `viewBox=0 0 1080 1920` background
+  layers.
+- The useful reusable grammar is an InkForge-owned schema: `effectType`, image slots, hot zones,
+  motion duration/delay/direction/scale/order, trigger type, static-expanded fallback, raster
+  fallback, and layout report.
+- The ordinary 135 editor uses nested `section` grammars and inline styles for titles/body/cards,
+  but market residue such as `_135editor`, `135brush`, `135bg`, `data-tools`, market data ids,
+  vendor class names, and hosted media URLs must be blocked from InkForge publishable output.
+
+### Rule synthesis for InkForge
+
+- Market editors may expand the style catalog taxonomy, visual rhythm, and fallback planning, but
+  no vendor DOM, class, private media URL, paid/member source, or account state may enter generated
+  output.
+- WeChat SVG/rich styles must pass InkForge's own renderer, WeChat-safe checks, quality detector,
+  style catalog gates, and style proof manifest gates.
+- Xiaohongshu must receive plain text or manifest-backed image pages/posters/long images, while
+  Zhihu must receive semantic Markdown or public-host image fallback with alt/caption.
+- Mobile-only/touch-only effects remain unavailable until exact phone-preview evidence exists for
+  the InkForge artifact.
+
+Evidence artifact: `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`.

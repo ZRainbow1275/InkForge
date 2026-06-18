@@ -410,3 +410,34 @@ Recorded evidence:
   coverage for the new bound paste flags.
 - This evidence must not set `ordinaryClipboardPasteVerified:true`, must not satisfy
   `pc-editor-paste-event`, and must not satisfy `safe-disposable-draft`.
+
+## 2026-06-18 Addendum: Market Editor DOM/CSS Rule Extraction
+
+135 and Xiumi live sampling is now a design-rule input only. It must not create a shortcut around
+InkForge renderers or proof gates.
+
+Contract:
+
+- Market editor learning must be based on applied central-canvas/editor DOM changes, not just list
+  previews.
+- Xiumi SVG preview markup may include `svg`, `animateTransform`, and `foreignObject`, but applied
+  Xiumi canvas output can become image cells and `tn-*` authoring layers. That evidence maps to
+  InkForge image-slot/fallback manifests, not direct inline-SVG availability.
+- 135 SVG effects map to InkForge-owned image slots, hot zones, trigger type, motion schema,
+  static-expanded fallback, raster fallback, and layout report.
+- 135 ordinary section styles and Xiumi title/card/card-like modules may influence InkForge only
+  through source-owned title/card/callout/timeline/QA/image-frame/gallery/poster/long-image
+  renderers.
+- Market residue is forbidden in publishable output: `_135editor`, `135brush`, `135bg`,
+  `data-tools`, market data ids, `tn-*`, `tn-comp-role`, `tn-bind-comp-tpl-id`, vendor class names,
+  vendor hosted media, private editor source, and paid/member assets.
+- WeChat must still pass `convertToWechatWithStats`, `checkWechatSafe`, quality detector, style
+  catalog gates, and style proof manifests. Xiaohongshu and Zhihu must receive platform-specific
+  plain-text/image/Markdown fallbacks rather than rich HTML copied from market editors.
+- Mobile-only/touch-only market effects stay blocked until exact phone-preview evidence exists for
+  the InkForge artifact.
+
+Recorded evidence:
+
+- `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`
+- `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 11.

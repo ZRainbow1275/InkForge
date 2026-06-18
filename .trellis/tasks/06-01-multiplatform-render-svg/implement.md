@@ -2488,3 +2488,38 @@ Boundary:
 - This is local manifest validator proof only.
 - It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance for Kiln paste-safe, phone
   preview, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload, public URL, or publish.
+
+## 2026-06-18 Market Editor DOM/CSS Learning Slice
+
+Inputs:
+- CloakBrowser-only live sampling of Xiumi v5 paper editor, 135 SVG editor, and 135 ordinary WeChat
+  editor.
+- Public cross-check of doocs/md and OpenSVG repository descriptions.
+- Grok Search was attempted but returned no usable result content for this query.
+
+Observed rules:
+- Xiumi SVG list previews can expose literal SVG/SMIL/foreignObject, but the applied center canvas
+  can become image cells plus `tn-*` authoring layers. This is fallback-manifest evidence, not
+  inline-SVG proof.
+- Xiumi title/card templates use dense nested authoring cells, image ornaments, background images,
+  transforms, negative margins, and inline width/height rules. InkForge should translate those into
+  source-owned title, card, callout, timeline, QA, image-frame, gallery, poster, and long-image
+  modules.
+- 135 SVG effects use typed effect identities, image slots, hidden triggers, hot zones, tall
+  `viewBox=0 0 1080 1920` layers, background sizing, and gap-removal layout heuristics.
+- 135 ordinary editor styles are nested section grammars and useful visual references, but their
+  `_135editor`, `135brush`, `135bg`, `data-tools`, market data ids, vendor class names, and hosted
+  media references are forbidden residue.
+
+Docs/evidence updated:
+- Added `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `prompts/0601/research/wechat-svg-typesetting-patterns.md`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`.
+- Updated `prompts/0601/SPEC.md`.
+- Updated `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This slice records rule extraction and spec constraints only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  schedule, XHS/Zhihu upload, public host, or publish success.

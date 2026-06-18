@@ -651,3 +651,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Focused verification passed: `platform-export-rendering.test.ts` 1 file / 84 tests.
 - Boundary: this is local validator proof only, not WeChat paste, phone, sync, schedule, or publish
   proof.
+
+## 2026-06-18 Market Editor DOM/CSS Learning
+
+- [x] market-editor-dom-css-learning-20260618.txt
+- CloakBrowser-only live sampling covered Xiumi v5 SVG/title/card categories, the 135 SVG editor,
+  and the 135 ordinary WeChat editor. No Playwright, save, copy, sync, upload, scheduled-send, or
+  publish action was used.
+- Xiumi SVG previews can contain literal SVG/SMIL/foreignObject, but the applied center canvas may
+  materialize as image cells and authoring layers. InkForge must translate that into
+  image-slot/fallback manifests, not direct inline-SVG proof.
+- 135 SVG effects map to typed image slots, hot zones, motion, trigger, fallback, and layout-report
+  schema. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
+  useful layout heuristics only.
+- 135/Xiumi authoring residue such as `_135editor`, `135brush`, `135bg`, market `data-tools`,
+  market data ids, `tn-*`, `tn-comp-role`, and vendor URLs must remain blocked from InkForge
+  publishable output.
+- Boundary: this evidence records market-rule extraction only. It does not prove WeChat phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload, public
+  host, or publish gates.

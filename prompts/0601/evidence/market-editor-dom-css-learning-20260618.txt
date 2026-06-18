@@ -1,0 +1,99 @@
+Market Editor DOM/CSS Learning Evidence - 2026-06-18
+
+Scope:
+- CloakBrowser-only live browser study of Xiumi, 135 SVG editor, and 135 ordinary editor.
+- No Playwright was used for this pass.
+- No save, copy, sync, export, upload, preview-share, scheduled-send, or publish action was used.
+- No account identifiers, credential material, browser runtime directories, QR artifacts, HAR files,
+  or vendor template source are recorded here.
+
+Xiumi SVG category:
+- Page: Xiumi v5 paper editor.
+- Click path: left 图文模板 -> top SVG -> first visible SVG template.
+- SVG category exposed subfamilies: 基础SVG, 图片轮播, 点击展开, 路径动画, 抽签效果, 趣味滑动, 轮换转场,
+  分支转场, 滑动触发, 视差移动, 点击切换, 翻页/翻转, 缩放, 点击答题, 文字弹幕, 点击显示, 点击换图,
+  点击打开, 点击消失, 点击弹出, 点击放大, 点击打印, 点击跳转, 点击播放, 长按切换, 区域触发, 点击掉落,
+  点击+自动.
+- The first visible SVG list preview contained `svg=5`, `animateTransform=1`, and
+  `foreignObject=4`.
+- After insertion into the center `article.tn-paper-document-root`, the applied canvas reported
+  `textLen=91`, `htmlLen=41792`, `svg=0`, `animate=0`, `foreignObject=0`, image cells present,
+  `section=22`, `div=103`, `img=3`, `p=5`, and `span=27`.
+- Rule: Xiumi SVG previews may contain literal SVG/SMIL/foreignObject, but the applied authoring
+  canvas can materialize the component as image cells and authoring layers. InkForge must treat
+  this as interactive-system/image-slot/fallback evidence, not as direct WeChat inline-SVG proof.
+
+Xiumi title/category:
+- Click path: top 标题 -> first visible title template.
+- Title subfamilies included 基础标题, 极简标题, 框线标题, 图片标题, 底色标题, 符号标题, 主副标题, 编号标题,
+  竖排标题, 渐变标题, 动态标题, 文字纹理, 文字阴影.
+- First title preview reported `svg=0`, `img=3`, `section=6`, `div=17`, `p=1`, and `strong=1`.
+- After insertion, the center canvas reported `textLen=99`, `htmlLen=61264`, `svg=0`, `img=6`,
+  `section=28`, `div=125`, and `p=6`.
+- Rule: image ornaments, background-image decoration, translation transforms, and negative-margin
+  placement must be converted into InkForge-owned title modules and image-slot manifests. Generated
+  output must not keep `tn-*` classes or remote background references from the market editor.
+
+Xiumi card/category:
+- Click path: top 卡片 -> first visible card template.
+- Card subfamilies included 基础卡片, 极简卡片, 纯文字卡片, 框线卡片, 底色卡片, 底纹卡片, 图文卡片, 对话/问答,
+  轴线卡片.
+- First card preview reported `svg=0`, `img=3`, `section=17`, `div=42`, and `p=7`.
+- After insertion, the center canvas reported `textLen=284`, `htmlLen=79506`, `svg=0`, `img=9`,
+  `section=45`, `div=167`, `p=13`, and `strong=2`.
+- Rule: cards are dense nested authoring blocks. InkForge should express the useful design grammar
+  as source-owned callout/card/timeline/QA blocks with explicit image manifests, WeChat-safe inline
+  style, and a layout report whenever a free-layout pattern would be risky.
+
+135 SVG editor:
+- Page: 135 SVG editor.
+- Left tabs: SVG效果, SVG模板, 我的作品, 我的图片, 剪贴板.
+- Effect categories: 全部, 推荐, 基础款, 图片, 点击, 轮播, 滑动, 自动, 音视频, 展开, 长按, 布局, 公众号,
+  超链接/小程序, 其它.
+- Center canvas contained `block[data-name]` entries including `multiselectpopup`,
+  `carouselslide`, `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
+  `coverclickmovewithspread`.
+- Blocks use placeholders, image slots, hidden trigger controls, and percentage/inset based
+  hot-zone adjusters.
+- A tall background layer used `viewBox="0 0 1080 1920"`, a hosted background image,
+  `background-position:center`, `background-repeat:no-repeat`, `background-size:100.1% 100.1%`,
+  `display:inline-block`, `margin-top:-1px`, and pointer/user-select controls.
+- Rule: map 135 SVG effects to a typed effect schema: image slots, hot zones, motion timings,
+  direction, scale, block order, trigger type, static-expanded fallback, raster fallback, and layout
+  report. Do not inline vendor source or hosted media.
+
+135 ordinary editor:
+- Page: 135 ordinary WeChat editor.
+- Categories: 标题, 正文, 图文, 引导, 布局, 节日, 行业, 小元素, 更多, SVG.
+- Center UEditor iframe before click reported `section._135editor=5`, `section=101`, `svg=5`,
+  `img=12`, and `p=8`.
+- Clicked one visible free style. Its preview used nested section/strong/img nodes and inline
+  border-radius, padding, background, and color rules.
+- After click, the iframe reported `section._135editor=6`, `section=102`, `p=9`, and
+  `htmlLen` increased from `20537` to `20627`.
+- Rule: 135 ordinary styles are useful nested-section design references, but `_135editor`,
+  `135brush`, `135bg`, `data-tools`, market data ids, vendor class names, and vendor URLs are
+  residue and must be blocked from InkForge publishable output.
+
+External public cross-check:
+- doocs/md is a WeChat Markdown editor with custom theme styles, image hosting, content management,
+  and AI assistance. It is a useful reference for Markdown-to-WeChat theme pipelines.
+- OpenSVG publicly describes WeChat SVG component families that match the observed market taxonomy:
+  SVG image, normal image, zero-height container, click switch, click stretch, continuous-click GIF,
+  custom HTML, material/project management, live preview, phone preview, code export, component
+  tree, drag sort, property config, and animation editing.
+- Grok Search returned no usable result content for this query, so no conclusion in this evidence
+  depends on it.
+
+InkForge rules:
+- Treat market editors as taxonomy and proof inspiration only.
+- Do not import vendor HTML, classes, data ids, hosted media URLs, private SVG/source, or paid/member
+  assets.
+- WeChat output must still pass the existing renderer, WeChat-safe checks, quality detector, style
+  catalog gates, market-residue detection, and style proof manifests.
+- Xiaohongshu output must use plain text or manifest-backed image pages/posters/long images, not a
+  rich HTML body.
+- Zhihu output must use semantic Markdown or public-host image fallback with alt/caption and host
+  checks.
+- Mobile-only or touch-only SVG interactions remain disabled until exact phone-preview evidence
+  exists for the InkForge artifact.
