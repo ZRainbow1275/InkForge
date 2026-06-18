@@ -1,0 +1,51 @@
+WeChat Draftbox Article Menu Click Blocked - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat draftbox follow-up after the create-menu readback.
+- The goal was to select the visible article item from the draftbox create menu without bypassing the platform UI.
+- No editor opened, no draft was created, no title was written, no body was edited, no clipboard write was performed, no paste was attempted, no preview/sync/upload/publish action was triggered.
+
+Redaction:
+- Credential-bearing URL parameter values were not recorded.
+- Account identifiers, existing article titles, private body text, full markup, browser state locations, screenshots, local capture paths, and raw platform responses are not recorded here.
+- Only path names, selector presence, menu labels, geometry classes, state booleans, and deterministic sentinel counts are recorded.
+
+Preflight:
+- The authenticated draftbox path was reachable with active session context.
+- The page was not a relogin page.
+- The create menu was visible and exposed these menu families: article, existing-content import, sticker, video, podcast, and reprint.
+- Before article-item attempts, editor shell selectors were absent:
+  `#js_appmsg_editor`, `#editor_pannel`, `#js_ueditor`, `#js_editor`, `.edui-editor`, `.ProseMirror`.
+- Contenteditable article-body count before attempts: 0.
+- Deterministic sentinel prefix: `InkForge disposable proof kiln-safe`.
+- Sentinel matches before attempts: 0.
+
+Attempts:
+- Dispatched a DOM click against the visible article menu item. The page did not navigate to an editor.
+- Tried CloakBrowser selector clicks against the first `li.weui-desktop-dropdown__list-ele`, the inner `.weui-desktop-dropdown__list-ele-contain`, and the inner text span. CloakBrowser rejected them with an element-stability failure.
+- Calibrated browser viewport geometry from `screenX`, `screenY`, `outerWidth`, `innerWidth`, `outerHeight`, `innerHeight`, `devicePixelRatio`, and the visible article item rect.
+- Sent two minimal OS mouse clicks:
+  - one uncalibrated click based on viewport coordinates, which was outside the actual menu target;
+  - one calibrated click based on the browser window and viewport offset.
+- Dispatched a full diagnostic `pointerover` / `mouseover` / `pointerdown` / `mousedown` / `pointerup` / `mouseup` / `click` sequence in the page against the menu text node. This was used only to diagnose platform behavior and is not counted as trusted user proof.
+
+Observed after attempts:
+- The redacted path remained `/cgi-bin/appmsg`.
+- The page did not become a relogin page.
+- Editor shell selectors stayed absent:
+  `#js_appmsg_editor`, `#editor_pannel`, `#js_ueditor`, `#js_editor`, `.edui-editor`, `.ProseMirror`.
+- Article-body `contenteditable` count stayed 0.
+- Iframe count stayed 0.
+- Textarea count stayed 0.
+- Deterministic sentinel matches stayed 0.
+- The draftbox create button remained visible during readback.
+- After the diagnostic DOM event sequence, the create menu closed, but no article editor opened.
+
+Decision:
+- Treat this as an authenticated draftbox article-menu selection block, not as mutation proof.
+- Do not claim `authenticated-editor-url`, `pc-editor-dom-readback`, `safe-disposable-draft`, `pc-editor-paste-event`, `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`, or `cleanupPathVerified` from this run.
+- A future mutation pass still needs a visible and reliable article-editor entry path, same-session editor DOM readback, deterministic disposable title, exact artifact fingerprint, ordinary OS Ctrl+V insertion, body DOM readback, deletion/rollback, and post-cleanup sentinel absence.
+
+Boundary:
+- This is a redacted blocked-entry proof only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG acceptance, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, XHS/Zhihu account upload, public host acceptance, platform preview, public article rendering, or publish success.

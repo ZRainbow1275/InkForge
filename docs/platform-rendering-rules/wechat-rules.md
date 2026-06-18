@@ -141,6 +141,7 @@ Mode, cover thumbnail, sync, or publish success.
 - 2026-06-09 CloakBrowser `inkforge-0601` 只读复核证明微信编辑器可达且 `.ProseMirror` DOM 可读，但当前草稿正文已有真实音频卡，因此没有执行粘贴、保存、预览或发布。该证据不得升级任何 PC 粘贴、手机预览、同步或发布门禁。
 - 同一只读复核还观察到当前真实草稿存在 `#js_add_appmsg` / `data-action="add"` 的“增加一条/新建内容”入口；该入口会改变多图文草稿结构，未在没有 disposable draft 和 cleanup proof 的情况下点击，不能作为安全粘贴测试入口。
 - 2026-06-09 后续 CloakBrowser 证据对 exact `flagship-amber.html` 执行程序化 `ClipboardEvent('paste')` + `DataTransfer`，真实微信 PC 编辑器 paste handler 接管并读回 `data-ink-svg=3` / `svg=35`。这只证明该 PC channel 的 DOM readback；普通 Ctrl+V、手机预览、Dark Mode、封面缩略图、同步、定时发送和发布仍必须分开验收。
+- 2026-06-19 CloakBrowser 证据证明：认证态草稿箱可以打开“新的创作”菜单并看到文章入口，但 DOM click、CloakBrowser selector click、校准后的 OS mouse click 和未受信 in-page pointer/mouse event 都没有打开文章编辑器。该证据只能记录为 article-menu selection block；没有 same-session editor DOM、deterministic disposable title、paste readback 和 cleanup absence proof 时，不得满足 `authenticated-editor-reachable`、`pc-editor-dom-readable`、`pc-editor-paste` 或 `safe-disposable-draft`。
 
 ### 0.4 禁止项
 

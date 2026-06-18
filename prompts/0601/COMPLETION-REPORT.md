@@ -1209,3 +1209,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, credentialed sync,
   scheduled-send, upload, public host, platform preview, public article rendering, or publish
   success.
+
+## 2026-06-19 WeChat Draftbox Article Menu Click Blocked Addendum
+
+- Added `prompts/0601/evidence/wechat-draftbox-article-menu-click-blocked-20260619.txt`.
+- CloakBrowser-only authenticated follow-up attempted to select the visible article item from the
+  draftbox create menu without bypassing the platform UI.
+- DOM click and calibrated OS mouse clicks did not open an article editor.
+- CloakBrowser selector clicks against the article list item, inner container, and text span were
+  blocked by element-stability failures.
+- A diagnostic in-page pointer/mouse event sequence closed the menu, but it is not trusted user
+  proof and did not open an editor.
+- Post-attempt readback stayed on `/cgi-bin/appmsg`; editor shell selectors, `.ProseMirror`,
+  article-body contenteditable nodes, iframe nodes, textarea nodes, and the deterministic sentinel
+  all stayed absent.
+- Boundary: authenticated draftbox article-menu selection is blocked. This does not prove
+  authenticated editor URL, editor DOM readback, safe disposable draft, ordinary Ctrl+V paste,
+  phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, upload, public
+  host, platform preview, public article rendering, or publish success.

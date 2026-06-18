@@ -967,3 +967,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: create-menu reachability only. It does not prove safe-disposable-draft, editor DOM
   readback, ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send,
   upload, public host, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 WeChat Draftbox Article Menu Click Blocked
+
+- [x] wechat-draftbox-article-menu-click-blocked-20260619.txt
+- CloakBrowser-only authenticated follow-up kept the draftbox create menu in scope and attempted to
+  select the visible article item without bypassing the platform UI.
+- DOM click, CloakBrowser selector clicks, calibrated OS mouse clicks, and a diagnostic in-page
+  pointer/mouse event sequence did not open the article editor. CloakBrowser selector clicks were
+  blocked by element-stability failures, and the diagnostic DOM event sequence is not trusted user
+  proof.
+- Post-attempt readback stayed on `/cgi-bin/appmsg`; editor shell selectors, `.ProseMirror`,
+  article-body contenteditable nodes, iframe nodes, textarea nodes, and the deterministic sentinel
+  all stayed absent.
+- Boundary: authenticated draftbox article-menu selection is blocked. This does not prove
+  safe-disposable-draft, editor DOM readback, ordinary Ctrl+V paste, phone preview, Dark Mode,
+  cover thumbnail, sync, scheduled-send, upload, public host, platform preview, public article
+  rendering, or publish success.

@@ -1203,6 +1203,16 @@ Contracts:
   satisfy `safe-disposable-draft`, `authenticated-editor-url`, `pc-editor-dom-readback`, or
   `pc-editor-paste-event` until a same-session article editor is opened, a deterministic disposable
   draft is created, the exact artifact is pasted/read back, and cleanup is verified.
+- 2026-06-19 WeChat draftbox article-menu blocked proof:
+  `wechat-draftbox-article-menu-click-blocked-20260619.txt` records that the authenticated
+  draftbox create menu can expose an article item, but DOM click, CloakBrowser selector clicks,
+  calibrated OS mouse clicks, and a diagnostic in-page pointer/mouse event sequence did not open an
+  article editor. The selector clicks were blocked by element-stability failures; the diagnostic DOM
+  event sequence is not trusted user proof. The readback stayed on `/cgi-bin/appmsg`, editor shell
+  selectors and article-body contenteditable nodes stayed absent, and the deterministic disposable
+  sentinel stayed absent. This must not satisfy `authenticated-editor-url`,
+  `pc-editor-dom-readback`, `safe-disposable-draft`, `pc-editor-paste-event`,
+  `ordinaryClipboardPasteVerified:true`, or `cleanupPathVerified:true`.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` on the platform-editor
   proof artifact. A login, re-login, expired-session, scan-entry, or other non-backend/editor page
   must remain invalid even if it was opened through the WeChat backend URL path.
@@ -1272,6 +1282,10 @@ Required tests:
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and
   post-cleanup readback must keep `safe-disposable-draft` missing or invalid.
+- A manifest that cites draftbox create-menu or article-menu visibility, selector-click attempts,
+  calibrated OS mouse clicks, or untrusted in-page pointer/mouse events without same-session editor
+  DOM readback must keep `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid.
 - A manifest that cites a login/re-login/expired-session page as authenticated editor reachability
   must keep `authenticated-editor-url` invalid and surface
   `style-proof-manifest-authenticated-session-not-verified`.

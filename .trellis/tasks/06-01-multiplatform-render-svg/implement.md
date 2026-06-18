@@ -2833,6 +2833,38 @@ Boundary:
   credentialed sync, scheduled-send, upload, public host acceptance, platform preview, public
   article rendering, or publish success.
 
+## 2026-06-19 WeChat Draftbox Article Menu Click Blocked Slice
+
+Scope:
+- Continued the authenticated draftbox path with CloakBrowser only.
+- Attempted to select the visible article item from the draftbox create menu without bypassing the
+  platform UI.
+- No editor opened, no draft was created, no title/body was changed, no clipboard/paste action was
+  attempted, and no preview/sync/upload/publish action was triggered.
+
+Observed:
+- The authenticated draftbox route stayed reachable and was not a relogin page.
+- The create menu exposed article, existing-content import, sticker, video, podcast, and reprint
+  item families.
+- DOM click and calibrated OS mouse clicks did not open an article editor.
+- CloakBrowser selector clicks against the article list item, inner container, and text span were
+  blocked by element-stability failures.
+- A diagnostic in-page pointer/mouse event sequence closed the menu but is not trusted user proof
+  and did not open an editor.
+- Post-attempt readback stayed on `/cgi-bin/appmsg`; editor shell selectors, `.ProseMirror`,
+  article-body contenteditable nodes, iframe nodes, textarea nodes, and the deterministic sentinel
+  all stayed absent.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-draftbox-article-menu-click-blocked-20260619.txt`.
+
+Boundary:
+- This is authenticated draftbox article-menu selection block evidence only.
+- It does not prove `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `safe-disposable-draft`, `pc-editor-paste-event`, ordinary Ctrl+V rich HTML/SVG acceptance,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
+  public host, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 E2E SVG Render Refresh Slice
 
 Scope:
