@@ -453,6 +453,10 @@ Evidence labels for UI state:
   authenticated browser profile. This proves login/editor access only.
 - `pc-editor-dom-readable`: the real WeChat PC editor title/body DOM is readable and visually
   inspected. This proves editor-surface introspection only, not sanitizer retention.
+- Authenticated backend dashboard reachability is weaker than both labels above. A redacted
+  dashboard readback can confirm the Official Account backend session is alive, but it must not
+  satisfy `authenticated-editor-reachable`, `pc-editor-dom-readable`, `pc-editor-paste`,
+  `safe-disposable-draft`, `credentialed-sync`, or `published`.
 - `unit-tested`: detector/converter tests prove structure only.
 - `local-browser`: local Playwright/Tauri/browser rendering proved visibility and no overflow.
 - `pc-editor-paste`: authenticated WeChat PC editor accepted and rendered the exact artifact

@@ -2800,6 +2800,38 @@ Boundary:
   acceptance, credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance,
   or publish success.
 
+## 2026-06-19 WeChat Dashboard Authenticated Redacted Readback Slice
+
+Scope:
+- Continued the external proof queue with CloakBrowser only.
+- Used the persistent authenticated browser session after the machine reboot.
+- Performed dashboard-only redacted readback; no editor open, draft edit, paste, phone preview,
+  sync, upload, scheduled send, or publish action.
+
+Observed:
+- WeChat Official Account backend dashboard was reachable at `mp.weixin.qq.com` with path
+  `/cgi-bin/home`.
+- The credential-bearing query existed but was not recorded.
+- Visible backend/home root was present.
+- Body signals existed for home, new-creation affordances, draft area, and publish-related
+  dashboard controls.
+- Login-page containers `.login__type__container`, `.login_box`, `.login_panel`, and
+  `#header .login` were absent.
+- Visible login QR image was not present; dashboard-side QR class nodes existed and must not be
+  treated as login-page proof by themselves.
+- Redacted counts: draftbox link 1, all-drafts button 1, dashboard draft cards 4,
+  publish-record title cards 6, publish-related controls 6, delete buttons 8, cancel buttons 17,
+  appmsg-family anchors 10, credential-bearing anchors 41.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-dashboard-auth-redacted-readback-20260619.txt`.
+
+Boundary:
+- This proves authenticated WeChat dashboard reachability after reboot only.
+- It does not satisfy `pc-editor-dom-readback`, `pc-editor-paste-event`, `safe-disposable-draft`,
+  phone preview, Dark Mode, cover-thumbnail, sync, scheduled-send, public host, upload, or publish
+  gates.
+
 ## 2026-06-18 OSS Converter Source Refresh Slice
 
 Scope:

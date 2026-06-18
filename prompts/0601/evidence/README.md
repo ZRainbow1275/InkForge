@@ -843,3 +843,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local UI visibility and layout proof only. It does not prove phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
   gates.
+
+## 2026-06-19 WeChat Dashboard Authenticated Redacted Readback
+
+- [x] wechat-dashboard-auth-redacted-readback-20260619.txt
+- CloakBrowser-only readback reached the authenticated WeChat Official Account backend dashboard at
+  `/cgi-bin/home` after machine reboot.
+- Redacted readback confirmed visible backend/home root, draftbox link, all-drafts button,
+  dashboard draft cards, publish-record cards, and appmsg-family anchors.
+- Login-page containers were absent and the visible login QR image selector was absent; dashboard
+  QR-class nodes were treated as ordinary backend UI and not as a login blocker.
+- No editor was opened, no draft was edited, no paste was attempted, no phone preview was opened,
+  no sync/upload/publish action was triggered, and no screenshots, account-identifying text,
+  article-identifying text, link targets, credential material, browser state locations, or raw
+  markup were committed.
+- Boundary: authenticated dashboard reachability only. It does not prove editor DOM readback,
+  ordinary Ctrl+V rich HTML/SVG paste, safe disposable draft cleanup, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
+  gates.

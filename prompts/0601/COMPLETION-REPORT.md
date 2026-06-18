@@ -999,3 +999,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail acceptance,
   credentialed sync, scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish
   success.
+
+## 2026-06-19 WeChat Dashboard Authenticated Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-dashboard-auth-redacted-readback-20260619.txt`.
+- Used CloakBrowser only to verify the persistent WeChat Official Account backend session still
+  reaches the authenticated dashboard after the machine reboot.
+- Redacted readback observed `/cgi-bin/home`, visible backend/home root, draftbox link, all-drafts
+  button, dashboard draft cards, publish-record cards, appmsg-family anchors, and publish-related
+  dashboard controls.
+- Login-page containers were absent and visible login QR image was absent; dashboard-side QR class
+  nodes were treated as ordinary backend UI, not as a login blocker.
+- No editor was opened, no draft was edited, no paste was attempted, no phone preview was opened,
+  no sync/upload/publish action was triggered, and no screenshots, account-identifying text,
+  article-identifying text, link targets, credential material, browser state locations, raw markup,
+  or local runtime paths were committed.
+- Boundary: authenticated dashboard reachability only. It does not prove editor DOM readback,
+  ordinary Ctrl+V rich HTML/SVG paste, safe disposable draft cleanup, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
+  publish gates.

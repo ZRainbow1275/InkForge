@@ -1,0 +1,48 @@
+WeChat Dashboard Authenticated Redacted Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only readback of the WeChat Official Account backend dashboard.
+- No editor was opened, no draft was edited, no paste was attempted, no phone preview was opened,
+  no sync was triggered, no upload was triggered, and no publish action was clicked.
+
+Redaction:
+- The credential-bearing URL query was observed only as present and was not recorded.
+- Account-identifying text, article-identifying text, link targets, credential material, browser
+  state locations, screenshots, raw page markup, QR material, and local runtime paths were not saved
+  into this evidence.
+
+Observed dashboard state:
+- Host: mp.weixin.qq.com.
+- Path: /cgi-bin/home.
+- Visible home/backend root: true.
+- Body signals were present for home, new-creation affordances, draft area, and publish-related
+  dashboard controls.
+- Visible login-page containers were absent for these selectors:
+  .login__type__container, .login_box, .login_panel, #header .login.
+- Visible login QR image was absent. The page had dashboard-side QR class nodes, so QR-class
+  presence alone must not be treated as a login blocker.
+
+Redacted control counts:
+- Draftbox side-link count: 1.
+- All-drafts button count: 1.
+- Dashboard draft title-card count: 4.
+- Publish-record title-card count: 6.
+- Publish-related dashboard control count: 6.
+- Delete button count: 8.
+- Cancel button count: 17.
+- Appmsg-family anchor count: 10.
+- Credential-bearing anchor count: 41.
+
+Interpretation:
+- This proves the persistent CloakBrowser session can still reach the authenticated WeChat backend
+  dashboard after the machine reboot.
+- This does not prove the article editor DOM is readable in the current session.
+- This does not prove ordinary Ctrl+V rich HTML/SVG paste, editor-body mutation, same-tab paste,
+  mojibake-free readback, safe disposable draft cleanup, phone preview, mobile SMIL/click behavior,
+  Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance,
+  upload, or publish success.
+
+Next safe action:
+- If proceeding to authenticated editor proof, open or create only a clearly disposable draft with
+  an explicit cleanup path, then collect redacted editor DOM counts for the exact artifact.
+- Do not claim pc-editor-dom-readback or pc-editor-paste-event from this dashboard-only evidence.
