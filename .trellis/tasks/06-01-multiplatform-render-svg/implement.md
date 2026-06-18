@@ -2764,6 +2764,8 @@ Implementation:
   `artifactManifestValidated`, and `safeForCommit` are required fields.
 - Updated `validateStyleProofManifest()` so a manifest-shaped artifact row is not enough; it must
   carry `artifactManifestValidated:true` after the corresponding platform manifest validator passes.
+- Updated runbook next actions, success criteria, and failure signals so XHS rows name
+  `validateXhsImageArtifactManifest()` and Zhihu rows name `validateZhihuImageArtifactManifest()`.
 - Updated the committed XHS local evidence manifest to set the flag only for the committed
   validator-passed report.
 

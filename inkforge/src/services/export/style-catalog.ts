@@ -3983,6 +3983,7 @@ function buildStyleProofExecutionSuccessCriteria(
   audit: StyleProofAcceptanceRequirementAudit,
   contract: StyleProofExecutionArtifactContract,
 ): string[] {
+  const manifestValidatorName = getStyleProofArtifactManifestValidatorName(audit.requirement.id)
   const criteria = [
     `Add at least one StyleProofArtifact with requirementId "${audit.requirement.id}".`,
     `Use channel ${contract.requiredChannels.join(' or ')} and action ${contract.requiredActions.join(' or ')}.`,
@@ -3998,6 +3999,9 @@ function buildStyleProofExecutionSuccessCriteria(
   if (contract.acceptedHostStatuses && contract.acceptedHostStatuses.length > 0) {
     criteria.push(`Host status must be ${contract.acceptedHostStatuses.join(' or ')}.`)
   }
+  if (manifestValidatorName) {
+    criteria.push(`Run ${manifestValidatorName} and set artifactManifestValidated:true only when it returns no issues for the exact redacted manifest.`)
+  }
   if (audit.blockedChoiceCount > 0) {
     criteria.push('The catalog choice must be unblocked before this proof can complete acceptance.')
   }
@@ -4009,6 +4013,7 @@ function buildStyleProofExecutionFailureSignals(
   audit: StyleProofAcceptanceRequirementAudit,
   contract: StyleProofExecutionArtifactContract,
 ): string[] {
+  const manifestValidatorName = getStyleProofArtifactManifestValidatorName(audit.requirement.id)
   const signals = [
     'Proof is collected from a different platform, style choice, channel, or artifact fingerprint.',
     'Artifact references contain sensitive account, browser profile, token, QR, HAR, or local credential material.',
@@ -4016,6 +4021,9 @@ function buildStyleProofExecutionFailureSignals(
 
   if (contract.requiredFields.length > 0) {
     signals.push(`Any missing, false, or unbound required field invalidates this row: ${contract.requiredFields.join(', ')}.`)
+  }
+  if (manifestValidatorName) {
+    signals.push(`Any ${manifestValidatorName} issue or missing artifactManifestValidated:true invalidates this artifact-manifest row.`)
   }
   if (audit.issueIds.length > 0) {
     signals.push(`Current validator issue ids: ${audit.issueIds.join(', ')}.`)
@@ -4034,10 +4042,22 @@ function getStyleProofExecutionNextOperatorAction(
   audit: StyleProofAcceptanceRequirementAudit,
 ): string {
   if (audit.status === 'completed') return 'No action required for this requirement.'
+  const manifestValidatorName = getStyleProofArtifactManifestValidatorName(audit.requirement.id)
+  if (manifestValidatorName) {
+    return `Run ${manifestValidatorName} for the exact redacted artifact manifest, then attach the validator-passed manifest proof with artifactManifestValidated:true.`
+  }
   if (audit.safeToAutomate) return STYLE_PROOF_COLLECTION_NOTES[audit.gate]
   if (audit.requiresPhone) return STYLE_PROOF_COLLECTION_NOTES['phone-preview']
   if (audit.gate === 'public-host') return STYLE_PROOF_COLLECTION_NOTES['public-host']
   return STYLE_PROOF_COLLECTION_NOTES[audit.gate]
+}
+
+function getStyleProofArtifactManifestValidatorName(
+  requirementId: StyleProofRequirementId,
+): 'validateXhsImageArtifactManifest()' | 'validateZhihuImageArtifactManifest()' | null {
+  if (requirementId === 'xhs-artifact-manifest') return 'validateXhsImageArtifactManifest()'
+  if (requirementId === 'zhihu-artifact-manifest') return 'validateZhihuImageArtifactManifest()'
+  return null
 }
 
 function buildStyleProofExecutionRunbookStep(

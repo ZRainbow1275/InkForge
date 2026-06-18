@@ -1545,6 +1545,9 @@ describe('platform native export rendering rules', () => {
       'artifactManifestValidated',
       'safeForCommit',
     ]))
+    expect(xhsArtifactManifest?.nextOperatorAction).toContain('validateXhsImageArtifactManifest()')
+    expect(xhsArtifactManifest?.successCriteria.join(' ')).toContain('artifactManifestValidated:true')
+    expect(xhsArtifactManifest?.failureSignals.join(' ')).toContain('validateXhsImageArtifactManifest()')
     expect(zhihuPublicHost?.status).toBe('blocked-by-external')
     expect(zhihuPublicHost?.boundary).toBe('public-host')
     expect(zhihuPublicHost?.requiredArtifact.acceptedHostStatuses).toEqual([
@@ -1561,6 +1564,8 @@ describe('platform native export rendering rules', () => {
       'artifactManifestValidated',
       'safeForCommit',
     ]))
+    expect(zhihuArtifactManifest?.nextOperatorAction).toContain('validateZhihuImageArtifactManifest()')
+    expect(zhihuArtifactManifest?.failureSignals.join(' ')).toContain('validateZhihuImageArtifactManifest()')
   })
 
   it('rejects missing required proof artifacts for claimed PC editor paste evidence', () => {

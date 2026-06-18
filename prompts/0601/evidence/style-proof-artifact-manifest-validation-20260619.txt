@@ -12,6 +12,8 @@ Implemented:
   - safeForCommit
 - validateStyleProofManifest now rejects manifest-shaped proof rows unless the row also proves the
   matching platform manifest validator passed.
+- The execution runbook next action, success criteria, and failure signals name the matching
+  platform validator so operator checklists do not drift from validator behavior.
 - The committed XHS local evidence manifest sets artifactManifestValidated:true only for the
   committed validator-passed manifest report.
 
@@ -32,6 +34,8 @@ Regression coverage:
 - Committed XHS local evidence still satisfies xhs-artifact-manifest because it references the
   validator-passed committed report and sets artifactManifestValidated:true.
 - The execution runbook exposes artifactManifestValidated for XHS and Zhihu artifact-manifest rows.
+- The execution runbook points XHS artifact-manifest rows at validateXhsImageArtifactManifest() and
+  Zhihu artifact-manifest rows at validateZhihuImageArtifactManifest().
 
 Verification:
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default

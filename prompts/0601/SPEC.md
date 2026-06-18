@@ -535,7 +535,8 @@ Contract:
   of `public-https` or `platform-hosted`.
 - XHS and Zhihu artifact-manifest proof must identify `artifactRef`, `safeForCommit`, and
   `artifactManifestValidated:true`. The flag may be set only after the matching platform manifest
-  validator returns no issues for the exact redacted manifest being referenced.
+  validator returns no issues for the exact redacted manifest being referenced. The execution
+  runbook must name the matching validator in next actions and failure signals.
 - Credentialed sync, scheduled-send, upload, and publish rows remain external/manual gates until
   exact artifact readback exists.
 

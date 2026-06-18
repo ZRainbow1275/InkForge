@@ -879,6 +879,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   for the exact redacted manifest.
 - The execution runbook exposes the same required field so UI/operator checklists cannot diverge
   from the proof validator.
+- Runbook next actions and failure signals name `validateXhsImageArtifactManifest()` for XHS and
+  `validateZhihuImageArtifactManifest()` for Zhihu.
 - Boundary: local validator-passed accounting only. It does not prove upload, platform preview,
   public URL acceptance, sync, scheduled publish, or publish success.
 

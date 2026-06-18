@@ -1359,7 +1359,9 @@ Contracts:
 - XHS and Zhihu artifact-manifest proof must require `artifactManifestValidated:true` in addition
   to `artifactRef` and `safeForCommit`. The flag is set only when the matching
   `validateXhsImageArtifactManifest()` or `validateZhihuImageArtifactManifest()` call returns no
-  issues for the exact redacted manifest.
+  issues for the exact redacted manifest. The execution runbook's next action, success criteria,
+  and failure signals must name the matching validator so operator checklists cannot treat a
+  manifest-shaped row as validator-passed proof.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.

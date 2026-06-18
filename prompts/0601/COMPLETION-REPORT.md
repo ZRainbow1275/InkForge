@@ -1097,6 +1097,9 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   the exact redacted manifest.
 - Updated the execution runbook contracts so operator/UI checklists expose
   `artifactManifestValidated` alongside `artifactRef` and `safeForCommit`.
+- Updated runbook next actions and failure signals so XHS rows point to
+  `validateXhsImageArtifactManifest()` and Zhihu rows point to
+  `validateZhihuImageArtifactManifest()`.
 - Updated committed XHS local evidence to set the field only for the committed validator-passed
   local manifest report.
 - Verification passed with focused `platform-export-rendering.test.ts` at 96 tests, 4-file
