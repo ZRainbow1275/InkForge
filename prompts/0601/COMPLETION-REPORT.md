@@ -1301,3 +1301,18 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   failures do not prove article editor target identity, editor DOM readback, safe disposable draft,
   ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
   public host, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 WeChat Existing Draft Edit Entry Blocked Addendum
+
+- Added `prompts/0601/evidence/wechat-existing-draft-edit-entry-blocked-20260619.txt`.
+- CloakBrowser selector click against a visible existing draft title returned ok, but the page
+  stayed on `/cgi-bin/appmsg`.
+- Post-click readback still showed no `.ProseMirror`, article-body contenteditable node, iframe,
+  textarea, visible editor-like node, or deterministic sentinel.
+- A visible edit candidate existed in the card action layer, but computed visibility resolved to
+  hidden and its center hit the parent action layer.
+- CloakBrowser selector click against the tagged edit candidate failed the element-stability gate.
+- Boundary: existing draft title links, hidden hover/action affordances, and click-stability
+  failures do not prove article editor target identity, editor DOM readback, safe disposable draft,
+  ordinary Ctrl+V paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload,
+  public host, platform preview, public article rendering, or publish success.

@@ -1230,6 +1230,14 @@ Contracts:
   menu stayed `display:none` with zero-size menu item rects. Hidden dropdown DOM text, a visible
   create button, or a CloakBrowser click-stability failure must not satisfy article editor target,
   PC DOM, safe draft, paste, or cleanup proof rows.
+- 2026-06-19 WeChat existing-draft editor entry block:
+  `wechat-existing-draft-edit-entry-blocked-20260619.txt` records that CloakBrowser could click a
+  visible existing draft title link, but the page stayed on `/cgi-bin/appmsg` and editor shell
+  selectors, article-body contenteditable nodes, iframe nodes, and textarea nodes stayed absent.
+  The first visible edit action had stable geometry but was hidden by computed visibility, and
+  CloakBrowser selector click failed the element-stability gate. Existing draft title links,
+  hover/action DOM, or hidden edit affordances must not satisfy article editor target proof unless
+  the same session actually opens the editor and reads back editor DOM.
 - `authenticated-editor-url` requires `authenticatedSessionVerified:true` and
   `platformEditorTargetVerified:true` on the platform-editor proof artifact. A login, re-login,
   expired-session, scan-entry, dashboard, draftbox, create-menu, or other authenticated shell page
@@ -1311,6 +1319,10 @@ Required tests:
   element-stability failures without an actually visible dropdown item and same-session article
   editor readback must keep `authenticated-editor-url`, `pc-editor-dom-readback`,
   `safe-disposable-draft`, and `pc-editor-paste-event` missing or invalid.
+- A manifest that cites an existing draft title click, hover action row, or hidden edit affordance
+  without a same-session editor transition and editor DOM readback must keep
+  `authenticated-editor-url`, `pc-editor-dom-readback`, `safe-disposable-draft`, and
+  `pc-editor-paste-event` missing or invalid.
 - A manifest that cites OS-coordinate calibration, Win32 render-window hit testing, or hover-chain
   diagnostics must keep WeChat editor, paste, safe-draft, and cleanup rows missing or invalid unless
   the same artifact also proves exact DOM target identity, trusted editor opening, deterministic

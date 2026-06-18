@@ -1047,3 +1047,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   do not prove article editor target identity, editor DOM readback, safe draft, PC paste, phone
   preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 WeChat Existing Draft Edit Entry Blocked
+
+- [x] wechat-existing-draft-edit-entry-blocked-20260619.txt
+- CloakBrowser selector click on a visible existing draft title returned ok, but readback stayed on
+  `/cgi-bin/appmsg` with no editor shell, contenteditable article body, iframe, textarea, visible
+  editor-like node, or deterministic sentinel.
+- The visible card action layer exposed edit/publish affordances, but the tagged edit candidate
+  resolved to `visibility:hidden`; its center hit the parent action layer.
+- CloakBrowser selector click against the tagged edit candidate failed the element-stability gate.
+- Boundary: existing draft title links and hidden hover/action edit affordances are blocked
+  evidence only. They do not prove article editor target identity, editor DOM readback, safe draft,
+  PC paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host,
+  platform preview, public article rendering, or publish success.

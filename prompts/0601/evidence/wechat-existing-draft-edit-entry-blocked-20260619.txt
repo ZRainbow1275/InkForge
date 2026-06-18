@@ -1,0 +1,28 @@
+WeChat Existing Draft Edit Entry Blocked - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated readback and selector-click attempts on visible existing-draft entry points.
+- No OS-coordinate click, JavaScript synthetic click, paste, save, delete, phone preview, sync, upload, scheduled-send, or publish action.
+- No draft title text, raw DOM, account text, credential values, or browser/account runtime artifacts are recorded here.
+
+Existing draft title attempt:
+- A visible existing draft title link was tagged without recording its text.
+- CloakBrowser selector click on the tagged title link returned ok.
+- After a three-second readback window, the page still stayed on the WeChat backend draftbox/appmsg route.
+- Editor shell selectors stayed absent.
+- Article-body contenteditable nodes stayed absent.
+- iframe and textarea nodes stayed absent.
+- Visible editor-like nodes stayed absent.
+- Deterministic sentinel text stayed absent.
+
+Edit action attempt:
+- The draft card action layer exposed edit and publish affordances.
+- Only one edit candidate was visible by box, but computed visibility resolved to hidden.
+- Repeated geometry samples kept the edit candidate at the same position and size.
+- The edit candidate center resolved to the parent card action layer rather than a directly visible edit element.
+- CloakBrowser selector click on the tagged edit candidate failed the element-stability gate.
+- The publish affordance was not clicked.
+
+Boundary:
+- This is blocked platform evidence only.
+- It does not satisfy platformEditorTargetVerified, authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft, pc-editor-paste-event, ordinaryClipboardPasteVerified, cleanupPathVerified, phonePreviewContentVerified, darkModeEnabledVerified, coverThumbnailAccepted, sync-readback, scheduled-send, platform preview, public article rendering, or publish proof.

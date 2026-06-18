@@ -2783,6 +2783,33 @@ Boundary:
   readback, safe disposable draft, ordinary PC paste, cleanup, phone preview, Dark Mode, cover
   thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat Existing Draft Edit Entry Blocked Slice
+
+Scope:
+- Continued the WeChat article-editor target identity gate with CloakBrowser only.
+- Attempted the visible existing-draft title entry and the visible edit affordance path without
+  paste, save, delete, preview, sync, upload, scheduled send, or publish.
+
+Observed:
+- A visible existing draft title link was tagged without recording its text. CloakBrowser selector
+  click returned ok, but the page stayed on `/cgi-bin/appmsg`.
+- Three seconds after the title click, `.ProseMirror`, article-body contenteditable nodes, iframe
+  nodes, textarea nodes, visible editor-like nodes, and deterministic sentinels were still absent.
+- The draft card action layer exposed one visible edit candidate among hidden edit/publish
+  affordances, but the candidate's computed `visibility` resolved to `hidden`.
+- Repeated geometry samples kept that edit candidate at the same position and size. Its center
+  resolved to the parent card action layer rather than a directly visible edit element.
+- CloakBrowser selector click on the tagged edit candidate failed the element-stability gate.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-existing-draft-edit-entry-blocked-20260619.txt`.
+
+Boundary:
+- This is blocked platform evidence only.
+- It does not prove `platformEditorTargetVerified`, authenticated editor URL, PC editor DOM
+  readback, safe disposable draft, ordinary PC paste, cleanup, phone preview, Dark Mode, cover
+  thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Platform Editor Target Identity Gate Slice
 
 Impact:
