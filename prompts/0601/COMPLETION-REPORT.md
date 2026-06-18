@@ -912,3 +912,23 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
   phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
   acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 Xiumi Editable Surface Residue Gate Addendum
+
+- Added `prompts/0601/evidence/xiumi-editable-surface-residue-gate-20260618.txt`.
+- Continued CloakBrowser-only Xiumi v5 center-editor sampling without save, export, sync, upload,
+  phone preview, scheduled send, or publish actions.
+- The active `.tn-editing-panel` exposed 19 `contenteditable` nodes, 0 `spellcheck` nodes, and
+  0 `draggable` nodes.
+- The `contenteditable="true"` samples were applied SVG/title/card text cells, including title
+  text, numbered badges, and card body paragraphs.
+- `MARKET_EDITOR_RESIDUE_RULES` now rejects copied editor text surfaces as
+  `editor editable surface attribute`, even when no `tn-*`, `ng-*`, 135 wrapper, or vendor-media
+  marker remains.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu reject editable-surface
+  residue; verification passed with focused `platform-export-rendering.test.ts` at 90 tests,
+  4-file export regression at 129 tests, full export serial suite at 1052 tests, ESLint,
+  `vue-tsc`, and production build.
+- Boundary: local detector proof and market-editor rule extraction only. It does not prove WeChat
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary WeChat Ctrl+V rich HTML/SVG
+  acceptance, sync, scheduled-send, XHS/Zhihu upload, public host, or publish success.

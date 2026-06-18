@@ -153,6 +153,13 @@ const MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div contenteditable="true">Copied editor text cell</div>',
+  '<p contenteditable="plaintext-only">Copied plaintext editing surface</p>',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -3026,6 +3033,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Angular/Vue authoring attribute')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Angular authoring class')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks copied editor editable surfaces from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('editor editable surface attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('editor editable surface attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('editor editable surface attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

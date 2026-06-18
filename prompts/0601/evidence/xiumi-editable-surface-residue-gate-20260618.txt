@@ -1,0 +1,53 @@
+Xiumi Editable Surface Residue Gate - 2026-06-18
+
+Scope:
+- CloakBrowser-only readback of the already-open Xiumi v5 paper editor center panel.
+- No save, export, sync, upload, phone preview, scheduled send, or publish action.
+- Evidence is market/editor runtime DOM learning plus local detector regression only.
+
+Live editor readback:
+- Page title: Xiumi paper draft editor.
+- Center root: .tn-editing-panel.
+- contenteditable nodes: 19.
+- spellcheck nodes: 0.
+- draggable nodes: 0.
+- Samples were text cells inside applied SVG/title/card content, with class names such as
+  `tn-cell-inst ng-binding ng-scope tn-cell tn-cell-text horizontal-tb tn-state-active`.
+- Sample text cells included the applied SVG gallery description, title text, numbered badges,
+  and card body paragraphs.
+
+Rule:
+- `contenteditable` belongs to editor runtime surfaces, not publishable article output.
+- It must be blocked even when a copied fragment no longer carries Xiumi `tn-*`, Angular `ng-*`,
+  135 `_135editor`, or vendor media references.
+
+Implementation:
+- Extended `MARKET_EDITOR_RESIDUE_RULES` with `editor editable surface attribute`.
+- Added `MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML`, intentionally without `tn-*` or `ng-*`
+  markers, to prove the rule works independently.
+
+Regression coverage:
+- WeChat quality reports fail with `wechat-market-editor-residue` containing
+  `editor editable surface attribute`.
+- Xiaohongshu quality reports fail with `xhs-market-editor-residue` containing the same label.
+- Zhihu quality reports fail with `zhihu-market-editor-residue` containing the same label.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 90 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 129 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1052 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves a local publishable-output detector gate only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  ordinary WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send,
+  Xiaohongshu/Zhihu account upload, public host acceptance, or publish success.

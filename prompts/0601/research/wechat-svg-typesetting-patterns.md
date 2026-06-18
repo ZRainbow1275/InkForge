@@ -315,6 +315,9 @@ reusable source. No save, copy, sync, upload, phone-share, scheduled-send, or pu
   SVG. Angular controls such as `ng-model`, `ng-change`, `ng-include`, `ng-controller`, and
   `ng-hide`, plus classes such as `ng-scope`, `ng-binding`, `ng-pristine`, `ng-valid`, and
   `ui-sortable`, are authoring residue even when copied without `tn-*` markers.
+- The applied center panel also contained 19 `contenteditable` text cells. Treat editable surfaces
+  as editor runtime residue; final InkForge exports must render ordinary text elements rather than
+  preserving copied paste/editing affordances.
 - Title and card templates rely heavily on nested authoring layers, image ornaments, background
   images, transforms, negative margins, width/height constraints, and dense inline styling. InkForge
   should translate those patterns into source-owned title, card, callout, timeline, QA, image-frame,

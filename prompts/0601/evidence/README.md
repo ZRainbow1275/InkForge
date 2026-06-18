@@ -781,3 +781,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - This evidence is local detector proof only. It does not prove WeChat phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
   XHS/Zhihu upload, public host acceptance, or publish success.
+
+## 2026-06-18 Xiumi Editable Surface Residue Gate
+
+- `xiumi-editable-surface-residue-gate-20260618.txt` records the CloakBrowser-only
+  Xiumi center-editor readback where `.tn-editing-panel` contained 19
+  `contenteditable` text cells inside applied SVG/title/card content.
+- The executable gate blocks copied `contenteditable` attributes as
+  `editor editable surface attribute`, independently from `tn-*`, `ng-*`, 135
+  wrapper classes, or vendor media URL markers.
+- This evidence is local detector proof only. It does not prove WeChat phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
+  XHS/Zhihu upload, public host acceptance, or publish success.

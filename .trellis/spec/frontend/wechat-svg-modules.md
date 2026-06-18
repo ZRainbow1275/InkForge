@@ -175,6 +175,10 @@ construct breaks.
   `ng-change`, `ng-hide`, and authoring classes such as `ng-scope`, `ng-binding`, `ng-hide`,
   `ng-pristine`, `ng-valid`, and `ui-sortable` as publish-blocking residue even when a copied
   fragment no longer includes `tn-*` markers.
+- 2026-06-18 Xiumi editable-surface refresh: the same applied center panel contained 19
+  `contenteditable` text cells. Treat `contenteditable` as an editor runtime surface marker, not
+  article semantics. It must be blocked from publishable WeChat/XHS/Zhihu output even when the
+  copied fragment has no remaining vendor class, `tn-*`, `ng-*`, or hosted-media marker.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must

@@ -101,6 +101,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Angular authoring class',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bcontenteditable(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/i,
+    label: 'editor editable surface attribute',
+  },
+  {
     pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,
     label: 'Xiumi third-party image source',
   },

@@ -441,6 +441,9 @@ Contract:
   authoring directives, and Angular runtime classes such as `ng-scope`, `ng-binding`, `ng-hide`,
   `ng-pristine`, `ng-valid`, `ng-empty`, `ng-not-empty`, and `ui-sortable` must fail publishable
   output quality checks.
+- Editor runtime editable surfaces are also forbidden: `contenteditable` marks a live editor text
+  cell or paste surface, not final article semantics, and must fail publishable output quality
+  checks even when no market-editor vendor class or `tn-*`/`ng-*` marker remains.
 - WeChat must still pass `convertToWechatWithStats`, `checkWechatSafe`, quality detector, style
   catalog gates, and style proof manifests. Xiaohongshu and Zhihu must receive platform-specific
   plain-text/image/Markdown fallbacks rather than rich HTML copied from market editors.
@@ -453,6 +456,7 @@ Recorded evidence:
 - `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`
 - `prompts/0601/evidence/xiumi-applied-runtime-binding-residue-gate-20260618.txt`
 - `prompts/0601/evidence/xiumi-angular-runtime-residue-gate-20260618.txt`
+- `prompts/0601/evidence/xiumi-editable-surface-residue-gate-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 11.
 
 Implemented gate:
@@ -463,6 +467,8 @@ Implemented gate:
   `Xiumi runtime binding attribute`.
 - `MARKET_EDITOR_RESIDUE_RULES` blocks Xiumi Angular/Vue runtime controls and Angular authoring
   classes as `Angular/Vue authoring attribute` and `Angular authoring class`.
+- `MARKET_EDITOR_RESIDUE_RULES` blocks copied editor text surfaces as
+  `editor editable surface attribute`.
 - The gate applies to WeChat, Xiaohongshu, and Zhihu quality reports and is covered by
   `platform-export-rendering.test.ts`.
 - `PLATFORM_STYLE_CHOICES` injects the platform-specific market-residue detector blocker into every
