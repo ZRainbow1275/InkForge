@@ -1223,5 +1223,7 @@ Required tests/checks:
 - Any future detector/parser rule must fail fast on `_135editor`, `135brush`, `135bg`,
   `data-tools`, market `data-id`, `tn-*`, `tn-comp-role`, and `tn-bind-comp-tpl-id` in publishable
   output.
+- CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
+  background-image layers that do not use `<img>`/`<image>` tags.
 - Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
   DOM evidence alone.

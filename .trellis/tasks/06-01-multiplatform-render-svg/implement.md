@@ -2523,3 +2523,31 @@ Boundary:
 - This slice records rule extraction and spec constraints only.
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   schedule, XHS/Zhihu upload, public host, or publish success.
+
+## 2026-06-18 Market Editor Hosted Background Residue Gate Slice
+
+Impact:
+- `npx gitnexus impact collectMarketEditorResidues -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted items, 1 direct caller, 0 affected processes, and only the Export
+  module affected.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` pattern for CSS `url(...)` references to 135/Xiumi hosted
+  media.
+- Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` and a three-platform regression proving WeChat,
+  Xiaohongshu, and Zhihu fail quality reports with `market editor hosted background source`.
+- Added evidence:
+  `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 85 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 124 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1047 tests.
+
+Boundary:
+- This is a local detector gate only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled-send, XHS/Zhihu account upload, public host acceptance, or publish success.

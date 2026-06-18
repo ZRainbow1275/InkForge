@@ -1,0 +1,38 @@
+Market Editor Hosted Background Residue Gate - 2026-06-18
+
+Scope:
+- Local quality detector hardening for copied 135/Xiumi hosted background sources.
+- No platform save, sync, upload, phone-preview, scheduled-send, or publish action was used.
+- No account identifiers, credential material, local browser runtime directories, QR artifacts, or
+  vendor source are recorded here.
+
+Implemented:
+- `MARKET_EDITOR_RESIDUE_RULES` now treats CSS `url(...)` references to 135/Xiumi hosted media as
+  market editor residue.
+- The new rule reports `market editor hosted background source`.
+- Existing image/source tag residue rules remain unchanged.
+
+Behavior:
+- WeChat publishable output receives `wechat-market-editor-residue` with severity `error`.
+- Xiaohongshu publishable output receives `xhs-market-editor-residue` with severity `error`.
+- Zhihu publishable output receives `zhihu-market-editor-residue` with severity `error`.
+- Plain prose about 135/Xiumi remains allowed because the detector scans markup/source-like
+  constructs rather than ordinary text references.
+
+Regression coverage:
+- Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` with 135 and Xiumi CSS background media references.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu all fail the quality
+  report when those hosted background sources are present.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 85 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 124 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1047 tests.
+
+Boundary:
+- This is a local detector gate only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled-send, Xiaohongshu/Zhihu account upload, public host acceptance, or publish success.

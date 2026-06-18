@@ -440,4 +440,12 @@ Contract:
 Recorded evidence:
 
 - `prompts/0601/evidence/market-editor-dom-css-learning-20260618.txt`
+- `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 11.
+
+Implemented gate:
+
+- `MARKET_EDITOR_RESIDUE_RULES` blocks CSS `url(...)` references to 135/Xiumi hosted media as
+  `market editor hosted background source`.
+- The gate applies to WeChat, Xiaohongshu, and Zhihu quality reports and is covered by
+  `platform-export-rendering.test.ts`.

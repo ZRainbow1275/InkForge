@@ -670,3 +670,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this evidence records market-rule extraction only. It does not prove WeChat phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload, public
   host, or publish gates.
+
+## 2026-06-18 Market Editor Hosted Background Residue Gate
+
+- [x] market-editor-residue-background-gate-20260618.txt
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks CSS `url(...)` references to 135/Xiumi hosted media as
+  `market editor hosted background source`.
+- Added a three-platform regression proving WeChat, Xiaohongshu, and Zhihu quality reports all fail
+  when copied market editor hosted background sources are present.
+- Verification passed:
+  - `platform-export-rendering.test.ts`: 1 file / 85 tests.
+  - cross-platform export regression: 4 files / 124 tests.
+  - full export serial run: 35 files / 1047 tests.
+- Boundary: this is a local detector gate only. It does not prove phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.

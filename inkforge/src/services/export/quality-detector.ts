@@ -57,6 +57,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 third-party image source',
   },
   {
+    pattern: /\burl\(\s*["']?(?:https?:)?\/\/[^)"'\s<>]*(?:135editor\.com|statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,
+    label: 'market editor hosted background source',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },

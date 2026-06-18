@@ -780,3 +780,19 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is rule-extraction evidence and spec hardening only. It does not prove WeChat
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, schedule, XHS/Zhihu upload,
   public host, or publish success.
+
+## 2026-06-18 Market Editor Hosted Background Residue Gate Addendum
+
+- Added `prompts/0601/evidence/market-editor-residue-background-gate-20260618.txt`.
+- Hardened `MARKET_EDITOR_RESIDUE_RULES` so CSS `url(...)` references to 135/Xiumi hosted media are
+  blocked as `market editor hosted background source`, not only `<img>`/`<image>` sources.
+- Added `MARKET_EDITOR_BACKGROUND_RESIDUE_HTML` and a three-platform regression proving WeChat,
+  Xiaohongshu, and Zhihu quality reports all fail when copied 135/Xiumi hosted background sources
+  are present.
+- Verification passed:
+  - `platform-export-rendering.test.ts`: 1 file / 85 tests.
+  - cross-platform export regression: 4 files / 124 tests.
+  - full export serial run: 35 files / 1047 tests.
+- Boundary: this is a local detector gate only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, XHS/Zhihu upload, public host, or
+  publish success.

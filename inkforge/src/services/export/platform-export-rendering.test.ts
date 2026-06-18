@@ -106,6 +106,15 @@ const MARKET_EDITOR_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_BACKGROUND_RESIDUE_HTML = [
+  '<section style="background-image:url(https://image.135editor.com/files/bg.png);padding:24px">',
+  '135 背景图残留',
+  '</section>',
+  '<section style="background:url(//statics.xiumi.us/mat/i/demo-bg.jpg) center/cover no-repeat">',
+  '秀米背景图残留',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -2881,6 +2890,22 @@ describe('platform native export rendering rules', () => {
     expect(issue?.message).toContain('Xiumi tn-* authoring tree')
     expect(issue?.suggestion).toContain('InkForge 自有')
     expect(report.issues.some(item => item.id === 'wechat-unsupported-css' && item.severity === 'error')).toBe(true)
+  })
+
+  it('blocks market editor hosted background sources from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_BACKGROUND_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_BACKGROUND_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_BACKGROUND_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('market editor hosted background source')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('market editor hosted background source')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('market editor hosted background source')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
   })
 
   it('degrades rendered Mermaid SVG to a readable WeChat image placeholder', () => {
