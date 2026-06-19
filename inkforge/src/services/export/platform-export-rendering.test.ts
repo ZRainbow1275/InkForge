@@ -3390,6 +3390,133 @@ describe('platform native export rendering rules', () => {
     expect(phoneAuditStatus.get('cover-thumbnail-check')).toBe('invalid')
   })
 
+  it('keeps phone preview blocker flags forbidden on otherwise complete phone success rows', () => {
+    const artifactFingerprint = 'sha256:redacted-phone-blocker-forbidden'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      claimedEvidence: ['mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'blocked-phone-body-success-row',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'blocked phone body row must not become final preview proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewBlocked: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-phone-screenshot-success-row',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'blocked screenshot row must not become final phone screenshot proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewBlocked: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-dark-mode-success-row',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'blocked dark mode row must not become mobile Dark Mode proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewBlocked: true,
+          phonePreviewContentVerified: true,
+          darkModeEnabledVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-cover-success-row',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'blocked cover row must not become cover thumbnail proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewBlocked: true,
+          coverThumbnailAccepted: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const cannotClaimIds = audit.cannotClaim.map(requirement => requirement.requirement.id)
+    const runbook = getPlatformStyleProofExecutionRunbook('wechat', [manifest])
+    const phonePreviewStep = runbook.steps.find(step =>
+      step.requirement.id === 'phone-preview-readback'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-phone-preview-blocked',
+    )).toHaveLength(4)
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-forbidden-field-present',
+    )).toHaveLength(4)
+    expect(issueLocations).toEqual(expect.arrayContaining([
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+    ]))
+    expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(requirementStatus.get('dark-mode-check')).toBe('invalid')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
+    expect(auditStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('dark-mode-check')).toBe('invalid')
+    expect(auditStatus.get('cover-thumbnail-check')).toBe('invalid')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+    ]))
+    expect(phonePreviewStep?.successCriteria.join(' ')).toContain('phonePreviewBlocked:true')
+    expect(phonePreviewStep?.failureSignals.join(' ')).toContain('phonePreviewBlocked:true')
+  })
+
   it('requires exact artifact binding for phone preview screenshot Dark Mode and cover thumbnail proof rows', () => {
     const artifactFingerprint = 'sha256:redacted-phone-exact-binding'
     const manifest: StyleProofManifest = {

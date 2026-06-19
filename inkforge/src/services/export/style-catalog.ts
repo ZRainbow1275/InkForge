@@ -1184,6 +1184,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['phone-preview'],
     requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
+    forbiddenFields: ['phonePreviewBlocked'],
   },
   'phone-screenshot': {
     requirementId: 'phone-screenshot',
@@ -1191,6 +1192,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['phone-preview'],
     requiredReadbacks: ['screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
+    forbiddenFields: ['phonePreviewBlocked'],
   },
   'dark-mode-check': {
     requirementId: 'dark-mode-check',
@@ -1204,6 +1206,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'darkModeEnabledVerified',
       'safeForCommit',
     ],
+    forbiddenFields: ['phonePreviewBlocked'],
   },
   'cover-thumbnail-check': {
     requirementId: 'cover-thumbnail-check',
@@ -1211,6 +1214,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['cover-thumbnail-check'],
     requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'coverThumbnailAccepted', 'safeForCommit'],
+    forbiddenFields: ['phonePreviewBlocked'],
   },
   'credentialed-channel-response': {
     requirementId: 'credentialed-channel-response',
@@ -5196,7 +5200,7 @@ const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerification
   editorBodyMutationVerified: 'editorBodyMutationVerified:true after the intended body editor mutates',
   mojibakeFreeVerified: 'mojibakeFreeVerified:true after replacement glyph and mojibake damage are ruled out',
   phonePreviewContentVerified: 'phonePreviewContentVerified:true after the exact article body is visible on phone',
-  phonePreviewBlocked: 'phonePreviewBlocked:true only when phone preview is the recorded blocker',
+  phonePreviewBlocked: 'phonePreviewBlocked:true only when phone preview is the recorded blocker; forbidden on matching phone success proof rows',
   darkModeEnabledVerified: 'darkModeEnabledVerified:true while inspecting the exact mobile article body',
   coverThumbnailAccepted: 'coverThumbnailAccepted:true after the exact cover thumbnail is accepted',
   scheduledSendVerified: 'scheduledSendVerified:true after real scheduled-send state readback',
@@ -5257,6 +5261,9 @@ function buildStyleProofExecutionFailureSignals(
 
   if (contract.requiredFields.length > 0) {
     signals.push(`Any missing, false, or unbound required field invalidates this row: ${formatStyleProofArtifactVerificationFields(contract.requiredFields)}.`)
+  }
+  if (contract.forbiddenFields && contract.forbiddenFields.length > 0) {
+    signals.push(`Any present forbidden field invalidates this row: ${formatStyleProofArtifactVerificationFields(contract.forbiddenFields)}.`)
   }
   if (manifestValidatorName) {
     signals.push(`Any ${manifestValidatorName} issue or missing artifactManifestValidated:true invalidates this artifact-manifest row.`)

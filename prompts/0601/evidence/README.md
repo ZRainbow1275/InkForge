@@ -142,6 +142,10 @@ rerun：点击 SVG 图集/滚动样式后中心 `.tn-editing-panel` 真实变化
 execution runbook success/failure text formats required fields with field-level criteria while
 preserving exact field names; `marketAppliedContentVerified:true` is explained as non-placeholder
 applied DOM/controls/slots/visible content proof）。
+`style-proof-phone-blocker-forbidden-contract-20260620.txt`（当前规则实现：
+`phonePreviewBlocked:true` is blocker-only evidence and is forbidden on matching phone success rows;
+validator、acceptance audit 和 execution runbook 均保持 phone preview / screenshot / Dark Mode / cover
+thumbnail proof 不可冒领）。
 `phone-preview-content-gate-20260617.txt`（当前规则实现：`mobile-preview` requires
 `phonePreviewContentVerified:true`; scan/entry/setup states stay invalid）。
 `phone-dark-cover-gate-20260617.txt`（当前规则实现：`dark-mode-check` requires
@@ -353,6 +357,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-placeholder-only-readback-contract-20260620.txt # 当前规则实现：market-applied-dom-readback also requires marketAppliedContentVerified:true
 [x] xiumi-svg-layer-slot-residue-contract-20260620.txt # CloakBrowser-only Xiumi applied SVG layer-slot/raw-image residue -> runtime blocker
 [x] style-proof-runbook-field-criteria-20260620.txt # 当前规则实现：execution runbook requiredFields use field-level criteria text, not raw names only
+[x] style-proof-phone-blocker-forbidden-contract-20260620.txt # 当前规则实现：phonePreviewBlocked:true is forbidden on matching phone success rows
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
 [x] style-proof-phone-runbook-failure-signals-20260619.txt # 当前规则实现：执行手册明确拒绝 scan/setup/PC preview shell/cover-setting 等手机伪证据；不证明手机端通过
@@ -2255,6 +2260,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public host, or publish success.
+
+## 2026-06-20 Phone Preview Blocker Forbidden Contract
+
+- [x] style-proof-phone-blocker-forbidden-contract-20260620.txt
+- Converted the phone-preview blocker flag into an explicit forbidden-field contract for matching
+  phone success rows.
+- `phonePreviewBlocked:true` is now forbidden on `phone-preview-readback`, `phone-screenshot`,
+  `dark-mode-check`, and `cover-thumbnail-check` rows that otherwise match the required
+  channel/action/readback.
+- A contradictory row emits `style-proof-manifest-forbidden-field-present`, stays invalid in the
+  requirement-level acceptance audit, remains visible in `cannotClaim`, and is named in runbook
+  success criteria and failure signals.
+- TDD first run failed before the contract update; the focused regression passed after the fix.
+- Full verification passed: `platform-export-rendering.test.ts` 141 tests, 4-file cross-platform
+  export regression 180 tests, full export serial regression 35 files / 1114 tests, targeted
+  ESLint, `vue-tsc`, and production build.
+- Boundary: this is local validator/audit/runbook enforcement only. It does not prove WeChat paste,
+  phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public host, or publish success.
 ## 2026-06-20 Market Fallback Catalog Contract
 
 - `market-fallback-catalog-contract-20260620.txt` records the executable catalog contract that

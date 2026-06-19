@@ -47,6 +47,11 @@ construct breaks.
   `cover-thumbnail-check`. An ordinary phone screenshot, cover setup page, or draft-settings
   panel can show progress, but it cannot prove the phone preview was inspected with mobile Dark
   Mode enabled or that the platform preview/share/list entry accepted the exact cover thumbnail.
+- `StyleProofArtifact.phonePreviewBlocked === true` is blocker-only evidence. It is forbidden on
+  matching `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, and
+  `cover-thumbnail-check` success rows; a row that claims the final phone body, screenshot,
+  mobile Dark Mode, or cover acceptance while also carrying the blocker flag must stay invalid in
+  the manifest report, acceptance audit, and execution runbook.
 - `validateStyleProofManifest()` is the executable validator for those proof items. It accepts
   redacted `StyleProofManifest` records, returns `QualityIssue[]`, and verifies requirement
   coverage, exact-artifact continuity, platform/choice consistency, action/channel/readback
@@ -1872,6 +1877,10 @@ Required tests:
   rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
   `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode
   / cover flag.
+- `phonePreviewBlocked:true` is also forbidden on otherwise complete matching phone success rows.
+  The validator must emit `style-proof-manifest-forbidden-field-present`, the requirement-level
+  acceptance audit must remain `invalid`, and the execution runbook must name
+  `phonePreviewBlocked:true` in both success criteria and failure signals.
 - The real ExportModal e2e must show the runbook summary, acceptance preflight totals, and per-card
   artifact-contract labels for WeChat, Xiaohongshu, and Zhihu while preserving existing style
   capability counts.

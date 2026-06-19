@@ -6076,3 +6076,54 @@ Verification:
   - PASS.
 - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
   - PASS: Vite built in 44.03s.
+
+## 2026-06-20 Phone Preview Blocker Forbidden Contract Slice
+
+Scope:
+- Local style-proof validator, acceptance-audit, and execution-runbook hardening.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture, or
+  browser profile artifact was created.
+
+Impact:
+- GitNexus impact for `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` reported LOW risk with
+  0 affected processes.
+- GitNexus impact for `buildStyleProofExecutionFailureSignals` reported LOW risk with 1 direct
+  caller, 0 affected processes, and the affected module limited to `Export`.
+
+Implementation:
+- Marked `phonePreviewBlocked` as a forbidden field on matching phone success contracts:
+  `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, and
+  `cover-thumbnail-check`.
+- Updated the field-level runbook criteria so `phonePreviewBlocked:true` is described as
+  blocker-only evidence and forbidden on matching phone success proof rows.
+- Extended `buildStyleProofExecutionFailureSignals()` so forbidden fields are listed in failure
+  signals, not only in success criteria.
+- Added a regression manifest where otherwise complete phone, screenshot, Dark Mode, and cover
+  rows also carry `phonePreviewBlocked:true`; all four requirements stay invalid, enter
+  `cannotClaim`, and expose `style-proof-manifest-forbidden-field-present`.
+
+Verification:
+- TDD first run failed as expected because `style-proof-manifest-forbidden-field-present` was not
+  emitted for the phone blocker contradiction.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "phone preview blocker flags forbidden" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 141 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 180 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1114 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 29.34s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build validation.
+
+Boundary:
+- This is local validator/audit/runbook enforcement only.
+- It does not prove WeChat phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, ordinary Ctrl+V rich HTML/SVG paste, credentialed sync, scheduled send, public
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

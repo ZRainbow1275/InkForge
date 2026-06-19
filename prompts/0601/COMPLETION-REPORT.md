@@ -2579,3 +2579,26 @@ Boundary:
 - It does not prove WeChat phone preview, mobile SMIL/click/tap/swipe/long-press, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, public preview, XHS/Zhihu account
   upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-20 Phone Preview Blocker Forbidden Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-phone-blocker-forbidden-contract-20260620.txt`.
+- `phonePreviewBlocked:true` is now blocker-only contract data and is forbidden on matching
+  phone success rows for `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, and
+  `cover-thumbnail-check`.
+- The validator emits `style-proof-manifest-forbidden-field-present` for those contradictory rows,
+  the acceptance audit keeps the requirements `invalid` and visible in `cannotClaim`, and the
+  execution runbook names `phonePreviewBlocked:true` in success criteria and failure signals.
+- TDD first run failed as expected before the contract update; the focused regression then passed
+  with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "phone preview blocker flags forbidden" --reporter=default`.
+- Full verification passed: `platform-export-rendering.test.ts` at 141 tests, 4-file
+  cross-platform export regression at 180 tests, full export serial regression at 35 files /
+  1114 tests, targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build. Vite built
+  in 29.34s and `inkforge/tsconfig.tsbuildinfo` was restored.
+- Boundary: this is local validator/audit/runbook enforcement only. It does not prove WeChat phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public-host availability, or publish success.
