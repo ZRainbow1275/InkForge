@@ -2020,6 +2020,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Requirement Scope Regression Addendum
+
+- Added `prompts/0601/evidence/style-proof-requirement-scope-regression-20260619.txt`.
+- Added a regression proving PC paste proof fields cannot backfill from an artifact assigned to
+  `authenticated-editor-url` into `pc-editor-paste-event`.
+- No production code change was needed; the current validator combination already keeps the target
+  requirement invalid.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 127 tests.
+- 4-file cross-platform export regression passed at 4 files / 166 tests, and full export serial
+  regression passed at 35 files / 1100 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.21s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Field Binding Addendum
 
 - Added `prompts/0601/evidence/style-proof-required-field-binding-contract-20260619.txt`.

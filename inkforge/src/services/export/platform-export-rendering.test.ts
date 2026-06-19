@@ -4092,6 +4092,74 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('no-sensitive-artifact')).toBe('invalid')
   })
 
+  it('does not let artifacts assigned to another requirement satisfy PC paste contracts', () => {
+    const artifactFingerprint = 'sha256:redacted-paste-requirement-scope'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'pc-paste-proof-bound-to-authenticated-editor-requirement',
+          requirementId: 'authenticated-editor-url',
+          kind: 'editor-readback',
+          label: 'complete PC paste fields assigned to the wrong requirement',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
+          platformEditorDomVerified: true,
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'pc-paste-event-shell-without-proof-fields',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'PC paste event shell without proof fields',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const pcPasteIssues = report.issues
+      .filter(issue => issue.location === 'pc-editor-paste-event')
+      .map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(pcPasteIssues).toEqual(expect.arrayContaining([
+      'style-proof-manifest-exact-artifact-missing',
+      'style-proof-manifest-ordinary-paste-not-verified',
+      'style-proof-manifest-paste-input-not-verified',
+    ]))
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(auditStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
   it('requires accepted readback types on matching contract action and channel rows', () => {
     const artifactFingerprint = 'sha256:redacted-readback-contract'
     const manifest: StyleProofManifest = {

@@ -1,0 +1,32 @@
+Style Proof Requirement Scope Regression - 2026-06-19
+
+Scope:
+- Local style proof manifest regression coverage.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added a regression test that keeps PC paste proof fields bound to the correct requirement.
+- No production code change was needed; the current validator combination already rejects this cross-requirement backfill shape.
+
+Behavior locked:
+- A proof artifact assigned to authenticated-editor-url cannot satisfy pc-editor-paste-event.
+- A pc-editor-paste-event artifact that carries only the event shell remains invalid even if another artifact in the same manifest carries all ordinary paste flags.
+- Requirement-level acceptance audit keeps pc-editor-paste-event invalid for this split ownership case.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 127 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 166 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1100 tests
+- pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 34.21s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local requirement-scope regression behavior only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

@@ -1652,6 +1652,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Requirement Scope Regression
+
+- [x] style-proof-requirement-scope-regression-20260619.txt
+- Local style-proof manifest regression coverage.
+- Added a regression proving PC paste proof fields cannot backfill from an artifact assigned to
+  `authenticated-editor-url` into `pc-editor-paste-event`.
+- No production code change was needed; current validators already keep the target requirement
+  invalid.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 127 tests.
+- 4-file cross-platform export regression passed at 4 files / 166 tests, and full export serial
+  regression passed at 35 files / 1100 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.21s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract
 
 - [x] style-proof-required-readback-contract-20260619.txt

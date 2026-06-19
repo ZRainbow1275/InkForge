@@ -1742,6 +1742,11 @@ Required tests:
   when their `hygiene-log` rows are recorded on `platform-editor` instead of the required local or
   market-editor hygiene channels. Weak PC editor rows attached to phone or publish requirements
   must also stay invalid instead of falling back to external-gate status.
+- Proof fields must not backfill across requirement ownership. A proof artifact assigned to one
+  `requirementId` must not satisfy the same-row field contract for another requirement, even when
+  action/channel/readback values overlap. Regression tests must keep `pc-editor-paste-event`
+  invalid when complete PC paste flags are recorded on an artifact assigned to
+  `authenticated-editor-url` while the actual `pc-editor-paste-event` row lacks paste proof flags.
 - Authenticated editor proof rows with expected action/channel but unsupported readback must emit
   `style-proof-manifest-readback-missing`. Requirement-level manifest status must be `invalid`,
   while acceptance audit may still classify the broader authenticated PC editor gate as
