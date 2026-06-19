@@ -2211,3 +2211,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   send, publish, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed
   sync, public-host availability, platform preview, public article rendering, upload, or publish
   success.
+
+## 2026-06-19 Style Proof Readback Requirement Status Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-readback-requirement-status-audit-20260619.txt`.
+- Added a phone-screenshot wrong-readback regression: a row with the expected
+  `phone-preview` action/channel and same-row exact artifact, phone-content, and safe-commit flags
+  must remain invalid when it records `readback:'phone'` instead of `readback:'screenshot'`.
+- TDD failed first because the requirement-level acceptance audit classified that concrete failed
+  phone proof as `blocked-by-external`.
+- Updated the acceptance invalid classifier so `style-proof-manifest-readback-missing` becomes
+  `invalid` outside `authenticated-pc-editor` gates. The authenticated editor wrong-readback case
+  keeps its existing `unsafe-to-automate` behavior.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 130 tests.
+- 4-file cross-platform export regression passed at 4 files / 169 tests, and full export serial
+  regression passed at 35 files / 1103 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.09s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local acceptance-audit classification proof only. It does not prove phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, upload, or publish success.

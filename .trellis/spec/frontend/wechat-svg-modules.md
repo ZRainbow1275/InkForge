@@ -1782,6 +1782,11 @@ Required tests:
   checks. Regression tests must keep a `phone-screenshot` proof invalid when the screenshot row
   lacks `artifactFingerprint` or `safeForCommit` and those fields appear only on a same-channel /
   same-action `phone` readback row.
+- A concrete phone/public-host/credentialed/publish proof row with the expected action and channel
+  but the wrong readback must keep the requirement-level acceptance audit `invalid` through
+  `style-proof-manifest-readback-missing`. Authenticated-PC-editor reachability rows remain the
+  exception: their wrong-readback status stays `unsafe-to-automate` because the operator still has
+  to open and inspect the real editor surface.
 - Same channel/action/readback proof rows must not split required fields across artifacts.
   Regression tests must keep `phone-screenshot` invalid when one screenshot row carries
   `phonePreviewContentVerified:true` and `exactArtifact:true`, while another matching screenshot

@@ -1906,3 +1906,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   send, publish, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed
   sync, public-host availability, platform preview, public article rendering, upload, or publish
   success.
+
+## 2026-06-19 Style Proof Readback Requirement Status Audit
+
+- [x] style-proof-readback-requirement-status-audit-20260619.txt
+- Local acceptance-audit requirement classification hardening.
+- A phone-screenshot proof row with the expected action/channel but wrong readback must keep the
+  requirement-level acceptance audit `invalid`; it must not be hidden behind
+  `blocked-by-external`.
+- The authenticated-PC-editor wrong-readback path remains `unsafe-to-automate`, preserving the
+  manual editor-surface boundary.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 130 tests.
+- 4-file cross-platform export regression passed at 4 files / 169 tests, and full export serial
+  regression passed at 35 files / 1103 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.09s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local acceptance-audit classification proof only. It does not prove phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, upload, or publish success.

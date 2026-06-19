@@ -4732,6 +4732,49 @@ Boundary:
   cover thumbnail, credentialed sync, public-host availability, platform preview, public article
   rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Readback Requirement Status Audit Slice
+
+Impact:
+- `gitnexus impact` for `buildStyleProofAcceptanceRequirementAudits` reported LOW risk, 7 impacted
+  items, 1 direct caller, 1 affected module (`Export`), and 0 affected processes.
+
+Implementation:
+- Added a TDD regression where a `phone-screenshot` proof row uses the expected
+  `phone-preview` action/channel and carries the exact artifact, phone content, and safe-commit
+  flags, but records `readback:'phone'` instead of the required `readback:'screenshot'`.
+- The first focused run failed as expected because the requirement-level acceptance audit
+  classified that concrete wrong-readback phone proof as `blocked-by-external`.
+- Updated the acceptance invalid classifier so `style-proof-manifest-readback-missing` becomes
+  `invalid` outside `authenticated-pc-editor` gates. Authenticated editor reachability keeps its
+  existing `unsafe-to-automate` behavior for wrong readback rows because the operator still must
+  open and inspect the real editor target.
+
+Verification:
+- TDD first run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed as expected because `phone-screenshot` was `blocked-by-external`.
+- After the fix, the same focused command passed with 1 file / 130 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 169 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1103 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 34.09s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-readback-requirement-status-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local acceptance-audit classification proof only.
+- It does not prove phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Market Editor Applied Audit Slice
 
 Impact:

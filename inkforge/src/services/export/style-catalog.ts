@@ -4682,10 +4682,17 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
 ] satisfies readonly StyleProofManifestIssueId[])
 
 function hasStyleProofAcceptanceInvalidIssue(
+  gate: StyleProofCollectionGate,
   issueIds: ReadonlySet<StyleProofManifestIssueId>,
 ): boolean {
   for (const issueId of issueIds) {
     if (STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS.has(issueId)) return true
+  }
+  if (
+    gate !== 'authenticated-pc-editor'
+    && issueIds.has('style-proof-manifest-readback-missing')
+  ) {
+    return true
   }
   return false
 }
@@ -4840,7 +4847,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         invalid: accumulator.invalid,
         forcedInvalid: accumulator.blockedChoiceIds.size > 0,
       })
-      const status = hasStyleProofAcceptanceInvalidIssue(accumulator.issueIds)
+      const status = hasStyleProofAcceptanceInvalidIssue(accumulator.gate, accumulator.issueIds)
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

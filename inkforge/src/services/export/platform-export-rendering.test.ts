@@ -4240,6 +4240,78 @@ describe('platform native export rendering rules', () => {
     expect(authenticatedEditorAudit?.issueIds).toContain('style-proof-manifest-readback-missing')
   })
 
+  it('keeps phone screenshot proof with the wrong readback invalid in acceptance audit', () => {
+    const artifactFingerprint = 'sha256:redacted-phone-readback-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'phone-screenshot-wrong-readback',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot proof with phone readback instead of screenshot',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-screenshot-exact-artifact',
+          requirementId: 'exact-artifact',
+          kind: 'artifact-manifest',
+          label: 'redacted exact artifact proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'manifest',
+          artifactFingerprint,
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-screenshot-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted hygiene proof',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(issueIds).toContain('style-proof-manifest-readback-missing')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+  })
+
   it('requires platform and artifact consistency in style proof manifests', () => {
     const manifest: StyleProofManifest = {
       platform: 'zhihu',
