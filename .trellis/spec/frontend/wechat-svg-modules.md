@@ -1198,6 +1198,13 @@ Contracts:
   (`bodyTextLength=8`, `svgCount=0`). This must not satisfy `pc-editor-paste-event`; foreground
   window match, body focus, and key event counts are insufficient without an actual paste/input
   event or same-editor body DOM change.
+- 2026-06-19 WeChat Tempera input-bridge-blocked proof:
+  `wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt` records that exact Tempera
+  CF_HTML reached the Windows clipboard, but `keybd_event`, `SendInput`, absolute body-coordinate
+  clicks, and `WScript.Shell.AppActivate + SendKeys` did not produce page `keydown`, `paste`,
+  `beforeinput`, `input`, or same-editor body DOM mutation. This is an input bridge failure, not
+  WeChat sanitizer acceptance or rejection, and it must keep `pc-editor-paste-event`,
+  `ordinaryClipboardPasteVerified:true`, and `safe-disposable-draft` invalid.
 - 2026-06-19 WeChat draftbox create-menu readback:
   `wechat-draftbox-create-menu-readback-20260619.txt` records that the authenticated backend home
   route can reach draftbox only through the backend DOM menu link with active session context; a
@@ -1309,6 +1316,9 @@ Required tests:
   must require cleanup evidence before it can be cited as a safe failed attempt.
 - A same-tab platform-editor retry with focused body editor and OS key event counts but no
   paste/input event and no body DOM mutation must keep `pc-editor-paste-event` invalid.
+- A platform-editor retry where OS input helpers report foreground activation or sent key counts,
+  but the CloakBrowser page records no key, paste/input, or body mutation, must be classified as
+  input-bridge-blocked and cannot be used to infer platform sanitizer behavior.
 - `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind the
   full ordinary paste contract: `artifactFingerprint`, `exactArtifact:true`,
   `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,

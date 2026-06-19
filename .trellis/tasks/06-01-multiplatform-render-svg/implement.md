@@ -2835,6 +2835,31 @@ Boundary:
   scheduled-send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host acceptance, or publish success.
 
+## 2026-06-19 WeChat Tempera Ordinary Ctrl+V Input-Bridge Blocked Slice
+
+Live platform attempt:
+- Used CloakBrowser only against the authenticated WeChat new-article editor surface.
+- Source artifact `flagship-tempera.html` was written to Windows CF_HTML clipboard with SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`, `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`.
+- The editor body started and ended placeholder-only: `bodyTextLength=8`, `bodyHtmlLength=298`,
+  `svgCount=0`, `dataInkSvgCount=0`, and `dataInkBlockCount=0`.
+- `keybd_event`, `SendInput`, body-coordinate clicks, and `WScript.Shell.AppActivate + SendKeys`
+  all failed to produce page `keydown`, `paste`, `beforeinput`, `input`, trusted paste/input, or
+  editor body DOM mutation.
+- The temporary title was cleared after the attempt; no body residue was created.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is input-bridge-blocked negative evidence only. It does not prove WeChat accepts or rejects
+  Tempera rich HTML/SVG and must not satisfy `ordinaryClipboardPasteVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, `pc-editor-paste-event`,
+  `safe-disposable-draft`, phone preview, Dark Mode, cover thumbnail, sync, schedule, public
+  rendering, or publish gates.
+
 ## 2026-06-19 WeChat New Article Editor CloakBrowser Readback Slice
 
 External editor readback:

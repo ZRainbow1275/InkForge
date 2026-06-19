@@ -1,7 +1,7 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
 本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：历史 PC sanitizer 样本覆盖 `flagship-kiln` 与 `flagship-tempera` 的程序化/浏览器 paste 路径；`flagship-amber` 已有 2026-06-09 CloakBrowser `ClipboardEvent` channel 读回和 2026-06-18 普通 OS Ctrl+V 成功证据。2026-06-18 `flagship-kiln` 普通 OS Ctrl+V 当前重试为纯文本负向证据，且三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：历史 PC sanitizer 样本覆盖 `flagship-kiln` 与 `flagship-tempera` 的程序化/浏览器 paste 路径；`flagship-amber` 已有 2026-06-09 CloakBrowser `ClipboardEvent` channel 读回和 2026-06-18 普通 OS Ctrl+V 成功证据。2026-06-18 `flagship-kiln` 普通 OS Ctrl+V 当前重试为纯文本负向证据；2026-06-19 `flagship-tempera` 普通 OS Ctrl+V 重试阻塞在 Windows 输入未到达 CloakBrowser 页面事件层，不能解释为微信接受或拒收富 HTML/SVG。三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
@@ -354,6 +354,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
 [x] wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt # 当前平台状态：Amber 在微信 PC editor 通过普通 OS Ctrl+V 保留 35 SVG/3 data-ink-svg，并完成 disposable draft 删除/缺失读回；手机/同步/发布仍未证明
 [x] wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt # 当前平台负向证据：Kiln 在 type=10/type=77 微信 PC editor 中普通 OS Ctrl+V 只进入纯文本，0 SVG/0 data-ink-svg；失败草稿已清理且不得设置 ordinaryClipboardPasteVerified:true
+[x] wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt # 当前平台负向证据：Tempera exact CF_HTML 已写入剪贴板，但 keybd_event/SendInput/SendKeys 均未触发页面 key/paste/input 或正文 mutation；不得设置 ordinaryClipboardPasteVerified:true
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
@@ -668,6 +669,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is negative evidence only. Foreground-window match, focused editor state, and
   key event counts are not enough; future proof must observe a paste/input event or same-editor DOM
   body change.
+
+## 2026-06-19 WeChat Tempera Ordinary Ctrl+V Input-Bridge Blocked
+
+- [x] wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt
+- Used CloakBrowser only against the authenticated WeChat new-article editor surface.
+- Wrote exact `flagship-tempera.html` to Windows CF_HTML clipboard with SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`, `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`.
+- The visible body editor started placeholder-only: `bodyTextLength=8`, `bodyHtmlLength=298`,
+  `svgCount=0`, `dataInkSvgCount=0`, and `dataInkBlockCount=0`.
+- Retried OS input through `keybd_event`, `SendInput`, absolute body-coordinate clicks, and
+  `WScript.Shell.AppActivate + SendKeys`. The helpers reported foreground/window activation or
+  sent key counts, but the CloakBrowser page observed no `keydown`, `keyup`, `paste`,
+  `beforeinput`, `input`, trusted paste/input, or editor body DOM mutation.
+- The temporary title was cleared after the attempt; final body readback remained placeholder-only
+  with 0 SVG / 0 `data-ink-svg` / 0 `data-ink-block`, so no body draft residue was created.
+- Boundary: this is input-bridge-blocked negative evidence, not WeChat rich HTML/SVG rejection or
+  acceptance. It must not set `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `pc-editor-paste-event`, or `safe-disposable-draft`.
 
 ## 2026-06-18 WeChat PC Paste Strong Gate
 

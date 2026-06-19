@@ -1,0 +1,69 @@
+WeChat Tempera Ordinary Ctrl+V Input-Bridge Blocked Evidence - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat new-article editor attempt.
+- Exact source artifact: prompts/0601/evidence/wechat-paste/flagship-tempera.html.
+- No Playwright was used.
+- No screenshot, preview, phone preview, sync, schedule, publish, upload, or save action was used.
+- No raw credential parameters, account text, page text samples, raw URLs, browser session secrets,
+  local profile paths, screenshots, HAR files, or credential material are recorded here.
+
+Source artifact and clipboard:
+- Source HTML bytes: 41754.
+- Source SHA-256: d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585.
+- Source counts: svgCount=35, dataInkSvgCount=3, dataInkBlockCount=23.
+- Source hygiene counts: styleTagCount=0, classAttrCount=0, scriptCount=0, foreignObjectCount=0.
+- Windows clipboard writer produced HTML Format plus UnicodeText.
+- CF_HTML bytes: 41923.
+- Plain text fallback chars: 1367.
+
+Initial editor readback:
+- Authenticated editor route shape: WeChat new-article appmsg editor, redacted query.
+- Title contenteditable was found.
+- Visible body editor was a ProseMirror contenteditable under the rich-media mock-iframe body
+  surface, approximately 586px wide and 538px high.
+- Body before attempts: bodyTextLength=8, bodyHtmlLength=298, svgCount=0, dataInkSvgCount=0,
+  dataInkBlockCount=0, placeholderLike=true.
+- A deterministic temporary title was applied for cleanup targeting only.
+
+Attempt sequence:
+- Attempt 1: Windows keybd_event Ctrl+V with preserved CF_HTML clipboard and no mouse move/click.
+  The helper reported one matched foreground browser window and keybdEventCount=4, but the page
+  probe observed paste=0, input=0, beforeinput=0, trustedPaste=0, trustedInput=0, and body stayed
+  placeholder-only.
+- Attempt 2: Windows keybd_event Ctrl+V with a body-coordinate click before the key chord.
+  The helper reported one matched foreground browser window, click skipped=false, and
+  keybdEventCount=4, but the page probe again observed no paste/input/beforeinput event and no
+  editor body mutation.
+- Attempt 3: Windows SendInput Ctrl+V with the same preserved CF_HTML clipboard and body-coordinate
+  click. The helper reported sentInputCount=4, but global document and body probes observed
+  bodyPaste=0, bodyInput=0, bodyBeforeInput=0, docPaste=0, docInput=0, docBeforeInput=0, and no
+  editor body mutation.
+- Attempt 4: Windows SendInput KeyA with an absolute coordinate chosen to land inside the editor
+  body across both observed coordinate systems. The helper reported sentInputCount=2, but the page
+  observed keydown=0, keyup=0, input=0, beforeinput=0, and no body mutation.
+- Attempt 5: WScript.Shell AppActivate plus SendKeys("a"). AppActivate returned true, but the page
+  observed keydown=0, keyup=0, input=0, beforeinput=0, and no body mutation.
+
+Final editor readback and cleanup:
+- The temporary title was cleared after the attempts.
+- Final title length: 0.
+- Final body readback stayed placeholder-only: bodyTextLength=8, bodyHtmlLength=298, svgCount=0,
+  dataInkSvgCount=0, dataInkBlockCount=0, placeholderLike=true.
+- No local path leak was detected in the editor body.
+- No body HTML/SVG residue was created, so no failed body draft cleanup was required.
+
+Interpretation:
+- This is a real negative attempt for Tempera ordinary Ctrl+V in the current authenticated WeChat
+  editor session, but the blocker is before platform paste handling: Windows input did not reach
+  the active CloakBrowser page as a key or paste event.
+- This is not evidence that WeChat accepts or rejects Tempera rich HTML/SVG.
+- This must not set ordinaryClipboardPasteVerified:true, pasteInputEventVerified:true,
+  editorBodyMutationVerified:true, pc-editor-paste-event, or safe-disposable-draft.
+- Future proof must observe a trusted paste/input event or same-editor body DOM mutation before it
+  can classify the outcome as WeChat sanitizer acceptance or degradation.
+
+Boundary:
+- This does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, or publish success.

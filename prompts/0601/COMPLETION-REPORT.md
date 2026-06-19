@@ -1635,6 +1635,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
   or publish success.
 
+## 2026-06-19 WeChat Tempera Ordinary Ctrl+V Input-Bridge Blocked Addendum
+
+- Added `prompts/0601/evidence/wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt`.
+- Used CloakBrowser only; Playwright was not used.
+- The authenticated WeChat new-article editor body was reachable and read back as the intended
+  ProseMirror body surface before mutation.
+- Exact `flagship-tempera.html` was written to Windows CF_HTML clipboard with SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`, `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`.
+- Repeated OS input attempts through `keybd_event`, `SendInput`, body-coordinate clicks, and
+  `WScript.Shell.AppActivate + SendKeys` did not produce page `keydown`, `paste`, `beforeinput`,
+  `input`, trusted paste/input, or editor body DOM mutation.
+- The temporary title was cleared and the editor body remained placeholder-only with 0 SVG,
+  0 `data-ink-svg`, and 0 `data-ink-block`.
+- Boundary: this is a current-session input-bridge-blocked negative result, not evidence that
+  WeChat accepts or rejects Tempera rich HTML/SVG. It must not satisfy `pc-editor-paste-event`,
+  `ordinaryClipboardPasteVerified:true`, `safe-disposable-draft`, phone preview, Dark Mode, cover,
+  sync, schedule, public rendering, or publish gates.
+
 ## 2026-06-19 WeChat PC Paste Artifact Binding Validator Addendum
 
 - Added `prompts/0601/evidence/wechat-pc-paste-artifact-binding-validator-20260619.txt`.
