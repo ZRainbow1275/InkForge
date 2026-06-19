@@ -1,0 +1,53 @@
+Market Fallback Catalog Contract - 2026-06-20
+
+Scope:
+- Convert the 135/Xiumi SVG/H5/rich-layout taxonomy into visible runtime catalog choices.
+- Preserve the no-claim boundary: market taxonomy is not platform proof and is not reusable source.
+- No platform sync, phone preview, account upload, scheduled send, or publish action was performed.
+
+CloakBrowser observation basis:
+- Xiumi v5 paper editor SVG category exposes effect families including basic SVG, image carousel,
+  click-expand, path animation, draw/lottery, sliding, transitions, parallax, click switch, flip,
+  zoom, quiz, bullet text, click show, image replace, popup, jump/play, long-press, region trigger,
+  click drop, and click-plus-auto.
+- A clicked SVG gallery/scrolling sample changed the center paper as authoring cells and layers:
+  htmlLength increased, tnComp and tnCell increased, images increased, and contenteditable increased.
+- The applied center state still had zero center inline SVG in the inspected authoring DOM.
+- Fine-grained authoring markers such as tn-page-slot, tn-layer-slot,
+  tn-child-position-absolute/static, tn-child-orientation-fixed/flow-canvas, and raw-image remain
+  residue signals only.
+
+Implemented runtime contract:
+- Added blocked catalog choice: wechat-market-svg-h5-fallback-matrix.
+  - Output family: image-fallback with static fallback.
+  - Evidence floor: mobile-preview.
+  - Requires phone WeChat proof before tap, swipe, long-press, region-trigger, or publish claims.
+- Added blocked catalog choice: xhs-market-rich-card-fallback.
+  - Output family: image-page with long-image fallback.
+  - Requires real local browser artifact, XHS artifact manifest, and publish proof before selection.
+- Added blocked catalog choice: zhihu-market-rich-layout-fallback.
+  - Output family: public-host image fallback or clean Markdown fallback.
+  - Requires public image host proof, alt/caption, Zhihu artifact manifest, and publish proof before
+    selection.
+
+Safety boundary:
+- None of these choices map to an existing selectable preset.
+- All retain the platform market editor residue detector blocker:
+  - wechat-market-editor-residue
+  - xhs-market-editor-residue
+  - zhihu-market-editor-residue
+- The choices are visible so users can see the option family and required proof path, but
+  evaluateStyleChoiceAvailability() must keep them blocked under default local evidence.
+- This does not prove WeChat phone preview, mobile SMIL/click/tap/swipe/long-press, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance,
+  XHS/Zhihu upload, or publish success.
+
+Regression expectation:
+- getStyleChoiceCatalog() contains the three market fallback choices.
+- evaluateStyleChoiceAvailability() returns blocked/unusable for all three under default evidence.
+- getStyleChoiceApplication() returns null for all three.
+- getStyleChoiceProofRequirements() keeps platform proof isolated:
+  - WeChat requires phone-preview-readback, phone-screenshot, and published-url-or-platform-preview.
+  - XHS requires local-browser-rendering, xhs-artifact-manifest, and published-url-or-platform-preview.
+  - Zhihu requires local-browser-rendering, public-image-host, zhihu-artifact-manifest, and
+    published-url-or-platform-preview.

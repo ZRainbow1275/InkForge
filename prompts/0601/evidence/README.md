@@ -2255,3 +2255,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public host, or publish success.
+## 2026-06-20 Market Fallback Catalog Contract
+
+- `market-fallback-catalog-contract-20260620.txt` records the executable catalog contract that
+  keeps 135/Xiumi SVG/H5/rich-layout taxonomy visible only as blocked fallback choices:
+  `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
+  `zhihu-market-rich-layout-fallback`. It is local catalog/proof-gate evidence only and does not
+  claim phone preview, sync, public-host acceptance, upload, or publish success.

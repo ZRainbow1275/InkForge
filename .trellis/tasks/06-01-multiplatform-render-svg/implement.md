@@ -6037,3 +6037,42 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+## 2026-06-20 Market Fallback Catalog Contract Slice
+
+Scope:
+- Runtime-catalog follow-up after the CloakBrowser Xiumi SVG taxonomy and layer-slot residue pass.
+- Convert market SVG/H5/rich-layout taxonomy into explicit blocked fallback choices instead of
+  leaving the option families as docs-only prose.
+
+Implemented:
+- Added `wechat-market-svg-h5-fallback-matrix` as a blocked WeChat fallback choice for image
+  carousel, click-expand, path animation, parallax, long-press, region trigger, and H5 handoff
+  families. It requires mobile-preview/publish proof and has no preset mapping.
+- Added `xhs-market-rich-card-fallback` as a blocked Xiaohongshu image-page/long-image fallback
+  family. It requires real raster artifact/manifest proof and publish proof before selection.
+- Added `zhihu-market-rich-layout-fallback` as a blocked Zhihu public-host image fallback family.
+  It requires public-host, alt/caption, Zhihu artifact-manifest, and publish proof before selection.
+- Added regression coverage that these choices remain unavailable under default evidence, retain
+  platform market-residue blockers, remain unmapped from `StyleChoiceApplication`, and keep proof
+  requirements platform-isolated.
+
+Boundary:
+- This is local catalog/proof-gate accounting only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-inspired SVG and rich-layout fallback|gate-aware style choice catalog" --reporter=default`
+  - PASS: 1 file / 2 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 140 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 179 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1113 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 44.03s.

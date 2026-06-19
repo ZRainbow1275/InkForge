@@ -258,13 +258,16 @@ describe('platform native export rendering rules', () => {
     expect(ids).toContain('wechat-cover-seal-divider')
     expect(ids).toContain('wechat-flagship-amber')
     expect(ids).toContain('wechat-mobile-only-effect')
+    expect(ids).toContain('wechat-market-svg-h5-fallback-matrix')
     expect(ids).toContain('wechat-plugin-transfer-checklist')
     expect(ids).toContain('xhs-cover-carousel')
     expect(ids).toContain('xhs-markdown-card-slicer')
     expect(ids).toContain('xhs-h5-design-import-boundary')
+    expect(ids).toContain('xhs-market-rich-card-fallback')
     expect(ids).toContain('zhihu-academic-latex-column')
     expect(ids).toContain('zhihu-diagram-article')
     expect(ids).toContain('zhihu-public-image-upload-checklist')
+    expect(ids).toContain('zhihu-market-rich-layout-fallback')
 
     expect(catalog.every(choice => choice.fallbackOutput && choice.detectorBlockers.length > 0)).toBe(true)
     expect(getPlatformStyleChoices('wechat').every(choice =>
@@ -5512,6 +5515,65 @@ describe('platform native export rendering rules', () => {
       expect(availability.usable, choiceId).toBe(false)
       expect(availability.status, choiceId).toBe('unavailable')
       expect(choice.primaryOutput, choiceId).toBe('publish-checklist')
+    }
+  })
+
+  it('keeps market-inspired SVG and rich-layout fallback choices blocked until exact artifact proof exists', () => {
+    const marketFallbackIds = [
+      'wechat-market-svg-h5-fallback-matrix',
+      'xhs-market-rich-card-fallback',
+      'zhihu-market-rich-layout-fallback',
+    ] as const
+
+    for (const choiceId of marketFallbackIds) {
+      const choice = getStyleChoiceById(choiceId)
+      expect(choice).toBeDefined()
+      if (!choice) continue
+
+      const marketResidueBlockerByPlatform = {
+        wechat: 'wechat-market-editor-residue',
+        xiaohongshu: 'xhs-market-editor-residue',
+        zhihu: 'zhihu-market-editor-residue',
+      } as const
+      const availability = evaluateStyleChoiceAvailability(choice, getDefaultStyleEvidence(choice.platform))
+      const requirementIds = getStyleChoiceProofRequirements(choice).map(requirement => requirement.id)
+
+      expect(choice.status, choiceId).toBe('blocked')
+      expect(availability.usable, choiceId).toBe(false)
+      expect(availability.status, choiceId).toBe('blocked')
+      expect(getStyleChoiceApplication(choiceId), choiceId).toBeNull()
+      expect(choice.detectorBlockers, choiceId).toContain(marketResidueBlockerByPlatform[choice.platform])
+
+      if (choice.platform === 'wechat') {
+        expect(choice.evidenceFloor).toBe('mobile-preview')
+        expect(choice.motion).toBe('mobile-only')
+        expect(requirementIds).toEqual(expect.arrayContaining([
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ]))
+      }
+
+      if (choice.platform === 'xiaohongshu') {
+        expect(choice.primaryOutput).toBe('image-page')
+        expect(requirementIds).toEqual(expect.arrayContaining([
+          'local-browser-rendering',
+          'xhs-artifact-manifest',
+          'published-url-or-platform-preview',
+        ]))
+        expect(requirementIds).not.toContain('phone-preview-readback')
+      }
+
+      if (choice.platform === 'zhihu') {
+        expect(choice.primaryOutput).toBe('image-fallback')
+        expect(requirementIds).toEqual(expect.arrayContaining([
+          'local-browser-rendering',
+          'public-image-host',
+          'zhihu-artifact-manifest',
+          'published-url-or-platform-preview',
+        ]))
+        expect(requirementIds).not.toContain('xhs-artifact-manifest')
+      }
     }
   })
 

@@ -2063,6 +2063,14 @@ Contracts:
   static/auto/raster/carousel-page/long-image fallbacks, but they must not satisfy mobile tap,
   swipe, long-press, or publish proof. Plugin/sync/enhanced-mode effects stay behind credentialed
   channel proof.
+- 2026-06-20 executable fallback-catalog contract: market SVG/H5/rich-layout taxonomy is now
+  represented in `PLATFORM_STYLE_CHOICES` as blocked fallback choices instead of hidden prose:
+  `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
+  `zhihu-market-rich-layout-fallback`. These choices let UI/report surfaces show the option family
+  and its required fallback path, but `evaluateStyleChoiceAvailability()` must keep them unusable
+  until exact InkForge-owned artifacts, phone/public-host/manifest proof, and platform publish proof
+  exist. They must have no `StyleChoiceApplication` preset mapping and must retain the platform
+  market-residue detector blocker.
 - 135 SVG effects map to typed image slots, hot zones, motion schema, trigger type, and fallback
   plans. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
   layout-report heuristics only.
@@ -2095,6 +2103,8 @@ Required tests/checks:
 - Every platform style choice must expose the matching market-residue quality issue in
   `detectorBlockers`: `wechat-market-editor-residue`, `xhs-market-editor-residue`, or
   `zhihu-market-editor-residue`.
+- Market-inspired fallback choices must remain `blocked`, unavailable under each platform's default
+  evidence, and unmapped from existing presets until their exact artifact proof is collected.
 - Style proof reports must not mark Xiumi/135-inspired mobile/touch interactions complete from PC
   DOM evidence alone.
 

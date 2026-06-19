@@ -775,6 +775,14 @@ Xiumi SVG/H5 rules:
   `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
   `tn-child-orientation-fixed/flow-canvas`, and `raw-image` are residue blockers even when broad
   `tn-comp` / `tn-cell` wrappers or hosted-media URLs are absent.
+- 2026-06-20 executable fallback-catalog contract: the market SVG/H5/rich-layout family is visible
+  in the runtime style catalog only as blocked fallback choices:
+  `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
+  `zhihu-market-rich-layout-fallback`. They document available design directions and required
+  fallback paths without claiming availability. WeChat requires phone preview/publish proof; XHS
+  requires real image-page/long-image manifest proof; Zhihu requires public-host image fallback
+  proof with alt/caption and manifest validation. None may map to a selectable preset until exact
+  InkForge-owned artifacts exist.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -782,4 +790,5 @@ Evidence:
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`
 - `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`
+- `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

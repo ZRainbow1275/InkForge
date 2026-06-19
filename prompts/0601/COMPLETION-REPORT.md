@@ -2553,3 +2553,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public-host availability, or publish success.
+---
+
+## 2026-06-20 Market Fallback Catalog Contract Addendum
+
+This addendum records a local runtime catalog follow-up to the CloakBrowser Xiumi/135 SVG/H5 style
+learning pass.
+
+Implemented:
+- Added `wechat-market-svg-h5-fallback-matrix` as a blocked WeChat fallback catalog choice for
+  market SVG/H5 interaction families. It requires phone-preview and publish proof before it can be
+  claimed or selected.
+- Added `xhs-market-rich-card-fallback` as a blocked Xiaohongshu image-page/long-image fallback
+  catalog choice for market-inspired rich cards and poster slices. It requires real artifact
+  manifest and publish proof before selection.
+- Added `zhihu-market-rich-layout-fallback` as a blocked Zhihu public-host image fallback catalog
+  choice for market-inspired rich layouts. It requires public image host proof, alt/caption,
+  manifest validation, and publish proof before selection.
+- Added regression coverage so these choices remain blocked under default evidence, have no preset
+  application mapping, retain platform market-residue detector blockers, and keep WeChat/XHS/Zhihu
+  proof requirements isolated.
+
+Boundary:
+- This proves local catalog/proof-gate behavior only.
+- It does not prove WeChat phone preview, mobile SMIL/click/tap/swipe/long-press, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public preview, XHS/Zhihu account
+  upload, public-host acceptance, or publish success.
