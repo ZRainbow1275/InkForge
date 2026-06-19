@@ -1416,6 +1416,16 @@ Contracts:
 - Phone preview, Dark Mode, and cover thumbnail rows must require phone-preview artifacts and must
   keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`
   separate. PC DOM, local browser screenshots, scan pages, or setup dialogs cannot complete them.
+- `phone-screenshot` must require `action:'phone-preview'`, `readback:'screenshot'`, and
+  `phonePreviewContentVerified:true`. A setup screenshot, scan-entry screenshot, PC preview shell,
+  or relogin page is not a phone screenshot proof for final article content.
+- `dark-mode-check` must require `darkModeEnabledVerified:true` and
+  `phonePreviewContentVerified:true` on phone-preview evidence. A Dark Mode setting page, PC
+  preview shell, or generic screenshot cannot prove mobile Dark Mode for the exact article body.
+- `StyleProofArtifact.phonePreviewBlocked?: boolean` and
+  `StyleProofAction:'phone-preview-entry-readback'` are explicit blocker markers. They must emit
+  `style-proof-manifest-phone-preview-blocked`, keep the matching requirement invalid, and make
+  acceptance audit requirement rows `invalid` instead of `blocked-by-external`.
 - Credentialed sync and platform publish rows remain `unsafe-to-automate` until a human/operator
   performs the real mutating account action and provides readback for the same artifact.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
@@ -1478,6 +1488,10 @@ Required tests:
 - XHS/Zhihu login-route or sign-in-route readback manifests must keep account upload, public-host,
   artifact-manifest, platform preview, and publish requirements invalid/cannot-claim through
   `style-proof-manifest-external-account-login-blocked`.
+- WeChat phone preview blocker manifests must prove that scan/setup/PC-preview-shell/cover-setting
+  rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
+  `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode
+  / cover flag.
 - The real ExportModal e2e must show the runbook summary, acceptance preflight totals, and per-card
   artifact-contract labels for WeChat, Xiaohongshu, and Zhihu while preserving existing style
   capability counts.

@@ -2777,6 +2777,67 @@ Boundary:
   ordinary PC paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, platform
   preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat Phone Preview Matrix Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofManifest -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, and 1 affected process.
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk and 0 impacted items.
+- `npx gitnexus impact getPlatformStyleProofAcceptanceAuditReport -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, and 0 affected processes.
+
+Scope:
+- Hardened local style-proof validation for WeChat phone preview, phone screenshot, mobile Dark
+  Mode, and cover-thumbnail rows.
+- No phone scan, browser screenshot, draft mutation, paste, sync, scheduled send, or publish action
+  was performed in this slice.
+
+Implementation:
+- Added `StyleProofAction` value `phone-preview-entry-readback`.
+- Added `StyleProofArtifact.phonePreviewBlocked?: boolean`.
+- Added `phonePreviewBlocked` to `StyleProofArtifactVerificationField`.
+- Added validator issue `style-proof-manifest-phone-preview-blocked`.
+- Marked explicit phone preview blocker artifacts invalid when `phonePreviewBlocked:true` or
+  `action:'phone-preview-entry-readback'`.
+- Required `phone-screenshot` proof to use `action:'phone-preview'` and
+  `phonePreviewContentVerified:true`.
+- Required `dark-mode-check` proof to include `phonePreviewContentVerified:true` in addition to
+  `darkModeEnabledVerified:true`.
+- Acceptance audit requirement rows carrying the phone preview blocker issue now report `invalid`
+  rather than generic `blocked-by-external`.
+
+Regression coverage:
+- Scan/setup/PC-preview-shell readbacks cannot satisfy phone preview readback, phone screenshot,
+  Dark Mode, or cover thumbnail matrix rows.
+- Phone screenshot setup states and Dark Mode shell screenshots remain invalid until final phone
+  article content is verified.
+- Existing fully evidenced fixtures now carry `phonePreviewContentVerified:true` on phone screenshot
+  and Dark Mode artifacts.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 104 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 143 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1077 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  26.74s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-phone-preview-matrix-validator-20260619.txt`.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public article rendering, or publish
+  success.
+
 ## 2026-06-19 XHS/Zhihu Account Login Gate Readback Slice
 
 Scope:

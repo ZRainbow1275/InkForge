@@ -162,6 +162,7 @@ export type StyleProofAction =
   | 'local-render'
   | 'pc-paste'
   | 'phone-preview'
+  | 'phone-preview-entry-readback'
   | 'dark-mode-check'
   | 'cover-thumbnail-check'
   | 'external-account-login-readback'
@@ -219,6 +220,7 @@ export interface StyleProofArtifact {
   editorBodyMutationVerified?: boolean
   mojibakeFreeVerified?: boolean
   phonePreviewContentVerified?: boolean
+  phonePreviewBlocked?: boolean
   darkModeEnabledVerified?: boolean
   coverThumbnailAccepted?: boolean
   disposableDraft?: boolean
@@ -251,6 +253,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-editor-body-not-mutated'
   | 'style-proof-manifest-paste-mojibake-not-ruled-out'
   | 'style-proof-manifest-paste-proof-not-bound'
+  | 'style-proof-manifest-phone-preview-blocked'
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
   | 'style-proof-manifest-cover-thumbnail-not-accepted'
@@ -288,6 +291,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-editor-body-not-mutated',
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
+  'style-proof-manifest-phone-preview-blocked',
   'style-proof-manifest-phone-content-missing',
   'style-proof-manifest-dark-mode-not-verified',
   'style-proof-manifest-cover-thumbnail-not-accepted',
@@ -705,6 +709,7 @@ export type StyleProofArtifactVerificationField =
   | 'editorBodyMutationVerified'
   | 'mojibakeFreeVerified'
   | 'phonePreviewContentVerified'
+  | 'phonePreviewBlocked'
   | 'darkModeEnabledVerified'
   | 'coverThumbnailAccepted'
   | 'disposableDraft'
@@ -2563,6 +2568,15 @@ function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues:
     })
   }
 
+  if (isPhonePreviewBlockedStyleProofArtifact(artifact)) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-phone-preview-blocked',
+      message: `Proof artifact ${artifact.id} is still blocked before final phone article preview content was read back.`,
+      suggestion: 'Scan entries, setup dialogs, relogin pages, PC preview shells, and cover-setting panels cannot prove mobile article content; record phonePreviewContentVerified:true only after the exact artifact is visible in the phone preview article body.',
+      location: artifact.id,
+    })
+  }
+
   if (isSensitiveStyleProofArtifact(artifact)) {
     addStyleProofIssue(issues, {
       id: 'style-proof-manifest-sensitive-artifact',
@@ -2665,6 +2679,11 @@ function isExternalAccountLoginBlockedStyleProofArtifact(artifact: StyleProofArt
   return artifact.externalAccountLoginBlocked === true
     || artifact.externalAccountAuthenticated === false
     || artifact.action === 'external-account-login-readback'
+}
+
+function isPhonePreviewBlockedStyleProofArtifact(artifact: StyleProofArtifact): boolean {
+  return artifact.phonePreviewBlocked === true
+    || artifact.action === 'phone-preview-entry-readback'
 }
 
 function validateStyleProofRequirementCoverage(
@@ -2965,13 +2984,31 @@ function validateStyleProofRequirementCoverage(
       }
       break
     }
-    case 'phone-screenshot':
-      requireStyleProof(issues, requirementId, has(artifact =>
+    case 'phone-screenshot': {
+      const hasPhoneScreenshot = has(artifact =>
         artifact.kind === 'screenshot'
         && artifact.channel === 'phone-preview'
         && artifact.readback === 'screenshot'
-      ))
+        && artifact.action === 'phone-preview'
+      )
+      if (!hasPhoneScreenshot) {
+        requireStyleProof(issues, requirementId, false)
+      } else if (!has(artifact =>
+        artifact.kind === 'screenshot'
+        && artifact.channel === 'phone-preview'
+        && artifact.readback === 'screenshot'
+        && artifact.action === 'phone-preview'
+        && artifact.phonePreviewContentVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-phone-content-missing',
+          message: 'Phone screenshot proof does not prove that the screenshot is bound to final phone article content.',
+          suggestion: 'Record phonePreviewContentVerified:true on the phone screenshot artifact only after the exact article body is open in phone preview; scan/setup/entry screenshots stay blocked evidence.',
+          location: requirementId,
+        })
+      }
       break
+    }
     case 'dark-mode-check': {
       const hasDarkModeReadback = has(artifact =>
         artifact.action === 'dark-mode-check'
@@ -2980,18 +3017,33 @@ function validateStyleProofRequirementCoverage(
       )
       if (!hasDarkModeReadback) {
         requireStyleProof(issues, requirementId, false)
-      } else if (!has(artifact =>
-        artifact.action === 'dark-mode-check'
-        && artifact.channel === 'phone-preview'
-        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-        && artifact.darkModeEnabledVerified === true
-      )) {
-        addStyleProofIssue(issues, {
-          id: 'style-proof-manifest-dark-mode-not-verified',
-          message: 'Dark Mode proof does not prove that mobile Dark Mode was enabled for the phone preview.',
-          suggestion: 'Record darkModeEnabledVerified:true only after inspecting the exact phone preview artifact with mobile Dark Mode enabled.',
-          location: requirementId,
-        })
+      } else {
+        if (!has(artifact =>
+          artifact.action === 'dark-mode-check'
+          && artifact.channel === 'phone-preview'
+          && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+          && artifact.phonePreviewContentVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-phone-content-missing',
+            message: 'Dark Mode proof is not bound to final phone article content readback.',
+            suggestion: 'Record phonePreviewContentVerified:true on the Dark Mode artifact only after the exact article body is open in phone preview.',
+            location: requirementId,
+          })
+        }
+        if (!has(artifact =>
+          artifact.action === 'dark-mode-check'
+          && artifact.channel === 'phone-preview'
+          && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+          && artifact.darkModeEnabledVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-dark-mode-not-verified',
+            message: 'Dark Mode proof does not prove that mobile Dark Mode was enabled for the phone preview.',
+            suggestion: 'Record darkModeEnabledVerified:true only after inspecting the exact phone preview artifact with mobile Dark Mode enabled.',
+            location: requirementId,
+          })
+        }
       }
       break
     }
@@ -4013,6 +4065,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         forcedInvalid: accumulator.blockedChoiceIds.size > 0,
       })
       const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
+        || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

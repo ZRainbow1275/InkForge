@@ -1369,3 +1369,28 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   URL, PC editor DOM readback, safe disposable draft, ordinary PC paste, phone preview, Dark Mode,
   cover thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish
   success.
+
+## 2026-06-19 WeChat Phone Preview Matrix Validator Addendum
+
+- Added `prompts/0601/evidence/wechat-phone-preview-matrix-validator-20260619.txt`.
+- Added `StyleProofAction` value `phone-preview-entry-readback`.
+- Added `StyleProofArtifact.phonePreviewBlocked?: boolean` and validator issue
+  `style-proof-manifest-phone-preview-blocked`.
+- `phone-screenshot` proof now requires `action:'phone-preview'` and
+  `phonePreviewContentVerified:true`.
+- `dark-mode-check` proof now requires `phonePreviewContentVerified:true` in addition to
+  `darkModeEnabledVerified:true`.
+- Acceptance audit requirement rows carrying `style-proof-manifest-phone-preview-blocked` report
+  `invalid` rather than generic external-blocked status.
+- Regression coverage proves scan/setup/PC-preview-shell readbacks cannot satisfy phone preview
+  readback, phone screenshot, Dark Mode, or cover-thumbnail matrix rows.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 104 tests.
+- 4-file cross-platform export regression passed at 4 files / 143 tests.
+- Full export serial regression passed at 35 files / 1077 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public
+  article rendering, or publish success.

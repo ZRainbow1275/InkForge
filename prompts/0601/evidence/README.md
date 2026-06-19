@@ -1101,3 +1101,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: relogin platform-state evidence only. It cannot satisfy authenticated editor URL, PC
   editor DOM, safe draft, ordinary PC paste, phone preview, sync, scheduled-send, platform preview,
   public article rendering, or publish proof.
+
+## 2026-06-19 WeChat Phone Preview Matrix Validator
+
+- [x] wechat-phone-preview-matrix-validator-20260619.txt
+- Local validator/runbook hardening adds `phone-preview-entry-readback`,
+  `phonePreviewBlocked`, and `style-proof-manifest-phone-preview-blocked`.
+- `phone-screenshot` now requires final phone article content verification, not just a screenshot
+  artifact.
+- `dark-mode-check` now requires final phone article content verification as well as mobile Dark
+  Mode verification.
+- Scan/setup/PC-preview-shell readbacks remain invalid for phone preview readback, phone
+  screenshot, Dark Mode, and cover-thumbnail rows.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 104 tests.
+- 4-file cross-platform regression passed at 4 files / 143 tests, and full export serial
+  regression passed at 35 files / 1077 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public article
+  rendering, or publish success.

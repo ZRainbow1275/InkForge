@@ -1,0 +1,55 @@
+WeChat Phone Preview Matrix Validator - 2026-06-19
+
+Scope:
+- Local validator and execution-runbook hardening for redacted StyleProofManifest records.
+- Focuses on WeChat phone preview, phone screenshot, mobile Dark Mode, and cover-thumbnail proof rows.
+- No phone scan, browser screenshot, draft mutation, paste, sync, scheduled send, or publish action.
+
+Implemented:
+- StyleProofAction now includes phone-preview-entry-readback.
+- StyleProofArtifact now includes phonePreviewBlocked?: boolean.
+- StyleProofArtifactVerificationField now exposes phonePreviewBlocked.
+- Added style-proof-manifest-phone-preview-blocked.
+
+Validator behavior:
+- A proof artifact is an explicit phone preview blocker when:
+  - phonePreviewBlocked is true, or
+  - action is phone-preview-entry-readback.
+- Explicit blockers keep the matching artifact invalid.
+- Acceptance audit requirement rows carrying style-proof-manifest-phone-preview-blocked report invalid.
+- phone-screenshot proof now requires:
+  - kind screenshot,
+  - channel phone-preview,
+  - action phone-preview,
+  - readback screenshot,
+  - phonePreviewContentVerified true.
+- dark-mode-check proof now requires phonePreviewContentVerified true in addition to darkModeEnabledVerified true.
+- cover-thumbnail-check still requires coverThumbnailAccepted true, and explicit phone preview blockers keep the row invalid.
+
+Regression coverage:
+- Scan/setup/PC-preview-shell readbacks cannot satisfy phone-preview-readback.
+- Setup screenshots cannot satisfy phone-screenshot.
+- PC-preview-shell screenshots cannot satisfy dark-mode-check even when darkModeEnabledVerified is true.
+- Cover-setting panels cannot satisfy cover-thumbnail-check when they are marked as phone preview blockers.
+- Existing fully evidenced fixtures carry phonePreviewContentVerified true for phone screenshot and Dark Mode artifacts.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 104 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 143 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1077 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 26.74s
+- inkforge/tsconfig.tsbuildinfo was restored after validation dirtied the generated cache.
+
+Boundary:
+- This proves local validator and runbook accounting only.
+- It does not prove WeChat phone preview.
+- It does not prove mobile interaction, mobile Dark Mode, cover-thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or publish success.
+- It includes only redacted local accounting text and no private runtime artifacts or account-specific content.
