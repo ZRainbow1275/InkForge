@@ -1,0 +1,55 @@
+Style Proof Ordinary PC Paste Audit - 2026-06-19
+
+Scope:
+- Local acceptance-audit classification for ordinary PC paste proof.
+- No authenticated WeChat editor action, no ordinary Ctrl+V on the live platform, no phone
+  preview, no sync, no upload, no publish.
+
+Implemented:
+- Strengthened the programmatic ClipboardEvent regression for `wechat-classic-inline`.
+- The `pc-paste` proof row now carries exact artifact, authenticated session, editor target,
+  editor surface, editor DOM, same-tab, paste/input, body mutation, mojibake-free, and safe-commit
+  fields while keeping `ordinaryClipboardPasteVerified:false`.
+- Added PC paste-specific manifest issue ids to the acceptance-audit invalid issue set:
+  `style-proof-manifest-ordinary-paste-not-verified`,
+  `style-proof-manifest-paste-editor-tab-not-verified`,
+  `style-proof-manifest-paste-input-not-verified`,
+  `style-proof-manifest-editor-body-not-mutated`,
+  `style-proof-manifest-paste-mojibake-not-ruled-out`, and
+  `style-proof-manifest-paste-proof-not-bound`.
+
+Behavior:
+- `getStyleProofManifestReport()` keeps `pc-editor-paste-event` invalid when ordinary user Ctrl+V
+  was not verified.
+- `getPlatformStyleProofAcceptanceAuditReport('wechat', manifests)` now also keeps that row
+  `invalid` and exposes `style-proof-manifest-ordinary-paste-not-verified` in `issueIds`.
+- Missing PC paste proof still remains a manual authenticated-PC-editor gate. This change only
+  reclassifies submitted weak, programmatic, wrong-tab, no-input, no-mutation, mojibake-damaged, or
+  split-flag paste proof rows as invalid proof.
+
+TDD:
+- First focused run failed because the acceptance audit returned `unsafe-to-automate` for
+  `pc-editor-paste-event` despite the manifest issue
+  `style-proof-manifest-ordinary-paste-not-verified`.
+- After the issue-id classification fix, the same focused command passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 129 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 168 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1102 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 53.47s
+
+Boundary:
+- This proves local validator/audit accounting only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft
+  deletion, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, public-host availability, platform preview, public article rendering, upload, or
+  publish success.

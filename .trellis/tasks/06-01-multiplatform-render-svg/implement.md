@@ -4778,6 +4778,54 @@ Boundary:
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Ordinary PC Paste Audit Slice
+
+Impact:
+- `gitnexus impact` for `buildStyleProofAcceptanceRequirementAudits` reported LOW risk, 7 impacted
+  items, 1 direct caller, 1 affected module (`Export`), and 0 affected processes.
+
+Implementation:
+- Strengthened the existing programmatic ClipboardEvent regression so the `pc-paste` row carries
+  all same-row exact/auth/editor/body proof fields except `ordinaryClipboardPasteVerified:true`.
+- Added acceptance-audit assertions proving `pc-editor-paste-event` stays `invalid` and exposes
+  `style-proof-manifest-ordinary-paste-not-verified`.
+- The first focused run failed as expected because the acceptance audit classified the row as
+  `unsafe-to-automate` despite the manifest-level concrete PC paste issue.
+- Added PC paste-specific manifest issues to the acceptance-audit invalid issue set:
+  `style-proof-manifest-ordinary-paste-not-verified`,
+  `style-proof-manifest-paste-editor-tab-not-verified`,
+  `style-proof-manifest-paste-input-not-verified`,
+  `style-proof-manifest-editor-body-not-mutated`,
+  `style-proof-manifest-paste-mojibake-not-ruled-out`, and
+  `style-proof-manifest-paste-proof-not-bound`.
+
+Verification:
+- TDD first run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed as expected because `pc-editor-paste-event` was `unsafe-to-automate`.
+- After the fix, the same focused command passed with 1 file / 129 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 168 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1102 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 53.47s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-pc-paste-ordinary-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft
+  deletion, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, public-host availability, platform preview, public article rendering, upload, or
+  publish success.
+
 ## 2026-06-19 Style Proof Host and Manifest Audit Regression Slice
 
 Impact:

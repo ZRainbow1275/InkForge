@@ -1460,6 +1460,15 @@ Contracts:
   `style-proof-manifest-cleanup-path-missing` must be `invalid` in the acceptance audit. Missing
   safe-draft proof remains an authenticated-PC-editor manual gate, but a submitted safe-draft row
   without disposable draft identity or cleanup/rollback verification is concrete invalid proof.
+- Requirement rows carrying PC paste-specific issues must be `invalid` in the acceptance audit:
+  `style-proof-manifest-ordinary-paste-not-verified`,
+  `style-proof-manifest-paste-editor-tab-not-verified`,
+  `style-proof-manifest-paste-input-not-verified`,
+  `style-proof-manifest-editor-body-not-mutated`,
+  `style-proof-manifest-paste-mojibake-not-ruled-out`, and
+  `style-proof-manifest-paste-proof-not-bound`. Missing PC paste proof remains a manual
+  authenticated-PC-editor gate, but submitted weak or programmatic paste proof is concrete invalid
+  proof.
 - ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
   be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
   external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
@@ -1480,6 +1489,9 @@ Required tests:
 - A PC paste manifest with an otherwise complete safe-disposable-draft row but no
   `cleanupPathVerified:true` must keep `safe-disposable-draft` invalid in both the manifest report
   and the acceptance audit.
+- A PC paste manifest whose `pc-paste` row is otherwise exact/authenticated/body-bound but has
+  `ordinaryClipboardPasteVerified:false` must keep `pc-editor-paste-event` invalid in both the
+  manifest report and the acceptance audit.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
@@ -1505,6 +1517,11 @@ Contracts:
   `platformEditorTargetVerified`, `platformEditorSurfaceVerified`, `platformEditorDomVerified`,
   `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`,
   `editorBodyMutationVerified`, `mojibakeFreeVerified`, and `safeForCommit`.
+- Programmatic ClipboardEvent, local OS key probes, local contenteditable CF_HTML checks, wrong-tab
+  readbacks, no-input/no-mutation rows, mojibake-damaged rows, and split-flag proof rows are
+  concrete invalid PC paste proof once submitted. Their requirement-level acceptance audit rows
+  must stay `invalid`; they cannot be softened to generic `unsafe-to-automate` merely because the
+  authenticated PC editor gate is manual.
 - WeChat editor target identity must be verified against the authenticated `media/appmsg_edit_v2`
   editor surface, not inferred from article-list controls or static bundle routes. Current
   CloakBrowser readback shows the main article body as a ProseMirror `contenteditable=true` node

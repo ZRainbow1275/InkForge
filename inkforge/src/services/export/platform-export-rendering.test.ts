@@ -2446,7 +2446,16 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
+          platformEditorDomVerified: true,
           ordinaryClipboardPasteVerified: false,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -2487,10 +2496,16 @@ describe('platform native export rendering rules', () => {
     const requirementStatus = new Map(
       report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const pcPasteAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'pc-editor-paste-event'
+    )
 
     expect(report.valid).toBe(false)
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-ordinary-paste-not-verified')
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(pcPasteAudit?.status).toBe('invalid')
+    expect(pcPasteAudit?.issueIds).toContain('style-proof-manifest-ordinary-paste-not-verified')
     expect(requirementStatus.get('safe-disposable-draft')).toBe('satisfied')
     expect(requirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
     expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
