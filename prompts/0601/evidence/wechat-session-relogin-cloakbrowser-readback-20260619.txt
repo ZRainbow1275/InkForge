@@ -1,0 +1,30 @@
+WeChat Session Relogin CloakBrowser Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only readback after the local machine restart and prior external-gate work.
+- Opened the WeChat backend article list path and collected redacted page-state signals only.
+- No Playwright, screenshot, form fill, account action, draft mutation, paste, preview, sync, scheduled send, or publish action.
+
+Redacted readback:
+- Page title: public-account backend shell label.
+- URL path: https://mp.weixin.qq.com/cgi-bin/appmsg
+- readyState: complete.
+- Login/relogin text signal: true.
+- Create/publish/editor text signals: false.
+- Editor DOM counts:
+  - .ProseMirror: 0
+  - [contenteditable="true"]: 0
+  - iframe: 0
+  - textarea: 0
+- Visible editor/backstage module counts for the checked selectors were zero.
+- A visible navigation path to the login page was present.
+
+Interpretation:
+- The current CloakBrowser profile is not in a usable authenticated article-editor state for this path.
+- This readback is a relogin/external-account blocker.
+- It cannot satisfy authenticated editor URL proof, PC editor DOM proof, safe disposable draft proof, ordinary PC paste proof, phone preview proof, sync proof, scheduled send proof, platform preview proof, or publish proof.
+
+Boundary:
+- This is platform-state evidence only.
+- It includes only redacted selector counts and page-state booleans.
+- It does not include private runtime artifacts, screenshots, raw DOM, full URLs with query strings, account-specific content, or credential material.

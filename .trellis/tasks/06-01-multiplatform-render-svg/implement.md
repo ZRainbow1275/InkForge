@@ -2751,6 +2751,32 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
+
+Scope:
+- Continued WeChat external-gate verification with CloakBrowser only.
+- Opened the backend article-list path after the local restart and current proof-gate work.
+- No Playwright, screenshot, form fill, account action, draft mutation, paste, phone preview, sync,
+  scheduled send, or publish action was performed.
+
+Observed:
+- The page path was the WeChat backend article-list path.
+- Page readyState was complete.
+- Login/relogin text signal was present.
+- Create, publish, and editor text signals were absent.
+- Redacted editor selector counts were zero for `.ProseMirror`, contenteditable article bodies,
+  iframe nodes, and textarea nodes.
+- A visible navigation path to the login page was present.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-session-relogin-cloakbrowser-readback-20260619.txt`.
+
+Boundary:
+- This is relogin platform-state evidence only.
+- It does not prove authenticated editor URL, PC editor DOM readback, safe disposable draft,
+  ordinary PC paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, platform
+  preview, public article rendering, or publish success.
+
 ## 2026-06-19 XHS/Zhihu Account Login Gate Readback Slice
 
 Scope:

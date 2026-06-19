@@ -1354,3 +1354,18 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/runbook proof only. It does not prove XHS/Zhihu account
   authentication, upload surface availability, platform preview, public-host acceptance, public
   article rendering, scheduled-send, or publish success.
+
+## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-session-relogin-cloakbrowser-readback-20260619.txt`.
+- CloakBrowser-only navigation to the WeChat backend article-list path returned a relogin/platform
+  state rather than a usable authenticated article editor.
+- Redacted readback found zero `.ProseMirror`, zero contenteditable article bodies, zero iframe
+  nodes, and zero textarea nodes for the checked editor surfaces.
+- Login/relogin text signal was present; create, publish, and editor text signals were absent.
+- No screenshot, form fill, draft mutation, paste, phone preview, sync, scheduled send, or publish
+  action was performed.
+- Boundary: this is relogin platform-state evidence only. It does not prove authenticated editor
+  URL, PC editor DOM readback, safe disposable draft, ordinary PC paste, phone preview, Dark Mode,
+  cover thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish
+  success.

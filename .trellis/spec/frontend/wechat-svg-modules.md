@@ -1433,6 +1433,11 @@ Contracts:
   route must keep account upload, editor preview, platform preview, public article rendering, and
   publish rows missing or unclaimable. Login forms, verification-code inputs, password fields,
   social-login buttons, or redirect query keys are external-account blockers, not platform proof.
+- A CloakBrowser readback that reaches a WeChat login or relogin state from `/cgi-bin/appmsg` is
+  also blocker evidence only. Zero editor-surface counts for `.ProseMirror`, contenteditable
+  article body, iframe, and textarea nodes must keep authenticated editor URL, PC editor DOM,
+  ordinary paste, phone preview, sync, scheduled-send, platform preview, and publish rows
+  unclaimable.
 - The executable manifest fields for this boundary are
   `StyleProofArtifact.externalAccountAuthenticated?: boolean` and
   `StyleProofArtifact.externalAccountLoginBlocked?: boolean`. Credentialed-channel and platform-

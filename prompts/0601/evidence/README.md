@@ -1088,3 +1088,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local validator/runbook proof only. It does not prove account authentication, upload
   surface availability, public-host acceptance, platform preview, public article rendering,
   scheduled-send, or publish success.
+
+## 2026-06-19 WeChat Session Relogin CloakBrowser Readback
+
+- [x] wechat-session-relogin-cloakbrowser-readback-20260619.txt
+- CloakBrowser-only readback opened the WeChat backend article-list path after restart and found a
+  relogin signal rather than a usable authenticated article editor.
+- Redacted selector counts showed zero `.ProseMirror`, zero contenteditable article bodies, zero
+  iframe nodes, and zero textarea nodes for the checked editor surfaces.
+- No screenshot, form fill, draft mutation, paste, phone preview, sync, scheduled send, or publish
+  action was performed.
+- Boundary: relogin platform-state evidence only. It cannot satisfy authenticated editor URL, PC
+  editor DOM, safe draft, ordinary PC paste, phone preview, sync, scheduled-send, platform preview,
+  public article rendering, or publish proof.
