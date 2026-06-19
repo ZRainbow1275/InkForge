@@ -1601,7 +1601,7 @@ Contracts:
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
   blob, localhost, WeChat-only, temporary preview, unsafe-for-commit, or untraceable
-  host-status-only rows remain invalid.
+  host-status-only rows remain invalid in both manifest report and acceptance audit.
 - XHS and Zhihu artifact-manifest proof must require `artifactManifestValidated:true` in addition
   to `artifactRef` and `safeForCommit`. `artifactRef`, `artifactManifestValidated:true`, and
   `safeForCommit:true` must appear on the same artifact-manifest validation row. The validator flag
@@ -1609,6 +1609,9 @@ Contracts:
   `validateZhihuImageArtifactManifest()` call returns no issues for the exact redacted manifest.
   The execution runbook's next action, success criteria, and failure signals must name the matching
   validator so operator checklists cannot treat a manifest-shaped row as validator-passed proof.
+  Manifest-shaped rows without the validator-passed flag, or rows that split report reference and
+  validator pass across different artifacts, remain invalid in both manifest report and acceptance
+  audit.
 - XHS/Zhihu artifact-manifest rows without a non-empty `artifactRef` must surface
   `style-proof-manifest-artifact-ref-missing` and stay invalid, because the proof cannot be traced
   to the redacted manifest report that was validated.

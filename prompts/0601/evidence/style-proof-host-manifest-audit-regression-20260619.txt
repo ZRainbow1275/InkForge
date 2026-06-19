@@ -1,0 +1,31 @@
+Style Proof Host and Manifest Audit Regression - 2026-06-19
+
+Scope:
+- Local style proof acceptance-audit regression coverage.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Behavior locked:
+- A Zhihu public-image-host proof row with hostStatus:local-only remains invalid in both manifest
+  report and acceptance audit, even when artifactRef and safeForCommit are present.
+- A Xiaohongshu artifact-manifest proof row with artifactRef and safeForCommit but without
+  artifactManifestValidated:true remains invalid in both manifest report and acceptance audit.
+- Split artifact-manifest proof rows where one row carries artifactRef and another row carries
+  artifactManifestValidated:true remain invalid in both manifest report and acceptance audit.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 129 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 168 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1102 tests
+- pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 38.59s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local acceptance-audit regression behavior only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

@@ -4351,9 +4351,15 @@ describe('platform native export rendering rules', () => {
     const requirementStatus = new Map(
       report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('xiaohongshu', [manifest])
+    const artifactManifestAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'xhs-artifact-manifest'
+    )
 
     expect(issueIds).toContain('style-proof-manifest-artifact-manifest-not-validated')
     expect(requirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
+    expect(artifactManifestAudit?.status).toBe('invalid')
+    expect(artifactManifestAudit?.issueIds).toContain('style-proof-manifest-artifact-manifest-not-validated')
     expect(requirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(requirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
@@ -4432,9 +4438,16 @@ describe('platform native export rendering rules', () => {
       splitBindingReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
     const splitBindingIssueIds = splitBindingReport.issues.map(issue => issue.id)
+    const splitBindingAudit = getPlatformStyleProofAcceptanceAuditReport('xiaohongshu', [splitBindingManifest])
+    const splitBindingArtifactManifestAudit = splitBindingAudit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'xhs-artifact-manifest'
+    )
 
     expect(splitBindingIssueIds).toContain('style-proof-manifest-artifact-manifest-not-validated')
     expect(splitBindingRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
+    expect(splitBindingArtifactManifestAudit?.status).toBe('invalid')
+    expect(splitBindingArtifactManifestAudit?.issueIds)
+      .toContain('style-proof-manifest-artifact-manifest-not-validated')
   })
 
   it('rejects Xiaohongshu login-gate readback as upload preview or publish proof', () => {
@@ -4906,6 +4919,49 @@ describe('platform native export rendering rules', () => {
     expect(publicHostAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
     expect(manifestAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
     expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+  })
+
+  it('keeps non-public image host proof invalid in acceptance audit', () => {
+    const artifactFingerprint = 'sha256:redacted-zhihu-local-host'
+    const manifest: StyleProofManifest = {
+      platform: 'zhihu',
+      choiceId: 'zhihu-data-table',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'zhihu-local-only-host-proof',
+          requirementId: 'public-image-host',
+          kind: 'image-host-check',
+          label: 'local-only image host cannot prove public fallback hosting',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'public-web',
+          action: 'public-image-host-check',
+          readback: 'manifest',
+          artifactFingerprint,
+          artifactRef: 'prompts/0601/evidence/zhihu-local-host-report-20260619.txt',
+          hostStatus: 'local-only',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('zhihu', [manifest])
+    const publicHostAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'public-image-host'
+    )
+
+    expect(issueIds).toContain('style-proof-manifest-public-image-host-missing')
+    expect(requirementStatus.get('public-image-host')).toBe('invalid')
+    expect(publicHostAudit?.status).toBe('invalid')
+    expect(publicHostAudit?.issueIds).toContain('style-proof-manifest-public-image-host-missing')
   })
 
   it('requires traceable artifactRef for public image host proof', () => {

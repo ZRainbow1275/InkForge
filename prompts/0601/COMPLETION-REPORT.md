@@ -2038,6 +2038,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Host and Manifest Audit Regression Addendum
+
+- Added `prompts/0601/evidence/style-proof-host-manifest-audit-regression-20260619.txt`.
+- Added acceptance-audit regression coverage without production code changes.
+- Locked Zhihu `public-image-host` proof rows with non-public host status (`local-only`) as
+  `invalid` in both manifest report and acceptance audit.
+- Locked XHS `xhs-artifact-manifest` proof rows without `artifactManifestValidated:true`, and
+  split ref/validation rows, as `invalid` in both manifest report and acceptance audit.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 129 tests.
+- 4-file cross-platform export regression passed at 4 files / 168 tests, and full export serial
+  regression passed at 35 files / 1102 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  38.59s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit regression proof only. It does not prove phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Scheduled Send Audit Addendum
 
 - Added `prompts/0601/evidence/style-proof-scheduled-send-audit-20260619.txt`.

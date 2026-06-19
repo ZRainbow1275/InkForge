@@ -4689,6 +4689,43 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Host and Manifest Audit Regression Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge buildStyleProofAcceptanceRequirementAudits --direction upstream`
+  reported LOW risk, 7 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Added acceptance-audit regression coverage without changing production code.
+- Locked Zhihu `public-image-host` proof rows with non-public host status (`local-only`) as
+  `invalid` in both manifest report and acceptance audit.
+- Locked XHS `xhs-artifact-manifest` proof rows without `artifactManifestValidated:true`, and
+  split ref/validation rows, as `invalid` in both manifest report and acceptance audit.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 129 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 168 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1102 tests.
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  38.59s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-host-manifest-audit-regression-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit regression proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Scheduled Send Acceptance Slice
 
 Impact:
