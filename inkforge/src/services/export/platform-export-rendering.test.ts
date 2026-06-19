@@ -16,6 +16,7 @@ import {
   evaluateStyleChoiceAvailability,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
+  getCommittedStyleProofEvidenceReleaseGateReport,
   getCommittedStyleProofEvidenceManifests,
   getCommittedStyleProofLocalEvidenceAuditReport,
   getCommittedStyleProofLocalEvidenceManifests,
@@ -1957,6 +1958,53 @@ describe('platform native export rendering rules', () => {
     expect(xhsPublishStep?.boundary).toBe('platform-publish')
     expect(zhihuPublicHostStep?.status).toBe('blocked-by-external')
     expect(zhihuPublicHostStep?.boundary).toBe('public-host')
+  })
+
+  it('blocks committed evidence release claims until external gates are actually proven', () => {
+    const report = getCommittedStyleProofEvidenceReleaseGateReport()
+    const blockerKinds = report.blockers.map(blocker => blocker.kind)
+    const phoneBlocker = report.blockers.find(blocker => blocker.kind === 'phone-preview')
+    const externalBlocker = report.blockers.find(blocker => blocker.kind === 'external-dependency')
+    const unsafeBlocker = report.blockers.find(blocker => blocker.kind === 'unsafe-to-automate')
+    const mutatingBlocker = report.blockers.find(blocker => blocker.kind === 'mutating-platform')
+    const localConflictBlocker = report.blockers.find(blocker => blocker.kind === 'local-conflict')
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).toBe('blocked-by-local-conflict')
+    expect(report.summary).toMatchObject({
+      combinedManifestCount: 6,
+      hasExactArtifactFingerprintConflicts: true,
+      combinedIssueCount: expect.any(Number),
+      cannotClaimSteps: expect.any(Number),
+      phoneOpenSteps: expect.any(Number),
+      externalDependencyOpenSteps: expect.any(Number),
+      unsafeToAutomateOpenSteps: expect.any(Number),
+      mutatingOpenSteps: expect.any(Number),
+    })
+    expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
+    expect(report.summary.cannotClaimSteps).toBeGreaterThan(0)
+    expect(blockerKinds).toEqual(expect.arrayContaining([
+      'local-conflict',
+      'phone-preview',
+      'external-dependency',
+      'unsafe-to-automate',
+      'mutating-platform',
+    ]))
+    expect(localConflictBlocker?.issueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
+    expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
+    expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([
+      'public-image-host',
+      'sync-readback',
+    ]))
+    expect(unsafeBlocker?.requirementIds).toEqual(expect.arrayContaining([
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(mutatingBlocker?.requirementIds).toEqual(expect.arrayContaining([
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

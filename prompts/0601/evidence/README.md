@@ -360,6 +360,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-committed-wechat-pc-evidence-20260619.txt # 当前规则实现：Amber raw + Tempera entity-safe committed WeChat PC paste/cleanup rows; phone/sync/publish remain open
 [x] style-proof-committed-evidence-combined-audit-20260620.txt # 当前规则实现：committed local + WeChat PC combined audit exposes fingerprint conflicts; external claims remain open
 [x] style-proof-committed-evidence-runbook-report-20260620.txt # 当前规则实现：committed local + WeChat PC execution runbook report keeps operator gates unclaimed
+[x] style-proof-committed-evidence-release-gate-20260620.txt # 当前规则实现：committed evidence release gate returns canClaimComplete=false until local/external blockers close
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
@@ -2459,3 +2460,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
   public host, or publish success.
+
+## 2026-06-20 Style Proof Committed Evidence Release Gate
+
+- [x] style-proof-committed-evidence-release-gate-20260620.txt
+- Added `getCommittedStyleProofEvidenceReleaseGateReport()` as the top-level local release-claim
+  gate for committed proof.
+- The report reads only from `getCommittedStyleProofEvidenceExecutionRunbookReport()` and returns
+  `canClaimComplete:false` for the current committed pack.
+- The current status is `blocked-by-local-conflict` because combined committed evidence still has
+  the exact-artifact fingerprint mismatch. Phone preview, external dependency,
+  unsafe-to-automate, and mutating-platform blockers remain visible in separate blocker rows.
+- TDD first run failed because the release-gate helper did not exist. After implementation, the
+  focused release-claim regression passed.
+- Full local verification also passed: committed evidence plus release-claim focused group
+  5 selected tests, `platform-export-rendering.test.ts` 149 tests, four-file cross-platform export
+  regression 188 tests, full `src/services/export` serial run 35 files / 1122 tests, targeted
+  ESLint, `vue-tsc --noEmit`, and production build. Vite built in 24.65s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local release-claim blocking only. It does not prove WeChat phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.

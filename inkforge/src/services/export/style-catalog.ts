@@ -873,6 +873,39 @@ export interface CommittedStyleProofExecutionRunbookReport {
   }
 }
 
+export type CommittedStyleProofReleaseGateStatus =
+  | 'ready'
+  | 'blocked-by-local-conflict'
+  | 'blocked-by-external'
+  | 'unsafe-to-automate'
+
+export type CommittedStyleProofReleaseGateBlockerKind =
+  | 'local-conflict'
+  | 'phone-preview'
+  | 'external-dependency'
+  | 'unsafe-to-automate'
+  | 'mutating-platform'
+
+export interface CommittedStyleProofReleaseGateBlocker {
+  kind: CommittedStyleProofReleaseGateBlockerKind
+  status: StyleProofAcceptanceAuditStatus | 'issue'
+  platforms: readonly Platform[]
+  requirementIds: readonly StyleProofRequirementId[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  stepCount: number
+  message: string
+}
+
+export interface CommittedStyleProofReleaseGateReport {
+  source: CommittedStyleProofExecutionRunbookReport
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  blockers: readonly CommittedStyleProofReleaseGateBlocker[]
+  summary: CommittedStyleProofExecutionRunbookReport['summary'] & {
+    blockerCount: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -5533,6 +5566,131 @@ export function getCommittedStyleProofEvidenceExecutionRunbookReport(): Committe
       externalDependencyOpenSteps: combined.summary.externalDependencyOpenSteps,
       unsafeToAutomateOpenSteps: combined.summary.unsafeToAutomateOpenSteps,
       mutatingOpenSteps: combined.summary.mutatingOpenSteps,
+    },
+  }
+}
+
+function getUniqueCommittedStyleProofReleaseValues<T extends string>(values: readonly T[]): T[] {
+  return Array.from(new Set(values))
+}
+
+function getCommittedStyleProofRunbookOpenSteps(
+  report: CommittedStyleProofExecutionRunbookReport,
+): StyleProofExecutionRunbookStep[] {
+  return Object.values(report.combined.platformReports).flatMap(platformReport =>
+    platformReport.openSteps
+  )
+}
+
+function getCommittedStyleProofManifestIssueIds(
+  report: CommittedStyleProofExecutionRunbookReport,
+): StyleProofManifestIssueId[] {
+  return report.combined.issues
+    .map(issue => issue.id)
+    .filter((issueId): issueId is StyleProofManifestIssueId =>
+      STYLE_PROOF_MANIFEST_ISSUE_IDS.includes(issueId as StyleProofManifestIssueId)
+    )
+}
+
+function buildCommittedStyleProofReleaseStepBlocker(
+  kind: Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>,
+  status: StyleProofAcceptanceAuditStatus,
+  steps: readonly StyleProofExecutionRunbookStep[],
+  message: string,
+): CommittedStyleProofReleaseGateBlocker | null {
+  if (steps.length === 0) return null
+
+  return {
+    kind,
+    status,
+    platforms: getUniqueCommittedStyleProofReleaseValues(steps.map(step => step.platform)),
+    requirementIds: getUniqueCommittedStyleProofReleaseValues(
+      steps.map(step => step.requirement.id)
+    ),
+    issueIds: getUniqueCommittedStyleProofReleaseValues(
+      steps.flatMap(step => step.issueIds)
+    ),
+    stepCount: steps.length,
+    message,
+  }
+}
+
+function getCommittedStyleProofReleaseGateStatus(
+  report: CommittedStyleProofExecutionRunbookReport,
+): CommittedStyleProofReleaseGateStatus {
+  if (report.summary.hasExactArtifactFingerprintConflicts || report.summary.combinedIssueCount > 0) {
+    return 'blocked-by-local-conflict'
+  }
+  if (report.summary.phoneOpenSteps > 0 || report.summary.externalDependencyOpenSteps > 0) {
+    return 'blocked-by-external'
+  }
+  if (report.summary.unsafeToAutomateOpenSteps > 0 || report.summary.mutatingOpenSteps > 0) {
+    return 'unsafe-to-automate'
+  }
+  if (report.summary.cannotClaimSteps > 0) return 'blocked-by-local-conflict'
+  return 'ready'
+}
+
+export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyleProofReleaseGateReport {
+  const source = getCommittedStyleProofEvidenceExecutionRunbookReport()
+  const openSteps = getCommittedStyleProofRunbookOpenSteps(source)
+  const issueIds = getCommittedStyleProofManifestIssueIds(source)
+  const blockers: CommittedStyleProofReleaseGateBlocker[] = []
+
+  if (source.summary.hasExactArtifactFingerprintConflicts || issueIds.length > 0) {
+    blockers.push({
+      kind: 'local-conflict',
+      status: 'issue',
+      platforms: ['wechat', 'xiaohongshu', 'zhihu'],
+      requirementIds: [],
+      issueIds,
+      stepCount: source.summary.combinedIssueCount,
+      message: 'Committed local and PC evidence still contain local manifest conflicts; do not claim complete style proof.',
+    })
+  }
+
+  const phoneBlocker = buildCommittedStyleProofReleaseStepBlocker(
+    'phone-preview',
+    'blocked-by-external',
+    openSteps.filter(step => step.requiresPhone),
+    'Phone preview, screenshots, Dark Mode, cover thumbnail, and mobile interaction remain external proof gates.',
+  )
+  if (phoneBlocker) blockers.push(phoneBlocker)
+
+  const externalDependencyBlocker = buildCommittedStyleProofReleaseStepBlocker(
+    'external-dependency',
+    'blocked-by-external',
+    openSteps.filter(step => step.requiresExternalAccount || step.boundary === 'public-host'),
+    'Credentialed account, public-host, sync, upload, and platform readback dependencies remain unproven.',
+  )
+  if (externalDependencyBlocker) blockers.push(externalDependencyBlocker)
+
+  const unsafeToAutomateBlocker = buildCommittedStyleProofReleaseStepBlocker(
+    'unsafe-to-automate',
+    'unsafe-to-automate',
+    openSteps.filter(step => step.status === 'unsafe-to-automate'),
+    'Some open proof rows require mutating credentialed platform actions and exact readback.',
+  )
+  if (unsafeToAutomateBlocker) blockers.push(unsafeToAutomateBlocker)
+
+  const mutatingBlocker = buildCommittedStyleProofReleaseStepBlocker(
+    'mutating-platform',
+    'unsafe-to-automate',
+    openSteps.filter(step => step.mutatesPlatform),
+    'Scheduled send, publish, and platform-preview rows mutate platform state and must be operator-proven.',
+  )
+  if (mutatingBlocker) blockers.push(mutatingBlocker)
+
+  const status = getCommittedStyleProofReleaseGateStatus(source)
+
+  return {
+    source,
+    canClaimComplete: status === 'ready' && blockers.length === 0,
+    status,
+    blockers,
+    summary: {
+      ...source.summary,
+      blockerCount: blockers.length,
     },
   }
 }

@@ -413,6 +413,14 @@ export interface CommittedStyleProofExecutionRunbookReport {
   combined: StyleProofExecutionRunbook
 }
 export function getCommittedStyleProofEvidenceExecutionRunbookReport(): CommittedStyleProofExecutionRunbookReport
+export type CommittedStyleProofReleaseGateStatus =
+  | 'ready' | 'blocked-by-local-conflict' | 'blocked-by-external' | 'unsafe-to-automate'
+export interface CommittedStyleProofReleaseGateReport {
+  source: CommittedStyleProofExecutionRunbookReport
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+}
+export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyleProofReleaseGateReport
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }
@@ -1990,6 +1998,14 @@ Contracts:
   artifact fingerprint conflicts, cannot-claim steps, phone-open steps, external-dependency-open
   steps, unsafe-to-automate steps, and mutating-open steps so acceptance dashboards can tell
   operator work from local proof without claiming external completion.
+- `getCommittedStyleProofEvidenceReleaseGateReport()` must be the top-level committed-evidence
+  claim gate. It may only read from `getCommittedStyleProofEvidenceExecutionRunbookReport()`. It
+  must not create proof, mutate manifests, downgrade invalid rows, or infer external success. Its
+  `canClaimComplete` value must remain `false` whenever combined evidence has local manifest
+  conflicts, cannot-claim rows, phone-open steps, external-dependency-open steps,
+  unsafe-to-automate rows, or mutating platform rows. Its blockers must group the current release
+  barriers into local conflict, phone preview, external dependency, unsafe-to-automate, and
+  mutating-platform buckets.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -2020,6 +2036,12 @@ Required tests:
   views for the same 6-manifest combined pack, keep exact-artifact conflicts visible at summary and
   issue-list level, and keep WeChat phone preview blocked-by-external, WeChat scheduled-send and
   XHS publish unsafe-to-automate, and Zhihu public-host blocked-by-external.
+- The committed-evidence release gate report must return `canClaimComplete:false` and
+  `status:"blocked-by-local-conflict"` for the current committed pack, while still exposing phone,
+  external-dependency, unsafe-to-automate, and mutating-platform blockers. It must include
+  `style-proof-manifest-pack-fingerprint-mismatch`, `phone-preview-readback`, `public-image-host`,
+  `sync-readback`, `scheduled-send-readback`, and `published-url-or-platform-preview` in the
+  appropriate blocker rows.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

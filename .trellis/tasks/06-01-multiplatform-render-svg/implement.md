@@ -6328,6 +6328,56 @@ Boundary:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
   acceptance, or publish success.
 
+## 2026-06-20 Style Proof Committed Evidence Release Gate Slice
+
+Scope:
+- Local release-claim gate for committed, redacted style proof evidence.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR material, token, cookie, or HAR artifact was
+  created.
+
+Impact:
+- GitNexus index refreshed to commit `cc5c25f`.
+- `getCommittedStyleProofEvidenceExecutionRunbookReport`: LOW risk, 0 affected processes.
+- `getStyleProofExecutionRunbook`: LOW risk, 3 direct callers inside Export, 0 affected processes.
+
+Implementation:
+- Added `CommittedStyleProofReleaseGateStatus`.
+- Added `CommittedStyleProofReleaseGateBlocker`.
+- Added `CommittedStyleProofReleaseGateReport`.
+- Added `getCommittedStyleProofEvidenceReleaseGateReport()`.
+- The report reads only from `getCommittedStyleProofEvidenceExecutionRunbookReport()` and groups
+  blockers into local conflict, phone preview, external dependency, unsafe-to-automate, and
+  mutating-platform buckets.
+
+Verification:
+- TDD first run failed as expected because `getCommittedStyleProofEvidenceReleaseGateReport()` did
+  not exist.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  - PASS: 1 file / 5 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 149 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 188 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1122 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 24.65s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Boundary:
+- This is local release-claim blocking only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste for every flagship, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
+  acceptance, or publish success.
+
 ## 2026-06-20 Market Fallback Catalog Contract Slice
 
 Scope:

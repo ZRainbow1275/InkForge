@@ -2584,6 +2584,33 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 
 ---
 
+## 2026-06-20 Style Proof Committed Evidence Release Gate Addendum
+
+- Added `prompts/0601/evidence/style-proof-committed-evidence-release-gate-20260620.txt`.
+- Added `CommittedStyleProofReleaseGateStatus`, `CommittedStyleProofReleaseGateBlocker`,
+  `CommittedStyleProofReleaseGateReport`, and
+  `getCommittedStyleProofEvidenceReleaseGateReport()`.
+- The release gate reads only from `getCommittedStyleProofEvidenceExecutionRunbookReport()` and
+  returns `canClaimComplete:false` for the current committed evidence pack.
+- The current status is `blocked-by-local-conflict` because the combined committed evidence pack
+  still exposes exact-artifact fingerprint mismatch. Phone preview, external dependency,
+  unsafe-to-automate, and mutating-platform blockers remain visible separately.
+- TDD first run failed because `getCommittedStyleProofEvidenceReleaseGateReport()` did not exist.
+  After implementation, the focused release-claim regression passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`.
+- Full local verification also passed:
+  committed evidence plus release-claim focused group 5 selected tests,
+  `platform-export-rendering.test.ts` 149 tests, four-file cross-platform export regression
+  188 tests, full `src/services/export` serial run 35 files / 1122 tests, targeted ESLint,
+  `vue-tsc --noEmit`, and production build. Vite built in 24.65s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local release-claim blocking only. It does not prove WeChat ordinary Ctrl+V
+  rich HTML/SVG paste for every flagship, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 Style Proof Committed Evidence Combined Audit Addendum
 
 - Added `prompts/0601/evidence/style-proof-committed-evidence-combined-audit-20260620.txt`.

@@ -1,0 +1,56 @@
+Style Proof Committed Evidence Release Gate - 2026-06-20
+
+Scope:
+- Local release-claim gate for committed, redacted StyleProofManifest evidence.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR material, token, cookie, or HAR artifact was
+  created.
+
+Implemented:
+- CommittedStyleProofReleaseGateStatus
+- CommittedStyleProofReleaseGateBlocker
+- CommittedStyleProofReleaseGateReport
+- getCommittedStyleProofEvidenceReleaseGateReport()
+
+Behavior:
+- Reads only from getCommittedStyleProofEvidenceExecutionRunbookReport().
+- Does not create proof, mutate manifests, downgrade invalid rows, or infer external success.
+- Returns canClaimComplete:false for the current committed evidence pack.
+- Returns status blocked-by-local-conflict because combined committed evidence still exposes the
+  exact-artifact fingerprint conflict between local WebView/browser evidence and WeChat PC paste
+  evidence.
+- Keeps external blockers visible at the same time:
+  - phone-preview blocker includes phone-preview-readback and related phone rows.
+  - external-dependency blocker includes public-image-host and credentialed sync dependencies.
+  - unsafe-to-automate blocker includes scheduled-send and published/platform-preview rows.
+  - mutating-platform blocker includes scheduled-send and published/platform-preview rows.
+
+TDD:
+- First focused run failed because getCommittedStyleProofEvidenceReleaseGateReport() did not exist.
+- After implementation, the focused regression passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default
+  PASS: 1 file / 1 selected test.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default
+  PASS: 1 file / 5 selected tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 149 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 188 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1122 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 24.65s.
+- Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
+
+Boundary:
+- This proves local release-claim blocking only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste for every flagship, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, Xiaohongshu/Zhihu account upload, public-host
+  acceptance, or publish success.
