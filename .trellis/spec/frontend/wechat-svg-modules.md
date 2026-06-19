@@ -1523,6 +1523,12 @@ Contracts:
   acceptance audit requirement rows `invalid` instead of `blocked-by-external`.
 - Credentialed sync and platform publish rows remain `unsafe-to-automate` until a human/operator
   performs the real mutating account action and provides readback for the same artifact.
+- `scheduled-send-readback` is a distinct `platform-publish` requirement under `published`
+  evidence. It must require `StyleProofAction:'scheduled-send'`,
+  `StyleProofReadback:'scheduled-send-state'` (or a DOM/API/visual readback of the same send state),
+  `externalAccountAuthenticated:true`, `exactArtifact:true`, `scheduledSendVerified:true`,
+  `artifactFingerprint`, and `safeForCommit:true`. Credentialed sync responses, editor previews,
+  draft creation, public preview URLs, or published-preview rows must not satisfy this requirement.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified. Local, private, data, blob, localhost, WeChat-only, temporary preview,
@@ -1553,9 +1559,11 @@ Contracts:
   `StyleProofArtifact.externalAccountLoginBlocked?: boolean`. Credentialed-channel and platform-
   publish runbook rows must expose `externalAccountAuthenticated` as a required field, and the
   validator must require `externalAccountAuthenticated:true` for
-  `credentialed-channel-response`, `sync-readback`, and `published-url-or-platform-preview`.
-  `published-url-or-platform-preview` must also require `exactArtifact:true`, because a public URL
-  or platform preview for a different article cannot prove the current exported artifact.
+  `credentialed-channel-response`, `sync-readback`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview`. `scheduled-send-readback` and
+  `published-url-or-platform-preview` must also require `exactArtifact:true`, because a send state,
+  public URL, or platform preview for a different article cannot prove the current exported
+  artifact.
 - A manifest artifact with `externalAccountLoginBlocked:true`,
   `externalAccountAuthenticated:false`, or action `external-account-login-readback` must emit
   `style-proof-manifest-external-account-login-blocked`. Such an artifact can never satisfy XHS
@@ -1567,6 +1575,8 @@ Contracts:
   `externalAccountAuthenticated:true` must emit
   `style-proof-manifest-external-account-auth-missing`. The row remains invalid even if channel,
   action, readback, and artifact fingerprint otherwise match.
+- A scheduled-send-shaped artifact that omits `scheduledSendVerified:true` on the exact
+  authenticated artifact must emit `style-proof-manifest-scheduled-send-not-verified`.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
@@ -1576,6 +1586,8 @@ Contracts:
   screenshots that do not show the exact article body with mobile Dark Mode enabled. Cover-thumbnail
   rows must additionally reject cover crop panels, cover-setting screens, and upload dialogs unless
   the exact cover thumbnail is accepted in a phone share, preview entry, or platform list entry.
+- Scheduled-send runbook `failureSignals` must reject credentialed sync responses, editor previews,
+  draft creation, and public preview URLs as proof of send/scheduled-send state.
 - ExportModal may surface the runbook through style capability summary text, acceptance preflight
   text, per-choice execution summaries, and artifact-contract labels. This UI is informational
   only: it must not fork acceptance logic, create artifacts, alter `selectable`, `usable`,
@@ -1711,7 +1723,7 @@ Required tests:
   `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
 - The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
-  Dark Mode, cover thumbnail, and publish rows missing/cannot-claim.
+  Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

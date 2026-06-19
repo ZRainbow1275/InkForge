@@ -4456,6 +4456,56 @@ Boundary:
   preview, Dark Mode, cover, credentialed sync, scheduled-send, platform preview, public
   rendering, upload, or publish gates.
 
+## 2026-06-19 Style Proof Scheduled Send Contract Slice
+
+Impact:
+- `npx gitnexus impact STYLE_PROOF_REQUIREMENTS -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+- `npx gitnexus impact validateStyleProofManifest -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added `scheduled-send-readback` as an explicit `StyleProofRequirementId` under `published`
+  evidence so scheduled/send state remains distinct from platform preview proof.
+- Added `StyleProofAction:'scheduled-send'`, `StyleProofReadback:'scheduled-send-state'`,
+  `StyleProofArtifact.scheduledSendVerified?: boolean`, and
+  `style-proof-manifest-scheduled-send-not-verified`.
+- Added a `platform-publish` execution contract requiring one credentialed-channel scheduled-send
+  artifact with `artifactFingerprint`, `exactArtifact`, `externalAccountAuthenticated:true`,
+  `scheduledSendVerified:true`, and `safeForCommit:true`.
+- Strengthened runbook failure signals so sync responses, editor previews, draft creation, and
+  public preview URLs cannot be claimed as scheduled-send proof.
+- Added regression assertions to the existing style proof mapping, runbook, committed evidence, and
+  weak-evidence tests.
+- Added the `ExportModal` requirement label for `scheduled-send-readback` after `vue-tsc` exposed
+  the exhaustive `Record<StyleProofRequirementId,string>` gap.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 116 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1089 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 29.30s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-scheduled-send-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove credentialed sync, scheduled-send, platform preview, public article rendering,
+  upload, or publish gates.
+
 ## 2026-06-19 Style Proof Phone Runbook Failure Signals Slice
 
 Impact:

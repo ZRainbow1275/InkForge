@@ -486,6 +486,7 @@ function styleProofRequirementLabel(requirementId: StyleProofRequirementId): str
     'cover-thumbnail-check': '封面缩略图',
     'credentialed-channel-response': '授权通道响应',
     'sync-readback': '同步读回',
+    'scheduled-send-readback': '定时/发送读回',
     'published-url-or-platform-preview': '发布/平台预览',
     'public-image-host': '公开图片 host',
     'xhs-artifact-manifest': '小红书图片清单',

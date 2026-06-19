@@ -1,0 +1,48 @@
+Style Proof Scheduled Send Contract - 2026-06-19
+
+Scope:
+- Local style-proof contract hardening for scheduled-send / send-state acceptance gates.
+- No platform action, no editor open, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Implementation:
+- Added `scheduled-send-readback` as an explicit `StyleProofRequirementId` under published proof.
+- Added `StyleProofAction:'scheduled-send'`, `StyleProofReadback:'scheduled-send-state'`, and
+  `StyleProofArtifact.scheduledSendVerified?: boolean`.
+- Added validator issue `style-proof-manifest-scheduled-send-not-verified`.
+- Added a `platform-publish` execution contract requiring one credentialed-channel scheduled-send
+  artifact to carry `artifactFingerprint`, `exactArtifact`, `externalAccountAuthenticated:true`,
+  `scheduledSendVerified:true`, and `safeForCommit:true`.
+- Strengthened runbook failure signals so credentialed sync responses, editor previews, draft
+  creation, and public preview URLs do not prove the exact artifact entered a real send or
+  scheduled-send state.
+- Added the `ExportModal` requirement label for `scheduled-send-readback` so runbook/cannot-claim
+  UI text remains type-complete.
+
+Regression coverage:
+- Published evidence requirements now include `scheduled-send-readback`.
+- Fully evidenced redacted publish proof fixtures must include a matching scheduled-send row.
+- Committed WeChat PC evidence manifests keep `scheduled-send-readback` missing/cannot-claim.
+- Weak sync-response-shaped scheduled-send rows remain invalid and emit
+  `style-proof-manifest-scheduled-send-not-verified`.
+- Execution runbook rows expose the scheduled-send required action, scheduled-send-state readback,
+  required fields, unsafe mutating status, and failure signals.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 116 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 155 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1089 tests
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: Vite built in 29.30s; generated `inkforge/tsconfig.tsbuildinfo` was restored after validation
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public rendering, upload, or publish gates.

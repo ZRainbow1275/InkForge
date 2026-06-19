@@ -1760,6 +1760,31 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   `safe-disposable-draft`, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled
   send, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Scheduled Send Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-scheduled-send-contract-20260619.txt`.
+- Added `scheduled-send-readback` as a distinct `StyleProofRequirementId` under `published`
+  evidence so scheduled/send state cannot be hidden inside generic platform preview proof.
+- Added `StyleProofAction:'scheduled-send'`, `StyleProofReadback:'scheduled-send-state'`,
+  `StyleProofArtifact.scheduledSendVerified?: boolean`, and
+  `style-proof-manifest-scheduled-send-not-verified`.
+- `scheduled-send-readback` now requires a credentialed-channel scheduled-send artifact with
+  `artifactFingerprint`, `exactArtifact`, `externalAccountAuthenticated:true`,
+  `scheduledSendVerified:true`, and `safeForCommit:true`.
+- Runbook failure signals reject credentialed sync responses, editor previews, draft creation, and
+  public preview URLs as proof that the exact artifact entered a real send or scheduled-send state.
+- Added the `ExportModal` label for `scheduled-send-readback` so runbook/cannot-claim UI remains
+  type-complete.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 116 tests.
+- 4-file cross-platform export regression passed at 4 files / 155 tests, and full export serial
+  regression passed at 35 files / 1089 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  29.30s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove credentialed sync,
+  scheduled-send, platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Phone Runbook Failure Signals Addendum
 
 - Added `prompts/0601/evidence/style-proof-phone-runbook-failure-signals-20260619.txt`.

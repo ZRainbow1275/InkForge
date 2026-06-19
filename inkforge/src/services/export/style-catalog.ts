@@ -31,6 +31,7 @@ export type StyleProofRequirementId =
   | 'cover-thumbnail-check'
   | 'credentialed-channel-response'
   | 'sync-readback'
+  | 'scheduled-send-readback'
   | 'published-url-or-platform-preview'
   | 'public-image-host'
   | 'xhs-artifact-manifest'
@@ -168,6 +169,7 @@ export type StyleProofAction =
   | 'external-account-login-readback'
   | 'credentialed-sync'
   | 'sync-readback'
+  | 'scheduled-send'
   | 'published-preview'
   | 'public-image-host-check'
   | 'artifact-manifest-validation'
@@ -182,6 +184,7 @@ export type StyleProofReadback =
   | 'phone'
   | 'screenshot'
   | 'api-response'
+  | 'scheduled-send-state'
   | 'published-url'
   | 'manifest'
   | 'test-assertion'
@@ -224,6 +227,7 @@ export interface StyleProofArtifact {
   phonePreviewBlocked?: boolean
   darkModeEnabledVerified?: boolean
   coverThumbnailAccepted?: boolean
+  scheduledSendVerified?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
   artifactManifestValidated?: boolean
@@ -261,6 +265,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
   | 'style-proof-manifest-cover-thumbnail-not-accepted'
+  | 'style-proof-manifest-scheduled-send-not-verified'
   | 'style-proof-manifest-disposable-draft-missing'
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-platform-action-missing'
@@ -302,6 +307,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-phone-content-missing',
   'style-proof-manifest-dark-mode-not-verified',
   'style-proof-manifest-cover-thumbnail-not-accepted',
+  'style-proof-manifest-scheduled-send-not-verified',
   'style-proof-manifest-disposable-draft-missing',
   'style-proof-manifest-cleanup-path-missing',
   'style-proof-manifest-platform-action-missing',
@@ -720,6 +726,7 @@ export type StyleProofArtifactVerificationField =
   | 'phonePreviewBlocked'
   | 'darkModeEnabledVerified'
   | 'coverThumbnailAccepted'
+  | 'scheduledSendVerified'
   | 'disposableDraft'
   | 'cleanupPathVerified'
   | 'artifactManifestValidated'
@@ -917,6 +924,11 @@ export const STYLE_PROOF_REQUIREMENTS = [
     description: 'The synced draft/material is read back from the target platform, not inferred from request success.',
   },
   {
+    id: 'scheduled-send-readback',
+    label: 'scheduled send readback',
+    description: 'The exact artifact is scheduled or sent through the real platform workflow and the resulting send/schedule state is read back.',
+  },
+  {
     id: 'published-url-or-platform-preview',
     label: 'published or platform preview',
     description: 'A final platform preview, publish result, or published page is inspected for the exact artifact.',
@@ -976,6 +988,7 @@ const EVIDENCE_PROOF_REQUIREMENT_IDS = {
   ],
   published: [
     'exact-artifact',
+    'scheduled-send-readback',
     'published-url-or-platform-preview',
     'no-sensitive-artifact',
   ],
@@ -1020,6 +1033,7 @@ const STYLE_PROOF_COLLECTION_GATE_BY_REQUIREMENT = {
   'cover-thumbnail-check': 'phone-preview',
   'credentialed-channel-response': 'credentialed-channel',
   'sync-readback': 'credentialed-channel',
+  'scheduled-send-readback': 'platform-publish',
   'published-url-or-platform-preview': 'platform-publish',
   'public-image-host': 'public-host',
   'xhs-artifact-manifest': 'local-evidence',
@@ -1192,6 +1206,13 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['sync-readback'],
     requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
     requiredFields: ['artifactFingerprint', 'externalAccountAuthenticated', 'safeForCommit'],
+  },
+  'scheduled-send-readback': {
+    requirementId: 'scheduled-send-readback',
+    requiredChannels: ['credentialed-channel'],
+    requiredActions: ['scheduled-send'],
+    requiredReadbacks: ['api-response', 'dom', 'visual-and-dom', 'scheduled-send-state'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'scheduledSendVerified', 'safeForCommit'],
   },
   'published-url-or-platform-preview': {
     requirementId: 'published-url-or-platform-preview',
@@ -3282,6 +3303,53 @@ function validateStyleProofRequirementCoverage(
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
+    case 'scheduled-send-readback': {
+      const isScheduledSendProofArtifact = (artifact: StyleProofArtifact): boolean =>
+        artifact.action === 'scheduled-send'
+        && artifact.channel === 'credentialed-channel'
+        && (artifact.readback === 'api-response'
+          || artifact.readback === 'dom'
+          || artifact.readback === 'visual-and-dom'
+          || artifact.readback === 'scheduled-send-state')
+      const hasScheduledSendProof = has(isScheduledSendProofArtifact)
+      const hasAuthenticatedScheduledSendProof = has(artifact =>
+        isScheduledSendProofArtifact(artifact)
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+      )
+
+      requireExternalAccountAuthenticatedStyleProof(
+        issues,
+        requirementId,
+        hasScheduledSendProof,
+        hasAuthenticatedScheduledSendProof,
+      )
+      if (hasAuthenticatedScheduledSendProof && !has(artifact =>
+        isScheduledSendProofArtifact(artifact)
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+        && artifact.exactArtifact === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Scheduled send proof is not bound to the exact exported artifact under review.',
+          suggestion: 'Record exactArtifact:true only after the send or schedule state is read back for the exact exported artifact fingerprint.',
+          location: requirementId,
+        })
+      }
+      if (hasAuthenticatedScheduledSendProof && !has(artifact =>
+        isScheduledSendProofArtifact(artifact)
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+        && artifact.exactArtifact === true
+        && artifact.scheduledSendVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-scheduled-send-not-verified',
+          message: 'Scheduled send proof does not prove that the exact artifact entered a real send or schedule state.',
+          suggestion: 'Record scheduledSendVerified:true only after the platform send/schedule state is read back for the exact artifact; sync responses, editor previews, and local proof rows are not enough.',
+          location: requirementId,
+        })
+      }
+      break
+    }
     case 'published-url-or-platform-preview': {
       const isPublishedPreviewProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'published-preview'
@@ -4549,6 +4617,9 @@ function buildStyleProofExecutionFailureSignals(
   }
   if (audit.requirement.id === 'cover-thumbnail-check') {
     signals.push('Cover crop panels, cover-setting screens, or upload dialogs do not prove the exact cover thumbnail was accepted in a phone share, preview entry, or platform list entry.')
+  }
+  if (audit.requirement.id === 'scheduled-send-readback') {
+    signals.push('Credentialed sync responses, editor previews, draft creation, and public preview URLs do not prove the exact artifact entered a real send or scheduled-send state.')
   }
   if (audit.mutatesPlatform) {
     signals.push('Request success alone is insufficient; the created draft, preview, or published result must be read back.')

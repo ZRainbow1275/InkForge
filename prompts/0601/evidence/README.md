@@ -1383,6 +1383,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Scheduled Send Contract
+
+- [x] style-proof-scheduled-send-contract-20260619.txt
+- Local style-proof validator/runbook contract hardening only.
+- `published` proof now includes a distinct `scheduled-send-readback` requirement.
+- `scheduled-send-readback` uses the `platform-publish` gate and requires a
+  credentialed-channel `scheduled-send` artifact with `scheduled-send-state` or equivalent
+  send-state readback, `externalAccountAuthenticated:true`, `exactArtifact:true`,
+  `scheduledSendVerified:true`, `artifactFingerprint`, and `safeForCommit:true`.
+- `validateStyleProofManifest()` emits `style-proof-manifest-scheduled-send-not-verified` when
+  scheduled-send-shaped evidence lacks the exact authenticated send/schedule-state confirmation.
+- Runbook failure signals reject credentialed sync responses, editor previews, draft creation, and
+  public preview URLs as scheduled-send proof.
+- `ExportModal` now has a type-complete label for `scheduled-send-readback`.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 116 tests.
+- 4-file cross-platform export regression passed at 4 files / 155 tests, and full export serial
+  regression passed at 35 files / 1089 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  29.30s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove credentialed sync,
+  scheduled-send, platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Phone Runbook Failure Signals
 
 - [x] style-proof-phone-runbook-failure-signals-20260619.txt

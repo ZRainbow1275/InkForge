@@ -309,6 +309,7 @@ describe('platform native export rendering rules', () => {
 
     expect(getEvidenceProofRequirements('published').map(requirement => requirement.id)).toEqual([
       'exact-artifact',
+      'scheduled-send-readback',
       'published-url-or-platform-preview',
       'no-sensitive-artifact',
     ])
@@ -1013,6 +1014,22 @@ describe('platform native export rendering rules', () => {
           safeForCommit: true,
         },
         {
+          id: 'amber-scheduled-send',
+          requirementId: 'scheduled-send-readback',
+          kind: 'channel-response',
+          label: 'redacted scheduled send proof',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-amber',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'scheduled-send-state',
+          artifactFingerprint: 'sha256:redacted-amber-artifact',
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          scheduledSendVerified: true,
+          safeForCommit: true,
+        },
+        {
           id: 'amber-sensitive-hygiene',
           requirementId: 'no-sensitive-artifact',
           kind: 'hygiene-review',
@@ -1229,6 +1246,7 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('dark-mode-check')).toBe('blocked-by-external')
     expect(requirementStatus.get('cover-thumbnail-check')).toBe('blocked-by-external')
     expect(requirementStatus.get('sync-readback')).toBe('unsafe-to-automate')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('unsafe-to-automate')
     expect(requirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
       'pc-editor-paste-event',
@@ -1236,6 +1254,7 @@ describe('platform native export rendering rules', () => {
       'dark-mode-check',
       'cover-thumbnail-check',
       'sync-readback',
+      'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
   })
@@ -1539,6 +1558,7 @@ describe('platform native export rendering rules', () => {
       'dark-mode-check',
       'cover-thumbnail-check',
       'sync-readback',
+      'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
     expect(xhsCannotClaimIds).toContain('published-url-or-platform-preview')
@@ -1554,6 +1574,7 @@ describe('platform native export rendering rules', () => {
     const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
     const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
     const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
+    const scheduledSendStep = runbook.steps.find(step => step.requirement.id === 'scheduled-send-readback')
     const publishStep = runbook.steps.find(step => step.requirement.id === 'published-url-or-platform-preview')
 
     expect(runbook.platform).toBe('wechat')
@@ -1604,6 +1625,17 @@ describe('platform native export rendering rules', () => {
     expect(coverStep?.requiredArtifact.requiredFields).toContain('coverThumbnailAccepted')
     expect(coverStep?.failureSignals.join(' ')).toContain('Cover crop panels')
     expect(coverStep?.failureSignals.join(' ')).toContain('phone share')
+    expect(scheduledSendStep?.status).toBe('unsafe-to-automate')
+    expect(scheduledSendStep?.mutatesPlatform).toBe(true)
+    expect(scheduledSendStep?.requiredArtifact.requiredActions).toEqual(['scheduled-send'])
+    expect(scheduledSendStep?.requiredArtifact.requiredReadbacks).toEqual(expect.arrayContaining(['scheduled-send-state']))
+    expect(scheduledSendStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'exactArtifact',
+      'externalAccountAuthenticated',
+      'scheduledSendVerified',
+    ]))
+    expect(scheduledSendStep?.failureSignals.join(' ')).toContain('Credentialed sync responses')
+    expect(scheduledSendStep?.failureSignals.join(' ')).toContain('scheduled-send state')
     expect(publishStep?.status).toBe('unsafe-to-automate')
     expect(publishStep?.mutatesPlatform).toBe(true)
     expect(publishStep?.requiredArtifact.requiredReadbacks).toEqual(expect.arrayContaining(['published-url']))
@@ -1693,6 +1725,7 @@ describe('platform native export rendering rules', () => {
       expect(requirementStatus.get('phone-preview-readback')).toBe('missing')
       expect(requirementStatus.get('dark-mode-check')).toBe('missing')
       expect(requirementStatus.get('cover-thumbnail-check')).toBe('missing')
+      expect(requirementStatus.get('scheduled-send-readback')).toBe('missing')
       expect(requirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     }
 
@@ -1710,6 +1743,7 @@ describe('platform native export rendering rules', () => {
       'phone-preview-readback',
       'dark-mode-check',
       'cover-thumbnail-check',
+      'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
   })
@@ -3362,6 +3396,21 @@ describe('platform native export rendering rules', () => {
           safeForCommit: true,
         },
         {
+          id: 'weak-scheduled-send-from-sync-response',
+          requirementId: 'scheduled-send-readback',
+          kind: 'channel-response',
+          label: 'credentialed sync response cannot prove scheduled send state',
+          evidenceLabel: 'credentialed-sync',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'api-response',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+        {
           id: 'weak-published-from-pc-editor',
           requirementId: 'published-url-or-platform-preview',
           kind: 'published-preview',
@@ -3388,12 +3437,14 @@ describe('platform native export rendering rules', () => {
     expect(issueIds).toContain('style-proof-manifest-evidence-too-weak')
     expect(issueIds).toContain('style-proof-manifest-requirement-missing')
     expect(issueIds).toContain('style-proof-manifest-cleanup-path-missing')
+    expect(issueIds).toContain('style-proof-manifest-scheduled-send-not-verified')
     expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
     expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
     expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
     expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
     expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
     expect(requirementStatus.get('sync-readback')).toBe('invalid')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
     expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
     expect(issueLocations).toEqual(expect.arrayContaining([
       'safe-disposable-draft',
@@ -3402,6 +3453,7 @@ describe('platform native export rendering rules', () => {
       'cover-thumbnail-check',
       'credentialed-channel-response',
       'sync-readback',
+      'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
 
