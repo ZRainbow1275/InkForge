@@ -2791,6 +2791,8 @@ describe('platform native export rendering rules', () => {
   it('rejects market library selection when the central editor did not change', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
+      scope: 'style-choice',
+      choiceId: 'wechat-classic-inline',
       claimedEvidence: ['applied-editor-element'],
       artifacts: [
         {
@@ -2800,6 +2802,7 @@ describe('platform native export rendering rules', () => {
           label: 'Xiumi library item selected while central paper stayed unchanged',
           evidenceLabel: 'applied-editor-element',
           platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
           channel: 'market-editor',
           action: 'applied-market-element',
           readback: 'visual-and-dom',
@@ -2813,6 +2816,7 @@ describe('platform native export rendering rules', () => {
           label: 'No copied market source',
           evidenceLabel: 'applied-editor-element',
           platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
           channel: 'market-editor',
           action: 'source-hygiene-review',
           readback: 'hygiene-log',
@@ -2824,10 +2828,16 @@ describe('platform native export rendering rules', () => {
     const requirementStatus = new Map(
       report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const marketAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'market-applied-dom-readback'
+    )
 
     expect(report.valid).toBe(false)
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-market-editor-not-applied')
     expect(requirementStatus.get('market-applied-dom-readback')).toBe('invalid')
+    expect(marketAudit?.status).toBe('invalid')
+    expect(marketAudit?.issueIds).toContain('style-proof-manifest-market-editor-not-applied')
     expect(requirementStatus.get('no-proprietary-template-source')).toBe('satisfied')
   })
 

@@ -1452,6 +1452,10 @@ Contracts:
   `invalid` in the acceptance audit. A credentialed-channel, public URL, or platform-preview row
   without positive account-authenticated readback is concrete invalid proof, not merely an
   `unsafe-to-automate` task waiting for an operator.
+- Requirement rows carrying `style-proof-manifest-market-editor-not-applied` must be `invalid` in
+  the acceptance audit. A 135/Xiumi library click or SVG/style selection that does not change the
+  central editor/canvas is concrete invalid applied-element proof, not a generic
+  `blocked-by-external` market-editor task.
 - ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
   be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
   external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
@@ -1467,6 +1471,8 @@ Required tests:
   unclaimable.
 - A login/re-login/expired-session WeChat manifest must keep authenticated editor and PC DOM rows
   unclaimable and surface the concrete session/editor DOM issue ids in those `cannotClaim` rows.
+- A market-editor manifest bound to a real choice and carrying `centralEditorChanged:false` must
+  keep `market-applied-dom-readback` invalid in both the manifest report and the acceptance audit.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
@@ -1897,6 +1903,9 @@ Contracts:
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
   read back.
+- Acceptance audit must preserve that same boundary: `centralEditorChanged:false` rows for
+  `market-applied-dom-readback` emit `style-proof-manifest-market-editor-not-applied` and stay
+  `invalid`, even though the broader market-editor gate normally requires an external account.
 - Xiumi SVG category previews can contain `svg`, `animateTransform`, and `foreignObject`, but the
   applied center canvas may materialize as image cells and authoring layers. Therefore Xiumi SVG
   evidence maps to interactive manifests and fallback artifacts, not direct inline-SVG availability.

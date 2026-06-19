@@ -1,0 +1,45 @@
+Style Proof Market Editor Applied Audit - 2026-06-19
+
+Scope:
+- Local acceptance-audit classification for market-editor applied-element proof.
+- No 135/Xiumi account action, no WeChat paste, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added a regression bound to real style choice `wechat-classic-inline`.
+- The regression supplies claimedEvidence `applied-editor-element` and a market-editor proof row
+  with `centralEditorChanged:false`.
+- Added `style-proof-manifest-market-editor-not-applied` to the acceptance-audit invalid issue set.
+
+Behavior:
+- `getStyleProofManifestReport()` keeps `market-applied-dom-readback` invalid when the central
+  editor/canvas did not change after a market-editor selection.
+- `getPlatformStyleProofAcceptanceAuditReport('wechat', manifests)` now also keeps that row
+  `invalid` and exposes `style-proof-manifest-market-editor-not-applied` in `issueIds`.
+- Missing market-editor proof can still remain an external-account gate. This change only
+  reclassifies concrete non-applied market-editor evidence as invalid proof.
+
+TDD:
+- First focused run failed because the acceptance audit returned `blocked-by-external` for
+  `market-applied-dom-readback` despite the manifest issue
+  `style-proof-manifest-market-editor-not-applied`.
+- After the issue-id classification fix, the same focused command passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 129 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 168 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1102 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 45.98s
+
+Boundary:
+- This proves local validator/audit accounting only.
+- It does not prove 135/Xiumi account operations, WeChat PC paste, phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, upload, or publish success.

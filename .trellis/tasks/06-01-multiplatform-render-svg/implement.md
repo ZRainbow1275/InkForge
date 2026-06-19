@@ -4689,6 +4689,51 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Market Editor Applied Audit Slice
+
+Impact:
+- `gitnexus impact` for `buildStyleProofAcceptanceRequirementAudits` reported LOW risk, 7 impacted
+  items, 1 direct caller, 1 affected module (`Export`), and 0 affected processes.
+
+Implementation:
+- Bound the existing "market library selection without central editor change" regression to the
+  real `wechat-classic-inline` catalog choice so platform-level acceptance audit aggregation covers
+  the `market-applied-dom-readback` row.
+- Added a TDD assertion proving a market-editor artifact with `centralEditorChanged:false` must stay
+  `invalid` in the requirement-level acceptance audit and must expose
+  `style-proof-manifest-market-editor-not-applied`.
+- The first focused run failed as expected: acceptance audit classified the row as
+  `blocked-by-external` even though the manifest report was already invalid.
+- Added `style-proof-manifest-market-editor-not-applied` to the acceptance-audit invalid issue set.
+  This keeps incomplete market-editor tasks external, but classifies concrete non-applied editor
+  evidence as invalid proof.
+
+Verification:
+- TDD first run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed as expected because `market-applied-dom-readback` was `blocked-by-external`.
+- After the fix, the same focused command passed with 1 file / 129 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 168 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1102 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 45.98s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-market-editor-application-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove 135/Xiumi account operations, WeChat PC paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Host and Manifest Audit Regression Slice
 
 Impact:

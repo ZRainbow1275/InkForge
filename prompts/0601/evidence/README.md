@@ -1813,3 +1813,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-19 Style Proof Market Editor Applied Audit
+
+- [x] style-proof-market-editor-application-audit-20260619.txt
+- Local style-proof manifest validator and acceptance-audit classification hardening.
+- Bound the market-editor non-applied regression to `wechat-classic-inline` so platform acceptance
+  aggregation includes `market-applied-dom-readback`.
+- `centralEditorChanged:false` proof rows now keep `market-applied-dom-readback` invalid in both
+  manifest report and acceptance audit, with
+  `style-proof-manifest-market-editor-not-applied` exposed in `issueIds`.
+- TDD first run failed because the acceptance audit classified that concrete invalid row as
+  `blocked-by-external`; the issue id is now part of the acceptance-audit invalid issue set.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 129 tests.
+- 4-file cross-platform export regression passed at 4 files / 168 tests, and full export serial
+  regression passed at 35 files / 1102 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  45.98s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove 135/Xiumi account
+  operations, WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, or publish success.

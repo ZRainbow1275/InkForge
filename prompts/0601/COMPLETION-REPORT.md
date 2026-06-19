@@ -2119,3 +2119,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Market Editor Applied Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-market-editor-application-audit-20260619.txt`.
+- Bound the market-editor non-applied regression to the real `wechat-classic-inline` style choice so
+  acceptance audit aggregation covers the `market-applied-dom-readback` row.
+- TDD failed first because `centralEditorChanged:false` market proof was classified as
+  `blocked-by-external` in the acceptance audit despite carrying
+  `style-proof-manifest-market-editor-not-applied`.
+- Added `style-proof-manifest-market-editor-not-applied` to the acceptance-audit invalid issue set.
+  A concrete 135/Xiumi library click or style selection that does not change the central editor is
+  invalid proof, not a pending external market-editor task.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 129 tests.
+- 4-file cross-platform export regression passed at 4 files / 168 tests, and full export serial
+  regression passed at 35 files / 1102 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  45.98s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove 135/Xiumi account
+  operations, WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, or publish success.
