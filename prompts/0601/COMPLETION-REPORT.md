@@ -2256,3 +2256,19 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft deletion, phone preview,
   mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-19 Market Editor CloakBrowser Field Study Addendum
+
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-field-study-20260619.txt`.
+- Used headed CloakBrowser only to observe 135 SVG editor and Xiumi studio authoring surfaces.
+- 135 material-included free-trial SVG effects showed a background-only 1080x1920 SVG visual layer,
+  separate percentage-inset trigger overlay, and structured panel controls for media, direction,
+  animation timing, and expanded content.
+- Xiumi SVG category insertion showed SVG behavior metadata in the library, while the center editor
+  materialized the sample as nested `tn-cell` authoring cells, images, text, fixed groups, and
+  flow-canvas structures rather than literal inline SVG.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` and `prompts/0601/evidence/README.md`
+  to preserve these rules as InkForge-owned schema/fallback guidance and vendor-residue blockers.
+- Boundary: this is rule extraction only. It does not prove WeChat paste, phone preview, mobile
+  interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public host,
+  XHS/Zhihu account upload, or publish success.

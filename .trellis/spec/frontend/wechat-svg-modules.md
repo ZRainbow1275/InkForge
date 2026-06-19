@@ -1952,6 +1952,15 @@ Contracts:
   inputs for InkForge-owned trigger-zone manifests, expanded-content models, direction controls,
   and mobile-preview gates only. They must fail as market editor residue if copied into WeChat,
   Xiaohongshu, or Zhihu publishable output.
+- 2026-06-19 135 SVG editor material-included evidence: a selected `coverclickmovewithspread`
+  free-trial block rendered the center canvas as zero-font/zero-line-height `section` wrappers
+  containing a background-only `svg` with `viewBox="0 0 1080 1920"`, `width:100%`,
+  `background-size:100.1% 100.1%`, `margin-top:-1px`, `vertical-align:top`,
+  `pointer-events:none`, and no inline SVG children. The editable trigger was a separate
+  absolute overlay with percentage `inset` values and `z-index`, while the right panel exposed
+  structured parameters for cover image, move direction, animation seconds, and expanded content.
+  InkForge may reuse the pattern as typed background media plus hotspot/expanded-content schema,
+  but not as direct platform proof or copied vendor DOM.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -1969,6 +1978,13 @@ Contracts:
   `tn-yzk-font-*`, `tn-placeholder`, `opera-tn-ra-*`, Angular `ng-*`, and `ui-sortable` must stay
   publish-blocking market-editor residue. Convert them into image manifests, motion/action schema,
   readable DOM order, and static/raster/long-image fallback plans.
+- 2026-06-19 Xiumi SVG category insertion evidence: a visible SVG list item labeled as image
+  carousel/scrolling with a 1080-ratio hint inserted into the center editor as nested `article`,
+  page, layer, `tn-cell-type=group/image/text/container`, `tn-child-position=absolute/static`,
+  `tn-child-orientation=flow-canvas/fixed`, `contenteditable` text, and `raw-image` cells rather
+  than literal inline SVG in the active authoring DOM. Treat Xiumi labels such as component type,
+  behavior, interaction channel, and image ratio as catalog metadata for InkForge-owned renderers;
+  never treat the authoring DOM shape as WeChat paste proof.
 - 135 SVG effects map to typed image slots, hot zones, motion schema, trigger type, and fallback
   plans. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
   layout-report heuristics only.

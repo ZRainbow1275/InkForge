@@ -4689,6 +4689,38 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Market Editor CloakBrowser Field Study Slice
+
+Scope:
+- Used headed CloakBrowser only. Playwright was not used.
+- Observed 135 SVG editor and Xiumi studio authoring surfaces as rule sources, not as platform
+  proof.
+- No account material, login artifact, capture bundle, local runtime path, or third-party asset
+  address was recorded in committed evidence.
+
+Findings:
+- 135 SVG editor material-included free-trial effects can render the center canvas as
+  zero-font/zero-line-height `section` wrappers containing a background-only 1080x1920 SVG visual
+  layer with `pointer-events:none`, `width:100%`, `margin-top:-1px`, and no inline SVG children.
+- The 135 clickable trigger is a separate authoring overlay with percentage `inset` geometry, and
+  the right-side panel exposes structured controls for media slot, direction, animation seconds,
+  and expanded content.
+- Xiumi SVG category insertion can mutate the center editor into nested `tn-cell` article/page/
+  layer/group/image/text/container authoring cells with fixed and flow-canvas orientations rather
+  than literal inline SVG.
+
+Documentation:
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-field-study-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` with the 135 and Xiumi field-study
+  contracts.
+
+Boundary:
+- This is market-rule extraction only.
+- It does not prove WeChat ordinary paste, authenticated PC editor readback, phone preview,
+  mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:

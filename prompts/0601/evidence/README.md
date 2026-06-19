@@ -1948,3 +1948,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft deletion, phone preview,
   mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-19 Market Editor CloakBrowser Field Study
+
+- [x] market-editor-cloakbrowser-field-study-20260619.txt
+- Real headed CloakBrowser observation covered 135 SVG editor and Xiumi studio authoring surfaces.
+- 135 material-included free-trial SVG effects render a zero-font/zero-line-height section with a
+  background-only 1080x1920 SVG visual layer, separate authoring trigger hot-area overlay, and
+  structured right-panel controls for media, direction, timing, and expanded content.
+- Xiumi SVG category insertion can materialize in the center editor as nested `tn-cell` article,
+  page, layer, group, image, text, container, fixed, and flow-canvas authoring cells instead of
+  literal inline SVG.
+- Extracted rule: use market samples as schema inspiration for InkForge-owned background media,
+  hotspot, motion, fallback, and manifest models; treat all vendor authoring wrappers as residue
+  blockers in publishable output.
+- Boundary: this is rule extraction only. It does not prove WeChat paste, phone preview, mobile
+  interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public host,
+  XHS/Zhihu account upload, or publish success.

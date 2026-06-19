@@ -1,0 +1,49 @@
+Market Editor CloakBrowser Field Study - 2026-06-19
+
+Scope:
+- Real headed CloakBrowser observation of 135 SVG editor and Xiumi studio authoring surfaces.
+- Rule extraction only; no account credential, login artifact, capture bundle, local runtime path,
+  or third-party asset address is recorded here.
+- No platform proof was claimed from these observations.
+
+135 SVG editor observations:
+- The SVG editor exposes left-side categories for click, carousel, slide, auto, long-press,
+  layout, official-account, mini-program/link, and other interaction families.
+- Selecting a free-trial material-included effect inserted a center-canvas block named for a
+  cover-click/move/spread interaction family.
+- The publish-like visual layer was a zero-font and zero-line-height section containing a
+  background-only SVG with a 1080x1920 viewBox, width 100%, vertical-align top, margin-top -1px,
+  background-size just over 100%, user-select disabled, and pointer-events disabled.
+- The clickable/editable trigger was not inside that SVG. It was an authoring overlay with absolute
+  percentage inset values and a visible switch for showing the trigger hot area.
+- The right-side parameter panel exposed structured controls for cover image material, movement
+  direction, cover animation duration, expand animation duration, and editable expanded content.
+
+Xiumi studio observations:
+- The SVG category lists behavior families such as basic SVG, image carousel, click expand, path
+  animation, drawing/lottery, slide trigger, parallax movement, click switch, page flip, zoom,
+  click answer, text barrage, click show/change/open/disappear/pop/zoom/print/jump/play,
+  long-press switch, area trigger, drop, and click plus auto.
+- Visible SVG items include descriptive metadata: component family, behavior, interaction, and
+  image-ratio hints such as 1080-based ratios.
+- Clicking a visible SVG carousel/scrolling item inserted content into the center editor, but the
+  active authoring DOM did not expose literal inline SVG. It materialized as nested article, page,
+  layer, group, image, text, and container cells.
+- The inserted authoring model used tn-cell-type, tn-child-position, tn-child-orientation,
+  tn-animate, contenteditable text cells, raw-image cells, fixed and flow-canvas orientations,
+  and nested sortable groups.
+
+InkForge rules extracted:
+- Market editor observations can inform InkForge-owned schema: background media slots, hotspot
+  regions, trigger type, motion timing, direction, expanded content, image-ratio manifests,
+  fallback poster/long-image plans, and phone-preview proof requirements.
+- 135/Xiumi authoring wrappers and metadata must remain market-editor residue blockers in
+  publishable output.
+- Background-only SVG with image layers should be modeled as a safe SVG/image fallback pattern
+  only when InkForge owns the generated markup and commits redacted, safe artifacts.
+- Xiumi's SVG labels are catalog metadata, not a direct inline-SVG availability signal.
+
+Boundary:
+- This does not prove WeChat ordinary Ctrl+V paste, authenticated PC editor DOM readback, phone
+  preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
