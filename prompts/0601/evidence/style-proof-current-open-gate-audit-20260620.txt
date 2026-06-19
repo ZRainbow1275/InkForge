@@ -1,0 +1,52 @@
+Style Proof Current Open Gate Audit - 2026-06-20
+
+Scope:
+- Current repository audit of committed style-proof evidence packs.
+- No platform action, no browser action, no form fill, no paste, no phone preview, no sync, no
+  scheduled send, no upload, and no publish action.
+- Purpose: keep completed PC evidence and still-open external gates separate before the next
+  operator-facing proof pass.
+
+Current committed proof state:
+- `getCommittedStyleProofLocalEvidenceManifests()` contains local/unit/browser evidence for:
+  - `wechat-flagship-kiln`
+  - `wechat-flagship-tempera`
+  - `wechat-flagship-amber`
+  - `xhs-cover-carousel`
+- `getCommittedStyleProofWechatPcEvidenceManifests()` contains WeChat PC editor evidence for:
+  - `wechat-flagship-amber`
+  - `wechat-flagship-tempera`
+- Kiln remains intentionally absent from the committed positive WeChat PC pack because its ordinary
+  and entity-safe WeChat paste attempts are negative evidence.
+
+Committed WeChat PC evidence interpretation:
+- Amber PC evidence satisfies authenticated editor URL, PC editor DOM readback, exact artifact,
+  safe disposable draft cleanup, PC editor paste event, and sensitive-artifact hygiene for the exact
+  Amber artifact, while the catalog still marks Amber blocked/invalid at the choice level.
+- Tempera entity-safe PC evidence satisfies authenticated editor URL, PC editor DOM readback, exact
+  artifact, safe disposable draft cleanup, PC editor paste event, and sensitive-artifact hygiene for
+  the entity-safe Tempera clipboard artifact.
+- Both Amber and Tempera still report phone preview readback, Dark Mode, cover thumbnail, scheduled
+  send, and published/platform preview as missing/cannot-claim rows.
+
+Open external gates after this audit:
+- WeChat phone preview readback for the exact article body.
+- WeChat phone-side screenshot or equivalent inspected preview evidence.
+- WeChat mobile SMIL/click interaction behavior.
+- WeChat mobile Dark Mode contrast/rendering for the exact article body.
+- WeChat cover thumbnail acceptance in phone share, preview entry, or platform list entry.
+- WeChat credentialed sync/channel response and sync readback.
+- WeChat scheduled-send state readback.
+- WeChat public/platform preview or published-page rendering.
+- Kiln positive ordinary/entity-safe WeChat rich HTML/SVG paste remains unproven.
+- XHS and Zhihu real account upload/platform preview/publish/public-host gates remain unproven.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  passed: 1 file, 2 tests passed, 132 tests skipped, duration 2.26s.
+
+Boundary:
+- This is current local audit evidence only.
+- It does not prove phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering,
+  upload, XHS/Zhihu account actions, or publish success.

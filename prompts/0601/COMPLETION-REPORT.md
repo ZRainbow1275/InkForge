@@ -2294,3 +2294,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
   or publish success.
+
+## 2026-06-20 Style Proof Current Open Gate Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-current-open-gate-audit-20260620.txt`.
+- Re-audited the committed proof packs after the editor-surface revalidation slice.
+- Current state remains intentionally split:
+  Amber and Tempera have committed WeChat PC evidence; Kiln remains outside the positive PC pack
+  because both ordinary and entity-safe WeChat paste attempts are negative evidence.
+- Amber and Tempera PC proof rows satisfy authenticated editor, PC DOM, exact artifact, safe draft
+  cleanup, PC paste, and sensitive-hygiene requirements for their exact artifacts, while phone
+  preview, Dark Mode, cover thumbnail, scheduled-send, and published/platform preview rows remain
+  missing/cannot-claim.
+- Verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  at 1 file / 2 selected tests.
+- Boundary: this is current local audit evidence only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, XHS/Zhihu account upload, or publish
+  success.

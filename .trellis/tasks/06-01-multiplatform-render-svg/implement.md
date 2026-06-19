@@ -4759,6 +4759,41 @@ Boundary:
   credentialed sync, scheduled send, public-host acceptance, platform preview, public article
   rendering, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-20 Style Proof Current Open Gate Audit Slice
+
+Scope:
+- Re-audited committed proof pack behavior after the CloakBrowser editor-surface revalidation.
+- No platform action, browser action, phone preview, sync, upload, scheduled-send, or publish
+  action was performed.
+
+Findings:
+- `getCommittedStyleProofLocalEvidenceManifests()` still covers local/unit/browser evidence for
+  WeChat Kiln, Tempera, Amber, and XHS cover carousel only.
+- `getCommittedStyleProofWechatPcEvidenceManifests()` still covers positive WeChat PC evidence for
+  Amber and Tempera only.
+- Kiln remains intentionally absent from the positive WeChat PC pack because its ordinary and
+  entity-safe WeChat paste attempts are negative evidence.
+- Amber and Tempera PC proof satisfies authenticated editor URL, PC editor DOM readback, exact
+  artifact, safe disposable draft cleanup, PC editor paste event, and sensitive-artifact hygiene
+  for their exact artifacts.
+- Phone preview, Dark Mode, cover thumbnail, scheduled-send, and published/platform preview rows
+  remain missing/cannot-claim for those PC-proven artifacts.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  passed with 1 file / 2 selected tests.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-current-open-gate-audit-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is current local audit evidence only.
+- It does not prove phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled-send, public-host availability, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:

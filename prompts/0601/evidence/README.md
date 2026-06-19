@@ -1985,3 +1985,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, public host, platform preview, public article rendering, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-06-20 Style Proof Current Open Gate Audit
+
+- [x] style-proof-current-open-gate-audit-20260620.txt
+- Current committed proof audit confirms local/unit/browser evidence for WeChat Kiln, Tempera,
+  Amber, and XHS cover carousel, plus positive WeChat PC evidence for Amber and Tempera only.
+- Kiln remains intentionally absent from the positive WeChat PC pack because its ordinary and
+  entity-safe platform paste attempts are negative evidence.
+- Amber and Tempera PC rows satisfy authenticated editor, PC DOM, exact artifact, safe draft
+  cleanup, PC paste, and sensitive-hygiene requirements for their exact artifacts, but phone
+  preview, Dark Mode, cover thumbnail, scheduled-send, and published/platform preview rows remain
+  missing/cannot-claim.
+- Verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  at 1 file / 2 selected tests.
+- Boundary: this is current local audit evidence only. It does not prove phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public host, platform preview, public article rendering, XHS/Zhihu account upload, or publish
+  success.
