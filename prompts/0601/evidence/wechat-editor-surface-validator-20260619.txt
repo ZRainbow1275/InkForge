@@ -1,0 +1,54 @@
+WeChat Editor Surface Validator - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and runbook contract hardening.
+- No platform action, browser paste, phone preview, sync, upload, scheduled send, publish, or
+  external account mutation was performed.
+
+Implemented:
+- Added optional `StyleProofArtifact.platformEditorSurfaceVerified?: boolean`.
+- Added `platformEditorSurfaceVerified` to `StyleProofArtifactVerificationField`.
+- Added `style-proof-manifest-platform-editor-surface-not-verified`.
+- Added `platformEditorSurfaceVerified` to the `pc-editor-paste-event` execution artifact contract.
+- Updated `pc-editor-paste-event` validation so complete ordinary PC paste proof requires the same
+  platform-editor / pc-paste artifact to carry:
+  - `ordinaryClipboardPasteVerified:true`
+  - `platformEditorTargetVerified:true`
+  - `platformEditorSurfaceVerified:true`
+  - `sameEditorTabVerified:true`
+  - `pasteInputEventVerified:true`
+  - `editorBodyMutationVerified:true`
+  - `mojibakeFreeVerified:true`
+- Updated the split-proof detector so the same-artifact binding check includes the target surface
+  flag.
+
+Behavior:
+- A PC paste row that proves ordinary clipboard paste, same tab, paste/input, body mutation, and
+  mojibake-free readback still remains invalid when it never verifies the concrete editor body
+  surface.
+- The failure is explicit:
+  `style-proof-manifest-platform-editor-surface-not-verified`.
+- For WeChat, this means the proof must target the main body ProseMirror node inside the
+  mock-iframe wrapper recorded in
+  `wechat-new-article-editor-cloakbrowser-readback-20260619.txt`.
+- Title ProseMirror, hidden native iframe, list-card edit controls, route discovery, `cloak_fill`,
+  and local ClipboardEvent-style injection cannot satisfy ordinary Ctrl+V proof.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 113 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 152 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1086 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  26.43s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove ordinary WeChat Ctrl+V rich HTML/SVG acceptance, editor body mutation in the
+  live platform, phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public article rendering, or publish success.

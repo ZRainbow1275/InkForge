@@ -2800,6 +2800,47 @@ Boundary:
   credentialed sync, scheduled-send, platform preview, public article rendering, or publish
   success.
 
+## 2026-06-19 WeChat Editor Surface Validator Slice
+
+Impact:
+- GitNexus impact on `StyleProofArtifact`, `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS`, and
+  `getStyleProofManifestPackReport` reported LOW risk with 0 affected execution flows.
+
+Implementation:
+- Added `StyleProofArtifact.platformEditorSurfaceVerified?: boolean`.
+- Added `platformEditorSurfaceVerified` to the style-proof execution artifact verification fields.
+- Added `style-proof-manifest-platform-editor-surface-not-verified`.
+- Extended the `pc-editor-paste-event` contract and validator so ordinary WeChat PC paste proof must
+  bind the same `platform-editor` / `pc-paste` artifact to the exact editor target surface.
+- Updated same-artifact split-proof detection so target-surface proof cannot be supplied by a
+  separate row.
+- Updated the committed Amber PC proof row with the new surface flag.
+- Added a regression proving that all ordinary paste flags still fail when the platform editor body
+  surface is not verified.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` with the main-body ProseMirror
+  mock-iframe target-surface contract.
+- Added `prompts/0601/evidence/wechat-editor-surface-validator-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 113 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 152 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1086 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  26.43s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove ordinary WeChat Ctrl+V rich HTML/SVG acceptance, editor body mutation in the
+  live platform, phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public article rendering, or publish
+  success.
+
 ## 2026-06-19 External Account Proof Contract Validator Slice
 
 Impact:

@@ -894,6 +894,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -1549,6 +1550,7 @@ describe('platform native export rendering rules', () => {
       'exactArtifact',
       'authenticatedSessionVerified',
       'platformEditorTargetVerified',
+      'platformEditorSurfaceVerified',
       'platformEditorDomVerified',
       'ordinaryClipboardPasteVerified',
       'sameEditorTabVerified',
@@ -1824,6 +1826,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -2456,6 +2459,46 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
   })
 
+  it('rejects PC paste proof that never verifies the platform editor body surface', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-kiln-paste-safe',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-paste',
+      artifacts: [
+        {
+          id: 'title-or-hidden-frame-paste-readback',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'ordinary paste flags without main body ProseMirror surface proof',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-kiln-paste-safe',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-paste',
+          platformEditorTargetVerified: true,
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-platform-editor-surface-not-verified')
+    expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-platform-editor-target-not-verified')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+  })
+
   it('rejects ordinary paste flags split across multiple PC paste artifacts', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
@@ -2476,6 +2519,7 @@ describe('platform native export rendering rules', () => {
           readback: 'dom',
           artifactFingerprint: 'sha256:redacted-split-paste-proof',
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           safeForCommit: true,

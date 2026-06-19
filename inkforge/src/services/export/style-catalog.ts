@@ -212,6 +212,7 @@ export interface StyleProofArtifact {
   externalAccountAuthenticated?: boolean
   externalAccountLoginBlocked?: boolean
   platformEditorTargetVerified?: boolean
+  platformEditorSurfaceVerified?: boolean
   platformEditorDomVerified?: boolean
   centralEditorChanged?: boolean
   ordinaryClipboardPasteVerified?: boolean
@@ -247,6 +248,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-external-account-login-blocked'
   | 'style-proof-manifest-external-account-auth-missing'
   | 'style-proof-manifest-platform-editor-target-not-verified'
+  | 'style-proof-manifest-platform-editor-surface-not-verified'
   | 'style-proof-manifest-platform-editor-dom-not-verified'
   | 'style-proof-manifest-ordinary-paste-not-verified'
   | 'style-proof-manifest-paste-editor-tab-not-verified'
@@ -286,6 +288,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-external-account-login-blocked',
   'style-proof-manifest-external-account-auth-missing',
   'style-proof-manifest-platform-editor-target-not-verified',
+  'style-proof-manifest-platform-editor-surface-not-verified',
   'style-proof-manifest-platform-editor-dom-not-verified',
   'style-proof-manifest-ordinary-paste-not-verified',
   'style-proof-manifest-paste-editor-tab-not-verified',
@@ -703,6 +706,7 @@ export type StyleProofArtifactVerificationField =
   | 'externalAccountAuthenticated'
   | 'externalAccountLoginBlocked'
   | 'platformEditorTargetVerified'
+  | 'platformEditorSurfaceVerified'
   | 'platformEditorDomVerified'
   | 'centralEditorChanged'
   | 'ordinaryClipboardPasteVerified'
@@ -1129,6 +1133,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'exactArtifact',
       'authenticatedSessionVerified',
       'platformEditorTargetVerified',
+      'platformEditorSurfaceVerified',
       'platformEditorDomVerified',
       'ordinaryClipboardPasteVerified',
       'sameEditorTabVerified',
@@ -2250,6 +2255,7 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         exactArtifact: true,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
+        platformEditorSurfaceVerified: true,
         platformEditorDomVerified: true,
         ordinaryClipboardPasteVerified: true,
         sameEditorTabVerified: true,
@@ -2914,6 +2920,7 @@ function validateStyleProofRequirementCoverage(
       const hasCompleteOrdinaryPasteProof = pcPasteArtifacts.some(artifact =>
         artifact.ordinaryClipboardPasteVerified === true
         && artifact.platformEditorTargetVerified === true
+        && artifact.platformEditorSurfaceVerified === true
         && artifact.sameEditorTabVerified === true
         && artifact.pasteInputEventVerified === true
         && artifact.editorBodyMutationVerified === true
@@ -2952,6 +2959,14 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
+        if (!pcPasteArtifacts.some(artifact => artifact.platformEditorSurfaceVerified === true)) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-surface-not-verified',
+            message: 'PC editor paste proof does not prove that Ctrl+V targeted the intended editor body surface.',
+            suggestion: 'Record platformEditorSurfaceVerified:true only when the same main body editing surface receives Ctrl+V and the post-paste DOM readback comes from that exact surface; for WeChat, target the body ProseMirror node inside the mock-iframe wrapper, not the title field, hidden iframe, or list shell.',
+            location: requirementId,
+          })
+        }
         if (!pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-paste-input-not-verified',
@@ -2979,6 +2994,7 @@ function validateStyleProofRequirementCoverage(
         if (
           pcPasteArtifacts.some(artifact => artifact.ordinaryClipboardPasteVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.platformEditorTargetVerified === true)
+          && pcPasteArtifacts.some(artifact => artifact.platformEditorSurfaceVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.sameEditorTabVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.editorBodyMutationVerified === true)
@@ -2987,7 +3003,7 @@ function validateStyleProofRequirementCoverage(
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-paste-proof-not-bound',
             message: 'PC editor paste proof splits required ordinary paste flags across multiple artifacts.',
-            suggestion: 'Record ordinary paste, same-tab, paste/input, body-mutation, and mojibake-free flags on the same pc-paste artifact for the exact editor readback.',
+            suggestion: 'Record ordinary paste, same-target-surface, same-tab, paste/input, body-mutation, and mojibake-free flags on the same pc-paste artifact for the exact editor readback.',
             location: requirementId,
           })
         }

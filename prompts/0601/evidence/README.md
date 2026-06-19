@@ -1286,3 +1286,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
   credentialed sync, scheduled send, platform preview, public article rendering, or publish
   success.
+
+## 2026-06-19 WeChat Editor Surface Validator
+
+- [x] wechat-editor-surface-validator-20260619.txt
+- Local style-proof manifest validator and runbook contract hardening.
+- Added `StyleProofArtifact.platformEditorSurfaceVerified?: boolean`.
+- Added `platformEditorSurfaceVerified` to `StyleProofArtifactVerificationField`.
+- Added `style-proof-manifest-platform-editor-surface-not-verified`.
+- `pc-editor-paste-event` now requires same-artifact `platformEditorSurfaceVerified:true`.
+- The runbook exposes the new field as required PC paste proof.
+- Regression coverage rejects PC paste proof with all ordinary paste flags present but no verified
+  exact editor body surface.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 113 tests.
+- 4-file cross-platform export regression passed at 4 files / 152 tests, and full export serial
+  regression passed at 35 files / 1086 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  26.43s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove ordinary WeChat Ctrl+V rich
+  HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
+  public article rendering, or publish success.
