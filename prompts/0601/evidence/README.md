@@ -1883,3 +1883,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   HTML/SVG paste on the live platform, safe draft deletion, phone preview, mobile SMIL/click,
   mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-19 Style Proof Gate Invalid Status Audit
+
+- [x] style-proof-gate-invalid-status-audit-20260619.txt
+- Local acceptance-audit gate classification hardening.
+- A concrete invalid proof row must make its aggregate acceptance gate `invalid`; the gate must not
+  hide failed proof behind `blocked-by-external` or `unsafe-to-automate`.
+- TDD first run failed because an invalid `scheduled-send-readback` row left the
+  `platform-publish` gate as `unsafe-to-automate`.
+- `buildStyleProofAcceptanceGateAudit()` now maps `gate.invalid > 0` to `invalid` before external
+  or manual fallback. Missing, unattempted phone/account/publish gates keep their existing external
+  or unsafe-to-automate status.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 129 tests.
+- 4-file cross-platform export regression passed at 4 files / 168 tests, and full export serial
+  regression passed at 35 files / 1102 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.90s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local acceptance-audit classification proof only. It does not prove scheduled
+  send, publish, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed
+  sync, public-host availability, platform preview, public article rendering, upload, or publish
+  success.

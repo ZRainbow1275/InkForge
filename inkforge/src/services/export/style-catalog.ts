@@ -4705,7 +4705,9 @@ function toStyleProofAcceptanceNextAction(
 function buildStyleProofAcceptanceGateAudit(
   gate: StyleProofGateProgress,
 ): StyleProofAcceptanceGateAudit {
-  const status = getStyleProofAcceptanceAuditStatus(gate.gate, gate.status)
+  const status: StyleProofAcceptanceAuditStatus = gate.invalid > 0
+    ? 'invalid'
+    : getStyleProofAcceptanceAuditStatus(gate.gate, gate.status)
 
   return {
     gate: gate.gate,

@@ -1429,6 +1429,10 @@ Contracts:
   `getStyleProofManifestPackReport()` so platform isolation, duplicate artifact id checks,
   fingerprint mismatch checks, and blocked-choice invalidation remain identical to the lower
   proof reports.
+- Gate-level audit rows must preserve lower-level invalid proof. If the underlying progress gate
+  has any invalid requirement row, the acceptance gate status is `invalid` before it can be
+  presented as `blocked-by-external` or `unsafe-to-automate`. Missing, unattempted external gates
+  still keep their external/manual status.
 - Safe local gaps are only `local-evidence` and `sensitive-hygiene`. Authenticated PC editor,
   credentialed-channel, and platform-publish gates are `unsafe-to-automate` until a human/operator
   intentionally executes that real account action with a safe disposable draft and verified cleanup
@@ -1754,6 +1758,8 @@ Required tests:
 - Published/platform-preview rows missing `exactArtifact:true` must be invalid through
   `style-proof-manifest-exact-artifact-missing`, and the requirement-level acceptance audit must
   report `invalid`.
+- A platform-publish gate containing an invalid scheduled-send requirement must itself report
+  `invalid`; it must not hide the concrete failed proof behind `unsafe-to-automate`.
 - Generic exact-artifact rows with `exactArtifact:true` but no non-empty `artifactFingerprint`
   must also be invalid through `style-proof-manifest-exact-artifact-missing`, and the
   requirement-level acceptance audit must report `invalid`.

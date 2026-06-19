@@ -1,0 +1,45 @@
+Style Proof Gate Invalid Status Audit - 2026-06-19
+
+Scope:
+- Local acceptance-audit gate classification for redacted StyleProofManifest inputs.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Implemented:
+- Added a regression to the scheduled-send invalid-proof case.
+- Updated buildStyleProofAcceptanceGateAudit() so gate.invalid > 0 maps to invalid before
+  blocked-by-external or unsafe-to-automate fallback.
+
+TDD finding:
+- A manifest with an exact same-account scheduled-send-shaped row but no
+  scheduledSendVerified:true already made scheduled-send-readback invalid.
+- The aggregate platform-publish gate was still reported as unsafe-to-automate.
+- That hid concrete failed proof behind the broader manual publish boundary.
+
+Behavior after fix:
+- Concrete invalid proof makes the aggregate acceptance gate invalid.
+- Missing, unattempted phone/account/publish proof still reports blocked-by-external or
+  unsafe-to-automate according to the gate boundary.
+- The change does not create artifacts and does not change selectable, usable, blocked, or
+  unavailable catalog decisions.
+
+Focused verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 129 tests
+
+Regression verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 168 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1102 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 32.90s; generated inkforge/tsconfig.tsbuildinfo was restored
+
+Boundary:
+- This proves local acceptance-audit classification only.
+- It does not prove scheduled send, publish, WeChat phone preview, mobile SMIL/click, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, public host acceptance, XHS/Zhihu account
+  upload, or platform publish success.

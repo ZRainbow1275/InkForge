@@ -4689,6 +4689,49 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
+
+Impact:
+- `gitnexus impact` for `buildStyleProofAcceptanceGateAudit` reported LOW risk, 0 impacted items,
+  0 direct callers, 0 affected modules, and 0 affected processes.
+
+Implementation:
+- Added a TDD assertion to the scheduled-send invalid-proof regression: when
+  `scheduled-send-readback` is invalid because a same-account exact proof row lacks
+  `scheduledSendVerified:true`, the aggregate `platform-publish` acceptance gate must also be
+  `invalid`.
+- The first focused run failed as expected because the gate stayed `unsafe-to-automate` while the
+  requirement row was already `invalid`.
+- Updated `buildStyleProofAcceptanceGateAudit()` so `gate.invalid > 0` maps to `invalid` before the
+  external/manual gate fallback. Missing, unattempted phone/account/publish gates still keep
+  `blocked-by-external` or `unsafe-to-automate`.
+
+Verification:
+- TDD first run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed as expected because `platform-publish` was `unsafe-to-automate`.
+- After the fix, the same focused command passed with 1 file / 129 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 168 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1102 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 32.90s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-gate-invalid-status-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local acceptance-audit classification proof only.
+- It does not prove scheduled send, publish, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover thumbnail, credentialed sync, public-host availability, platform preview, public article
+  rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Market Editor Applied Audit Slice
 
 Impact:

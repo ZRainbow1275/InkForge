@@ -4677,10 +4677,14 @@ describe('platform native export rendering rules', () => {
     const auditStatus = new Map(
       audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const gateStatus = new Map(
+      audit.gates.map(gate => [gate.gate, gate.status]),
+    )
 
     expect(issueIds).toContain('style-proof-manifest-scheduled-send-not-verified')
     expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
     expect(auditStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(gateStatus.get('platform-publish')).toBe('invalid')
   })
 
   it('requires exact artifact binding for credentialed sync proof rows', () => {
