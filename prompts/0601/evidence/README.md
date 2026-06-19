@@ -1219,3 +1219,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local validator/runbook proof only. It does not prove WeChat phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 WeChat Draft List CloakBrowser Readback
+
+- [x] wechat-draft-list-cloakbrowser-readback-20260619.txt
+- CloakBrowser-only read-only backend home and draft-list state check.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation.
+- Raw URL token, account text, article titles, and page text samples were not recorded.
+- Authenticated draft-list route was reachable with login/relogin blocker signals absent.
+- Redacted selector counts on the draft-list surface: iframe 0, contenteditable editor nodes 0,
+  textarea 0, ProseMirror 0, editor-like containers 6, draft/card-like containers 64, buttons 31,
+  anchors 93.
+- Boundary: authenticated draft-list reachability evidence only. It does not prove authenticated
+  article editor target readback, ordinary PC paste, editor body mutation, safe disposable draft
+  cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, platform preview, public article rendering, or publish success.

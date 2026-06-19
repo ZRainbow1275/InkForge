@@ -2998,6 +2998,37 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled-send, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 WeChat Draft List CloakBrowser Readback Slice
+
+Scope:
+- Continued WeChat external-gate verification with CloakBrowser only.
+- Performed a read-only backend home and draft-list state check.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation was performed.
+- Raw URL token, account text, article titles, and page text samples were not recorded.
+
+Observed:
+- The active CloakBrowser session reached the authenticated WeChat backend home surface.
+- The draft-list route was reached through the page's own draft-list link.
+- Redacted route shape:
+  `/cgi-bin/appmsg?begin=0&count=10&type=77&action=list_card&<credential-token-redacted>&lang=zh_CN`.
+- Draft-list readyState was `complete`.
+- Login/relogin blocker signals were absent in the draft-list readback.
+- Draft/list/create navigation signals were present.
+- The page remained a draft-list surface, not an article editor body.
+- Redacted selector counts: iframe 0, contenteditable editor nodes 0, textarea 0, ProseMirror 0,
+  editor-like containers 6, draft/card-like containers 64, buttons 31, anchors 93.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-draft-list-cloakbrowser-readback-20260619.txt`.
+
+Boundary:
+- This is authenticated draft-list reachability evidence only.
+- It does not prove authenticated article editor target readback, ordinary PC paste, editor body
+  mutation, safe disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
+  or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:

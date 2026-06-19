@@ -1,0 +1,34 @@
+WeChat Draft List CloakBrowser Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only, read-only WeChat Public Platform state check.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation.
+- Raw URL token, account text, article titles, and page text samples were not recorded.
+
+Observed:
+- The WeChat backend home page was reachable in the active CloakBrowser session.
+- The draft-list route was reached through the page's own draft-list link.
+- Redacted route shape:
+  /cgi-bin/appmsg?begin=0&count=10&type=77&action=list_card&<credential-token-redacted>&lang=zh_CN
+- Draft-list readback readyState was complete.
+- Login/relogin blocker signals were not present in the draft-list readback.
+- Draft/list/create navigation signals were present.
+- The page remained a draft-list surface, not an article editor body.
+
+Redacted selector counts:
+- iframe: 0
+- contenteditable editor nodes: 0
+- textarea: 0
+- ProseMirror: 0
+- editor-like containers: 6
+- draft/card-like containers: 64
+- buttons: 31
+- anchors: 93
+
+Boundary:
+- This proves only authenticated draft-list reachability in the active CloakBrowser session.
+- It does not prove authenticated article editor target readback, ordinary PC paste, editor body
+  mutation, safe disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
+  or publish success.

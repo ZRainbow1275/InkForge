@@ -1515,3 +1515,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/runbook proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public
   article rendering, or publish success.
+
+## 2026-06-19 WeChat Draft List CloakBrowser Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-draft-list-cloakbrowser-readback-20260619.txt`.
+- Used CloakBrowser only.
+- Performed a read-only backend home and draft-list state check.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation was performed.
+- Raw URL token, account text, article titles, and page text samples were not recorded.
+- The authenticated draft-list route was reachable with login/relogin blocker signals absent.
+- Redacted selector counts on the draft-list surface were iframe 0, contenteditable editor nodes 0,
+  textarea 0, ProseMirror 0, editor-like containers 6, draft/card-like containers 64, buttons 31,
+  anchors 93.
+- Boundary: this is authenticated draft-list reachability evidence only. It does not prove
+  authenticated article editor target readback, ordinary PC paste, editor body mutation, safe
+  disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, or publish
+  success.
