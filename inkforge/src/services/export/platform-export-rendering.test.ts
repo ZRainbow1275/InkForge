@@ -940,6 +940,7 @@ describe('platform native export rendering rules', () => {
           action: 'published-preview',
           readback: 'published-url',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          exactArtifact: true,
           externalAccountAuthenticated: true,
           safeForCommit: true,
         },
@@ -3367,6 +3368,51 @@ describe('platform native export rendering rules', () => {
     expect(phoneOnlyReport.issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
     expect(phoneOnlyIssueLocations).toContain('published-url-or-platform-preview')
     expect(phoneOnlyRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+  })
+
+  it('requires exact artifact binding for published URL or platform preview proof', () => {
+    const artifactFingerprint = 'sha256:redacted-publish-exact-artifact'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'published-url-without-exact-artifact',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'redacted published URL without exact artifact binding',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const publishAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'published-url-or-platform-preview'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toContain('style-proof-manifest-exact-artifact-missing')
+    expect(issueLocations).toContain('published-url-or-platform-preview')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(publishAudit?.status).toBe('invalid')
+    expect(publishAudit?.issueIds).toContain('style-proof-manifest-exact-artifact-missing')
   })
 
   it.each([

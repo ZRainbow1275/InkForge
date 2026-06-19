@@ -1439,3 +1439,23 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: this is local validator/runbook proof only. It does not prove public-host acceptance,
   account upload, platform preview, public article rendering, scheduled-send, or publish success.
+
+## 2026-06-19 Published Preview Exact Artifact Validator Addendum
+
+- Added `prompts/0601/evidence/published-preview-exact-artifact-validator-20260619.txt`.
+- `published-url-or-platform-preview` proof now requires `exactArtifact:true` on the same
+  authenticated public-web or credentialed-channel published-preview artifact.
+- Authenticated published/platform-preview rows without exact artifact binding emit
+  `style-proof-manifest-exact-artifact-missing`.
+- Acceptance requirement rows carrying `style-proof-manifest-exact-artifact-missing` now report
+  `invalid`, so an old public URL or different article preview cannot be treated as pending
+  external proof for the current artifact.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 110 tests.
+- 4-file cross-platform export regression passed at 4 files / 149 tests.
+- Full export serial regression passed at 35 files / 1083 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove account authentication,
+  platform preview, public article rendering, scheduled-send, or publish success.

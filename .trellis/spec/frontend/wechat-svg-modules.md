@@ -1269,8 +1269,9 @@ Contracts:
   plus `externalAccountAuthenticated:true` on the same proof artifact.
 - `published-url-or-platform-preview` requires `channel:'public-web'` or
   `channel:'credentialed-channel'`, `action:'published-preview'`, an accepted published/platform
-  readback, and `externalAccountAuthenticated:true` on the same proof artifact. A phone-preview
-  readback is mobile preview proof only and must not satisfy the platform-publish row.
+  readback, `externalAccountAuthenticated:true`, and `exactArtifact:true` on the same proof
+  artifact. A phone-preview readback is mobile preview proof only and must not satisfy the
+  platform-publish row.
 - Progress reports must surface these failures as invalid authenticated-PC, phone-preview,
   credentialed-channel, or platform-publish gates and must not increase `proofSatisfiedChoices`.
 
@@ -1463,6 +1464,8 @@ Contracts:
   publish runbook rows must expose `externalAccountAuthenticated` as a required field, and the
   validator must require `externalAccountAuthenticated:true` for
   `credentialed-channel-response`, `sync-readback`, and `published-url-or-platform-preview`.
+  `published-url-or-platform-preview` must also require `exactArtifact:true`, because a public URL
+  or platform preview for a different article cannot prove the current exported artifact.
 - A manifest artifact with `externalAccountLoginBlocked:true`,
   `externalAccountAuthenticated:false`, or action `external-account-login-readback` must emit
   `style-proof-manifest-external-account-login-blocked`. Such an artifact can never satisfy XHS
@@ -1511,6 +1514,9 @@ Required tests:
   `externalAccountAuthenticated:true` must be invalid through
   `style-proof-manifest-external-account-auth-missing`; `phone-preview` artifacts must not satisfy
   `published-url-or-platform-preview`.
+- Published/platform-preview rows missing `exactArtifact:true` must be invalid through
+  `style-proof-manifest-exact-artifact-missing`, and the requirement-level acceptance audit must
+  report `invalid`.
 - WeChat phone preview blocker manifests must prove that scan/setup/PC-preview-shell/cover-setting
   rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
   `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode

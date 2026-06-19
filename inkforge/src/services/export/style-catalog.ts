@@ -3121,18 +3121,37 @@ function validateStyleProofRequirementCoverage(
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
-    case 'published-url-or-platform-preview':
-      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
+    case 'published-url-or-platform-preview': {
+      const isPublishedPreviewProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'published-preview'
         && (artifact.channel === 'public-web' || artifact.channel === 'credentialed-channel')
         && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
-      ), has(artifact =>
-        artifact.action === 'published-preview'
-        && (artifact.channel === 'public-web' || artifact.channel === 'credentialed-channel')
-        && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
+      const hasPublishedPreviewProof = has(isPublishedPreviewProofArtifact)
+      const hasAuthenticatedPublishedPreviewProof = has(artifact =>
+        isPublishedPreviewProofArtifact(artifact)
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
-      ))
+      )
+
+      requireExternalAccountAuthenticatedStyleProof(
+        issues,
+        requirementId,
+        hasPublishedPreviewProof,
+        hasAuthenticatedPublishedPreviewProof,
+      )
+      if (hasAuthenticatedPublishedPreviewProof && !has(artifact =>
+        isPublishedPreviewProofArtifact(artifact)
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+        && artifact.exactArtifact === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Published or platform preview proof is not bound to the exact exported artifact under review.',
+          suggestion: 'Record exactArtifact:true only after the public URL or platform preview readback is proven to contain the exact exported artifact fingerprint for this style choice.',
+          location: requirementId,
+        })
+      }
       break
+    }
     case 'public-image-host': {
       const isPublicImageHostProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'public-image-host-check'
@@ -4123,6 +4142,7 @@ function buildStyleProofAcceptanceRequirementAudits(
       })
       const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
         || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
+        || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)

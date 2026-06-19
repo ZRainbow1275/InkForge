@@ -2839,6 +2839,46 @@ Boundary:
 - It does not prove public-host acceptance, account upload, platform preview, public article
   rendering, scheduled-send, or publish success.
 
+## 2026-06-19 Published Preview Exact Artifact Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 1 direct dependent, and 1 affected process
+  (`progressChoices`).
+
+Implementation:
+- Tightened `published-url-or-platform-preview` so accepted publish/platform-preview proof must
+  be a `public-web` or `credentialed-channel` `published-preview` row with accepted readback,
+  `externalAccountAuthenticated:true`, and `exactArtifact:true` on the same artifact.
+- Reused `style-proof-manifest-exact-artifact-missing` for publish/platform-preview rows that are
+  authenticated but not bound to the exact exported artifact under review.
+- Acceptance requirement rows carrying `style-proof-manifest-exact-artifact-missing` now report
+  `invalid`, so an old public URL or different article preview cannot be treated as merely
+  pending external proof.
+- Updated the WeChat positive published-preview fixture to carry `exactArtifact:true`.
+
+Regression coverage:
+- A WeChat public-web published URL row with `externalAccountAuthenticated:true` but without
+  `exactArtifact:true` remains invalid in both manifest report and acceptance cannot-claim rows.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed with 1 file, 110 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed with 4 files, 149 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed with 35 files, 1083 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in 26.04s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove account authentication, platform preview, public article rendering,
+  scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:

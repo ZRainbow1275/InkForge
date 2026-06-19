@@ -1157,3 +1157,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: local validator/runbook proof only. It does not prove public-host acceptance, account
   upload, platform preview, public article rendering, scheduled-send, or publish success.
+
+## 2026-06-19 Published Preview Exact Artifact Validator
+
+- [x] published-preview-exact-artifact-validator-20260619.txt
+- `published-url-or-platform-preview` proof requires `exactArtifact:true` on the same authenticated
+  public-web or credentialed-channel published-preview artifact.
+- Missing exact artifact binding emits `style-proof-manifest-exact-artifact-missing`.
+- Acceptance requirement rows carrying `style-proof-manifest-exact-artifact-missing` report
+  `invalid`.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 110 tests.
+- 4-file cross-platform regression passed at 4 files / 149 tests, and full export serial
+  regression passed at 35 files / 1083 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove account authentication, platform
+  preview, public article rendering, scheduled-send, or publish success.

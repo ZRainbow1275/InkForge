@@ -1,0 +1,38 @@
+Published Preview Exact Artifact Validator - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance audit hardening.
+- No external platform upload, platform preview, scheduled send, or publish action.
+
+Implemented:
+- published-url-or-platform-preview proof now requires channel public-web or credentialed-channel,
+  action published-preview, accepted published/platform readback, externalAccountAuthenticated:true,
+  and exactArtifact:true on the same proof artifact.
+- Authenticated published/platform-preview rows without exact artifact binding emit
+  style-proof-manifest-exact-artifact-missing.
+- Acceptance requirement rows carrying style-proof-manifest-exact-artifact-missing report invalid.
+
+Regression coverage:
+- A WeChat public-web published URL row with externalAccountAuthenticated:true but no
+  exactArtifact:true remains invalid in the manifest report.
+- The same row remains invalid in acceptance cannot-claim output.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 110 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 149 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1083 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 26.04s
+- inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local validator/runbook contract behavior only.
+- It does not prove account authentication, platform preview, public article rendering,
+  scheduled-send, or publish success.
