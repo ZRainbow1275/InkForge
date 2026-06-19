@@ -1,0 +1,33 @@
+Style Proof Required Readback Contract - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no account upload, no phone preview, no sync, no send, no publish.
+
+Implemented:
+- Added a generic requiredReadbacks contract layer for every StyleProofExecutionArtifactContract.
+- The validator now rejects proof rows that match the expected channel/action/host boundary but use a readback type outside the contract's requiredReadbacks list.
+- Shared required-field candidates now require channel, action, accepted host status when applicable, and accepted readback on the same proof row before safeForCommit, artifactFingerprint, or exactArtifact can satisfy a contract.
+- Synchronized requiredReadbacks lists with existing requirement-specific validators for market-editor readback, authenticated editor, PC editor DOM, safe disposable draft, phone preview, Dark Mode, cover thumbnail, and published/platform-preview proof.
+
+Regression coverage:
+- A phone-screenshot row missing artifactFingerprint and safeForCommit cannot borrow those fields from a same-channel/action phone readback row because the readback type is not accepted for phone-screenshot.
+- An authenticated-editor-url row with the expected action and channel but readback hygiene-log emits style-proof-manifest-readback-missing, remains invalid locally, and stays unsafe-to-automate in the acceptance audit.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 122 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 161 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1095 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 47.75s; generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local required-readback accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu account upload, or publish success.

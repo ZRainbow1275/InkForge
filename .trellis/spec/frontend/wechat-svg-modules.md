@@ -1553,6 +1553,18 @@ Contracts:
   with fingerprints and business-specific flags but without same-row `exactArtifact:true` must emit
   `style-proof-manifest-exact-artifact-missing` and keep requirement-level acceptance audit
   `invalid`.
+- `requiredReadbacks` is executable contract data, not only runbook copy. If a proof row matches a
+  contract's channel/action/accepted-host boundary but its `readback` is outside that contract's
+  `requiredReadbacks`, `validateStyleProofManifest()` must emit
+  `style-proof-manifest-readback-missing`. The shared required-field helpers must only accept
+  proof rows whose channel, action, host status when applicable, and readback all match the same
+  execution contract, so fields from a different readback cannot backfill `safeForCommit`,
+  `artifactFingerprint`, or `exactArtifact`.
+- When a requirement-specific validator accepts a family such as DOM-or-visual readback or
+  phone-preview visual fallback, the matching `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` row must
+  list those accepted `requiredReadbacks`. Do not narrow the common contract helper in a way that
+  rejects an intentionally accepted validator path, and do not broaden the validator without
+  updating the contract row and regression tests.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
@@ -1685,6 +1697,14 @@ Required tests:
   `exactArtifact:true` must remain invalid through `style-proof-manifest-exact-artifact-missing`.
   Regression tests must keep those rows invalid so future changes cannot satisfy exact-artifact
   contracts with only channel/action/readback and fingerprint data.
+- Same channel/action proof rows with the wrong readback must not satisfy shared required-field
+  checks. Regression tests must keep a `phone-screenshot` proof invalid when the screenshot row
+  lacks `artifactFingerprint` or `safeForCommit` and those fields appear only on a same-channel /
+  same-action `phone` readback row.
+- Authenticated editor proof rows with expected action/channel but unsupported readback must emit
+  `style-proof-manifest-readback-missing`. Requirement-level manifest status must be `invalid`,
+  while acceptance audit may still classify the broader authenticated PC editor gate as
+  `unsafe-to-automate` and must retain the concrete issue id.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof

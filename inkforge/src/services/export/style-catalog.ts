@@ -1086,7 +1086,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'market-applied-dom-readback',
     requiredChannels: ['market-editor'],
     requiredActions: ['applied-market-element'],
-    requiredReadbacks: ['visual-and-dom'],
+    requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
     requiredFields: ['centralEditorChanged', 'safeForCommit'],
   },
   'no-proprietary-template-source': {
@@ -1101,14 +1101,14 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'authenticated-editor-url',
     requiredChannels: ['platform-editor'],
     requiredActions: ['authenticated-editor-opened'],
-    requiredReadbacks: ['dom', 'visual-and-dom'],
+    requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
     requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'safeForCommit'],
   },
   'pc-editor-dom-readback': {
     requirementId: 'pc-editor-dom-readback',
     requiredChannels: ['platform-editor'],
     requiredActions: ['pc-editor-dom-readback'],
-    requiredReadbacks: ['dom', 'visual-and-dom'],
+    requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
     requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'platformEditorSurfaceVerified', 'platformEditorDomVerified', 'safeForCommit'],
   },
   'unit-test-coverage': {
@@ -1136,7 +1136,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'safe-disposable-draft',
     requiredChannels: ['platform-editor'],
     requiredActions: ['safe-disposable-draft'],
-    requiredReadbacks: ['hygiene-log'],
+    requiredReadbacks: ['dom', 'visual-and-dom', 'hygiene-log'],
     requiredFields: ['disposableDraft', 'cleanupPathVerified', 'safeForCommit'],
   },
   'pc-editor-paste-event': {
@@ -1163,7 +1163,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'phone-preview-readback',
     requiredChannels: ['phone-preview'],
     requiredActions: ['phone-preview'],
-    requiredReadbacks: ['phone'],
+    requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
   },
   'phone-screenshot': {
@@ -1177,7 +1177,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'dark-mode-check',
     requiredChannels: ['phone-preview'],
     requiredActions: ['dark-mode-check'],
-    requiredReadbacks: ['phone', 'screenshot'],
+    requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: [
       'artifactFingerprint',
       'exactArtifact',
@@ -1190,7 +1190,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'cover-thumbnail-check',
     requiredChannels: ['phone-preview'],
     requiredActions: ['cover-thumbnail-check'],
-    requiredReadbacks: ['screenshot'],
+    requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'coverThumbnailAccepted', 'safeForCommit'],
   },
   'credentialed-channel-response': {
@@ -1218,7 +1218,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requirementId: 'published-url-or-platform-preview',
     requiredChannels: ['public-web', 'credentialed-channel'],
     requiredActions: ['published-preview'],
-    requiredReadbacks: ['published-url', 'visual-and-dom'],
+    requiredReadbacks: ['published-url', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'public-image-host': {
@@ -3541,12 +3541,20 @@ function validateStyleProofRequirementCoverage(
       break
   }
 
+  validateStyleProofRequiredReadback(requirementId, artifacts, issues)
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
   validateStyleProofRequiredExactArtifact(requirementId, artifacts, issues)
 }
 
-function getStyleProofContractCandidates(
+function isStyleProofReadbackAllowedByContract(
+  contract: StyleProofExecutionArtifactContract,
+  readback: StyleProofReadback,
+): boolean {
+  return (contract.requiredReadbacks as readonly StyleProofReadback[]).includes(readback)
+}
+
+function getStyleProofContractActionChannelCandidates(
   requirementId: StyleProofRequirementId,
   artifacts: readonly StyleProofArtifact[],
 ): StyleProofArtifact[] {
@@ -3561,6 +3569,41 @@ function getStyleProofContractCandidates(
         && (contract.acceptedHostStatuses as readonly StyleProofHostStatus[]).includes(artifact.hostStatus)
       ))
   )
+}
+
+function getStyleProofContractCandidates(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+): StyleProofArtifact[] {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+
+  return getStyleProofContractActionChannelCandidates(requirementId, artifacts)
+    .filter(artifact => isStyleProofReadbackAllowedByContract(contract, artifact.readback))
+}
+
+function validateStyleProofRequiredReadback(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-readback-missing'
+  )) {
+    return
+  }
+
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  const contractCandidates = getStyleProofContractActionChannelCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+  if (contractCandidates.some(artifact => isStyleProofReadbackAllowedByContract(contract, artifact.readback))) return
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-readback-missing',
+    message: `${requirementId} proof uses the expected channel/action but not an accepted readback type.`,
+    suggestion: `Record one of ${contract.requiredReadbacks.join(', ')} on the same proof row; fields from a different readback cannot satisfy this requirement.`,
+    location: requirementId,
+  })
 }
 
 function validateStyleProofRequiredSafeCommit(

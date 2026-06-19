@@ -1921,3 +1921,29 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-19 Style Proof Required Readback Addendum
+
+- Added `prompts/0601/evidence/style-proof-required-readback-contract-20260619.txt`.
+- Added a generic validator layer for every execution contract's `requiredReadbacks`.
+- Matching action/channel proof rows now require an accepted same-row `readback`; otherwise
+  `validateStyleProofManifest()` emits `style-proof-manifest-readback-missing` and keeps
+  requirement-level manifest status invalid.
+- Shared required-field helpers now require channel, action, accepted host status when applicable,
+  and accepted readback on the same proof row before `safeForCommit`, `artifactFingerprint`, or
+  `exactArtifact` can satisfy an execution contract.
+- Synchronized required readback lists with the existing market-editor, authenticated editor, PC
+  editor DOM, safe disposable draft, phone preview, Dark Mode, cover thumbnail, and
+  published/platform-preview validators.
+- Regression coverage rejects readback-split phone screenshot proof and authenticated editor rows
+  with unsupported readback types.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 122 tests.
+- 4-file cross-platform export regression passed at 4 files / 161 tests, and full export serial
+  regression passed at 35 files / 1095 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  47.75s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.

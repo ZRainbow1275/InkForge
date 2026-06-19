@@ -1563,6 +1563,32 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
 
+## 2026-06-19 Style Proof Required Readback Contract
+
+- [x] style-proof-required-readback-contract-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- Added a generic `requiredReadbacks` layer for every execution contract.
+- Matching action/channel proof rows now require an accepted same-row `readback`; otherwise they
+  emit `style-proof-manifest-readback-missing` and keep requirement-level manifest status invalid.
+- Shared required-field helpers now only accept proof rows whose channel, action, accepted host
+  status when applicable, and readback all match the execution contract before `safeForCommit`,
+  `artifactFingerprint`, or `exactArtifact` can satisfy the row.
+- Synchronized required readback lists with the existing market-editor, authenticated editor, PC
+  editor DOM, safe disposable draft, phone preview, Dark Mode, cover thumbnail, and
+  published/platform-preview validators.
+- Regression coverage rejects readback-split phone screenshot proof and authenticated editor rows
+  with unsupported readback types.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 122 tests.
+- 4-file cross-platform export regression passed at 4 files / 161 tests, and full export serial
+  regression passed at 35 files / 1095 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  47.75s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.
+
 ## 2026-06-19 Style Proof Required Exact Artifact Contract
 
 - [x] style-proof-required-exact-artifact-contract-20260619.txt

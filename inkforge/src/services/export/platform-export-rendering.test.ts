@@ -3801,6 +3801,115 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
   })
 
+  it('does not let wrong readback rows satisfy required field contracts', () => {
+    const artifactFingerprint = 'sha256:redacted-readback-field-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'phone-screenshot-without-trace-or-safe-commit',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot content proof without traceability fields',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          phonePreviewContentVerified: true,
+          exactArtifact: true,
+        },
+        {
+          id: 'phone-readback-cannot-backfill-screenshot-fields',
+          requirementId: 'phone-screenshot',
+          kind: 'phone-readback',
+          label: 'phone readback cannot backfill screenshot required fields',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          artifactFingerprint,
+          phonePreviewContentVerified: true,
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const phoneScreenshotIssues = report.issues
+      .filter(issue => issue.location === 'phone-screenshot')
+      .map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(phoneScreenshotIssues).toEqual(expect.arrayContaining([
+      'style-proof-manifest-exact-artifact-missing',
+      'style-proof-manifest-safe-commit-not-verified',
+    ]))
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+  })
+
+  it('requires accepted readback types on matching contract action and channel rows', () => {
+    const artifactFingerprint = 'sha256:redacted-readback-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-dom-readable'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'authenticated-editor-wrong-readback',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'authenticated editor row with wrong readback contract',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-readback-missing')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const authenticatedEditorAudit = audit.requirements.find(requirement =>
+      requirement.requirement.id === 'authenticated-editor-url',
+    )
+
+    expect(issueLocations).toContain('authenticated-editor-url')
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(auditStatus.get('authenticated-editor-url')).toBe('unsafe-to-automate')
+    expect(authenticatedEditorAudit?.issueIds).toContain('style-proof-manifest-readback-missing')
+  })
+
   it('requires platform and artifact consistency in style proof manifests', () => {
     const manifest: StyleProofManifest = {
       platform: 'zhihu',

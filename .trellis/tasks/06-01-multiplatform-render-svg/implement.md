@@ -4689,6 +4689,51 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Required Readback Contract Slice
+
+Impact:
+- `gitnexus impact` for `getStyleProofContractCandidates` reported LOW risk, 4 impacted items,
+  2 direct callers, 1 affected module (`Export`), and 1 affected process (`progressChoices`).
+
+Implementation:
+- Added `validateStyleProofRequiredReadback()` as a common contract check before the shared
+  required-field validators.
+- Split contract candidate discovery into action/channel/host candidates and final candidates that
+  also match `requiredReadbacks`.
+- Shared required-field validators now require channel, action, accepted host status when
+  applicable, and accepted readback on the same proof row before `safeForCommit`,
+  `artifactFingerprint`, or `exactArtifact` can satisfy a contract.
+- Synchronized `requiredReadbacks` for market-editor readback, authenticated editor, PC editor
+  DOM, safe disposable draft, phone preview, Dark Mode, cover thumbnail, and
+  published/platform-preview rows with the existing requirement-specific validators.
+- Added regressions for split readback rows that try to backfill phone-screenshot required fields
+  and for authenticated editor rows using an unsupported `hygiene-log` readback.
+
+Verification:
+- First focused run exposed a `safe-disposable-draft` readback contract mismatch and an
+  authenticated editor acceptance-status expectation; both were corrected before the pass below.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 122 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 161 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1095 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 47.75s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-required-readback-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Required Exact Artifact Contract Slice
 
 Impact:
