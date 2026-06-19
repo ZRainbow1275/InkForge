@@ -1456,6 +1456,10 @@ Contracts:
   the acceptance audit. A 135/Xiumi library click or SVG/style selection that does not change the
   central editor/canvas is concrete invalid applied-element proof, not a generic
   `blocked-by-external` market-editor task.
+- Requirement rows carrying `style-proof-manifest-disposable-draft-missing` or
+  `style-proof-manifest-cleanup-path-missing` must be `invalid` in the acceptance audit. Missing
+  safe-draft proof remains an authenticated-PC-editor manual gate, but a submitted safe-draft row
+  without disposable draft identity or cleanup/rollback verification is concrete invalid proof.
 - ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
   be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
   external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
@@ -1473,6 +1477,9 @@ Required tests:
   unclaimable and surface the concrete session/editor DOM issue ids in those `cannotClaim` rows.
 - A market-editor manifest bound to a real choice and carrying `centralEditorChanged:false` must
   keep `market-applied-dom-readback` invalid in both the manifest report and the acceptance audit.
+- A PC paste manifest with an otherwise complete safe-disposable-draft row but no
+  `cleanupPathVerified:true` must keep `safe-disposable-draft` invalid in both the manifest report
+  and the acceptance audit.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card
@@ -1511,6 +1518,13 @@ Contracts:
   route shape, editor shell selectors, title ProseMirror, hidden native iframes, or generic
   contenteditable counts must stay invalid until the main body editing surface itself is identified
   and read back with `platformEditorSurfaceVerified:true`.
+- `safe-disposable-draft` proof requires `disposableDraft:true` and
+  `cleanupPathVerified:true` on the same platform-editor proof row. Rows that prove only a draft
+  exists, only a delete affordance exists, or split draft/cleanup flags across artifacts must emit
+  `style-proof-manifest-disposable-draft-missing`,
+  `style-proof-manifest-cleanup-path-missing`, or `style-proof-manifest-proof-not-bound` and keep
+  requirement-level acceptance audit `invalid` instead of downgrading the row to generic
+  `unsafe-to-automate`.
 - Generic `exact-artifact` proof requires `exactArtifact:true` and a non-empty
   `artifactFingerprint` on the same proof row. A bare boolean flag is not enough to bind evidence
   to the exported InkForge artifact under review.

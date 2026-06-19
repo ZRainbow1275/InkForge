@@ -1980,10 +1980,16 @@ describe('platform native export rendering rules', () => {
     const requirementStatus = new Map(
       report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const safeDraftAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'safe-disposable-draft'
+    )
 
     expect(report.valid).toBe(false)
     expect(report.summary.missing).toBe(0)
     expect(requirementStatus.get('safe-disposable-draft')).not.toBe('satisfied')
+    expect(safeDraftAudit?.status).toBe('invalid')
+    expect(safeDraftAudit?.issueIds).toContain('style-proof-manifest-cleanup-path-missing')
     expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-cleanup-path-missing')
     expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-disposable-draft-missing')
   })

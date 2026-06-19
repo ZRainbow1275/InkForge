@@ -1,0 +1,49 @@
+Style Proof Safe Draft Cleanup Audit - 2026-06-19
+
+Scope:
+- Local acceptance-audit classification for safe-disposable-draft proof.
+- No authenticated WeChat editor action, no live draft deletion, no phone preview, no sync, no
+  upload, no publish.
+
+Implemented:
+- Extended the existing PC editor paste manifest regression with acceptance-audit assertions.
+- The regression is bound to real style choice `wechat-classic-inline` and supplies complete PC
+  paste, PC DOM, exact artifact, and hygiene proof rows.
+- The isolated failure is a `safe-disposable-draft` proof row with `disposableDraft:true` but no
+  `cleanupPathVerified:true`.
+- Added `style-proof-manifest-disposable-draft-missing` and
+  `style-proof-manifest-cleanup-path-missing` to the acceptance-audit invalid issue set.
+
+Behavior:
+- `getStyleProofManifestReport()` keeps `safe-disposable-draft` invalid when the cleanup path is
+  missing.
+- `getPlatformStyleProofAcceptanceAuditReport('wechat', manifests)` now also keeps that row
+  `invalid` and exposes `style-proof-manifest-cleanup-path-missing` in `issueIds`.
+- Missing safe-draft proof still remains a manual authenticated-PC-editor gate. This change only
+  reclassifies submitted unsafe or unclean safe-draft proof rows as invalid proof.
+
+TDD:
+- First focused run failed because the acceptance audit returned `unsafe-to-automate` for
+  `safe-disposable-draft` despite the manifest issue
+  `style-proof-manifest-cleanup-path-missing`.
+- After the issue-id classification fix, the same focused command passed.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 129 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 168 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1102 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 38.36s
+
+Boundary:
+- This proves local validator/audit accounting only.
+- It does not prove WeChat authenticated PC paste, safe draft deletion on the live platform, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, upload, or publish success.

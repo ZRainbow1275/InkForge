@@ -2142,3 +2142,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   operations, WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
   credentialed sync, scheduled send, public-host availability, platform preview, public article
   rendering, upload, or publish success.
+
+## 2026-06-19 Style Proof Safe Draft Cleanup Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-safe-draft-cleanup-audit-20260619.txt`.
+- Extended the safe-disposable-draft cleanup regression with requirement-level acceptance audit
+  assertions.
+- TDD failed first because a `safe-disposable-draft` row with `disposableDraft:true` but no
+  `cleanupPathVerified:true` was classified as `unsafe-to-automate` in the acceptance audit despite
+  carrying `style-proof-manifest-cleanup-path-missing`.
+- Added `style-proof-manifest-disposable-draft-missing` and
+  `style-proof-manifest-cleanup-path-missing` to the acceptance-audit invalid issue set. Missing
+  safe-draft proof remains a manual authenticated-PC-editor gate; submitted unclean safe-draft
+  proof is invalid proof.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 129 tests.
+- 4-file cross-platform export regression passed at 4 files / 168 tests, and full export serial
+  regression passed at 35 files / 1102 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  38.36s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove WeChat authenticated PC
+  paste, safe draft deletion on the live platform, phone preview, mobile SMIL/click, mobile Dark
+  Mode, cover thumbnail, credentialed sync, scheduled send, public-host availability, platform
+  preview, public article rendering, upload, or publish success.
