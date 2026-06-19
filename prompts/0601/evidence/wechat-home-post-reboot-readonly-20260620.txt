@@ -1,0 +1,27 @@
+WeChat Home Post-Reboot Readonly Check - 2026-06-20
+
+Scope:
+- CloakBrowser-only read-only check after the workstation reboot.
+- Existing InkForge browser profile was reused.
+- No form fill, paste, save, preview, publish, delete, sync, upload, phone action, or draft mutation.
+
+Readback:
+- Opened the WeChat Official Account backend landing page.
+- Page title: `公众号`.
+- Sanitized path shape: `/cgi-bin/home`.
+- Login / scan state: not present in the sampled visible text.
+- Home state: present.
+- Creation and management entry signals: present.
+- Visible navigation included home, draft/material/publish-record style entries.
+- Page readback included account and draft text; those strings were intentionally redacted and are
+  not recorded here.
+- Contenteditable count on the home page: 0.
+- Iframe count on the home page: 0.
+- SVG node count on the home page: 63.
+
+Boundary:
+- This proves current authenticated WeChat backend home reachability only.
+- It does not prove new-article editor body reachability, PC paste, body mutation, safe draft
+  cleanup, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, or publish success.

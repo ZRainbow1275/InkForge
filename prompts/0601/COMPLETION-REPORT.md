@@ -2371,3 +2371,19 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
   or publish success.
+
+## 2026-06-20 WeChat Home Post-Reboot Readonly Addendum
+
+- Added `prompts/0601/evidence/wechat-home-post-reboot-readonly-20260620.txt`.
+- Used CloakBrowser only with the existing InkForge browser profile.
+- Authenticated WeChat backend home readback succeeded after the workstation reboot: title
+  `公众号`, sanitized route shape `/cgi-bin/home`, login/scan state absent, and backend home /
+  creation / draft-material / publish-record style entry signals present.
+- The readback included account and draft text; those strings were redacted and not recorded.
+- No form fill, paste, save, preview, publish, delete, sync, upload, phone action, or draft mutation
+  was performed.
+- Boundary: this proves current authenticated WeChat backend home reachability only. It does not
+  prove new-article editor body reachability, PC paste, body mutation, safe draft cleanup, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, or publish
+  success.

@@ -4924,6 +4924,32 @@ Boundary:
   cover-thumbnail acceptance, credentialed sync, scheduled-send, public-host availability,
   platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-20 WeChat Home Post-Reboot Readonly Slice
+
+Method:
+- Used CloakBrowser only with the existing InkForge browser profile.
+- Opened the WeChat Official Account backend landing page and sampled DOM/text state.
+- Closed CloakBrowser after the read-only check.
+
+Readback:
+- Page title was `公众号`.
+- Sanitized route shape was `/cgi-bin/home`.
+- Login/scan state was absent from sampled visible text.
+- Backend home, creation, draft/material, and publish-record style entry signals were present.
+- The page included account and draft text; those strings were redacted and not recorded.
+- Home page counters: `contenteditable=0`, `iframe=0`, `svg=63`.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-home-post-reboot-readonly-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is authenticated backend home reachability only.
+- It does not prove new-article editor body reachability, PC paste, body mutation, safe draft
+  cleanup, phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, scheduled-send, platform preview, public article rendering, XHS/Zhihu account
+  upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:
