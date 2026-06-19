@@ -37,9 +37,11 @@ construct breaks.
   cross-platform and proves final platform preview/publish inspection only; WeChat phone proof must
   remain a separate `mobile-preview` label.
 - `StyleProofArtifact.phonePreviewContentVerified === true` is required for
-  `phone-preview-readback`. A scan page, preview entry, setup dialog, cover-setting page, or PC
-  backend DOM readback is not phone-side final article content. Keep those as blocked/setup
-  evidence until the exact artifact is visible in the phone preview article body.
+  `phone-preview-readback` and `phone-screenshot`, and phone screenshot proof must also carry
+  `exactArtifact:true` on the same screenshot artifact. A scan page, preview entry, setup dialog,
+  cover-setting page, or PC backend DOM readback is not phone-side final article content. Keep
+  those as blocked/setup evidence until the exact artifact is visible in the phone preview article
+  body.
 - `StyleProofArtifact.darkModeEnabledVerified === true` is required for `dark-mode-check`, and
   `StyleProofArtifact.coverThumbnailAccepted === true` is required for
   `cover-thumbnail-check`. An ordinary phone screenshot, cover setup page, or draft-settings
@@ -463,10 +465,11 @@ Evidence labels for UI state:
   through ordinary user Ctrl+V rich HTML/SVG paste; it requires
   `ordinaryClipboardPasteVerified:true`.
 - `mobile-preview`: phone preview proved final mobile visibility/interaction/Dark Mode target.
-  `phone-preview-readback` requires `phonePreviewContentVerified:true`; phone screenshot,
-  Dark Mode, and cover-thumbnail checks remain separate proof rows and cannot substitute for
-  the final article-body readback. `dark-mode-check` requires `darkModeEnabledVerified:true`;
-  `cover-thumbnail-check` requires `coverThumbnailAccepted:true`.
+  `phone-preview-readback` requires `phonePreviewContentVerified:true`; `phone-screenshot`
+  additionally requires same-artifact `exactArtifact:true`; Dark Mode and cover-thumbnail checks
+  remain separate proof rows and cannot substitute for the final article-body readback.
+  `dark-mode-check` requires `darkModeEnabledVerified:true`; `cover-thumbnail-check` requires
+  `coverThumbnailAccepted:true`.
 - `credentialed-sync`: real account sync created draft/material, still not publish proof.
 - `published`: final platform publish/preview was inspected.
 - `blocked` / `unavailable`: show blocker and fallback, never report success.
@@ -1418,14 +1421,15 @@ Contracts:
   `platformEditorTargetVerified`, `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`,
   `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`,
   `mojibakeFreeVerified`, and `safeForCommit`.
-- Phone preview, Dark Mode, and cover thumbnail rows must require phone-preview artifacts and must
-  keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`
-  separate. These rows must also bind the same proof artifact to `exactArtifact:true` when the
-  contract lists exact-artifact proof. PC DOM, local browser screenshots, scan pages, setup dialogs,
-  or unbound phone readbacks cannot complete them.
-- `phone-screenshot` must require `action:'phone-preview'`, `readback:'screenshot'`, and
-  `phonePreviewContentVerified:true`. A setup screenshot, scan-entry screenshot, PC preview shell,
-  or relogin page is not a phone screenshot proof for final article content.
+- Phone preview, phone screenshot, Dark Mode, and cover thumbnail rows must require phone-preview
+  artifacts and must keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and
+  `coverThumbnailAccepted` separate. These rows must also bind the same proof artifact to
+  `exactArtifact:true` when the contract lists exact-artifact proof. PC DOM, local browser
+  screenshots, scan pages, setup dialogs, or unbound phone readbacks cannot complete them.
+- `phone-screenshot` must require `action:'phone-preview'`, `readback:'screenshot'`,
+  `phonePreviewContentVerified:true`, and `exactArtifact:true` on the same screenshot artifact. A
+  setup screenshot, scan-entry screenshot, PC preview shell, or relogin page is not a phone
+  screenshot proof for final article content.
 - `dark-mode-check` must require `darkModeEnabledVerified:true` and
   `phonePreviewContentVerified:true` on phone-preview evidence, plus `exactArtifact:true` on the
   same proof artifact. A Dark Mode setting page, PC preview shell, or generic screenshot cannot
@@ -1520,9 +1524,10 @@ Required tests:
 - Published/platform-preview rows missing `exactArtifact:true` must be invalid through
   `style-proof-manifest-exact-artifact-missing`, and the requirement-level acceptance audit must
   report `invalid`.
-- Phone preview, Dark Mode, and cover-thumbnail rows missing same-artifact `exactArtifact:true`
-  must also be invalid through `style-proof-manifest-exact-artifact-missing`, even when a separate
-  local exact-artifact proof exists for the manifest.
+- Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
+  `exactArtifact:true` must also be invalid through
+  `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof
+  exists for the manifest.
 - WeChat phone preview blocker manifests must prove that scan/setup/PC-preview-shell/cover-setting
   rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
   `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode

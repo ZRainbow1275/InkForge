@@ -1,0 +1,39 @@
+Phone Screenshot Exact Artifact Validator - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance audit hardening.
+- No WeChat phone preview scan, mobile interaction, Dark Mode device action, cover-setting action,
+  scheduled send, or publish action.
+
+Implemented:
+- phone-screenshot runbook fields now include artifactFingerprint and exactArtifact.
+- phone-screenshot proof now requires channel phone-preview, action phone-preview, screenshot
+  readback, phonePreviewContentVerified:true, and exactArtifact:true on the same screenshot proof
+  artifact.
+- A phone screenshot row with final article content but without same-artifact exact binding emits
+  style-proof-manifest-exact-artifact-missing.
+
+Regression coverage:
+- A manifest with separate local exact-artifact proof but unbound phone-preview, phone-screenshot,
+  Dark Mode, and cover-thumbnail artifacts remains invalid for all four phone matrix rows.
+- The same rows remain invalid in acceptance cannot-claim output.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 111 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 150 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1084 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 28.23s
+- inkforge/tsconfig.tsbuildinfo was restored after validation dirtied the generated cache.
+
+Boundary:
+- This proves local validator/runbook contract behavior only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  scheduled-send, or publish success.

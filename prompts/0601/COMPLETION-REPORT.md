@@ -1480,3 +1480,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   23.68s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: this is local validator/runbook proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, scheduled-send, or publish success.
+
+## 2026-06-19 Phone Screenshot Exact Artifact Validator Addendum
+
+- Added `prompts/0601/evidence/phone-screenshot-exact-artifact-validator-20260619.txt`.
+- `phone-screenshot` runbook fields now include `artifactFingerprint` and `exactArtifact`.
+- `phone-screenshot` proof now requires `phonePreviewContentVerified:true` and
+  `exactArtifact:true` on the same phone-preview screenshot artifact.
+- Unbound phone screenshot rows emit `style-proof-manifest-exact-artifact-missing`, even when a
+  separate local exact-artifact proof exists for the manifest.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 111 tests.
+- 4-file cross-platform export regression passed at 4 files / 150 tests.
+- Full export serial regression passed at 35 files / 1084 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  28.23s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, scheduled-send, or publish success.

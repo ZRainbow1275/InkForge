@@ -898,6 +898,7 @@ describe('platform native export rendering rules', () => {
           action: 'phone-preview',
           readback: 'screenshot',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          exactArtifact: true,
           phonePreviewContentVerified: true,
           safeForCommit: true,
         },
@@ -2792,7 +2793,7 @@ describe('platform native export rendering rules', () => {
     expect(phoneAuditStatus.get('cover-thumbnail-check')).toBe('invalid')
   })
 
-  it('requires exact artifact binding for phone preview Dark Mode and cover thumbnail proof rows', () => {
+  it('requires exact artifact binding for phone preview screenshot Dark Mode and cover thumbnail proof rows', () => {
     const artifactFingerprint = 'sha256:redacted-phone-exact-binding'
     const manifest: StyleProofManifest = {
       platform: 'wechat',
@@ -2825,6 +2826,21 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'phone',
+          artifactFingerprint,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'phone-screenshot-without-exact-binding',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot captures content but is not bound to exact artifact',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
           artifactFingerprint,
           phonePreviewContentVerified: true,
           safeForCommit: true,
@@ -2877,17 +2893,20 @@ describe('platform native export rendering rules', () => {
     expect(report.valid).toBe(false)
     expect(issueIds.filter(issueId =>
       issueId === 'style-proof-manifest-exact-artifact-missing',
-    )).toHaveLength(3)
+    )).toHaveLength(4)
     expect(issueLocations).toEqual(expect.arrayContaining([
       'phone-preview-readback',
+      'phone-screenshot',
       'dark-mode-check',
       'cover-thumbnail-check',
     ]))
     expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
     expect(requirementStatus.get('dark-mode-check')).toBe('invalid')
     expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
     expect(phoneAuditStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(phoneAuditStatus.get('phone-screenshot')).toBe('invalid')
     expect(phoneAuditStatus.get('dark-mode-check')).toBe('invalid')
     expect(phoneAuditStatus.get('cover-thumbnail-check')).toBe('invalid')
   })
@@ -2924,6 +2943,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'screenshot',
+          exactArtifact: true,
           phonePreviewContentVerified: true,
           safeForCommit: true,
         },

@@ -1150,7 +1150,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['phone-preview'],
     requiredActions: ['phone-preview'],
     requiredReadbacks: ['screenshot'],
-    requiredFields: ['phonePreviewContentVerified', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
   },
   'dark-mode-check': {
     requirementId: 'dark-mode-check',
@@ -3021,25 +3021,33 @@ function validateStyleProofRequirementCoverage(
       break
     }
     case 'phone-screenshot': {
-      const hasPhoneScreenshot = has(artifact =>
+      const isPhoneScreenshotProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.kind === 'screenshot'
         && artifact.channel === 'phone-preview'
         && artifact.readback === 'screenshot'
         && artifact.action === 'phone-preview'
-      )
+      const hasPhoneScreenshot = has(isPhoneScreenshotProofArtifact)
       if (!hasPhoneScreenshot) {
         requireStyleProof(issues, requirementId, false)
       } else if (!has(artifact =>
-        artifact.kind === 'screenshot'
-        && artifact.channel === 'phone-preview'
-        && artifact.readback === 'screenshot'
-        && artifact.action === 'phone-preview'
+        isPhoneScreenshotProofArtifact(artifact)
         && artifact.phonePreviewContentVerified === true
       )) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-phone-content-missing',
           message: 'Phone screenshot proof does not prove that the screenshot is bound to final phone article content.',
           suggestion: 'Record phonePreviewContentVerified:true on the phone screenshot artifact only after the exact article body is open in phone preview; scan/setup/entry screenshots stay blocked evidence.',
+          location: requirementId,
+        })
+      } else if (!has(artifact =>
+        isPhoneScreenshotProofArtifact(artifact)
+        && artifact.phonePreviewContentVerified === true
+        && artifact.exactArtifact === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Phone screenshot proof is not bound to the exact exported artifact under review.',
+          suggestion: 'Record exactArtifact:true on the same phone screenshot proof artifact only after the screenshot captures the exact exported article body in phone preview.',
           location: requirementId,
         })
       }
