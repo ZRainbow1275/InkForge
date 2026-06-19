@@ -1,0 +1,35 @@
+WeChat PC Paste Artifact Binding Validator - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and execution-runbook contract hardening.
+- No platform action, no clipboard action, no editor mutation, no phone preview, no sync, no upload, no scheduled send, and no publish.
+
+Implemented:
+- pc-editor-paste-event complete proof now requires one same platform-editor / pc-paste artifact to carry artifactFingerprint, exactArtifact:true, authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorSurfaceVerified:true, platformEditorDomVerified:true, ordinaryClipboardPasteVerified:true, sameEditorTabVerified:true, pasteInputEventVerified:true, editorBodyMutationVerified:true, mojibakeFreeVerified:true, and safeForCommit:true.
+- validateStyleProofRequirementCoverage() now emits field-specific issues when the pc-paste artifact lacks same-artifact exact export binding, authenticated session proof, post-paste editor DOM readback, or safe-for-commit evidence.
+- Added style-proof-manifest-safe-commit-not-verified for pc-paste artifacts that are not explicitly safe for repository evidence.
+- Split-proof detection now includes exact-artifact, authenticated-session, editor-DOM, and safe-commit fields, not only the older ordinary paste flags.
+
+Regression coverage:
+- Accepts existing positive PC paste fixtures only after their pc-paste rows carry exact/authenticated/DOM binding.
+- Rejects strong paste flags that lack same-artifact exact artifact, authenticated session, and editor DOM proof.
+- Keeps split multi-artifact paste proof invalid when required fields are distributed across separate pc-paste artifacts.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 115 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 154 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1088 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 31.57s.
+- inkforge/tsconfig.tsbuildinfo was restored after build/typecheck.
+
+Boundary:
+- This proves local proof-accounting strictness only.
+- It does not prove ordinary WeChat Ctrl+V rich HTML/SVG acceptance, editor body mutation in the live platform, WeChat phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu upload, or publish success.

@@ -2793,6 +2793,48 @@ Boundary:
   scheduled-send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host acceptance, or publish success.
 
+## 2026-06-19 WeChat PC Paste Artifact Binding Validator Slice
+
+Impact:
+- GitNexus `validateStyleProofRequirementCoverage` impact reported LOW risk: 1 direct caller,
+  1 affected process (`progressChoices`), and only the Export module affected.
+- GitNexus `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` impact reported LOW risk with 0 affected
+  processes.
+
+Implementation:
+- Extended `pc-editor-paste-event` complete proof so one same `platform-editor` / `pc-paste`
+  artifact must carry artifact fingerprint, `exactArtifact:true`,
+  `authenticatedSessionVerified:true`, target/surface/DOM proof, ordinary Ctrl+V proof, same-tab
+  proof, paste/input proof, editor-body mutation proof, mojibake-free readback, and
+  `safeForCommit:true`.
+- Added `style-proof-manifest-safe-commit-not-verified`.
+- Extended split-proof detection so exact-artifact, authenticated-session, editor-DOM, and
+  safe-commit fields are also part of the same-artifact binding check.
+- Added regression coverage for strong paste flags missing exact/authenticated/DOM binding and
+  updated split multi-artifact coverage.
+- Added evidence:
+  `prompts/0601/evidence/wechat-pc-paste-artifact-binding-validator-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 115 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 154 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1088 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 31.57s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove ordinary WeChat Ctrl+V rich HTML/SVG acceptance, live editor body mutation,
+  WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
+  scheduled-send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host acceptance, or publish success.
+
 ## 2026-06-19 WeChat New Article Editor CloakBrowser Readback Slice
 
 External editor readback:

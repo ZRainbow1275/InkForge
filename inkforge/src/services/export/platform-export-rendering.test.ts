@@ -894,8 +894,11 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
+          platformEditorDomVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -1835,8 +1838,11 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-classic-paste',
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
+          platformEditorDomVerified: true,
           ordinaryClipboardPasteVerified: true,
           sameEditorTabVerified: true,
           pasteInputEventVerified: true,
@@ -2583,6 +2589,56 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
   })
 
+  it('rejects PC paste proof that lacks same-artifact exact auth and DOM binding', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-kiln-paste-safe',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-unbound-paste-proof',
+      artifacts: [
+        {
+          id: 'unbound-paste-strong-flags',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'strong paste flags without exact authenticated DOM binding',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-kiln-paste-safe',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-unbound-paste-proof',
+          platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: true,
+          editorBodyMutationVerified: true,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(issueIds).toContain('style-proof-manifest-exact-artifact-missing')
+    expect(issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-dom-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-platform-editor-target-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-platform-editor-surface-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-ordinary-paste-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-paste-input-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-editor-body-not-mutated')
+    expect(issueIds).not.toContain('style-proof-manifest-paste-mojibake-not-ruled-out')
+    expect(issueIds).not.toContain('style-proof-manifest-safe-commit-not-verified')
+  })
+
   it('rejects ordinary paste flags split across multiple PC paste artifacts', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
@@ -2602,6 +2658,8 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'dom',
           artifactFingerprint: 'sha256:redacted-split-paste-proof',
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
           ordinaryClipboardPasteVerified: true,
@@ -2620,6 +2678,7 @@ describe('platform native export rendering rules', () => {
           action: 'pc-paste',
           readback: 'visual-and-dom',
           artifactFingerprint: 'sha256:redacted-split-paste-proof',
+          platformEditorDomVerified: true,
           pasteInputEventVerified: true,
           editorBodyMutationVerified: true,
           mojibakeFreeVerified: true,

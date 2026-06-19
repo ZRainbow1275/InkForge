@@ -1634,3 +1634,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   rich HTML/SVG acceptance, live editor body mutation, phone preview, mobile interaction, Dark Mode,
   cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
   or publish success.
+
+## 2026-06-19 WeChat PC Paste Artifact Binding Validator Addendum
+
+- Added `prompts/0601/evidence/wechat-pc-paste-artifact-binding-validator-20260619.txt`.
+- `pc-editor-paste-event` now requires one same `platform-editor` / `pc-paste` artifact to bind
+  exact artifact fingerprint, `exactArtifact:true`, authenticated-session proof, target/surface/DOM
+  proof, ordinary Ctrl+V proof, same-tab proof, paste/input proof, editor-body mutation,
+  mojibake-free readback, and `safeForCommit:true`.
+- Added `style-proof-manifest-safe-commit-not-verified`.
+- Regression coverage rejects strong paste flags that lack same-artifact exact/authenticated/DOM
+  binding and keeps split multi-artifact paste proof invalid when fields are distributed across
+  separate pc-paste artifacts.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 115 tests.
+- 4-file cross-platform export regression passed at 4 files / 154 tests.
+- Full export serial regression passed at 35 files / 1088 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  31.57s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove ordinary WeChat Ctrl+V
+  rich HTML/SVG acceptance, live editor body mutation, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
+  or publish success.

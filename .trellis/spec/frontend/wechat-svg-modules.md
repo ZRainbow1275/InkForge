@@ -1309,13 +1309,18 @@ Required tests:
   must require cleanup evidence before it can be cited as a safe failed attempt.
 - A same-tab platform-editor retry with focused body editor and OS key event counts but no
   paste/input event and no body DOM mutation must keep `pc-editor-paste-event` invalid.
-- `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind all
-  strong ordinary paste flags:
-  `ordinaryClipboardPasteVerified:true`, `platformEditorTargetVerified:true`,
-  `sameEditorTabVerified:true`, `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`,
-  and `mojibakeFreeVerified:true`.
+- `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind the
+  full ordinary paste contract: `artifactFingerprint`, `exactArtifact:true`,
+  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,
+  `platformEditorSurfaceVerified:true`, `platformEditorDomVerified:true`,
+  `ordinaryClipboardPasteVerified:true`, `sameEditorTabVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`,
+  and `safeForCommit:true`.
 - Paste flags split across multiple artifacts must keep `pc-editor-paste-event` invalid and surface
   `style-proof-manifest-paste-proof-not-bound`.
+- A pc-paste artifact with strong paste flags but without same-artifact exact export binding,
+  authenticated-session proof, post-paste editor DOM readback, or safe-for-commit proof must keep
+  `pc-editor-paste-event` invalid and surface the corresponding manifest issue.
 - A manifest that records `disposableDraft:true` without `cleanupPathVerified:true` must keep
   `safe-disposable-draft` invalid and surface `style-proof-manifest-cleanup-path-missing`.
 - A manifest that cites draftbox delete/edit/publish affordances without same-draft cleanup and

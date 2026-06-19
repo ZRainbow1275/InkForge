@@ -1329,3 +1329,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 WeChat PC Paste Artifact Binding Validator
+
+- [x] wechat-pc-paste-artifact-binding-validator-20260619.txt
+- Local style-proof manifest validator and runbook contract hardening.
+- `pc-editor-paste-event` now requires one same `platform-editor` / `pc-paste` artifact to carry
+  exact artifact binding, authenticated-session proof, target/surface/DOM proof, ordinary Ctrl+V
+  proof, same-tab proof, paste/input proof, editor-body mutation, mojibake-free readback, and
+  `safeForCommit:true`.
+- Added `style-proof-manifest-safe-commit-not-verified` for pc-paste rows that are not explicitly
+  safe for repository evidence.
+- Regression coverage rejects strong paste flags that lack same-artifact exact/authenticated/DOM
+  binding and keeps split multi-artifact paste proof invalid.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 115 tests.
+- 4-file cross-platform export regression passed at 4 files / 154 tests, and full export serial
+  regression passed at 35 files / 1088 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  31.57s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove ordinary WeChat Ctrl+V rich
+  HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
+  public article rendering, or publish success.

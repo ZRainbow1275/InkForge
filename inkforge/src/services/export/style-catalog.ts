@@ -256,6 +256,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-editor-body-not-mutated'
   | 'style-proof-manifest-paste-mojibake-not-ruled-out'
   | 'style-proof-manifest-paste-proof-not-bound'
+  | 'style-proof-manifest-safe-commit-not-verified'
   | 'style-proof-manifest-phone-preview-blocked'
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
@@ -296,6 +297,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-editor-body-not-mutated',
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
+  'style-proof-manifest-safe-commit-not-verified',
   'style-proof-manifest-phone-preview-blocked',
   'style-proof-manifest-phone-content-missing',
   'style-proof-manifest-dark-mode-not-verified',
@@ -2932,13 +2934,19 @@ function validateStyleProofRequirementCoverage(
       )
       const hasPcPasteEvent = pcPasteArtifacts.length > 0
       const hasCompleteOrdinaryPasteProof = pcPasteArtifacts.some(artifact =>
-        artifact.ordinaryClipboardPasteVerified === true
+        typeof artifact.artifactFingerprint === 'string'
+        && artifact.artifactFingerprint.trim().length > 0
+        && artifact.exactArtifact === true
+        && artifact.authenticatedSessionVerified === true
         && artifact.platformEditorTargetVerified === true
         && artifact.platformEditorSurfaceVerified === true
+        && artifact.platformEditorDomVerified === true
+        && artifact.ordinaryClipboardPasteVerified === true
         && artifact.sameEditorTabVerified === true
         && artifact.pasteInputEventVerified === true
         && artifact.editorBodyMutationVerified === true
         && artifact.mojibakeFreeVerified === true
+        && artifact.safeForCommit === true
       )
 
       if (!hasPcPasteEvent) {
@@ -2949,6 +2957,26 @@ function validateStyleProofRequirementCoverage(
           location: requirementId,
         })
       } else if (!hasCompleteOrdinaryPasteProof) {
+        if (!pcPasteArtifacts.some(artifact =>
+          typeof artifact.artifactFingerprint === 'string'
+          && artifact.artifactFingerprint.trim().length > 0
+          && artifact.exactArtifact === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-exact-artifact-missing',
+            message: 'PC editor paste proof is not bound to the exact exported artifact on the same paste artifact.',
+            suggestion: 'Record artifactFingerprint and exactArtifact:true on the same platform-editor pc-paste artifact that carries the ordinary Ctrl+V and body readback flags.',
+            location: requirementId,
+          })
+        }
+        if (!pcPasteArtifacts.some(artifact => artifact.authenticatedSessionVerified === true)) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-authenticated-session-not-verified',
+            message: 'PC editor paste proof does not prove that Ctrl+V occurred in an authenticated platform editor session.',
+            suggestion: 'Record authenticatedSessionVerified:true on the same platform-editor pc-paste artifact only after the paste target is an authenticated editor page, not a login, QR, expired-session, or shell page.',
+            location: requirementId,
+          })
+        }
         if (!pcPasteArtifacts.some(artifact => artifact.ordinaryClipboardPasteVerified === true)) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-ordinary-paste-not-verified',
@@ -2981,6 +3009,14 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
+        if (!pcPasteArtifacts.some(artifact => artifact.platformEditorDomVerified === true)) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-dom-not-verified',
+            message: 'PC editor paste proof does not prove that platform editor DOM nodes were read back after Ctrl+V.',
+            suggestion: 'Record platformEditorDomVerified:true on the same pc-paste artifact only after the authenticated editor body DOM is read back after the paste event.',
+            location: requirementId,
+          })
+        }
         if (!pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-paste-input-not-verified',
@@ -3005,19 +3041,35 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
+        if (!pcPasteArtifacts.some(artifact => artifact.safeForCommit === true)) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-safe-commit-not-verified',
+            message: 'PC editor paste proof is not marked safe for committed repository evidence.',
+            suggestion: 'Record safeForCommit:true on the same redacted pc-paste artifact only after credential material, QR artifacts, account images, local paths, and raw platform content are excluded.',
+            location: requirementId,
+          })
+        }
         if (
-          pcPasteArtifacts.some(artifact => artifact.ordinaryClipboardPasteVerified === true)
+          pcPasteArtifacts.some(artifact =>
+            typeof artifact.artifactFingerprint === 'string'
+            && artifact.artifactFingerprint.trim().length > 0
+            && artifact.exactArtifact === true
+          )
+          && pcPasteArtifacts.some(artifact => artifact.authenticatedSessionVerified === true)
+          && pcPasteArtifacts.some(artifact => artifact.ordinaryClipboardPasteVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.platformEditorTargetVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.platformEditorSurfaceVerified === true)
+          && pcPasteArtifacts.some(artifact => artifact.platformEditorDomVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.sameEditorTabVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.pasteInputEventVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.editorBodyMutationVerified === true)
           && pcPasteArtifacts.some(artifact => artifact.mojibakeFreeVerified === true)
+          && pcPasteArtifacts.some(artifact => artifact.safeForCommit === true)
         ) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-paste-proof-not-bound',
             message: 'PC editor paste proof splits required ordinary paste flags across multiple artifacts.',
-            suggestion: 'Record ordinary paste, same-target-surface, same-tab, paste/input, body-mutation, and mojibake-free flags on the same pc-paste artifact for the exact editor readback.',
+            suggestion: 'Record exact-artifact, authenticated session, same-target-surface, same-DOM, ordinary paste, same-tab, paste/input, body-mutation, mojibake-free, and safe-commit flags on the same pc-paste artifact for the exact editor readback.',
             location: requirementId,
           })
         }
