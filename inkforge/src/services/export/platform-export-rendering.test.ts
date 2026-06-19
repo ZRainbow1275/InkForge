@@ -4573,6 +4573,10 @@ describe('platform native export rendering rules', () => {
     const phoneOnlyRequirementStatus = new Map(
       phoneOnlyReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const audit = getStyleProofAcceptanceAuditReport([manifest]).platformReports.wechat
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
 
     expect(issueIds.filter(issueId =>
       issueId === 'style-proof-manifest-external-account-auth-missing'
@@ -4585,6 +4589,9 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
     expect(requirementStatus.get('sync-readback')).toBe('invalid')
     expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(auditStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(auditStatus.get('sync-readback')).toBe('invalid')
+    expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
     expect(phoneOnlyReport.issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
     expect(phoneOnlyIssueLocations).toContain('published-url-or-platform-preview')
     expect(phoneOnlyRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')

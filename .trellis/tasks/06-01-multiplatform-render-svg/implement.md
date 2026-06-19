@@ -4689,6 +4689,46 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof External Account Auth Acceptance Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge buildStyleProofAcceptanceRequirementAudits --direction upstream`
+  reported LOW risk, 7 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Added a focused acceptance-audit regression to the existing external-account authentication test.
+- Confirmed the TDD failure first: a published-preview row without positive
+  `externalAccountAuthenticated:true` was classified as `unsafe-to-automate` in acceptance audit.
+- Added `style-proof-manifest-external-account-auth-missing` to the acceptance-audit invalid issue
+  set while preserving ordinary missing external gates as `blocked-by-external` or
+  `unsafe-to-automate`.
+- Kept authenticated PC editor readback gaps on the existing `unsafe-to-automate` path unless they
+  carry a concrete invalid issue already classified by the audit.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed before the fix as expected, then passed with 1 file / 127 tests after the fix.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 166 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1100 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  43.46s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-external-account-auth-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Forbidden Field Contract Slice
 
 Impact:

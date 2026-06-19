@@ -1,0 +1,42 @@
+Style Proof External Account Auth Audit - 2026-06-19
+
+Scope:
+- Local style proof acceptance-audit contract hardening.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Issue found:
+- A credentialed-channel or platform-publish shaped proof row that omitted positive
+  externalAccountAuthenticated:true could keep the requirement-level manifest status invalid, while
+  the acceptance audit still classified the row as unsafe-to-automate.
+- That wording was too weak: a proof row without positive account-authenticated readback is concrete
+  invalid proof, not merely an operator action waiting to run.
+
+Implemented:
+- Added style-proof-manifest-external-account-auth-missing to the acceptance-audit invalid issue set.
+- Kept ordinary missing external gates on the existing blocked-by-external / unsafe-to-automate path.
+- Kept PC editor readback gaps that require a human/operator account action on the existing
+  unsafe-to-automate path unless they carry a concrete invalid issue already classified by the audit.
+
+Regression coverage:
+- Credentialed sync, sync readback, and published-preview proof rows that otherwise match action,
+  channel, readback, fingerprint, and safe-commit requirements but omit
+  externalAccountAuthenticated:true now remain invalid in both manifest report and acceptance audit.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  TDD FAIL before fix: published-url-or-platform-preview acceptance status was unsafe-to-automate.
+  PASS after fix: 1 file / 127 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 166 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1100 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 43.46s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local acceptance-audit classification only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

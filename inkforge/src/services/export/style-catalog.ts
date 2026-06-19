@@ -4654,6 +4654,32 @@ function getStyleProofAcceptanceAuditStatus(
   return 'missing'
 }
 
+const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssueId>([
+  'style-proof-manifest-external-account-login-blocked',
+  'style-proof-manifest-external-account-auth-missing',
+  'style-proof-manifest-phone-preview-blocked',
+  'style-proof-manifest-phone-content-missing',
+  'style-proof-manifest-dark-mode-not-verified',
+  'style-proof-manifest-cover-thumbnail-not-accepted',
+  'style-proof-manifest-exact-artifact-missing',
+  'style-proof-manifest-proof-not-bound',
+  'style-proof-manifest-contract-action-channel-mismatch',
+  'style-proof-manifest-artifact-ref-missing',
+  'style-proof-manifest-safe-commit-not-verified',
+  'style-proof-manifest-sensitive-artifact',
+  'style-proof-manifest-forbidden-field-present',
+  'style-proof-manifest-unsafe-commit-artifact',
+] satisfies readonly StyleProofManifestIssueId[])
+
+function hasStyleProofAcceptanceInvalidIssue(
+  issueIds: ReadonlySet<StyleProofManifestIssueId>,
+): boolean {
+  for (const issueId of issueIds) {
+    if (STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS.has(issueId)) return true
+  }
+  return false
+}
+
 function toStyleProofAcceptanceNextAction(
   audit: StyleProofAcceptanceGateAudit,
 ): StyleProofAcceptanceNextAction {
@@ -4802,19 +4828,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         invalid: accumulator.invalid,
         forcedInvalid: accumulator.blockedChoiceIds.size > 0,
       })
-      const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
-        || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
-        || accumulator.issueIds.has('style-proof-manifest-phone-content-missing')
-        || accumulator.issueIds.has('style-proof-manifest-dark-mode-not-verified')
-        || accumulator.issueIds.has('style-proof-manifest-cover-thumbnail-not-accepted')
-        || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
-        || accumulator.issueIds.has('style-proof-manifest-proof-not-bound')
-        || accumulator.issueIds.has('style-proof-manifest-contract-action-channel-mismatch')
-        || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
-        || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')
-        || accumulator.issueIds.has('style-proof-manifest-sensitive-artifact')
-        || accumulator.issueIds.has('style-proof-manifest-forbidden-field-present')
-        || accumulator.issueIds.has('style-proof-manifest-unsafe-commit-artifact')
+      const status = hasStyleProofAcceptanceInvalidIssue(accumulator.issueIds)
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

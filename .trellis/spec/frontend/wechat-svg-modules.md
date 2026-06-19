@@ -1448,6 +1448,10 @@ Contracts:
   `style-proof-manifest-authenticated-session-not-verified` or
   `style-proof-manifest-platform-editor-dom-not-verified`. `issueIds` must be collected through the
   manifest/progress reports and must not invent new reasons outside `StyleProofManifestIssueId`.
+- Requirement rows carrying `style-proof-manifest-external-account-auth-missing` must be
+  `invalid` in the acceptance audit. A credentialed-channel, public URL, or platform-preview row
+  without positive account-authenticated readback is concrete invalid proof, not merely an
+  `unsafe-to-automate` task waiting for an operator.
 - ExportModal may surface the acceptance audit beside the existing collection queue. This UI must
   be read-only: it can show `cannotClaim` counts, per-choice blocked claims, and next safe/phone/
   external/manual action labels, but it must not change style `selectable`, `usable`, `blocked`, or
