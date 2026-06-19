@@ -1,0 +1,111 @@
+WeChat Tempera Ordinary Ctrl+V Mojibake Cleanup Evidence - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor proof attempt for the exact
+  `flagship-tempera.html` artifact.
+- No Playwright was used.
+- No phone preview, Dark Mode, cover thumbnail, credentialed sync, schedule, public preview,
+  upload, or publish action was used.
+- No raw credential parameters, account text, private article text samples, raw URLs, browser
+  session secrets, local profile paths, screenshots, HAR files, or credential material are
+  recorded here.
+
+Preflight and calibration:
+- The previous same-session input-bridge block was traced to a visible-tab mismatch: Windows input
+  targeted a visible WeChat editor tab while CloakBrowser read back a different hidden tab.
+- The target CloakBrowser-controlled tab was labeled with a temporary document title for visual
+  alignment only, then selected in the visible browser window.
+- A transient in-page `contenteditable` probe confirmed OS mouse/key delivery after DPI-scaled
+  coordinate calibration:
+  - mouseDown=1, mouseUp=1, click=1
+  - keydown=1, beforeinput=1, input=1, trustedInput=1, mutation=1
+  - lastKey="a"
+- The transient probe element was removed before the WeChat body paste attempt.
+
+Source artifact and clipboard:
+- Source HTML: `prompts/0601/evidence/wechat-paste/flagship-tempera.html`.
+- Source SHA-256: d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585.
+- Source HTML bytes: 41754.
+- CF_HTML bytes: 41923.
+- Source counts: svgCount=35, dataInkSvgCount=3, dataInkBlockCount=23.
+- Clipboard formats: Windows `HTML Format` plus `UnicodeText`.
+
+Disposable draft sentinel:
+- Deterministic title: `InkForge tempera proof 20260619-1136`.
+- The title was used only to identify and delete the current-run disposable draft.
+
+Paste channel:
+- The authenticated WeChat new-article editor body was focused in the same visible tab as the
+  CloakBrowser DOM readback target.
+- The exact artifact was inserted through ordinary OS Ctrl+V using the Windows `keybd_event` path
+  with `-NoClick` after preparing CF_HTML.
+- No synthetic ClipboardEvent, synthetic DataTransfer, DOM body injection, plugin transfer, sync
+  API, upload API, or publish API was used for body insertion.
+
+PC editor DOM readback:
+- titleMatched=true.
+- titleLength=36.
+- bodyPaste=1.
+- docPaste=1.
+- docInput=1.
+- trustedPaste=2.
+- pasteTypes included `text/plain` and `text/html`.
+- mutation=5.
+- bodyTextLength=1954.
+- bodyHtmlLength=43573.
+- svgCount=35.
+- dataInkSvgCount=3.
+- dataInkBlockCount=23.
+- sectionCount=48.
+- paragraphCount=70.
+- styleTagCount=0.
+- scriptCount=0.
+- foreignObjectCount=0.
+- localPathLeakInEditor=false.
+- placeholderLike=false.
+
+Failure reason:
+- The rich HTML/SVG structure survived the ordinary OS Ctrl+V path, but the text payload was
+  mojibake-damaged.
+- replacementCharCount=1118.
+- mojibakeHintCount=1118.
+- This must be treated as negative proof for Tempera complete PC paste acceptance.
+
+Cleanup:
+- The editor title/body were cleared first to remove visible body residue from the active editor.
+- The authenticated draft-list route was opened with the current session context.
+- The disposable draft appeared as the first draft-list item with:
+  - title matched the deterministic sentinel.
+  - app_id present on the matched item.
+  - contentLength=60416.
+  - contentHasDataInk=true.
+- The current page's static bundle confirmed the platform delete endpoint:
+  `/cgi-bin/operate_appmsg?sub=del&t=ajax-response`, payload `AppMsgId:<target>`.
+- The first delete request without the current route credential returned `ret=200040`, so it was
+  not counted as cleanup success.
+- The session-bound credentialed delete request returned HTTP 200 with `base_resp.ret=0`.
+- Post-delete reload readback:
+  - itemCount=6.
+  - titleMatches=0.
+  - itemTitleMatches=0.
+  - targetContentMatches=0.
+  - target app_id present=false.
+- Stable post-delete reload readback repeated the same absence:
+  - itemCount=6.
+  - titleMatches=0.
+  - itemTitleMatches=0.
+  - targetContentMatches=0.
+  - target app_id present=false.
+
+Interpretation:
+- This proves same-visible-tab ordinary OS Ctrl+V reached the authenticated WeChat PC editor for
+  the exact Tempera artifact and preserved the SVG/data-ink structure.
+- It also proves cleanup of the deterministic disposable draft.
+- It does not prove complete Tempera PC paste acceptance because mojibake was present.
+- It must not satisfy `pc-editor-paste-event`, `mojibakeFreeVerified:true`, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, public rendering, or
+  publish gates.
+
+Boundary:
+- Future proof for Tempera must preserve the same exact-artifact ordinary Ctrl+V channel and
+  cleanup path while reducing replacement/mojibake counts to zero.

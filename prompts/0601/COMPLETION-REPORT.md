@@ -1654,6 +1654,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   `ordinaryClipboardPasteVerified:true`, `safe-disposable-draft`, phone preview, Dark Mode, cover,
   sync, schedule, public rendering, or publish gates.
 
+## 2026-06-19 WeChat Tempera Ordinary Ctrl+V Mojibake Cleanup Addendum
+
+- Added `prompts/0601/evidence/wechat-tempera-ordinary-ctrlv-mojibake-cleanup-20260619.txt`.
+- Used CloakBrowser only; Playwright was not used.
+- Root-caused the earlier Tempera input-bridge block to a visible-tab mismatch and DPI coordinate
+  mismatch. After selecting the CloakBrowser-controlled tab and calibrating coordinates, a
+  transient page probe received real OS mouse/key/input events.
+- Exact `flagship-tempera.html` was written to Windows CF_HTML clipboard with SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Same-visible-tab WeChat PC editor ordinary OS Ctrl+V preserved rich structure:
+  `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`, `bodyPaste=1`,
+  `docPaste=1`, `docInput=1`, and `mutation=5`.
+- The result remains negative for complete acceptance because text was mojibake-damaged:
+  `replacementCharCount=1118`, `mojibakeHintCount=1118`.
+- Cleanup completed: session-bound credentialed `operate_appmsg` returned `base_resp.ret=0`; two post-delete
+  reload readbacks reported itemCount `6`, title matches `0`, target content matches `0`, and the
+  target app id absent.
+- Boundary: this proves Tempera same-tab ordinary OS Ctrl+V reachability, SVG/data-ink survival,
+  and cleanup, but it does not satisfy `pc-editor-paste-event`, `mojibakeFreeVerified:true`,
+  phone preview, Dark Mode, cover thumbnail, sync, schedule, public rendering, or publish gates.
+
 ## 2026-06-19 WeChat PC Paste Artifact Binding Validator Addendum
 
 - Added `prompts/0601/evidence/wechat-pc-paste-artifact-binding-validator-20260619.txt`.

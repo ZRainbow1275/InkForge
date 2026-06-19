@@ -1205,6 +1205,16 @@ Contracts:
   `beforeinput`, `input`, or same-editor body DOM mutation. This is an input bridge failure, not
   WeChat sanitizer acceptance or rejection, and it must keep `pc-editor-paste-event`,
   `ordinaryClipboardPasteVerified:true`, and `safe-disposable-draft` invalid.
+- 2026-06-19 WeChat Tempera same-tab mojibake cleanup proof:
+  `wechat-tempera-ordinary-ctrlv-mojibake-cleanup-20260619.txt` records the follow-up after
+  visual tab alignment and DPI coordinate calibration. The exact Tempera artifact reached the
+  same visible WeChat PC editor through ordinary OS Ctrl+V and preserved `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`, but text readback had
+  `replacementCharCount=1118` and `mojibakeHintCount=1118`. The deterministic draft was deleted
+  with session-bound credentialed `operate_appmsg` returning `base_resp.ret=0`, and two post-delete reload
+  readbacks found zero title/content/app-id matches. This proves reachability, rich-structure
+  survival, and cleanup only; it must keep `pc-editor-paste-event` invalid until mojibake-free
+  readback is also proven.
 - 2026-06-19 WeChat draftbox create-menu readback:
   `wechat-draftbox-create-menu-readback-20260619.txt` records that the authenticated backend home
   route can reach draftbox only through the backend DOM menu link with active session context; a
@@ -1319,6 +1329,8 @@ Required tests:
 - A platform-editor retry where OS input helpers report foreground activation or sent key counts,
   but the CloakBrowser page records no key, paste/input, or body mutation, must be classified as
   input-bridge-blocked and cannot be used to infer platform sanitizer behavior.
+- A same-tab retry that preserves SVG/data-ink structure but reports any replacement/mojibake
+  characters must keep `pc-editor-paste-event` invalid, even if cleanup succeeds.
 - `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind the
   full ordinary paste contract: `artifactFingerprint`, `exactArtifact:true`,
   `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,

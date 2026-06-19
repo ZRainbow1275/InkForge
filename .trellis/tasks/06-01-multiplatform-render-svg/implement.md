@@ -2860,6 +2860,37 @@ Boundary:
   `safe-disposable-draft`, phone preview, Dark Mode, cover thumbnail, sync, schedule, public
   rendering, or publish gates.
 
+## 2026-06-19 WeChat Tempera Ordinary Ctrl+V Mojibake Cleanup Slice
+
+Live platform attempt:
+- Used CloakBrowser only.
+- Recovered the Windows input path by visually selecting the CloakBrowser-controlled target tab and
+  calibrating DPI-scaled OS coordinates with a transient contenteditable probe.
+- Wrote exact `flagship-tempera.html` to Windows CF_HTML clipboard with SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Same-visible-tab WeChat PC editor ordinary OS Ctrl+V produced trusted paste and body mutation.
+- DOM readback preserved rich structure: `svgCount=35`, `dataInkSvgCount=3`,
+  `dataInkBlockCount=23`, `styleTagCount=0`, `scriptCount=0`, `foreignObjectCount=0`, and
+  `localPathLeakInEditor=false`.
+- Text was mojibake-damaged: `replacementCharCount=1118`, `mojibakeHintCount=1118`.
+
+Cleanup:
+- The deterministic title `InkForge tempera proof 20260619-1136` was found as the top draft-list
+  item after reload, with target content containing data-ink markup.
+- The session-bound credentialed platform delete endpoint returned `base_resp.ret=0`.
+- Two post-delete reload readbacks reported itemCount `6`, title matches `0`, target content
+  matches `0`, and the target app id absent.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-tempera-ordinary-ctrlv-mojibake-cleanup-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is still negative for complete Tempera PC paste acceptance because mojibake is present.
+- It proves ordinary OS Ctrl+V reachability, rich SVG/data-ink structure survival, and cleanup
+  only. It must not satisfy `pc-editor-paste-event`, `mojibakeFreeVerified:true`, phone preview,
+  Dark Mode, cover thumbnail, sync, schedule, public rendering, or publish gates.
+
 ## 2026-06-19 WeChat New Article Editor CloakBrowser Readback Slice
 
 External editor readback:
