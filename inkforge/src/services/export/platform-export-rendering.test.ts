@@ -935,6 +935,7 @@ describe('platform native export rendering rules', () => {
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -1294,6 +1295,7 @@ describe('platform native export rendering rules', () => {
             action: 'pc-editor-dom-readback',
             readback: 'dom',
             artifactFingerprint: 'sha256:redacted-expired-session-dom',
+            mojibakeFreeVerified: true,
             safeForCommit: true,
           },
           {
@@ -1958,6 +1960,7 @@ describe('platform native export rendering rules', () => {
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -2474,6 +2477,7 @@ describe('platform native export rendering rules', () => {
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
+          mojibakeFreeVerified: true,
           safeForCommit: true,
         },
         {
@@ -4381,6 +4385,84 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
     expect(auditStatus.get('authenticated-editor-url')).toBe('unsafe-to-automate')
     expect(authenticatedEditorAudit?.issueIds).toContain('style-proof-manifest-readback-missing')
+  })
+
+  it('rejects PC editor DOM readback with replacement-glyph damage as invalid fidelity proof', () => {
+    const artifactFingerprint = 'sha256:redacted-wechat-editor-mojibake'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'evidence-label',
+      claimedEvidence: ['pc-editor-dom-readable'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'mojibake-authenticated-editor',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'authenticated editor opened before mojibake readback',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'mojibake-pc-editor-dom',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'editor-readback',
+          label: 'PC editor body readback with replacement glyphs redacted',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
+          platformEditorDomVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'mojibake-hygiene-proof',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted editor readback hygiene proof',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const pcDomAudit = audit.requirements.find(requirement =>
+      requirement.requirement.id === 'pc-editor-dom-readback',
+    )
+
+    expect(issueIds).toContain('style-proof-manifest-editor-mojibake-not-ruled-out')
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('satisfied')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(pcDomAudit?.issueIds).toContain('style-proof-manifest-editor-mojibake-not-ruled-out')
+    expect(pcDomAudit?.status).toBe('invalid')
   })
 
   it('keeps phone screenshot proof with the wrong readback invalid in acceptance audit', () => {

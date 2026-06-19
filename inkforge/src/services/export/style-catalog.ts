@@ -254,6 +254,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-platform-editor-target-not-verified'
   | 'style-proof-manifest-platform-editor-surface-not-verified'
   | 'style-proof-manifest-platform-editor-dom-not-verified'
+  | 'style-proof-manifest-editor-mojibake-not-ruled-out'
   | 'style-proof-manifest-ordinary-paste-not-verified'
   | 'style-proof-manifest-paste-editor-tab-not-verified'
   | 'style-proof-manifest-paste-input-not-verified'
@@ -299,6 +300,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-platform-editor-target-not-verified',
   'style-proof-manifest-platform-editor-surface-not-verified',
   'style-proof-manifest-platform-editor-dom-not-verified',
+  'style-proof-manifest-editor-mojibake-not-ruled-out',
   'style-proof-manifest-ordinary-paste-not-verified',
   'style-proof-manifest-paste-editor-tab-not-verified',
   'style-proof-manifest-paste-input-not-verified',
@@ -1115,7 +1117,14 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['platform-editor'],
     requiredActions: ['pc-editor-dom-readback'],
     requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
-    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'platformEditorSurfaceVerified', 'platformEditorDomVerified', 'safeForCommit'],
+    requiredFields: [
+      'authenticatedSessionVerified',
+      'platformEditorTargetVerified',
+      'platformEditorSurfaceVerified',
+      'platformEditorDomVerified',
+      'mojibakeFreeVerified',
+      'safeForCommit',
+    ],
   },
   'unit-test-coverage': {
     requirementId: 'unit-test-coverage',
@@ -2248,6 +2257,7 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         platformEditorTargetVerified: true,
         platformEditorSurfaceVerified: true,
         platformEditorDomVerified: true,
+        mojibakeFreeVerified: true,
         committed: true,
         safeForCommit: true,
       },
@@ -2923,6 +2933,19 @@ function validateStyleProofRequirementCoverage(
             id: 'style-proof-manifest-platform-editor-dom-not-verified',
             message: 'PC editor proof does not prove that platform editor DOM nodes were read back.',
             suggestion: 'Record platformEditorDomVerified:true only after concrete editor shell/body nodes are read from the authenticated PC editor, such as the article editor container and editable body.',
+            location: requirementId,
+          })
+        }
+        if (!has(artifact =>
+          artifact.action === 'pc-editor-dom-readback'
+          && artifact.channel === 'platform-editor'
+          && isDomOrVisualReadback(artifact.readback)
+          && artifact.mojibakeFreeVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-editor-mojibake-not-ruled-out',
+            message: 'PC editor DOM proof does not rule out mojibake or replacement-character damage in the editor body.',
+            suggestion: 'Record mojibakeFreeVerified:true only after the same authenticated editor body readback has zero mojibake/replacement-character damage; editor reachability alone is not fidelity proof.',
             location: requirementId,
           })
         }
@@ -4684,6 +4707,9 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
 const STYLE_PROOF_ACCEPTANCE_REQUIREMENT_INVALID_ISSUE_IDS: Partial<
   Record<StyleProofRequirementId, readonly StyleProofManifestIssueId[]>
 > = {
+  'pc-editor-dom-readback': [
+    'style-proof-manifest-editor-mojibake-not-ruled-out',
+  ],
   'pc-editor-paste-event': [
     'style-proof-manifest-authenticated-session-not-verified',
     'style-proof-manifest-platform-editor-target-not-verified',

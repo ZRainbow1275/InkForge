@@ -2125,3 +2125,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   draft cleanup, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, or publish success.
+
+## 2026-06-20 Style Proof Editor Mojibake Readback Contract
+
+- [x] style-proof-editor-mojibake-readback-contract-20260620.txt
+- Converted the real WeChat existing-draft replacement-glyph/mojibake badcase into an executable
+  local manifest contract.
+- `pc-editor-dom-readback` now requires `mojibakeFreeVerified:true` on the same authenticated
+  editor DOM proof row; missing clearance emits
+  `style-proof-manifest-editor-mojibake-not-ruled-out`.
+- Regression coverage keeps a PC editor DOM row invalid even when session, target, surface, DOM,
+  readback, and safe-for-commit flags are present but mojibake clearance is absent.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 136 tests.
+- Cross-platform export regression passed with 4 files / 175 tests, and full export serial
+  regression passed with 35 files / 1109 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.06s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit enforcement only. It does not prove WeChat artifact
+  paste, exact artifact preservation, safe draft cleanup, phone preview, mobile interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, public host, or publish success.

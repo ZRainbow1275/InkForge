@@ -5763,3 +5763,48 @@ Boundary:
 - This is local validator/audit proof only.
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-20 Style Proof Editor Mojibake Readback Contract Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added `style-proof-manifest-editor-mojibake-not-ruled-out` as a manifest issue id.
+- Added `mojibakeFreeVerified` to the `pc-editor-dom-readback` execution artifact contract.
+- `validateStyleProofRequirementCoverage()` now rejects authenticated PC editor DOM readback rows
+  that do not explicitly prove mojibake/replacement-character clearance on the same proof row.
+- Acceptance audit maps the mojibake issue as requirement-specific invalid evidence for
+  `pc-editor-dom-readback`, without downgrading unrelated authenticated-editor/session rows.
+- Updated committed WeChat PC evidence fixture rows that intentionally represent valid PC editor DOM
+  readback so they carry `mojibakeFreeVerified:true`.
+- Added a regression for the real WeChat readonly editor badcase: editor reachability, DOM readback,
+  SVG/body counts, and safe-for-commit status are insufficient when replacement-glyph damage has not
+  been ruled out.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 136 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 175 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1109 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 32.06s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-editor-mojibake-readback-contract-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove WeChat artifact paste, exact artifact preservation, safe draft cleanup, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public-host availability, or publish success.

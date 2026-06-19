@@ -359,7 +359,7 @@ export function getStyleProofAcceptanceAuditReport(
 export type StyleProofArtifactVerificationField =
   | 'artifactFingerprint' | 'artifactRef' | 'exactArtifact'
   | 'ordinaryClipboardPasteVerified' | 'phonePreviewContentVerified'
-  | 'darkModeEnabledVerified' | 'coverThumbnailAccepted'
+  | 'darkModeEnabledVerified' | 'coverThumbnailAccepted' | 'mojibakeFreeVerified'
   | 'safeForCommit' | 'hostStatus' // representative; see runtime type for the full union
 export type StyleProofExecutionBoundary =
   | 'local-only' | 'market-editor-account' | 'authenticated-pc-editor' | 'phone-preview'
@@ -2093,6 +2093,11 @@ Contracts:
   with substantial U+FFFD/replacement-character counts must remain negative fidelity evidence and
   must not satisfy exact-artifact, PC paste, phone preview, Dark Mode, cover thumbnail,
   credentialed sync, scheduled-send, platform-preview, public-rendering, or publish rows.
+- `pc-editor-dom-readback` proof must carry `mojibakeFreeVerified:true` on the same authenticated
+  `platform-editor` / `pc-editor-dom-readback` row that also proves editor target, surface, DOM
+  readback, accepted readback type, and safe-for-commit status. Missing or false mojibake clearance
+  emits `style-proof-manifest-editor-mojibake-not-ruled-out` and keeps the requirement-level
+  acceptance audit `invalid`.
 - Transient visual screenshots may be used for operator-side diagnosis only when needed. They must
   be deleted before commit unless explicitly redacted and intentionally added as evidence.
 
@@ -2102,3 +2107,6 @@ Required checks:
   proof on the same row before satisfying paste or downstream proof gates.
 - Badcase editor readbacks with replacement-glyph/mojibake evidence must remain cannot-claim rows
   for style success even if the route, toolbar, and main body DOM are reachable.
+- Regression tests must reject a PC editor DOM row that has authenticated session, target, surface,
+  DOM readback, and safe-for-commit flags but lacks `mojibakeFreeVerified:true`; unrelated
+  `no-sensitive-artifact` hygiene rows must remain satisfiable in the same evidence-label report.

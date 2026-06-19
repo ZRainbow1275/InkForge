@@ -2429,3 +2429,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   draft cleanup, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, or publish success.
+
+## 2026-06-20 Style Proof Editor Mojibake Readback Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-editor-mojibake-readback-contract-20260620.txt`.
+- Converted the real WeChat existing-draft replacement-glyph/mojibake badcase into an executable
+  local style-proof contract.
+- `pc-editor-dom-readback` now requires `mojibakeFreeVerified:true` on the same authenticated
+  `platform-editor` / `pc-editor-dom-readback` proof row. Missing clearance emits
+  `style-proof-manifest-editor-mojibake-not-ruled-out` and keeps the requirement-level acceptance
+  audit invalid.
+- Added regression coverage proving editor reachability, target/surface/DOM flags, accepted
+  readback, and `safeForCommit:true` cannot satisfy PC editor DOM fidelity unless mojibake damage
+  is explicitly ruled out.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 136 tests.
+- Cross-platform export regression passed with 4 files / 175 tests, and full export serial
+  regression passed with 35 files / 1109 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.06s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit enforcement only. It does not prove WeChat artifact
+  paste, exact artifact preservation, safe draft cleanup, phone preview, mobile SMIL/click, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
