@@ -1563,6 +1563,31 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
 
+## 2026-06-19 Style Proof Required Exact Artifact Contract
+
+- [x] style-proof-required-exact-artifact-contract-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- Added a generic exact-artifact layer for every execution contract that lists `exactArtifact` in
+  `requiredFields`.
+- Matching action/channel proof rows now require same-row `exactArtifact:true`; otherwise they
+  emit `style-proof-manifest-exact-artifact-missing` and keep requirement-level acceptance audit
+  invalid.
+- Existing specialized validators keep their precise checks; the generic layer only fills the
+  common exact-artifact binding gap and avoids duplicate exact-artifact issues.
+- Regression coverage rejects phone screenshot, credentialed sync, scheduled-send, and
+  published-preview proof rows that carry matching fingerprints and business flags but no
+  same-row `exactArtifact:true`.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 120 tests.
+- 4-file cross-platform export regression passed at 4 files / 159 tests, and full export serial
+  regression passed at 35 files / 1093 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  29.30s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.
+
 ## 2026-06-19 Style Proof Required Artifact Fingerprint Contract
 
 - [x] style-proof-required-artifact-fingerprint-contract-20260619.txt

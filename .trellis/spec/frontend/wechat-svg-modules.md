@@ -1546,6 +1546,13 @@ Contracts:
   `validateStyleProofManifest()`. `exactArtifact:true` is not enough without this traceability
   field. Missing fingerprints must emit `style-proof-manifest-exact-artifact-missing` and keep
   requirement-level acceptance audit `invalid`.
+- Any execution contract row that lists `exactArtifact` in `requiredFields` must enforce
+  `exactArtifact:true` on a matching action/channel proof row in
+  `validateStyleProofManifest()`. This common validator only fills the shared same-row binding gap
+  and skips duplicate exact-artifact issues emitted by specialized validators. Matching proof rows
+  with fingerprints and business-specific flags but without same-row `exactArtifact:true` must emit
+  `style-proof-manifest-exact-artifact-missing` and keep requirement-level acceptance audit
+  `invalid`.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
@@ -1673,6 +1680,11 @@ Required tests:
   `style-proof-manifest-exact-artifact-missing`. Regression tests must keep `exactArtifact:true`
   without a fingerprint invalid so future changes cannot treat untraceable exact-artifact flags as
   proof.
+- Matching phone, credentialed-channel, scheduled-send, and published-preview proof rows with a
+  fingerprint and their business-specific verification flags but missing same-row
+  `exactArtifact:true` must remain invalid through `style-proof-manifest-exact-artifact-missing`.
+  Regression tests must keep those rows invalid so future changes cannot satisfy exact-artifact
+  contracts with only channel/action/readback and fingerprint data.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof

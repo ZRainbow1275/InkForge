@@ -3543,6 +3543,7 @@ function validateStyleProofRequirementCoverage(
 
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
+  validateStyleProofRequiredExactArtifact(requirementId, artifacts, issues)
 }
 
 function getStyleProofContractCandidates(
@@ -3621,6 +3622,35 @@ function validateStyleProofRequiredArtifactFingerprint(
     id: 'style-proof-manifest-exact-artifact-missing',
     message: `${requirementId} proof lacks artifactFingerprint on a matching action/channel row.`,
     suggestion: 'Record a non-empty artifactFingerprint on the same proof row so the evidence can be traced to the exact exported artifact under review.',
+    location: requirementId,
+  })
+}
+
+function validateStyleProofRequiredExactArtifact(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  if (!(contract.requiredFields as readonly StyleProofArtifactVerificationField[]).includes('exactArtifact')) {
+    return
+  }
+
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-exact-artifact-missing'
+  )) {
+    return
+  }
+
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+  if (contractCandidates.some(artifact => artifact.exactArtifact === true)) return
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-exact-artifact-missing',
+    message: `${requirementId} proof is not marked as the exact exported artifact on a matching action/channel row.`,
+    suggestion: 'Record exactArtifact:true on the same proof row only after the evidence is proven to belong to the exact exported artifact under review.',
     location: requirementId,
   })
 }

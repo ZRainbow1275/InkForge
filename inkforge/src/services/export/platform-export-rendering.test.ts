@@ -3704,6 +3704,103 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
   })
 
+  it('requires exactArtifact on matching exact proof contract rows across phone sync and publish gates', () => {
+    const artifactFingerprint = 'sha256:redacted-exact-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview', 'credentialed-sync', 'published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'phone-screenshot-without-exact-artifact',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot proof without exact artifact flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'credentialed-sync-without-exact-artifact',
+          requirementId: 'credentialed-channel-response',
+          kind: 'browser-readback',
+          label: 'credentialed sync proof without exact artifact flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'credentialed-channel',
+          action: 'credentialed-sync',
+          readback: 'api-response',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'scheduled-send-without-exact-artifact',
+          requirementId: 'scheduled-send-readback',
+          kind: 'browser-readback',
+          label: 'scheduled send proof without exact artifact flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'scheduled-send-state',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          scheduledSendVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'published-preview-without-exact-artifact',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'browser-readback',
+          label: 'published preview proof without exact artifact flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const exactArtifactIssueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-exact-artifact-missing')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(exactArtifactIssueLocations).toEqual(expect.arrayContaining([
+      'phone-screenshot',
+      'credentialed-channel-response',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(auditStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
+  })
+
   it('requires platform and artifact consistency in style proof manifests', () => {
     const manifest: StyleProofManifest = {
       platform: 'zhihu',

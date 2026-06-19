@@ -4689,6 +4689,50 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Required Exact Artifact Contract Slice
+
+Impact:
+- `npx gitnexus analyze` initially hit a native incremental-index crash after the previous slice,
+  then completed a forced full rebuild to 26,891 nodes, 42,178 edges, 825 clusters, and 300 flows.
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added `validateStyleProofRequiredExactArtifact()` as a common contract check after the
+  safe-for-commit and artifact-fingerprint required-field validators.
+- The helper applies to every `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` row that lists
+  `exactArtifact` in `requiredFields`, checks matching action/channel proof rows, and emits
+  `style-proof-manifest-exact-artifact-missing` when no matching row has `exactArtifact:true`.
+- Existing specialized validators keep their precise exact-artifact checks; the new helper skips
+  duplicate exact-artifact issues.
+- Added regression coverage for phone `phone-screenshot`, `credentialed-channel-response`,
+  `scheduled-send-readback`, and `published-url-or-platform-preview` rows with otherwise matching
+  fingerprint and business proof but no exact-artifact flag.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 120 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 159 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1093 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 29.30s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-required-exact-artifact-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Required Artifact Fingerprint Contract Slice
 
 Impact:
