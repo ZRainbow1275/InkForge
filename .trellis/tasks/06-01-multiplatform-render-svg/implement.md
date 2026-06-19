@@ -6277,6 +6277,57 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 Style Proof Committed Evidence Runbook Report Slice
+
+Scope:
+- Local execution-runbook aggregation for committed, redacted style proof manifest packs.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR material, token, cookie, or HAR artifact was
+  created.
+
+Impact:
+- GitNexus index refreshed to commit `07ca564`.
+- `getCommittedStyleProofEvidenceAuditReport`: LOW risk, 0 affected processes.
+- `getStyleProofExecutionRunbook`: LOW risk, 0 affected processes.
+- `getCommittedStyleProofEvidenceManifests`: LOW risk, 0 affected processes.
+
+Implementation:
+- Added `CommittedStyleProofExecutionRunbookReport`.
+- Added `getCommittedStyleProofLocalEvidenceExecutionRunbook()`.
+- Added `getCommittedStyleProofWechatPcEvidenceExecutionRunbook()`.
+- Added `getCommittedStyleProofEvidenceExecutionRunbookReport()`.
+- The report exposes local, WeChat PC, and combined execution runbook views, plus summary counts for
+  combined issue count, exact-artifact fingerprint conflicts, cannot-claim steps, phone-open steps,
+  external-dependency-open steps, unsafe-to-automate steps, and mutating-open steps.
+
+Verification:
+- TDD first run failed as expected because
+  `getCommittedStyleProofEvidenceExecutionRunbookReport()` did not exist.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed evidence execution runbook report" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  - PASS: 1 file / 4 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 148 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 187 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1121 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 28.18s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Boundary:
+- This is local committed-evidence runbook aggregation only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste for every flagship, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
+  acceptance, or publish success.
+
 ## 2026-06-20 Market Fallback Catalog Contract Slice
 
 Scope:

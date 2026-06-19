@@ -407,6 +407,12 @@ export function getPlatformStyleProofExecutionRunbook(
 export function getStyleProofExecutionRunbook(
   manifests?: readonly StyleProofManifest[],
 ): StyleProofExecutionRunbook
+export interface CommittedStyleProofExecutionRunbookReport {
+  local: StyleProofExecutionRunbook
+  wechatPc: StyleProofExecutionRunbook
+  combined: StyleProofExecutionRunbook
+}
+export function getCommittedStyleProofEvidenceExecutionRunbookReport(): CommittedStyleProofExecutionRunbookReport
 
 // services/export/types.ts — opt-in toggle (additive, optional)
 interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInjectionPlan }
@@ -1974,6 +1980,16 @@ Contracts:
   PC paste evidence for the same choice refer to different exact artifact fingerprints. The summary
   must surface this as `hasExactArtifactFingerprintConflicts:true` so consumers do not treat the
   combined view as a single completed exact-artifact proof.
+- `getCommittedStyleProofLocalEvidenceExecutionRunbook()` and
+  `getCommittedStyleProofWechatPcEvidenceExecutionRunbook()` must be shorthand for running the
+  existing execution-runbook layer over their matching committed manifest packs. They must not add
+  proof rows, mutate manifests, create artifacts, or soften any `cannotClaim` row.
+- `getCommittedStyleProofEvidenceExecutionRunbookReport()` must expose the same three-view shape as
+  the committed audit report (`local`, `wechatPc`, and `combined`) but with
+  `StyleProofExecutionRunbook` payloads. Its summary must surface combined issue count, exact
+  artifact fingerprint conflicts, cannot-claim steps, phone-open steps, external-dependency-open
+  steps, unsafe-to-automate steps, and mutating-open steps so acceptance dashboards can tell
+  operator work from local proof without claiming external completion.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -2000,6 +2016,10 @@ Required tests:
   expose exact-artifact fingerprint conflicts for the merged WeChat local+PC choice rows, and keep
   phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
   unclaimable.
+- The combined committed-evidence runbook report must return local / WeChat PC / combined runbook
+  views for the same 6-manifest combined pack, keep exact-artifact conflicts visible at summary and
+  issue-list level, and keep WeChat phone preview blocked-by-external, WeChat scheduled-send and
+  XHS publish unsafe-to-automate, and Zhihu public-host blocked-by-external.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

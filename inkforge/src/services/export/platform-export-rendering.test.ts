@@ -15,6 +15,7 @@ import {
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
   getCommittedStyleProofEvidenceAuditReport,
+  getCommittedStyleProofEvidenceExecutionRunbookReport,
   getCommittedStyleProofEvidenceManifests,
   getCommittedStyleProofLocalEvidenceAuditReport,
   getCommittedStyleProofLocalEvidenceManifests,
@@ -1905,6 +1906,57 @@ describe('platform native export rendering rules', () => {
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
+  })
+
+  it('builds committed evidence execution runbook report without closing external gates', () => {
+    const report = getCommittedStyleProofEvidenceExecutionRunbookReport()
+    const wechatRunbook = report.combined.platformReports.wechat
+    const xhsRunbook = report.combined.platformReports.xiaohongshu
+    const zhihuRunbook = report.combined.platformReports.zhihu
+    const combinedIssueIds = report.combined.issues.map(issue => issue.id)
+    const wechatExactArtifactStep = wechatRunbook.cannotClaim.find(step =>
+      step.requirement.id === 'exact-artifact'
+    )
+    const wechatPhoneStep = wechatRunbook.cannotClaim.find(step =>
+      step.requirement.id === 'phone-preview-readback'
+    )
+    const wechatScheduledSendStep = wechatRunbook.cannotClaim.find(step =>
+      step.requirement.id === 'scheduled-send-readback'
+    )
+    const xhsPublishStep = xhsRunbook.cannotClaim.find(step =>
+      step.requirement.id === 'published-url-or-platform-preview'
+    )
+    const zhihuPublicHostStep = zhihuRunbook.cannotClaim.find(step =>
+      step.requirement.id === 'public-image-host'
+    )
+
+    expect(report.local.summary.manifestCount).toBe(4)
+    expect(report.wechatPc.summary.manifestCount).toBe(2)
+    expect(report.combined.summary.manifestCount).toBe(6)
+    expect(report.summary).toMatchObject({
+      localManifestCount: 4,
+      wechatPcManifestCount: 2,
+      combinedManifestCount: 6,
+      hasExactArtifactFingerprintConflicts: true,
+    })
+    expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
+    expect(combinedIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(report.summary.cannotClaimSteps).toBe(report.combined.summary.cannotClaimSteps)
+    expect(report.summary.phoneOpenSteps).toBeGreaterThan(0)
+    expect(report.summary.externalDependencyOpenSteps).toBeGreaterThan(0)
+    expect(report.summary.unsafeToAutomateOpenSteps).toBeGreaterThan(0)
+    expect(report.summary.mutatingOpenSteps).toBeGreaterThan(0)
+
+    expect(wechatExactArtifactStep?.status).toBe('invalid')
+    expect(wechatPhoneStep?.status).toBe('blocked-by-external')
+    expect(wechatPhoneStep?.boundary).toBe('phone-preview')
+    expect(wechatPhoneStep?.cannotClaimReason).toContain('phone-side preview evidence')
+    expect(wechatScheduledSendStep?.status).toBe('unsafe-to-automate')
+    expect(wechatScheduledSendStep?.boundary).toBe('platform-publish')
+    expect(xhsPublishStep?.status).toBe('unsafe-to-automate')
+    expect(xhsPublishStep?.boundary).toBe('platform-publish')
+    expect(zhihuPublicHostStep?.status).toBe('blocked-by-external')
+    expect(zhihuPublicHostStep?.boundary).toBe('public-host')
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

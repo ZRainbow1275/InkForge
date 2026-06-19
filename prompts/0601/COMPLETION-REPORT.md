@@ -2556,6 +2556,34 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 
 ---
 
+## 2026-06-20 Style Proof Committed Evidence Runbook Report Addendum
+
+- Added `prompts/0601/evidence/style-proof-committed-evidence-runbook-report-20260620.txt`.
+- Added `CommittedStyleProofExecutionRunbookReport` plus
+  `getCommittedStyleProofLocalEvidenceExecutionRunbook()`,
+  `getCommittedStyleProofWechatPcEvidenceExecutionRunbook()`, and
+  `getCommittedStyleProofEvidenceExecutionRunbookReport()`.
+- The report runs the existing execution-runbook layer over the committed local evidence pack, the
+  committed WeChat PC evidence pack, and their combined committed-evidence pack. It does not create
+  artifacts or alter acceptance status.
+- The combined summary surfaces exact-artifact fingerprint conflicts, cannot-claim steps,
+  phone-open steps, external-dependency-open steps, unsafe-to-automate steps, and mutating-open
+  steps so dashboards can distinguish operator gates from local proof.
+- TDD first run failed because `getCommittedStyleProofEvidenceExecutionRunbookReport()` did not
+  exist. After implementation, the focused committed runbook regression passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed evidence execution runbook report" --reporter=default`.
+- Full local verification also passed:
+  committed evidence focused group 4 selected tests, `platform-export-rendering.test.ts`
+  148 tests, four-file cross-platform export regression 187 tests, full `src/services/export`
+  serial run 35 files / 1121 tests, targeted ESLint, `vue-tsc --noEmit`, and production build.
+  Vite built in 28.18s, and generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local committed-evidence runbook aggregation only. It does not prove WeChat
+  ordinary Ctrl+V rich HTML/SVG paste for every flagship, phone preview, mobile SMIL/click, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 Style Proof Committed Evidence Combined Audit Addendum
 
 - Added `prompts/0601/evidence/style-proof-committed-evidence-combined-audit-20260620.txt`.

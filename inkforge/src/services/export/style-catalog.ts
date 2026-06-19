@@ -855,6 +855,24 @@ export interface StyleProofExecutionRunbook {
   }
 }
 
+export interface CommittedStyleProofExecutionRunbookReport {
+  local: StyleProofExecutionRunbook
+  wechatPc: StyleProofExecutionRunbook
+  combined: StyleProofExecutionRunbook
+  summary: {
+    localManifestCount: number
+    wechatPcManifestCount: number
+    combinedManifestCount: number
+    combinedIssueCount: number
+    hasExactArtifactFingerprintConflicts: boolean
+    cannotClaimSteps: number
+    phoneOpenSteps: number
+    externalDependencyOpenSteps: number
+    unsafeToAutomateOpenSteps: number
+    mutatingOpenSteps: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -5481,6 +5499,40 @@ export function getStyleProofExecutionRunbook(
       mutatingOpenSteps: platformReportValues.reduce((total, report) => total + report.summary.mutatingOpenSteps, 0),
       unsafeToAutomateOpenSteps: platformReportValues.reduce((total, report) =>
         total + report.summary.unsafeToAutomateOpenSteps, 0),
+    },
+  }
+}
+
+export function getCommittedStyleProofLocalEvidenceExecutionRunbook(): StyleProofExecutionRunbook {
+  return getStyleProofExecutionRunbook(getCommittedStyleProofLocalEvidenceManifests())
+}
+
+export function getCommittedStyleProofWechatPcEvidenceExecutionRunbook(): StyleProofExecutionRunbook {
+  return getStyleProofExecutionRunbook(getCommittedStyleProofWechatPcEvidenceManifests())
+}
+
+export function getCommittedStyleProofEvidenceExecutionRunbookReport(): CommittedStyleProofExecutionRunbookReport {
+  const local = getCommittedStyleProofLocalEvidenceExecutionRunbook()
+  const wechatPc = getCommittedStyleProofWechatPcEvidenceExecutionRunbook()
+  const combined = getStyleProofExecutionRunbook(getCommittedStyleProofEvidenceManifests())
+
+  return {
+    local,
+    wechatPc,
+    combined,
+    summary: {
+      localManifestCount: local.summary.manifestCount,
+      wechatPcManifestCount: wechatPc.summary.manifestCount,
+      combinedManifestCount: combined.summary.manifestCount,
+      combinedIssueCount: combined.summary.issueCount,
+      hasExactArtifactFingerprintConflicts: combined.issues.some(issue =>
+        issue.id === 'style-proof-manifest-pack-fingerprint-mismatch'
+      ),
+      cannotClaimSteps: combined.summary.cannotClaimSteps,
+      phoneOpenSteps: combined.summary.phoneOpenSteps,
+      externalDependencyOpenSteps: combined.summary.externalDependencyOpenSteps,
+      unsafeToAutomateOpenSteps: combined.summary.unsafeToAutomateOpenSteps,
+      mutatingOpenSteps: combined.summary.mutatingOpenSteps,
     },
   }
 }
