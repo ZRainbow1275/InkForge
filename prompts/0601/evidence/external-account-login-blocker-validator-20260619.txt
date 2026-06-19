@@ -1,0 +1,51 @@
+External Account Login Blocker Validator - 2026-06-19
+
+Scope:
+- Local validator and execution-runbook hardening for redacted StyleProofManifest records.
+- Converts XHS/Zhihu account login gate readback into executable cannot-claim rules.
+- No browser retry, login form fill, upload, sync, phone preview, scheduled send, or publish action.
+
+Implemented:
+- StyleProofAction now includes external-account-login-readback.
+- StyleProofArtifact now includes externalAccountAuthenticated?: boolean.
+- StyleProofArtifact now includes externalAccountLoginBlocked?: boolean.
+- StyleProofArtifactVerificationField now exposes both external-account fields.
+- Added style-proof-manifest-external-account-login-blocked.
+- Credentialed-channel, sync-readback, and platform-publish execution artifact contracts expose externalAccountAuthenticated as an explicit required field.
+
+Validator behavior:
+- A proof artifact is an explicit external-account login blocker when:
+  - externalAccountLoginBlocked is true, or
+  - externalAccountAuthenticated is false, or
+  - action is external-account-login-readback.
+- Explicit blockers keep the matching artifact invalid.
+- Explicit blockers keep matching requirement report rows invalid.
+- Acceptance audit requirement rows carrying style-proof-manifest-external-account-login-blocked report invalid.
+- Ordinary missing external-account or platform-publish gates still report blocked-by-external or unsafe-to-automate when no explicit bad proof artifact is supplied.
+
+Regression coverage:
+- Xiaohongshu login-gate readback cannot satisfy upload preview or publish proof.
+- Zhihu sign-in readback cannot satisfy public image host, upload artifact manifest, or publish proof.
+- The blocker issue is surfaced through cannot-claim requirement rows.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 103 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 142 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1076 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 26.65s
+- inkforge/tsconfig.tsbuildinfo was restored after validation dirtied the generated cache.
+
+Boundary:
+- This proves local validator and runbook accounting only.
+- It does not prove XHS/Zhihu account authentication.
+- It does not prove upload surface availability.
+- It does not prove platform preview, public host acceptance, public article rendering, scheduled send, or publish success.
+- It includes only redacted local accounting text and no private runtime artifacts or account-specific content.

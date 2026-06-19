@@ -1072,3 +1072,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: external-account blocker only. XHS/Zhihu local artifact manifests remain preflight
   proof and do not prove account upload, platform preview, public-host acceptance, public article
   rendering, scheduled-send, or publish success.
+
+## 2026-06-19 External Account Login Blocker Validator
+
+- [x] external-account-login-blocker-validator-20260619.txt
+- Local validator/runbook hardening adds explicit external-account fields and the
+  `style-proof-manifest-external-account-login-blocked` issue.
+- XHS login-gate readback remains invalid for upload preview and publish proof.
+- Zhihu sign-in readback remains invalid for public-host, upload-manifest, and publish proof.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 103 tests.
+- 4-file cross-platform regression passed at 4 files / 142 tests, and full export serial
+  regression passed at 35 files / 1076 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove account authentication, upload
+  surface availability, public-host acceptance, platform preview, public article rendering,
+  scheduled-send, or publish success.

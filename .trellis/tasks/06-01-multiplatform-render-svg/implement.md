@@ -2809,6 +2809,66 @@ Boundary:
   readback, safe disposable draft, ordinary PC paste, cleanup, phone preview, Dark Mode, cover
   thumbnail, sync, scheduled-send, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 External Account Login Blocker Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofManifest -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, and 1 affected process.
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk and 0 impacted items.
+- `npx gitnexus impact StyleProofArtifact -r InkForge -d upstream --include-tests`
+  reported LOW risk and 2 impacted items.
+
+Scope:
+- Converted the XHS/Zhihu account login gate readback into executable local validator/runbook
+  rules.
+- No browser retry, form fill, upload, sync, phone preview, scheduled send, or publish action was
+  performed in this slice.
+
+Implementation:
+- Added `StyleProofAction` value `external-account-login-readback`.
+- Added `StyleProofArtifact.externalAccountAuthenticated?: boolean`.
+- Added `StyleProofArtifact.externalAccountLoginBlocked?: boolean`.
+- Added `style-proof-manifest-external-account-login-blocked`.
+- Added both external-account fields to `StyleProofArtifactVerificationField`.
+- Exposed `externalAccountAuthenticated` in the credentialed-channel, sync-readback, and platform-
+  publish execution artifact contracts.
+- Kept compatibility for older valid manifests by invalidating only explicit blockers:
+  `externalAccountLoginBlocked:true`, `externalAccountAuthenticated:false`, or
+  `action:'external-account-login-readback'`.
+- Acceptance audit requirement rows carrying the blocker issue now report `invalid`; ordinary
+  missing external-account and publish gates remain `blocked-by-external` or
+  `unsafe-to-automate`.
+
+Regression coverage:
+- Xiaohongshu creator login-gate readback cannot satisfy upload preview or publish proof.
+- Zhihu sign-in readback cannot satisfy public image host, artifact manifest upload, or publish
+  proof.
+- Login blockers keep the affected artifact report rows invalid and surface the blocker issue
+  through cannot-claim requirement rows.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 103 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 142 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1076 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  26.65s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Evidence:
+- Added `prompts/0601/evidence/external-account-login-blocker-validator-20260619.txt`.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove XHS/Zhihu account authentication, upload surface availability, platform
+  preview, public host acceptance, public article rendering, scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Existing Draft Edit Entry Blocked Slice
 
 Scope:

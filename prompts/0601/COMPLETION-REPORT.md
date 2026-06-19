@@ -1329,3 +1329,28 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this proves only the current external-account blocker. XHS/Zhihu local manifests remain
   preflight proof and do not prove account upload, platform preview, public-host acceptance, public
   article rendering, scheduled-send, or publish success.
+
+## 2026-06-19 External Account Login Blocker Validator Addendum
+
+- Added `prompts/0601/evidence/external-account-login-blocker-validator-20260619.txt`.
+- Added `StyleProofAction` value `external-account-login-readback`.
+- Added `StyleProofArtifact.externalAccountAuthenticated?: boolean` and
+  `StyleProofArtifact.externalAccountLoginBlocked?: boolean`.
+- Added validator issue `style-proof-manifest-external-account-login-blocked`.
+- Credentialed-channel, sync-readback, and platform-publish runbook artifact contracts now expose
+  `externalAccountAuthenticated` as an explicit required field.
+- The manifest validator remains backward-compatible for older proof rows: only explicit login
+  blockers (`externalAccountLoginBlocked:true`, `externalAccountAuthenticated:false`, or
+  `external-account-login-readback`) become invalid.
+- Regression coverage proves XHS login-gate readback cannot satisfy upload preview or publish
+  proof, and Zhihu sign-in readback cannot satisfy public-host, upload-manifest, or publish proof.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 103 tests.
+- 4-file cross-platform export regression passed at 4 files / 142 tests.
+- Full export serial regression passed at 35 files / 1076 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove XHS/Zhihu account
+  authentication, upload surface availability, platform preview, public-host acceptance, public
+  article rendering, scheduled-send, or publish success.

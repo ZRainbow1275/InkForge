@@ -3107,6 +3107,143 @@ describe('platform native export rendering rules', () => {
     expect(missingRefRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
   })
 
+  it('rejects Xiaohongshu login-gate readback as upload preview or publish proof', () => {
+    const artifactFingerprint = 'sha256:redacted-xhs-login-gate'
+    const manifest: StyleProofManifest = {
+      platform: 'xiaohongshu',
+      choiceId: 'xhs-cover-carousel',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'xhs-login-gate-publish-readback',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'browser-readback',
+          label: 'redacted xhs creator login gate readback',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'credentialed-channel',
+          action: 'external-account-login-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          externalAccountAuthenticated: false,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('xiaohongshu', [manifest])
+    const publishAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'published-url-or-platform-preview'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+    expect(issueIds).toContain('style-proof-manifest-requirement-missing')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(report.artifacts.find(artifact =>
+      artifact.artifact.id === 'xhs-login-gate-publish-readback',
+    )?.status).toBe('invalid')
+    expect(publishAudit?.status).toBe('invalid')
+    expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+  })
+
+  it('rejects Zhihu sign-in readback as public host, upload manifest, or publish proof', () => {
+    const artifactFingerprint = 'sha256:redacted-zhihu-login-gate'
+    const manifest: StyleProofManifest = {
+      platform: 'zhihu',
+      choiceId: 'zhihu-data-table',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'zhihu-login-gate-public-host',
+          requirementId: 'public-image-host',
+          kind: 'browser-readback',
+          label: 'redacted zhihu sign-in gate cannot prove public image host',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'credentialed-channel',
+          action: 'external-account-login-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          externalAccountAuthenticated: false,
+          externalAccountLoginBlocked: true,
+          hostStatus: 'blocked',
+          safeForCommit: true,
+        },
+        {
+          id: 'zhihu-login-gate-upload-manifest',
+          requirementId: 'zhihu-artifact-manifest',
+          kind: 'browser-readback',
+          label: 'redacted zhihu sign-in gate cannot prove upload manifest',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'credentialed-channel',
+          action: 'external-account-login-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          externalAccountAuthenticated: false,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'zhihu-login-gate-publish-readback',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'browser-readback',
+          label: 'redacted zhihu sign-in gate cannot prove publish preview',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'credentialed-channel',
+          action: 'external-account-login-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          externalAccountAuthenticated: false,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('zhihu', [manifest])
+    const publicHostAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'public-image-host'
+    )
+    const manifestAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'zhihu-artifact-manifest'
+    )
+    const publishAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'published-url-or-platform-preview'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-external-account-login-blocked',
+    )).toHaveLength(3)
+    expect(requirementStatus.get('public-image-host')).toBe('invalid')
+    expect(requirementStatus.get('zhihu-artifact-manifest')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(publicHostAudit?.status).toBe('invalid')
+    expect(manifestAudit?.status).toBe('invalid')
+    expect(publishAudit?.status).toBe('invalid')
+    expect(publicHostAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+    expect(manifestAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+    expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+  })
+
   it('keeps blocked or unavailable market styles from being reported as usable', () => {
     const amber = getStyleChoiceById('wechat-flagship-amber')
     const clickReveal = getStyleChoiceById('wechat-click-reveal')

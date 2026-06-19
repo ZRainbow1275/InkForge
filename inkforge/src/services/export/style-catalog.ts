@@ -164,6 +164,7 @@ export type StyleProofAction =
   | 'phone-preview'
   | 'dark-mode-check'
   | 'cover-thumbnail-check'
+  | 'external-account-login-readback'
   | 'credentialed-sync'
   | 'sync-readback'
   | 'published-preview'
@@ -207,6 +208,8 @@ export interface StyleProofArtifact {
   artifactRef?: string
   exactArtifact?: boolean
   authenticatedSessionVerified?: boolean
+  externalAccountAuthenticated?: boolean
+  externalAccountLoginBlocked?: boolean
   platformEditorTargetVerified?: boolean
   platformEditorDomVerified?: boolean
   centralEditorChanged?: boolean
@@ -239,6 +242,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
   | 'style-proof-manifest-authenticated-session-not-verified'
+  | 'style-proof-manifest-external-account-login-blocked'
   | 'style-proof-manifest-platform-editor-target-not-verified'
   | 'style-proof-manifest-platform-editor-dom-not-verified'
   | 'style-proof-manifest-ordinary-paste-not-verified'
@@ -275,6 +279,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-exact-artifact-missing',
   'style-proof-manifest-market-editor-not-applied',
   'style-proof-manifest-authenticated-session-not-verified',
+  'style-proof-manifest-external-account-login-blocked',
   'style-proof-manifest-platform-editor-target-not-verified',
   'style-proof-manifest-platform-editor-dom-not-verified',
   'style-proof-manifest-ordinary-paste-not-verified',
@@ -689,6 +694,8 @@ export type StyleProofArtifactVerificationField =
   | 'artifactRef'
   | 'exactArtifact'
   | 'authenticatedSessionVerified'
+  | 'externalAccountAuthenticated'
+  | 'externalAccountLoginBlocked'
   | 'platformEditorTargetVerified'
   | 'platformEditorDomVerified'
   | 'centralEditorChanged'
@@ -1036,8 +1043,8 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
   'phone-preview': 'Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.',
   'public-host': 'Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.',
-  'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material.',
-  'platform-publish': 'Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste or sync success.',
+  'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material; login or sign-in pages must stay blocked evidence.',
+  'platform-publish': 'Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste, sync success, or login-route readback.',
 } as const satisfies Record<StyleProofCollectionGate, string>
 
 const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
@@ -1163,21 +1170,21 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['credentialed-sync'],
     requiredReadbacks: ['api-response'],
-    requiredFields: ['artifactFingerprint', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'sync-readback': {
     requirementId: 'sync-readback',
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['sync-readback'],
     requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
-    requiredFields: ['artifactFingerprint', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'published-url-or-platform-preview': {
     requirementId: 'published-url-or-platform-preview',
     requiredChannels: ['public-web', 'credentialed-channel'],
     requiredActions: ['published-preview'],
     requiredReadbacks: ['published-url', 'visual-and-dom'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'public-image-host': {
     requirementId: 'public-image-host',
@@ -2547,6 +2554,15 @@ function validateStyleProofArtifactEvidence(
 }
 
 function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues: QualityIssue[]): void {
+  if (isExternalAccountLoginBlockedStyleProofArtifact(artifact)) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-external-account-login-blocked',
+      message: `Proof artifact ${artifact.id} is still blocked by an external account login or sign-in gate.`,
+      suggestion: 'Login pages, expired sessions, verification forms, and sign-in route readbacks cannot prove platform upload, public-host, preview, sync, or publish success; record externalAccountAuthenticated:true only after the real creator/editor/upload surface is authenticated and read back.',
+      location: artifact.id,
+    })
+  }
+
   if (isSensitiveStyleProofArtifact(artifact)) {
     addStyleProofIssue(issues, {
       id: 'style-proof-manifest-sensitive-artifact',
@@ -2643,6 +2659,12 @@ function isSensitiveStyleProofArtifact(artifact: StyleProofArtifact): boolean {
 function isUnsafeStyleProofCommitArtifact(artifact: StyleProofArtifact): boolean {
   return artifact.committed === true
     && (artifact.safeForCommit === false || isSensitiveStyleProofArtifact(artifact))
+}
+
+function isExternalAccountLoginBlockedStyleProofArtifact(artifact: StyleProofArtifact): boolean {
+  return artifact.externalAccountLoginBlocked === true
+    || artifact.externalAccountAuthenticated === false
+    || artifact.action === 'external-account-login-readback'
 }
 
 function validateStyleProofRequirementCoverage(
@@ -3990,7 +4012,9 @@ function buildStyleProofAcceptanceRequirementAudits(
         invalid: accumulator.invalid,
         forcedInvalid: accumulator.blockedChoiceIds.size > 0,
       })
-      const status = getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
+      const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
+        ? 'invalid'
+        : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 
       return {
         requirement: accumulator.requirement,

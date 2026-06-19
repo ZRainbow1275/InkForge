@@ -1433,6 +1433,18 @@ Contracts:
   route must keep account upload, editor preview, platform preview, public article rendering, and
   publish rows missing or unclaimable. Login forms, verification-code inputs, password fields,
   social-login buttons, or redirect query keys are external-account blockers, not platform proof.
+- The executable manifest fields for this boundary are
+  `StyleProofArtifact.externalAccountAuthenticated?: boolean` and
+  `StyleProofArtifact.externalAccountLoginBlocked?: boolean`. Credentialed-channel and platform-
+  publish runbook rows must expose `externalAccountAuthenticated` as a required field, but the
+  validator stays backward-compatible by treating only explicit blockers as invalid proof.
+- A manifest artifact with `externalAccountLoginBlocked:true`,
+  `externalAccountAuthenticated:false`, or action `external-account-login-readback` must emit
+  `style-proof-manifest-external-account-login-blocked`. Such an artifact can never satisfy XHS
+  upload/platform preview/publish proof, Zhihu public-host proof, Zhihu artifact-manifest proof,
+  or any platform publish row. Requirement-level acceptance audit rows carrying this issue must
+  be `invalid`, while ordinary missing external gates may remain `blocked-by-external` or
+  `unsafe-to-automate`.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
@@ -1458,6 +1470,9 @@ Required tests:
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.
+- XHS/Zhihu login-route or sign-in-route readback manifests must keep account upload, public-host,
+  artifact-manifest, platform preview, and publish requirements invalid/cannot-claim through
+  `style-proof-manifest-external-account-login-blocked`.
 - The real ExportModal e2e must show the runbook summary, acceptance preflight totals, and per-card
   artifact-contract labels for WeChat, Xiaohongshu, and Zhihu while preserving existing style
   capability counts.
