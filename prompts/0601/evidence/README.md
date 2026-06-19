@@ -113,9 +113,9 @@ committed local manifest pack 已包含 `xhs-cover-carousel`，引用 tracked br
 rows；不证明 XHS account upload、platform preview、public URL acceptance 或 publish 成功）。
 `style-proof-committed-wechat-pc-evidence-20260619.txt`（当前规则实现：
 committed WeChat PC evidence pack 已包含 exact Amber ordinary OS Ctrl+V + disposable-draft cleanup
-redacted proof，只满足 Amber 的 authenticated editor / PC DOM / exact artifact / safe draft /
-ordinary paste / hygiene rows；不证明 Kiln/Tempera 普通粘贴、手机预览、Dark Mode、封面、同步、
-定时发送、平台预览或发布）。
+redacted proof，以及 Tempera entity-safe ordinary OS Ctrl+V + cleanup redacted proof；只满足对应
+PC editor / exact artifact / safe draft / ordinary paste / hygiene rows；不证明 raw UTF-8 Tempera
+直粘、Kiln 普通粘贴、手机预览、Dark Mode、封面、同步、定时发送、平台预览或发布）。
 `style-proof-artifact-manifest-validation-20260619.txt`（当前规则实现：
 XHS/Zhihu artifact-manifest proof rows 必须带 `artifactManifestValidated:true`，即 exact redacted
 manifest 已通过对应平台 manifest validator；manifest-shaped 本地记录不能单独满足 proof，也不证明
@@ -333,7 +333,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-acceptance-ui-20260617.txt # 当前 UI 实现：ExportModal surfaces acceptance audit cannotClaim rows
 [x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
 [x] style-proof-committed-xhs-local-evidence-20260619.txt # 当前规则实现：XHS committed local raster + manifest rows; upload/preview/publish remain open
-[x] style-proof-committed-wechat-pc-evidence-20260619.txt # 当前规则实现：Amber committed WeChat PC paste + cleanup rows; phone/sync/publish remain open
+[x] style-proof-committed-wechat-pc-evidence-20260619.txt # 当前规则实现：Amber raw + Tempera entity-safe committed WeChat PC paste/cleanup rows; phone/sync/publish remain open
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
@@ -1050,9 +1050,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Current-state audit refresh across committed local evidence, committed WeChat PC proof, market
   editor rule extraction, E2E SVG render proof, WeChat dashboard/draftbox/create-menu readbacks,
   draftbox article-menu block, and OS-click calibration abort.
-- The audit keeps Amber as the only committed exact WeChat PC ordinary OS Ctrl+V proof with safe
-  disposable draft cleanup, and explicitly prevents generalizing Amber proof to Kiln, Tempera,
-  phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, or publish.
+- The audit predates the Tempera entity-safe committed manifest refresh. Current committed PC
+  accounting now includes Amber raw proof plus Tempera entity-safe proof, while still preventing
+  generalization to raw UTF-8 Tempera direct paste, Kiln, phone preview, Dark Mode, cover thumbnail,
+  sync, scheduled-send, platform preview, or publish.
 - It marks WeChat article-editor entry as blocked-safe-abort until OS cursor path and exact DOM
   target identity can be proved without intersecting account content.
 - It keeps XHS/Zhihu local artifact manifests as preflight only until real account/platform or

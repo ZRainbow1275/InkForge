@@ -1152,22 +1152,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Added `getCommittedStyleProofWechatPcEvidenceManifests()` and
   `getCommittedStyleProofWechatPcEvidenceAuditReport()` as a separate committed evidence pack for
   redacted WeChat PC editor proof.
-- The helper currently represents only the exact Amber PC ordinary OS Ctrl+V proof from
+- The helper originally represented Amber's exact PC ordinary OS Ctrl+V proof from
   `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`, bound to SHA-256
-  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
-- The pack satisfies Amber's committed `authenticated-editor-url`, `pc-editor-dom-readback`,
-  `exact-artifact`, `safe-disposable-draft`, `pc-editor-paste-event`, and
-  `no-sensitive-artifact` rows, with all proof artifacts marked `committed:true` and
+  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; it now also represents
+  Tempera's entity-safe PC ordinary OS Ctrl+V proof from
+  `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`, bound to SHA-256
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The pack satisfies each committed PC proof manifest's `authenticated-editor-url`,
+  `pc-editor-dom-readback`, `exact-artifact`, `safe-disposable-draft`, `pc-editor-paste-event`,
+  and `no-sensitive-artifact` rows, with all proof artifacts marked `committed:true` and
   `safeForCommit:true`.
 - It remains independent from `getCommittedStyleProofLocalEvidenceManifests()` so exact HTML
   artifact proof is not merged with local Tauri/WebView2 screenshot fingerprints.
-- Regression coverage proves Amber remains catalog-blocked/invalid and phone preview, Dark Mode,
-  cover thumbnail, sync, scheduled-send, platform preview/public URL, and publish rows remain
-  missing/cannot-claim.
-- Verification passed with focused `platform-export-rendering.test.ts` at 97 tests, 4-file
-  cross-platform export regression at 136 tests, full export serial suite at 1070 tests, and
-  targeted ESLint.
-- Boundary: committed Amber PC proof accounting only. It does not prove Kiln/Tempera ordinary
+- Regression coverage proves Amber remains catalog-blocked/invalid, Tempera remains missing due
+  external rows, and phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, platform
+  preview/public URL, and publish rows remain missing/cannot-claim.
+- Verification passed with focused `platform-export-rendering.test.ts` at 116 tests, 4-file
+  cross-platform export regression at 155 tests, full export serial suite at 1089 tests, targeted
+  ESLint, `vue-tsc --noEmit --pretty false`, and production build in 28.59s.
+- Boundary: committed Amber raw PC proof and Tempera entity-safe PC proof accounting only. It does
+  not prove raw UTF-8 Tempera direct paste, Kiln ordinary
   Ctrl+V, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send,
   upload, public host, platform preview, public article rendering, or publish success.
 
@@ -1253,9 +1257,10 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   committed WeChat PC proof, market-editor rule extraction, E2E SVG render proof, WeChat
   dashboard/draftbox/create-menu readbacks, draftbox article-menu block, and OS-click calibration
   abort.
-- Amber remains the only committed exact WeChat PC ordinary OS Ctrl+V proof with safe disposable
-  draft cleanup; it must not generalize to Kiln, Tempera, phone preview, Dark Mode, cover thumbnail,
-  sync, scheduled-send, platform preview, public rendering, or publish.
+- This gap audit predated the Tempera entity-safe manifest refresh. Current committed PC accounting
+  includes Amber raw proof and Tempera entity-safe proof, but it must not generalize to raw UTF-8
+  Tempera direct paste, Kiln, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send,
+  platform preview, public rendering, or publish.
 - WeChat article-editor entry remains blocked-safe-abort until actual OS cursor path and exact DOM
   target identity can be proved without intersecting account content.
 - XHS and Zhihu local artifact manifests remain preflight only until real account/platform or

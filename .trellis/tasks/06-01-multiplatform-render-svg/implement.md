@@ -3744,9 +3744,11 @@ Evidence:
 - Added `prompts/0601/evidence/completion-gap-audit-20260619.txt`.
 
 Findings:
-- Amber remains the only committed exact WeChat PC ordinary OS Ctrl+V proof with safe disposable
-  draft cleanup.
-- Kiln, Tempera, and Kiln paste-safe remain blocked for exact WeChat PC ordinary rich paste proof.
+- This audit predated the Tempera entity-safe committed manifest refresh. Current committed PC
+  accounting includes Amber raw ordinary OS Ctrl+V proof and Tempera entity-safe ordinary OS
+  Ctrl+V proof with safe disposable draft cleanup.
+- Kiln and Kiln paste-safe remain blocked for exact WeChat PC ordinary rich paste proof; raw UTF-8
+  Tempera direct paste remains unproven.
 - WeChat article-editor entry is currently blocked-safe-abort because OS-coordinate clicking was
   not safely bound to the intended DOM target.
 - Phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled-send,
@@ -3827,11 +3829,13 @@ Implementation:
 - The new committed PC evidence pack is intentionally separate from
   `getCommittedStyleProofLocalEvidenceManifests()` so the exact WeChat HTML artifact SHA is not
   mixed with Tauri/WebView2 screenshot fingerprints.
-- The pack currently contains only the redacted `wechat-flagship-amber` PC proof from
-  `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
-- It records six safe committed proof rows for the exact `flagship-amber.html` SHA-256 artifact:
-  authenticated editor, PC editor DOM, exact artifact, safe disposable draft, ordinary OS Ctrl+V
-  paste, and sensitive hygiene.
+- The pack contains the redacted `wechat-flagship-amber` PC proof from
+  `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt` and the
+  redacted `wechat-flagship-tempera` entity-safe PC proof from
+  `prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`.
+- It records six safe committed proof rows for each exact PC artifact fingerprint: authenticated
+  editor, PC editor DOM, exact artifact, safe disposable draft, ordinary OS Ctrl+V paste, and
+  sensitive hygiene.
 - Required flags are bound to the exact artifact rows:
   `authenticatedSessionVerified`, `platformEditorDomVerified`, `exactArtifact`,
   `disposableDraft`, `cleanupPathVerified`, `ordinaryClipboardPasteVerified`,
@@ -3846,18 +3850,23 @@ Evidence:
 
 Verification:
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
-  passed with 1 file / 97 tests.
+  passed with 1 file / 116 tests.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
-  passed with 4 files / 136 tests.
+  passed with 4 files / 155 tests.
 - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
-  passed with 35 files / 1070 tests.
+  passed with 35 files / 1089 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 28.59s,
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 
 Boundary:
-- This is committed runtime accounting for exact Amber WeChat PC ordinary Ctrl+V and disposable
-  cleanup proof only.
-- It does not prove Kiln or Tempera ordinary Ctrl+V, WeChat phone preview, mobile SMIL/click,
-  mobile Dark Mode, cover thumbnail, credentialed sync, scheduled-send, platform preview, public
-  URL, upload, or publish success.
+- This is committed runtime accounting for exact Amber WeChat PC ordinary Ctrl+V plus Tempera
+  entity-safe ordinary Ctrl+V and disposable cleanup proof only.
+- It does not prove raw UTF-8 Tempera direct paste, Kiln ordinary Ctrl+V, WeChat phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled-send,
+  platform preview, public URL, upload, or publish success.
 
 ## 2026-06-19 Style Proof Artifact Manifest Validation Slice
 

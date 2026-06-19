@@ -1651,15 +1651,16 @@ Contracts:
   redacted WeChat PC editor proof. It must not be merged into the local evidence helper because the
   PC paste artifact fingerprint is the exact exported HTML SHA, while local evidence rows may refer
   to Tauri/WebView screenshots or raster outputs.
-- The current WeChat PC committed pack may include only `wechat-flagship-amber` evidence from
-  `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`. It may satisfy
-  `authenticated-editor-url`, `pc-editor-dom-readback`, `exact-artifact`,
+- The current WeChat PC committed pack may include `wechat-flagship-amber` evidence from
+  `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt` and `wechat-flagship-tempera`
+  entity-safe evidence from `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`. It may
+  satisfy `authenticated-editor-url`, `pc-editor-dom-readback`, `exact-artifact`,
   `safe-disposable-draft`, `pc-editor-paste-event`, and `no-sensitive-artifact` for the exact
-  `flagship-amber.html` SHA-256 artifact.
-- The WeChat PC committed pack must keep Amber blocked/invalid at style-choice level until mobile
-  preview, Dark Mode, cover thumbnail, sync, scheduled-send, public URL/platform preview, and
-  publish proof exists. It must not generalize Amber PC proof to Kiln, Tempera, phone, sync, or
-  publish rows.
+  committed PC payload fingerprints only.
+- The WeChat PC committed pack must keep Amber blocked/invalid and Tempera missing at style-choice
+  level until mobile preview, Dark Mode, cover thumbnail, sync, scheduled-send, public
+  URL/platform preview, and publish proof exists. It must not generalize Amber PC proof or Tempera
+  entity-safe PC proof to raw UTF-8 Tempera direct paste, Kiln, phone, sync, or publish rows.
 - `getCommittedStyleProofWechatPcEvidenceAuditReport()` is only shorthand for auditing that
   committed WeChat PC pack. It must keep cannot-claim rows visible.
 
@@ -1675,12 +1676,14 @@ Required tests:
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
   `xhs-artifact-manifest` with `artifactManifestValidated:true`, while
   `published-url-or-platform-preview` remains missing and unsafe-to-automate.
-- The committed WeChat PC pack returns cloned Amber manifests, all artifacts point to the redacted
-  Amber PC evidence file, and all artifact fingerprints match
-  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
-- The committed WeChat PC pack must satisfy Amber's authenticated editor, PC DOM, exact artifact,
-  safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview, Dark
-  Mode, cover thumbnail, and publish rows missing/cannot-claim.
+- The committed WeChat PC pack returns cloned Amber and Tempera manifests. Amber artifacts point
+  to the redacted Amber PC evidence file with fingerprint
+  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; Tempera artifacts
+  point to the redacted entity-safe PC evidence file with fingerprint
+  `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
+  artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
+  Dark Mode, cover thumbnail, and publish rows missing/cannot-claim.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

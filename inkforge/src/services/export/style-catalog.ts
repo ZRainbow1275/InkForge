@@ -1975,6 +1975,15 @@ interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
   manifestArtifactRef: string
 }
 
+interface CommittedStyleProofWechatPcEvidenceManifestOptions {
+  choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera'
+  idPrefix: string
+  label: string
+  artifactFingerprint: string
+  reportRef: string
+  pasteProofLabel: string
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF =
   'prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt'
 
@@ -1990,8 +1999,14 @@ const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
 
+const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF =
+  'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
+
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT =
   'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d'
+
+const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT =
+  'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878'
 
 function createCommittedStyleProofLocalEvidenceManifest(
   options: CommittedStyleProofLocalEvidenceManifestOptions,
@@ -2163,46 +2178,45 @@ function createCommittedStyleProofXhsLocalEvidenceManifest(
   }
 }
 
-function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofManifest {
-  const choiceId = 'wechat-flagship-amber'
-  const artifactFingerprint = COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT
-
+function createCommittedStyleProofWechatPcEvidenceManifest(
+  options: CommittedStyleProofWechatPcEvidenceManifestOptions,
+): StyleProofManifest {
   return {
     platform: 'wechat',
     scope: 'style-choice',
-    choiceId,
-    artifactFingerprint,
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
     claimedEvidence: ['pc-editor-dom-readable', 'pc-editor-paste'],
     artifacts: [
       {
-        id: 'wechat-flagship-amber-committed-authenticated-editor-proof',
+        id: `${options.idPrefix}-committed-authenticated-editor-proof`,
         requirementId: 'authenticated-editor-url',
         kind: 'editor-readback',
-        label: 'Amber committed authenticated WeChat editor session proof',
+        label: `${options.label} committed authenticated WeChat editor session proof`,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'platform-editor',
         action: 'authenticated-editor-opened',
         readback: 'dom',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
         committed: true,
         safeForCommit: true,
       },
       {
-        id: 'wechat-flagship-amber-committed-pc-dom-proof',
+        id: `${options.idPrefix}-committed-pc-dom-proof`,
         requirementId: 'pc-editor-dom-readback',
         kind: 'editor-readback',
-        label: 'Amber committed WeChat PC editor DOM readback proof',
+        label: `${options.label} committed WeChat PC editor DOM readback proof`,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'platform-editor',
         action: 'pc-editor-dom-readback',
         readback: 'visual-and-dom',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
         platformEditorSurfaceVerified: true,
@@ -2211,50 +2225,50 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         safeForCommit: true,
       },
       {
-        id: 'wechat-flagship-amber-committed-exact-html-artifact-proof',
+        id: `${options.idPrefix}-committed-exact-html-artifact-proof`,
         requirementId: 'exact-artifact',
         kind: 'doc-reference',
-        label: 'Amber committed exact WeChat HTML artifact binding',
+        label: `${options.label} committed exact WeChat HTML artifact binding`,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'local-artifact',
         action: 'source-hygiene-review',
         readback: 'hygiene-log',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         exactArtifact: true,
         committed: true,
         safeForCommit: true,
       },
       {
-        id: 'wechat-flagship-amber-committed-safe-draft-proof',
+        id: `${options.idPrefix}-committed-safe-draft-proof`,
         requirementId: 'safe-disposable-draft',
         kind: 'editor-readback',
-        label: 'Amber committed disposable draft cleanup proof',
+        label: `${options.label} committed disposable draft cleanup proof`,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'platform-editor',
         action: 'safe-disposable-draft',
         readback: 'hygiene-log',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         disposableDraft: true,
         cleanupPathVerified: true,
         committed: true,
         safeForCommit: true,
       },
       {
-        id: 'wechat-flagship-amber-committed-ordinary-pc-paste-proof',
+        id: `${options.idPrefix}-committed-ordinary-pc-paste-proof`,
         requirementId: 'pc-editor-paste-event',
         kind: 'editor-readback',
-        label: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
+        label: options.pasteProofLabel,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'platform-editor',
         action: 'pc-paste',
         readback: 'visual-and-dom',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         exactArtifact: true,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
@@ -2269,17 +2283,17 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         safeForCommit: true,
       },
       {
-        id: 'wechat-flagship-amber-committed-pc-sensitive-hygiene-proof',
+        id: `${options.idPrefix}-committed-pc-sensitive-hygiene-proof`,
         requirementId: 'no-sensitive-artifact',
         kind: 'hygiene-review',
-        label: 'Amber committed PC evidence hygiene review',
+        label: `${options.label} committed PC evidence hygiene review`,
         platform: 'wechat',
-        choiceId,
+        choiceId: options.choiceId,
         channel: 'local-artifact',
         action: 'sensitive-hygiene-review',
         readback: 'hygiene-log',
-        artifactFingerprint,
-        artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         committed: true,
         safeForCommit: true,
       },
@@ -2318,7 +2332,22 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
 ] as const satisfies readonly StyleProofManifest[]
 
 const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
-  createCommittedStyleProofWechatAmberPcEvidenceManifest(),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-flagship-amber',
+    idPrefix: 'wechat-flagship-amber',
+    label: 'Amber',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
+    pasteProofLabel: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
+  }),
+  createCommittedStyleProofWechatPcEvidenceManifest({
+    choiceId: 'wechat-flagship-tempera',
+    idPrefix: 'wechat-flagship-tempera-entity-safe',
+    label: 'Tempera entity-safe',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF,
+    pasteProofLabel: 'Tempera committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+  }),
 ] as const satisfies readonly StyleProofManifest[]
 
 function cloneStyleProofManifest(manifest: StyleProofManifest): StyleProofManifest {

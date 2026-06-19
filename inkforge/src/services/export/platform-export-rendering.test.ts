@@ -1606,75 +1606,100 @@ describe('platform native export rendering rules', () => {
   it('builds committed WeChat PC evidence manifests without claiming phone or publish proof', () => {
     const manifests = getCommittedStyleProofWechatPcEvidenceManifests()
     const secondRead = getCommittedStyleProofWechatPcEvidenceManifests()
-    const manifest = manifests[0]
-    const artifactIds = manifest?.artifacts.map(artifact => artifact.id) ?? []
-    const artifactRefs = manifest?.artifacts.map(artifact => artifact.artifactRef) ?? []
+    const amberManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-amber')
+    const temperaManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-tempera')
 
-    expect(manifests).toHaveLength(1)
-    expect(secondRead[0]).not.toBe(manifest)
-    expect(secondRead[0]?.artifacts[0]).not.toBe(manifest?.artifacts[0])
-    expect(manifest?.platform).toBe('wechat')
-    expect(manifest?.scope).toBe('style-choice')
-    expect(manifest?.choiceId).toBe('wechat-flagship-amber')
-    expect(manifest?.artifactFingerprint).toBe(
+    expect(manifests).toHaveLength(2)
+    expect(secondRead[0]).not.toBe(manifests[0])
+    expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
+    expect(amberManifest?.platform).toBe('wechat')
+    expect(temperaManifest?.platform).toBe('wechat')
+    expect(amberManifest?.scope).toBe('style-choice')
+    expect(temperaManifest?.scope).toBe('style-choice')
+    expect(amberManifest?.artifactFingerprint).toBe(
       'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d',
     )
-    expect(manifest?.claimedEvidence).toEqual(['pc-editor-dom-readable', 'pc-editor-paste'])
-    expect(new Set(artifactIds).size).toBe(artifactIds.length)
-    expect(artifactRefs.every(ref =>
-      ref === 'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
+    expect(temperaManifest?.artifactFingerprint).toBe(
+      'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878',
+    )
+    expect(amberManifest?.claimedEvidence).toEqual(['pc-editor-dom-readable', 'pc-editor-paste'])
+    expect(temperaManifest?.claimedEvidence).toEqual(['pc-editor-dom-readable', 'pc-editor-paste'])
+
+    for (const manifest of manifests) {
+      const artifactIds = manifest.artifacts.map(artifact => artifact.id)
+      expect(new Set(artifactIds).size).toBe(artifactIds.length)
+      expect(manifest.artifacts.every(artifact =>
+        artifact.committed === true
+        && artifact.safeForCommit === true
+        && artifact.artifactFingerprint === manifest.artifactFingerprint
+      )).toBe(true)
+    }
+    expect(amberManifest?.artifacts.every(artifact =>
+      artifact.artifactRef === 'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
     )).toBe(true)
-    expect(manifest?.artifacts.every(artifact =>
-      artifact.committed === true
-      && artifact.safeForCommit === true
-      && artifact.artifactFingerprint === manifest.artifactFingerprint
+    expect(temperaManifest?.artifacts.every(artifact =>
+      artifact.artifactRef === 'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
     )).toBe(true)
 
     const packReport = getStyleProofManifestPackReport(manifests)
     const wechatProgress = packReport.platformReports.wechat
     const amberProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
-    const requirementStatus = new Map(
+    const temperaProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')
+    const amberRequirementStatus = new Map(
       amberProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
     )
+    const temperaRequirementStatus = new Map(
+      temperaProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
+    )
     const issueIds = packReport.issues.map(issue => issue.id)
-    const reportIssueIds = amberProgress?.report.issues.map(issue => issue.id) ?? []
+    const amberReportIssueIds = amberProgress?.report.issues.map(issue => issue.id) ?? []
+    const temperaReportIssueIds = temperaProgress?.report.issues.map(issue => issue.id) ?? []
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 1,
-      usableManifestCount: 1,
-      artifactCount: 6,
+      manifestCount: 2,
+      usableManifestCount: 2,
+      artifactCount: 12,
       duplicateArtifactIdCount: 0,
     })
     expect(issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
-    expect(reportIssueIds).toContain('style-proof-manifest-choice-blocked')
-    expect(reportIssueIds).not.toContain('style-proof-manifest-sensitive-artifact')
-    expect(reportIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+    expect(amberReportIssueIds).toContain('style-proof-manifest-choice-blocked')
+    expect(temperaReportIssueIds).not.toContain('style-proof-manifest-choice-blocked')
+    expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-sensitive-artifact')
+    expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-unsafe-commit-artifact')
     expect(wechatProgress.ignoredManifestCount).toBe(0)
-    expect(wechatProgress.summary.choicesWithManifest).toBe(1)
+    expect(wechatProgress.summary.choicesWithManifest).toBe(2)
     expect(amberProgress?.blockedByCatalog).toBe(true)
     expect(amberProgress?.status).toBe('invalid')
+    expect(temperaProgress?.blockedByCatalog).toBe(false)
+    expect(temperaProgress?.status).toBe('missing')
     expect(amberProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.satisfied)
       .toBeGreaterThan(0)
-    expect(requirementStatus.get('authenticated-editor-url')).toBe('satisfied')
-    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
-    expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
-    expect(requirementStatus.get('safe-disposable-draft')).toBe('satisfied')
-    expect(requirementStatus.get('pc-editor-paste-event')).toBe('satisfied')
-    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
-    expect(requirementStatus.get('phone-preview-readback')).toBe('missing')
-    expect(requirementStatus.get('dark-mode-check')).toBe('missing')
-    expect(requirementStatus.get('cover-thumbnail-check')).toBe('missing')
-    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+    expect(temperaProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.satisfied)
+      .toBeGreaterThan(0)
+    for (const requirementStatus of [amberRequirementStatus, temperaRequirementStatus]) {
+      expect(requirementStatus.get('authenticated-editor-url')).toBe('satisfied')
+      expect(requirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
+      expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
+      expect(requirementStatus.get('safe-disposable-draft')).toBe('satisfied')
+      expect(requirementStatus.get('pc-editor-paste-event')).toBe('satisfied')
+      expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+      expect(requirementStatus.get('phone-preview-readback')).toBe('missing')
+      expect(requirementStatus.get('dark-mode-check')).toBe('missing')
+      expect(requirementStatus.get('cover-thumbnail-check')).toBe('missing')
+      expect(requirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+    }
 
     const audit = getCommittedStyleProofWechatPcEvidenceAuditReport()
     const wechatAudit = audit.platformReports.wechat
     const cannotClaimIds = wechatAudit.cannotClaim.map(requirement => requirement.requirement.id)
 
-    expect(audit.summary.manifestCount).toBe(1)
-    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(1)
+    expect(audit.summary.manifestCount).toBe(2)
+    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(2)
     expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.status)
       .toBe('invalid')
+    expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')?.status)
+      .toBe('missing')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
       'phone-preview-readback',
       'dark-mode-check',
