@@ -2556,6 +2556,34 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 
 ---
 
+## 2026-06-20 135 SVG Editor Shell Residue Addendum
+
+- Added `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`.
+- Used CloakBrowser only on the active 135 SVG editor free-trial page. No save, export, sync,
+  upload, publish, screenshot capture, profile artifact, account artifact, template source, or
+  material URL was recorded.
+- After clicking a visible `免费试用` control, the center canvas/editor state exposed authoring shell
+  families such as `content-canvas`, `content-background`, `content-inner`, `block`, `block-inner`,
+  `block-img`, `block-img__inner`, `placeholder__help`, `placeholder__icon`,
+  `article-item__inner`, `article-item__label`, and `article-item__del`.
+- Added the dedicated runtime detector label `135 SVG editor shell residue` for shell-only markers
+  such as `block-img__inner`, `placeholder__help/icon`, `article-item__inner/label/del`, and
+  `articles_pop`.
+- TDD first run failed because the shell-only fixture produced no market-editor residue issue. The
+  focused regression then passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers" --reporter=default`.
+- Full local verification also passed: adjacent market-residue regression 7 selected tests,
+  `platform-export-rendering.test.ts` 145 tests, four-file cross-platform export regression
+  184 tests, full `src/services/export` serial run 35 files / 1118 tests, targeted ESLint,
+  `vue-tsc --noEmit`, and production build. Vite built in 28.56s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is 135 SVG editor authoring-shell learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 Xiumi Component Binding Attribute Residue Addendum
 
 - Added `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`.

@@ -6038,6 +6038,70 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 135 SVG Editor Shell Residue Contract Slice
+
+Scope:
+- CloakBrowser-only 135 SVG editor free-trial page refresh plus local quality-detector hardening.
+- No save, export, sync, upload, publish, screenshot capture, browser profile artifact, account
+  artifact, template source, or material URL was recorded.
+
+Observed:
+- Active 135 SVG editor page exposed the SVG effect library and visible `免费试用` controls.
+- After clicking a free-trial control, the center canvas/editor state exposed authoring shell
+  families such as `content-canvas`, `content-background`, `content-inner`, `block`, `block-inner`,
+  `block-img`, `block-img__inner`, `placeholder__help`, `placeholder__icon`,
+  `article-item__inner`, `article-item__label`, and `article-item__del`.
+- The center state is authoring schema and placeholder/editor chrome, not clean publishable article
+  semantics.
+
+Impact:
+- `npx gitnexus impact -r InkForge MARKET_EDITOR_RESIDUE_RULES --direction upstream` reported LOW
+  risk with 0 affected processes.
+
+Implementation:
+- Added a dedicated runtime residue label:
+  `135 SVG editor shell residue`.
+- The new rule blocks shell-only 135 SVG editor markers before they can pass as publishable output:
+  `block-img__inner`, `placeholder__help/icon`, `article-item__inner/label/del`, and
+  `articles_pop`.
+- Added a regression fixture without `_135editor`, `app-content-canvas`, known builder `data-name`,
+  trigger-overlay classes, or hosted material URLs, proving the shell-only markers are sufficient
+  to block WeChat, Xiaohongshu, and Zhihu output.
+
+Verification:
+- TDD first run failed as expected because the shell-only fixture emitted no market-editor residue
+  issue.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers|135 SVG builder canvas|135 SVG trigger|market editor residue|Xiumi component binding|Xiumi SVG gallery state wrappers" --reporter=default`
+  - PASS: 1 file / 7 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 145 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 184 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1118 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 28.56s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is 135 SVG editor authoring-shell learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.
+
 ## 2026-06-20 Xiumi Component Binding Attribute Residue Contract Slice
 
 Scope:

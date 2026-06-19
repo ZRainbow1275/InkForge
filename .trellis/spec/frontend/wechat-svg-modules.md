@@ -2044,6 +2044,13 @@ Contracts:
   `block-img__trigger`, `edit-trigger`, `trigger__ajuster`, `edit-trigger__switch`,
   `placeholder__name`, Vue/Ant wrappers, or builder `data-name` families must remain
   market-editor-residue blockers.
+- 2026-06-20 135 SVG editor shell refresh: the active free-trial SVG editor page exposed the center
+  authoring shell classes `content-canvas`, `content-background`, `content-inner`, `block`,
+  `block-inner`, `block-img`, `block-img__inner`, `placeholder__help`, `placeholder__icon`,
+  `article-item__inner`, `article-item__label`, and `article-item__del`. Specific editor-shell
+  markers such as `block-img__inner`, `placeholder__help/icon`, `article-item__inner/label/del`,
+  and `articles_pop` must fail as `135 SVG editor shell residue` if copied into WeChat/XHS/Zhihu
+  publishable output.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -2132,9 +2139,10 @@ Required tests/checks:
   `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
   `tn-group-usage-flow-canvas`, `tn-page-slot`, `tn-layer-slot`,
   `tn-child-position-absolute/static`, `tn-child-orientation-fixed/flow-canvas`, `raw-image`,
-  `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`, `tn-bind-comp-tpl-id`, component-binding
-  attributes such as `tn-uuid` / `tn-animate` / `tn-cell-type` / `tn-child-position`,
-  `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
+  135 SVG editor-shell markers such as `block-img__inner` / `placeholder__help` /
+  `article-item__inner`, `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`,
+  `tn-bind-comp-tpl-id`, component-binding attributes such as `tn-uuid` / `tn-animate` /
+  `tn-cell-type` / `tn-child-position`, `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in

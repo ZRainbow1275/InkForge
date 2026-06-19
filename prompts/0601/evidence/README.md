@@ -2217,6 +2217,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
 
+## 2026-06-20 135 SVG Editor Shell Residue Contract
+
+- [x] 135-svg-editor-shell-residue-contract-20260620.txt
+- Used CloakBrowser only on the active 135 SVG editor free-trial page after clicking a visible
+  `免费试用` control and reading the center canvas/editor state.
+- The applied center shell exposed wrapper families such as `content-canvas`, `content-background`,
+  `content-inner`, `block`, `block-inner`, `block-img`, `block-img__inner`,
+  `placeholder__help`, `placeholder__icon`, `article-item__inner`, `article-item__label`, and
+  `article-item__del`.
+- Converted the shell-only markers into the runtime residue label
+  `135 SVG editor shell residue`, without relying on `_135editor`, `app-content-canvas`, known
+  builder `data-name`, trigger overlay classes, or hosted material URLs.
+- TDD first run failed because the shell-only fixture produced no market-editor residue issue.
+  After the rule update, the focused shell regression and adjacent market-residue regression passed.
+- Full verification passed: `platform-export-rendering.test.ts` 145 tests, four-file
+  cross-platform export regression 184 tests, full export serial regression 35 files / 1118 tests,
+  targeted ESLint, `vue-tsc`, and production build. The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is 135 SVG editor authoring-shell learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-06-20 Market Editor Placeholder-Only Readback Contract
 
 - [x] market-editor-placeholder-only-readback-contract-20260620.txt

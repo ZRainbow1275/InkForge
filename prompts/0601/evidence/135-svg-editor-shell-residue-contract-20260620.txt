@@ -1,0 +1,73 @@
+135 SVG Editor Shell Residue Contract - 2026-06-20
+
+Scope:
+- CloakBrowser-only learning pass on the active 135 SVG editor free-trial page.
+- Local runtime detector hardening for publishable WeChat, Xiaohongshu, and Zhihu outputs.
+- No save, export, sync, upload, publish, screenshot capture, browser profile artifact, account
+  artifact, token, cookie, HAR, QR material, private template source, or material URL was recorded.
+
+Observed Center State:
+- Page title: online 135 SVG editor for WeChat SVG interactive effects.
+- A visible free-trial control was clicked before the center authoring state was inspected.
+- Center region contained image placeholder blocks and an applied SVG/editor shell, including:
+  - content-canvas
+  - content-background
+  - content-inner
+  - block
+  - block-inner
+  - block-img
+  - block-img__inner
+  - placeholder__help
+  - placeholder__icon
+  - article-item__inner
+  - article-item__label
+  - article-item__del
+- The sampled center SVG/content state had wrapper/placeholder semantics rather than clean
+  publishable article semantics.
+
+Implemented:
+- Added a dedicated market-editor residue rule:
+  135 SVG editor shell residue.
+- The rule blocks copied shell-only markers such as block-img__inner, placeholder__help/icon,
+  article-item__inner/label/del, and articles_pop.
+- The regression fixture intentionally avoids _135editor, app-content-canvas, known builder
+  data-name values, trigger-overlay classes, and hosted material URLs so the rule proves the
+  shell-only residue contract.
+
+TDD:
+- First focused run failed before the detector update:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers" --reporter=default
+  Failure: no platform market-editor residue issue was emitted for the shell-only fixture.
+- After the detector update, the focused regression passed:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers" --reporter=default
+  PASS: 1 file / 1 selected test.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor shell wrappers|135 SVG builder canvas|135 SVG trigger|market editor residue|Xiumi component binding|Xiumi SVG gallery state wrappers" --reporter=default
+  PASS: 1 file / 7 selected tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 145 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 184 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1118 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 28.56s.
+- Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
+
+Rule Translation:
+- Treat 135 SVG editor shell wrappers as authoring/runtime schema, not article content.
+- Convert them into InkForge-owned image-slot manifests, trigger-zone manifests, layout reports,
+  motion/action schema, static-expanded fallback, raster fallback, or editor-state diagnostics.
+- Do not copy 135 editor shell classes, placeholder controls, hidden authoring state, hosted
+  material URLs, template identifiers, or private source into runtime output.
+
+Boundary:
+- This proves local detector enforcement and market-authoring rule extraction only.
+- It does not prove WeChat paste, WeChat phone preview, mobile SMIL/click/tap/swipe/long-press,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public article
+  rendering, XHS/Zhihu account upload, public-host acceptance, or publish success.

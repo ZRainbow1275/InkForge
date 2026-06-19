@@ -754,6 +754,11 @@ Zhihu.
 - Trial placeholders, central-canvas authoring wrappers, effect-family ids, Vue/Ant wrappers,
   trigger helpers, and editor metadata must remain market-editor residue blockers if they appear in
   WeChat, Xiaohongshu, or Zhihu publishable output.
+- 2026-06-20 CloakBrowser shell refresh: the active 135 SVG editor free-trial page exposed center
+  shell wrappers such as `content-canvas`, `content-background`, `content-inner`, `block-inner`,
+  `block-img__inner`, `placeholder__help`, `placeholder__icon`, `article-item__inner`,
+  `article-item__label`, and `article-item__del`. Specific shell markers are blocked as
+  `135 SVG editor shell residue` if copied into WeChat/XHS/Zhihu output.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
@@ -804,5 +809,6 @@ Evidence:
 - `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`
 - `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
+- `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
