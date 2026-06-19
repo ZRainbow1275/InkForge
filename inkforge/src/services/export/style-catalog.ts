@@ -3133,19 +3133,34 @@ function validateStyleProofRequirementCoverage(
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
-    case 'public-image-host':
-      if (!has(artifact =>
+    case 'public-image-host': {
+      const isPublicImageHostProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'public-image-host-check'
+        && artifact.channel === 'public-web'
+        && (artifact.readback === 'visual' || artifact.readback === 'dom' || artifact.readback === 'manifest')
         && (artifact.hostStatus === 'public-https' || artifact.hostStatus === 'platform-hosted')
-      )) {
+
+      if (!has(isPublicImageHostProofArtifact)) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-public-image-host-missing',
           message: 'Image fallback proof lacks a public HTTPS or platform-hosted image host check.',
           suggestion: 'Record a public-image-host proof artifact; local, data, blob, temporary preview, or WeChat-only image URLs do not satisfy this requirement.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        isPublicImageHostProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-artifact-ref-missing',
+          message: 'Public image host proof does not reference the redacted image host or platform-host report that was verified.',
+          suggestion: 'Attach artifactRef to the exact redacted public-host or platform-host proof report; do not rely on an untraceable host-status row.',
+          location: requirementId,
+        })
       }
       break
+    }
     case 'xhs-artifact-manifest':
     case 'zhihu-artifact-manifest':
       if (!has(artifact =>
@@ -4108,6 +4123,7 @@ function buildStyleProofAcceptanceRequirementAudits(
       })
       const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
         || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
+        || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

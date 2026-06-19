@@ -2799,6 +2799,46 @@ Boundary:
 - It does not prove account authentication, upload surface availability, public-host acceptance,
   platform preview, public article rendering, scheduled-send, or publish success.
 
+## 2026-06-19 Public Host ArtifactRef Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 1 direct dependent, and 1 affected process
+  (`progressChoices`).
+- `npx gitnexus impact getStyleProofAcceptanceAuditStatus -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 2 direct dependents, and 0 affected processes.
+
+Implementation:
+- Tightened `public-image-host` so accepted host proof must use `channel:'public-web'`, action
+  `public-image-host-check`, readback `visual` / `dom` / `manifest`, and accepted host status
+  `public-https` or `platform-hosted`.
+- Reused `style-proof-manifest-artifact-ref-missing` for public-host rows that have accepted
+  host status but no non-empty `artifactRef`.
+- Acceptance requirement rows carrying `style-proof-manifest-artifact-ref-missing` now report
+  `invalid`, so bad public-host evidence is not collapsed into generic `blocked-by-external`.
+
+Regression coverage:
+- A Zhihu public-host proof row with `hostStatus:'public-https'` but no `artifactRef` remains
+  invalid in both manifest report and acceptance cannot-claim rows.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed with 1 file, 109 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed with 4 files, 148 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed with 35 files, 1082 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in 28.73s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove public-host acceptance, account upload, platform preview, public article
+  rendering, scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:

@@ -3524,6 +3524,51 @@ describe('platform native export rendering rules', () => {
     expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
   })
 
+  it('requires traceable artifactRef for public image host proof', () => {
+    const artifactFingerprint = 'sha256:redacted-zhihu-public-host'
+    const manifest: StyleProofManifest = {
+      platform: 'zhihu',
+      choiceId: 'zhihu-data-table',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'zhihu-public-host-without-artifact-ref',
+          requirementId: 'public-image-host',
+          kind: 'image-host-check',
+          label: 'redacted public host check without traceable artifact ref',
+          platform: 'zhihu',
+          choiceId: 'zhihu-data-table',
+          channel: 'public-web',
+          action: 'public-image-host-check',
+          readback: 'manifest',
+          artifactFingerprint,
+          hostStatus: 'public-https',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('zhihu', [manifest])
+    const publicHostAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'public-image-host'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toContain('style-proof-manifest-artifact-ref-missing')
+    expect(issueLocations).toContain('public-image-host')
+    expect(requirementStatus.get('public-image-host')).toBe('invalid')
+    expect(publicHostAudit?.status).toBe('invalid')
+    expect(publicHostAudit?.issueIds).toContain('style-proof-manifest-artifact-ref-missing')
+  })
+
   it('keeps blocked or unavailable market styles from being reported as usable', () => {
     const amber = getStyleChoiceById('wechat-flagship-amber')
     const clickReveal = getStyleChoiceById('wechat-click-reveal')

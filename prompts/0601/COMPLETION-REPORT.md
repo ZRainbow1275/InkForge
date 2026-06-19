@@ -1419,3 +1419,23 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/runbook proof only. It does not prove account authentication,
   upload surface availability, public-host acceptance, platform preview, public article rendering,
   scheduled-send, or publish success.
+
+## 2026-06-19 Public Host ArtifactRef Validator Addendum
+
+- Added `prompts/0601/evidence/public-host-artifact-ref-validator-20260619.txt`.
+- `public-image-host` proof now requires `channel:'public-web'`, action
+  `public-image-host-check`, accepted host status, and a non-empty `artifactRef` bound to the
+  redacted public-host or platform-host proof report.
+- Accepted-host rows without `artifactRef` emit
+  `style-proof-manifest-artifact-ref-missing`.
+- Acceptance requirement rows carrying `style-proof-manifest-artifact-ref-missing` now report
+  `invalid`, so bad public-host evidence is not collapsed into generic external waiting state.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 109 tests.
+- 4-file cross-platform export regression passed at 4 files / 148 tests.
+- Full export serial regression passed at 35 files / 1082 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove public-host acceptance,
+  account upload, platform preview, public article rendering, scheduled-send, or publish success.

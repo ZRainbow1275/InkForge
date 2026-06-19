@@ -1141,3 +1141,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local validator/runbook proof only. It does not prove account authentication, upload
   surface availability, public-host acceptance, platform preview, public article rendering,
   scheduled-send, or publish success.
+
+## 2026-06-19 Public Host ArtifactRef Validator
+
+- [x] public-host-artifact-ref-validator-20260619.txt
+- `public-image-host` proof requires accepted public/platform host status plus a traceable
+  `artifactRef`.
+- Host-status-only public-host rows emit `style-proof-manifest-artifact-ref-missing`.
+- Acceptance requirement rows carrying `style-proof-manifest-artifact-ref-missing` report
+  `invalid` rather than generic `blocked-by-external`.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 109 tests.
+- 4-file cross-platform regression passed at 4 files / 148 tests, and full export serial
+  regression passed at 35 files / 1082 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove public-host acceptance, account
+  upload, platform preview, public article rendering, scheduled-send, or publish success.

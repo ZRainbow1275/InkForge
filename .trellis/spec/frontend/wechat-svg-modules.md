@@ -1433,7 +1433,9 @@ Contracts:
 - Credentialed sync and platform publish rows remain `unsafe-to-automate` until a human/operator
   performs the real mutating account action and provides readback for the same artifact.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
-  Local, private, data, blob, localhost, WeChat-only, or temporary preview URLs remain invalid.
+  It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
+  report that was verified. Local, private, data, blob, localhost, WeChat-only, temporary preview,
+  or untraceable host-status-only rows remain invalid.
 - XHS and Zhihu artifact-manifest proof must require `artifactManifestValidated:true` in addition
   to `artifactRef` and `safeForCommit`. The flag is set only when the matching
   `validateXhsImageArtifactManifest()` or `validateZhihuImageArtifactManifest()` call returns no
@@ -1443,6 +1445,9 @@ Contracts:
 - XHS/Zhihu artifact-manifest rows without a non-empty `artifactRef` must surface
   `style-proof-manifest-artifact-ref-missing` and stay invalid, because the proof cannot be traced
   to the redacted manifest report that was validated.
+- Public-host rows without a non-empty `artifactRef` must also surface
+  `style-proof-manifest-artifact-ref-missing` and keep both the manifest requirement and acceptance
+  requirement row invalid.
 - A CloakBrowser readback that reaches the Xiaohongshu creator login route or the Zhihu sign-in
   route must keep account upload, editor preview, platform preview, public article rendering, and
   publish rows missing or unclaimable. Login forms, verification-code inputs, password fields,
@@ -1491,6 +1496,8 @@ Required tests:
 - The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
   validator-shaped rows missing that flag must keep the requirement invalid.
 - A validator-passed artifact-manifest row missing `artifactRef` must also remain invalid.
+- A public-host row with accepted `hostStatus` but no `artifactRef` must remain invalid and must
+  not be downgraded to generic `blocked-by-external` in the requirement-level acceptance audit.
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.

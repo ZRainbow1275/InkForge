@@ -1,0 +1,40 @@
+Public Host ArtifactRef Validator - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance audit hardening.
+- No external platform upload, public host creation, platform preview, scheduled send, or publish
+  action.
+
+Implemented:
+- public-image-host proof now requires channel public-web, action public-image-host-check, readback
+  visual / dom / manifest, and hostStatus public-https or platform-hosted.
+- public-image-host proof also requires a non-empty artifactRef pointing to the redacted public-host
+  or platform-host proof report.
+- Host-status-only public-image-host rows emit style-proof-manifest-artifact-ref-missing.
+- Acceptance requirement rows carrying style-proof-manifest-artifact-ref-missing report invalid
+  instead of generic blocked-by-external.
+
+Regression coverage:
+- A Zhihu public-host proof row with hostStatus public-https but no artifactRef remains invalid in
+  the manifest report.
+- The same row remains invalid in acceptance cannot-claim output.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 109 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 148 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1082 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 28.73s
+- inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local validator/runbook contract behavior only.
+- It does not prove public-host acceptance, account upload, platform preview, public article
+  rendering, scheduled-send, or publish success.
