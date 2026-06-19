@@ -4406,3 +4406,52 @@ Boundary:
 - It does not prove raw UTF-8 direct paste, phone preview, mobile SMIL/click, mobile Dark Mode,
   cover-thumbnail acceptance, credentialed sync, scheduled-send, public rendering, XHS/Zhihu
   account upload, or publish success.
+
+## 2026-06-19 WeChat Kiln Entity-Safe Editor-Return Cleanup Slice
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor attempt; Playwright was not used.
+- No phone preview, Dark Mode inspection, cover-thumbnail acceptance, sync, scheduled-send,
+  platform preview, public article rendering, upload, or publish action.
+
+Live attempt:
+- Prepared exact source `flagship-kiln.html` through the WeChat entity-safe clipboard transform.
+- Source SHA-256:
+  `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- Entity-safe SHA-256:
+  `d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335`.
+- The transform changed source bytes from `41800` to entity HTML bytes `46487`, reduced
+  non-ASCII characters from `941` to `0`, and preserved `svgCount=35`, `dataInkSvgCount=3`, and
+  `dataInkBlockCount=23`.
+- Opened the authenticated WeChat new-article editor route and read back the editor surface before
+  paste setup: 3 contenteditable nodes, 2 ProseMirror nodes, `#js_ueditor=1`,
+  `#js_appmsg_editor=1`, and `#editor_pannel=1`.
+- Sent Win32 `keybd_event` ordinary Ctrl+V with foreground window stable, preserved clipboard, no
+  mouse move, and no click.
+
+Result:
+- The first post-paste readback found the active page back on the draft-list route, not the editor
+  route.
+- The editor page context, paste/input/mutation counters, and ProseMirror body were absent.
+- No deterministic proof title, `data-ink-svg`, or `data-ink-block` marker was visible in the list.
+- A current-run untitled draft increased the article count from 6 to 7, so this is an
+  editor-return/no-rich-readback negative result and cannot satisfy ordinary paste proof.
+
+Cleanup:
+- The top current-run untitled draft was identified by current-run position/time and separated
+  from existing drafts.
+- Only its delete control and matching delete confirmation button were triggered; publish/send
+  controls were not clicked.
+- First and second post-delete readbacks both reported article count `6`, current-run time matches
+  `0`, deterministic proof title matches `0`, relogin signals absent, and no editor selectors.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-kiln-entity-ordinary-ctrlv-editor-return-cleanup-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is negative platform evidence and cleanup proof only.
+- It must not set `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`, `safe-disposable-draft`, phone
+  preview, Dark Mode, cover, credentialed sync, scheduled-send, platform preview, public
+  rendering, upload, or publish gates.

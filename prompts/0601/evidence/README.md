@@ -354,6 +354,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
 [x] wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt # 当前平台状态：Amber 在微信 PC editor 通过普通 OS Ctrl+V 保留 35 SVG/3 data-ink-svg，并完成 disposable draft 删除/缺失读回；手机/同步/发布仍未证明
 [x] wechat-kiln-ordinary-ctrlv-plain-text-cleanup-20260618.txt # 当前平台负向证据：Kiln 在 type=10/type=77 微信 PC editor 中普通 OS Ctrl+V 只进入纯文本，0 SVG/0 data-ink-svg；失败草稿已清理且不得设置 ordinaryClipboardPasteVerified:true
+[x] wechat-kiln-entity-ordinary-ctrlv-editor-return-cleanup-20260619.txt # 当前平台负向证据：Kiln entity-safe CF_HTML 已准备并发送普通 OS Ctrl+V，但编辑器返回草稿列表且无正文 DOM 读回；current-run 未命名草稿已清理，不得设置 ordinaryClipboardPasteVerified:true
 [x] wechat-tempera-ordinary-ctrlv-input-bridge-blocked-20260619.txt # 当前平台负向证据：Tempera exact CF_HTML 已写入剪贴板，但 keybd_event/SendInput/SendKeys 均未触发页面 key/paste/input 或正文 mutation；不得设置 ordinaryClipboardPasteVerified:true
 [x] wechat-tempera-ordinary-ctrlv-mojibake-cleanup-20260619.txt # 当前平台负向证据：Tempera 同页普通 OS Ctrl+V 保留 35 SVG/3 data-ink-svg/23 data-ink-block，但 replacement/mojibake=1118；deterministic draft 已 ret=0 删除
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
@@ -610,6 +611,35 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is negative evidence for Kiln ordinary OS Ctrl+V rich HTML/SVG in the current
   WeChat session. It must not set `ordinaryClipboardPasteVerified:true`, and it does not weaken the
   exact-artifact Amber proof or prove Tempera, phone preview, sync, schedule, or publish gates.
+
+## 2026-06-19 WeChat Kiln Entity-Safe Ctrl+V Editor-Return Cleanup
+
+- [x] wechat-kiln-entity-ordinary-ctrlv-editor-return-cleanup-20260619.txt
+- Used CloakBrowser only; Playwright was not used.
+- Exact source `flagship-kiln.html` SHA-256:
+  `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`.
+- Entity-safe SHA-256:
+  `d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335`.
+- The transform changed source bytes `41800` to entity HTML bytes `46487`, reduced non-ASCII
+  characters from `941` to `0`, and preserved `svgCount=35`, `dataInkSvgCount=3`, and
+  `dataInkBlockCount=23`.
+- The authenticated WeChat editor surface was reachable before paste setup:
+  3 contenteditable nodes, 2 ProseMirror nodes, `#js_ueditor=1`, `#js_appmsg_editor=1`, and
+  `#editor_pannel=1`.
+- OS Ctrl+V was sent through Win32 `keybd_event` with foreground window stable, preserved
+  clipboard, no mouse move, and no click.
+- The post-paste readback found the active page back on the draft-list route, with no editor
+  ProseMirror body, no in-page paste/input/mutation counter state, no deterministic proof title,
+  and no `data-ink-svg` / `data-ink-block` marker visible in the list. The current-run untitled
+  draft increased the article count from 6 to 7, so this is editor-return/no-rich-readback failure.
+- Cleanup completed through the visible top current-run draft delete path; two post-delete readbacks
+  reported article count `6`, current-run time matches `0`, deterministic proof title matches `0`,
+  relogin signals absent, and editor selectors absent.
+- Boundary: this is negative evidence for Kiln entity-safe ordinary PC Ctrl+V in the current
+  WeChat session. It must not set `ordinaryClipboardPasteVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`,
+  `safe-disposable-draft`, phone preview, Dark Mode, cover, sync, schedule, public rendering, or
+  publish gates.
 
 ## 2026-06-18 Kiln Paste-Safe Candidate Local Probe
 

@@ -1732,3 +1732,30 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   does not prove raw UTF-8 Tempera direct paste, WeChat phone preview, mobile interaction, Dark
   Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 WeChat Kiln Entity-Safe Editor-Return Cleanup Addendum
+
+- Added `prompts/0601/evidence/wechat-kiln-entity-ordinary-ctrlv-editor-return-cleanup-20260619.txt`.
+- Used CloakBrowser only; Playwright was not used.
+- Exact source `flagship-kiln.html` SHA-256
+  `90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531` was transformed into
+  entity-safe SHA-256 `d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335`.
+- The transformed payload reduced non-ASCII characters from `941` to `0`, preserved
+  `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23`, and was written to Windows
+  `HTML Format` plus `UnicodeText`.
+- The authenticated WeChat editor surface was reachable before paste setup, with 3 contenteditable
+  nodes, 2 ProseMirror nodes, `#js_ueditor=1`, `#js_appmsg_editor=1`, and `#editor_pannel=1`.
+- Win32 `keybd_event` ordinary Ctrl+V was sent with foreground window stable, preserved clipboard,
+  no mouse move, and no click.
+- The post-paste readback found the active page back on the draft-list route, with no editor
+  ProseMirror body, no in-page paste/input/mutation counter state, no deterministic proof title,
+  and no `data-ink-svg` / `data-ink-block` marker visible in the list. The current-run untitled
+  draft increased the visible article count from 6 to 7, so this remains editor-return/no-rich-
+  readback negative evidence rather than paste acceptance.
+- Cleanup completed through the visible top current-run draft delete path; two post-delete
+  readbacks reported article count `6`, current-run time matches `0`, deterministic proof title
+  matches `0`, relogin signals absent, and editor selectors absent.
+- Boundary: this must not set `ordinaryClipboardPasteVerified:true`,
+  `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`,
+  `safe-disposable-draft`, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled
+  send, platform preview, public article rendering, or publish success.

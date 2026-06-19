@@ -1,0 +1,97 @@
+WeChat Kiln Entity-Safe Ordinary Ctrl+V Editor Return Cleanup - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor attempt.
+- Ordinary OS Ctrl+V path with Windows HTML Format plus UnicodeText.
+- Source-owned InkForge artifact, transformed only by decimal HTML entity encoding for non-ASCII
+  characters before clipboard write.
+- No phone preview, Dark Mode inspection, cover-thumbnail acceptance, sync, schedule, platform
+  preview, public article rendering, upload, or publish action.
+
+Source artifact:
+- Artifact: prompts/0601/evidence/wechat-paste/flagship-kiln.html.
+- Source SHA-256: 90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531.
+- Source bytes: 41800.
+- Source non-ASCII characters: 941.
+- Source SVG count: 35.
+- Source data-ink-svg count: 3.
+- Source data-ink-block count: 23.
+
+Entity-safe clipboard transform:
+- Rule: replace every non-ASCII character with a decimal HTML entity, leaving ASCII tags and
+  attributes unchanged.
+- Entity-safe SHA-256: d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335.
+- Entity-safe HTML bytes: 46487.
+- CF_HTML bytes: 46656.
+- StartHTML: 105.
+- EndHTML: 46656.
+- StartFragment: 137.
+- EndFragment: 46624.
+- Non-ASCII characters after transform: 0.
+- Decimal entity count: 941.
+- SVG count after transform: 35.
+- data-ink-svg count after transform: 3.
+- data-ink-block count after transform: 23.
+- Plain text characters: 1357.
+
+Attempt:
+- Opened the authenticated WeChat new-article editor route and read back the PC editor surface.
+- Editor selectors were present before paste setup:
+  - contenteditable nodes: 3.
+  - ProseMirror nodes: 2.
+  - textarea nodes: 2.
+  - #js_ueditor: 1.
+  - #js_appmsg_editor: 1.
+  - #editor_pannel: 1.
+- The visible main body ProseMirror surface was focused before clipboard preparation.
+- A deterministic proof title was written only for cleanup targeting.
+- Before paste, the focused body remained placeholder-only:
+  - bodyTextLength: 10.
+  - bodyHtmlLength: 298.
+  - svgCount: 0.
+  - dataInkSvgCount: 0.
+  - dataInkBlockCount: 0.
+- Windows CF_HTML was prepared with `-EncodeNonAsciiEntities`.
+- OS paste action used Win32 keybd_event Ctrl+V with `-PreserveClipboard`, `-NoMove`, and
+  `-NoClick`.
+- Foreground window matched before and after the key event:
+  - windowMatched: true.
+  - matchedWindowCount: 1.
+  - foregroundBefore equaled foregroundAfter.
+  - setForeground: true.
+  - keybdEventCount: 4.
+
+Negative readback:
+- The first post-paste readback found the active page back on the WeChat draft-list route instead
+  of the editor route.
+- The in-page paste/input/mutation counter state was gone with the editor page context.
+- No editor ProseMirror body was available for artifact readback.
+- No deterministic proof title was visible in the draft list.
+- No `data-ink-svg` or `data-ink-block` marker was visible in the list readback.
+- A new current-run untitled draft entry appeared, increasing the visible article count from 6 to
+  7, so the attempt is treated as an editor-return/no-rich-readback failure rather than a paste
+  acceptance proof.
+
+Cleanup:
+- The new current-run untitled draft was located as the top current-time draft card.
+- Its delete, edit, and publish controls were distinguished within the same card; only the delete
+  control and matching delete confirmation button were triggered.
+- First post-delete readback:
+  - articleCount: 6.
+  - current-run time matches: 0.
+  - deterministic proof title matches: 0.
+- Second post-delete reload readback:
+  - articleCount: 6.
+  - current-run time matches: 0.
+  - deterministic proof title matches: 0.
+  - relogin signals: false.
+  - editor selectors: absent.
+
+Boundary:
+- This is negative evidence for Kiln entity-safe ordinary PC Ctrl+V in the current WeChat session.
+- It proves the entity-safe Kiln clipboard payload can be prepared and that the failed current-run
+  platform draft was cleaned up.
+- It must not set `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`, `safe-disposable-draft`, phone
+  preview, Dark Mode, cover-thumbnail, credentialed sync, scheduled-send, platform preview, public
+  article rendering, or publish proof.
