@@ -2855,6 +2855,17 @@ function validateStyleProofRequirementCoverage(
           suggestion: 'Record the exact preset/channel/artifact fingerprint and mark the proof artifact exactArtifact:true.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        artifact.exactArtifact === true
+        && typeof artifact.artifactFingerprint === 'string'
+        && artifact.artifactFingerprint.trim().length > 0
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Exact artifact proof lacks the exported artifact fingerprint.',
+          suggestion: 'Record artifactFingerprint on the same exactArtifact:true proof row so the evidence can be bound to the exported artifact under review.',
+          location: requirementId,
+        })
       }
       break
     case 'safe-disposable-draft': {

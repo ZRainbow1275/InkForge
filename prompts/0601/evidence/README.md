@@ -1204,3 +1204,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   28.23s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: local validator/runbook proof only. It does not prove WeChat phone preview, mobile
   interaction, Dark Mode, cover thumbnail, scheduled-send, or publish success.
+
+## 2026-06-19 Exact Artifact Fingerprint Validator
+
+- [x] exact-artifact-fingerprint-validator-20260619.txt
+- Generic `exact-artifact` proof requires `exactArtifact:true` and a non-empty
+  `artifactFingerprint` on the same proof row.
+- Bare exact-artifact boolean rows emit `style-proof-manifest-exact-artifact-missing`.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 112 tests.
+- 4-file cross-platform regression passed at 4 files / 151 tests, and full export serial
+  regression passed at 35 files / 1085 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  24.59s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove WeChat phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public article
+  rendering, or publish success.

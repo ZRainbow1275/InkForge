@@ -1,0 +1,36 @@
+Exact Artifact Fingerprint Validator - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance audit hardening.
+- No platform action, phone preview, upload, sync, scheduled send, or publish action.
+
+Implemented:
+- Generic exact-artifact proof now requires exactArtifact:true plus a non-empty
+  artifactFingerprint on the same proof row.
+- A bare exactArtifact:true flag without the exported artifact fingerprint emits
+  style-proof-manifest-exact-artifact-missing.
+
+Regression coverage:
+- A manifest with exactArtifact:true but no artifactFingerprint remains invalid for the
+  exact-artifact requirement.
+- The same row remains invalid in acceptance cannot-claim output.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 112 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 151 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1085 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 24.59s
+- inkforge/tsconfig.tsbuildinfo was restored after validation dirtied the generated cache.
+
+Boundary:
+- This proves local validator/runbook contract behavior only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled-send, platform preview, public article rendering, or publish success.

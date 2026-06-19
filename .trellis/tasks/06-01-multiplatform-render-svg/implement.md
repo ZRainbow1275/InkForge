@@ -2962,6 +2962,42 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
   scheduled-send, or publish success.
 
+## 2026-06-19 Exact Artifact Fingerprint Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 1 direct dependent, and 1 affected process
+  (`progressChoices`).
+- `npx gitnexus impact getStyleProofAcceptanceAuditStatus -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 2 direct dependents, and 0 affected processes.
+
+Implementation:
+- Tightened generic `exact-artifact` validation so a bare `exactArtifact:true` flag is no longer
+  enough without a non-empty `artifactFingerprint` on the same proof row.
+- Added a regression proving exact-artifact proof without fingerprint remains invalid in the
+  manifest report and acceptance cannot-claim output.
+- Added evidence:
+  `prompts/0601/evidence/exact-artifact-fingerprint-validator-20260619.txt`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed with 1 file, 112 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed with 4 files, 151 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed with 35 files, 1085 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  24.59s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled-send, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:

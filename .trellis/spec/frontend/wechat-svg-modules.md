@@ -1421,6 +1421,9 @@ Contracts:
   `platformEditorTargetVerified`, `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`,
   `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`,
   `mojibakeFreeVerified`, and `safeForCommit`.
+- Generic `exact-artifact` proof requires `exactArtifact:true` and a non-empty
+  `artifactFingerprint` on the same proof row. A bare boolean flag is not enough to bind evidence
+  to the exported InkForge artifact under review.
 - Phone preview, phone screenshot, Dark Mode, and cover thumbnail rows must require phone-preview
   artifacts and must keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and
   `coverThumbnailAccepted` separate. These rows must also bind the same proof artifact to
@@ -1524,6 +1527,9 @@ Required tests:
 - Published/platform-preview rows missing `exactArtifact:true` must be invalid through
   `style-proof-manifest-exact-artifact-missing`, and the requirement-level acceptance audit must
   report `invalid`.
+- Generic exact-artifact rows with `exactArtifact:true` but no non-empty `artifactFingerprint`
+  must also be invalid through `style-proof-manifest-exact-artifact-missing`, and the
+  requirement-level acceptance audit must report `invalid`.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof

@@ -663,6 +663,7 @@ describe('platform native export rendering rules', () => {
             channel: 'local-artifact',
             action: 'source-hygiene-review',
             readback: 'hygiene-log',
+            artifactFingerprint: 'sha256:redacted-classic-inline',
             exactArtifact: true,
             committed: true,
             safeForCommit: true,
@@ -698,6 +699,7 @@ describe('platform native export rendering rules', () => {
             channel: 'local-artifact',
             action: 'source-hygiene-review',
             readback: 'hygiene-log',
+            artifactFingerprint: 'sha256:redacted-amber-paste-artifact',
             exactArtifact: true,
             committed: true,
             safeForCommit: true,
@@ -798,6 +800,49 @@ describe('platform native export rendering rules', () => {
     expect(progress.summary.proofInvalidChoices).toBeGreaterThan(0)
     expect(progress.summary.sensitiveArtifactCount).toBe(1)
     expect(progress.summary.unsafeCommitArtifactCount).toBe(1)
+  })
+
+  it('requires an artifact fingerprint on exact artifact proof rows', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['local-browser'],
+      artifacts: [
+        {
+          id: 'classic-exact-artifact-without-fingerprint',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'exact artifact flag without fingerprint',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const exactArtifactAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'exact-artifact',
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'style-proof-manifest-exact-artifact-missing',
+        location: 'exact-artifact',
+      }),
+    ]))
+    expect(requirementStatus.get('exact-artifact')).toBe('invalid')
+    expect(exactArtifactAudit?.status).toBe('invalid')
   })
 
   it('keeps fully evidenced blocked choices invalid in style proof progress', () => {
