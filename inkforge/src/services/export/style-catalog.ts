@@ -2984,11 +2984,11 @@ function validateStyleProofRequirementCoverage(
       break
     }
     case 'phone-preview-readback': {
-      const hasPhonePreviewReadback = has(artifact =>
+      const isPhonePreviewProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'phone-preview'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || isVisualReadback(artifact.readback))
-      )
+      const hasPhonePreviewReadback = has(isPhonePreviewProofArtifact)
       if (!hasPhonePreviewReadback) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-readback-missing',
@@ -2997,15 +2997,24 @@ function validateStyleProofRequirementCoverage(
           location: requirementId,
         })
       } else if (!has(artifact =>
-        artifact.action === 'phone-preview'
-        && artifact.channel === 'phone-preview'
-        && (artifact.readback === 'phone' || isVisualReadback(artifact.readback))
+        isPhonePreviewProofArtifact(artifact)
         && artifact.phonePreviewContentVerified === true
       )) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-phone-content-missing',
           message: 'Mobile preview proof does not prove that the final phone article content was opened and read back.',
           suggestion: 'Do not use scan/entry/setup evidence for mobile-preview; record phonePreviewContentVerified:true only after the exact artifact is visible in the phone preview article body.',
+          location: requirementId,
+        })
+      } else if (!has(artifact =>
+        isPhonePreviewProofArtifact(artifact)
+        && artifact.phonePreviewContentVerified === true
+        && artifact.exactArtifact === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Mobile preview proof is not bound to the exact exported artifact under review.',
+          suggestion: 'Record exactArtifact:true only after the exact exported artifact is visible in the final phone preview article body.',
           location: requirementId,
         })
       }
@@ -3037,19 +3046,17 @@ function validateStyleProofRequirementCoverage(
       break
     }
     case 'dark-mode-check': {
-      const hasDarkModeReadback = has(artifact =>
+      const isDarkModeProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'dark-mode-check'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-      )
+      const hasDarkModeReadback = has(isDarkModeProofArtifact)
       if (!hasDarkModeReadback) {
         requireStyleProof(issues, requirementId, false)
       } else {
         if (!has(artifact =>
-          artifact.action === 'dark-mode-check'
-          && artifact.channel === 'phone-preview'
-          && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-          && artifact.phonePreviewContentVerified === true
+          isDarkModeProofArtifact(artifact)
+            && artifact.phonePreviewContentVerified === true
         )) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-phone-content-missing',
@@ -3059,10 +3066,8 @@ function validateStyleProofRequirementCoverage(
           })
         }
         if (!has(artifact =>
-          artifact.action === 'dark-mode-check'
-          && artifact.channel === 'phone-preview'
-          && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-          && artifact.darkModeEnabledVerified === true
+          isDarkModeProofArtifact(artifact)
+            && artifact.darkModeEnabledVerified === true
         )) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-dark-mode-not-verified',
@@ -3071,27 +3076,53 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
+        if (has(artifact =>
+          isDarkModeProofArtifact(artifact)
+            && artifact.phonePreviewContentVerified === true
+            && artifact.darkModeEnabledVerified === true
+        ) && !has(artifact =>
+          isDarkModeProofArtifact(artifact)
+            && artifact.phonePreviewContentVerified === true
+            && artifact.darkModeEnabledVerified === true
+            && artifact.exactArtifact === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-exact-artifact-missing',
+            message: 'Dark Mode proof is not bound to the exact exported artifact under review.',
+            suggestion: 'Record exactArtifact:true on the same Dark Mode proof artifact only after the exact article body is open in phone preview with mobile Dark Mode enabled.',
+            location: requirementId,
+          })
+        }
       }
       break
     }
     case 'cover-thumbnail-check': {
-      const hasCoverThumbnailReadback = has(artifact =>
+      const isCoverThumbnailProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'cover-thumbnail-check'
         && artifact.channel === 'phone-preview'
         && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
-      )
+      const hasCoverThumbnailReadback = has(isCoverThumbnailProofArtifact)
       if (!hasCoverThumbnailReadback) {
         requireStyleProof(issues, requirementId, false)
       } else if (!has(artifact =>
-        artifact.action === 'cover-thumbnail-check'
-        && artifact.channel === 'phone-preview'
-        && (artifact.readback === 'phone' || artifact.readback === 'screenshot' || isVisualReadback(artifact.readback))
+        isCoverThumbnailProofArtifact(artifact)
         && artifact.coverThumbnailAccepted === true
       )) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-cover-thumbnail-not-accepted',
           message: 'Cover thumbnail proof does not prove that the cover thumbnail was accepted in the phone preview entry.',
           suggestion: 'Record coverThumbnailAccepted:true only after the platform preview entry or phone share/list entry shows the exact accepted cover thumbnail.',
+          location: requirementId,
+        })
+      } else if (!has(artifact =>
+        isCoverThumbnailProofArtifact(artifact)
+        && artifact.coverThumbnailAccepted === true
+        && artifact.exactArtifact === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-exact-artifact-missing',
+          message: 'Cover thumbnail proof is not bound to the exact exported artifact under review.',
+          suggestion: 'Record exactArtifact:true on the same cover-thumbnail proof artifact only after the exact accepted thumbnail is visible for the exported artifact.',
           location: requirementId,
         })
       }

@@ -1420,13 +1420,16 @@ Contracts:
   `mojibakeFreeVerified`, and `safeForCommit`.
 - Phone preview, Dark Mode, and cover thumbnail rows must require phone-preview artifacts and must
   keep `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`
-  separate. PC DOM, local browser screenshots, scan pages, or setup dialogs cannot complete them.
+  separate. These rows must also bind the same proof artifact to `exactArtifact:true` when the
+  contract lists exact-artifact proof. PC DOM, local browser screenshots, scan pages, setup dialogs,
+  or unbound phone readbacks cannot complete them.
 - `phone-screenshot` must require `action:'phone-preview'`, `readback:'screenshot'`, and
   `phonePreviewContentVerified:true`. A setup screenshot, scan-entry screenshot, PC preview shell,
   or relogin page is not a phone screenshot proof for final article content.
 - `dark-mode-check` must require `darkModeEnabledVerified:true` and
-  `phonePreviewContentVerified:true` on phone-preview evidence. A Dark Mode setting page, PC
-  preview shell, or generic screenshot cannot prove mobile Dark Mode for the exact article body.
+  `phonePreviewContentVerified:true` on phone-preview evidence, plus `exactArtifact:true` on the
+  same proof artifact. A Dark Mode setting page, PC preview shell, or generic screenshot cannot
+  prove mobile Dark Mode for the exact article body.
 - `StyleProofArtifact.phonePreviewBlocked?: boolean` and
   `StyleProofAction:'phone-preview-entry-readback'` are explicit blocker markers. They must emit
   `style-proof-manifest-phone-preview-blocked`, keep the matching requirement invalid, and make
@@ -1517,6 +1520,9 @@ Required tests:
 - Published/platform-preview rows missing `exactArtifact:true` must be invalid through
   `style-proof-manifest-exact-artifact-missing`, and the requirement-level acceptance audit must
   report `invalid`.
+- Phone preview, Dark Mode, and cover-thumbnail rows missing same-artifact `exactArtifact:true`
+  must also be invalid through `style-proof-manifest-exact-artifact-missing`, even when a separate
+  local exact-artifact proof exists for the manifest.
 - WeChat phone preview blocker manifests must prove that scan/setup/PC-preview-shell/cover-setting
   rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
   `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode

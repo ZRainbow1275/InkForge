@@ -2879,6 +2879,49 @@ Boundary:
 - It does not prove account authentication, platform preview, public article rendering,
   scheduled-send, or publish success.
 
+## 2026-06-19 Phone Matrix Exact Artifact Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 1 direct dependent, and 1 affected process
+  (`progressChoices`).
+- `npx gitnexus impact getStyleProofAcceptanceAuditStatus -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 2 direct dependents, and 0 affected processes.
+
+Implementation:
+- Tightened `phone-preview-readback` so final phone article body proof must carry
+  `phonePreviewContentVerified:true` and `exactArtifact:true` on the same phone-preview artifact.
+- Tightened `dark-mode-check` so accepted Dark Mode proof must carry
+  `phonePreviewContentVerified:true`, `darkModeEnabledVerified:true`, and `exactArtifact:true` on
+  the same proof artifact.
+- Tightened `cover-thumbnail-check` so accepted cover proof must carry
+  `coverThumbnailAccepted:true` and `exactArtifact:true` on the same proof artifact.
+- Reused `style-proof-manifest-exact-artifact-missing` for unbound phone/Dark Mode/cover rows.
+
+Regression coverage:
+- A manifest with separate local exact-artifact proof but unbound phone-preview, Dark Mode, and
+  cover-thumbnail artifacts remains invalid for each phone matrix row and in acceptance
+  cannot-claim output.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed with 1 file, 111 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed with 4 files, 150 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed with 35 files, 1084 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in
+  23.68s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:
