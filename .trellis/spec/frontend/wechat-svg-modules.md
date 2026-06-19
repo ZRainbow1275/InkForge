@@ -1173,6 +1173,21 @@ Contracts:
   disposable drafts were cleaned up and post-cleanup readback found no current-run Kiln marker,
   failed title, recent draft, or local path residue. This is negative proof and must not satisfy
   `pc-editor-paste-event`, `safe-disposable-draft`, or `ordinaryClipboardPasteVerified:true`.
+- 2026-06-19 live WeChat Kiln entity-safe negative proof:
+  `wechat-kiln-entity-ordinary-ctrlv-editor-return-cleanup-20260619.txt` records that exact
+  `flagship-kiln.html` was transformed with the WeChat clipboard non-ASCII entity rule and written
+  as Windows CF_HTML (`sourceSha256=90581eec1c3cb2805ddc235b8d41725795bfeaf2fc3628c707d485201af0d531`,
+  `entitySha256=d099275aadb399a7b63792d3fb0c826c66b7bb02aba50d67820fb9b0fa23d335`,
+  `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`). The authenticated editor surface was
+  reachable before paste setup, and Win32 `keybd_event` ordinary Ctrl+V was sent with the foreground
+  window stable. The post-paste readback returned to the draft-list route with no editor
+  ProseMirror body, no paste/input/mutation counter state, no deterministic proof title, and no
+  `data-ink-svg` / `data-ink-block` marker visible. The current-run untitled draft was identified,
+  deleted, and confirmed absent after reload. This is editor-return/no-rich-readback negative proof:
+  it must not satisfy `pc-editor-paste-event`, `safe-disposable-draft`,
+  `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, or `mojibakeFreeVerified:true`, and it must not weaken or
+  contradict the Tempera entity-safe success proof.
 - 2026-06-18 Kiln paste-safe candidate:
   `flagship-kiln-paste-safe` and `wechat-flagship-kiln-paste-safe` are additive candidates created
   after the exact `flagship-kiln.html` ordinary Ctrl+V negative proof. They preserve the original
@@ -1661,6 +1676,10 @@ Contracts:
   level until mobile preview, Dark Mode, cover thumbnail, sync, scheduled-send, public
   URL/platform preview, and publish proof exists. It must not generalize Amber PC proof or Tempera
   entity-safe PC proof to raw UTF-8 Tempera direct paste, Kiln, phone, sync, or publish rows.
+- Negative Kiln PC attempts, including the raw plain-text proof and the 2026-06-19 entity-safe
+  editor-return/no-rich-readback proof, must stay out of
+  `getCommittedStyleProofWechatPcEvidenceManifests()`. They are evidence for blocked claims and
+  future troubleshooting only, not success manifests for PC paste rows.
 - `getCommittedStyleProofWechatPcEvidenceAuditReport()` is only shorthand for auditing that
   committed WeChat PC pack. It must keep cannot-claim rows visible.
 
