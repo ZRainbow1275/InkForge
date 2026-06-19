@@ -1051,7 +1051,7 @@ const STYLE_PROOF_COLLECTION_NOTES = {
   'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
   'sensitive-hygiene': 'Review proof references for tokens, cookies, QR codes, HAR files, browser profiles, account screenshots, and local credential paths.',
   'market-editor': 'Use CloakBrowser to apply a concrete market editor element, visually confirm insertion, and record DOM/controls without copying template source.',
-  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
+  'authenticated-pc-editor': 'Use a real authenticated PC editor only after exact-artifact proof is ready; record authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorSurfaceVerified:true, platformEditorDomVerified:true, safe disposable-draft cleanup, and ordinary paste readback before claiming this gate.',
   'phone-preview': 'Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.',
   'public-host': 'Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.',
   'credentialed-channel': 'Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material; login or sign-in pages must stay blocked evidence.',
@@ -1093,7 +1093,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['platform-editor'],
     requiredActions: ['pc-editor-dom-readback'],
     requiredReadbacks: ['dom', 'visual-and-dom'],
-    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'platformEditorDomVerified', 'safeForCommit'],
+    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'platformEditorSurfaceVerified', 'platformEditorDomVerified', 'safeForCommit'],
   },
   'unit-test-coverage': {
     requirementId: 'unit-test-coverage',
@@ -2203,6 +2203,7 @@ function createCommittedStyleProofWechatAmberPcEvidenceManifest(): StyleProofMan
         artifactRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
+        platformEditorSurfaceVerified: true,
         platformEditorDomVerified: true,
         committed: true,
         safeForCommit: true,
@@ -2821,6 +2822,19 @@ function validateStyleProofRequirementCoverage(
             id: 'style-proof-manifest-platform-editor-target-not-verified',
             message: 'PC editor DOM proof does not prove that the DOM readback target is the same article editor target.',
             suggestion: 'Record platformEditorTargetVerified:true only after the readback target is the same authenticated article editor, not a dashboard, draftbox, menu, hidden tab, or unrelated shell.',
+            location: requirementId,
+          })
+        }
+        if (!has(artifact =>
+          artifact.action === 'pc-editor-dom-readback'
+          && artifact.channel === 'platform-editor'
+          && isDomOrVisualReadback(artifact.readback)
+          && artifact.platformEditorSurfaceVerified === true
+        )) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-platform-editor-surface-not-verified',
+            message: 'PC editor DOM proof does not prove that the readback came from the intended editor body surface.',
+            suggestion: 'Record platformEditorSurfaceVerified:true only after the main article body editing surface is identified and read back; for WeChat, target the body ProseMirror node inside the mock-iframe wrapper, not the title field, hidden iframe, draft list, or shell page.',
             location: requirementId,
           })
         }

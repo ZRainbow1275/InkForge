@@ -1307,3 +1307,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 WeChat Editor DOM Surface Validator
+
+- [x] wechat-editor-dom-surface-validator-20260619.txt
+- Local style-proof manifest validator and runbook contract hardening.
+- `pc-editor-dom-readback` now requires `platformEditorSurfaceVerified:true` together with
+  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,
+  `platformEditorDomVerified:true`, and `safeForCommit:true`.
+- `validateStyleProofManifest()` emits
+  `style-proof-manifest-platform-editor-surface-not-verified` when PC editor DOM readback never
+  verifies the intended main body editing surface.
+- Regression coverage rejects DOM readback that proves authenticated session, article-editor target,
+  and editor DOM nodes but not the body surface.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 114 tests.
+- 4-file cross-platform export regression passed at 4 files / 153 tests, and full export serial
+  regression passed at 35 files / 1087 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  33.13s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove ordinary WeChat Ctrl+V rich
+  HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
+  public article rendering, or publish success.

@@ -1245,14 +1245,17 @@ Contracts:
   `platformEditorTargetVerified:true` on the platform-editor proof artifact. A login, re-login,
   expired-session, scan-entry, dashboard, draftbox, create-menu, or other authenticated shell page
   must remain invalid even if it was opened through the WeChat backend URL path.
-- `pc-editor-dom-readback` requires both `authenticatedSessionVerified:true` and
-  `platformEditorTargetVerified:true` plus `platformEditorDomVerified:true` on a platform-editor
-  DOM/visual-DOM artifact. Generic DOM readback from a login page, shell page, blocked page,
-  draftbox/menu page, or expired session must not satisfy PC editor DOM proof.
+- `pc-editor-dom-readback` requires `authenticatedSessionVerified:true`,
+  `platformEditorTargetVerified:true`, `platformEditorSurfaceVerified:true`, and
+  `platformEditorDomVerified:true` on a platform-editor DOM/visual-DOM artifact. Generic DOM
+  readback from a login page, shell page, blocked page, draftbox/menu page, expired session,
+  title field, hidden iframe, route-discovery probe, or list-card shell must not satisfy PC editor
+  DOM proof.
 - The `authenticated-pc-editor` collection plan/queue note must mention
-  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`, and
-  `platformEditorDomVerified:true` so ExportModal/operator workflows collect the same proof flags
-  enforced by `validateStyleProofManifest()`.
+  `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,
+  `platformEditorSurfaceVerified:true`, and `platformEditorDomVerified:true` so
+  ExportModal/operator workflows collect the same proof flags enforced by
+  `validateStyleProofManifest()`.
 - `safe-disposable-draft` requires `action:'safe-disposable-draft'`, `channel:'platform-editor'`,
   `disposableDraft:true`, and `cleanupPathVerified:true` on the same proof artifact. A disposable
   draft without a verified cleanup, deletion, or rollback path is still unsafe for platform
@@ -1430,6 +1433,10 @@ Contracts:
   same-surface mutation. A hidden native iframe, title ProseMirror, list-card edit button, editor
   route discovery, `cloak_fill`, or local ClipboardEvent-style injection must not satisfy ordinary
   Ctrl+V proof.
+- PC editor DOM readback uses the same body-surface identity gate. A DOM proof that only finds
+  route shape, editor shell selectors, title ProseMirror, hidden native iframes, or generic
+  contenteditable counts must stay invalid until the main body editing surface itself is identified
+  and read back with `platformEditorSurfaceVerified:true`.
 - Generic `exact-artifact` proof requires `exactArtifact:true` and a non-empty
   `artifactFingerprint` on the same proof row. A bare boolean flag is not enough to bind evidence
   to the exported InkForge artifact under review.

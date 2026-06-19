@@ -1610,3 +1610,27 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   rich HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 WeChat Editor DOM Surface Validator Addendum
+
+- Added `prompts/0601/evidence/wechat-editor-dom-surface-validator-20260619.txt`.
+- `pc-editor-dom-readback` now requires `platformEditorSurfaceVerified:true` in addition to
+  authenticated session, article editor target, editor DOM readback, and safe commit proof.
+- `validateStyleProofManifest()` now emits
+  `style-proof-manifest-platform-editor-surface-not-verified` for PC editor DOM rows that never
+  verify the main article body editing surface.
+- The authenticated-PC-editor collection note and execution runbook expose
+  `platformEditorSurfaceVerified` for PC DOM readback, not only for PC paste.
+- Regression coverage rejects DOM readback that can identify an authenticated article editor and
+  DOM nodes but cannot prove the WeChat main body ProseMirror surface.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 114 tests.
+- 4-file cross-platform export regression passed at 4 files / 153 tests.
+- Full export serial regression passed at 35 files / 1087 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  33.13s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove ordinary WeChat Ctrl+V
+  rich HTML/SVG acceptance, live editor body mutation, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
+  or publish success.

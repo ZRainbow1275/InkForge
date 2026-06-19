@@ -1,0 +1,36 @@
+WeChat Editor DOM Surface Validator - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and execution-runbook contract hardening.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, and no publish.
+
+Implemented:
+- pc-editor-dom-readback now requires platformEditorSurfaceVerified:true in addition to authenticatedSessionVerified:true, platformEditorTargetVerified:true, platformEditorDomVerified:true, and safeForCommit:true.
+- validateStyleProofRequirementCoverage() emits style-proof-manifest-platform-editor-surface-not-verified when a PC editor DOM readback never verifies the intended editor body surface.
+- The authenticated-pc-editor collection note now includes platformEditorSurfaceVerified:true.
+- The execution runbook exposes platformEditorSurfaceVerified as a required field for pc-editor-dom-readback.
+- The committed Amber PC DOM proof row is explicitly marked platformEditorSurfaceVerified:true because the redacted evidence records body editor focus and body DOM readback.
+
+Regression coverage:
+- Rejects a PC editor DOM readback that proves authenticated session, article editor target, and editor DOM nodes but does not prove the main body editing surface.
+- Keeps authenticated-session, target, and DOM issues separate from body-surface verification.
+- Keeps pc-editor-paste-event surface validation intact.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 114 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 153 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1087 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 33.13s.
+- inkforge/tsconfig.tsbuildinfo was restored after build/typecheck.
+
+Boundary:
+- This proves local proof-accounting strictness only.
+- It does not prove ordinary WeChat Ctrl+V rich HTML/SVG acceptance, editor body mutation in the live platform, WeChat phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu upload, or publish success.

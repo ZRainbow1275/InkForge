@@ -552,6 +552,7 @@ describe('platform native export rendering rules', () => {
     const authenticatedEditorStep = amberSteps.find(step => step.gate === 'authenticated-pc-editor')
     expect(authenticatedEditorStep?.note).toContain('authenticatedSessionVerified:true')
     expect(authenticatedEditorStep?.note).toContain('platformEditorTargetVerified:true')
+    expect(authenticatedEditorStep?.note).toContain('platformEditorSurfaceVerified:true')
     expect(authenticatedEditorStep?.note).toContain('platformEditorDomVerified:true')
     expect(amberSteps.filter(step => step.gate === 'phone-preview').map(step => step.requirement.id)).toEqual(
       expect.arrayContaining(['phone-preview-readback', 'phone-screenshot', 'dark-mode-check', 'cover-thumbnail-check']),
@@ -915,6 +916,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint: 'sha256:redacted-amber-artifact',
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
@@ -1532,6 +1534,7 @@ describe('platform native export rendering rules', () => {
       getCommittedStyleProofLocalEvidenceManifests(),
     )
     const pcPasteStep = runbook.steps.find(step => step.requirement.id === 'pc-editor-paste-event')
+    const pcDomStep = runbook.steps.find(step => step.requirement.id === 'pc-editor-dom-readback')
     const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
     const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
     const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
@@ -1561,6 +1564,13 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(pcPasteStep?.cannotClaimReason).toContain('cannot be claimed')
     expect(pcPasteStep?.redactionBoundary).toContain('account')
+    expect(pcDomStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'authenticatedSessionVerified',
+      'platformEditorTargetVerified',
+      'platformEditorSurfaceVerified',
+      'platformEditorDomVerified',
+      'safeForCommit',
+    ]))
 
     expect(phoneStep?.status).toBe('blocked-by-external')
     expect(phoneStep?.boundary).toBe('phone-preview')
@@ -1848,6 +1858,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint: 'sha256:redacted-classic-paste',
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
@@ -2100,6 +2111,78 @@ describe('platform native export rendering rules', () => {
     expect(issueIds).toContain('style-proof-manifest-platform-editor-dom-not-verified')
   })
 
+  it('rejects PC editor DOM readback that never verifies the main editor body surface', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['pc-editor-dom-readable'],
+      artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-dom',
+      artifacts: [
+        {
+          id: 'wechat-editor-url-with-authenticated-target',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'authenticated article editor route readback',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-dom',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'wechat-editor-dom-without-body-surface',
+          requirementId: 'pc-editor-dom-readback',
+          kind: 'browser-readback',
+          label: 'editor DOM readback without main body ProseMirror surface proof',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'pc-editor-dom-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-dom',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          platformEditorDomVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'pc-dom-surface-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          evidenceLabel: 'pc-editor-dom-readable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-dom',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+
+    expect(report.valid).toBe(false)
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('satisfied')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(issueIds).toContain('style-proof-manifest-platform-editor-surface-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-authenticated-session-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-platform-editor-target-not-verified')
+    expect(issueIds).not.toContain('style-proof-manifest-platform-editor-dom-not-verified')
+  })
+
   it('rejects OS click calibration diagnostics as safe draft or ordinary paste proof', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
@@ -2276,6 +2359,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint: 'sha256:redacted-classic-paste',
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
           safeForCommit: true,
         },
