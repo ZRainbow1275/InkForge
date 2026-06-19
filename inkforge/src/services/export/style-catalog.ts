@@ -261,6 +261,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-paste-mojibake-not-ruled-out'
   | 'style-proof-manifest-paste-proof-not-bound'
   | 'style-proof-manifest-proof-not-bound'
+  | 'style-proof-manifest-contract-action-channel-mismatch'
   | 'style-proof-manifest-forbidden-field-present'
   | 'style-proof-manifest-safe-commit-not-verified'
   | 'style-proof-manifest-phone-preview-blocked'
@@ -305,6 +306,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
   'style-proof-manifest-proof-not-bound',
+  'style-proof-manifest-contract-action-channel-mismatch',
   'style-proof-manifest-forbidden-field-present',
   'style-proof-manifest-safe-commit-not-verified',
   'style-proof-manifest-phone-preview-blocked',
@@ -1124,7 +1126,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
   },
   'local-browser-rendering': {
     requirementId: 'local-browser-rendering',
-    requiredChannels: ['local-browser'],
+    requiredChannels: ['local-browser', 'tauri-webview'],
     requiredActions: ['local-render'],
     requiredReadbacks: ['visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['safeForCommit'],
@@ -3557,6 +3559,7 @@ function validateStyleProofRequirementCoverage(
       break
   }
 
+  validateStyleProofRequiredActionChannel(requirementId, artifacts, issues)
   validateStyleProofRequiredReadback(requirementId, artifacts, issues)
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
@@ -3597,6 +3600,33 @@ function getStyleProofContractCandidates(
 
   return getStyleProofContractActionChannelCandidates(requirementId, artifacts)
     .filter(artifact => isStyleProofReadbackAllowedByContract(contract, artifact.readback))
+}
+
+function validateStyleProofRequiredActionChannel(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-contract-action-channel-mismatch'
+  )) {
+    return
+  }
+
+  const requirementArtifacts = artifacts.filter(artifact => artifact.requirementId === requirementId)
+  if (requirementArtifacts.length === 0) return
+  if (getStyleProofContractActionChannelCandidates(requirementId, requirementArtifacts).length > 0) {
+    return
+  }
+
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-contract-action-channel-mismatch',
+    message: `${requirementId} proof rows do not match the required action/channel contract.`,
+    suggestion: `Record one proof row with action ${contract.requiredActions.join(' or ')} and channel ${contract.requiredChannels.join(' or ')} before claiming this requirement.`,
+    location: requirementId,
+  })
 }
 
 function validateStyleProofRequiredReadback(
@@ -4779,6 +4809,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         || accumulator.issueIds.has('style-proof-manifest-cover-thumbnail-not-accepted')
         || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
         || accumulator.issueIds.has('style-proof-manifest-proof-not-bound')
+        || accumulator.issueIds.has('style-proof-manifest-contract-action-channel-mismatch')
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')
         || accumulator.issueIds.has('style-proof-manifest-sensitive-artifact')

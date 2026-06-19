@@ -1995,6 +1995,31 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Action Channel Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-action-channel-contract-20260619.txt`.
+- Added executable `requiredChannels` / `requiredActions` validation for proof artifacts attached
+  to a requirement.
+- Wrong-channel hygiene rows now emit
+  `style-proof-manifest-contract-action-channel-mismatch` instead of satisfying
+  `no-proprietary-template-source` or `no-sensitive-artifact`.
+- Synchronized `local-browser-rendering` so existing Tauri/WebView2 local-render evidence remains
+  accepted by the execution contract.
+- Weak PC editor rows attached to phone or publish requirements now stay invalid instead of
+  falling back to broader external-gate status.
+- TDD first focused run failed as expected because no action/channel mismatch issue was emitted;
+  after the validator fix, focused verification passed.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 126 tests.
+- 4-file cross-platform export regression passed at 4 files / 165 tests, and full export serial
+  regression passed at 35 files / 1099 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  35.55s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Field Binding Addendum
 
 - Added `prompts/0601/evidence/style-proof-required-field-binding-contract-20260619.txt`.

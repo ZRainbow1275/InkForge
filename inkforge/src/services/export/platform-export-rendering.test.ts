@@ -1431,8 +1431,8 @@ describe('platform native export rendering rules', () => {
     expect(audit.platformReports.xiaohongshu.progress.ignoredManifestCount).toBe(2)
     expect(audit.platformReports.zhihu.progress.summary.choicesWithManifest).toBe(1)
     expect(audit.platformReports.zhihu.progress.ignoredManifestCount).toBe(2)
-    expect(wechatRequirementStatus.get('phone-preview-readback')).toBe('blocked-by-external')
-    expect(wechatRequirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
+    expect(wechatRequirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(wechatRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
     expect(xhsRequirementStatus.get('published-url-or-platform-preview')).toBe('unsafe-to-automate')
     expect(zhihuRequirementStatus.get('public-image-host')).toBe('blocked-by-external')
     expect(zhihuRequirementStatus.get('zhihu-artifact-manifest')).toBe('invalid')
@@ -4029,6 +4029,62 @@ describe('platform native export rendering rules', () => {
       'no-sensitive-artifact',
       'proprietary-source-hygiene-sensitive',
       'sensitive-hygiene-review-sensitive',
+    ]))
+    expect(requirementStatus.get('no-proprietary-template-source')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('invalid')
+    expect(auditStatus.get('no-proprietary-template-source')).toBe('invalid')
+    expect(auditStatus.get('no-sensitive-artifact')).toBe('invalid')
+  })
+
+  it('rejects proof rows whose channel or action does not match the execution contract', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [
+        {
+          id: 'proprietary-source-hygiene-wrong-channel',
+          requirementId: 'no-proprietary-template-source',
+          kind: 'hygiene-review',
+          label: 'source hygiene row on the wrong proof channel',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+        },
+        {
+          id: 'sensitive-hygiene-review-wrong-channel',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'sensitive hygiene row on the wrong proof channel',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const contractMismatchLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-contract-action-channel-mismatch')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(contractMismatchLocations).toEqual(expect.arrayContaining([
+      'no-proprietary-template-source',
+      'no-sensitive-artifact',
     ]))
     expect(requirementStatus.get('no-proprietary-template-source')).toBe('invalid')
     expect(requirementStatus.get('no-sensitive-artifact')).toBe('invalid')

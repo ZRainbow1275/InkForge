@@ -1559,6 +1559,16 @@ Contracts:
   with fingerprints and business-specific flags but without same-row `exactArtifact:true` must emit
   `style-proof-manifest-exact-artifact-missing` and keep requirement-level acceptance audit
   `invalid`.
+- `requiredChannels` and `requiredActions` are executable contract data. If a manifest provides
+  artifacts for a requirement but none of those artifacts match that requirement's action/channel
+  contract, `validateStyleProofManifest()` must emit
+  `style-proof-manifest-contract-action-channel-mismatch` and keep requirement-level acceptance
+  audit `invalid`. This catches rows that carry the right `requirementId` but come from the wrong
+  proof channel, such as platform-editor hygiene rows trying to satisfy local hygiene contracts.
+- Contract rows must stay synchronized with existing specialized validators. For example,
+  `local-browser-rendering` accepts both `local-browser` and `tauri-webview` because committed
+  local WebView2 evidence uses `tauri-webview`; `no-proprietary-template-source` accepts both
+  `local-artifact` and `market-editor` source-hygiene rows.
 - `requiredReadbacks` is executable contract data, not only runbook copy. If a proof row matches a
   contract's channel/action/accepted-host boundary but its `readback` is outside that contract's
   `requiredReadbacks`, `validateStyleProofManifest()` must emit
@@ -1727,6 +1737,11 @@ Required tests:
   `no-proprietary-template-source` and `no-sensitive-artifact` invalid when a matching
   `hygiene-log` row carries `sensitive:true`; both the artifact-level hygiene issue and the
   requirement-level contract issue must be visible.
+- Requirement artifacts with mismatched action/channel must not satisfy the execution contract.
+  Regression tests must keep `no-proprietary-template-source` and `no-sensitive-artifact` invalid
+  when their `hygiene-log` rows are recorded on `platform-editor` instead of the required local or
+  market-editor hygiene channels. Weak PC editor rows attached to phone or publish requirements
+  must also stay invalid instead of falling back to external-gate status.
 - Authenticated editor proof rows with expected action/channel but unsupported readback must emit
   `style-proof-manifest-readback-missing`. Requirement-level manifest status must be `invalid`,
   while acceptance audit may still classify the broader authenticated PC editor gate as

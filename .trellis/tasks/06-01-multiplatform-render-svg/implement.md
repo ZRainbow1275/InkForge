@@ -4732,6 +4732,50 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Action Channel Contract Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added a TDD regression for proof artifacts whose `requirementId` is correct but whose
+  action/channel does not match the execution contract.
+- Added `style-proof-manifest-contract-action-channel-mismatch`.
+- Added `validateStyleProofRequiredActionChannel()` before readback and required-field checks.
+- The helper only fires when artifacts attached to the same requirement exist, but none match that
+  requirement's required action/channel contract.
+- Synchronized `local-browser-rendering` with existing Tauri/WebView2 local-render evidence by
+  allowing both `local-browser` and `tauri-webview` channels.
+- Updated cross-platform acceptance audit expectations so weak PC editor rows attached to phone or
+  publish requirements stay invalid instead of falling back to external-gate status.
+
+Verification:
+- TDD first focused run failed because no action/channel mismatch issue was emitted.
+- After the validator and contract fix,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 126 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 165 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1099 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 35.55s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-action-channel-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Dark Mode Same Row Contract Slice
 
 Impact:

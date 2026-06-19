@@ -1630,6 +1630,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Action Channel Contract
+
+- [x] style-proof-action-channel-contract-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- Added executable `requiredChannels` / `requiredActions` validation for artifacts attached to a
+  requirement.
+- Wrong-channel hygiene rows now emit
+  `style-proof-manifest-contract-action-channel-mismatch` instead of satisfying
+  `no-proprietary-template-source` or `no-sensitive-artifact`.
+- Synchronized `local-browser-rendering` so existing Tauri/WebView2 local-render evidence remains
+  a valid local rendering contract row.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 126 tests.
+- 4-file cross-platform export regression passed at 4 files / 165 tests, and full export serial
+  regression passed at 35 files / 1099 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  35.55s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract
 
 - [x] style-proof-required-readback-contract-20260619.txt

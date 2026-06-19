@@ -1,0 +1,42 @@
+Style Proof Action Channel Contract - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added validateStyleProofRequiredActionChannel().
+- Added style-proof-manifest-contract-action-channel-mismatch.
+- Synchronized local-browser-rendering requiredChannels with existing Tauri/WebView2 evidence.
+
+Behavior:
+- requiredChannels and requiredActions are executable validator data, not only runbook copy.
+- If a manifest provides artifacts for a requirement but none of those artifacts match that requirement's action/channel contract, the requirement emits style-proof-manifest-contract-action-channel-mismatch.
+- no-proprietary-template-source accepts local-artifact and market-editor source-hygiene rows.
+- local-browser-rendering accepts local-browser and tauri-webview local-render rows.
+- Wrong-channel hygiene rows cannot satisfy no-proprietary-template-source or no-sensitive-artifact.
+- Weak PC editor rows attached to phone or publish requirements remain invalid instead of degrading to external-gate status.
+
+Regression coverage:
+- platform-editor source-hygiene-review rows cannot satisfy no-proprietary-template-source.
+- platform-editor sensitive-hygiene-review rows cannot satisfy no-sensitive-artifact.
+- Cross-platform acceptance audit keeps weak PC editor rows attached to phone and publish requirements invalid.
+
+Verification:
+- TDD focused run failed before the fix because no action/channel mismatch issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 126 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 165 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1099 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 35.55s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local action/channel contract accounting only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.
