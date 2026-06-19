@@ -2584,6 +2584,31 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 
 ---
 
+## 2026-06-20 135 Background-Only SVG Compatibility Fixture Addendum
+
+- Added `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`.
+- Added a minimal fixture for the previously observed 135 material-included/background-only SVG
+  risk without vendor residue markers: no `_135editor`, no `app-content-canvas`, no known builder
+  `data-name`, no trigger-overlay classes, and no hosted material URLs.
+- The fixture keeps the compatibility-risk structure: `font-size:0`, `line-height:0`,
+  `background-size:100.1% 100.1%`, `margin-top:-1px`, `vertical-align:top`,
+  `pointer-events:none`, `svg viewBox="0 0 1080 1920"`, and `width="100%"`.
+- Existing detectors already block it. WeChat emits `wechat-line-height-zero` and
+  `wechat-layout-report-required`; Xiaohongshu emits `xhs-html-tags` and
+  `xhs-wechat-decoration-leak`; Zhihu emits `zhihu-inline-svg`, `zhihu-html-tags`, and
+  `zhihu-inline-style`.
+- Full local verification passed: focused fixture regression, adjacent 8-test compatibility
+  regression, `platform-export-rendering.test.ts` 146 tests, four-file cross-platform export
+  regression 185 tests, full `src/services/export` serial run 35 files / 1119 tests, targeted
+  ESLint, `vue-tsc --noEmit`, and production build. Vite built in 33.39s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local compatibility-fixture coverage for existing safety gates only. It does
+  not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 Xiumi Component Binding Attribute Residue Addendum
 
 - Added `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`.

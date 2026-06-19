@@ -2240,6 +2240,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public host, or publish success.
 
+## 2026-06-20 135 Background-Only SVG Compatibility Fixture
+
+- [x] 135-background-only-svg-compatibility-fixture-20260620.txt
+- Added a minimal fixture for the 135 material-included/background-only SVG risk without vendor
+  residue markers: no `_135editor`, no `app-content-canvas`, no known builder `data-name`, no
+  trigger-overlay classes, and no hosted material URLs.
+- The fixture locks the previously observed compatibility shape: zero font/line-height wrapper,
+  `viewBox="0 0 1080 1920"`, `width="100%"`, `background-size:100.1% 100.1%`,
+  `margin-top:-1px`, `vertical-align:top`, and `pointer-events:none`.
+- Existing detectors already block it: WeChat emits `wechat-line-height-zero` plus
+  `wechat-layout-report-required`; Xiaohongshu emits HTML/SVG leakage errors; Zhihu emits inline
+  SVG, HTML tag, and inline style findings.
+- Full verification passed: focused fixture regression, adjacent 8-test compatibility regression,
+  `platform-export-rendering.test.ts` 146 tests, four-file cross-platform export regression
+  185 tests, full export serial regression 35 files / 1119 tests, targeted ESLint, `vue-tsc`, and
+  production build. The generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is a local compatibility fixture and regression contract only. It does not prove
+  WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public host, or publish success.
+
 ## 2026-06-20 Market Editor Placeholder-Only Readback Contract
 
 - [x] market-editor-placeholder-only-readback-contract-20260620.txt

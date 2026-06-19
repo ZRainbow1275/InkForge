@@ -762,6 +762,12 @@ Zhihu.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
+- 2026-06-20 background-only SVG compatibility fixture: a material-included 135-style shell can be
+  reduced to a zero-font / zero-line-height `section` containing a background-only
+  `viewBox="0 0 1080 1920"` SVG with `background-size:100.1% 100.1%`, `margin-top:-1px`,
+  `vertical-align:top`, and `pointer-events:none`, even when all vendor class/id/data/source
+  markers are absent. Existing platform gates must still block it as WeChat line-height/layout
+  risk, XHS HTML/SVG leakage, and Zhihu inline SVG/HTML/style leakage.
 
 Xiumi SVG/H5 rules:
 - SVG category labels are taxonomy and manifest inputs. Preserve component family, behavior family,
@@ -810,5 +816,6 @@ Evidence:
 - `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`
 - `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
 - `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`
+- `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

@@ -2030,6 +2030,13 @@ Contracts:
   structured parameters for cover image, move direction, animation seconds, and expanded content.
   InkForge may reuse the pattern as typed background media plus hotspot/expanded-content schema,
   but not as direct platform proof or copied vendor DOM.
+- 2026-06-20 executable compatibility fixture: even without `_135editor`, `app-content-canvas`,
+  known builder `data-name`, hosted media URLs, or trigger overlay classes, a 135-style
+  background-only SVG shell with `font-size:0`, `line-height:0`, `viewBox="0 0 1080 1920"`,
+  `background-size:100.1% 100.1%`, `margin-top:-1px`, `vertical-align:top`, and
+  `pointer-events:none` must stay blocked by existing platform contracts: WeChat
+  `wechat-line-height-zero` + `wechat-layout-report-required`, XHS HTML/SVG leakage, and Zhihu
+  inline SVG/HTML/style checks.
 - 2026-06-20 135 SVG editor no-material deep pass: a clicked free-trial effect can populate the
   central authoring canvas with multiple effect blocks and a selected interaction block that
   exposes image slots, hidden trigger overlays, percentage hot-area geometry, resize handles,

@@ -172,6 +172,12 @@ const MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML = [
+  '<section style="font-size:0;line-height:0;background-size:100.1% 100.1%;margin-top:-1px;vertical-align:top;pointer-events:none">',
+  '<svg viewBox="0 0 1080 1920" width="100%"></svg>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0" disable-tn-group-flex-box="block">',
@@ -6326,6 +6332,30 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG editor shell residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG editor shell residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 background-only SVG compatibility risks without vendor residue markers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML, 'zhihu')
+    const wechatIds = wechat.issues.map(issue => issue.id)
+    const xhsIds = xhs.issues.map(issue => issue.id)
+    const zhihuIds = zhihu.issues.map(issue => issue.id)
+
+    expect(wechatIds).toContain('wechat-line-height-zero')
+    expect(wechatIds).toContain('wechat-layout-report-required')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-layout-report-required')?.message)
+      .toContain('negative overlap spacing')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-layout-report-required')?.message)
+      .toContain('invisible or custom hit area')
+    expect(xhsIds).toContain('xhs-html-tags')
+    expect(xhsIds).toContain('xhs-wechat-decoration-leak')
+    expect(zhihuIds).toContain('zhihu-inline-svg')
+    expect(zhihuIds).toContain('zhihu-html-tags')
+    expect(zhihuIds).toContain('zhihu-inline-style')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

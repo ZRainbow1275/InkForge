@@ -6102,6 +6102,61 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 135 Background-Only SVG Compatibility Fixture Slice
+
+Scope:
+- Local regression fixture for the 135 material-included/background-only SVG compatibility risk.
+- This slice does not add a runtime detector rule because existing platform gates already reject
+  the risky shape.
+
+Background:
+- Prior CloakBrowser 135 SVG editor material-included evidence recorded a zero-font /
+  zero-line-height wrapper around a background-only SVG layer.
+- This compatibility shape can exist without `_135editor`, `app-content-canvas`, known builder
+  `data-name`, trigger-overlay classes, hosted 135 material URLs, or other obvious market-editor
+  residue markers.
+
+Implementation:
+- Added `MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML` to
+  `platform-export-rendering.test.ts`.
+- Added a cross-platform regression proving current gates block the shape:
+  - WeChat: `wechat-line-height-zero` and `wechat-layout-report-required`.
+  - WeChat layout details include `negative overlap spacing` and `invisible or custom hit area`.
+  - Xiaohongshu: `xhs-html-tags` and `xhs-wechat-decoration-leak`.
+  - Zhihu: `zhihu-inline-svg`, `zhihu-html-tags`, and `zhihu-inline-style`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 background-only SVG compatibility risks" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 background-only SVG compatibility risks|135 SVG editor shell wrappers|135 SVG builder canvas|135 SVG trigger|requires a WeChat layout report|blocks WeChat flagship decorations from XHS and Zhihu|flags Zhihu unsafe image hosts" --reporter=default`
+  - PASS: 1 file / 8 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 146 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 185 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1119 tests.
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 33.39s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is local compatibility-fixture coverage for existing safety gates only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.
+
 ## 2026-06-20 Xiumi Component Binding Attribute Residue Contract Slice
 
 Scope:
