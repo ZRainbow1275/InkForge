@@ -1533,6 +1533,14 @@ Contracts:
   `externalAccountAuthenticated:true`, `exactArtifact:true`, `scheduledSendVerified:true`,
   `artifactFingerprint`, and `safeForCommit:true`. Credentialed sync responses, editor previews,
   draft creation, public preview URLs, or published-preview rows must not satisfy this requirement.
+- Any execution contract row that lists `safeForCommit` in `requiredFields` must enforce
+  `safeForCommit:true` on a matching action/channel proof row in
+  `validateStyleProofManifest()`. This is a validator contract, not only runbook copy. It applies
+  across local evidence, market-editor evidence, authenticated PC editor evidence, phone-preview
+  evidence, credentialed-channel evidence, public-host evidence, platform-publish evidence, and
+  sensitive-hygiene rows. Matching proof rows without same-row `safeForCommit:true` must emit
+  `style-proof-manifest-safe-commit-not-verified` and keep requirement-level acceptance audit
+  `invalid`.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
@@ -1650,6 +1658,11 @@ Required tests:
 - Generic exact-artifact rows with `exactArtifact:true` but no non-empty `artifactFingerprint`
   must also be invalid through `style-proof-manifest-exact-artifact-missing`, and the
   requirement-level acceptance audit must report `invalid`.
+- Matching unit-test, authenticated-editor, and phone-preview proof rows missing same-row
+  `safeForCommit:true` must be invalid through `style-proof-manifest-safe-commit-not-verified`.
+  Regression tests must cover at least one local-evidence row, one authenticated-PC-editor row, and
+  one phone-preview row so future changes cannot quietly move `safeForCommit` back to runbook-only
+  text.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof

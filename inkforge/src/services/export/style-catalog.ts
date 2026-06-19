@@ -3540,6 +3540,46 @@ function validateStyleProofRequirementCoverage(
       ))
       break
   }
+
+  validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
+}
+
+function validateStyleProofRequiredSafeCommit(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  if (!(contract.requiredFields as readonly StyleProofArtifactVerificationField[]).includes('safeForCommit')) {
+    return
+  }
+
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-safe-commit-not-verified'
+  )) {
+    return
+  }
+
+  const contractCandidates = artifacts.filter(artifact =>
+    (contract.requiredChannels as readonly StyleProofChannel[]).includes(artifact.channel)
+    && (contract.requiredActions as readonly StyleProofAction[]).includes(artifact.action)
+    && (!contract.acceptedHostStatuses
+      || (
+        typeof artifact.hostStatus === 'string'
+        && (contract.acceptedHostStatuses as readonly StyleProofHostStatus[]).includes(artifact.hostStatus)
+      ))
+  )
+
+  if (contractCandidates.length === 0) return
+  if (contractCandidates.some(artifact => artifact.safeForCommit === true)) return
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-safe-commit-not-verified',
+    message: `${requirementId} proof is not marked safe for committed repository evidence on a matching action/channel row.`,
+    suggestion: 'Record safeForCommit:true on the same proof row only after the referenced evidence excludes account material, local paths, credential secrets, temporary platform URLs, and raw platform captures.',
+    location: requirementId,
+  })
 }
 
 function requireStyleProof(

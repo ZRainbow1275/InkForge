@@ -3518,6 +3518,85 @@ describe('platform native export rendering rules', () => {
     expect(report.requirements[0]?.status).toBe('invalid')
   })
 
+  it('requires safeForCommit on matching proof contract rows across local editor and phone gates', () => {
+    const artifactFingerprint = 'sha256:redacted-safe-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['unit-tested', 'authenticated-editor-reachable', 'mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'unit-test-without-safe-commit',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'unit test proof without safe commit flag',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          safeForCommit: false,
+        },
+        {
+          id: 'authenticated-editor-without-safe-commit',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'authenticated editor proof without safe commit flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          safeForCommit: false,
+        },
+        {
+          id: 'phone-screenshot-without-safe-commit',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot proof without safe commit flag',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: false,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const safeCommitIssueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-safe-commit-not-verified')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(safeCommitIssueLocations).toEqual(expect.arrayContaining([
+      'unit-test-coverage',
+      'authenticated-editor-url',
+      'phone-screenshot',
+    ]))
+    expect(requirementStatus.get('unit-test-coverage')).toBe('invalid')
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('unit-test-coverage')).toBe('invalid')
+    expect(auditStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+  })
+
   it('requires platform and artifact consistency in style proof manifests', () => {
     const manifest: StyleProofManifest = {
       platform: 'zhihu',

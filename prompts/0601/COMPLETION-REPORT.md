@@ -1851,3 +1851,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   36.83s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: this is local validator/audit proof only. It does not prove public-host availability,
   XHS/Zhihu account upload, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Required Safe Commit Addendum
+
+- Added `prompts/0601/evidence/style-proof-required-safe-commit-contract-20260619.txt`.
+- Added a generic validator layer for every execution contract that lists `safeForCommit` in
+  `requiredFields`.
+- Matching action/channel proof rows now require same-row `safeForCommit:true`; otherwise
+  `validateStyleProofManifest()` emits `style-proof-manifest-safe-commit-not-verified` and keeps
+  requirement-level acceptance audit invalid.
+- Existing specialized validators keep their precise field checks; the generic layer only closes
+  the common safe-for-commit gap and avoids duplicate safe-commit issues.
+- Regression coverage rejects unsafe local unit-test proof, unsafe authenticated editor proof, and
+  unsafe phone screenshot proof.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 118 tests.
+- 4-file cross-platform export regression passed at 4 files / 157 tests, and full export serial
+  regression passed at 35 files / 1091 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.66s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.

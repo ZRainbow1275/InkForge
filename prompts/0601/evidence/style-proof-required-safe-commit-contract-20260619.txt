@@ -1,0 +1,34 @@
+Style Proof Required Safe Commit Contract - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no account upload, no phone preview, no sync, no send, no publish.
+
+Implemented:
+- Added a generic safe-for-commit contract layer for every StyleProofExecutionArtifactContract that lists safeForCommit in requiredFields.
+- The validator now checks matching action/channel proof rows and rejects them unless at least one matching row carries safeForCommit:true.
+- Existing specialized validators keep their precise checks; the generic layer only fills the common safeForCommit gap and skips duplicate safe-commit issues.
+
+Regression coverage:
+- unit-test-coverage with a matching unit-test proof row but safeForCommit:false remains invalid.
+- authenticated-editor-url with authenticated session and target proof but safeForCommit:false remains invalid.
+- phone-screenshot with exact artifact and phone content proof but safeForCommit:false remains invalid.
+- Requirement-level acceptance audit reports each of those rows as invalid rather than completed or externally blocked.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 118 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 157 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1091 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 32.66s; generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local required-field accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu account upload, or publish success.

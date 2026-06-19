@@ -1538,3 +1538,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   36.83s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
 - Boundary: this is local validator/audit proof only. It does not prove public-host availability,
   XHS/Zhihu account upload, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Required Safe Commit Contract
+
+- [x] style-proof-required-safe-commit-contract-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- Added a generic safe-for-commit layer for every execution contract that lists
+  `safeForCommit` in `requiredFields`.
+- Matching action/channel proof rows now require same-row `safeForCommit:true`; otherwise they emit
+  `style-proof-manifest-safe-commit-not-verified` and keep the requirement-level acceptance audit
+  invalid.
+- Existing specialized validators keep their precise checks; the generic layer only fills the
+  common `safeForCommit` gap and skips duplicate safe-commit issues.
+- Regression coverage rejects unsafe `unit-test-coverage`, `authenticated-editor-url`, and
+  `phone-screenshot` proof rows.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 118 tests.
+- 4-file cross-platform export regression passed at 4 files / 157 tests, and full export serial
+  regression passed at 35 files / 1091 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.66s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.
