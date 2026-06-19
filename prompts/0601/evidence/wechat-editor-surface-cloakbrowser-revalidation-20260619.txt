@@ -1,0 +1,65 @@
+WeChat Editor Surface CloakBrowser Revalidation - 2026-06-19
+
+Scope:
+- Headed CloakBrowser only. Playwright was not used.
+- Current post-reboot browser session recovery and authenticated WeChat editor-surface readback.
+- No form fill, paste, save, preview, publish, delete, sync, upload, or phone action was performed.
+- No account material, login artifact, local visual artifact, browser local directory, or platform
+  secret value is recorded in this evidence.
+
+Tool recovery:
+- The fixed browser session initially failed to start because a stale no-window Chrome instance was
+  holding the browser session directory.
+- A temporary empty-session CloakBrowser smoke test succeeded, proving the CloakBrowser package was
+  functional and the fault was isolated to the existing browser session state.
+- Only the newly created failed-start Chrome residual processes and the stale no-window holder were
+  closed. The browser session directory was then reused successfully; account data files were not
+  edited or removed.
+
+Authenticated backend readback:
+- The WeChat backend home surface loaded successfully after recovery.
+- The current page title was `公众号`.
+- The current backend path was `/cgi-bin/home`.
+- Home-surface signals were present: `新的创作`, `草稿箱`, `素材库`, and `发表记录`.
+- Login/scan-page signals were not the active state after entering the editor route.
+- The home page exposed article-related links and controls, including appmsg links and draft/publish
+  management entry points, but no publish/send operation was triggered.
+
+New-article editor readback:
+- The browser reused the current authenticated platform session internally to enter the official
+  new-article editor route shape.
+- The editor document completed loading with editor signals present and login/scan signals absent.
+- Readback counters:
+  - contenteditable: 3
+  - textarea: 2
+  - input: 53
+  - iframe: 1
+  - svg: 9
+  - editor-candidate selectors: 99
+  - title-candidate selectors: 104
+  - cover-candidate selectors: 46
+  - visible preview controls: 1
+  - visible save controls: 2
+  - visible publish controls: 1
+- Visible editor controls included document import, image-library selection, article settings,
+  publish, preview, save-as-draft, and return-to-original-draft labels.
+- The main body editor was a visible `.ProseMirror` node with `contenteditable=true` and a large
+  central editor rectangle.
+- A separate visible title `.ProseMirror` node and visible author/summary fields were also present,
+  so future proof must still bind paste/readback to the main body editor rather than a title or
+  metadata field.
+- A transient local visual check confirmed the page layout: left draft card, top toolbar, central
+  editor canvas, and bottom save/preview/publish controls were visible. The transient visual file was
+  deleted immediately after inspection and is not committed.
+
+Acceptance meaning:
+- This proves current authenticated WeChat backend reachability and current new-article editor
+  surface reachability through CloakBrowser after the machine reboot.
+- It is valid operator evidence for the authenticated editor target identity gate only when a future
+  manifest binds it to the exact artifact and the main body editor surface.
+
+Boundary:
+- This does not prove ordinary Ctrl+V rich HTML/SVG paste, editor body mutation after paste,
+  safe disposable draft cleanup, phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public-host availability, platform
+  preview, public article rendering, XHS/Zhihu account upload, or publish success.

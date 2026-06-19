@@ -1546,6 +1546,14 @@ Contracts:
   same-surface mutation. A hidden native iframe, title ProseMirror, list-card edit button, editor
   route discovery, `cloak_fill`, or local ClipboardEvent-style injection must not satisfy ordinary
   Ctrl+V proof.
+- 2026-06-19 post-reboot CloakBrowser revalidation reached the authenticated WeChat backend home
+  surface and then the official new-article editor route shape with login/scan state absent. The
+  editor readback found 3 contenteditable nodes, 2 textareas, 53 inputs, 1 iframe, 9 SVG nodes,
+  99 editor-candidate selectors, 104 title-candidate selectors, 46 cover candidates, 1 visible
+  preview control, 2 visible save controls, and 1 visible publish control. This is editor-surface
+  reachability evidence only: a future proof manifest still must bind the exact InkForge artifact
+  to the main body ProseMirror surface before it can satisfy PC paste, DOM mutation, safe-draft,
+  phone-preview, sync, scheduled-send, platform-preview, or publish gates.
 - PC editor DOM readback uses the same body-surface identity gate. A DOM proof that only finds
   route shape, editor shell selectors, title ProseMirror, hidden native iframes, or generic
   contenteditable counts must stay invalid until the main body editing surface itself is identified

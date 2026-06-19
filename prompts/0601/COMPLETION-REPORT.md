@@ -2272,3 +2272,25 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 - Boundary: this is rule extraction only. It does not prove WeChat paste, phone preview, mobile
   interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public host,
   XHS/Zhihu account upload, or publish success.
+
+## 2026-06-19 WeChat Editor Surface CloakBrowser Revalidation Addendum
+
+- Added `prompts/0601/evidence/wechat-editor-surface-cloakbrowser-revalidation-20260619.txt`.
+- Recovered the fixed CloakBrowser browser session after a stale no-window Chrome holder blocked
+  startup. A temporary empty-session smoke verified the CloakBrowser package was still functional,
+  then the existing browser session was reused successfully without deleting account data.
+- Authenticated WeChat backend home readback succeeded after recovery: title `公众号`, path
+  `/cgi-bin/home`, creation/draft/material/publish-record entry signals present, and login/scan
+  state not active.
+- Authenticated new-article editor readback succeeded through the official editor route shape:
+  login/scan signals absent, 3 contenteditable nodes, 2 textareas, 53 inputs, 1 iframe, 9 SVG
+  nodes, 99 editor candidates, 104 title candidates, 46 cover candidates, 1 visible preview
+  control, 2 visible save controls, and 1 visible publish control.
+- Visual inspection confirmed the left draft card, top toolbar, central editor canvas, and bottom
+  save/preview/publish controls. The transient local visual file was deleted and not committed.
+- No form fill, paste, save, preview, publish, delete, sync, upload, or phone action was performed.
+- Boundary: this proves current authenticated WeChat editor-surface reachability only. It does not
+  prove ordinary Ctrl+V rich HTML/SVG paste, editor body mutation, safe draft cleanup, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
+  or publish success.

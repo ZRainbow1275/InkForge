@@ -4721,6 +4721,44 @@ Boundary:
   mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-19 WeChat Editor Surface CloakBrowser Revalidation Slice
+
+Scope:
+- Continued WeChat external-gate verification with headed CloakBrowser only. Playwright was not
+  used.
+- Recovered the fixed browser session after stale no-window Chrome residuals blocked startup.
+- Reused the current authenticated platform session for read-only WeChat backend and editor-surface
+  inspection.
+- No form fill, paste, save, preview, publish, delete, sync, upload, or phone action was performed.
+
+Findings:
+- A temporary empty-session CloakBrowser smoke succeeded, isolating the startup failure to the
+  existing browser session holder instead of the CloakBrowser package.
+- After closing only the newly created failed-start Chrome residuals and the stale no-window
+  holder, the fixed browser session started successfully.
+- Authenticated WeChat backend home readback succeeded: title `公众号`, path `/cgi-bin/home`,
+  creation/draft/material/publish-record entry signals present, and login/scan state absent from
+  the active editor route.
+- Authenticated new-article editor readback succeeded through the official editor route shape.
+  Readback counters: 3 contenteditable nodes, 2 textareas, 53 inputs, 1 iframe, 9 SVG nodes,
+  99 editor candidates, 104 title candidates, 46 cover candidates, 1 visible preview control,
+  2 visible save controls, and 1 visible publish control.
+- Visual inspection confirmed the left draft card, top toolbar, central editor canvas, and bottom
+  save/preview/publish controls. The transient local visual file was deleted and is not committed.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-editor-surface-cloakbrowser-revalidation-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `prompts/0601/COMPLETION-REPORT.md`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is authenticated editor-surface reachability proof only.
+- It does not prove ordinary Ctrl+V rich HTML/SVG paste, editor body mutation, safe draft cleanup,
+  phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:

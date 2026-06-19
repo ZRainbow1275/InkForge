@@ -1965,3 +1965,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is rule extraction only. It does not prove WeChat paste, phone preview, mobile
   interaction, cover thumbnail acceptance, credentialed sync, scheduled send, public host,
   XHS/Zhihu account upload, or publish success.
+
+## 2026-06-19 WeChat Editor Surface CloakBrowser Revalidation
+
+- [x] wechat-editor-surface-cloakbrowser-revalidation-20260619.txt
+- Recovered the fixed CloakBrowser browser session after a stale no-window Chrome holder blocked
+  startup; a temporary empty-session smoke proved the CloakBrowser package itself was functional.
+- The authenticated WeChat backend home surface loaded after recovery, with `公众号` title,
+  `/cgi-bin/home` path, and home signals for creation, draft, material, and publish-record entry
+  points.
+- The current authenticated platform session entered the official new-article editor route shape.
+  The editor loaded with login/scan signals absent, 3 contenteditable nodes, 2 textareas, 53 inputs,
+  1 iframe, 9 SVG nodes, 99 editor-candidate selectors, 104 title-candidate selectors, 46 cover
+  candidates, 1 visible preview control, 2 visible save controls, and 1 visible publish control.
+- Visual inspection confirmed the left draft card, top toolbar, central editor canvas, and bottom
+  save/preview/publish controls; the transient local visual file was deleted and not committed.
+- Boundary: this proves current authenticated editor-surface reachability only. It does not prove
+  ordinary Ctrl+V rich HTML/SVG paste, editor body mutation, safe draft cleanup, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public host, platform preview, public article rendering, XHS/Zhihu account upload, or
+  publish success.
