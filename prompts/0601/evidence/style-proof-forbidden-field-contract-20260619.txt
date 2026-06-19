@@ -1,0 +1,42 @@
+Style Proof Forbidden Field Contract - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added validateStyleProofForbiddenFields().
+- Added style-proof-manifest-forbidden-field-present for future non-sensitive forbidden-field rows.
+- Kept sensitive forbidden-field rows on style-proof-manifest-sensitive-artifact.
+- Synchronized no-proprietary-template-source with existing market-editor hygiene proof rows.
+
+Behavior:
+- forbiddenFields is executable validator data, not only runbook copy.
+- Matching channel/action/readback proof rows that set a forbidden field emit a requirement-level issue.
+- no-proprietary-template-source accepts local-artifact and market-editor source-hygiene-review rows, but rejects matching rows with sensitive material.
+- no-sensitive-artifact rejects matching sensitive-hygiene-review rows with sensitive material.
+- Artifact-level hygiene issues are still preserved, but requirement-level status no longer relies only on artifact-level hygiene.
+
+Regression coverage:
+- A market-editor source-hygiene-review hygiene-log row with sensitive:true keeps no-proprietary-template-source invalid.
+- A local-artifact sensitive-hygiene-review hygiene-log row with sensitive:true keeps no-sensitive-artifact invalid.
+- Both artifact-level and requirement-level sensitive issue locations remain visible.
+
+Verification:
+- TDD focused run failed before the fix because only artifact-level sensitive issue locations were emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 125 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 164 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1098 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 1m 30s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local forbidden-field contract accounting only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

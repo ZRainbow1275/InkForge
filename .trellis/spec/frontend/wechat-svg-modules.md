@@ -1571,6 +1571,13 @@ Contracts:
   carries all required fields, `validateStyleProofManifest()` must emit
   `style-proof-manifest-proof-not-bound` and keep requirement-level acceptance audit `invalid`.
   This catches split-proof rows without duplicating ordinary missing-field issues.
+- `forbiddenFields` is also executable contract data. If a proof row matches a contract's
+  channel/action/host/readback boundary and sets a forbidden field, `validateStyleProofManifest()`
+  must emit a requirement-level issue. `sensitive` forbidden-field violations use
+  `style-proof-manifest-sensitive-artifact`; other forbidden fields use
+  `style-proof-manifest-forbidden-field-present`. The generic helper must keep
+  `no-proprietary-template-source` and `no-sensitive-artifact` invalid when matching hygiene rows
+  carry sensitive material, and it must not rely only on artifact-level hygiene issues.
 - When a requirement-specific validator accepts a family such as DOM-or-visual readback or
   phone-preview visual fallback, the matching `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` row must
   list those accepted `requiredReadbacks`. Do not narrow the common contract helper in a way that
@@ -1716,6 +1723,10 @@ Required tests:
   Regression tests must keep `phone-screenshot` invalid when one screenshot row carries
   `phonePreviewContentVerified:true` and `exactArtifact:true`, while another matching screenshot
   row carries only `artifactFingerprint` and `safeForCommit`.
+- Matching hygiene proof rows must not set forbidden fields. Regression tests must keep
+  `no-proprietary-template-source` and `no-sensitive-artifact` invalid when a matching
+  `hygiene-log` row carries `sensitive:true`; both the artifact-level hygiene issue and the
+  requirement-level contract issue must be visible.
 - Authenticated editor proof rows with expected action/channel but unsupported readback must emit
   `style-proof-manifest-readback-missing`. Requirement-level manifest status must be `invalid`,
   while acceptance audit may still classify the broader authenticated PC editor gate as

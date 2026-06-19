@@ -261,6 +261,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-paste-mojibake-not-ruled-out'
   | 'style-proof-manifest-paste-proof-not-bound'
   | 'style-proof-manifest-proof-not-bound'
+  | 'style-proof-manifest-forbidden-field-present'
   | 'style-proof-manifest-safe-commit-not-verified'
   | 'style-proof-manifest-phone-preview-blocked'
   | 'style-proof-manifest-phone-content-missing'
@@ -304,6 +305,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
   'style-proof-manifest-proof-not-bound',
+  'style-proof-manifest-forbidden-field-present',
   'style-proof-manifest-safe-commit-not-verified',
   'style-proof-manifest-phone-preview-blocked',
   'style-proof-manifest-phone-content-missing',
@@ -1093,7 +1095,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
   },
   'no-proprietary-template-source': {
     requirementId: 'no-proprietary-template-source',
-    requiredChannels: ['local-artifact'],
+    requiredChannels: ['local-artifact', 'market-editor'],
     requiredActions: ['source-hygiene-review'],
     requiredReadbacks: ['hygiene-log'],
     requiredFields: ['safeForCommit'],
@@ -3559,6 +3561,7 @@ function validateStyleProofRequirementCoverage(
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
   validateStyleProofRequiredExactArtifact(requirementId, artifacts, issues)
+  validateStyleProofForbiddenFields(requirementId, artifacts, issues)
   validateStyleProofRequiredFieldBinding(requirementId, artifacts, issues)
 }
 
@@ -3711,6 +3714,52 @@ function validateStyleProofRequiredExactArtifact(
     suggestion: 'Record exactArtifact:true on the same proof row only after the evidence is proven to belong to the exact exported artifact under review.',
     location: requirementId,
   })
+}
+
+function isStyleProofForbiddenFieldPresent(
+  contract: StyleProofExecutionArtifactContract,
+  artifact: StyleProofArtifact,
+  field: StyleProofArtifactVerificationField,
+): boolean {
+  if (field === 'sensitive') return isSensitiveStyleProofArtifact(artifact)
+  if (field === 'hostStatus') return typeof artifact.hostStatus === 'string'
+  return isStyleProofRequiredFieldSatisfied(contract, artifact, field)
+}
+
+function getStyleProofForbiddenFieldIssueId(
+  field: StyleProofArtifactVerificationField,
+): StyleProofManifestIssueId {
+  return field === 'sensitive'
+    ? 'style-proof-manifest-sensitive-artifact'
+    : 'style-proof-manifest-forbidden-field-present'
+}
+
+function validateStyleProofForbiddenFields(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  const forbiddenFields = contract.forbiddenFields as readonly StyleProofArtifactVerificationField[] | undefined
+  if (!forbiddenFields || forbiddenFields.length === 0) return
+
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+
+  for (const field of forbiddenFields) {
+    const issueId = getStyleProofForbiddenFieldIssueId(field)
+    if (issues.some(issue => issue.location === requirementId && issue.id === issueId)) continue
+    if (!contractCandidates.some(artifact => isStyleProofForbiddenFieldPresent(contract, artifact, field))) {
+      continue
+    }
+
+    addStyleProofIssue(issues, {
+      id: issueId,
+      message: `${requirementId} proof sets forbidden artifact field ${field} on a matching action/channel/readback row.`,
+      suggestion: 'Remove sensitive, credentialed, local-only, or otherwise forbidden proof fields from the matching artifact row before claiming this requirement.',
+      location: requirementId,
+    })
+  }
 }
 
 function isStyleProofRequiredFieldSatisfied(
@@ -4733,6 +4782,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')
         || accumulator.issueIds.has('style-proof-manifest-sensitive-artifact')
+        || accumulator.issueIds.has('style-proof-manifest-forbidden-field-present')
         || accumulator.issueIds.has('style-proof-manifest-unsafe-commit-artifact')
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)

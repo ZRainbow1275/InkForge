@@ -3975,6 +3975,67 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('phone-screenshot')).toBe('invalid')
   })
 
+  it('rejects forbidden fields on matching proof contract rows', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [
+        {
+          id: 'proprietary-source-hygiene-sensitive',
+          requirementId: 'no-proprietary-template-source',
+          kind: 'hygiene-review',
+          label: 'source hygiene row with forbidden sensitive field',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'market-editor',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+          sensitive: true,
+        },
+        {
+          id: 'sensitive-hygiene-review-sensitive',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'sensitive hygiene row with forbidden sensitive field',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+          artifactRef: 'redacted://local/hygiene-summary',
+          sensitive: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const sensitiveIssueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-sensitive-artifact')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(sensitiveIssueLocations).toEqual(expect.arrayContaining([
+      'no-proprietary-template-source',
+      'no-sensitive-artifact',
+      'proprietary-source-hygiene-sensitive',
+      'sensitive-hygiene-review-sensitive',
+    ]))
+    expect(requirementStatus.get('no-proprietary-template-source')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('invalid')
+    expect(auditStatus.get('no-proprietary-template-source')).toBe('invalid')
+    expect(auditStatus.get('no-sensitive-artifact')).toBe('invalid')
+  })
+
   it('requires accepted readback types on matching contract action and channel rows', () => {
     const artifactFingerprint = 'sha256:redacted-readback-contract'
     const manifest: StyleProofManifest = {

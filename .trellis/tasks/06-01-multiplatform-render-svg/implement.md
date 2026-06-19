@@ -4689,6 +4689,49 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Forbidden Field Contract Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added a TDD regression for `forbiddenFields` execution-contract rows.
+- Added `validateStyleProofForbiddenFields()` after the shared same-row required-field validators.
+- Matching channel/action/readback contract rows now emit requirement-level forbidden-field issues
+  instead of relying only on artifact-level hygiene issues.
+- `sensitive` forbidden-field violations reuse `style-proof-manifest-sensitive-artifact`; future
+  non-sensitive forbidden-field violations use `style-proof-manifest-forbidden-field-present`.
+- Synchronized `no-proprietary-template-source` with existing market-editor hygiene evidence by
+  allowing both `local-artifact` and `market-editor` channels for its source-hygiene contract.
+
+Verification:
+- TDD first focused run failed because sensitive hygiene artifacts only emitted artifact-level
+  issues.
+- After the validator and contract fix,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 125 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 164 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1098 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 1m 30s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-forbidden-field-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Dark Mode Same Row Contract Slice
 
 Impact:

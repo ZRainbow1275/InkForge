@@ -1971,6 +1971,30 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Forbidden Field Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-forbidden-field-contract-20260619.txt`.
+- Added executable `forbiddenFields` validation for matching channel/action/readback contract rows.
+- Matching `no-proprietary-template-source` and `no-sensitive-artifact` hygiene rows with
+  `sensitive:true` now emit requirement-level `style-proof-manifest-sensitive-artifact` issues
+  instead of relying only on artifact-level hygiene.
+- Added `style-proof-manifest-forbidden-field-present` for future non-sensitive forbidden-field
+  contract rows.
+- Synchronized `no-proprietary-template-source` with existing market-editor source-hygiene
+  evidence by allowing both `local-artifact` and `market-editor` channels.
+- TDD first focused run failed as expected because sensitive hygiene artifacts only emitted
+  artifact-level issue locations; after the validator fix, focused verification passed.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 125 tests.
+- 4-file cross-platform export regression passed at 4 files / 164 tests, and full export serial
+  regression passed at 35 files / 1098 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  1m 30s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Field Binding Addendum
 
 - Added `prompts/0601/evidence/style-proof-required-field-binding-contract-20260619.txt`.
