@@ -1421,6 +1421,14 @@ Contracts:
   `platformEditorTargetVerified`, `platformEditorDomVerified`, `ordinaryClipboardPasteVerified`,
   `sameEditorTabVerified`, `pasteInputEventVerified`, `editorBodyMutationVerified`,
   `mojibakeFreeVerified`, and `safeForCommit`.
+- WeChat editor target identity must be verified against the authenticated `media/appmsg_edit_v2`
+  editor surface, not inferred from article-list controls or static bundle routes. Current
+  CloakBrowser readback shows the main article body as a ProseMirror `contenteditable=true` node
+  inside WeChat's `mock-iframe` / `mock-iframe-document` / `mock-iframe-body` wrapper chain, with
+  `js_ueditor` / `js_editor` / `rich_media_content` signals. PC paste proof must target that main
+  body ProseMirror surface and then read back same-surface mutation. A hidden native iframe, title
+  ProseMirror, list-card edit button, editor route discovery, `cloak_fill`, or local
+  ClipboardEvent-style injection must not satisfy ordinary Ctrl+V proof.
 - Generic `exact-artifact` proof requires `exactArtifact:true` and a non-empty
   `artifactFingerprint` on the same proof row. A bare boolean flag is not enough to bind evidence
   to the exported InkForge artifact under review.

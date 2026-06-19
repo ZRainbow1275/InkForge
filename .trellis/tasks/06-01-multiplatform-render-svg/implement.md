@@ -2788,6 +2788,10 @@ Readback:
 
 Evidence:
 - Added `prompts/0601/evidence/wechat-new-article-editor-cloakbrowser-readback-20260619.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` so ordinary WeChat PC paste proof must
+  target the main body ProseMirror mock-iframe surface and cannot be inferred from route discovery,
+  list-card controls, `cloak_fill`, hidden native iframes, title fields, or ClipboardEvent-style
+  local injection.
 
 Boundary:
 - This proves authenticated new-article editor surface reachability and redacted DOM identity only.
