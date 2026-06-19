@@ -2026,3 +2026,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, public host, platform preview, public article rendering, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-06-20 Style Proof Wrong-Surface Preview Regression
+
+- [x] style-proof-wrong-surface-preview-regression-20260620.txt
+- Added `platform-export-rendering.test.ts` coverage for the real wrong-surface/plain-text
+  preview-entry failure mode.
+- The regression keeps `pc-editor-paste-event` invalid when OS Ctrl+V and same-tab evidence exist
+  but the main body surface was not verified, the body paste/input event was absent, and the main
+  body did not mutate.
+- A companion `phone-preview-entry-readback` row with `phonePreviewBlocked:true` keeps
+  `phone-preview-readback` invalid and cannot unlock phone screenshot, Dark Mode, cover thumbnail,
+  or publish rows.
+- Verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 135 tests.
+- Cross-platform export regression passed with 4 files / 174 tests, and full export serial
+  regression passed with 35 files / 1108 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.53s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit regression proof only. It does not prove PC paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public host, platform preview, public article rendering, XHS/Zhihu account
+  upload, or publish success.

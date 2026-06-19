@@ -2331,3 +2331,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
   or publish success.
+
+## 2026-06-20 Style Proof Wrong-Surface Preview Regression Addendum
+
+- Added `prompts/0601/evidence/style-proof-wrong-surface-preview-regression-20260620.txt`.
+- Added a regression for the real WeChat Tempera preview-entry precondition failure:
+  OS Ctrl+V and same-tab evidence are not enough when the main body surface is not verified,
+  the body paste/input event is absent, and the body did not mutate.
+- The fixture also includes `phone-preview-entry-readback` with `phonePreviewBlocked:true`, so
+  `phone-preview-readback` remains invalid and downstream phone screenshot, Dark Mode, cover
+  thumbnail, and publish rows remain cannot-claim.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 135 tests.
+- Cross-platform export regression passed with 4 files / 174 tests, and full export serial
+  regression passed with 35 files / 1108 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  32.53s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit regression proof only. It does not prove PC paste, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
+  or publish success.

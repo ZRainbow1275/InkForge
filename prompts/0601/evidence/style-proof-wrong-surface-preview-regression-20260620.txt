@@ -1,0 +1,43 @@
+Style Proof Wrong-Surface Preview Regression - 2026-06-20
+
+Scope:
+- Regression coverage for the 2026-06-20 WeChat Tempera preview-entry precondition failure.
+- No platform action, no browser action, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Behavior locked:
+- A WeChat `pc-editor-paste-event` artifact may report exact artifact, authenticated session,
+  intended editor target, ordinary OS Ctrl+V, same tab, mojibake-free readback, and safe commit.
+- That artifact must still stay invalid when the actual main body surface was not verified, the
+  body paste/input event was not observed, and the main body did not mutate.
+- A related phone-preview artifact with `action:'phone-preview-entry-readback'` and
+  `phonePreviewBlocked:true` must keep `phone-preview-readback` invalid.
+- The acceptance audit must keep both `pc-editor-paste-event` and `phone-preview-readback` in
+  `cannotClaim`, alongside downstream phone screenshot, Dark Mode, cover thumbnail, and publish
+  rows.
+
+Regression added:
+- `platform-export-rendering.test.ts` now includes
+  `rejects wrong-surface plain-text paste before phone preview can be claimed`.
+- The fixture models the real failure: OS Ctrl+V reached a title-like ProseMirror while body-level
+  paste/input/mutation stayed absent and preview was not opened.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed: 1 file, 135 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed: 4 files, 174 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed: 35 files, 1108 tests.
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; Vite built in 32.53s.
+
+Boundary:
+- This is local validator/audit regression proof only.
+- It does not prove PC paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, XHS/Zhihu account actions, or publish success.

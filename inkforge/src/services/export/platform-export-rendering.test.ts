@@ -2812,6 +2812,89 @@ describe('platform native export rendering rules', () => {
     },
   )
 
+  it('rejects wrong-surface plain-text paste before phone preview can be claimed', () => {
+    const artifactFingerprint = 'sha256:redacted-tempera-preview-precondition'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-flagship-tempera',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-paste', 'mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'tempera-title-surface-plain-text-paste',
+          requirementId: 'pc-editor-paste-event',
+          kind: 'editor-readback',
+          label: 'OS Ctrl+V reached a title-like ProseMirror while body probe stayed unchanged',
+          evidenceLabel: 'pc-editor-paste',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-tempera',
+          channel: 'platform-editor',
+          action: 'pc-paste',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          exactArtifact: true,
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          platformEditorSurfaceVerified: false,
+          platformEditorDomVerified: true,
+          ordinaryClipboardPasteVerified: true,
+          sameEditorTabVerified: true,
+          pasteInputEventVerified: false,
+          editorBodyMutationVerified: false,
+          mojibakeFreeVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'tempera-preview-entry-not-opened',
+          requirementId: 'phone-preview-readback',
+          kind: 'editor-readback',
+          label: 'preview was not opened because exact rich body paste precondition failed',
+          platform: 'wechat',
+          choiceId: 'wechat-flagship-tempera',
+          channel: 'phone-preview',
+          action: 'phone-preview-entry-readback',
+          readback: 'dom',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewBlocked: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const issueIds = report.issues.map(issue => issue.id)
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const cannotClaimIds = audit.cannotClaim.map(requirement => requirement.requirement.id)
+
+    expect(issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-platform-editor-surface-not-verified',
+      'style-proof-manifest-paste-input-not-verified',
+      'style-proof-manifest-editor-body-not-mutated',
+      'style-proof-manifest-phone-preview-blocked',
+    ]))
+    expect(issueIds).not.toContain('style-proof-manifest-ordinary-paste-not-verified')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(auditStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(auditStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'published-url-or-platform-preview',
+    ]))
+  })
+
   it('rejects ordinary paste flags split across multiple PC paste artifacts', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',

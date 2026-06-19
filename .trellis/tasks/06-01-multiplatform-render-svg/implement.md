@@ -4843,6 +4843,50 @@ Boundary:
   cover-thumbnail acceptance, credentialed sync, scheduled-send, public-host availability,
   platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-20 Style Proof Wrong-Surface Preview Regression Slice
+
+Impact:
+- `npx gitnexus impact getStyleProofManifestReport -r InkForge --depth 2` reported LOW risk,
+  2 impacted items, 2 direct callers, 1 affected module (`Export`), and 1 affected process
+  (`progressChoices`).
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge --depth 2` reported LOW
+  risk, 4 impacted items, 1 direct caller, 1 affected module (`Export`), and 1 affected process
+  (`progressChoices`).
+
+Implementation:
+- Added regression coverage for the real wrong-surface/plain-text preview-entry precondition
+  failure in `platform-export-rendering.test.ts`.
+- The fixture keeps `pc-editor-paste-event` invalid when exact artifact, authenticated session,
+  intended target, ordinary OS Ctrl+V, same tab, mojibake-free, and safe-commit flags exist but
+  `platformEditorSurfaceVerified:false`, `pasteInputEventVerified:false`, and
+  `editorBodyMutationVerified:false`.
+- The companion `phone-preview-entry-readback` blocker keeps `phone-preview-readback` invalid and
+  preserves cannot-claim rows for phone screenshot, Dark Mode, cover thumbnail, and publish.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 135 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 174 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1108 tests.
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 32.53s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-wrong-surface-preview-regression-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is local validator/audit regression proof only.
+- It does not prove PC paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, scheduled-send, public-host availability, platform preview, public
+  article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:
