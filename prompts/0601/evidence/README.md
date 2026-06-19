@@ -340,6 +340,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
+[x] style-proof-phone-runbook-failure-signals-20260619.txt # 当前规则实现：执行手册明确拒绝 scan/setup/PC preview shell/cover-setting 等手机伪证据；不证明手机端通过
 [x] pc-ordinary-paste-gate-20260617.txt # 当前规则实现：ordinary PC paste requires ordinaryClipboardPasteVerified:true
 [x] wechat-home-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信后台首页可达；只读，不证明编辑器/手机/发布
 [x] wechat-draftbox-readonly-preflight-20260617.txt # 当前平台状态：CloakBrowser 微信草稿箱可达；edit 未进入文章编辑器
@@ -1381,6 +1382,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Phone Runbook Failure Signals
+
+- [x] style-proof-phone-runbook-failure-signals-20260619.txt
+- Local execution-runbook hardening only.
+- `buildStyleProofExecutionFailureSignals()` now makes phone-preview rows explicitly reject scan
+  entries, setup dialogs, PC preview shells, relogin pages, generic QR screens, local browser
+  screenshots, and PC DOM as final phone article proof.
+- Dark Mode runbook rows explicitly reject Dark Mode settings pages, generic phone screenshots, and
+  PC preview shells unless the exact article body is inspected with mobile Dark Mode enabled.
+- Cover-thumbnail runbook rows explicitly reject cover crop panels, cover-setting screens, and
+  upload dialogs unless the exact cover thumbnail is accepted in a phone share, preview entry, or
+  platform list entry.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 116 tests.
+- 4-file cross-platform export regression passed at 4 files / 155 tests, and full export serial
+  regression passed at 35 files / 1089 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  28.42s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local checklist/runbook proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
+  preview, public article rendering, or publish success.
 
 ## 2026-06-19 WeChat Editor DOM Surface Validator
 

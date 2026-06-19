@@ -1570,6 +1570,12 @@ Contracts:
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
+- Phone-preview runbook `failureSignals` must explicitly reject scan entries, setup dialogs, PC
+  preview shells, relogin pages, generic QR screens, local browser screenshots, and PC DOM as final
+  phone article proof. Dark Mode rows must additionally reject settings pages and generic phone
+  screenshots that do not show the exact article body with mobile Dark Mode enabled. Cover-thumbnail
+  rows must additionally reject cover crop panels, cover-setting screens, and upload dialogs unless
+  the exact cover thumbnail is accepted in a phone share, preview entry, or platform list entry.
 - ExportModal may surface the runbook through style capability summary text, acceptance preflight
   text, per-choice execution summaries, and artifact-contract labels. This UI is informational
   only: it must not fork acceptance logic, create artifacts, alter `selectable`, `usable`,
@@ -1586,6 +1592,9 @@ Required tests:
   phone preview is `blocked-by-external`, and Dark Mode / cover thumbnail require their dedicated
   artifact flags.
 - The runbook must expose the exact required fields for ordinary PC paste and phone preview.
+- The runbook must expose explicit failure-signal text for scan/setup/PC-preview-shell/relogin/QR
+  blockers, Dark Mode settings-page blockers, and cover crop/setup blockers so operator checklists
+  cannot treat those artifacts as phone preview, Dark Mode, or cover-thumbnail proof.
 - The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
   validator-shaped rows missing that flag must keep the requirement invalid.
 - A validator-passed artifact-manifest row missing `artifactRef` must also remain invalid.

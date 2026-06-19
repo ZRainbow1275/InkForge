@@ -4455,3 +4455,48 @@ Boundary:
   `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`, `safe-disposable-draft`, phone
   preview, Dark Mode, cover, credentialed sync, scheduled-send, platform preview, public
   rendering, upload, or publish gates.
+
+## 2026-06-19 Style Proof Phone Runbook Failure Signals Slice
+
+Impact:
+- `npx gitnexus impact buildStyleProofExecutionFailureSignals -r InkForge -d upstream --include-tests`
+  reported LOW risk, 2 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+- `npx gitnexus impact getPlatformStyleProofExecutionRunbook -r InkForge -d upstream --include-tests`
+  reported LOW risk, 2 direct dependents (`platform-export-rendering.test.ts` and
+  `ExportModal.vue`), and 0 affected processes.
+
+Implementation:
+- Strengthened `buildStyleProofExecutionFailureSignals()` so phone-preview runbook rows explicitly
+  reject scan entries, setup dialogs, PC preview shells, relogin pages, generic QR screens, local
+  browser screenshots, and PC DOM as final phone article proof.
+- Added Dark Mode-specific failure text rejecting settings pages, generic phone screenshots, and PC
+  preview shells unless the exact article body is inspected with mobile Dark Mode enabled.
+- Added cover-thumbnail-specific failure text rejecting cover crop panels, cover-setting screens,
+  and upload dialogs unless the exact cover thumbnail is accepted in a phone share, preview entry,
+  or platform list entry.
+- Added regression assertions to the existing runbook test.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 116 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1089 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 28.42s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-phone-runbook-failure-signals-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local runbook/checklist proof only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, scheduled-send, platform preview, public rendering, upload, or
+  publish gates.

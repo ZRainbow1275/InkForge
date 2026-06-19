@@ -4542,6 +4542,13 @@ function buildStyleProofExecutionFailureSignals(
   }
   if (audit.requiresPhone) {
     signals.push('PC editor DOM, local browser screenshots, scan pages, or setup screens do not prove phone final-article rendering.')
+    signals.push('Phone preview scan entries, setup dialogs, PC preview shells, relogin pages, and generic QR screens are blocker evidence until the exact article body is visible on the phone.')
+  }
+  if (audit.requirement.id === 'dark-mode-check') {
+    signals.push('A Dark Mode settings page, generic phone screenshot, or PC preview shell does not prove the exact article body was inspected with mobile Dark Mode enabled.')
+  }
+  if (audit.requirement.id === 'cover-thumbnail-check') {
+    signals.push('Cover crop panels, cover-setting screens, or upload dialogs do not prove the exact cover thumbnail was accepted in a phone share, preview entry, or platform list entry.')
   }
   if (audit.mutatesPlatform) {
     signals.push('Request success alone is insufficient; the created draft, preview, or published result must be read back.')

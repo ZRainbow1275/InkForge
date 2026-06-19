@@ -1759,3 +1759,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   `pasteInputEventVerified:true`, `editorBodyMutationVerified:true`, `mojibakeFreeVerified:true`,
   `safe-disposable-draft`, phone preview, Dark Mode, cover thumbnail, credentialed sync, scheduled
   send, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Phone Runbook Failure Signals Addendum
+
+- Added `prompts/0601/evidence/style-proof-phone-runbook-failure-signals-20260619.txt`.
+- Strengthened `buildStyleProofExecutionFailureSignals()` so phone-preview runbook rows explicitly
+  reject scan entries, setup dialogs, PC preview shells, relogin pages, generic QR screens, local
+  browser screenshots, and PC DOM as final phone article proof.
+- Added Dark Mode-specific runbook failure text rejecting settings pages, generic phone
+  screenshots, and PC preview shells unless the exact article body is inspected with mobile Dark
+  Mode enabled.
+- Added cover-thumbnail-specific runbook failure text rejecting cover crop panels, cover-setting
+  screens, and upload dialogs unless the exact cover thumbnail is accepted in a phone share,
+  preview entry, or platform list entry.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 116 tests.
+- 4-file cross-platform export regression passed at 4 files / 155 tests, and full export serial
+  regression passed at 35 files / 1089 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  28.42s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local runbook/checklist proof only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
+  preview, public article rendering, or publish success.
