@@ -1541,6 +1541,11 @@ Contracts:
   sensitive-hygiene rows. Matching proof rows without same-row `safeForCommit:true` must emit
   `style-proof-manifest-safe-commit-not-verified` and keep requirement-level acceptance audit
   `invalid`.
+- Any execution contract row that lists `artifactFingerprint` in `requiredFields` must enforce a
+  non-empty same-row `artifactFingerprint` on a matching action/channel proof row in
+  `validateStyleProofManifest()`. `exactArtifact:true` is not enough without this traceability
+  field. Missing fingerprints must emit `style-proof-manifest-exact-artifact-missing` and keep
+  requirement-level acceptance audit `invalid`.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
   report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
@@ -1663,6 +1668,11 @@ Required tests:
   Regression tests must cover at least one local-evidence row, one authenticated-PC-editor row, and
   one phone-preview row so future changes cannot quietly move `safeForCommit` back to runbook-only
   text.
+- Matching phone, credentialed-channel, scheduled-send, and published-preview proof rows missing a
+  non-empty same-row `artifactFingerprint` must be invalid through
+  `style-proof-manifest-exact-artifact-missing`. Regression tests must keep `exactArtifact:true`
+  without a fingerprint invalid so future changes cannot treat untraceable exact-artifact flags as
+  proof.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof

@@ -3542,6 +3542,24 @@ function validateStyleProofRequirementCoverage(
   }
 
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
+  validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
+}
+
+function getStyleProofContractCandidates(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+): StyleProofArtifact[] {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+
+  return artifacts.filter(artifact =>
+    (contract.requiredChannels as readonly StyleProofChannel[]).includes(artifact.channel)
+    && (contract.requiredActions as readonly StyleProofAction[]).includes(artifact.action)
+    && (!contract.acceptedHostStatuses
+      || (
+        typeof artifact.hostStatus === 'string'
+        && (contract.acceptedHostStatuses as readonly StyleProofHostStatus[]).includes(artifact.hostStatus)
+      ))
+  )
 }
 
 function validateStyleProofRequiredSafeCommit(
@@ -3561,16 +3579,7 @@ function validateStyleProofRequiredSafeCommit(
     return
   }
 
-  const contractCandidates = artifacts.filter(artifact =>
-    (contract.requiredChannels as readonly StyleProofChannel[]).includes(artifact.channel)
-    && (contract.requiredActions as readonly StyleProofAction[]).includes(artifact.action)
-    && (!contract.acceptedHostStatuses
-      || (
-        typeof artifact.hostStatus === 'string'
-        && (contract.acceptedHostStatuses as readonly StyleProofHostStatus[]).includes(artifact.hostStatus)
-      ))
-  )
-
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
   if (contractCandidates.length === 0) return
   if (contractCandidates.some(artifact => artifact.safeForCommit === true)) return
 
@@ -3578,6 +3587,40 @@ function validateStyleProofRequiredSafeCommit(
     id: 'style-proof-manifest-safe-commit-not-verified',
     message: `${requirementId} proof is not marked safe for committed repository evidence on a matching action/channel row.`,
     suggestion: 'Record safeForCommit:true on the same proof row only after the referenced evidence excludes account material, local paths, credential secrets, temporary platform URLs, and raw platform captures.',
+    location: requirementId,
+  })
+}
+
+function validateStyleProofRequiredArtifactFingerprint(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  if (!(contract.requiredFields as readonly StyleProofArtifactVerificationField[]).includes('artifactFingerprint')) {
+    return
+  }
+
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-exact-artifact-missing'
+  )) {
+    return
+  }
+
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+  if (contractCandidates.some(artifact =>
+    typeof artifact.artifactFingerprint === 'string'
+    && artifact.artifactFingerprint.trim().length > 0
+  )) {
+    return
+  }
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-exact-artifact-missing',
+    message: `${requirementId} proof lacks artifactFingerprint on a matching action/channel row.`,
+    suggestion: 'Record a non-empty artifactFingerprint on the same proof row so the evidence can be traced to the exact exported artifact under review.',
     location: requirementId,
   })
 }

@@ -1874,3 +1874,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-19 Style Proof Required Artifact Fingerprint Addendum
+
+- Added `prompts/0601/evidence/style-proof-required-artifact-fingerprint-contract-20260619.txt`.
+- Added a generic validator layer for every execution contract that lists `artifactFingerprint` in
+  `requiredFields`.
+- Matching action/channel proof rows now require a non-empty same-row `artifactFingerprint`;
+  otherwise `validateStyleProofManifest()` emits `style-proof-manifest-exact-artifact-missing`
+  and keeps requirement-level acceptance audit invalid.
+- Existing specialized validators keep their precise exact-artifact checks; the generic layer only
+  closes the common fingerprint traceability gap and avoids duplicate exact-artifact issues.
+- Regression coverage rejects untraceable phone screenshot, credentialed sync, scheduled-send, and
+  published-preview proof rows.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 119 tests.
+- 4-file cross-platform export regression passed at 4 files / 158 tests, and full export serial
+  regression passed at 35 files / 1092 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  35.43s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.

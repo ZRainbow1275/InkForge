@@ -2933,6 +2933,7 @@ describe('platform native export rendering rules', () => {
   })
 
   it('rejects phone preview entry or scan state without final article content readback', () => {
+    const artifactFingerprint = 'sha256:redacted-phone-preview-entry'
     const manifest: StyleProofManifest = {
       platform: 'wechat',
       choiceId: 'wechat-click-reveal',
@@ -2949,6 +2950,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'phone',
+          artifactFingerprint,
           exactArtifact: true,
           phonePreviewBlocked: true,
           phonePreviewContentVerified: false,
@@ -2965,6 +2967,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'screenshot',
+          artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
           safeForCommit: true,
@@ -2980,6 +2983,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'dark-mode-check',
           readback: 'screenshot',
+          artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
           darkModeEnabledVerified: true,
@@ -2996,6 +3000,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'cover-thumbnail-check',
           readback: 'screenshot',
+          artifactFingerprint,
           exactArtifact: true,
           coverThumbnailAccepted: true,
           safeForCommit: true,
@@ -3236,6 +3241,7 @@ describe('platform native export rendering rules', () => {
   })
 
   it('rejects Dark Mode and cover thumbnail proof without verified mobile states', () => {
+    const artifactFingerprint = 'sha256:redacted-mobile-state'
     const manifest: StyleProofManifest = {
       platform: 'wechat',
       choiceId: 'wechat-click-reveal',
@@ -3252,6 +3258,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'phone',
+          artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
           safeForCommit: true,
@@ -3267,6 +3274,7 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'phone-preview',
           readback: 'screenshot',
+          artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
           safeForCommit: true,
@@ -3282,6 +3290,8 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'dark-mode-check',
           readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
           darkModeEnabledVerified: false,
           safeForCommit: true,
         },
@@ -3296,6 +3306,8 @@ describe('platform native export rendering rules', () => {
           channel: 'phone-preview',
           action: 'cover-thumbnail-check',
           readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
           coverThumbnailAccepted: false,
           safeForCommit: true,
         },
@@ -3595,6 +3607,101 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('unit-test-coverage')).toBe('invalid')
     expect(auditStatus.get('authenticated-editor-url')).toBe('invalid')
     expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+  })
+
+  it('requires artifactFingerprint on matching exact proof contract rows across phone sync and publish gates', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview', 'credentialed-sync', 'published'],
+      artifacts: [
+        {
+          id: 'phone-screenshot-without-fingerprint',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot proof without artifact fingerprint',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'credentialed-sync-without-fingerprint',
+          requirementId: 'credentialed-channel-response',
+          kind: 'browser-readback',
+          label: 'credentialed sync proof without artifact fingerprint',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'credentialed-channel',
+          action: 'credentialed-sync',
+          readback: 'api-response',
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'scheduled-send-without-fingerprint',
+          requirementId: 'scheduled-send-readback',
+          kind: 'browser-readback',
+          label: 'scheduled send proof without artifact fingerprint',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'scheduled-send-state',
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          scheduledSendVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'published-preview-without-fingerprint',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'browser-readback',
+          label: 'published preview proof without artifact fingerprint',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const exactArtifactIssueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-exact-artifact-missing')
+      .map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(exactArtifactIssueLocations).toEqual(expect.arrayContaining([
+      'phone-screenshot',
+      'credentialed-channel-response',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(auditStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
   })
 
   it('requires platform and artifact consistency in style proof manifests', () => {
