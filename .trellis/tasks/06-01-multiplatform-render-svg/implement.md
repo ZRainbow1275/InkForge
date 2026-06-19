@@ -2751,6 +2751,51 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 WeChat New Article Editor CloakBrowser Readback Slice
+
+External editor readback:
+- Continued the WeChat editor target identity gate with CloakBrowser only.
+- No screenshot, form fill, paste, save, preview, sync, phone preview, scheduled send, publish,
+  delete, or draft cleanup action was performed.
+- Raw credential parameters, account text, article titles, article body, page text samples, raw
+  network URLs, browser session secrets, and local runtime paths were not recorded.
+- The authenticated article-list page exposed delete/edit/publish operation labels in the card
+  operation layer. The edit-shaped control was positively separated from delete and publish controls
+  by generic operation labels and sibling placement.
+- Clicking the existing card edit-shaped control still remained on the list route shape.
+- The static WeChat list bundle exposed the official new-article route shape
+  `t=media/appmsg_edit_v2`, `action=edit`, `isNew=1`, `type=10`.
+- The browser then navigated in-page to the new-article editor route by reusing the current
+  authenticated query. Sensitive query parameters were not recorded.
+
+Readback:
+- The final authenticated page shape was `/cgi-bin/appmsg` with `media/appmsg_edit_v2`,
+  `action=edit`, `isNew=1`, and `type=10`.
+- Selector counts were iframe 1, visible iframe 0, `contenteditable=true` 3, visible
+  contenteditable 2, textarea 2, visible textarea 1, ProseMirror 2, known JS editor ids 31,
+  appmsg-edit signals 16, rich-media signals 1, `#js_content` signals 1, title/input signals 103,
+  cover signals 46, visible save/preview controls 2, and visible publish/send controls 1.
+- The visible main body editor was a ProseMirror contenteditable under a
+  `mock-iframe` / `mock-iframe-document` / `mock-iframe-body` wrapper, not a visible native iframe
+  editing document.
+- Main body ProseMirror geometry was approximately width 586px, height 538px, font-size 17px,
+  line-height 27.2px, `white-space: break-spaces`, `word-break: break-word`, and
+  `max-width: 100%`.
+- Title ProseMirror geometry was approximately width 578px, height 30px, font-size 24px,
+  line-height 30px, and `word-break: break-all`.
+- Empty main body editor embedded counts were SVG 0, `foreignObject` 0, style 0, image 0,
+  section 1, paragraph 0, and span 1.
+
+Evidence:
+- Added `prompts/0601/evidence/wechat-new-article-editor-cloakbrowser-readback-20260619.txt`.
+
+Boundary:
+- This proves authenticated new-article editor surface reachability and redacted DOM identity only.
+- It does not prove ordinary PC Ctrl+V rich HTML/SVG paste, editor body mutation, safe disposable
+  draft cleanup, phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public article rendering, or publish
+  success.
+
 ## 2026-06-19 External Account Proof Contract Validator Slice
 
 Impact:

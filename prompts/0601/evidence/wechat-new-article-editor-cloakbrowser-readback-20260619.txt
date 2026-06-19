@@ -1,0 +1,86 @@
+WeChat New Article Editor CloakBrowser Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat Public Platform editor-surface readback.
+- No screenshot, form fill, paste, save, preview, sync, phone preview, scheduled send, publish,
+  delete, or draft cleanup action was performed.
+- Raw credential parameters, account text, article titles, article body, page text samples, raw
+  network URLs, browser session secrets, and local runtime paths were not recorded.
+
+Navigation:
+- Started from the authenticated WeChat article-list surface.
+- The existing draft-card edit-shaped control was positively distinguished from delete-shaped and
+  publish-shaped controls by generic operation labels and sibling placement, then clicked once.
+- That click remained on the list route shape and did not expose editor DOM.
+- The static WeChat list bundle exposed the official new-article editor route shape:
+  `/cgi-bin/appmsg` with `t=media/appmsg_edit_v2`, `action=edit`, `isNew=1`, and `type=10`.
+- The browser navigated to that route by reusing the current authenticated page query in-page.
+  Sensitive query parameters were not recorded in evidence.
+
+Readback:
+- Final page host/path shape: `mp.weixin.qq.com` + `/cgi-bin/appmsg`.
+- Final editor route shape: `media/appmsg_edit_v2`, `action=edit`, `isNew=1`, `type=10`.
+- Document ready state: complete.
+- Editor selectors:
+  - iframe: 1, visible iframe: 0.
+  - contenteditable=true: 3, visible contenteditable=true: 2.
+  - textarea: 2, visible textarea: 1.
+  - ProseMirror: 2.
+  - `#js_editor` / `[id*="js_editor"]`: 31.
+  - `[class*="js_editor"]`: 2.
+  - UEditor signals: 2.
+  - appmsg-edit signals: 16.
+  - rich-media signals: 1.
+  - `#js_content` signals: 1.
+  - title/input signals: 103.
+  - cover signals: 46.
+  - visible save/preview controls: 2.
+  - visible publish/send controls: 1.
+- The editor surface used a visible `appmsg_edit_box`, `editor_pannel`,
+  `js_appmsg_editor`, `appmsg_editor`, `appmsg_editor_inner`, `js_ueditor`, and `js_editor`
+  wrapper chain.
+- The visible main article body editor was a ProseMirror contenteditable under a
+  `mock-iframe` / `mock-iframe-document` / `mock-iframe-body` wrapper, not a visible native
+  iframe editing document.
+- Main body ProseMirror geometry and typography:
+  - Rect approximately x 574, y 272, width 586, height 538.
+  - `contenteditable=true`.
+  - `white-space: break-spaces`.
+  - `word-break: break-word`.
+  - `font-size: 17px`.
+  - `line-height: 27.2px`.
+  - `min-height: 538px`.
+  - `max-width: 100%`.
+- Title ProseMirror geometry and typography:
+  - Rect approximately x 578, y 194, width 578, height 30.
+  - Text input width approximately 480px.
+  - `font-size: 24px`.
+  - `line-height: 30px`.
+  - `word-break: break-all`.
+- Empty editor embedded counts on the main body surface:
+  - svg 0.
+  - foreignObject 0.
+  - style 0.
+  - img 0.
+  - section 1.
+  - p 0.
+  - span 1.
+- Bottom controls visible on the editor route included generic save, preview, and publish/send
+  button labels, but none were clicked.
+
+Implications for InkForge:
+- Authenticated WeChat editor DOM is currently a ProseMirror-backed mock-iframe surface.
+- WeChat paste proof must target the main body ProseMirror surface, not a native visible iframe.
+- Ordinary rich Ctrl+V proof must capture same-route post-paste DOM readback from the exact editor
+  surface and must not be inferred from bundle route discovery, list-card controls, or
+  ClipboardEvent-style local injection.
+- Empty editor reachability does not prove SVG, style, foreignObject, image, Dark Mode, phone
+  preview, cover, sync, scheduled send, platform preview, public URL, or publish acceptance.
+
+Boundary:
+- This proves authenticated new-article editor surface reachability and redacted DOM identity
+  only.
+- It does not prove ordinary PC Ctrl+V rich HTML/SVG paste, editor body mutation, safe disposable
+  draft cleanup, phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform preview, public article rendering, or publish
+  success.

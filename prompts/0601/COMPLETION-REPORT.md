@@ -1556,3 +1556,33 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
   credentialed sync, scheduled send, platform preview, public article rendering, or publish
   success.
+
+## 2026-06-19 WeChat New Article Editor CloakBrowser Readback Addendum
+
+- Added `prompts/0601/evidence/wechat-new-article-editor-cloakbrowser-readback-20260619.txt`.
+- Used CloakBrowser only.
+- Performed an authenticated new-article editor surface readback from the WeChat article-list
+  session.
+- No screenshot, form fill, paste, save, preview, sync, phone preview, scheduled send, publish,
+  delete, or draft cleanup action was performed.
+- Raw credential parameters, account text, article titles, article body, page text samples, raw
+  network URLs, browser session secrets, and local runtime paths were not recorded.
+- Existing list-card edit controls were distinguishable from delete and publish controls, but the
+  existing-card edit click remained on the list route shape.
+- The browser then used the official new-article route shape exposed by the current WeChat static
+  bundle and reached `media/appmsg_edit_v2`, `action=edit`, `isNew=1`, `type=10`.
+- Redacted selector counts on the final editor route were iframe 1, visible iframe 0,
+  `contenteditable=true` 3, visible contenteditable 2, textarea 2, visible textarea 1,
+  ProseMirror 2, known JS editor ids 31, appmsg-edit signals 16, rich-media signals 1,
+  `#js_content` signals 1, title/input signals 103, cover signals 46, visible save/preview
+  controls 2, and visible publish/send controls 1.
+- The visible main body editor was a ProseMirror contenteditable under a mock-iframe wrapper,
+  approximately 586px wide and 538px high, using `white-space: break-spaces`,
+  `word-break: break-word`, `font-size: 17px`, and `line-height: 27.2px`.
+- Empty main body embedded counts were SVG 0, `foreignObject` 0, style 0, image 0, section 1,
+  paragraph 0, and span 1.
+- Boundary: this proves authenticated new-article editor surface reachability and redacted DOM
+  identity only. It does not prove ordinary PC Ctrl+V rich HTML/SVG paste, editor body mutation,
+  safe disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover
+  thumbnail, credentialed sync, scheduled send, platform preview, public article rendering, or
+  publish success.
