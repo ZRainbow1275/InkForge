@@ -3034,6 +3034,7 @@ describe('platform native export rendering rules', () => {
           action: 'applied-market-element',
           readback: 'visual-and-dom',
           centralEditorChanged: true,
+          marketAppliedContentVerified: true,
           safeForCommit: true,
         },
         {
@@ -3053,6 +3054,59 @@ describe('platform native export rendering rules', () => {
 
     expect(validateStyleProofManifest(manifest)).toEqual([])
     expect(getStyleProofManifestReport(manifest).valid).toBe(true)
+  })
+
+  it('rejects placeholder-only market editor readback even when the center canvas changed', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      scope: 'style-choice',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [
+        {
+          id: 'market-placeholder-only-readback',
+          requirementId: 'market-applied-dom-readback',
+          kind: 'editor-readback',
+          label: '135 SVG free-trial placeholder changed the canvas but did not materialize content',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'market-editor',
+          action: 'applied-market-element',
+          readback: 'visual-and-dom',
+          centralEditorChanged: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'market-source-hygiene',
+          requirementId: 'no-proprietary-template-source',
+          kind: 'hygiene-review',
+          label: 'No copied market source',
+          evidenceLabel: 'applied-editor-element',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'market-editor',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          safeForCommit: true,
+        },
+      ],
+    }
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const marketAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'market-applied-dom-readback'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-market-editor-placeholder-only')
+    expect(requirementStatus.get('market-applied-dom-readback')).toBe('invalid')
+    expect(marketAudit?.status).toBe('invalid')
+    expect(marketAudit?.issueIds).toContain('style-proof-manifest-market-editor-placeholder-only')
+    expect(requirementStatus.get('no-proprietary-template-source')).toBe('satisfied')
   })
 
   it('does not let a style proof manifest promote blocked choices', () => {

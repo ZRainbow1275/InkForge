@@ -5886,3 +5886,52 @@ Boundary:
 - It does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
   rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+## 2026-06-20 Market Editor Placeholder-Only Readback Contract Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+
+Implementation:
+- Added `StyleProofArtifact.marketAppliedContentVerified?: boolean`.
+- Added `style-proof-manifest-market-editor-placeholder-only`.
+- Updated `market-applied-dom-readback` so a matching market-editor row must carry the same-row
+  combination of `centralEditorChanged:true`, `marketAppliedContentVerified:true`, accepted DOM or
+  visual readback, and `safeForCommit:true`.
+- `validateStyleProofRequirementCoverage()` now rejects center-canvas changes that are still
+  listing-only, placeholder-only, no-material, or lack meaningful applied DOM/controls/slots/visible
+  content.
+- The acceptance audit maps that issue to `invalid` for `market-applied-dom-readback`, so it appears
+  in `cannotClaim` instead of being hidden behind a generic external market-editor gate.
+- Added a regression where a 135 SVG free-trial placeholder changes the center canvas but omits
+  `marketAppliedContentVerified:true`; `market-applied-dom-readback` stays invalid while
+  `no-proprietary-template-source` remains satisfied.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market editor" --reporter=default`
+  passed with 1 file / 4 selected tests / 134 skipped.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 138 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 177 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1111 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- PowerShell `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/market-editor-placeholder-only-readback-contract-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is local validator/audit enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

@@ -1,0 +1,59 @@
+Market Editor Placeholder-Only Readback Contract - 2026-06-20
+
+Scope:
+- Local style-proof manifest validation and acceptance-audit hardening.
+- This slice converts the 135/Xiumi applied-editor learning boundary into an executable contract.
+- No platform action, account upload, phone preview, sync, scheduled send, publish, screenshot,
+  network capture, QR material, credential material, browser runtime artifact, or private editor
+  source is recorded here.
+
+Implemented:
+- `StyleProofArtifact.marketAppliedContentVerified?: boolean`
+- `style-proof-manifest-market-editor-placeholder-only`
+- `market-applied-dom-readback` now requires the same matching market-editor row to carry:
+  - `centralEditorChanged:true`
+  - `marketAppliedContentVerified:true`
+  - accepted DOM or visual readback
+  - `safeForCommit:true`
+
+Behavior:
+- A 135/Xiumi list/category/item click that does not mutate the center editor remains invalid via
+  `style-proof-manifest-market-editor-not-applied`.
+- A center editor/canvas change that is only listing-only, placeholder-only, no-material, or lacks
+  meaningful DOM/controls/slots/visible content is invalid via
+  `style-proof-manifest-market-editor-placeholder-only`.
+- The requirement-level acceptance audit maps that issue to `invalid` and exposes it in
+  `cannotClaim`.
+- The hygiene row `no-proprietary-template-source` remains independently satisfiable when its own
+  source-hygiene artifact is valid; the placeholder failure is scoped to `market-applied-dom-readback`.
+
+Regression coverage:
+- Added a manifest where a 135 SVG free-trial placeholder changes the center canvas but does not
+  prove meaningful applied content.
+- The manifest report stays invalid.
+- `market-applied-dom-readback` stays invalid.
+- `getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])` exposes the placeholder-only
+  issue in the cannot-claim row.
+- `no-proprietary-template-source` remains satisfied for the same manifest.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market editor" --reporter=default`
+  PASS: 1 file / 4 selected tests / 134 skipped
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 138 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 177 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1111 tests
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `pnpm -C inkforge build`
+  PASS
+
+Boundary:
+- This proves local validator and acceptance-audit enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, public-host availability, or publish success.

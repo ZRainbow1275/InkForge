@@ -2490,3 +2490,25 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
   public-host availability, or publish success.
+
+## 2026-06-20 Market Editor Placeholder-Only Readback Contract Addendum
+
+- Added `prompts/0601/evidence/market-editor-placeholder-only-readback-contract-20260620.txt`.
+- Added `StyleProofArtifact.marketAppliedContentVerified` and the issue id
+  `style-proof-manifest-market-editor-placeholder-only`.
+- `market-applied-dom-readback` now requires a same-row applied-content proof. A 135/Xiumi center
+  canvas change that is only listing-only, placeholder-only, no-material, or otherwise lacks
+  meaningful DOM/controls/slots/visible content stays invalid even when `centralEditorChanged:true`
+  and `safeForCommit:true` are present.
+- Acceptance audit maps the placeholder-only issue to requirement-level `invalid` and exposes it
+  through `cannotClaim`.
+- Verification passed:
+  - focused market-editor regression at 4 selected tests / 134 skipped
+  - full `platform-export-rendering.test.ts` at 1 file / 138 tests
+  - cross-platform export regression at 4 files / 177 tests
+  - full export serial regression at 35 files / 1111 tests
+  - targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build
+- Boundary: this is local validator/audit enforcement only. It does not prove WeChat paste, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public-host availability, or publish success.

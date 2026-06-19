@@ -130,6 +130,10 @@ image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/r
 规则，不含账号、本地浏览器目录、登录凭据、扫码材料、抓包材料、截图位置、模板源码、私有 SVG 或素材 URL）。
 `market-editor-applied-gate-20260617.txt`（当前规则实现：`applied-editor-element` requires
 `centralEditorChanged:true`; center-unchanged library/listing probes stay invalid）。
+`market-editor-placeholder-only-readback-contract-20260620.txt`（当前规则实现：
+`market-applied-dom-readback` requires same-row `marketAppliedContentVerified:true`; a changed
+135/Xiumi center canvas that is only placeholder/listing/no-material evidence stays invalid and
+appears in acceptance-audit `cannotClaim`）。
 `phone-preview-content-gate-20260617.txt`（当前规则实现：`mobile-preview` requires
 `phonePreviewContentVerified:true`; scan/entry/setup states stay invalid）。
 `phone-dark-cover-gate-20260617.txt`（当前规则实现：`dark-mode-check` requires
@@ -338,6 +342,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
+[x] market-editor-placeholder-only-readback-contract-20260620.txt # 当前规则实现：market-applied-dom-readback also requires marketAppliedContentVerified:true
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
 [x] style-proof-phone-runbook-failure-signals-20260619.txt # 当前规则实现：执行手册明确拒绝 scan/setup/PC preview shell/cover-setting 等手机伪证据；不证明手机端通过
@@ -2183,6 +2188,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   4-file cross-platform export regression, full export serial regression, targeted ESLint,
   `vue-tsc`, and production build.
 - Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
+## 2026-06-20 Market Editor Placeholder-Only Readback Contract
+
+- [x] market-editor-placeholder-only-readback-contract-20260620.txt
+- Converted the 135/Xiumi applied-editor boundary into a local manifest contract: a changed center
+  canvas is not enough when the applied state is listing-only, placeholder-only, no-material, or
+  lacks meaningful DOM/controls/slots/visible content.
+- `market-applied-dom-readback` now requires same-row `marketAppliedContentVerified:true` in
+  addition to `centralEditorChanged:true` and `safeForCommit:true`.
+- Missing applied-content proof emits `style-proof-manifest-market-editor-placeholder-only`, keeps
+  the requirement-level acceptance audit `invalid`, and exposes the issue in `cannotClaim`.
+- Verification passed: focused market-editor regression, full `platform-export-rendering.test.ts`,
+  4-file cross-platform export regression, full export serial regression, targeted ESLint,
+  `vue-tsc`, and production build.
+- Boundary: this is local validator/audit enforcement only. It does not prove WeChat paste, phone
   preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.

@@ -192,6 +192,11 @@ construct breaks.
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
   remain invalid for `applied-editor-element` until the center editor/canvas/paper visibly changes
   and the after-state DOM/controls are read.
+- 2026-06-20 executable manifest contract: `StyleProofArtifact.marketAppliedContentVerified === true`
+  is also required on the same `market-applied-dom-readback` artifact. A changed 135/Xiumi center
+  canvas is still invalid when the applied state is listing-only, placeholder-only, no-material, or
+  lacks meaningful DOM/controls/slots/visible content. This emits
+  `style-proof-manifest-market-editor-placeholder-only` and must remain an invalid local proof row.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.ordinaryClipboardPasteVerified === true`
   is now required for `pc-editor-paste-event`. A programmatic `ClipboardEvent('paste')` or
   `DataTransfer` readback may remain useful PC-channel diagnostics, but it must stay invalid for
@@ -464,8 +469,11 @@ Evidence labels for UI state:
   the central editor/canvas, and DOM/controls were read. This proves market authoring structure
   and rewrite/fallback requirements only; it does not satisfy `unit-tested` or platform proof.
   `StyleProofManifest` evidence for this label must set `centralEditorChanged:true` on the
-  `market-applied-dom-readback` artifact; center-unchanged library/listing probes must surface
-  `style-proof-manifest-market-editor-not-applied`.
+  `market-applied-dom-readback` artifact and must set `marketAppliedContentVerified:true` only
+  after the applied center state exposes meaningful non-placeholder structure. Center-unchanged
+  library/listing probes must surface `style-proof-manifest-market-editor-not-applied`; changed
+  placeholder/list-only/no-material states must surface
+  `style-proof-manifest-market-editor-placeholder-only`.
 - `authenticated-editor-reachable`: the real WeChat PC article editor is reachable in an
   authenticated browser profile. This proves login/editor access only.
 - `pc-editor-dom-readable`: the real WeChat PC editor title/body DOM is readable and visually
@@ -2005,6 +2013,10 @@ Contracts:
 - Acceptance audit must preserve that same boundary: `centralEditorChanged:false` rows for
   `market-applied-dom-readback` emit `style-proof-manifest-market-editor-not-applied` and stay
   `invalid`, even though the broader market-editor gate normally requires an external account.
+- Acceptance audit must also preserve the applied-content boundary:
+  `market-applied-dom-readback` rows missing `marketAppliedContentVerified:true` emit
+  `style-proof-manifest-market-editor-placeholder-only` and stay `invalid`, even when the central
+  canvas changed and the artifact is otherwise safe to commit.
 - Xiumi SVG category previews can contain `svg`, `animateTransform`, and `foreignObject`, but the
   applied center canvas may materialize as image cells and authoring layers. Therefore Xiumi SVG
   evidence maps to interactive manifests and fallback artifacts, not direct inline-SVG availability.

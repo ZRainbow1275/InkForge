@@ -218,6 +218,7 @@ export interface StyleProofArtifact {
   platformEditorSurfaceVerified?: boolean
   platformEditorDomVerified?: boolean
   centralEditorChanged?: boolean
+  marketAppliedContentVerified?: boolean
   ordinaryClipboardPasteVerified?: boolean
   sameEditorTabVerified?: boolean
   pasteInputEventVerified?: boolean
@@ -248,6 +249,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-unsafe-commit-artifact'
   | 'style-proof-manifest-exact-artifact-missing'
   | 'style-proof-manifest-market-editor-not-applied'
+  | 'style-proof-manifest-market-editor-placeholder-only'
   | 'style-proof-manifest-authenticated-session-not-verified'
   | 'style-proof-manifest-external-account-login-blocked'
   | 'style-proof-manifest-external-account-auth-missing'
@@ -294,6 +296,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-unsafe-commit-artifact',
   'style-proof-manifest-exact-artifact-missing',
   'style-proof-manifest-market-editor-not-applied',
+  'style-proof-manifest-market-editor-placeholder-only',
   'style-proof-manifest-authenticated-session-not-verified',
   'style-proof-manifest-external-account-login-blocked',
   'style-proof-manifest-external-account-auth-missing',
@@ -725,6 +728,7 @@ export type StyleProofArtifactVerificationField =
   | 'platformEditorSurfaceVerified'
   | 'platformEditorDomVerified'
   | 'centralEditorChanged'
+  | 'marketAppliedContentVerified'
   | 'ordinaryClipboardPasteVerified'
   | 'sameEditorTabVerified'
   | 'pasteInputEventVerified'
@@ -1095,7 +1099,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['market-editor'],
     requiredActions: ['applied-market-element'],
     requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
-    requiredFields: ['centralEditorChanged', 'safeForCommit'],
+    requiredFields: ['centralEditorChanged', 'marketAppliedContentVerified', 'safeForCommit'],
   },
   'no-proprietary-template-source': {
     requirementId: 'no-proprietary-template-source',
@@ -2836,6 +2840,19 @@ function validateStyleProofRequirementCoverage(
           suggestion: 'Record centralEditorChanged:true only after a concrete 135/Xiumi style or effect visibly changes the center editor/canvas and the applied DOM or controls are read back.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        artifact.action === 'applied-market-element'
+        && artifact.channel === 'market-editor'
+        && isDomOrVisualReadback(artifact.readback)
+        && artifact.centralEditorChanged === true
+        && artifact.marketAppliedContentVerified === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-market-editor-placeholder-only',
+          message: 'Market editor proof does not prove that the applied center editor content has meaningful non-placeholder structure.',
+          suggestion: 'Record marketAppliedContentVerified:true only after the applied 135/Xiumi style or SVG effect is read back with meaningful DOM, controls, slots, metadata, or visible content beyond listing-only or placeholder-only authoring state.',
+          location: requirementId,
+        })
       }
       break
     }
@@ -3844,6 +3861,8 @@ function isStyleProofRequiredFieldSatisfied(
       return artifact.platformEditorDomVerified === true
     case 'centralEditorChanged':
       return artifact.centralEditorChanged === true
+    case 'marketAppliedContentVerified':
+      return artifact.marketAppliedContentVerified === true
     case 'ordinaryClipboardPasteVerified':
       return artifact.ordinaryClipboardPasteVerified === true
     case 'sameEditorTabVerified':
@@ -4695,6 +4714,7 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
   'style-proof-manifest-paste-proof-not-bound',
   'style-proof-manifest-exact-artifact-missing',
   'style-proof-manifest-market-editor-not-applied',
+  'style-proof-manifest-market-editor-placeholder-only',
   'style-proof-manifest-proof-not-bound',
   'style-proof-manifest-contract-action-channel-mismatch',
   'style-proof-manifest-artifact-ref-missing',
@@ -4707,6 +4727,9 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
 const STYLE_PROOF_ACCEPTANCE_REQUIREMENT_INVALID_ISSUE_IDS: Partial<
   Record<StyleProofRequirementId, readonly StyleProofManifestIssueId[]>
 > = {
+  'market-applied-dom-readback': [
+    'style-proof-manifest-market-editor-placeholder-only',
+  ],
   'pc-editor-dom-readback': [
     'style-proof-manifest-editor-mojibake-not-ruled-out',
   ],
