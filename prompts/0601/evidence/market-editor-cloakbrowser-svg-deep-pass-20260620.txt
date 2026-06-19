@@ -1,0 +1,74 @@
+Market Editor CloakBrowser SVG Deep Pass - 2026-06-20
+
+Scope:
+- CloakBrowser-only learning pass for 135 SVG editor and Xiumi paper editor SVG category.
+- Purpose is rule extraction for InkForge-owned WeChat/XHS/Zhihu renderers, manifests, fallbacks,
+  and proof gates.
+- No template source, paid/member material, account data, browser profile data, QR data, cookies,
+  HAR, draft ids, screenshots, or private URLs were retained.
+
+135 SVG editor observations:
+- The public SVG editor loaded in the authenticated browser session and exposed SVG effect
+  categories such as basic effects, image effects, click effects, carousel, slide, auto, audio/video,
+  expand, long-press, layout, public-account, links/miniprograms, and other effects.
+- A free-trial effect was clicked from the left effect list. When asked whether to include design
+  material images, the no-material path was chosen to avoid importing third-party material.
+- After selection, the central canvas changed and displayed multiple authoring blocks. The sampled
+  authoring block families included popup, carousel, sector/red-packet, click-move/scale/disappear,
+  and cover-click/move/spread style interaction families.
+- The active cover-click/move/spread block exposed a source-editor structure with an image slot,
+  hidden trigger overlay, percentage inset hot area, resize handles, trigger-area visibility switch,
+  and a right-side parameter panel.
+- The right parameter panel exposed structured fields for cover image slot, material width
+  requirement, movement direction, cover animation duration, expand animation duration, expanded
+  content editing, block ordering, spacing, copy/delete, and gap-removal controls.
+
+135 rules for InkForge:
+- Treat 135 SVG effects as typed schema inputs only: image slots, trigger zones, trigger type,
+  direction enum, motion duration, expanded content slots, block ordering, spacing/gap removal,
+  static-expanded fallback, raster fallback, and mobile-preview proof gates.
+- Treat 135 authoring wrappers and effect family ids as residue blockers if copied into InkForge
+  output. Known samples include `app-content-canvas`, `block-img`, `block-img__default`,
+  `block-img__trigger`, `edit-placeholder`, `edit-trigger`, `trigger__ajuster`, `placeholder__name`,
+  `ant-*`/Vue authoring wrappers, and known effect `data-name` families.
+- Placeholder-only blocks and no-material trial blocks are useful for schema and risk learning,
+  but they do not prove final visual fidelity, artifact paste, mobile rendering, or publish success.
+- A PC editor/canvas DOM readback is still insufficient for tap/swipe/long-press behavior. Mobile
+  interaction proof must come from the exact InkForge artifact in a real phone preview or equivalent
+  approved platform readback.
+
+Xiumi SVG category observations:
+- The Xiumi paper editor loaded, an unsaved-draft recovery prompt was dismissed, and the left
+  category strip was switched to SVG.
+- SVG category readback exposed many SVG/category labels, including basic SVG, image carousel,
+  click-expand, path animation, draw/lottery, sliding, transition, branch transition, scroll trigger,
+  parallax, click switch, flip/turn page, zoom, click quiz, bullet text, click show, click replace
+  image, click open, click disappear, popup, click enlarge, print, jump, play, long-press switch,
+  region trigger, click drop, and click plus auto.
+- Xiumi list items exposed component/function metadata such as SVG gallery, SVG layout, SVG
+  animation, free sliding layout, overlapping layout, gallery scroll, gallery switch, transition,
+  slide sequence, fade-in, interactive/non-interactive hints, and image ratio hints such as
+  1080x720, 1080x1440, and 1080x2223.
+- Sample list DOM contained large numbers of SVG nodes, style attributes, `tn-*` classes, and
+  Angular `ng-*` markers. These are Xiumi authoring/runtime state, not publishable InkForge output.
+
+Xiumi rules for InkForge:
+- Promote Xiumi component/function labels into InkForge-owned taxonomy and manifest fields:
+  component family, behavior family, interaction channel, image ratio, fallback family, and proof
+  requirement.
+- Keep the distinction between interactive and non-interactive gallery effects. Non-interactive or
+  auto-only samples may inform static, auto, raster, carousel-page, or long-image fallbacks, but
+  they must not satisfy mobile tap/swipe proof.
+- Effects requiring plugin/sync/enhanced upload stay behind credentialed-channel proof. Normal
+  copy/paste or local browser proof is not enough.
+- `tn-*`, `ng-*`, Xiumi material URLs, authoring action/layer classes, free-layout canvas classes,
+  and editor runtime attributes must remain market-editor residue blockers in WeChat, Xiaohongshu,
+  and Zhihu publishable output.
+
+Acceptance boundary:
+- This evidence supports market-rule extraction, taxonomy expansion, schema fields, layout-report
+  requirements, fallback requirements, and residue-blocking rules.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, WeChat phone preview, mobile SMIL,
+  tap/swipe/long-press behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public host availability, platform preview, public article rendering, XHS/Zhihu
+  account upload, or publish success.

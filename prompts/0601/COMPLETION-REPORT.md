@@ -2453,3 +2453,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   paste, exact artifact preservation, safe draft cleanup, phone preview, mobile SMIL/click, mobile
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
   public article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+## 2026-06-20 Market Editor CloakBrowser SVG Deep Pass Addendum
+
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`.
+- Used CloakBrowser only for a deeper applied-rule pass over 135 SVG editor and Xiumi SVG category
+  authoring surfaces.
+- 135 free-trial/no-material SVG effects are now recorded as schema inputs for image slots,
+  trigger zones, trigger type, direction, motion duration, expanded content, ordering, spacing,
+  static-expanded fallback, raster fallback, and mobile-preview proof requirements.
+- Xiumi SVG labels are now recorded as taxonomy inputs for component family, behavior family,
+  interaction channel, image ratio, fallback family, and proof requirement. Interactive and
+  non-interactive samples are kept separate.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`, and
+  `prompts/0601/evidence/README.md`.
+- Boundary: this is market rule extraction only. It does not prove WeChat paste, phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
+  availability, or publish success.

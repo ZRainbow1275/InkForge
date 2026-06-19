@@ -739,3 +739,39 @@ Rules for InkForge:
 Evidence:
 - `prompts/0601/evidence/oss-converter-source-refresh-20260618.txt`
 - `prompts/0601/research/wechat-svg-typesetting-patterns.md` section 12.
+
+## 8. 2026-06-20 CloakBrowser SVG Deep Pass
+
+This refresh records the deeper 135/Xiumi browser pass requested for SVG/H5/style rules. It is
+market-rule extraction only; it does not replace exact InkForge artifact proof on WeChat, XHS, or
+Zhihu.
+
+135 SVG editor rules:
+- Free-trial/no-material SVG effects are schema inputs, not reusable source. Map image slots,
+  hidden trigger overlays, percentage hot areas, resize handles, direction controls,
+  animation-duration fields, expanded content, ordering, spacing, copy/delete, and gap-removal
+  controls to InkForge-owned manifest fields and layout reports.
+- Trial placeholders, central-canvas authoring wrappers, effect-family ids, Vue/Ant wrappers,
+  trigger helpers, and editor metadata must remain market-editor residue blockers if they appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
+  not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
+  Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
+
+Xiumi SVG/H5 rules:
+- SVG category labels are taxonomy and manifest inputs. Preserve component family, behavior family,
+  interaction channel, image ratio, fallback family, and proof requirement.
+- Examples include SVG gallery/layout/animation, free sliding layout, overlapping layout, gallery
+  scroll/switch, transition, slide sequence, fade-in, interactive/non-interactive state, and image
+  ratios such as 1080x720, 1080x1440, and 1080x2223.
+- Non-interactive or auto-only gallery effects may justify static, auto, raster, carousel-page, or
+  long-image fallbacks. They cannot satisfy mobile tap, swipe, long-press, phone-preview, or publish
+  proof.
+- `tn-*`, `ng-*`, Xiumi material URLs, action/layer authoring classes, free-layout canvas classes,
+  and editor runtime attributes are residue blockers, not exportable structure.
+- Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
+  browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
+
+Evidence:
+- `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

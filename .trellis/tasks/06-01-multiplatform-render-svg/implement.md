@@ -5808,3 +5808,39 @@ Boundary:
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
   public-host availability, or publish success.
+
+## 2026-06-20 Market Editor CloakBrowser SVG Deep Pass Slice
+
+Scope:
+- Continued the market editor learning requirement with CloakBrowser only.
+- Focused on the user-requested workflow: click free/free-trial SVG effects in 135, verify central
+  canvas content, then read authoring structure and parameter surfaces; switch Xiumi to the SVG
+  category and read list/category/component metadata.
+
+Rules recorded:
+- 135 SVG free-trial/no-material effects map to InkForge-owned schema fields: image slots,
+  trigger zones, trigger type, direction, motion duration, expanded content, block ordering,
+  spacing/gap-removal policy, static-expanded fallback, raster fallback, and mobile-preview proof
+  requirements.
+- 135 authoring wrappers, placeholders, builder `data-name` families, Vue/Ant wrappers, trigger
+  overlay helpers, and editor metadata remain market-editor residue blockers when present in
+  publishable output.
+- Xiumi SVG category labels map to InkForge-owned component family, behavior family, interaction
+  channel, image ratio, fallback family, and proof requirement metadata.
+- Xiumi interactive/non-interactive labels are preserved: non-interactive or auto-only samples may
+  justify static/auto/raster/carousel-page/long-image fallbacks, not mobile tap/swipe/long-press
+  proof.
+- Plugin/sync/enhanced-mode effects stay behind credentialed-channel proof.
+
+Artifacts:
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is market rule extraction and documentation proof only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

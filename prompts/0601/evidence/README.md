@@ -2147,3 +2147,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, exact artifact preservation, safe draft cleanup, phone preview, mobile interaction, mobile
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
   public article rendering, XHS/Zhihu account upload, public host, or publish success.
+
+## 2026-06-20 Market Editor CloakBrowser SVG Deep Pass
+
+- [x] market-editor-cloakbrowser-svg-deep-pass-20260620.txt
+- Used CloakBrowser only to inspect the 135 SVG editor and Xiumi paper editor SVG category after
+  concrete list/category interaction and central canvas/editor readback.
+- 135 free-trial/no-material SVG effects exposed image slots, hidden trigger overlays, percentage
+  hot-area geometry, direction controls, animation-duration fields, expanded-content editing,
+  ordering, spacing, copy/delete, and gap-removal controls.
+- Xiumi SVG category exposed component/function metadata for SVG gallery/layout/animation, free
+  sliding layout, overlapping layout, gallery scroll/switch, transition, slide sequence, fade-in,
+  interactive/non-interactive state, and image ratios such as 1080x720, 1080x1440, and 1080x2223.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` and
+  `docs/platform-rendering-rules/market-practices-catalog.md` to convert those observations into
+  InkForge-owned taxonomy, manifest fields, layout-report requirements, fallback rules, and
+  market-editor residue blockers.
+- Boundary: this is market rule extraction only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.

@@ -1984,6 +1984,20 @@ Contracts:
   structured parameters for cover image, move direction, animation seconds, and expanded content.
   InkForge may reuse the pattern as typed background media plus hotspot/expanded-content schema,
   but not as direct platform proof or copied vendor DOM.
+- 2026-06-20 135 SVG editor no-material deep pass: a clicked free-trial effect can populate the
+  central authoring canvas with multiple effect blocks and a selected interaction block that
+  exposes image slots, hidden trigger overlays, percentage hot-area geometry, resize handles,
+  trigger-area visibility controls, direction controls, motion-duration fields, expanded-content
+  editing, block ordering, spacing, copy/delete, and gap-removal controls. Promote those controls
+  only into InkForge-owned manifest fields: `imageSlots`, `triggerZones`, `triggerType`,
+  `direction`, `motionDuration`, `expandedContentSlots`, `blockOrdering`, `spacingPolicy`,
+  `staticExpandedFallback`, `rasterFallback`, and `mobilePreviewRequired`.
+- 2026-06-20 135 SVG editor no-material deep pass residue rule: placeholders and no-material trial
+  blocks are schema/risk evidence only. They must not satisfy final visual fidelity, artifact
+  paste, phone interaction, or publish proof, and copied authoring markers such as `block-img`,
+  `block-img__trigger`, `edit-trigger`, `trigger__ajuster`, `edit-trigger__switch`,
+  `placeholder__name`, Vue/Ant wrappers, or builder `data-name` families must remain
+  market-editor-residue blockers.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -2008,6 +2022,20 @@ Contracts:
   than literal inline SVG in the active authoring DOM. Treat Xiumi labels such as component type,
   behavior, interaction channel, and image ratio as catalog metadata for InkForge-owned renderers;
   never treat the authoring DOM shape as WeChat paste proof.
+- 2026-06-20 Xiumi SVG taxonomy deep pass: the SVG category exposed families such as basic SVG,
+  image carousel, click-expand, path animation, draw/lottery, sliding, transition, branch
+  transition, scroll trigger, parallax, click switch, flip/turn page, zoom, click quiz, bullet text,
+  click show, click replace image, click open, click disappear, popup, click enlarge, print, jump,
+  play, long-press switch, region trigger, click drop, and click-plus-auto. Map these labels to
+  InkForge-owned `componentFamily`, `behaviorFamily`, `interactionChannel`, `imageRatio`,
+  `fallbackFamily`, and `proofRequirement` metadata, not to copied Xiumi DOM.
+- 2026-06-20 Xiumi interactive/non-interactive split: Xiumi labels such as SVG gallery, SVG layout,
+  SVG animation, free sliding layout, overlapping layout, gallery scroll, gallery switch,
+  transition, slide sequence, fade-in, interactive, non-interactive, and ratios such as 1080x720,
+  1080x1440, or 1080x2223 are manifest inputs. Non-interactive or auto-only samples may justify
+  static/auto/raster/carousel-page/long-image fallbacks, but they must not satisfy mobile tap,
+  swipe, long-press, or publish proof. Plugin/sync/enhanced-mode effects stay behind credentialed
+  channel proof.
 - 135 SVG effects map to typed image slots, hot zones, motion schema, trigger type, and fallback
   plans. Tall `viewBox=0 0 1080 1920`, `background-size:100.1% 100.1%`, and `margin-top:-1px` are
   layout-report heuristics only.
