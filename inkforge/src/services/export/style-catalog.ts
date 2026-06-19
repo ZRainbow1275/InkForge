@@ -3222,10 +3222,21 @@ function validateStyleProofRequirementCoverage(
       if (!hasDarkModeReadback) {
         requireStyleProof(issues, requirementId, false)
       } else {
-        if (!has(artifact =>
+        const hasPhoneContentProof = has(artifact =>
           isDarkModeProofArtifact(artifact)
             && artifact.phonePreviewContentVerified === true
-        )) {
+        )
+        const hasDarkModeEnabledProof = has(artifact =>
+          isDarkModeProofArtifact(artifact)
+            && artifact.darkModeEnabledVerified === true
+        )
+        const hasCompleteDarkModeProof = has(artifact =>
+          isDarkModeProofArtifact(artifact)
+            && artifact.phonePreviewContentVerified === true
+            && artifact.darkModeEnabledVerified === true
+        )
+
+        if (!hasPhoneContentProof) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-phone-content-missing',
             message: 'Dark Mode proof is not bound to final phone article content readback.',
@@ -3233,10 +3244,7 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
-        if (!has(artifact =>
-          isDarkModeProofArtifact(artifact)
-            && artifact.darkModeEnabledVerified === true
-        )) {
+        if (!hasDarkModeEnabledProof) {
           addStyleProofIssue(issues, {
             id: 'style-proof-manifest-dark-mode-not-verified',
             message: 'Dark Mode proof does not prove that mobile Dark Mode was enabled for the phone preview.',
@@ -3244,11 +3252,15 @@ function validateStyleProofRequirementCoverage(
             location: requirementId,
           })
         }
-        if (has(artifact =>
-          isDarkModeProofArtifact(artifact)
-            && artifact.phonePreviewContentVerified === true
-            && artifact.darkModeEnabledVerified === true
-        ) && !has(artifact =>
+        if (hasPhoneContentProof && hasDarkModeEnabledProof && !hasCompleteDarkModeProof) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-dark-mode-not-verified',
+            message: 'Dark Mode proof splits phone article content and mobile Dark Mode state across different artifacts.',
+            suggestion: 'Record phonePreviewContentVerified:true and darkModeEnabledVerified:true on the same Dark Mode proof artifact for the exact phone preview body.',
+            location: requirementId,
+          })
+        }
+        if (hasCompleteDarkModeProof && !has(artifact =>
           isDarkModeProofArtifact(artifact)
             && artifact.phonePreviewContentVerified === true
             && artifact.darkModeEnabledVerified === true
@@ -4609,6 +4621,9 @@ function buildStyleProofAcceptanceRequirementAudits(
       })
       const status = accumulator.issueIds.has('style-proof-manifest-external-account-login-blocked')
         || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
+        || accumulator.issueIds.has('style-proof-manifest-phone-content-missing')
+        || accumulator.issueIds.has('style-proof-manifest-dark-mode-not-verified')
+        || accumulator.issueIds.has('style-proof-manifest-cover-thumbnail-not-accepted')
         || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')

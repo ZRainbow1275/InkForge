@@ -1,0 +1,36 @@
+Style Proof Dark Mode Same Row Contract - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no account upload, no phone preview, no sync, no send, no publish.
+
+Implemented:
+- Dark Mode proof now requires phonePreviewContentVerified:true and darkModeEnabledVerified:true on the same dark-mode-check proof row.
+- A split pair of Dark Mode artifacts, one proving phone content and another proving enabled Dark Mode state, now emits style-proof-manifest-dark-mode-not-verified.
+- Requirement-level acceptance audit now treats phone-content-missing, dark-mode-not-verified, and cover-thumbnail-not-accepted as invalid local proof rows instead of hiding them behind the broader phone-preview external gate.
+
+TDD evidence:
+- First focused run after adding the regression failed because split Dark Mode proof produced no dark-mode issue.
+- After the validator change, the same focused suite passed.
+
+Regression coverage:
+- Dark Mode proof split across phone content and enabled-state rows remains invalid.
+- Requirement-level manifest status and acceptance audit status both stay invalid for the split Dark Mode proof row.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 123 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 162 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1096 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 53.80s; generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local Dark Mode proof accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu account upload, or publish success.

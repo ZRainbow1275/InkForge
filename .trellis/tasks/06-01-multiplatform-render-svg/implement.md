@@ -4689,6 +4689,50 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Dark Mode Same Row Contract Slice
+
+Impact:
+- `gitnexus impact` for `validateStyleProofRequirementCoverage` reported LOW risk, 6 impacted
+  items, 1 direct caller, 1 affected module (`Export`), and 1 affected process
+  (`progressChoices`).
+
+Implementation:
+- Added a TDD regression proving that split Dark Mode proof rows were previously accepted without
+  `style-proof-manifest-dark-mode-not-verified`.
+- Updated the `dark-mode-check` validator so `phonePreviewContentVerified:true` and
+  `darkModeEnabledVerified:true` must appear on the same Dark Mode proof artifact before the row
+  can proceed to exact-artifact binding.
+- Requirement-level acceptance audit now treats `style-proof-manifest-phone-content-missing`,
+  `style-proof-manifest-dark-mode-not-verified`, and
+  `style-proof-manifest-cover-thumbnail-not-accepted` as invalid local proof issues instead of
+  falling back to the broader phone external gate status.
+
+Verification:
+- TDD first run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed as expected because split Dark Mode proof emitted no issue.
+- After the validator fix, the same focused command passed with 1 file / 123 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 162 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1096 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 53.80s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-dark-mode-same-row-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract Slice
 
 Impact:

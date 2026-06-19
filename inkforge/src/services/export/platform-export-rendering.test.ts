@@ -3327,6 +3327,65 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('cover-thumbnail-check')).toBe('invalid')
   })
 
+  it('rejects Dark Mode proof that splits phone content and enabled-state flags across rows', () => {
+    const artifactFingerprint = 'sha256:redacted-dark-mode-split'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      claimedEvidence: ['mobile-preview'],
+      artifacts: [
+        {
+          id: 'dark-mode-phone-content-only',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'dark mode proof with phone content only',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'dark-mode-state-only',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'dark mode proof with enabled state only',
+          evidenceLabel: 'mobile-preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          darkModeEnabledVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const darkModeIssues = report.issues
+      .filter(issue => issue.location === 'dark-mode-check')
+      .map(issue => issue.id)
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(darkModeIssues).toContain('style-proof-manifest-dark-mode-not-verified')
+    expect(requirementStatus.get('dark-mode-check')).toBe('invalid')
+    expect(auditStatus.get('dark-mode-check')).toBe('invalid')
+  })
+
   it('keeps weak editor and browser evidence out of mobile sync publish and draft-safety gates', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',

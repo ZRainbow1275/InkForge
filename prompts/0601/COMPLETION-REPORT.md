@@ -1947,3 +1947,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-19 Style Proof Dark Mode Same Row Addendum
+
+- Added `prompts/0601/evidence/style-proof-dark-mode-same-row-contract-20260619.txt`.
+- Dark Mode proof now requires `phonePreviewContentVerified:true` and
+  `darkModeEnabledVerified:true` on the same `dark-mode-check` proof artifact.
+- Split Dark Mode proof rows now emit `style-proof-manifest-dark-mode-not-verified` and keep
+  manifest requirement status invalid.
+- Requirement-level acceptance audit now treats phone-content-missing, dark-mode-not-verified, and
+  cover-thumbnail-not-accepted as invalid local proof rows instead of generic phone external
+  blockers.
+- TDD first run failed as expected because split Dark Mode proof emitted no issue; after the
+  validator fix, focused verification passed.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 123 tests.
+- 4-file cross-platform export regression passed at 4 files / 162 tests, and full export serial
+  regression passed at 35 files / 1096 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  53.80s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.

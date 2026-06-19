@@ -1517,6 +1517,12 @@ Contracts:
   `phonePreviewContentVerified:true` on phone-preview evidence, plus `exactArtifact:true` on the
   same proof artifact. A Dark Mode setting page, PC preview shell, or generic screenshot cannot
   prove mobile Dark Mode for the exact article body.
+- `dark-mode-check` must keep `phonePreviewContentVerified:true` and
+  `darkModeEnabledVerified:true` bound to the same Dark Mode proof row. Splitting phone article
+  content across one artifact and mobile Dark Mode state across another artifact must emit
+  `style-proof-manifest-dark-mode-not-verified`, keep manifest status `invalid`, and keep the
+  requirement-level acceptance audit `invalid` instead of downgrading the row to generic
+  `blocked-by-external`.
 - `StyleProofArtifact.phonePreviewBlocked?: boolean` and
   `StyleProofAction:'phone-preview-entry-readback'` are explicit blocker markers. They must emit
   `style-proof-manifest-phone-preview-blocked`, keep the matching requirement invalid, and make
@@ -1705,6 +1711,10 @@ Required tests:
   `style-proof-manifest-readback-missing`. Requirement-level manifest status must be `invalid`,
   while acceptance audit may still classify the broader authenticated PC editor gate as
   `unsafe-to-automate` and must retain the concrete issue id.
+- Dark Mode proof split across two matching `dark-mode-check` rows, one carrying
+  `phonePreviewContentVerified:true` and the other carrying `darkModeEnabledVerified:true`, must
+  remain invalid through `style-proof-manifest-dark-mode-not-verified`. Regression tests must
+  assert both manifest requirement status and acceptance requirement status stay `invalid`.
 - Phone preview, phone screenshot, Dark Mode, and cover-thumbnail rows missing same-artifact
   `exactArtifact:true` must also be invalid through
   `style-proof-manifest-exact-artifact-missing`, even when a separate local exact-artifact proof
