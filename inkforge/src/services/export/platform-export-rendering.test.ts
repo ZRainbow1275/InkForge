@@ -3684,6 +3684,66 @@ describe('platform native export rendering rules', () => {
 
     expect(missingRefIssueIds).toContain('style-proof-manifest-artifact-ref-missing')
     expect(missingRefRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
+
+    const unsafeManifest: StyleProofManifest = {
+      ...manifest,
+      artifacts: manifest.artifacts.map(artifact =>
+        artifact.requirementId === 'xhs-artifact-manifest'
+          ? { ...artifact, artifactManifestValidated: true, safeForCommit: false }
+          : artifact
+      ),
+    }
+    const unsafeReport = getStyleProofManifestReport(unsafeManifest)
+    const unsafeRequirementStatus = new Map(
+      unsafeReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const unsafeIssueIds = unsafeReport.issues.map(issue => issue.id)
+
+    expect(unsafeIssueIds).toContain('style-proof-manifest-safe-commit-not-verified')
+    expect(unsafeRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
+
+    const splitBindingManifest: StyleProofManifest = {
+      ...manifest,
+      artifacts: [
+        ...manifest.artifacts.filter(artifact => artifact.requirementId !== 'xhs-artifact-manifest'),
+        {
+          id: 'xhs-validator-manifest-ref-only',
+          requirementId: 'xhs-artifact-manifest',
+          kind: 'artifact-manifest',
+          label: 'xhs validator manifest proof with ref only',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-artifact',
+          action: 'artifact-manifest-validation',
+          readback: 'manifest',
+          artifactFingerprint,
+          artifactRef: 'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt',
+          safeForCommit: true,
+        },
+        {
+          id: 'xhs-validator-manifest-validation-only',
+          requirementId: 'xhs-artifact-manifest',
+          kind: 'artifact-manifest',
+          label: 'xhs validator manifest proof with validation only',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'local-artifact',
+          action: 'artifact-manifest-validation',
+          readback: 'manifest',
+          artifactFingerprint,
+          artifactManifestValidated: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const splitBindingReport = getStyleProofManifestReport(splitBindingManifest)
+    const splitBindingRequirementStatus = new Map(
+      splitBindingReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const splitBindingIssueIds = splitBindingReport.issues.map(issue => issue.id)
+
+    expect(splitBindingIssueIds).toContain('style-proof-manifest-artifact-manifest-not-validated')
+    expect(splitBindingRequirementStatus.get('xhs-artifact-manifest')).toBe('invalid')
   })
 
   it('rejects Xiaohongshu login-gate readback as upload preview or publish proof', () => {
@@ -4151,6 +4211,30 @@ describe('platform native export rendering rules', () => {
     expect(requirementStatus.get('public-image-host')).toBe('invalid')
     expect(publicHostAudit?.status).toBe('invalid')
     expect(publicHostAudit?.issueIds).toContain('style-proof-manifest-artifact-ref-missing')
+
+    const unsafeManifest: StyleProofManifest = {
+      ...manifest,
+      artifacts: manifest.artifacts.map(artifact => ({
+        ...artifact,
+        id: 'zhihu-public-host-without-safe-commit',
+        artifactRef: 'prompts/0601/evidence/zhihu-public-host-report-20260619.txt',
+        safeForCommit: false,
+      })),
+    }
+    const unsafeReport = getStyleProofManifestReport(unsafeManifest)
+    const unsafeIssueIds = unsafeReport.issues.map(issue => issue.id)
+    const unsafeRequirementStatus = new Map(
+      unsafeReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const unsafeAudit = getPlatformStyleProofAcceptanceAuditReport('zhihu', [unsafeManifest])
+    const unsafePublicHostAudit = unsafeAudit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'public-image-host'
+    )
+
+    expect(unsafeIssueIds).toContain('style-proof-manifest-safe-commit-not-verified')
+    expect(unsafeRequirementStatus.get('public-image-host')).toBe('invalid')
+    expect(unsafePublicHostAudit?.status).toBe('invalid')
+    expect(unsafePublicHostAudit?.issueIds).toContain('style-proof-manifest-safe-commit-not-verified')
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {

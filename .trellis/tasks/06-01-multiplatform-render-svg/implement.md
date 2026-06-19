@@ -4596,3 +4596,50 @@ Boundary:
 - It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover-thumbnail
   acceptance, credentialed sync, scheduled-send, platform preview, public rendering, upload, or
   publish gates.
+
+## 2026-06-19 Style Proof Public Host and Manifest Safe Commit Binding Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge validateStyleProofRequirementCoverage --direction upstream`
+  reported LOW risk, 6 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+- `npx gitnexus impact -r InkForge buildStyleProofAcceptanceRequirementAudits --direction upstream`
+  reported LOW risk, 7 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Strengthened `public-image-host` so accepted host status and non-empty `artifactRef` must be
+  paired with `safeForCommit:true` on the same public-web proof artifact.
+- Strengthened `xhs-artifact-manifest` and `zhihu-artifact-manifest` so non-empty `artifactRef`,
+  `artifactManifestValidated:true`, and `safeForCommit:true` must be on the same
+  artifact-manifest validation row.
+- Requirement-level acceptance audit now treats local hygiene failures
+  (`style-proof-manifest-safe-commit-not-verified`,
+  `style-proof-manifest-sensitive-artifact`, and
+  `style-proof-manifest-unsafe-commit-artifact`) as invalid even when the wider gate is external.
+- Added regression coverage for public-host safe-for-commit, artifact-manifest safe-for-commit,
+  and split artifact-manifest rows where `artifactRef` and `artifactManifestValidated:true` are not
+  bound to the same proof row.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 117 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 156 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1090 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 36.83s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-public-host-manifest-safe-commit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove public-host availability, XHS/Zhihu account upload, platform preview, public
+  article rendering, or publish success.

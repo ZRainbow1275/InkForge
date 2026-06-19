@@ -1513,3 +1513,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this proves the entity-safe clipboard payload, not the raw UTF-8 source artifact
   without transformation. It does not prove phone preview, mobile interaction, Dark Mode, cover
   thumbnail, sync, scheduled send, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Public Host and Manifest Safe Commit Binding
+
+- [x] style-proof-public-host-manifest-safe-commit-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- `public-image-host` now requires the same public-web host artifact to carry accepted
+  `hostStatus`, non-empty `artifactRef`, and `safeForCommit:true`.
+- `xhs-artifact-manifest` and `zhihu-artifact-manifest` now require the same
+  artifact-manifest validation row to carry non-empty `artifactRef`,
+  `artifactManifestValidated:true`, and `safeForCommit:true`.
+- Requirement-level acceptance audit now treats `style-proof-manifest-safe-commit-not-verified`,
+  `style-proof-manifest-sensitive-artifact`, and
+  `style-proof-manifest-unsafe-commit-artifact` as invalid even when the broader gate is external.
+- Regression coverage rejects public-host proof without same-row safe-for-commit, rejects
+  artifact-manifest proof without same-row safe-for-commit, and rejects split manifest rows where
+  `artifactRef` and `artifactManifestValidated:true` appear on different artifacts.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 117 tests.
+- 4-file cross-platform export regression passed at 4 files / 156 tests, and full export serial
+  regression passed at 35 files / 1090 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  36.83s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove public-host availability,
+  XHS/Zhihu account upload, platform preview, public article rendering, or publish success.

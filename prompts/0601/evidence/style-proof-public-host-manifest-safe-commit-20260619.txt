@@ -1,0 +1,42 @@
+Style Proof Public Host and Manifest Safe Commit Binding - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no account upload, no public host publication, no phone preview, no sync, no send, no publish.
+
+Implemented:
+- public-image-host proof now requires the same public-web host artifact to carry:
+  - accepted hostStatus: public-https or platform-hosted
+  - non-empty artifactRef
+  - safeForCommit:true
+- xhs-artifact-manifest and zhihu-artifact-manifest proof now require the same artifact-manifest validation row to carry:
+  - non-empty artifactRef
+  - artifactManifestValidated:true
+  - safeForCommit:true
+- Requirement-level acceptance audit now treats local hygiene failures as invalid even when the broader gate is external:
+  - style-proof-manifest-safe-commit-not-verified
+  - style-proof-manifest-sensitive-artifact
+  - style-proof-manifest-unsafe-commit-artifact
+
+Regression coverage:
+- Public image host proof with accepted hostStatus and artifactRef but safeForCommit:false remains invalid and cannot-claim.
+- XHS artifact manifest proof with validator result and artifactRef but safeForCommit:false remains invalid.
+- XHS artifact manifest proof that splits artifactRef and artifactManifestValidated:true across two rows remains invalid.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 117 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 156 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1090 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 36.83s; generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local validator, runbook, and cannot-claim accounting only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu account upload, or publish success.

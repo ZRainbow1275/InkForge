@@ -3440,6 +3440,11 @@ function validateStyleProofRequirementCoverage(
         && artifact.channel === 'public-web'
         && (artifact.readback === 'visual' || artifact.readback === 'dom' || artifact.readback === 'manifest')
         && (artifact.hostStatus === 'public-https' || artifact.hostStatus === 'platform-hosted')
+      const hasTraceablePublicImageHostProof = has(artifact =>
+        isPublicImageHostProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+      )
 
       if (!has(isPublicImageHostProofArtifact)) {
         addStyleProofIssue(issues, {
@@ -3448,27 +3453,47 @@ function validateStyleProofRequirementCoverage(
           suggestion: 'Record a public-image-host proof artifact; local, data, blob, temporary preview, or WeChat-only image URLs do not satisfy this requirement.',
           location: requirementId,
         })
-      } else if (!has(artifact =>
-        isPublicImageHostProofArtifact(artifact)
-        && typeof artifact.artifactRef === 'string'
-        && artifact.artifactRef.trim().length > 0
-      )) {
+      } else if (!hasTraceablePublicImageHostProof) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-artifact-ref-missing',
           message: 'Public image host proof does not reference the redacted image host or platform-host report that was verified.',
           suggestion: 'Attach artifactRef to the exact redacted public-host or platform-host proof report; do not rely on an untraceable host-status row.',
           location: requirementId,
         })
+      } else if (!has(artifact =>
+        isPublicImageHostProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+        && artifact.safeForCommit === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-safe-commit-not-verified',
+          message: 'Public image host proof is not marked safe for committed repository evidence on the same redacted host report.',
+          suggestion: 'Record safeForCommit:true on the same public-image-host artifact only after the referenced host report excludes local paths, account material, temporary preview URLs, credential secrets, and raw platform captures.',
+          location: requirementId,
+        })
       }
       break
     }
     case 'xhs-artifact-manifest':
-    case 'zhihu-artifact-manifest':
-      if (!has(artifact =>
+    case 'zhihu-artifact-manifest': {
+      const isArtifactManifestProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.kind === 'artifact-manifest'
         && artifact.action === 'artifact-manifest-validation'
         && artifact.readback === 'manifest'
-      )) {
+      const hasTraceableArtifactManifestProof = has(artifact =>
+        isArtifactManifestProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+      )
+      const hasValidatedArtifactManifestProof = has(artifact =>
+        isArtifactManifestProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+        && artifact.artifactManifestValidated === true
+      )
+
+      if (!has(isArtifactManifestProofArtifact)) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-validation-missing',
           message: `${requirementId} proof lacks a validated artifact manifest entry.`,
@@ -3476,13 +3501,7 @@ function validateStyleProofRequirementCoverage(
           location: requirementId,
         })
       }
-      else if (!has(artifact =>
-        artifact.kind === 'artifact-manifest'
-        && artifact.action === 'artifact-manifest-validation'
-        && artifact.readback === 'manifest'
-        && typeof artifact.artifactRef === 'string'
-        && artifact.artifactRef.trim().length > 0
-      )) {
+      else if (!hasTraceableArtifactManifestProof) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-artifact-ref-missing',
           message: `${requirementId} proof does not reference the redacted artifact manifest report that was validated.`,
@@ -3490,20 +3509,30 @@ function validateStyleProofRequirementCoverage(
           location: requirementId,
         })
       }
-      else if (!has(artifact =>
-        artifact.kind === 'artifact-manifest'
-        && artifact.action === 'artifact-manifest-validation'
-        && artifact.readback === 'manifest'
-        && artifact.artifactManifestValidated === true
-      )) {
+      else if (!hasValidatedArtifactManifestProof) {
         addStyleProofIssue(issues, {
           id: 'style-proof-manifest-artifact-manifest-not-validated',
-          message: `${requirementId} proof references an artifact manifest but does not prove the platform manifest validator passed.`,
-          suggestion: 'Set artifactManifestValidated:true only after validateXhsImageArtifactManifest() or validateZhihuImageArtifactManifest() returns no issues for the exact redacted artifact manifest.',
+          message: `${requirementId} proof references an artifact manifest but does not prove the platform manifest validator passed on the same redacted report.`,
+          suggestion: 'Set artifactManifestValidated:true on the same artifactRef row only after validateXhsImageArtifactManifest() or validateZhihuImageArtifactManifest() returns no issues for the exact redacted artifact manifest.',
+          location: requirementId,
+        })
+      }
+      else if (!has(artifact =>
+        isArtifactManifestProofArtifact(artifact)
+        && typeof artifact.artifactRef === 'string'
+        && artifact.artifactRef.trim().length > 0
+        && artifact.artifactManifestValidated === true
+        && artifact.safeForCommit === true
+      )) {
+        addStyleProofIssue(issues, {
+          id: 'style-proof-manifest-safe-commit-not-verified',
+          message: `${requirementId} proof is not marked safe for committed repository evidence on the same validated manifest report.`,
+          suggestion: 'Record safeForCommit:true on the same artifact-manifest validation row only after the referenced manifest report excludes local paths, account material, credential secrets, temporary upload URLs, and raw platform captures.',
           location: requirementId,
         })
       }
       break
+    }
     case 'no-sensitive-artifact':
       requireStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'sensitive-hygiene-review'
@@ -4426,6 +4455,9 @@ function buildStyleProofAcceptanceRequirementAudits(
         || accumulator.issueIds.has('style-proof-manifest-phone-preview-blocked')
         || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
+        || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')
+        || accumulator.issueIds.has('style-proof-manifest-sensitive-artifact')
+        || accumulator.issueIds.has('style-proof-manifest-unsafe-commit-artifact')
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

@@ -1535,14 +1535,16 @@ Contracts:
   draft creation, public preview URLs, or published-preview rows must not satisfy this requirement.
 - Public-host proof must expose accepted host statuses: `public-https` and `platform-hosted`.
   It must also attach a non-empty `artifactRef` to the redacted public-host or platform-host
-  report that was verified. Local, private, data, blob, localhost, WeChat-only, temporary preview,
-  or untraceable host-status-only rows remain invalid.
+  report that was verified and mark the same proof row `safeForCommit:true`. Local, private, data,
+  blob, localhost, WeChat-only, temporary preview, unsafe-for-commit, or untraceable
+  host-status-only rows remain invalid.
 - XHS and Zhihu artifact-manifest proof must require `artifactManifestValidated:true` in addition
-  to `artifactRef` and `safeForCommit`. The flag is set only when the matching
-  `validateXhsImageArtifactManifest()` or `validateZhihuImageArtifactManifest()` call returns no
-  issues for the exact redacted manifest. The execution runbook's next action, success criteria,
-  and failure signals must name the matching validator so operator checklists cannot treat a
-  manifest-shaped row as validator-passed proof.
+  to `artifactRef` and `safeForCommit`. `artifactRef`, `artifactManifestValidated:true`, and
+  `safeForCommit:true` must appear on the same artifact-manifest validation row. The validator flag
+  is set only when the matching `validateXhsImageArtifactManifest()` or
+  `validateZhihuImageArtifactManifest()` call returns no issues for the exact redacted manifest.
+  The execution runbook's next action, success criteria, and failure signals must name the matching
+  validator so operator checklists cannot treat a manifest-shaped row as validator-passed proof.
 - XHS/Zhihu artifact-manifest rows without a non-empty `artifactRef` must surface
   `style-proof-manifest-artifact-ref-missing` and stay invalid, because the proof cannot be traced
   to the redacted manifest report that was validated.
@@ -1620,8 +1622,15 @@ Required tests:
 - The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
   validator-shaped rows missing that flag must keep the requirement invalid.
 - A validator-passed artifact-manifest row missing `artifactRef` must also remain invalid.
+- Splitting `artifactRef`, `artifactManifestValidated:true`, and `safeForCommit:true` across
+  multiple XHS/Zhihu artifact-manifest rows must remain invalid; one same proof row must carry all
+  required fields.
 - A public-host row with accepted `hostStatus` but no `artifactRef` must remain invalid and must
   not be downgraded to generic `blocked-by-external` in the requirement-level acceptance audit.
+- A public-host row with accepted `hostStatus` and `artifactRef` but no same-row
+  `safeForCommit:true` must remain invalid through
+  `style-proof-manifest-safe-commit-not-verified` and must not be downgraded to generic
+  `blocked-by-external` in the requirement-level acceptance audit.
 - A multi-platform runbook must keep XHS proof out of WeChat, keep XHS publish as
   `unsafe-to-automate`, and keep Zhihu public-host proof `blocked-by-external` with public host
   contract fields.
@@ -1724,7 +1733,8 @@ Required tests:
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber remains blocked/invalid even with local WebView2 evidence.
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
-  `xhs-artifact-manifest` with `artifactManifestValidated:true`, while
+  `xhs-artifact-manifest` with same-row `artifactRef`, `artifactManifestValidated:true`, and
+  `safeForCommit:true`, while
   `published-url-or-platform-preview` remains missing and unsafe-to-automate.
 - The committed WeChat PC pack returns cloned Amber and Tempera manifests. Amber artifacts point
   to the redacted Amber PC evidence file with fingerprint

@@ -1828,3 +1828,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local runbook/checklist proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
   preview, public article rendering, or publish success.
+
+## 2026-06-19 Style Proof Public Host and Manifest Safe Commit Addendum
+
+- Added `prompts/0601/evidence/style-proof-public-host-manifest-safe-commit-20260619.txt`.
+- Strengthened `public-image-host` so accepted host status and non-empty `artifactRef` must be
+  paired with `safeForCommit:true` on the same public-web proof artifact.
+- Strengthened `xhs-artifact-manifest` and `zhihu-artifact-manifest` so non-empty `artifactRef`,
+  `artifactManifestValidated:true`, and `safeForCommit:true` must be on the same
+  artifact-manifest validation row.
+- Requirement-level acceptance audit now reports local proof hygiene failures as invalid instead
+  of hiding them behind the broader external gate status.
+- Regression coverage rejects unsafe public-host rows, unsafe artifact-manifest rows, and split
+  artifact-manifest rows where `artifactRef` and `artifactManifestValidated:true` are not bound to
+  the same evidence row.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 117 tests.
+- 4-file cross-platform export regression passed at 4 files / 156 tests, and full export serial
+  regression passed at 35 files / 1090 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  36.83s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove public-host availability,
+  XHS/Zhihu account upload, platform preview, public article rendering, or publish success.
