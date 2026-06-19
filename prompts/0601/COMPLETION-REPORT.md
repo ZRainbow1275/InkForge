@@ -2556,6 +2556,34 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 
 ---
 
+## 2026-06-20 Style Proof Committed Evidence Combined Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-committed-evidence-combined-audit-20260620.txt`.
+- Added `getCommittedStyleProofEvidenceManifests()` and
+  `getCommittedStyleProofEvidenceAuditReport()`.
+- The combined helper clones committed local evidence plus committed WeChat PC evidence, while the
+  audit report keeps local, WeChat PC, and combined views separate.
+- The combined view intentionally exposes `style-proof-manifest-pack-fingerprint-mismatch` when
+  local WebView/browser proof and PC paste proof for the same WeChat choice refer to different exact
+  artifact fingerprints.
+- The summary field `hasExactArtifactFingerprintConflicts` is true in that state, so consumers must
+  treat the combined view as current-state accounting, not a complete single-artifact acceptance
+  claim.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local and WeChat PC evidence together" --reporter=default`
+  at 1 file / 1 selected test.
+- Full local verification also passed:
+  committed evidence focused group 3 selected tests, `platform-export-rendering.test.ts`
+  147 tests, four-file cross-platform export regression 186 tests, full `src/services/export`
+  serial run 35 files / 1120 tests, targeted ESLint, `vue-tsc --noEmit`, and production build.
+  Vite built in 30.70s, and generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local committed-evidence accounting only. It does not prove WeChat ordinary
+  Ctrl+V for Kiln, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 135 SVG Editor Shell Residue Addendum
 
 - Added `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`.

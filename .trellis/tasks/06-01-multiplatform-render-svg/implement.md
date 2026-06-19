@@ -6038,6 +6038,64 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 Style Proof Committed Evidence Combined Audit Slice
+
+Scope:
+- Local committed-evidence aggregation over already redacted repository proof.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, token, cookie, HAR, QR material, or local runtime path
+  was created.
+
+Impact:
+- GitNexus impact for `getCommittedStyleProofLocalEvidenceManifests` reported LOW risk with
+  0 affected processes.
+- GitNexus impact for `getCommittedStyleProofWechatPcEvidenceManifests` reported LOW risk with
+  0 affected processes.
+- GitNexus impact for `getStyleProofAcceptanceAuditReport` reported LOW risk with 2 direct callers
+  inside the Export module and 0 affected processes.
+
+Implementation:
+- Added `getCommittedStyleProofEvidenceManifests()` to clone and concatenate committed local
+  evidence plus committed WeChat PC evidence.
+- Added `getCommittedStyleProofEvidenceAuditReport()` to expose grouped local, WeChat PC, and
+  combined acceptance audits.
+- The combined audit summary exposes `hasExactArtifactFingerprintConflicts` when local
+  WebView/browser proof and PC paste proof for the same WeChat choice refer to different exact
+  artifact fingerprints.
+- Added regression coverage that the combined audit keeps artifact ids unique, surfaces
+  `style-proof-manifest-pack-fingerprint-mismatch`, and keeps phone preview, Dark Mode, cover,
+  sync, scheduled-send, and publish/platform-preview rows unclaimable.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local and WeChat PC evidence together" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default`
+  - PASS: 1 file / 3 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 147 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 186 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1120 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 30.70s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-committed-evidence-combined-audit-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` and
+  `prompts/0601/evidence/README.md`.
+
+Boundary:
+- This is local committed-evidence accounting only.
+- It does not prove WeChat ordinary Ctrl+V for Kiln, phone preview, mobile SMIL/click, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
 ## 2026-06-20 135 SVG Editor Shell Residue Contract Slice
 
 Scope:

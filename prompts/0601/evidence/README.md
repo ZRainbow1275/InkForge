@@ -358,6 +358,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-committed-local-evidence-20260617.txt # 当前规则实现：committed local evidence manifests -> local gates only; external claims remain open
 [x] style-proof-committed-xhs-local-evidence-20260619.txt # 当前规则实现：XHS committed local raster + manifest rows; upload/preview/publish remain open
 [x] style-proof-committed-wechat-pc-evidence-20260619.txt # 当前规则实现：Amber raw + Tempera entity-safe committed WeChat PC paste/cleanup rows; phone/sync/publish remain open
+[x] style-proof-committed-evidence-combined-audit-20260620.txt # 当前规则实现：committed local + WeChat PC combined audit exposes fingerprint conflicts; external claims remain open
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
@@ -2034,6 +2035,31 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public host, platform preview, public article rendering, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-06-20 Style Proof Committed Evidence Combined Audit
+
+- [x] style-proof-committed-evidence-combined-audit-20260620.txt
+- Added a combined committed-evidence audit helper for already redacted repository proof.
+- `getCommittedStyleProofEvidenceManifests()` clones and concatenates the committed local pack
+  with the committed WeChat PC pack, while `getCommittedStyleProofEvidenceAuditReport()` exposes
+  local, WeChat PC, and combined acceptance reports.
+- The combined view intentionally exposes `style-proof-manifest-pack-fingerprint-mismatch` when
+  local WebView/browser evidence and PC paste evidence for the same WeChat choice refer to
+  different exact artifact fingerprints.
+- The summary exposes `hasExactArtifactFingerprintConflicts:true`; consumers must treat this as a
+  cannot-claim warning, not as complete exact-artifact proof.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local and WeChat PC evidence together" --reporter=default`
+  at 1 file / 1 selected test.
+- Full local verification also passed: committed evidence focused group 3 selected tests,
+  `platform-export-rendering.test.ts` 147 tests, four-file cross-platform export regression
+  186 tests, full `src/services/export` serial run 35 files / 1120 tests, targeted ESLint,
+  `vue-tsc --noEmit`, and production build. Vite built in 30.70s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local committed-evidence aggregation only. It does not prove WeChat ordinary
+  Ctrl+V for Kiln, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public host, or publish success.
 
 ## 2026-06-20 WeChat Tempera Preview Entry Precondition Failed
 

@@ -1,0 +1,55 @@
+Style Proof Committed Evidence Combined Audit - 2026-06-20
+
+Scope:
+- Local committed-evidence accounting for already redacted repository proof only.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, token, cookie, HAR, QR material, or local runtime
+  path was recorded.
+
+Implemented:
+- getCommittedStyleProofEvidenceManifests()
+- getCommittedStyleProofEvidenceAuditReport()
+
+Behavior:
+- The combined manifest helper returns cloned committed local evidence plus cloned committed WeChat
+  PC evidence, keeping the original local and PC helper contracts intact.
+- The combined audit exposes grouped local and WeChat PC audit reports plus a combined audit report.
+- The summary exposes hasExactArtifactFingerprintConflicts when local WebView/browser evidence and
+  PC paste evidence for the same style choice refer to different exact artifact fingerprints.
+- The combined audit preserves cannot-claim rows instead of treating local screenshots and PC paste
+  readbacks as one complete exact artifact proof.
+
+Regression coverage:
+- The combined committed pack contains 6 cloned manifests: 3 WeChat local, 1 XHS local, and 2
+  WeChat PC proof manifests.
+- Artifact ids remain unique and no sensitive or unsafe commit artifact issue is emitted.
+- The combined pack emits style-proof-manifest-pack-fingerprint-mismatch for WeChat choices whose
+  local browser/WebView evidence and PC paste proof refer to different exact artifacts.
+- WeChat phone preview, Dark Mode, cover thumbnail, sync, scheduled send, and publish/platform
+  preview rows remain cannot-claim.
+- XHS committed local proof remains isolated from WeChat PC proof and platform upload/publish proof.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local and WeChat PC evidence together" --reporter=default
+  PASS: 1 file / 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence" --reporter=default
+  PASS: 1 file / 3 selected tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 147 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 186 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1120 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 30.70s
+
+Boundary:
+- This proves local committed-evidence aggregation and conflict reporting only.
+- It does not prove WeChat ordinary Ctrl+V for Kiln, WeChat phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

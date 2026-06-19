@@ -717,6 +717,20 @@ export interface StyleProofAcceptanceAuditReport {
   }
 }
 
+export interface CommittedStyleProofEvidenceAuditReport {
+  local: StyleProofAcceptanceAuditReport
+  wechatPc: StyleProofAcceptanceAuditReport
+  combined: StyleProofAcceptanceAuditReport
+  summary: {
+    localManifestCount: number
+    wechatPcManifestCount: number
+    combinedManifestCount: number
+    combinedIssueCount: number
+    hasExactArtifactFingerprintConflicts: boolean
+    cannotClaimRequirements: number
+  }
+}
+
 export type StyleProofArtifactVerificationField =
   | 'artifactFingerprint'
   | 'artifactRef'
@@ -2497,6 +2511,35 @@ export function getCommittedStyleProofWechatPcEvidenceManifests(): readonly Styl
 
 export function getCommittedStyleProofWechatPcEvidenceAuditReport(): StyleProofAcceptanceAuditReport {
   return getStyleProofAcceptanceAuditReport(getCommittedStyleProofWechatPcEvidenceManifests())
+}
+
+export function getCommittedStyleProofEvidenceManifests(): readonly StyleProofManifest[] {
+  return [
+    ...getCommittedStyleProofLocalEvidenceManifests(),
+    ...getCommittedStyleProofWechatPcEvidenceManifests(),
+  ]
+}
+
+export function getCommittedStyleProofEvidenceAuditReport(): CommittedStyleProofEvidenceAuditReport {
+  const local = getCommittedStyleProofLocalEvidenceAuditReport()
+  const wechatPc = getCommittedStyleProofWechatPcEvidenceAuditReport()
+  const combined = getStyleProofAcceptanceAuditReport(getCommittedStyleProofEvidenceManifests())
+
+  return {
+    local,
+    wechatPc,
+    combined,
+    summary: {
+      localManifestCount: local.summary.manifestCount,
+      wechatPcManifestCount: wechatPc.summary.manifestCount,
+      combinedManifestCount: combined.summary.manifestCount,
+      combinedIssueCount: combined.summary.issueCount,
+      hasExactArtifactFingerprintConflicts: combined.issues.some(issue =>
+        issue.id === 'style-proof-manifest-pack-fingerprint-mismatch'
+      ),
+      cannotClaimRequirements: combined.summary.cannotClaimRequirements,
+    },
+  }
 }
 
 export function createStyleProofManifestDraft(options: StyleProofManifestDraftOptions): StyleProofManifest {

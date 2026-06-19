@@ -14,6 +14,8 @@ import {
   detectQuality,
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
+  getCommittedStyleProofEvidenceAuditReport,
+  getCommittedStyleProofEvidenceManifests,
   getCommittedStyleProofLocalEvidenceAuditReport,
   getCommittedStyleProofLocalEvidenceManifests,
   getCommittedStyleProofWechatPcEvidenceAuditReport,
@@ -1829,6 +1831,77 @@ describe('platform native export rendering rules', () => {
       'phone-preview-readback',
       'dark-mode-check',
       'cover-thumbnail-check',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+  })
+
+  it('audits committed local and WeChat PC evidence together without merging exact-artifact claims', () => {
+    const manifests = getCommittedStyleProofEvidenceManifests()
+    const secondRead = getCommittedStyleProofEvidenceManifests()
+    const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
+    const choiceIds = manifests.map(manifest => manifest.choiceId)
+
+    expect(manifests).toHaveLength(6)
+    expect(secondRead[0]).not.toBe(manifests[0])
+    expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
+    expect(choiceIds).toEqual([
+      'wechat-flagship-kiln',
+      'wechat-flagship-tempera',
+      'wechat-flagship-amber',
+      'xhs-cover-carousel',
+      'wechat-flagship-amber',
+      'wechat-flagship-tempera',
+    ])
+    expect(new Set(artifactIds).size).toBe(artifactIds.length)
+
+    const packReport = getStyleProofManifestPackReport(manifests)
+    const packIssueIds = packReport.issues.map(issue => issue.id)
+    const audit = getCommittedStyleProofEvidenceAuditReport()
+    const combinedIssueIds = audit.combined.issues.map(issue => issue.id)
+    const wechatAudit = audit.combined.platformReports.wechat
+    const xhsAudit = audit.combined.platformReports.xiaohongshu
+    const cannotClaimIds = wechatAudit.cannotClaim.map(requirement => requirement.requirement.id)
+    const amberProgress = wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+    const temperaProgress = wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')
+    const kilnProgress = wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-kiln')
+    const amberIssueIds = amberProgress?.report.issues.map(issue => issue.id) ?? []
+    const temperaIssueIds = temperaProgress?.report.issues.map(issue => issue.id) ?? []
+
+    expect(packReport.summary).toMatchObject({
+      manifestCount: 6,
+      duplicateArtifactIdCount: 0,
+    })
+    expect(packIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(packIssueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
+    expect(packIssueIds).not.toContain('style-proof-manifest-sensitive-artifact')
+    expect(packIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+
+    expect(audit.summary).toMatchObject({
+      localManifestCount: 4,
+      wechatPcManifestCount: 2,
+      combinedManifestCount: 6,
+      hasExactArtifactFingerprintConflicts: true,
+    })
+    expect(audit.summary.combinedIssueCount).toBeGreaterThan(0)
+    expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(0)
+    expect(combinedIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(wechatAudit.progress.ignoredManifestCount).toBe(1)
+    expect(xhsAudit.progress.ignoredManifestCount).toBe(5)
+    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
+    expect(xhsAudit.progress.summary.choicesWithManifest).toBe(1)
+    expect(kilnProgress?.manifestCount).toBe(1)
+    expect(amberProgress?.manifestCount).toBe(2)
+    expect(temperaProgress?.manifestCount).toBe(2)
+    expect(amberIssueIds).toContain('style-proof-manifest-choice-blocked')
+    expect(amberIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(temperaIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'exact-artifact',
+      'phone-preview-readback',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'sync-readback',
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))

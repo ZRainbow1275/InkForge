@@ -1965,6 +1965,15 @@ Contracts:
   future troubleshooting only, not success manifests for PC paste rows.
 - `getCommittedStyleProofWechatPcEvidenceAuditReport()` is only shorthand for auditing that
   committed WeChat PC pack. It must keep cannot-claim rows visible.
+- `getCommittedStyleProofEvidenceManifests()` is the combined committed-evidence view for current
+  acceptance accounting. It must clone and concatenate the committed local pack plus the committed
+  WeChat PC pack without mutating either source helper.
+- `getCommittedStyleProofEvidenceAuditReport()` must expose three views: the local committed audit,
+  the WeChat PC committed audit, and the combined audit. The combined view is allowed, and expected,
+  to expose `style-proof-manifest-pack-fingerprint-mismatch` when local WebView/browser evidence and
+  PC paste evidence for the same choice refer to different exact artifact fingerprints. The summary
+  must surface this as `hasExactArtifactFingerprintConflicts:true` so consumers do not treat the
+  combined view as a single completed exact-artifact proof.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -1987,6 +1996,10 @@ Required tests:
 - The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
+- The combined committed-evidence audit must return 6 cloned manifests, keep artifact ids unique,
+  expose exact-artifact fingerprint conflicts for the merged WeChat local+PC choice rows, and keep
+  phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
+  unclaimable.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 
