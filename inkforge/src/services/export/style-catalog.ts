@@ -1222,6 +1222,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['credentialed-sync'],
     requiredReadbacks: ['api-response'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'sync-readback': {
     requirementId: 'sync-readback',
@@ -1229,6 +1230,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['sync-readback'],
     requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'scheduled-send-readback': {
     requirementId: 'scheduled-send-readback',
@@ -1236,6 +1238,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['scheduled-send'],
     requiredReadbacks: ['api-response', 'dom', 'visual-and-dom', 'scheduled-send-state'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'scheduledSendVerified', 'safeForCommit'],
+    forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'published-url-or-platform-preview': {
     requirementId: 'published-url-or-platform-preview',
@@ -1243,6 +1246,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredActions: ['published-preview'],
     requiredReadbacks: ['published-url', 'visual', 'visual-and-dom', 'screenshot'],
     requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'public-image-host': {
     requirementId: 'public-image-host',
@@ -5188,7 +5192,7 @@ const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerification
   exactArtifact: 'exactArtifact:true for the same exported artifact',
   authenticatedSessionVerified: 'authenticatedSessionVerified:true for the same authenticated editor session',
   externalAccountAuthenticated: 'externalAccountAuthenticated:true for the required platform account',
-  externalAccountLoginBlocked: 'externalAccountLoginBlocked:true only when login is the recorded blocker',
+  externalAccountLoginBlocked: 'externalAccountLoginBlocked:true only when login is the recorded blocker; forbidden on matching credentialed or publish success proof rows',
   platformEditorTargetVerified: 'platformEditorTargetVerified:true for the intended editor route and target',
   platformEditorSurfaceVerified: 'platformEditorSurfaceVerified:true for the intended title/body/editor surface',
   platformEditorDomVerified: 'platformEditorDomVerified:true after the exact editor DOM is read back',

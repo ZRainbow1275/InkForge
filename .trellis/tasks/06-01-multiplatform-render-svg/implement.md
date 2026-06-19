@@ -6127,3 +6127,50 @@ Boundary:
   acceptance, ordinary Ctrl+V rich HTML/SVG paste, credentialed sync, scheduled send, public
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-20 External Account Blocker Forbidden Contract Slice
+
+Scope:
+- Local style-proof validator, acceptance-audit, and execution-runbook hardening.
+- No login, credential entry, platform click, sync, upload, scheduled send, publish, screenshot
+  capture, or account artifact was created.
+
+Impact:
+- GitNexus impact for `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` reported LOW risk with
+  0 affected processes.
+
+Implementation:
+- Marked `externalAccountLoginBlocked` as a forbidden field on matching credentialed/publish
+  success contracts: `credentialed-channel-response`, `sync-readback`,
+  `scheduled-send-readback`, and `published-url-or-platform-preview`.
+- Updated the field-level runbook criteria so `externalAccountLoginBlocked:true` is described as
+  blocker-only evidence and forbidden on matching credentialed or publish success proof rows.
+- Added a regression manifest where otherwise complete credentialed response, sync readback,
+  scheduled-send, and published-preview rows also carry `externalAccountLoginBlocked:true`; all
+  four requirements stay invalid, enter `cannotClaim`, and expose
+  `style-proof-manifest-forbidden-field-present`.
+
+Verification:
+- TDD first run failed as expected because `style-proof-manifest-forbidden-field-present` was not
+  emitted for the external-account blocker contradiction.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external account blockers forbidden" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 142 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 181 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1115 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 28.94s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Boundary:
+- This is local validator/audit/runbook enforcement only.
+- It does not prove WeChat credentialed sync, scheduled send, platform preview, public article
+  rendering, public URL acceptance, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

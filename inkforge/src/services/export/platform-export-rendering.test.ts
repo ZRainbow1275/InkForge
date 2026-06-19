@@ -5201,6 +5201,130 @@ describe('platform native export rendering rules', () => {
     expect(gateStatus.get('platform-publish')).toBe('invalid')
   })
 
+  it('keeps external account blockers forbidden on otherwise complete credentialed and publish rows', () => {
+    const artifactFingerprint = 'sha256:redacted-external-blocker-forbidden'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['credentialed-sync', 'published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'blocked-credentialed-response-success-row',
+          requirementId: 'credentialed-channel-response',
+          kind: 'channel-response',
+          label: 'blocked credentialed response must not become sync proof',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'credentialed-sync',
+          readback: 'api-response',
+          artifactFingerprint,
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-sync-readback-success-row',
+          requirementId: 'sync-readback',
+          kind: 'editor-readback',
+          label: 'blocked sync readback must not become artifact sync proof',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'sync-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-scheduled-send-success-row',
+          requirementId: 'scheduled-send-readback',
+          kind: 'channel-response',
+          label: 'blocked scheduled-send row must not become send-state proof',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'scheduled-send-state',
+          artifactFingerprint,
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          externalAccountLoginBlocked: true,
+          scheduledSendVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'blocked-published-preview-success-row',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'blocked platform preview must not become published proof',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          artifactFingerprint,
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          externalAccountLoginBlocked: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const cannotClaimIds = audit.cannotClaim.map(requirement => requirement.requirement.id)
+    const runbook = getPlatformStyleProofExecutionRunbook('wechat', [manifest])
+    const publishStep = runbook.steps.find(step =>
+      step.requirement.id === 'published-url-or-platform-preview'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-external-account-login-blocked',
+    )).toHaveLength(4)
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-forbidden-field-present',
+    )).toHaveLength(4)
+    expect(issueLocations).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('sync-readback')).toBe('invalid')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(auditStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(auditStatus.get('sync-readback')).toBe('invalid')
+    expect(auditStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(auditStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(publishStep?.successCriteria.join(' ')).toContain('externalAccountLoginBlocked:true')
+    expect(publishStep?.failureSignals.join(' ')).toContain('externalAccountLoginBlocked:true')
+  })
+
   it('requires exact artifact binding for credentialed sync proof rows', () => {
     const artifactFingerprint = 'sha256:redacted-credentialed-exact-artifact'
     const manifest: StyleProofManifest = {

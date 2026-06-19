@@ -1,0 +1,56 @@
+Style Proof External Account Blocker Forbidden Contract - 2026-06-20
+
+Scope:
+- Local validator, acceptance-audit, and execution-runbook enforcement for redacted
+  StyleProofManifest records.
+- No login, credential entry, platform click, sync, upload, scheduled send, publish, screenshot
+  capture, browser profile artifact, account artifact, URL capture, token, cookie, HAR, or QR
+  material.
+
+Implemented:
+- Added externalAccountLoginBlocked to forbiddenFields for:
+  - credentialed-channel-response
+  - sync-readback
+  - scheduled-send-readback
+  - published-url-or-platform-preview
+- Updated the field-level criteria text for externalAccountLoginBlocked:true so it is documented
+  as blocker-only evidence and forbidden on matching credentialed or publish success proof rows.
+
+Behavior:
+- A credentialed or publish proof row that otherwise has the expected channel/action/readback and
+  required success fields cannot also carry externalAccountLoginBlocked:true.
+- Contradictory rows emit style-proof-manifest-forbidden-field-present at the requirement level.
+- Artifact-level style-proof-manifest-external-account-login-blocked remains as blocker
+  diagnostics.
+- Acceptance audit keeps the affected requirements invalid and listed in cannotClaim.
+- The runbook includes externalAccountLoginBlocked:true in both success criteria and failure
+  signals for affected credentialed and publish gates.
+
+TDD:
+- First focused run failed before the contract update:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external account blockers forbidden" --reporter=default
+  Failure: expected style-proof-manifest-forbidden-field-present count 4, received 0.
+- After the contract update, the focused regression passed:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external account blockers forbidden" --reporter=default
+  PASS: 1 file / 1 selected test.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 142 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 181 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1115 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 28.94s.
+- Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
+
+Boundary:
+- This proves local cannot-claim enforcement only.
+- It does not prove WeChat credentialed sync, scheduled send, platform preview, public article
+  rendering, public URL acceptance, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

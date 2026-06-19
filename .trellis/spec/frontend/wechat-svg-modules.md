@@ -1731,6 +1731,11 @@ Contracts:
   or any platform publish row. Requirement-level acceptance audit rows carrying this issue must
   be `invalid`, while ordinary missing external gates may remain `blocked-by-external` or
   `unsafe-to-automate`.
+- `externalAccountLoginBlocked:true` is blocker-only evidence. It is forbidden on matching
+  `credentialed-channel-response`, `sync-readback`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` success rows; a row that claims authenticated sync,
+  scheduled send, public URL, or platform preview while also carrying the blocker flag must stay
+  invalid in the manifest report, acceptance audit, and execution runbook.
 - A credentialed-channel or platform-publish shaped artifact that omits positive
   `externalAccountAuthenticated:true` must emit
   `style-proof-manifest-external-account-auth-missing`. The row remains invalid even if channel,
@@ -1807,6 +1812,10 @@ Required tests:
 - Single-factor regressions must prove each explicit external-account blocker works independently:
   `externalAccountLoginBlocked:true`, `externalAccountAuthenticated:false`, and
   `action:'external-account-login-readback'`.
+- `externalAccountLoginBlocked:true` is also forbidden on otherwise complete matching credentialed
+  and publish success rows. The validator must emit `style-proof-manifest-forbidden-field-present`,
+  the requirement-level acceptance audit must remain `invalid`, and the execution runbook must
+  name `externalAccountLoginBlocked:true` in both success criteria and failure signals.
 - Credentialed sync and published/platform-preview rows missing
   `externalAccountAuthenticated:true` must be invalid through
   `style-proof-manifest-external-account-auth-missing`; `phone-preview` artifacts must not satisfy
