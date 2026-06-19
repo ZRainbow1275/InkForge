@@ -4733,6 +4733,50 @@ Boundary:
   credentialed sync, scheduled send, public-host availability, platform preview, public article
   rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Required Field Binding Contract Slice
+
+Impact:
+- `gitnexus impact` for `validateStyleProofRequirementCoverage` reported LOW risk, 6 impacted
+  items, 1 direct caller, 1 affected module (`Export`), and 1 affected process
+  (`progressChoices`).
+
+Implementation:
+- Added `style-proof-manifest-proof-not-bound` to the manifest issue id set.
+- Added a generic same-row required-field binding validator that runs after the specific
+  required-field validators.
+- The validator only fires when every required field appears somewhere among matching
+  channel/action/host/readback candidates, but no single candidate row satisfies all required
+  fields.
+- Requirement-level acceptance audit now treats `style-proof-manifest-proof-not-bound` as invalid
+  local proof.
+- Added a regression where `phone-screenshot` splits `phonePreviewContentVerified:true` /
+  `exactArtifact:true` and `artifactFingerprint` / `safeForCommit` across two matching screenshot
+  rows.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 124 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 163 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1097 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 39.51s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-required-field-binding-contract-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract Slice
 
 Impact:

@@ -1,0 +1,34 @@
+Style Proof Required Field Binding Contract - 2026-06-19
+
+Scope:
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- No platform action, no account upload, no phone preview, no sync, no send, no publish.
+
+Implemented:
+- Added style-proof-manifest-proof-not-bound for proof rows that split requiredFields across multiple matching artifacts.
+- Added a generic same-row required-field binding validator above every StyleProofExecutionArtifactContract.
+- The validator only fires after every required field exists somewhere among matching rows, but no single matching row satisfies all required fields.
+- The matching boundary uses the execution contract's channel, action, accepted host status when applicable, and readback checks before evaluating fields.
+- Requirement-level acceptance audit treats proof-not-bound as invalid local proof instead of a generic external blocker.
+
+Regression coverage:
+- A phone-screenshot row with phonePreviewContentVerified:true and exactArtifact:true cannot borrow artifactFingerprint and safeForCommit from a second matching screenshot row.
+- The split proof emits style-proof-manifest-proof-not-bound and keeps both manifest requirement status and acceptance requirement status invalid.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 124 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 163 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1097 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 39.51s; generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local required-field same-row accounting and cannot-claim enforcement only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu account upload, or publish success.

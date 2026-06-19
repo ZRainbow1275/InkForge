@@ -3920,6 +3920,61 @@ describe('platform native export rendering rules', () => {
     expect(auditStatus.get('phone-screenshot')).toBe('invalid')
   })
 
+  it('does not let matching readback rows split required fields across artifacts', () => {
+    const artifactFingerprint = 'sha256:redacted-field-binding-contract'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'phone-screenshot-content-exact-only',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot content proof without traceability fields',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          phonePreviewContentVerified: true,
+          exactArtifact: true,
+        },
+        {
+          id: 'phone-screenshot-trace-safe-only',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot traceability proof without content binding',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const phoneScreenshotIssues = report.issues
+      .filter(issue => issue.location === 'phone-screenshot')
+      .map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(phoneScreenshotIssues).toContain('style-proof-manifest-proof-not-bound')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+  })
+
   it('requires accepted readback types on matching contract action and channel rows', () => {
     const artifactFingerprint = 'sha256:redacted-readback-contract'
     const manifest: StyleProofManifest = {

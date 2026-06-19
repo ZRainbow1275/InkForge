@@ -260,6 +260,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-editor-body-not-mutated'
   | 'style-proof-manifest-paste-mojibake-not-ruled-out'
   | 'style-proof-manifest-paste-proof-not-bound'
+  | 'style-proof-manifest-proof-not-bound'
   | 'style-proof-manifest-safe-commit-not-verified'
   | 'style-proof-manifest-phone-preview-blocked'
   | 'style-proof-manifest-phone-content-missing'
@@ -302,6 +303,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-editor-body-not-mutated',
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
+  'style-proof-manifest-proof-not-bound',
   'style-proof-manifest-safe-commit-not-verified',
   'style-proof-manifest-phone-preview-blocked',
   'style-proof-manifest-phone-content-missing',
@@ -3557,6 +3559,7 @@ function validateStyleProofRequirementCoverage(
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
   validateStyleProofRequiredExactArtifact(requirementId, artifacts, issues)
+  validateStyleProofRequiredFieldBinding(requirementId, artifacts, issues)
 }
 
 function isStyleProofReadbackAllowedByContract(
@@ -3706,6 +3709,107 @@ function validateStyleProofRequiredExactArtifact(
     id: 'style-proof-manifest-exact-artifact-missing',
     message: `${requirementId} proof is not marked as the exact exported artifact on a matching action/channel row.`,
     suggestion: 'Record exactArtifact:true on the same proof row only after the evidence is proven to belong to the exact exported artifact under review.',
+    location: requirementId,
+  })
+}
+
+function isStyleProofRequiredFieldSatisfied(
+  contract: StyleProofExecutionArtifactContract,
+  artifact: StyleProofArtifact,
+  field: StyleProofArtifactVerificationField,
+): boolean {
+  switch (field) {
+    case 'artifactFingerprint':
+      return typeof artifact.artifactFingerprint === 'string' && artifact.artifactFingerprint.trim().length > 0
+    case 'artifactRef':
+      return typeof artifact.artifactRef === 'string' && artifact.artifactRef.trim().length > 0
+    case 'hostStatus':
+      return typeof artifact.hostStatus === 'string'
+        && Boolean(contract.acceptedHostStatuses?.includes(artifact.hostStatus))
+    case 'exactArtifact':
+      return artifact.exactArtifact === true
+    case 'authenticatedSessionVerified':
+      return artifact.authenticatedSessionVerified === true
+    case 'externalAccountAuthenticated':
+      return artifact.externalAccountAuthenticated === true
+    case 'externalAccountLoginBlocked':
+      return artifact.externalAccountLoginBlocked === true
+    case 'platformEditorTargetVerified':
+      return artifact.platformEditorTargetVerified === true
+    case 'platformEditorSurfaceVerified':
+      return artifact.platformEditorSurfaceVerified === true
+    case 'platformEditorDomVerified':
+      return artifact.platformEditorDomVerified === true
+    case 'centralEditorChanged':
+      return artifact.centralEditorChanged === true
+    case 'ordinaryClipboardPasteVerified':
+      return artifact.ordinaryClipboardPasteVerified === true
+    case 'sameEditorTabVerified':
+      return artifact.sameEditorTabVerified === true
+    case 'pasteInputEventVerified':
+      return artifact.pasteInputEventVerified === true
+    case 'editorBodyMutationVerified':
+      return artifact.editorBodyMutationVerified === true
+    case 'mojibakeFreeVerified':
+      return artifact.mojibakeFreeVerified === true
+    case 'phonePreviewContentVerified':
+      return artifact.phonePreviewContentVerified === true
+    case 'phonePreviewBlocked':
+      return artifact.phonePreviewBlocked === true
+    case 'darkModeEnabledVerified':
+      return artifact.darkModeEnabledVerified === true
+    case 'coverThumbnailAccepted':
+      return artifact.coverThumbnailAccepted === true
+    case 'scheduledSendVerified':
+      return artifact.scheduledSendVerified === true
+    case 'disposableDraft':
+      return artifact.disposableDraft === true
+    case 'cleanupPathVerified':
+      return artifact.cleanupPathVerified === true
+    case 'artifactManifestValidated':
+      return artifact.artifactManifestValidated === true
+    case 'safeForCommit':
+      return artifact.safeForCommit === true
+    case 'committed':
+      return artifact.committed === true
+    case 'sensitive':
+      return artifact.sensitive === true
+  }
+}
+
+function validateStyleProofRequiredFieldBinding(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && issue.id === 'style-proof-manifest-proof-not-bound'
+  )) {
+    return
+  }
+
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  const requiredFields = contract.requiredFields as readonly StyleProofArtifactVerificationField[]
+  if (requiredFields.length <= 1) return
+
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+  if (contractCandidates.some(artifact =>
+    requiredFields.every(field => isStyleProofRequiredFieldSatisfied(contract, artifact, field))
+  )) {
+    return
+  }
+  if (!requiredFields.every(field =>
+    contractCandidates.some(artifact => isStyleProofRequiredFieldSatisfied(contract, artifact, field))
+  )) {
+    return
+  }
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-proof-not-bound',
+    message: `${requirementId} proof splits required fields across multiple matching proof rows.`,
+    suggestion: 'Record every required field on one matching proof row; fields spread across separate artifacts cannot prove a single exported artifact state.',
     location: requirementId,
   })
 }
@@ -4625,6 +4729,7 @@ function buildStyleProofAcceptanceRequirementAudits(
         || accumulator.issueIds.has('style-proof-manifest-dark-mode-not-verified')
         || accumulator.issueIds.has('style-proof-manifest-cover-thumbnail-not-accepted')
         || accumulator.issueIds.has('style-proof-manifest-exact-artifact-missing')
+        || accumulator.issueIds.has('style-proof-manifest-proof-not-bound')
         || accumulator.issueIds.has('style-proof-manifest-artifact-ref-missing')
         || accumulator.issueIds.has('style-proof-manifest-safe-commit-not-verified')
         || accumulator.issueIds.has('style-proof-manifest-sensitive-artifact')

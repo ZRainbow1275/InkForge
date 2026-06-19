@@ -1587,6 +1587,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Required Field Binding Contract
+
+- [x] style-proof-required-field-binding-contract-20260619.txt
+- Local style-proof manifest validator and acceptance-audit contract hardening.
+- Added `style-proof-manifest-proof-not-bound` for required fields split across multiple matching
+  proof rows.
+- Added a generic same-row validator that only fires after every required field exists somewhere
+  among matching channel/action/host/readback candidates, but no single candidate carries all
+  required fields.
+- Requirement-level acceptance audit now treats proof-not-bound as invalid local proof.
+- Regression coverage rejects `phone-screenshot` proof split across two matching screenshot rows.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 124 tests.
+- 4-file cross-platform export regression passed at 4 files / 163 tests, and full export serial
+  regression passed at 35 files / 1097 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  39.51s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract
 
 - [x] style-proof-required-readback-contract-20260619.txt
