@@ -4887,6 +4887,43 @@ Boundary:
   acceptance, credentialed sync, scheduled-send, public-host availability, platform preview, public
   article rendering, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-20 Public Source Rule Refresh Slice
+
+Research:
+- Used Exa and Grok as discovery tools for current public WeChat/XHS/Zhihu formatter guidance.
+- Promoted only official documentation or source-repository claims into project rules.
+- Checked WeChat official editor plugin specification, WeChat editor JSAPI, doocs/md,
+  mdnice/markdown-nice, wx-art-formatter, and md2red.
+
+Documentation:
+- Added `prompts/0601/evidence/public-source-rule-refresh-20260620.txt`.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md` with a public-source refresh
+  row and rules.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` so future SVG/H5 work keeps official
+  editor plugin bad cases above market tutorial advice.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Rules preserved:
+- WeChat output remains source-owned inline HTML/SVG with CSS resolved before copy/export.
+- Official bad cases stay blockers: opacity-hidden image plus SVG background, text-bearing
+  `line-height:0`, fixed content width/height, `text-align:start/end`, ordinary prose in `<pre>`,
+  and SVG animation that only starts on `touchstart`.
+- WeChat editor JSAPI and public formatter repos inform future runbooks, but do not satisfy paste,
+  phone-preview, sync, scheduled-send, or publish gates.
+- XHS remains an image-card/carousel/long-image artifact family with plain text metadata; public
+  XHS generators can inform manifests, not platform posting automation.
+
+Verification:
+- Docs-only change; no source code changed.
+- `git diff --check` passed for the docs/evidence files in this slice.
+- Sensitive scan passed for the docs/evidence diff.
+
+Boundary:
+- This is public-source rule refresh only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled-send, public-host availability,
+  platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:

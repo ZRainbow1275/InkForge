@@ -2049,3 +2049,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public host, platform preview, public article rendering, XHS/Zhihu account
   upload, or publish success.
+
+## 2026-06-20 Public Source Rule Refresh
+
+- [x] public-source-rule-refresh-20260620.txt
+- Used Exa and Grok as discovery tools, then promoted only official documentation or source
+  repository claims into project rules.
+- Checked WeChat official editor plugin specification, WeChat editor JSAPI, doocs/md,
+  mdnice/markdown-nice, wx-art-formatter, and md2red.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md` and
+  `.trellis/spec/frontend/wechat-svg-modules.md` with the public-source refresh.
+- `git diff --check` and sensitive scan passed for this docs/evidence slice.
+- Rule outcome: official WeChat editor bad cases stay hard blockers; public formatter architecture
+  reinforces CSS inlining and `text/html` artifact output; XHS remains an image-card/carousel/
+  long-image artifact family with plain text metadata.
+- Boundary: this is public-source rule refresh only. It does not prove WeChat PC paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public host, platform preview, public article rendering, XHS/Zhihu account
+  upload, or publish success.

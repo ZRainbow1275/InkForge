@@ -1,0 +1,71 @@
+Public Source Rule Refresh - 2026-06-20
+
+Scope:
+- Public-source refresh for WeChat / Xiaohongshu / Zhihu typesetting rules.
+- No platform action, browser action, account action, phone preview, sync, upload, scheduled send,
+  or publish action.
+- Grok and Exa were used as discovery tools; only official documentation or source repository
+  claims are promoted to rules.
+
+Sources checked:
+- WeChat editor plugin specification:
+  https://developers.weixin.qq.com/doc/service/guide/product/plugin_spec.html
+- WeChat editor JSAPI specification:
+  https://developers.weixin.qq.com/doc/service/guide/product/mp_editor_jsapi.html
+- doocs/md:
+  https://github.com/doocs/md
+- mdnice/markdown-nice:
+  https://github.com/mdnice/markdown-nice
+- bingo906/wx-art-formatter:
+  https://github.com/bingo906/wx-art-formatter
+- LLM-X-Factorer/md2red:
+  https://github.com/LLM-X-Factorer/md2red
+
+Promoted rules:
+- WeChat content should keep using inline styles and source-owned markup; public formatter projects
+  still converge on Markdown/HTML parsing, CSS inlining, and `text/html` clipboard output.
+- WeChat official plugin rules explicitly support a structure verifier and call out bad cases that
+  InkForge must keep blocking: opacity-hidden images under SVG backgrounds, `line-height:0` on text
+  containers, fixed width/height content containers, `text-align:start/end`, `pre` around normal
+  paragraphs, and SVG animation that only begins on `touchstart`.
+- WeChat Dark Mode guidance says SVG is not algorithmically recolored like normal HTML text.
+  Text-bearing SVG must keep explicit contrast, an opaque background, or a verified HTML/text
+  fallback before mobile Dark Mode can be claimed.
+- WeChat editor JSAPI cover/content/insert interfaces are credentialed plugin/editor channels.
+  Their existence does not prove InkForge paste, preview, sync, scheduled send, or publish success.
+- OSS WeChat formatters reinforce InkForge's existing architecture: scoped or structured HTML,
+  CSS-to-inline conversion, theme values resolved before copy/export, and long-image/PDF fallback.
+  They do not justify importing a second renderer or copying third-party themes.
+- mdnice is GPL-3.0, so reusable ideas must remain conceptual and source-owned.
+- Xiaohongshu public and OSS converter evidence keeps XHS as an image-card / carousel / long-image
+  artifact family with plain text metadata; rich WeChat HTML/SVG must not be reused as XHS body
+  output.
+- md2red's current workflow is generate, preview, edit, export images plus copyable text for manual
+  posting. InkForge should borrow the image-manifest discipline, not any browser automation or
+  platform posting implementation.
+
+Rejected or downgraded claims:
+- Public tool marketing claims about universal SVG survival, one-click publish success, or account
+  upload success stay non-evidence until a real InkForge artifact is verified.
+- Advice that places `<style>` blocks or media queries inside publishable WeChat SVG conflicts with
+  InkForge's no-style/class/id publish boundary and remains rejected.
+- Tool-specific ratings, engagement statistics, and unverified platform limits are not promoted to
+  runtime catalog rules.
+
+Docs updated:
+- `docs/platform-rendering-rules/market-practices-catalog.md`
+- `.trellis/spec/frontend/wechat-svg-modules.md`
+- `.trellis/tasks/06-01-multiplatform-render-svg/implement.md`
+- `prompts/0601/COMPLETION-REPORT.md`
+- `prompts/0601/evidence/README.md`
+
+Verification:
+- Docs-only change; no source code changed.
+- `git diff --check` passed for the docs/evidence files in this slice.
+- Sensitive scan passed for the docs/evidence diff.
+
+Boundary:
+- This refresh records public-source rules only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail, credentialed sync, scheduled send, public-host availability, platform preview, public
+  article rendering, XHS/Zhihu account upload, or publish success.

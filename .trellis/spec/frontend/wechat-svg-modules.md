@@ -203,6 +203,14 @@ construct breaks.
   market style ids, `tn-*`/`ng-*` authoring attributes, and third-party market image sources.
   Plain prose that merely mentions 135/Xiumi is allowed. This gate is unit-tested and must stay
   separate from WeChat paste/mobile/sync/publish proof labels.
+- 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
+  rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
+  text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
+  ordinary paragraphs in `<pre>`, and SVG animations that only begin on `touchstart` as blockers.
+  The official editor JSAPI and public OSS formatter docs are channel/workflow references only:
+  their existence does not satisfy InkForge paste, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, or publish proof. Reject public advice that adds publishable
+  `<style>` blocks or media queries inside SVG unless exact artifact evidence later proves it.
 - 2026-06-09 layout-report runtime gate: `wechat-layout-report-required` blocks free positioning,
   z-order layers, background image layers, overflow crop, fixed geometry, manual offsets, negative
   overlap spacing, and invisible/custom hit areas in WeChat output. The issue means the renderer

@@ -34,6 +34,7 @@
 | 2026-06-09 WeChat amber PC ClipboardEvent readback | CloakBrowser 在真实微信 PC 图文编辑器中对 exact `flagship-amber.html` 触发程序化 `ClipboardEvent('paste')` + `DataTransfer`；微信 paste handler 接管，DOM 读回 `data-ink-svg=3` / `svg=35` / `styleAttr=195` / `classAttr=30` | 作为 channel-specific `pc-editor-paste` 证据；不推翻 2026-06-08 普通 Ctrl+V 阻断，也不升级手机预览、Dark Mode、封面缩略图、同步、定时发送或发布 |
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
 | 2026-06-19 CloakBrowser applied-rule refresh | 135 普通编辑器点击免费样式后若只插入空白 `_135editor` 占位，不足以学习 applied style；135 SVG 编辑器免费试用可暴露 trigger canvas、trigger-hot-area、`app-content-canvas`、`block-img__content`、`ant-tooltip-open`；秀米 SVG 样本可把中心纸张变成 `tn-svg-animation-carousel`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*` 和 `ng-*` 作者态树，且中心可没有 literal SVG | 强化 runtime gate：这些强特征只转译为 InkForge 自有 trigger-zone/image-slot/motion/action/schema/fallback/layout-report；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error。该证据不证明手机预览、暗黑模式、同步、上传、公开预览或发布 |
+| 2026-06-20 public-source rule refresh | Exa/Grok 公开来源复核了微信官方编辑器插件规范、微信编辑器 JSAPI、doocs/md、mdnice、wx-art-formatter 和 md2red。官方规范确认结构校验接口、opacity-hidden image + SVG background、`line-height:0`、固定宽高、`text-align:start/end`、`pre` 普通段落、仅 `touchstart`、Dark Mode SVG 不被常规重着色等 bad case；OSS 工具继续收敛到 CSS inlining + `text/html` clipboard、长图/PDF fallback、XHS 图片卡片 manifest | 官方规范升级为 hard-blocker/source-of-truth；OSS/市场工具只作为架构和 artifact-family 参考。不得采纳未核验的营销排名、互动率、账号发布成功、自动发布或 `<style>`/media-query-in-SVG 建议；JSAPI/插件接口存在性不等于当前 InkForge credentialed sync、preview、scheduled-send 或 publish proof |
 
 ### 1.2 不进入实现的内容
 
@@ -96,6 +97,28 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   Angular/Vue authoring attributes observed in market editor surfaces.
 - These blockers are an implementation of the no-copy boundary. They do not prove WeChat paste,
   mobile preview, Dark Mode, sync, scheduled send, or publish success.
+
+2026-06-20 public-source refresh:
+
+- WeChat's official editor plugin specification is the primary public rule source for editor
+  compatibility. Keep `opacity:0` image overlays under SVG backgrounds, text containers with
+  `line-height:0`, fixed-width/height content containers, `text-align:start/end`, ordinary prose
+  inside `<pre>`, and SVG animations that only begin on `touchstart` as hard blockers.
+- The official structure verifier (`verify_article_structure`) should be treated as an optional
+  credentialed/operator check, not as local proof that a style is available or published.
+- WeChat editor JSAPI cover/content/insert operations are plugin/editor channels. They may inform a
+  future `credentialed-channel` runbook, but their documentation alone cannot satisfy paste,
+  phone-preview, sync, scheduled-send, or publish gates.
+- Public OSS formatters such as doocs/md, mdnice, and wx-art-formatter reinforce the current
+  InkForge pipeline choice: parse or normalize source content, apply source-owned theme structure,
+  inline CSS before copy/export, and write a `text/html` artifact. They do not justify importing
+  their themes, licenses, browser flows, or a second renderer.
+- Public XHS converters such as md2red reinforce that Xiaohongshu is an image-card / carousel /
+  long-image artifact family with plain text metadata. Borrow manifest discipline and manual
+  preview/edit/export flow, not platform automation.
+- Search-result summaries that recommend publishable `<style>` blocks, media queries inside SVG,
+  one-click account publishing, or universal SVG survival conflict with InkForge's stricter
+  evidence policy unless later proven by exact artifact readback.
 
 2026-06-09 layout report runtime gate:
 

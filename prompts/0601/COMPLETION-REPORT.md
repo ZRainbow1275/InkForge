@@ -2352,3 +2352,22 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
   or publish success.
+
+## 2026-06-20 Public Source Rule Refresh Addendum
+
+- Added `prompts/0601/evidence/public-source-rule-refresh-20260620.txt`.
+- Used Exa and Grok as discovery tools, then promoted only official documentation or source
+  repository claims into project rules.
+- Checked WeChat official editor plugin specification, WeChat editor JSAPI, doocs/md,
+  mdnice/markdown-nice, wx-art-formatter, and md2red.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md` and
+  `.trellis/spec/frontend/wechat-svg-modules.md` to keep official WeChat plugin bad cases above
+  market tutorial advice.
+- `git diff --check` and sensitive scan passed for this docs/evidence slice.
+- Preserved the runtime boundary: JSAPI/plugin documentation, OSS formatter architecture, and XHS
+  image-card generators inform future runbooks and manifests, but cannot satisfy paste,
+  phone-preview, Dark Mode, cover thumbnail, credentialed sync, scheduled-send, or publish proof.
+- Boundary: this is public-source rule refresh only. It does not prove WeChat PC paste, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
+  or publish success.
