@@ -774,4 +774,5 @@ Xiumi SVG/H5 rules:
 
 Evidence:
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`
+- `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

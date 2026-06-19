@@ -154,6 +154,15 @@ const MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div class="block-img__trigger edit-trigger" style="display:none">',
+  '<div class="trigger__ajuster" style="background-color:rgba(255,100,70,0.25);z-index:9;inset:0%"></div>',
+  '<span class="edit-trigger__switch">显示触发热区</span>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0" disable-tn-group-flex-box="block">',
@@ -5859,6 +5868,22 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG builder canvas residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG trigger hot-area overlay residue without relying on canvas ids', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('135 SVG builder canvas residue')

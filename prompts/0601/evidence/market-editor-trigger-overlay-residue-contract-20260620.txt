@@ -1,0 +1,46 @@
+Market Editor Trigger Overlay Residue Contract - 2026-06-20
+
+Scope:
+- Runtime quality-detector reinforcement for 135 SVG editor trigger-hot-area authoring residue.
+- Converts the 2026-06-20 CloakBrowser SVG deep pass into an executable blocker.
+
+Implemented:
+- Expanded `MARKET_EDITOR_RESIDUE_RULES` in
+  `inkforge/src/services/export/quality-detector.ts`.
+- Added explicit residue detection for 135 SVG trigger overlay authoring markers:
+  `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster`.
+- Added a regression fixture in
+  `inkforge/src/services/export/platform-export-rendering.test.ts` that contains only trigger
+  overlay residue and does not rely on `app-content-canvas` or known effect `data-name` values.
+
+Behavior:
+- WeChat output with copied 135 trigger overlay authoring markers emits
+  `wechat-market-editor-residue`.
+- Xiaohongshu output with the same copied markers emits `xhs-market-editor-residue`.
+- Zhihu output with the same copied markers emits `zhihu-market-editor-residue`.
+- The detected label remains `135 SVG builder canvas residue`; the rule is a no-copy boundary, not
+  a style availability signal.
+
+Verification:
+- `npx gitnexus impact -r InkForge MARKET_EDITOR_RESIDUE_RULES --direction upstream`
+  - PASS: LOW risk, 0 impacted processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "trigger hot-area overlay" --reporter=default`
+  - PASS: 1 selected test, 136 skipped.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 137 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 176 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1110 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS: Vite built in 34.87s; generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This proves local runtime detection of copied 135 SVG trigger-overlay authoring residue.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public-host availability, or publish success.

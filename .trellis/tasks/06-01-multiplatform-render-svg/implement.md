@@ -5844,3 +5844,45 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+
+## 2026-06-20 Market Editor Trigger Overlay Residue Contract Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge MARKET_EDITOR_RESIDUE_RULES --direction upstream` reported LOW
+  risk with 0 affected processes.
+
+Implementation:
+- Expanded `MARKET_EDITOR_RESIDUE_RULES` in `quality-detector.ts` so copied 135 SVG trigger
+  overlay authoring markers are publish-blocking residue.
+- Newly explicit blockers: `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and
+  `trigger__ajuster`.
+- Added a regression fixture that omits `app-content-canvas` and known 135 builder `data-name`
+  values, proving the trigger overlay itself is sufficient to emit platform-specific residue
+  issues.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "trigger hot-area overlay" --reporter=default`
+  passed with 1 selected test and 136 skipped.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 137 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 176 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1110 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 34.87s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Artifacts:
+- Added `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local detector/test enforcement only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public-host availability, or publish success.

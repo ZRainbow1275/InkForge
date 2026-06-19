@@ -2472,3 +2472,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
   availability, or publish success.
+
+## 2026-06-20 Market Editor Trigger Overlay Residue Contract Addendum
+
+- Added `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`.
+- Expanded runtime market-editor residue detection for 135 SVG trigger overlay authoring markers:
+  `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster`.
+- Added a regression that proves those markers are blocked across WeChat, Xiaohongshu, and Zhihu
+  even without `app-content-canvas` or known 135 builder `data-name` values.
+- Verification passed:
+  - focused trigger-overlay test at 1 selected test / 136 skipped
+  - full `platform-export-rendering.test.ts` at 1 file / 137 tests
+  - cross-platform export regression at 4 files / 176 tests
+  - full export serial regression at 35 files / 1110 tests
+  - targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public-host availability, or publish success.

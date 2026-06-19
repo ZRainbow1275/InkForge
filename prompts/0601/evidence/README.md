@@ -2167,3 +2167,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
+
+## 2026-06-20 Market Editor Trigger Overlay Residue Contract
+
+- [x] market-editor-trigger-overlay-residue-contract-20260620.txt
+- Converted the 135 SVG trigger-hot-area overlay observation into a runtime quality-detector
+  blocker.
+- `MARKET_EDITOR_RESIDUE_RULES` now explicitly detects copied 135 trigger overlay authoring
+  markers such as `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and
+  `trigger__ajuster`.
+- Added a regression fixture that does not rely on `app-content-canvas` or known effect
+  `data-name` values, then asserted `wechat-market-editor-residue`, `xhs-market-editor-residue`,
+  and `zhihu-market-editor-residue`.
+- Verification passed: focused trigger-overlay test, full `platform-export-rendering.test.ts`,
+  4-file cross-platform export regression, full export serial regression, targeted ESLint,
+  `vue-tsc`, and production build.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
