@@ -1523,6 +1523,10 @@ Contracts:
   acceptance audit requirement rows `invalid` instead of `blocked-by-external`.
 - Credentialed sync and platform publish rows remain `unsafe-to-automate` until a human/operator
   performs the real mutating account action and provides readback for the same artifact.
+- `credentialed-channel-response` and `sync-readback` must require `exactArtifact:true` in addition
+  to `externalAccountAuthenticated:true`, `artifactFingerprint`, and `safeForCommit:true`. A
+  successful account response, upload response, draft id, material id, or sync readback for a
+  different artifact must emit `style-proof-manifest-exact-artifact-missing` and remain invalid.
 - `scheduled-send-readback` is a distinct `platform-publish` requirement under `published`
   evidence. It must require `StyleProofAction:'scheduled-send'`,
   `StyleProofReadback:'scheduled-send-state'` (or a DOM/API/visual readback of the same send state),
@@ -1560,10 +1564,9 @@ Contracts:
   publish runbook rows must expose `externalAccountAuthenticated` as a required field, and the
   validator must require `externalAccountAuthenticated:true` for
   `credentialed-channel-response`, `sync-readback`, `scheduled-send-readback`, and
-  `published-url-or-platform-preview`. `scheduled-send-readback` and
-  `published-url-or-platform-preview` must also require `exactArtifact:true`, because a send state,
-  public URL, or platform preview for a different article cannot prove the current exported
-  artifact.
+  `published-url-or-platform-preview`. All four rows must also require `exactArtifact:true`,
+  because a sync response, draft/material readback, send state, public URL, or platform preview for
+  a different article cannot prove the current exported artifact.
 - A manifest artifact with `externalAccountLoginBlocked:true`,
   `externalAccountAuthenticated:false`, or action `external-account-login-readback` must emit
   `style-proof-manifest-external-account-login-blocked`. Such an artifact can never satisfy XHS
@@ -1575,6 +1578,9 @@ Contracts:
   `externalAccountAuthenticated:true` must emit
   `style-proof-manifest-external-account-auth-missing`. The row remains invalid even if channel,
   action, readback, and artifact fingerprint otherwise match.
+- A credentialed-channel artifact that proves account authentication but omits
+  `exactArtifact:true` must emit `style-proof-manifest-exact-artifact-missing` for
+  `credentialed-channel-response` or `sync-readback`.
 - A scheduled-send-shaped artifact that omits `scheduledSendVerified:true` on the exact
   authenticated artifact must emit `style-proof-manifest-scheduled-send-not-verified`.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
@@ -1588,6 +1594,8 @@ Contracts:
   the exact cover thumbnail is accepted in a phone share, preview entry, or platform list entry.
 - Scheduled-send runbook `failureSignals` must reject credentialed sync responses, editor previews,
   draft creation, and public preview URLs as proof of send/scheduled-send state.
+- Credentialed-channel runbook `failureSignals` must reject account responses, upload responses,
+  draft ids, or material readbacks for a different artifact as proof of current-artifact sync.
 - ExportModal may surface the runbook through style capability summary text, acceptance preflight
   text, per-choice execution summaries, and artifact-contract labels. This UI is informational
   only: it must not fork acceptance logic, create artifacts, alter `selectable`, `usable`,
@@ -1604,6 +1612,8 @@ Required tests:
   phone preview is `blocked-by-external`, and Dark Mode / cover thumbnail require their dedicated
   artifact flags.
 - The runbook must expose the exact required fields for ordinary PC paste and phone preview.
+- The runbook must expose `exactArtifact` as a required field for `credentialed-channel-response`
+  and `sync-readback`, and regression tests must keep authenticated-but-unbound sync proof invalid.
 - The runbook must expose explicit failure-signal text for scan/setup/PC-preview-shell/relogin/QR
   blockers, Dark Mode settings-page blockers, and cover crop/setup blockers so operator checklists
   cannot treat those artifacts as phone preview, Dark Mode, or cover-thumbnail proof.

@@ -1383,6 +1383,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Credentialed Sync Exact Artifact
+
+- [x] style-proof-credentialed-sync-exact-artifact-20260619.txt
+- Local style-proof validator/runbook contract hardening only.
+- `credentialed-channel-response` and `sync-readback` now require `exactArtifact:true` in addition
+  to `artifactFingerprint`, `externalAccountAuthenticated:true`, and `safeForCommit:true`.
+- `validateStyleProofManifest()` emits `style-proof-manifest-exact-artifact-missing` when an
+  authenticated credentialed response or sync readback is not bound to the exact exported artifact.
+- Runbook failure signals reject account responses, upload responses, draft ids, or material
+  readbacks for a different artifact as current-artifact sync proof.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 117 tests.
+- 4-file cross-platform export regression passed at 4 files / 156 tests, and full export serial
+  regression passed at 35 files / 1090 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  26.43s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove credentialed sync,
+  draft/material readback, scheduled-send, platform preview, public rendering, upload, or publish
+  success.
+
 ## 2026-06-19 Style Proof Scheduled Send Contract
 
 - [x] style-proof-scheduled-send-contract-20260619.txt

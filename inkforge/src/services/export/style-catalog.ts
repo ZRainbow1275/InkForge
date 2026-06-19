@@ -1198,14 +1198,14 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['credentialed-sync'],
     requiredReadbacks: ['api-response'],
-    requiredFields: ['artifactFingerprint', 'externalAccountAuthenticated', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'sync-readback': {
     requirementId: 'sync-readback',
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['sync-readback'],
     requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
-    requiredFields: ['artifactFingerprint', 'externalAccountAuthenticated', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
   },
   'scheduled-send-readback': {
     requirementId: 'scheduled-send-readback',
@@ -2772,6 +2772,23 @@ function requireExternalAccountAuthenticatedStyleProof(
   }
 }
 
+function requireExactArtifactBoundExternalAccountStyleProof(
+  issues: QualityIssue[],
+  requirementId: StyleProofRequirementId,
+  authenticatedCandidateFound: boolean,
+  exactAuthenticatedCandidateFound: boolean,
+  proofLabel: string,
+): void {
+  if (!authenticatedCandidateFound || exactAuthenticatedCandidateFound) return
+
+  addStyleProofIssue(issues, {
+    id: 'style-proof-manifest-exact-artifact-missing',
+    message: `${proofLabel} proof is not bound to the exact exported artifact under review.`,
+    suggestion: 'Record exactArtifact:true only after the credentialed channel response or sync readback is proven to belong to the exact exported artifact fingerprint for this style choice.',
+    location: requirementId,
+  })
+}
+
 function validateStyleProofRequirementCoverage(
   requirementId: StyleProofRequirementId,
   artifacts: readonly StyleProofArtifact[],
@@ -3279,30 +3296,66 @@ function validateStyleProofRequirementCoverage(
       }
       break
     }
-    case 'credentialed-channel-response':
-      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
+    case 'credentialed-channel-response': {
+      const isCredentialedChannelProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'credentialed-sync'
         && artifact.channel === 'credentialed-channel'
         && artifact.readback === 'api-response'
-      ), has(artifact =>
-        artifact.action === 'credentialed-sync'
-        && artifact.channel === 'credentialed-channel'
-        && artifact.readback === 'api-response'
+      const hasCredentialedChannelProof = has(isCredentialedChannelProofArtifact)
+      const hasAuthenticatedCredentialedChannelProof = has(artifact =>
+        isCredentialedChannelProofArtifact(artifact)
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
-      ))
+      )
+
+      requireExternalAccountAuthenticatedStyleProof(
+        issues,
+        requirementId,
+        hasCredentialedChannelProof,
+        hasAuthenticatedCredentialedChannelProof,
+      )
+      requireExactArtifactBoundExternalAccountStyleProof(
+        issues,
+        requirementId,
+        hasAuthenticatedCredentialedChannelProof,
+        has(artifact =>
+          isCredentialedChannelProofArtifact(artifact)
+          && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+          && artifact.exactArtifact === true
+        ),
+        'Credentialed channel response',
+      )
       break
-    case 'sync-readback':
-      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
+    }
+    case 'sync-readback': {
+      const isSyncReadbackProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'sync-readback'
         && artifact.channel === 'credentialed-channel'
         && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
-      ), has(artifact =>
-        artifact.action === 'sync-readback'
-        && artifact.channel === 'credentialed-channel'
-        && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
+      const hasSyncReadbackProof = has(isSyncReadbackProofArtifact)
+      const hasAuthenticatedSyncReadbackProof = has(artifact =>
+        isSyncReadbackProofArtifact(artifact)
         && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
-      ))
+      )
+
+      requireExternalAccountAuthenticatedStyleProof(
+        issues,
+        requirementId,
+        hasSyncReadbackProof,
+        hasAuthenticatedSyncReadbackProof,
+      )
+      requireExactArtifactBoundExternalAccountStyleProof(
+        issues,
+        requirementId,
+        hasAuthenticatedSyncReadbackProof,
+        has(artifact =>
+          isSyncReadbackProofArtifact(artifact)
+          && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
+          && artifact.exactArtifact === true
+        ),
+        'Sync readback',
+      )
       break
+    }
     case 'scheduled-send-readback': {
       const isScheduledSendProofArtifact = (artifact: StyleProofArtifact): boolean =>
         artifact.action === 'scheduled-send'
@@ -4620,6 +4673,9 @@ function buildStyleProofExecutionFailureSignals(
   }
   if (audit.requirement.id === 'scheduled-send-readback') {
     signals.push('Credentialed sync responses, editor previews, draft creation, and public preview URLs do not prove the exact artifact entered a real send or scheduled-send state.')
+  }
+  if (audit.requirement.id === 'credentialed-channel-response' || audit.requirement.id === 'sync-readback') {
+    signals.push('Credentialed account responses, upload responses, draft ids, or material readbacks for a different artifact cannot prove this exported artifact was synced.')
   }
   if (audit.mutatesPlatform) {
     signals.push('Request success alone is insufficient; the created draft, preview, or published result must be read back.')

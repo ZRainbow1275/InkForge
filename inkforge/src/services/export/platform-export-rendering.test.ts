@@ -1574,6 +1574,8 @@ describe('platform native export rendering rules', () => {
     const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
     const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
     const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
+    const credentialedStep = runbook.steps.find(step => step.requirement.id === 'credentialed-channel-response')
+    const syncStep = runbook.steps.find(step => step.requirement.id === 'sync-readback')
     const scheduledSendStep = runbook.steps.find(step => step.requirement.id === 'scheduled-send-readback')
     const publishStep = runbook.steps.find(step => step.requirement.id === 'published-url-or-platform-preview')
 
@@ -1625,6 +1627,18 @@ describe('platform native export rendering rules', () => {
     expect(coverStep?.requiredArtifact.requiredFields).toContain('coverThumbnailAccepted')
     expect(coverStep?.failureSignals.join(' ')).toContain('Cover crop panels')
     expect(coverStep?.failureSignals.join(' ')).toContain('phone share')
+    expect(credentialedStep?.status).toBe('unsafe-to-automate')
+    expect(credentialedStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'exactArtifact',
+      'externalAccountAuthenticated',
+    ]))
+    expect(credentialedStep?.failureSignals.join(' ')).toContain('different artifact')
+    expect(syncStep?.status).toBe('unsafe-to-automate')
+    expect(syncStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'exactArtifact',
+      'externalAccountAuthenticated',
+    ]))
+    expect(syncStep?.failureSignals.join(' ')).toContain('material readbacks')
     expect(scheduledSendStep?.status).toBe('unsafe-to-automate')
     expect(scheduledSendStep?.mutatesPlatform).toBe(true)
     expect(scheduledSendStep?.requiredArtifact.requiredActions).toEqual(['scheduled-send'])
@@ -3823,6 +3837,75 @@ describe('platform native export rendering rules', () => {
     expect(phoneOnlyReport.issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
     expect(phoneOnlyIssueLocations).toContain('published-url-or-platform-preview')
     expect(phoneOnlyRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+  })
+
+  it('requires exact artifact binding for credentialed sync proof rows', () => {
+    const artifactFingerprint = 'sha256:redacted-credentialed-exact-artifact'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['credentialed-sync'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'credentialed-response-without-exact-artifact',
+          requirementId: 'credentialed-channel-response',
+          kind: 'channel-response',
+          label: 'credentialed response without exact artifact binding',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'credentialed-sync',
+          readback: 'api-response',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'sync-readback-without-exact-artifact',
+          requirementId: 'sync-readback',
+          kind: 'editor-readback',
+          label: 'sync readback without exact artifact binding',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'sync-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'credentialed-sync-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sync hygiene proof',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const exactArtifactIssueLocations = report.issues
+      .filter(issue => issue.id === 'style-proof-manifest-exact-artifact-missing')
+      .map(issue => issue.location)
+
+    expect(exactArtifactIssueLocations).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+    ]))
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('sync-readback')).toBe('invalid')
   })
 
   it('requires exact artifact binding for published URL or platform preview proof', () => {

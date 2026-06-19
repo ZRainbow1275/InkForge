@@ -4456,6 +4456,52 @@ Boundary:
   preview, Dark Mode, cover, credentialed sync, scheduled-send, platform preview, public
   rendering, upload, or publish gates.
 
+## 2026-06-19 Style Proof Credentialed Sync Exact Artifact Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofManifest -r InkForge -d upstream --include-tests`
+  reported LOW risk, 6 impacted items, 4 direct dependents, 1 affected module (`Export`), and
+  1 affected process (`progressChoices`).
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+- `npx gitnexus impact buildStyleProofExecutionFailureSignals -r InkForge -d upstream --include-tests`
+  reported LOW risk, 2 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Strengthened `credentialed-channel-response` and `sync-readback` execution contracts so both
+  require `exactArtifact:true` with `artifactFingerprint`, `externalAccountAuthenticated:true`,
+  and `safeForCommit:true`.
+- Added validator checks that emit `style-proof-manifest-exact-artifact-missing` when an
+  authenticated credentialed response or sync readback is not bound to the exact exported artifact.
+- Strengthened runbook failure signals so account responses, upload responses, draft ids, or
+  material readbacks for another artifact cannot be claimed as current-artifact sync proof.
+- Added regression assertions to the runbook test and a new authenticated-but-unbound sync proof
+  negative test.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 117 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 156 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1090 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 26.43s
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-credentialed-sync-exact-artifact-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove credentialed sync, draft/material readback, scheduled-send, platform preview,
+  public rendering, upload, or publish gates.
+
 ## 2026-06-19 Style Proof Scheduled Send Contract Slice
 
 Impact:
