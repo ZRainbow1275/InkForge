@@ -262,6 +262,13 @@ export interface StyleProofCollectionStep {
   safeToAutomate: boolean
   note: string
 }
+
+// utils.ts - WeChat clipboard boundary only; normal preview/export HTML stays raw UTF-8
+export function encodeNonAsciiHtmlEntities(html: string): string
+export function prepareWechatClipboardHtml(html: string): string
+export function prepareWechatClipboardPlainText(html: string): string
+export function copyWechatHtmlToClipboard(html: string): Promise<boolean>
+
 export interface PlatformStyleProofCollectionPlan {
   platform: Platform
   steps: readonly StyleProofCollectionStep[]
@@ -1215,6 +1222,17 @@ Contracts:
   readbacks found zero title/content/app-id matches. This proves reachability, rich-structure
   survival, and cleanup only; it must keep `pc-editor-paste-event` invalid until mojibake-free
   readback is also proven.
+- 2026-06-19 WeChat Tempera entity-safe ordinary Ctrl+V proof:
+  `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt` records the same source artifact
+  transformed only by non-ASCII decimal HTML entities before Windows CF_HTML write. Source SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585` became entity-safe SHA-256
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`; non-ASCII characters
+  dropped from `944` to `0` while `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23`
+  stayed unchanged. Ordinary OS Ctrl+V into the authenticated WeChat PC editor then read back
+  `replacementCharCount=0`, `mojibakeHintCount=0`, `literalEntityTextCount=0`, and
+  `htmlEntityCount=0`, and cleanup was verified by two post-delete reloads. Product code may use
+  this as a WeChat clipboard-boundary rule through `prepareWechatClipboardHtml()`, but it must not
+  rewrite normal preview/export HTML or claim raw UTF-8 direct paste success.
 - 2026-06-19 WeChat draftbox create-menu readback:
   `wechat-draftbox-create-menu-readback-20260619.txt` records that the authenticated backend home
   route can reach draftbox only through the backend DOM menu link with active session context; a
@@ -1331,6 +1349,10 @@ Required tests:
   input-bridge-blocked and cannot be used to infer platform sanitizer behavior.
 - A same-tab retry that preserves SVG/data-ink structure but reports any replacement/mojibake
   characters must keep `pc-editor-paste-event` invalid, even if cleanup succeeds.
+- A same-tab retry that succeeds only after WeChat clipboard entity preparation may satisfy the
+  PC paste row for that transformed clipboard payload if exact-artifact derivation, ordinary
+  paste, same-editor target, mojibake-free readback, and cleanup are all proven. It must remain
+  distinct from raw UTF-8 artifact acceptance and from all phone/sync/publish rows.
 - `pc-editor-paste-event` requires one same `platform-editor` / `pc-paste` artifact to bind the
   full ordinary paste contract: `artifactFingerprint`, `exactArtifact:true`,
   `authenticatedSessionVerified:true`, `platformEditorTargetVerified:true`,

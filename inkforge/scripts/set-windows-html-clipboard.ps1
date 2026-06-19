@@ -2,6 +2,8 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$HtmlPath,
 
+  [switch]$EncodeNonAsciiEntities,
+
   [switch]$DryRun
 )
 
@@ -29,9 +31,62 @@ function ConvertTo-PlainText {
   return [regex]::Replace($decoded, '\s+', ' ').Trim()
 }
 
+function ConvertTo-NonAsciiHtmlEntities {
+  param([string]$Html)
+
+  $builder = [System.Text.StringBuilder]::new($Html.Length)
+  for ($i = 0; $i -lt $Html.Length; $i++) {
+    $current = $Html[$i]
+    if (
+      [System.Char]::IsHighSurrogate($current) -and
+      ($i + 1) -lt $Html.Length -and
+      [System.Char]::IsLowSurrogate($Html[$i + 1])
+    ) {
+      $codePoint = [System.Char]::ConvertToUtf32($Html, $i)
+      $i++
+    } else {
+      $codePoint = [int][char]$current
+    }
+
+    if ($codePoint -gt 127) {
+      [void]$builder.Append('&#')
+      [void]$builder.Append($codePoint)
+      [void]$builder.Append(';')
+    } else {
+      [void]$builder.Append($Html[$i])
+    }
+  }
+  return $builder.ToString()
+}
+
+function Get-NonAsciiCharCount {
+  param([string]$Value)
+  return ([regex]::Matches($Value, '[^\x00-\x7F]')).Count
+}
+
+function Get-Sha256Hex {
+  param([string]$Value)
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    $hashBytes = $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Value))
+    return -join ($hashBytes | ForEach-Object { $_.ToString('x2') })
+  } finally {
+    $sha.Dispose()
+  }
+}
+
 $resolvedPath = (Resolve-Path -LiteralPath $HtmlPath).Path
 $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
-$html = [System.IO.File]::ReadAllText($resolvedPath, $utf8Strict).TrimStart([char]0xFEFF)
+$sourceHtml = [System.IO.File]::ReadAllText($resolvedPath, $utf8Strict).TrimStart([char]0xFEFF)
+if ([string]::IsNullOrWhiteSpace($sourceHtml)) {
+  throw "HTML file is empty: $HtmlPath"
+}
+
+$html = if ($EncodeNonAsciiEntities) {
+  ConvertTo-NonAsciiHtmlEntities $sourceHtml
+} else {
+  $sourceHtml
+}
 if ([string]::IsNullOrWhiteSpace($html)) {
   throw "HTML file is empty: $HtmlPath"
 }
@@ -54,13 +109,8 @@ $header = $headerTemplate -f `
 $cfHtml = $header + $prefix + $html + $suffix
 $plainText = ConvertTo-PlainText $html
 
-$sha = [System.Security.Cryptography.SHA256]::Create()
-try {
-  $hashBytes = $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($html))
-  $hash = -join ($hashBytes | ForEach-Object { $_.ToString('x2') })
-} finally {
-  $sha.Dispose()
-}
+$hash = Get-Sha256Hex $html
+$sourceHash = Get-Sha256Hex $sourceHtml
 
 if (-not $DryRun) {
   if ([System.Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
@@ -77,15 +127,22 @@ if (-not $DryRun) {
 [pscustomobject]@{
   file = Split-Path -Leaf $resolvedPath
   dryRun = [bool]$DryRun
+  encodedNonAsciiEntities = [bool]$EncodeNonAsciiEntities
+  sourceHtmlBytes = Get-Utf8ByteCount $sourceHtml
   htmlBytes = Get-Utf8ByteCount $html
   cfHtmlBytes = Get-Utf8ByteCount $cfHtml
   startHtml = $startHtml
   endHtml = $endHtml
   startFragment = $startFragment
   endFragment = $endFragment
+  sourceSha256 = $sourceHash
   sha256 = $hash
+  sourceNonAsciiCharCount = Get-NonAsciiCharCount $sourceHtml
+  nonAsciiCharCount = Get-NonAsciiCharCount $html
+  htmlEntityCount = ([regex]::Matches($html, '&#\d+;')).Count
   svgCount = ([regex]::Matches($html, '<svg[\s>]', 'IgnoreCase')).Count
   dataInkSvgCount = ([regex]::Matches($html, 'data-ink-svg\s*=', 'IgnoreCase')).Count
+  dataInkBlockCount = ([regex]::Matches($html, 'data-ink-block\s*=', 'IgnoreCase')).Count
   plainTextChars = $plainText.Length
   clipboardFormats = @('HTML Format', 'UnicodeText')
 } | ConvertTo-Json -Depth 3

@@ -7,7 +7,7 @@ import {
 import {
   convertToPlatform, getPlatformPresets,
   convertToNativeFormat, copyTextToClipboard,
-  copyToClipboard, getDefaultPreset, isClipboardWriteAvailable,
+  copyToClipboard, copyWechatHtmlToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
   getPlatformStyleProofAcceptanceAuditReport,
@@ -1022,12 +1022,18 @@ function downloadArtifact(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url)
 }
 
+async function copyHtmlToPlatformClipboard(content: string): Promise<boolean> {
+  return selectedPlatform.value === 'wechat'
+    ? copyWechatHtmlToClipboard(content)
+    : copyToClipboard(content)
+}
+
 async function handleCopy() {
   const content = previewHtml.value
   if (!content || isRendering.value) return
 
   showOperationFeedback('info', '正在写入剪贴板，请等待浏览器权限返回。')
-  const success = await copyToClipboard(content)
+  const success = await copyHtmlToPlatformClipboard(content)
 
   if (success) {
     copySuccess.value = true
@@ -1045,7 +1051,7 @@ async function handleCopyNative() {
 
   showOperationFeedback('info', `正在复制 ${platformInfo.value.name} ${NATIVE_FORMAT_LABELS[result.format]} 原生产物。`)
   const success = result.format === 'html'
-    ? await copyToClipboard(result.content)
+    ? await copyHtmlToPlatformClipboard(result.content)
     : await copyTextToClipboard(result.content)
 
   if (success) {

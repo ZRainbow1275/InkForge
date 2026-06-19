@@ -1697,3 +1697,33 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   rich HTML/SVG acceptance, live editor body mutation, phone preview, mobile interaction, Dark Mode,
   cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering,
   or publish success.
+
+## 2026-06-19 WeChat Tempera Entity-Safe Clipboard Addendum
+
+- Added `prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`.
+- Added a WeChat-specific clipboard transform in `inkforge/src/services/export/utils.ts`:
+  `encodeNonAsciiHtmlEntities()`, `prepareWechatClipboardHtml()`, and
+  `prepareWechatClipboardPlainText()`, plus `copyWechatHtmlToClipboard()`.
+- `ExportModal` now uses the WeChat helper only when the selected platform is `wechat`; normal
+  preview/export HTML and non-WeChat clipboard copy remain unchanged.
+- `inkforge/scripts/set-windows-html-clipboard.ps1` now supports `-EncodeNonAsciiEntities` and
+  reports source/transformed bytes, SHA-256, non-ASCII count, entity count, and preserved SVG
+  counts.
+- Live WeChat PC proof: source `flagship-tempera.html` SHA-256
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585` was transformed into
+  entity-safe SHA-256 `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The transformed payload reduced non-ASCII characters from `944` to `0`, preserved
+  `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23`, and ordinary OS Ctrl+V into the
+  authenticated WeChat PC editor read back `replacementCharCount=0` and `mojibakeHintCount=0`.
+- Cleanup completed with post-delete readbacks finding zero title/content/app-id matches.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 116 tests.
+- 4-file cross-platform export regression passed at 4 files / 155 tests, and full export serial
+  regression passed at 35 files / 1089 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  23.37s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this proves WeChat PC ordinary Ctrl+V for the entity-safe clipboard payload only. It
+  does not prove raw UTF-8 Tempera direct paste, WeChat phone preview, mobile interaction, Dark
+  Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public article
+  rendering, or publish success.

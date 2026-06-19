@@ -190,8 +190,12 @@ export {
   buildFootnoteSection,
   calculateStats,
   buildReadingTimeHeader,
+  encodeNonAsciiHtmlEntities,
   copyTextToClipboard,
   copyToClipboard,
+  copyWechatHtmlToClipboard,
+  prepareWechatClipboardHtml,
+  prepareWechatClipboardPlainText,
   isClipboardWriteAvailable
 } from './utils'
 

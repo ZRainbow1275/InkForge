@@ -42,6 +42,8 @@ import {
   markdownToWechatWithStats,
   markdownToXiaohongshuText,
   markdownToZhihuClean,
+  prepareWechatClipboardHtml,
+  prepareWechatClipboardPlainText,
   postProcessForWechat,
   validateXhsImageArtifactManifest,
   validateZhihuImageArtifactManifest,
@@ -190,7 +192,7 @@ const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
-function exportWechatPresetHtml(presetId: typeof WECHAT_PRESET_IDS[number]): string {
+function exportWechatPresetHtml(presetId: string): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
 
@@ -213,6 +215,17 @@ function compactText(html: string): string {
 
 function countText(text: string, needle: string): number {
   return text.split(needle).length - 1
+}
+
+function countPattern(text: string, pattern: RegExp): number {
+  return text.match(pattern)?.length ?? 0
+}
+
+function hasNonAscii(text: string): boolean {
+  return Array.from(text).some((char) => {
+    const codePoint = char.codePointAt(0)
+    return typeof codePoint === 'number' && codePoint > 127
+  })
 }
 
 describe('platform native export rendering rules', () => {
@@ -4173,6 +4186,36 @@ describe('platform native export rendering rules', () => {
     expect(result.html).toContain('max-width:100%')
     expect(result.html).toContain('border:1px solid #D8E2EC')
     expect(result.html).toContain('https://vite.dev')
+  })
+
+  it('prepares WeChat clipboard HTML with ASCII-only entities while preserving SVG structure', () => {
+    const rawHtml = exportWechatPresetHtml('flagship-tempera')
+    const preparedHtml = prepareWechatClipboardHtml(rawHtml)
+    const preparedPlainText = prepareWechatClipboardPlainText(preparedHtml)
+
+    const rawSvgCount = countPattern(rawHtml, /<svg\b/gi)
+    const rawInkSvgCount = countPattern(rawHtml, /data-ink-svg\s*=/gi)
+    const rawInkBlockCount = countPattern(rawHtml, /data-ink-block\s*=/gi)
+
+    expect(hasNonAscii(rawHtml)).toBe(true)
+    expect(hasNonAscii(preparedHtml)).toBe(false)
+    expect(preparedHtml).toContain('&#')
+    expect(countPattern(preparedHtml, /<svg\b/gi)).toBe(rawSvgCount)
+    expect(countPattern(preparedHtml, /data-ink-svg\s*=/gi)).toBe(rawInkSvgCount)
+    expect(countPattern(preparedHtml, /data-ink-block\s*=/gi)).toBe(rawInkBlockCount)
+    expect(preparedHtml).not.toMatch(/<style\b|<script\b|<foreignObject\b/i)
+    expect(preparedPlainText).toContain('微信排版视觉手测稿')
+    expect(preparedPlainText).toContain('行动清单')
+    expect(preparedPlainText).not.toContain('&#')
+    expect(preparedPlainText).not.toMatch(/<svg\b|data-ink-svg\s*=/i)
+
+    const doc = new DOMParser().parseFromString(`<body>${preparedHtml}</body>`, 'text/html')
+    expect(doc.body.textContent).toContain('微信排版视觉手测稿')
+    expect(doc.body.textContent).toContain('行动清单')
+    expect(doc.body.textContent).not.toContain('&#')
+    expect(doc.body.querySelectorAll('svg').length).toBe(rawSvgCount)
+    expect(doc.body.querySelectorAll('[data-ink-svg]').length).toBe(rawInkSvgCount)
+    expect(doc.body.querySelectorAll('[data-ink-block]').length).toBe(rawInkBlockCount)
   })
 
   it('keeps WeChat preset decorators as a single source of truth in final export HTML', () => {

@@ -529,6 +529,7 @@ Contract:
   `artifactFingerprint`, `exactArtifact`, authenticated editor/DOM flags,
   `ordinaryClipboardPasteVerified`, `sameEditorTabVerified`, `pasteInputEventVerified`,
   `editorBodyMutationVerified`, `mojibakeFreeVerified`, and `safeForCommit`.
+
 - Phone preview, Dark Mode, and cover thumbnail proof remain separate phone-preview rows requiring
   `phonePreviewContentVerified`, `darkModeEnabledVerified`, and `coverThumbnailAccepted`.
 - Public host proof must identify `artifactRef`, `hostStatus`, `safeForCommit`, and a host status
@@ -545,3 +546,48 @@ Recorded evidence:
 
 - `prompts/0601/evidence/style-proof-execution-runbook-20260618.txt`
 - `prompts/0601/evidence/style-proof-artifact-manifest-validation-20260619.txt`
+
+## 2026-06-19 Addendum: WeChat Entity-Safe Clipboard Boundary
+
+The WeChat rich clipboard path must support a WeChat-only non-ASCII decimal HTML entity transform
+at the clipboard boundary.
+
+Contract:
+
+- `encodeNonAsciiHtmlEntities(html)` replaces every non-ASCII character with a decimal HTML entity
+  and leaves ASCII tags, attributes, SVG markup, and `data-ink-*` sentinels unchanged.
+- `prepareWechatClipboardHtml(html)` is the product entry point for the transform.
+- `prepareWechatClipboardPlainText(html)` is the decoded plain-text companion for the same rich
+  clipboard write; it must not contain literal entity text or export markup.
+- `copyWechatHtmlToClipboard(html)` writes the transformed payload through the existing rich
+  clipboard helper.
+- `ExportModal` must use the WeChat helper only when `selectedPlatform === 'wechat'`; non-WeChat
+  copy, normal preview HTML, downloads, and export generation remain raw UTF-8.
+- `inkforge/scripts/set-windows-html-clipboard.ps1 -EncodeNonAsciiEntities` is the Windows CF_HTML
+  evidence helper for reproducing the same payload shape.
+
+Live proof:
+
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-tempera.html`.
+- Source SHA-256:
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Entity-safe SHA-256:
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The transform reduced non-ASCII characters from `944` to `0`, preserved `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`, and ordinary OS Ctrl+V into the authenticated
+  WeChat PC editor read back `replacementCharCount=0`, `mojibakeHintCount=0`,
+  `literalEntityTextCount=0`, and `htmlEntityCount=0`.
+- Cleanup was verified by platform delete plus two post-delete absence readbacks.
+
+Boundary:
+
+- This is a PC editor proof for the transformed clipboard payload, not raw UTF-8 direct paste.
+- It does not complete phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, public article rendering, XHS/Zhihu upload, or publish gates.
+
+Required regression:
+
+- The entity transform must be unit-tested with a real WeChat flagship export and prove:
+  ASCII-only payload, unchanged SVG count, unchanged `data-ink-svg`, unchanged `data-ink-block`,
+  no `<style>`, no `<script>`, no `<foreignObject>`, and DOM parsing back to readable text with no
+  literal entity residue.

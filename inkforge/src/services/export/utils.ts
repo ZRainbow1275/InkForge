@@ -770,6 +770,39 @@ export function isClipboardWriteAvailable(): boolean {
 }
 
 /**
+ * Encode non-ASCII characters as decimal HTML entities for WeChat clipboard paste.
+ *
+ * The WeChat PC editor can preserve the rich HTML/SVG structure while still damaging
+ * raw UTF-8 CJK text on some Windows clipboard paths. Keeping tags/attributes ASCII
+ * and entity-encoding readable text avoids that channel-level mojibake without
+ * changing the parsed DOM structure.
+ */
+export function encodeNonAsciiHtmlEntities(html: string): string {
+  if (!html) return html
+
+  return Array.from(html, (char) => {
+    const codePoint = char.codePointAt(0)
+    return typeof codePoint === 'number' && codePoint > 127 ? `&#${codePoint};` : char
+  }).join('')
+}
+
+/**
+ * Prepare WeChat rich-HTML clipboard content without changing normal preview/export HTML.
+ */
+export function prepareWechatClipboardHtml(html: string): string {
+  return encodeNonAsciiHtmlEntities(html)
+}
+
+/**
+ * Build the plain-text companion for WeChat rich clipboard writes.
+ */
+export function prepareWechatClipboardPlainText(html: string): string {
+  const withoutScripts = html.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+  const withoutTags = withoutScripts.replace(/<[^>]+>/g, ' ')
+  return decodeHtmlEntities(withoutTags).replace(/\s+/g, ' ').trim()
+}
+
+/**
  * 复制纯文本到剪贴板。
  * @param text - 要复制的纯文本内容
  * @returns 复制是否成功
@@ -801,19 +834,13 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
   }
 }
 
-/**
- * 复制到剪贴板（HTML格式）
- * @param html - 要复制的 HTML 内容
- * @returns 复制是否成功
- * @throws 不抛出异常，失败时返回 false
- */
-export async function copyToClipboard(html: string): Promise<boolean> {
+async function copyHtmlToClipboard(html: string, plainText: string): Promise<boolean> {
   // 优先使用现代 Clipboard API
   if (typeof navigator !== 'undefined' && typeof navigator.clipboard?.write === 'function') {
     const written = await attemptClipboardWrite(navigator.clipboard.write([
       new ClipboardItem({
         'text/html': new Blob([html], { type: 'text/html' }),
-        'text/plain': new Blob([html], { type: 'text/plain' })
+        'text/plain': new Blob([plainText], { type: 'text/plain' })
       })
     ]))
     if (written) {
@@ -822,5 +849,27 @@ export async function copyToClipboard(html: string): Promise<boolean> {
   }
 
   // 降级方案：使用传统 execCommand（兼容旧浏览器）
-  return copyTextToClipboard(html)
+  return copyTextToClipboard(plainText)
+}
+
+/**
+ * 复制到剪贴板（HTML格式）
+ * @param html - 要复制的 HTML 内容
+ * @returns 复制是否成功
+ * @throws 不抛出异常，失败时返回 false
+ */
+export async function copyToClipboard(html: string): Promise<boolean> {
+  return copyHtmlToClipboard(html, html)
+}
+
+/**
+ * 复制微信公众号富文本 HTML 到剪贴板。
+ *
+ * This keeps the ordinary `copyToClipboard()` behavior unchanged for previews,
+ * downloads, Settings, and other platforms while applying the WeChat-specific
+ * character-safety transform only at the rich paste boundary.
+ */
+export async function copyWechatHtmlToClipboard(html: string): Promise<boolean> {
+  const preparedHtml = prepareWechatClipboardHtml(html)
+  return copyHtmlToClipboard(preparedHtml, prepareWechatClipboardPlainText(preparedHtml))
 }

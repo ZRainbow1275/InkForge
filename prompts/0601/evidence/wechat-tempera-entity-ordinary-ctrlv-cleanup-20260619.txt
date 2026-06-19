@@ -1,0 +1,94 @@
+WeChat Tempera Entity-Safe Ordinary Ctrl+V Proof - 2026-06-19
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor proof.
+- Ordinary OS Ctrl+V path with Windows HTML Format plus UnicodeText.
+- Source-owned InkForge artifact, transformed only by decimal HTML entity encoding for non-ASCII
+  characters before clipboard write.
+- No phone preview, Dark Mode inspection, cover-thumbnail acceptance, sync, schedule, public
+  article rendering, upload, or publish action.
+
+Source artifact:
+- Artifact: prompts/0601/evidence/wechat-paste/flagship-tempera.html.
+- Source SHA-256: d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585.
+- Source bytes: 41754.
+- Source non-ASCII characters: 944.
+- Source SVG count: 35.
+- Source data-ink-svg count: 3.
+- Source data-ink-block count: 23.
+
+Entity-safe clipboard transform:
+- Rule: replace every non-ASCII character with a decimal HTML entity, leaving ASCII tags and
+  attributes unchanged.
+- Entity-safe SHA-256: f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878.
+- Entity-safe HTML bytes: 46456.
+- CF_HTML bytes: 46625.
+- StartHTML: 105.
+- EndHTML: 46625.
+- StartFragment: 137.
+- EndFragment: 46593.
+- Non-ASCII characters after transform: 0.
+- Decimal entity count: 944.
+- SVG count after transform: 35.
+- data-ink-svg count after transform: 3.
+- data-ink-block count after transform: 23.
+- Plain text characters: 1367.
+
+WeChat PC editor ordinary paste readback:
+- The same visible authenticated WeChat PC editor tab was targeted.
+- Disposable title: InkForge tempera entity proof 20260619-1148.
+- Body before paste: bodyTextLength 8, bodyHtmlLength 298, svg 0, data-ink-svg 0.
+- OS paste action: foreground window matched; keybd_event Ctrl+V sent while preserving the prepared
+  clipboard payload.
+- Readback:
+  - titleMatched: true.
+  - activeIsBody: true.
+  - bodyPaste: 1.
+  - docPaste: 1.
+  - docInput: 1.
+  - trustedPaste: 2.
+  - mutation: 4.
+  - pasteTypes included text/plain and text/html.
+  - bodyTextLength: 1427.
+  - bodyHtmlLength: 43032.
+  - svgCount: 35.
+  - dataInkSvgCount: 3.
+  - dataInkBlockCount: 23.
+  - sectionCount: 48.
+  - paragraphCount: 70.
+  - styleTagCount: 0.
+  - scriptCount: 0.
+  - foreignObjectCount: 0.
+  - replacementCharCount: 0.
+  - mojibakeHintCount: 0.
+  - localPathLeakInEditor: false.
+  - literalEntityTextCount: 0.
+  - htmlEntityCount: 0.
+
+Cleanup:
+- The editor title/body were cleared before returning to the draft list.
+- Pre-delete readback found the disposable title once and confirmed target data-ink content.
+- Session-bound platform delete returned base_resp.ret 0.
+- First and second post-delete reload readbacks both reported:
+  - itemCount: 6.
+  - titleMatches: 0.
+  - itemTitleMatches: 0.
+  - targetContentMatches: 0.
+  - target app id present: false.
+  - reloginSignals: false.
+
+Implementation rule created from this proof:
+- InkForge WeChat clipboard copy must support a WeChat-specific non-ASCII decimal entity transform
+  at the clipboard boundary.
+- The normal preview/export HTML remains unchanged.
+- The transform is not a sanitizer, not a market-editor import path, and not a publish proof.
+- The transform must preserve inline SVG, data-ink sentinels, and HTML block structure.
+
+Boundary:
+- This proves Tempera entity-safe ordinary Ctrl+V PC editor acceptance, mojibake-free DOM readback,
+  and cleanup for the transformed copy payload.
+- It does not prove the raw UTF-8 source artifact is accepted without the entity-safe clipboard
+  transform.
+- It does not prove WeChat phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, or publish success.

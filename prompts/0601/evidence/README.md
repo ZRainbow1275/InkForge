@@ -1,7 +1,7 @@
 # 证据采集指南 — WeChat-safe inline-SVG 旗舰排版（真机 / GUI e2e）
 
 本目录存放 **AC1（微信真机粘贴 / 手机预览渲染）** 与 **AC8 的 GUI e2e（tauri-driver 真二进制）** 的人工 / 机器门禁证据。
-自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：历史 PC sanitizer 样本覆盖 `flagship-kiln` 与 `flagship-tempera` 的程序化/浏览器 paste 路径；`flagship-amber` 已有 2026-06-09 CloakBrowser `ClipboardEvent` channel 读回和 2026-06-18 普通 OS Ctrl+V 成功证据。2026-06-18 `flagship-kiln` 普通 OS Ctrl+V 当前重试为纯文本负向证据；2026-06-19 `flagship-tempera` 在修正可见标签页/DPI 校准后，普通 OS Ctrl+V 到达同一微信 PC editor 并保留 35 SVG / 3 data-ink-svg / 23 data-ink-block，但文本 mojibake 损坏且 disposable draft 已删除，因此仍不能满足完整 PC paste acceptance。三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
+自动化门禁（单测 / 冒烟 / typecheck / lint / build）、真实 Tauri e2e、真实公众号后台 PC 粘贴路径已在 `prompts/0601/COMPLETION-REPORT.md` 中留档，**不需在此重复**。注意：历史 PC sanitizer 样本覆盖 `flagship-kiln` 与 `flagship-tempera` 的程序化/浏览器 paste 路径；`flagship-amber` 已有 2026-06-09 CloakBrowser `ClipboardEvent` channel 读回和 2026-06-18 普通 OS Ctrl+V 成功证据。2026-06-18 `flagship-kiln` 普通 OS Ctrl+V 当前重试为纯文本负向证据；2026-06-19 `flagship-tempera` 原始 UTF-8 artifact 在修正可见标签页/DPI 校准后可通过普通 OS Ctrl+V 到达同一微信 PC editor 并保留 35 SVG / 3 data-ink-svg / 23 data-ink-block，但文本 mojibake 损坏且 disposable draft 已删除。随后同源 artifact 经 WeChat clipboard-safe 非 ASCII decimal entity 转换后，普通 OS Ctrl+V 在同一类 PC editor 路径读回 35 SVG / 3 data-ink-svg / 23 data-ink-block、`replacementCharCount=0`、`mojibakeHintCount=0`，且 disposable draft 已删除；该证明适用于实体安全剪贴板 payload，不等同于 raw UTF-8 artifact 直接可粘贴。三旗舰手机预览、暗黑模式、SMIL/点击、封面缩略图和发布门禁仍未完成。
 
 > 关键事实（已对源码核实）：`[data-ink-svg]` 模块由 `preset.decorate`（= `composeSvgDecorate`）注入，**只在真实导出管线**（`convertToWechatWithStats` → `markdownToWechatWithStats`）内运行。在 UI 里该管线喂的是 **ExportModal 预览**（`.export-panel .preview-render`），**不是** Stage 迷你手机预览（后者走 mock 渲染器 `#wechat-article` / 677px，**不**含 `data-ink-svg`）。因此探针与 e2e 都在 **ExportModal** 内取证。
 
@@ -1394,3 +1394,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   HTML/SVG acceptance, editor body mutation in the live platform, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview,
   public article rendering, or publish success.
+
+## 2026-06-19 WeChat Tempera Entity-Safe Ordinary Ctrl+V Cleanup
+
+- [x] wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt
+- CloakBrowser-only authenticated WeChat PC editor proof; Playwright was not used.
+- Exact source `flagship-tempera.html` was transformed only by decimal HTML entity encoding for
+  non-ASCII characters before writing Windows `HTML Format` plus `UnicodeText`.
+- Source SHA-256:
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Entity-safe SHA-256:
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The transform changed source bytes `41754` to entity HTML bytes `46456`, reduced non-ASCII
+  characters from `944` to `0`, and preserved `svgCount=35`, `dataInkSvgCount=3`, and
+  `dataInkBlockCount=23`.
+- Same-visible-tab ordinary OS Ctrl+V reached the authenticated WeChat PC editor and read back
+  `bodyPaste=1`, `docPaste=1`, `docInput=1`, `trustedPaste=2`, `mutation=4`, `svgCount=35`,
+  `dataInkSvgCount=3`, `dataInkBlockCount=23`, `replacementCharCount=0`,
+  `mojibakeHintCount=0`, `literalEntityTextCount=0`, and `htmlEntityCount=0`.
+- Cleanup completed: session-bound platform delete returned `base_resp.ret=0`; two post-delete
+  reload readbacks found zero title/content/app-id matches.
+- Product rule: WeChat rich clipboard copy must apply the non-ASCII decimal entity transform at
+  the clipboard boundary, while normal preview/export HTML remains unchanged.
+- Boundary: this proves the entity-safe clipboard payload, not the raw UTF-8 source artifact
+  without transformation. It does not prove phone preview, mobile interaction, Dark Mode, cover
+  thumbnail, sync, scheduled send, platform preview, public article rendering, or publish success.

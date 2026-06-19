@@ -4331,3 +4331,69 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, ordinary
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
+
+## 2026-06-19 WeChat Tempera Entity-Safe Clipboard Slice
+
+Impact:
+- `npx gitnexus impact Function:inkforge/src/services/export/utils.ts:copyToClipboard -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+- `npx gitnexus impact Function:inkforge/src/services/export/index.ts:convertToPlatform -r InkForge -d upstream --include-tests`
+  reported LOW risk, 3 impacted items, 1 direct dependent (`convertToNativeFormat`), 1 affected
+  module (`Export`), and 0 affected processes.
+- `npx gitnexus impact convertToNativeFormat -r InkForge -d upstream --include-tests` reported
+  LOW risk, 2 direct callers, and 0 affected processes.
+- `npx gitnexus impact handleCopy -r InkForge -d upstream --include-tests` reported LOW risk,
+  0 impacted items, and 0 affected processes.
+
+Implementation:
+- Added `encodeNonAsciiHtmlEntities()`, `prepareWechatClipboardHtml()`,
+  `prepareWechatClipboardPlainText()`, and `copyWechatHtmlToClipboard()` in
+  `inkforge/src/services/export/utils.ts`.
+- Exported the helpers through `inkforge/src/services/export/index.ts`.
+- Updated `ExportModal` so WeChat styled HTML and WeChat native HTML copy use the WeChat-specific
+  clipboard helper, while non-WeChat copy and normal preview/export HTML remain unchanged.
+- Extended `inkforge/scripts/set-windows-html-clipboard.ps1` with `-EncodeNonAsciiEntities` for
+  repeatable Windows CF_HTML proof collection.
+- Added regression coverage proving entity-safe WeChat clipboard HTML becomes ASCII-only while
+  preserving SVG, `data-ink-svg`, and `data-ink-block` structure, and parsing back to normal text.
+
+Live proof:
+- Added `prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`.
+- Exact source `flagship-tempera.html` SHA-256:
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Entity-safe clipboard SHA-256:
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- The transform changed HTML bytes from `41754` to `46456`, non-ASCII characters from `944` to
+  `0`, and preserved `svgCount=35`, `dataInkSvgCount=3`, and `dataInkBlockCount=23`.
+- Same-visible-tab ordinary OS Ctrl+V into the authenticated WeChat PC editor read back
+  `bodyPaste=1`, `docPaste=1`, `docInput=1`, `trustedPaste=2`, `mutation=4`, `svgCount=35`,
+  `dataInkSvgCount=3`, `dataInkBlockCount=23`, `replacementCharCount=0`,
+  `mojibakeHintCount=0`, `literalEntityTextCount=0`, and `htmlEntityCount=0`.
+- Cleanup completed with platform delete returning `base_resp.ret=0` and two post-delete reloads
+  finding zero title/content/app-id matches.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 116 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1089 tests.
+- `pnpm -C inkforge exec eslint src/services/export/utils.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in 23.37s,
+  and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- `powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File inkforge/scripts/set-windows-html-clipboard.ps1 -HtmlPath prompts/0601/evidence/wechat-paste/flagship-tempera.html -EncodeNonAsciiEntities -DryRun`
+  produced `htmlBytes=46456`, `cfHtmlBytes=46625`, `sourceNonAsciiCharCount=944`,
+  `nonAsciiCharCount=0`, `htmlEntityCount=944`, `svgCount=35`, `dataInkSvgCount=3`, and
+  `dataInkBlockCount=23`.
+- The same helper without `-EncodeNonAsciiEntities` preserved the old raw artifact metadata and
+  SHA-256.
+
+Boundary:
+- This proves entity-safe WeChat PC ordinary Ctrl+V acceptance and cleanup for the transformed
+  clipboard payload only.
+- It does not prove raw UTF-8 direct paste, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled-send, public rendering, XHS/Zhihu
+  account upload, or publish success.
