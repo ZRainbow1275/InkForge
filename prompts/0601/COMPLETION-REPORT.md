@@ -2404,3 +2404,28 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, or
   publish success.
+
+## 2026-06-20 WeChat Draft Editor Readonly Preflight Addendum
+
+- Added `prompts/0601/evidence/wechat-draft-editor-readonly-preflight-20260620.txt`.
+- Used CloakBrowser only with the existing authenticated WeChat backend session.
+- Reached the sanitized existing-draft editor route shape via the official card-list route and the
+  public WeChat bundle edit route template. Appmsg id, credential query values, account strings,
+  draft title, full URL, browser runtime directory, and transient visual file names were redacted
+  and not recorded.
+- No form fill, paste, save, preview, publish, delete, sync, upload, phone action, or draft
+  mutation was performed.
+- Readonly DOM evidence confirmed a visible main `.ProseMirror` body with 3948 text chars,
+  87187 HTML chars, 70 inline SVG nodes, 4 images, 94 sections, 390 inline style attributes, 4
+  animation-related hits, and 0 script/iframe/object/embed tags inside the main body.
+- Visual inspection confirmed a nonblank editor with toolbar, left draft/history rail, central
+  article canvas, body content, and bottom save/preview/publish controls. Transient screenshots
+  were deleted and not committed.
+- Negative fidelity finding: the real draft body contained visible replacement-glyph/mojibake
+  blocks, with 4520 replacement-character hits across main body text/html and 2236 text
+  replacement-character hits. This remains a badcase, not successful style proof.
+- Boundary: this proves authenticated existing-draft editor reachability and readonly PC DOM
+  preconditions only. It does not prove InkForge artifact paste, exact artifact preservation, safe
+  draft cleanup, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, or publish success.

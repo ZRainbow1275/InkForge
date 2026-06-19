@@ -1,0 +1,66 @@
+WeChat Draft Editor Readonly Preflight - 2026-06-20
+
+Scope:
+- CloakBrowser-only authenticated WeChat Official Account backend preflight.
+- Existing draft editor reachability and read-only DOM/visual structure audit.
+- No form fill, paste, save, preview, publish, delete, sync, upload, phone action, or draft mutation.
+
+Navigation:
+- Reused the existing authenticated WeChat backend session.
+- Opened the sanitized home route shape `/cgi-bin/home`.
+- Moved to the sanitized card-list route shape `/cgi-bin/appmsg?action=list_card&type=77`.
+- Read the public static WeChat bundle route template:
+  `/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=10&appmsgid=<redacted>&fromview=list`.
+- Used the current real draft id inside the browser only. The appmsg id, credential query values,
+  account strings, draft title, full URL, local runtime directory, and transient visual file names
+  were not recorded here.
+
+Readonly editor readback:
+- Sanitized editor route shape: `/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=10`.
+- Login or QR scan state: absent.
+- Visible editor controls were present for save, preview, publish/submit-style actions, title,
+  cover, original/interaction settings, and article settings. No such control was clicked.
+- Main body surface:
+  - `.ProseMirror ProseMirror-focused` was visible.
+  - Text length: 3948.
+  - HTML length: 87187.
+  - SVG count inside main body: 70.
+  - Image count inside main body: 4.
+  - Section count inside main body: 94.
+  - Inline style attribute hits inside main body: 390.
+  - Animation-related hits inside main body: 4.
+  - Script/iframe/object/embed tags inside main body: 0.
+- Page-level structure:
+  - Contenteditable nodes: 3 total, 2 visible editor-like nodes.
+  - Textareas: 2.
+  - Inputs: 53.
+  - Iframes: 1 total, 0 visible.
+  - Page SVG nodes: 79.
+  - Page section nodes: 94.
+  - Page images: 19.
+  - Stylesheets: 40 linked stylesheets and 7 style tags.
+  - Scrollable document height: 12662 px at a 1400 x 900 viewport.
+
+Visual readback:
+- A transient local screenshot was used only for operator-side visual inspection and was deleted
+  before documentation/commit.
+- The editor was not blank: the top toolbar, left draft/history rail, central article canvas,
+  body content, and bottom save/preview/publish controls were visible.
+- Negative fidelity finding: the existing draft body visibly contained replacement-glyph /
+  mojibake blocks. DOM count showed 4520 replacement-character hits across main body text/html
+  and 2236 text replacement-character hits.
+
+Rule impact:
+- Existing draft editor reachability can support `authenticated-editor-url` and readonly
+  `pc-editor-dom-readback` preconditions only when the evidence is redacted.
+- It cannot satisfy paste, exact artifact, safe draft cleanup, phone preview, Dark Mode, cover
+  thumbnail, credentialed sync, scheduled send, platform preview, public article rendering, or
+  publish rows.
+- Replacement-glyph/mojibake readback is a hard visual badcase. It must be recorded as negative
+  fidelity evidence and must not be promoted into a successful WeChat style proof.
+
+Boundary:
+- This proves only that an authenticated existing WeChat draft editor surface and its main body
+  DOM were reachable in read-only mode on the local PC.
+- It does not prove that any InkForge export artifact was pasted, preserved, cleaned up, previewed
+  on phone, accepted by cover thumbnail, synced, scheduled, publicly hosted, or published.

@@ -2072,3 +2072,33 @@ Required checks:
   artifacts cannot cross into the wrong platform.
 - Documentation that cites OSS converters must distinguish source-backed rules from platform proof
   and must name the remaining external gates explicitly.
+
+## 18. WeChat Live Editor Readback Contract - 2026-06-20
+
+Authenticated WeChat editor reachability is useful precondition evidence, but it is not fidelity
+proof by itself.
+
+Contracts:
+- Live editor readback evidence must store only sanitized route shapes, DOM counts, boolean control
+  presence, and redacted artifact references. It must not store account strings, draft titles,
+  appmsg ids, credential query values, full platform URLs, local runtime directories, transient
+  visual file names, cookies, QR artifacts, or raw article content.
+- Existing-draft editor readback can satisfy only `authenticated-editor-url` and readonly
+  `pc-editor-dom-readback` preconditions when the editor route is reached through the authenticated
+  platform session and login/QR state is absent.
+- A visible `.ProseMirror` body with inline SVG/section/style counts proves that WeChat can expose
+  a rich body DOM for that existing draft, but it does not prove that the current InkForge artifact
+  was pasted, preserved, cleaned up, previewed, synced, or published.
+- Replacement-glyph/mojibake readback is a hard visual badcase. Any live WeChat editor evidence
+  with substantial U+FFFD/replacement-character counts must remain negative fidelity evidence and
+  must not satisfy exact-artifact, PC paste, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled-send, platform-preview, public-rendering, or publish rows.
+- Transient visual screenshots may be used for operator-side diagnosis only when needed. They must
+  be deleted before commit unless explicitly redacted and intentionally added as evidence.
+
+Required checks:
+- Future manifest or audit rows that cite live editor readback must bind the same artifact,
+  channel, action, accepted readback, exact artifact flag, artifact fingerprint, and safe-for-commit
+  proof on the same row before satisfying paste or downstream proof gates.
+- Badcase editor readbacks with replacement-glyph/mojibake evidence must remain cannot-claim rows
+  for style success even if the route, toolbar, and main body DOM are reachable.

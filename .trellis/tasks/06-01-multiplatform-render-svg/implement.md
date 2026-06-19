@@ -5577,6 +5577,56 @@ Boundary:
   credentialed sync, scheduled send, public-host availability, platform preview, public article
   rendering, upload, or publish success.
 
+## 2026-06-20 WeChat Draft Editor Readonly Preflight Slice
+
+Scope:
+- CloakBrowser-only authenticated WeChat backend read-only preflight after reboot/session recovery.
+- Existing draft editor surface and main body DOM were inspected without form fill, paste, save,
+  preview, publish, delete, sync, upload, phone action, or draft mutation.
+
+Execution:
+- Reused the fixed InkForge CloakBrowser profile and opened the authenticated WeChat backend home
+  surface.
+- Entered the official card-list route shape `/cgi-bin/appmsg?action=list_card&type=77`.
+- Confirmed from the public WeChat static bundle that existing draft edit uses route template
+  `/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=10&appmsgid=<redacted>&fromview=list`.
+- Opened an existing draft editor with the real draft id inside the browser only; appmsg id,
+  credential query values, account strings, draft title, full URL, browser runtime directory, and
+  transient visual file names were not recorded.
+
+Readonly evidence:
+- Sanitized editor route shape: `/cgi-bin/appmsg?t=media/appmsg_edit&action=edit&type=10`.
+- Login/QR scan state was absent.
+- Main body `.ProseMirror ProseMirror-focused` was visible with 3948 text chars, 87187 HTML chars,
+  70 SVG nodes, 4 images, 94 sections, 390 inline style attributes, 4 animation-related hits, and
+  no script/iframe/object/embed tags inside the body.
+- Page structure exposed 3 contenteditable nodes, 2 textareas, 53 inputs, 1 iframe, 79 SVG nodes,
+  94 sections, 19 images, 40 linked stylesheets, and 7 style tags.
+- Visual inspection confirmed a nonblank editor: toolbar, left draft/history rail, central canvas,
+  body content, and bottom save/preview/publish controls. Transient screenshots were deleted and
+  not committed.
+
+Finding:
+- The real draft content contained visible replacement-glyph/mojibake blocks. DOM counts found
+  4520 replacement-character hits across main body text/html and 2236 text replacement-character
+  hits.
+- This is negative fidelity evidence. It can prove editor reachability and readonly PC DOM
+  preconditions only; it must not satisfy exact artifact, paste, phone, Dark Mode, cover, sync,
+  scheduled-send, platform-preview, public rendering, or publish proof.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-draft-editor-readonly-preflight-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`,
+  `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is authenticated existing-draft editor reachability proof only.
+- It does not prove InkForge artifact paste, exact artifact preservation, safe draft cleanup,
+  phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync,
+  scheduled send, public-host availability, platform preview, public article rendering, upload, or
+  publish success.
+
 ## 2026-06-19 Style Proof Required Readback Contract Slice
 
 Impact:
