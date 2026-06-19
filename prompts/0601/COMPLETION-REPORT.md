@@ -2387,3 +2387,20 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-06-20 WeChat Official Bad-Case Runtime Audit Addendum
+
+- Added `prompts/0601/evidence/wechat-official-badcase-runtime-audit-20260620.txt`.
+- Confirmed the public-source WeChat editor bad cases are already executable in
+  `detectWechatOfficialEditorSpecIssues()`.
+- Existing local blockers cover line-height-zero, fixed container size, logical text alignment,
+  ordinary prose in `<pre>`, transparent image plus SVG overlay, touchstart-only SVG animation,
+  event handlers, class/id dependency, unsupported CSS, unsafe SVG constructs, SVG text Dark Mode
+  risk, important styles, and layout-report-required.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat official editor structure risks|blocks generic WeChat unsafe" --reporter=default`
+  at 1 file / 2 selected tests, 133 skipped.
+- Boundary: this is local detector/test coverage proof only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, or
+  publish success.

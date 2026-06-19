@@ -4950,6 +4950,33 @@ Boundary:
   credentialed sync, scheduled-send, platform preview, public article rendering, XHS/Zhihu account
   upload, or publish success.
 
+## 2026-06-20 WeChat Official Bad-Case Runtime Audit Slice
+
+Audit:
+- Confirmed the 2026-06-20 public-source rules are already executable in
+  `detectWechatOfficialEditorSpecIssues()`.
+- No source code changed in this slice.
+
+Runtime coverage:
+- Existing blockers cover line-height-zero, fixed container size, logical text alignment, ordinary
+  prose in `<pre>`, transparent image plus SVG overlay, touchstart-only SVG animation, event
+  handlers, class/id dependency, unsupported CSS, unsafe SVG constructs, SVG text Dark Mode risk,
+  important styles, and layout-report-required.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat official editor structure risks|blocks generic WeChat unsafe" --reporter=default`
+  passed with 1 file / 2 selected tests, 133 skipped.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-official-badcase-runtime-audit-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is local detector/test coverage proof only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled-send, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:
