@@ -81,6 +81,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'market editor hosted background source',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-image-inst-wrapper|tn-quick-input(?:-block|-comp)?|tn-page-vessel|tn-group-(?:box-wrapper|sortable-box|fixed-box)|tn-sortable-pin|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active|tn-overflow-hidden|tn-content-overlap)\b[^"']*["']/i,
+    label: 'Xiumi SVG gallery state wrapper residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },

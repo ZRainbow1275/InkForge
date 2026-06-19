@@ -2626,3 +2626,31 @@ Boundary:
 - Boundary: this is local validator/audit/runbook enforcement only. It does not prove credentialed
   sync, scheduled send, platform preview, public article rendering, public URL acceptance,
   XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
+## 2026-06-20 Xiumi SVG Gallery State Wrapper Residue Addendum
+
+- Added `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`.
+- Used CloakBrowser only on the active Xiumi v5 paper editor center state. No save, export, sync,
+  upload, publish, screenshot capture, profile artifact, account artifact, template source, or
+  material URL was recorded.
+- The applied SVG-gallery/game-screen sample exposed `totalNodes=4736`, `tnComp=51`, `tnCell=27`,
+  `tnLayerSlot=2`, `flowCanvas=3`, `imageWrappers=3`, `contenteditable=2`, `imgs=81`,
+  `inlineStyle=347`, `dataOrNgAttrs=5572`, and center inline SVG `0`.
+- Added the dedicated runtime detector label `Xiumi SVG gallery state wrapper residue` for
+  `tn-image-inst-wrapper`, `tn-quick-input-*`, `tn-page-vessel`, `tn-group-sortable-box`,
+  `tn-sortable-pin`, `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`, `tn-overflow-hidden`,
+  and `tn-content-overlap`.
+- TDD first run failed because the detector only emitted generic `Xiumi tn-*` labels. The focused
+  regression then passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG gallery state wrappers" --reporter=default`.
+- Full local verification also passed:
+  focused market-residue regression 4 selected tests, `platform-export-rendering.test.ts`
+  143 tests, four-file cross-platform export regression 182 tests, full `src/services/export`
+  serial run 35 files / 1116 tests, targeted ESLint, `vue-tsc --noEmit`, and production build.
+  Vite built in 30.80s, and generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host availability, or publish success.

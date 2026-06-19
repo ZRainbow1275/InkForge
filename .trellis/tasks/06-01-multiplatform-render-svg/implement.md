@@ -6174,3 +6174,63 @@ Boundary:
 - It does not prove WeChat credentialed sync, scheduled send, platform preview, public article
   rendering, public URL acceptance, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-20 Xiumi SVG Gallery State Wrapper Residue Contract Slice
+
+Scope:
+- CloakBrowser-only Xiumi v5 applied-state refresh plus local quality-detector hardening.
+- No save, export, sync, upload, publish, screenshot capture, browser profile artifact, account
+  artifact, template source, or material URL was recorded.
+
+Observed:
+- Active Xiumi center `.tn-editing-panel` contained an applied SVG-gallery/game-screen sample with
+  `totalNodes=4736`, `tnComp=51`, `tnCell=27`, `tnLayerSlot=2`, `flowCanvas=3`,
+  `imageWrappers=3`, `contenteditable=2`, `imgs=81`, `inlineStyle=347`, `dataOrNgAttrs=5572`,
+  and center inline SVG `0`.
+- Live category labels included SVG interaction families such as image carousel, click-expand,
+  path animation, sliding trigger, parallax movement, click-switch, flip, zoom, quiz, bullet text,
+  click-show, click-image-swap, popup, print, jump, play, long-press, region trigger, drop, and
+  click+auto.
+
+Implementation:
+- Added a dedicated runtime residue label:
+  `Xiumi SVG gallery state wrapper residue`.
+- Blocked Xiumi state/wrapper classes from publishable outputs:
+  `tn-image-inst-wrapper`, `tn-quick-input-*`, `tn-page-vessel`, `tn-group-sortable-box`,
+  `tn-sortable-pin`, `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`, `tn-overflow-hidden`,
+  and `tn-content-overlap`.
+- Added a regression fixture that does not rely on broad `tn-comp` / `tn-cell` wrappers, proving
+  the state-wrapper label is emitted across WeChat, Xiaohongshu, and Zhihu.
+
+Verification:
+- TDD first run failed as expected because the detector only emitted generic `Xiumi tn-*` labels.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG gallery state wrappers" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG gallery state wrappers|Xiumi SVG layer slot|Xiumi SVG carousel|market editor residue" --reporter=default`
+  - PASS: 1 file / 4 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 143 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 182 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1116 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 30.80s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is Xiumi applied-authoring DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

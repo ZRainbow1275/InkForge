@@ -138,6 +138,10 @@ appears in acceptance-audit `cannotClaim`）。
 rerun：点击 SVG 图集/滚动样式后中心 `.tn-editing-panel` 真实变化但 inline SVG 仍为 0；
 `tn-page-slot`、`tn-layer-slot`、`tn-child-position-*`、`tn-child-orientation-*`、`raw-image`
 等细粒度 authoring residue 已落地为跨平台 publish-blocking detector）。
+`xiumi-svg-gallery-state-wrapper-residue-20260620.txt`（CloakBrowser-only Xiumi v5 当前中心区
+SVG 图集/游戏屏样本：`tn-image-inst-wrapper`、`tn-quick-input-*`、`tn-page-vessel`、
+`tn-group-sortable-box`、`tn-sortable-pin`、`tn-state-*`、`tn-on-*` 等运行态包装残留已落地为
+跨平台 publish-blocking detector；不含 profile、账号、截图路径、模板源码或素材 URL）。
 `style-proof-runbook-field-criteria-20260620.txt`（当前规则实现：
 execution runbook success/failure text formats required fields with field-level criteria while
 preserving exact field names; `marketAppliedContentVerified:true` is explained as non-placeholder
@@ -360,6 +364,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
 [x] market-editor-placeholder-only-readback-contract-20260620.txt # 当前规则实现：market-applied-dom-readback also requires marketAppliedContentVerified:true
 [x] xiumi-svg-layer-slot-residue-contract-20260620.txt # CloakBrowser-only Xiumi applied SVG layer-slot/raw-image residue -> runtime blocker
+[x] xiumi-svg-gallery-state-wrapper-residue-20260620.txt # CloakBrowser-only Xiumi applied SVG gallery state-wrapper residue -> runtime blocker
 [x] style-proof-runbook-field-criteria-20260620.txt # 当前规则实现：execution runbook requiredFields use field-level criteria text, not raw names only
 [x] style-proof-phone-blocker-forbidden-contract-20260620.txt # 当前规则实现：phonePreviewBlocked:true is forbidden on matching phone success rows
 [x] style-proof-external-account-blocker-forbidden-contract-20260620.txt # 当前规则实现：externalAccountLoginBlocked:true is forbidden on matching credentialed/publish success rows
@@ -2261,6 +2266,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Added a regression fixture that omits broad `tn-comp` / `tn-cell` wrappers, flow-canvas
   attributes, and Xiumi hosted-media URLs so those fine-grained markers are independently blocked
   across WeChat, Xiaohongshu, and Zhihu.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public host, or publish success.
+
+## 2026-06-20 Xiumi SVG Gallery State Wrapper Residue Contract
+
+- [x] xiumi-svg-gallery-state-wrapper-residue-20260620.txt
+- Used CloakBrowser only on the active Xiumi v5 paper editor center state. The applied
+  SVG-gallery/game-screen sample exposed `totalNodes=4736`, `tnComp=51`, `tnCell=27`,
+  `tnLayerSlot=2`, `flowCanvas=3`, `imageWrappers=3`, `contenteditable=2`, `imgs=81`,
+  `inlineStyle=347`, `dataOrNgAttrs=5572`, and center inline SVG `0`.
+- Converted live state wrappers into a specific runtime residue label:
+  `Xiumi SVG gallery state wrapper residue`.
+- The detector now blocks `tn-image-inst-wrapper`, `tn-quick-input-*`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-state-*`, `tn-on-*`,
+  `tn-in-cell-state-active`, `tn-overflow-hidden`, and `tn-content-overlap` when they appear in
+  WeChat/XHS/Zhihu publishable output.
+- TDD first run failed because the old detector only reported generic `Xiumi tn-*` labels. After
+  the rule update, the focused regression passed.
+- Full verification passed: focused market-residue regression 4 selected tests,
+  `platform-export-rendering.test.ts` 143 tests, four-file cross-platform export regression
+  182 tests, full export serial regression 35 files / 1116 tests, targeted ESLint, `vue-tsc`, and
+  production build. The generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
 - Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
   does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,

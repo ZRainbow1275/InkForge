@@ -192,6 +192,13 @@ construct breaks.
   `contenteditable` text cells. Treat `contenteditable` as an editor runtime surface marker, not
   article semantics. It must be blocked from publishable WeChat/XHS/Zhihu output even when the
   copied fragment has no remaining vendor class, `tn-*`, `ng-*`, or hosted-media marker.
+- 2026-06-20 Xiumi SVG-gallery state-wrapper refresh: the active Xiumi v5 paper editor center
+  `.tn-editing-panel` for an applied SVG-gallery/game-screen sample exposed
+  `tn-image-inst-wrapper`, `tn-quick-input-*`, `tn-page-vessel`, `tn-group-sortable-box`,
+  `tn-sortable-pin`, `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`, `tn-overflow-hidden`,
+  and `tn-content-overlap` classes. Treat these as publish-blocking authoring state wrappers,
+  even when a copied fragment lacks broad `tn-comp` / `tn-cell` wrappers or hosted media URLs.
+  They map to image-slot, editor-state, layout-report, and raster/static fallback contracts only.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
@@ -450,6 +457,10 @@ interface ExportOptions { enableSvgModules?: boolean; svgInjectionPlan?: SvgInje
     imply block ordering, spacing, gap-removal, and static-expanded fallback contracts.
   - Xiumi SVG gallery/action samples may have `svg:0` in the applied editor DOM. Treat them as
     image-slot/layer/action artifacts until InkForge owns a safe SVG implementation.
+  - Xiumi SVG gallery state wrappers such as `tn-image-inst-wrapper`, `tn-page-vessel`,
+    `tn-group-sortable-box`, `tn-sortable-pin`, `tn-state-*`, `tn-on-*`, and
+    `tn-quick-input-*` are not article semantics. They are editor state/slot/fallback signals and
+    must trigger market-editor residue if they appear in publishable output.
   - Any free-layout/layer/background/hit-area effect must produce a layout report with visual
     order, DOM order, text fallback, crop/overflow status, trigger-area status, and target
     platform.
