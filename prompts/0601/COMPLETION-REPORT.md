@@ -2553,6 +2553,35 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
+## 2026-06-20 Xiumi Component Binding Attribute Residue Addendum
+
+- Added `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`.
+- Used CloakBrowser only on the active Xiumi v5 paper editor center state. No save, export, sync,
+  upload, publish, screenshot capture, profile artifact, account artifact, template source, or
+  material URL was recorded.
+- The applied SVG-gallery/game-screen sample exposed `nodeCount=4736`, `imgCount=81`, center inline
+  SVG `0`, `contenteditableCount=2`, and `inlineStyleCount=347`. High-volume component binding
+  attributes included `tn-bind-comp-tpl-id`, `tn-comp-role`, `tn-comp`, `tn-comp-pose`, `tn-uuid`,
+  `tn-animate`, `tn-animate-on-self`, `tn-cell-type`, `tn-child-position`,
+  `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`, `tn-atom-context`,
+  `tn-link`, and `tn-image-usage`.
+- Added the dedicated runtime detector label `Xiumi component binding attribute residue` before the
+  generic `Xiumi tn-* attribute` fallback.
+- TDD first run failed because the detector only emitted generic `Xiumi tn-* attribute`. The
+  focused regression then passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes" --reporter=default`.
+- Full local verification also passed: adjacent market-residue regression 9 selected tests,
+  `platform-export-rendering.test.ts` 144 tests, four-file cross-platform export regression
+  183 tests, full `src/services/export` serial run 35 files / 1117 tests, targeted ESLint,
+  `vue-tsc --noEmit`, and production build. Vite built in 31.97s, and generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host availability, or publish success.
 ---
 
 ## 2026-06-20 Market Fallback Catalog Contract Addendum

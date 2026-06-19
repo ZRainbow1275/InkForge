@@ -2295,6 +2295,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public host, or publish success.
 
+## 2026-06-20 Xiumi Component Binding Attribute Residue Contract
+
+- [x] xiumi-component-binding-attribute-residue-20260620.txt
+- Used CloakBrowser only on the active Xiumi v5 paper editor center state. The applied
+  SVG-gallery/game-screen sample still exposed `nodeCount=4736`, `imgCount=81`, center inline SVG
+  `0`, `contenteditableCount=2`, and `inlineStyleCount=347`.
+- Converted component/runtime binding attributes into a specific runtime residue label:
+  `Xiumi component binding attribute residue`.
+- The detector now blocks `tn-bind-comp-tpl-id`, `tn-comp-role`, `tn-comp`, `tn-comp-pose`,
+  `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`, `tn-child-position`,
+  `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`, `tn-atom-context`,
+  `tn-link`, and `tn-image-usage` before falling back to generic `Xiumi tn-* attribute`.
+- TDD first run failed because the old detector only reported generic `Xiumi tn-* attribute`.
+  After the rule update, the focused regression passed.
+- Full verification passed: focused component-binding regression 1 selected test, adjacent
+  market-residue regression 9 selected tests, `platform-export-rendering.test.ts` 144 tests,
+  four-file cross-platform export regression 183 tests, full export serial regression 35 files /
+  1117 tests, targeted ESLint, `vue-tsc`, and production build. The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-06-20 Phone Preview Blocker Forbidden Contract
 
 - [x] style-proof-phone-blocker-forbidden-contract-20260620.txt

@@ -1,0 +1,80 @@
+Xiumi Component Binding Attribute Residue Contract - 2026-06-20
+
+Scope:
+- CloakBrowser-only learning pass on the active Xiumi v5 paper editor center state.
+- Local runtime detector hardening for publishable WeChat, Xiaohongshu, and Zhihu outputs.
+- No save, export, sync, upload, publish, screenshot capture, browser profile artifact, account
+  artifact, token, cookie, HAR, QR material, private template source, or material URL was recorded.
+
+Observed Center State:
+- Page title: Xiumi v5 paper editor, untitled article.
+- Applied sample family: SVG gallery / game-screen style sample.
+- Center `.tn-editing-panel` text identified SVG gallery scrolling semantics.
+- Center metrics:
+  - nodeCount=4736
+  - imgCount=81
+  - svgCount=0
+  - contenteditableCount=2
+  - inlineStyleCount=347
+- Representative live component binding attributes:
+  - tn-bind-comp-tpl-id
+  - tn-comp-role
+  - tn-comp
+  - tn-comp-pose
+  - tn-uuid
+  - tn-animate
+  - tn-animate-on-self
+  - tn-cell-type
+  - tn-child-position
+  - tn-child-orientation
+  - tn-page-stage-size
+  - tn-page-cache-gatherer
+  - tn-atom-context
+  - tn-link
+  - tn-image-usage
+
+Implemented:
+- Added a dedicated market-editor residue rule:
+  Xiumi component binding attribute residue.
+- The rule blocks component/runtime binding attributes before the generic Xiumi tn-* attribute
+  fallback, so quality reports identify copied Xiumi runtime schema directly.
+- Added a regression fixture that avoids broad tn-comp / tn-cell class dependence and asserts the
+  new label across WeChat, Xiaohongshu, and Zhihu.
+
+TDD:
+- First focused run failed before the detector update:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes" --reporter=default
+  Failure: the report only named generic Xiumi tn-* attribute, not the component-binding rule.
+- After the detector update, the focused regression passed:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes" --reporter=default
+  PASS: 1 file / 1 selected test.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes|Xiumi applied-editor runtime binding|Xiumi SVG gallery state wrappers|Xiumi SVG layer slot|Xiumi SVG carousel|market editor residue|135 SVG" --reporter=default
+  PASS: 1 file / 9 selected tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 144 tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 183 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1117 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 31.97s.
+- Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
+
+Rule Translation:
+- Treat these bindings as Xiumi authoring/runtime schema, not article semantics.
+- Convert them into InkForge-owned component-family metadata, layout reports, image-slot manifests,
+  static/raster fallback, or editor-state diagnostics.
+- Do not copy Xiumi source attributes, Angular bindings, hidden state wrappers, hosted material
+  URLs, component UUIDs, animation bindings, or template geometry into runtime output.
+
+Boundary:
+- This proves local detector enforcement and market-authoring rule extraction only.
+- It does not prove WeChat paste, WeChat phone preview, mobile SMIL/click/tap/swipe/long-press,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public article
+  rendering, XHS/Zhihu account upload, public-host acceptance, or publish success.

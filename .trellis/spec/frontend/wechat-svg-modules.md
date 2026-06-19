@@ -2078,6 +2078,13 @@ Contracts:
   `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
   `tn-child-orientation-fixed/flow-canvas`, and `raw-image` must remain market-editor residue even
   if broad `tn-comp` / `tn-cell` wrappers or Xiumi CDN URLs are stripped.
+- 2026-06-20 Xiumi component-binding refresh: the same active applied center state exposed
+  high-volume component binding attributes such as `tn-bind-comp-tpl-id`, `tn-comp-role`,
+  `tn-comp`, `tn-comp-pose`, `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`,
+  `tn-child-position`, `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`,
+  `tn-atom-context`, `tn-link`, and `tn-image-usage`. These attributes are Xiumi authoring/runtime
+  bindings. They must fail as `Xiumi component binding attribute residue`, not only as a generic
+  `Xiumi tn-* attribute`, when they appear in WeChat/XHS/Zhihu publishable output.
 - 2026-06-20 Xiumi SVG taxonomy deep pass: the SVG category exposed families such as basic SVG,
   image carousel, click-expand, path animation, draw/lottery, sliding, transition, branch
   transition, scroll trigger, parallax, click switch, flip/turn page, zoom, click quiz, bullet text,
@@ -2125,8 +2132,9 @@ Required tests/checks:
   `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
   `tn-group-usage-flow-canvas`, `tn-page-slot`, `tn-layer-slot`,
   `tn-child-position-absolute/static`, `tn-child-orientation-fixed/flow-canvas`, `raw-image`,
-  `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`, `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and
-  `disable-tn-*` in publishable output.
+  `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`, `tn-bind-comp-tpl-id`, component-binding
+  attributes such as `tn-uuid` / `tn-animate` / `tn-cell-type` / `tn-child-position`,
+  `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in

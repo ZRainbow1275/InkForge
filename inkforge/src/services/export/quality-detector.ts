@@ -89,6 +89,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi tn-* authoring tree',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:bind-comp-(?:tpl-id|index)|comp(?:-role|-index|-pose)?|uuid|animate(?:-on-self)?|cell(?:-type)?|child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context|link|image(?:-usage)?)\s*=/i,
+    label: 'Xiumi component binding attribute residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,
     label: 'Xiumi tn-* attribute',
   },

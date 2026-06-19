@@ -781,6 +781,12 @@ Xiumi SVG/H5 rules:
   and `tn-content-overlap`. These state wrappers must be blocked from WeChat/XHS/Zhihu
   publishable output and translated only into InkForge-owned image-slot manifests, layout reports,
   static/raster fallback, or editor-state diagnostics.
+- 2026-06-20 Xiumi component-binding refresh: the same applied center state exposed component
+  binding attributes such as `tn-bind-comp-tpl-id`, `tn-comp-role`, `tn-comp`, `tn-comp-pose`,
+  `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`, `tn-child-position`,
+  `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`, `tn-atom-context`,
+  `tn-link`, and `tn-image-usage`. These bindings are editor/runtime schema and must be blocked as
+  `Xiumi component binding attribute residue` if copied into WeChat/XHS/Zhihu output.
 - 2026-06-20 executable fallback-catalog contract: the market SVG/H5/rich-layout family is visible
   in the runtime style catalog only as blocked fallback choices:
   `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
@@ -797,5 +803,6 @@ Evidence:
 - `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`
+- `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

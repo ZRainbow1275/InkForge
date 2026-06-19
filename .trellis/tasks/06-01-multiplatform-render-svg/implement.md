@@ -6037,6 +6037,69 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+
+## 2026-06-20 Xiumi Component Binding Attribute Residue Contract Slice
+
+Scope:
+- CloakBrowser-only Xiumi v5 applied-state refresh plus local quality-detector hardening.
+- No save, export, sync, upload, publish, screenshot capture, browser profile artifact, account
+  artifact, template source, or material URL was recorded.
+
+Observed:
+- Active Xiumi center `.tn-editing-panel` still contained the applied SVG-gallery/game-screen
+  sample with `nodeCount=4736`, `imgCount=81`, `svgCount=0`, `contenteditableCount=2`, and
+  `inlineStyleCount=347`.
+- High-volume component/runtime binding attributes included `tn-bind-comp-tpl-id`, `tn-comp-role`,
+  `tn-comp`, `tn-comp-pose`, `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`,
+  `tn-child-position`, `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`,
+  `tn-atom-context`, `tn-link`, and `tn-image-usage`.
+
+Impact:
+- `npx gitnexus impact -r InkForge MARKET_EDITOR_RESIDUE_RULES --direction upstream` reported LOW
+  risk with 0 affected processes.
+
+Implementation:
+- Added a dedicated runtime residue label:
+  `Xiumi component binding attribute residue`.
+- The new rule reports component-binding attributes before the generic `Xiumi tn-* attribute`
+  fallback, so WeChat/XHS/Zhihu quality reports point to copied Xiumi runtime schema instead of a
+  generic `tn-*` bucket.
+- Added a regression fixture without broad `tn-comp` / `tn-cell` class wrappers, proving the
+  attribute-only component-binding shell is blocked across WeChat, Xiaohongshu, and Zhihu.
+
+Verification:
+- TDD first run failed as expected because the detector only emitted generic `Xiumi tn-* attribute`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi component binding attributes|Xiumi applied-editor runtime binding|Xiumi SVG gallery state wrappers|Xiumi SVG layer slot|Xiumi SVG carousel|market editor residue|135 SVG" --reporter=default`
+  - PASS: 1 file / 9 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 144 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 183 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1117 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 31.97s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is Xiumi applied-authoring DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.
+
 ## 2026-06-20 Market Fallback Catalog Contract Slice
 
 Scope:

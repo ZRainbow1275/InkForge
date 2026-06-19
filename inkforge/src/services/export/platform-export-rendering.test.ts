@@ -211,6 +211,16 @@ const MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<article tn-bind-comp-tpl-id="edit_paper-cp:sys-edit/loader-multi-pages" tn-comp-role="cube" tn-comp="comp" tn-comp-pose="compConstraint.pose.tplPose || compAttr.pose" tn-uuid="cube-redacted" tn-animate="compAttr.anim">',
+  '<div tn-cell-type="group" tn-child-position="absolute" tn-cell="layers" tn-animate-on-self="true">',
+  '<section tn-link="cell.link" tn-page-stage-size="board_spread">Xiumi component binding shell</section>',
+  '</div>',
+  '</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div contenteditable="true">Copied editor text cell</div>',
@@ -6361,6 +6371,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi SVG gallery state wrapper residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi SVG gallery state wrapper residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi component binding attributes from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi component binding attribute residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi component binding attribute residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi component binding attribute residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
