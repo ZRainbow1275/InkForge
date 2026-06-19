@@ -1,0 +1,60 @@
+Xiumi SVG Layer Slot Residue Contract - 2026-06-20
+
+Scope:
+- CloakBrowser-only Xiumi SVG applied-element inspection and local quality-detector hardening.
+- This file records redacted DOM metrics and executable detector behavior only.
+- No platform publish action, account upload, phone preview, sync, scheduled send, screenshot,
+  network capture, QR material, credential material, browser runtime artifact, or private editor
+  source is recorded here.
+
+CloakBrowser observation:
+- Active page: Xiumi v5 paper editor, SVG category visible.
+- Clicked visible SVG item labelled as an SVG interactive effect for a game-screen image carousel.
+- Public taxonomy readback from the visible item:
+  - component family: SVG gallery
+  - behavior/function family: gallery scrolling
+  - image ratio hint: 1080x720
+- Center `.tn-editing-panel` changed after click:
+  - `htmlLength +31920`
+  - `textLength +126`
+  - `tnComp +15`
+  - `tnCell +18`
+  - `img +3`
+  - `contenteditable +1`
+  - `svg +0`
+- Applied center authoring DOM included Xiumi layer/slot/image markers:
+  - `tn-svg-animation-carousel`
+  - `tn-group-usage-flow-canvas`
+  - `tn-child-position-absolute`
+  - `tn-child-position-static`
+  - `tn-child-orientation-fixed`
+  - `tn-page-slot`
+  - `tn-layer-slot`
+  - `raw-image`
+  - `opera-tn-ra-*`
+  - Angular `ng-*`
+  - `statics.xiumi.us` references
+
+Implemented:
+- Added a market-editor residue rule labelled `Xiumi SVG layer slot residue`.
+- The rule blocks copied class/id residue for:
+  - `tn-page-slot`
+  - `tn-layer-slot`
+  - `tn-child-position-absolute`
+  - `tn-child-position-static`
+  - `tn-child-orientation-fixed`
+  - `tn-child-orientation-flow-canvas`
+  - `raw-image`
+- Added a regression fixture that intentionally omits broad `tn-comp`, `tn-cell`, flow-canvas
+  attributes, and Xiumi hosted media URLs. The fine-grained layer-slot/raw-image markers alone must
+  emit platform-specific market-editor residue issues.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG layer slot|Xiumi SVG carousel" --reporter=default`
+  PASS: 1 file / 2 selected tests / 137 skipped
+
+Boundary:
+- This proves Xiumi applied-authoring DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, public-host availability, or publish success.

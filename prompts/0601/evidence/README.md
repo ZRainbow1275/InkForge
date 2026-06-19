@@ -134,6 +134,10 @@ image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/r
 `market-applied-dom-readback` requires same-row `marketAppliedContentVerified:true`; a changed
 135/Xiumi center canvas that is only placeholder/listing/no-material evidence stays invalid and
 appears in acceptance-audit `cannotClaim`）。
+`xiumi-svg-layer-slot-residue-contract-20260620.txt`（CloakBrowser-only Xiumi SVG applied-element
+rerun：点击 SVG 图集/滚动样式后中心 `.tn-editing-panel` 真实变化但 inline SVG 仍为 0；
+`tn-page-slot`、`tn-layer-slot`、`tn-child-position-*`、`tn-child-orientation-*`、`raw-image`
+等细粒度 authoring residue 已落地为跨平台 publish-blocking detector）。
 `style-proof-runbook-field-criteria-20260620.txt`（当前规则实现：
 execution runbook success/failure text formats required fields with field-level criteria while
 preserving exact field names; `marketAppliedContentVerified:true` is explained as non-placeholder
@@ -347,6 +351,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
 [x] market-editor-placeholder-only-readback-contract-20260620.txt # 当前规则实现：market-applied-dom-readback also requires marketAppliedContentVerified:true
+[x] xiumi-svg-layer-slot-residue-contract-20260620.txt # CloakBrowser-only Xiumi applied SVG layer-slot/raw-image residue -> runtime blocker
 [x] style-proof-runbook-field-criteria-20260620.txt # 当前规则实现：execution runbook requiredFields use field-level criteria text, not raw names only
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
@@ -2232,3 +2237,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, public host, or publish success.
+
+## 2026-06-20 Xiumi SVG Layer Slot Residue Contract
+
+- [x] xiumi-svg-layer-slot-residue-contract-20260620.txt
+- Used CloakBrowser only on the Xiumi v5 paper editor SVG category.
+- Clicked a visible SVG gallery/scrolling item. The center `.tn-editing-panel` changed by
+  `htmlLength +31920`, `tnComp +15`, `tnCell +18`, `img +3`, and `contenteditable +1`, while
+  center inline SVG stayed `0`.
+- Converted the observed fine-grained Xiumi authoring markers into a runtime residue blocker:
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed/flow-canvas`, and `raw-image`.
+- Added a regression fixture that omits broad `tn-comp` / `tn-cell` wrappers, flow-canvas
+  attributes, and Xiumi hosted-media URLs so those fine-grained markers are independently blocked
+  across WeChat, Xiaohongshu, and Zhihu.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public host, or publish success.

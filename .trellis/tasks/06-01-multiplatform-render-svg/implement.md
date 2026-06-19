@@ -5983,3 +5983,57 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+
+## 2026-06-20 Xiumi SVG Layer Slot Residue Contract Slice
+
+Scope:
+- Continued market-editor learning with CloakBrowser only.
+- Used the active authenticated Xiumi v5 paper editor SVG category and clicked a visible SVG
+  gallery/scrolling item.
+
+CloakBrowser evidence:
+- The clicked item was visible in the SVG category and described an SVG interactive gallery/scrolling
+  effect with SVG-gallery component family, gallery-scrolling function, and a 1080x720 image-ratio
+  hint.
+- Center `.tn-editing-panel` changed after click:
+  - `htmlLength +31920`
+  - `textLength +126`
+  - `tnComp +15`
+  - `tnCell +18`
+  - `img +3`
+  - `contenteditable +1`
+  - `svg +0`
+- Applied center authoring markers included `tn-svg-animation-carousel`,
+  `tn-group-usage-flow-canvas`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed`, `tn-page-slot`, `tn-layer-slot`, `raw-image`,
+  `opera-tn-ra-*`, Angular `ng-*`, and `statics.xiumi.us` references.
+
+Impact:
+- `npx gitnexus impact -r InkForge MARKET_EDITOR_RESIDUE_RULES --direction upstream` reported LOW
+  risk with 0 affected processes.
+
+Implementation:
+- Added `Xiumi SVG layer slot residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The new rule blocks fine-grained copied Xiumi authoring markers:
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed/flow-canvas`, and `raw-image`.
+- Added a regression fixture that intentionally omits broad `tn-comp` / `tn-cell` wrappers,
+  flow-canvas attributes, and Xiumi hosted-media URLs, proving the fine-grained layer-slot/raw-image
+  markers alone emit platform-specific market-editor residue issues.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG layer slot|Xiumi SVG carousel" --reporter=default`
+  passed with 1 file / 2 selected tests / 137 skipped.
+
+Artifacts:
+- Added `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md`.
+
+Boundary:
+- This is Xiumi applied-authoring DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

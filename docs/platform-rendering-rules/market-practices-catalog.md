@@ -769,10 +769,17 @@ Xiumi SVG/H5 rules:
   proof.
 - `tn-*`, `ng-*`, Xiumi material URLs, action/layer authoring classes, free-layout canvas classes,
   and editor runtime attributes are residue blockers, not exportable structure.
+- 2026-06-20 Xiumi SVG layer-slot rerun: a clicked SVG gallery/scrolling sample changed the center
+  `.tn-editing-panel` by `htmlLength +31920`, `tnComp +15`, `tnCell +18`, `img +3`, and
+  `contenteditable +1`, while inline SVG stayed `0`. Fine-grained authoring markers such as
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed/flow-canvas`, and `raw-image` are residue blockers even when broad
+  `tn-comp` / `tn-cell` wrappers or hosted-media URLs are absent.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
 Evidence:
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`
 - `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`
+- `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

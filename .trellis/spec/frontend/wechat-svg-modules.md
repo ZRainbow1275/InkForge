@@ -2043,6 +2043,12 @@ Contracts:
   than literal inline SVG in the active authoring DOM. Treat Xiumi labels such as component type,
   behavior, interaction channel, and image ratio as catalog metadata for InkForge-owned renderers;
   never treat the authoring DOM shape as WeChat paste proof.
+- 2026-06-20 Xiumi SVG layer-slot rerun: clicking a visible SVG gallery/scrolling item changed the
+  center `.tn-editing-panel` by `htmlLength +31920`, `tnComp +15`, `tnCell +18`, `img +3`, and
+  `contenteditable +1`, while center inline SVG stayed `0`. Fine-grained markers such as
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed/flow-canvas`, and `raw-image` must remain market-editor residue even
+  if broad `tn-comp` / `tn-cell` wrappers or Xiumi CDN URLs are stripped.
 - 2026-06-20 Xiumi SVG taxonomy deep pass: the SVG category exposed families such as basic SVG,
   image carousel, click-expand, path animation, draw/lottery, sliding, transition, branch
   transition, scroll trigger, parallax, click switch, flip/turn page, zoom, click quiz, bullet text,
@@ -2080,8 +2086,10 @@ Required tests/checks:
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
   `placeholder__name`, `ant-tooltip-open`, `tn-*`, `tn-svg-animation-*`,
   `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
-  `tn-group-usage-flow-canvas`, `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`,
-  `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
+  `tn-group-usage-flow-canvas`, `tn-page-slot`, `tn-layer-slot`,
+  `tn-child-position-absolute/static`, `tn-child-orientation-fixed/flow-canvas`, `raw-image`,
+  `tn-yzk-font-*`, `tn-placeholder`, `tn-comp-role`, `tn-bind-comp-tpl-id`, `opera-tn-ra-*`, and
+  `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
 - Every platform style choice must expose the matching market-residue quality issue in

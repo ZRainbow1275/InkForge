@@ -2533,3 +2533,23 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, public-host availability, or publish success.
+
+## 2026-06-20 Xiumi SVG Layer Slot Residue Contract Addendum
+
+- Added `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`.
+- Used CloakBrowser only on the authenticated Xiumi v5 paper editor SVG category.
+- Clicked a visible SVG gallery/scrolling item and read the center `.tn-editing-panel` delta:
+  `htmlLength +31920`, `tnComp +15`, `tnCell +18`, `img +3`, `contenteditable +1`, and center
+  inline SVG still `0`.
+- Added runtime residue detection for fine-grained Xiumi SVG layer-slot authoring markers:
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-absolute/static`,
+  `tn-child-orientation-fixed/flow-canvas`, and `raw-image`.
+- Added a regression proving those markers are blocked across WeChat, Xiaohongshu, and Zhihu even
+  without broad `tn-comp` / `tn-cell` wrappers, flow-canvas attributes, or Xiumi hosted-media URLs.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi SVG layer slot|Xiumi SVG carousel" --reporter=default`
+  at 1 file / 2 selected tests / 137 skipped.
+- Boundary: this is Xiumi applied-authoring DOM learning and local detector enforcement only. It
+  does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host availability, or publish success.
