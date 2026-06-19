@@ -43,7 +43,7 @@
 - 2026-06-09 已新增 `getPlatformStyleProofCollectionQueue()`：它把 collection plan 按有序 gate 分组，输出 `nextGate` / `nextSafeGate`、gate-level choice ids、blocked choice count、mutating/external-account/phone/safe-to-automate counts。CloakBrowser runtime smoke 动态导入真实 Vite 模块读回 WeChat 143 steps / 6 gates、XHS 38 steps / 3 gates、Zhihu 43 steps / 5 gates；ExportModal 样式能力摘要与 preflight 已显示“下一步 本地证据”。该 queue 只用于真实 proof collection 排程，不升级 blocked 样式，也不证明平台粘贴、手机预览、同步或发布完成。
 - 2026-06-09 已新增 `getPlatformStyleProofProgressReport(platform, manifests)`：它接收真实 redacted `StyleProofManifest`，按 platform / style choice / gate 聚合 satisfied、missing、invalid、accepted、sensitive 与 unsafe-commit 进度；跨平台或未知 choice manifests 会进入 `ignoredManifestCount`，不会污染当前平台。该 report 复用 `getStyleProofManifestReport()`，只做本地 proof accounting，不改变 `selectable` / `usable` / `blocked` / `unavailable`，也不证明平台粘贴、手机预览、同步、上传、public host acceptance 或发布完成。Focused Vitest 已通过 1 file / 62 tests。
 - 2026-06-09 已新增 `getStyleProofManifestPackReport(manifests)`：它把一组 redacted manifests 汇总为 WeChat / Xiaohongshu / Zhihu 三个平台的 progress reports，并额外报告 unknown choices、platform/choice mismatch、duplicate artifact ids 与 same-choice fingerprint mismatch；blocked/unavailable catalog choice 即使证据齐全也保持 invalid progress，不计入 `proofSatisfiedChoices`。该 pack report 是后续真实证据收集器的本地 intake/accounting 边界，不把 evidence-label-only manifest 自动套到所有 choice，也不改变 `selectable` / `usable` / `blocked` / `unavailable`。Focused Vitest 已通过 1 file / 65 tests。
-- 2026-06-09 已补强强证据门禁负向回归：`validateStyleProofManifest()` 不再允许 authenticated editor、PC DOM、local browser 或 PC ClipboardEvent readback 仅凭 matching `requirementId` 满足 `safe-disposable-draft`、`mobile-preview`、`credentialed-sync` 或 `published` gates；`safe-disposable-draft` 需要显式 `action:'safe-disposable-draft'`，`cover-thumbnail-check` 需要 `phone-preview`，`sync-readback` 需要 `credentialed-channel`，`published-url-or-platform-preview` 需要 `public-web` 或 `phone-preview`。Focused Vitest 已通过 1 file / 66 tests。
+- 2026-06-09 已补强强证据门禁负向回归：`validateStyleProofManifest()` 不再允许 authenticated editor、PC DOM、local browser 或 PC ClipboardEvent readback 仅凭 matching `requirementId` 满足 `safe-disposable-draft`、`mobile-preview`、`credentialed-sync` 或 `published` gates；`safe-disposable-draft` 需要显式 `action:'safe-disposable-draft'`，`cover-thumbnail-check` 需要 `phone-preview`，`sync-readback` 需要 `credentialed-channel` 与正向外部账户认证读回，`published-url-or-platform-preview` 需要 `public-web` 或 `credentialed-channel` 与正向外部账户认证读回；`phone-preview` 不再满足 publish/platform-preview 行。Focused Vitest 已通过 1 file / 66 tests。
 - 2026-06-09 已把 135/秀米 applied-element 学习落到三平台 runtime 残留阻断：`quality-detector.ts` 现在分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`。该规则阻断市场 authoring DOM、`tn-*`/`ng-*` 属性和第三方市场素材源；普通文字提到 135/秀米不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出，blocked/unavailable 样式卡保持 disabled。
 - 2026-06-09 已把 135/秀米 applied-element 的图层/自由布局风险落到 WeChat runtime 门禁：`quality-detector.ts` 现在输出 `wechat-layout-report-required`，阻断自由定位、z-order、背景图层、裁切、固定几何、手动位移、负 margin 和隐藏触发区，要求 readable DOM order、文本 fallback、crop/overflow/trigger-area 证明或 raster/long-image fallback；普通自有 inline flow 色块不误报。CloakBrowser 本地首页/工作站/导出面板视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
 - 2026-06-09 已把小红书图片页/封面/长图 artifact manifest 落到 runtime preflight：`XhsImageArtifactManifest` 与 `validateXhsImageArtifactManifest()` 阻断页序、封面、文件存在性、正文引用、比例/尺寸、格式、bytes 和裁切问题；`convertToNativeFormat(..., 'xiaohongshu')` 可返回 `artifacts.xiaohongshuImageManifest`，但该字段只证明本地 artifact 预检，不升级为小红书上传、手机预览或发布完成。CloakBrowser `inkforge-0601` 本地首页/工作站/导出面板/小红书页签视觉检查通过，无水平溢出、无 emoji、可见控件非零尺寸。
@@ -1394,3 +1394,28 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 - Boundary: this is local validator/runbook proof only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public
   article rendering, or publish success.
+
+## 2026-06-19 External Account Proof Contract Validator Addendum
+
+- Added `prompts/0601/evidence/external-account-proof-contract-validator-20260619.txt`.
+- Added validator issue `style-proof-manifest-external-account-auth-missing`.
+- `credentialed-channel-response` and `sync-readback` now require a same-artifact
+  `externalAccountAuthenticated:true` readback, matching their runbook required fields.
+- `published-url-or-platform-preview` now accepts only `public-web` or `credentialed-channel`
+  proof with `externalAccountAuthenticated:true`; `phone-preview` is mobile-preview evidence only.
+- Regression coverage proves missing positive external account authentication invalidates
+  credentialed sync, sync readback, and publish/platform-preview rows.
+- Regression coverage also proves `phone-preview` cannot satisfy publish/platform-preview, and
+  each explicit external-account blocker works independently:
+  `externalAccountLoginBlocked:true`, `externalAccountAuthenticated:false`, and
+  `action:'external-account-login-readback'`.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 108 tests.
+- 4-file cross-platform export regression passed at 4 files / 147 tests.
+- Full export serial regression passed at 35 files / 1081 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/runbook proof only. It does not prove account authentication,
+  upload surface availability, public-host acceptance, platform preview, public article rendering,
+  scheduled-send, or publish success.

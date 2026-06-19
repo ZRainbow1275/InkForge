@@ -2751,6 +2751,54 @@ Boundary:
   WeChat Ctrl+V rich HTML/SVG acceptance, credentialed sync, scheduled-send, XHS/Zhihu account
   upload, public host acceptance, or publish success.
 
+## 2026-06-19 External Account Proof Contract Validator Slice
+
+Impact:
+- `npx gitnexus impact validateStyleProofRequirementCoverage -r InkForge -d upstream --include-tests`
+  reported LOW risk, 7 impacted symbols, 1 direct dependent, and 1 affected process
+  (`progressChoices`).
+- `npx gitnexus impact STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted symbols, and 0 affected processes.
+
+Implementation:
+- Added validator issue `style-proof-manifest-external-account-auth-missing`.
+- Added a local helper that requires positive `externalAccountAuthenticated:true` for proof rows
+  whose execution contract already lists that field as required.
+- Tightened `credentialed-channel-response` and `sync-readback` so matching channel/action/readback
+  is insufficient unless the same proof artifact also records positive external account
+  authentication readback.
+- Tightened `published-url-or-platform-preview` so only `public-web` or `credentialed-channel`
+  proof can satisfy the row; `phone-preview` proof remains scoped to mobile preview and cannot
+  satisfy platform-publish.
+- Updated the WeChat positive published-preview fixture to carry
+  `externalAccountAuthenticated:true`.
+
+Regression coverage:
+- Missing positive external account authentication invalidates `credentialed-channel-response`,
+  `sync-readback`, and `published-url-or-platform-preview`.
+- A `phone-preview` shaped artifact cannot satisfy `published-url-or-platform-preview`, even with
+  positive-looking phone preview fields.
+- Single-factor blocker tests cover `externalAccountLoginBlocked:true`,
+  `externalAccountAuthenticated:false`, and `action:'external-account-login-readback'`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed with 1 file, 108 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed with 4 files, 147 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed with 35 files, 1081 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, Vite built in 26.28s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build dirtied the generated cache.
+
+Boundary:
+- This is local validator/runbook proof only.
+- It does not prove account authentication, upload surface availability, public-host acceptance,
+  platform preview, public article rendering, scheduled-send, or publish success.
+
 ## 2026-06-19 WeChat Session Relogin CloakBrowser Readback Slice
 
 Scope:

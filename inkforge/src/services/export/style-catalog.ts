@@ -245,6 +245,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-market-editor-not-applied'
   | 'style-proof-manifest-authenticated-session-not-verified'
   | 'style-proof-manifest-external-account-login-blocked'
+  | 'style-proof-manifest-external-account-auth-missing'
   | 'style-proof-manifest-platform-editor-target-not-verified'
   | 'style-proof-manifest-platform-editor-dom-not-verified'
   | 'style-proof-manifest-ordinary-paste-not-verified'
@@ -283,6 +284,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-market-editor-not-applied',
   'style-proof-manifest-authenticated-session-not-verified',
   'style-proof-manifest-external-account-login-blocked',
+  'style-proof-manifest-external-account-auth-missing',
   'style-proof-manifest-platform-editor-target-not-verified',
   'style-proof-manifest-platform-editor-dom-not-verified',
   'style-proof-manifest-ordinary-paste-not-verified',
@@ -2681,9 +2683,34 @@ function isExternalAccountLoginBlockedStyleProofArtifact(artifact: StyleProofArt
     || artifact.action === 'external-account-login-readback'
 }
 
+function isExternalAccountAuthenticatedStyleProofArtifact(artifact: StyleProofArtifact): boolean {
+  return artifact.externalAccountAuthenticated === true
+}
+
 function isPhonePreviewBlockedStyleProofArtifact(artifact: StyleProofArtifact): boolean {
   return artifact.phonePreviewBlocked === true
     || artifact.action === 'phone-preview-entry-readback'
+}
+
+function requireExternalAccountAuthenticatedStyleProof(
+  issues: QualityIssue[],
+  requirementId: StyleProofRequirementId,
+  candidateFound: boolean,
+  authenticatedCandidateFound: boolean,
+): void {
+  if (!candidateFound) {
+    requireStyleProof(issues, requirementId, false)
+    return
+  }
+
+  if (!authenticatedCandidateFound) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-external-account-auth-missing',
+      message: 'External account proof does not prove that the platform account was authenticated for the exact proof row.',
+      suggestion: 'Set externalAccountAuthenticated:true only after the real credentialed editor, upload surface, platform preview, public URL, or published result is authenticated and read back for the exact artifact.',
+      location: requirementId,
+    })
+  }
 }
 
 function validateStyleProofRequirementCoverage(
@@ -3071,24 +3098,39 @@ function validateStyleProofRequirementCoverage(
       break
     }
     case 'credentialed-channel-response':
-      requireStyleProof(issues, requirementId, has(artifact =>
+      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'credentialed-sync'
         && artifact.channel === 'credentialed-channel'
         && artifact.readback === 'api-response'
+      ), has(artifact =>
+        artifact.action === 'credentialed-sync'
+        && artifact.channel === 'credentialed-channel'
+        && artifact.readback === 'api-response'
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
     case 'sync-readback':
-      requireStyleProof(issues, requirementId, has(artifact =>
+      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'sync-readback'
         && artifact.channel === 'credentialed-channel'
         && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
+      ), has(artifact =>
+        artifact.action === 'sync-readback'
+        && artifact.channel === 'credentialed-channel'
+        && (artifact.readback === 'api-response' || artifact.readback === 'dom' || artifact.readback === 'visual-and-dom')
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
     case 'published-url-or-platform-preview':
-      requireStyleProof(issues, requirementId, has(artifact =>
+      requireExternalAccountAuthenticatedStyleProof(issues, requirementId, has(artifact =>
         artifact.action === 'published-preview'
-        && (artifact.channel === 'public-web' || artifact.channel === 'phone-preview')
+        && (artifact.channel === 'public-web' || artifact.channel === 'credentialed-channel')
         && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
+      ), has(artifact =>
+        artifact.action === 'published-preview'
+        && (artifact.channel === 'public-web' || artifact.channel === 'credentialed-channel')
+        && (artifact.readback === 'published-url' || isVisualReadback(artifact.readback))
+        && isExternalAccountAuthenticatedStyleProofArtifact(artifact)
       ))
       break
     case 'public-image-host':

@@ -940,6 +940,7 @@ describe('platform native export rendering rules', () => {
           action: 'published-preview',
           readback: 'published-url',
           artifactFingerprint: 'sha256:redacted-amber-artifact',
+          externalAccountAuthenticated: true,
           safeForCommit: true,
         },
         {
@@ -3259,6 +3260,177 @@ describe('platform native export rendering rules', () => {
     expect(report.artifacts.find(artifact =>
       artifact.artifact.id === 'xhs-login-gate-publish-readback',
     )?.status).toBe('invalid')
+    expect(publishAudit?.status).toBe('invalid')
+    expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+  })
+
+  it('requires positive external account authentication for credentialed sync and published proof rows', () => {
+    const artifactFingerprint = 'sha256:redacted-external-auth-missing'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['credentialed-sync', 'published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'credentialed-response-without-auth',
+          requirementId: 'credentialed-channel-response',
+          kind: 'channel-response',
+          label: 'credentialed response without authenticated account readback',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'credentialed-sync',
+          readback: 'api-response',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+        {
+          id: 'sync-readback-without-auth',
+          requirementId: 'sync-readback',
+          kind: 'editor-readback',
+          label: 'sync readback without authenticated account readback',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'sync-readback',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+        {
+          id: 'public-url-without-auth',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'public URL without authenticated account readback',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'public-web',
+          action: 'published-preview',
+          readback: 'published-url',
+          artifactFingerprint,
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+    const phoneOnlyManifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint: 'sha256:redacted-phone-publish-preview',
+      artifacts: [
+        {
+          id: 'phone-preview-is-not-publish',
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'published-preview',
+          label: 'phone preview cannot prove public article or platform publish preview',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'phone-preview',
+          action: 'published-preview',
+          readback: 'visual-and-dom',
+          artifactFingerprint: 'sha256:redacted-phone-publish-preview',
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const issueLocations = report.issues.map(issue => issue.location)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const phoneOnlyReport = getStyleProofManifestReport(phoneOnlyManifest)
+    const phoneOnlyIssueLocations = phoneOnlyReport.issues.map(issue => issue.location)
+    const phoneOnlyRequirementStatus = new Map(
+      phoneOnlyReport.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(issueIds.filter(issueId =>
+      issueId === 'style-proof-manifest-external-account-auth-missing'
+    )).toHaveLength(3)
+    expect(issueLocations).toEqual(expect.arrayContaining([
+      'credentialed-channel-response',
+      'sync-readback',
+      'published-url-or-platform-preview',
+    ]))
+    expect(requirementStatus.get('credentialed-channel-response')).toBe('invalid')
+    expect(requirementStatus.get('sync-readback')).toBe('invalid')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+    expect(phoneOnlyReport.issues.map(issue => issue.id)).toContain('style-proof-manifest-requirement-missing')
+    expect(phoneOnlyIssueLocations).toContain('published-url-or-platform-preview')
+    expect(phoneOnlyRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
+  })
+
+  it.each([
+    [
+      'externalAccountLoginBlocked',
+      {
+        action: 'published-preview' as const,
+        externalAccountAuthenticated: true,
+        externalAccountLoginBlocked: true,
+      },
+    ],
+    [
+      'externalAccountAuthenticated false',
+      {
+        action: 'published-preview' as const,
+        externalAccountAuthenticated: false,
+      },
+    ],
+    [
+      'external-account-login-readback action',
+      {
+        action: 'external-account-login-readback' as const,
+        externalAccountAuthenticated: true,
+      },
+    ],
+  ])('rejects Xiaohongshu publish proof with single external account blocker: %s', (_label, blocker) => {
+    const blockerSlug = _label.replace(/\s+/g, '-')
+    const artifactFingerprint = `sha256:redacted-xhs-single-blocker-${blockerSlug}`
+    const manifest: StyleProofManifest = {
+      platform: 'xiaohongshu',
+      choiceId: 'xhs-cover-carousel',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: `xhs-single-blocker-${blockerSlug}`,
+          requirementId: 'published-url-or-platform-preview',
+          kind: 'browser-readback',
+          label: 'redacted xhs external account blocker readback',
+          platform: 'xiaohongshu',
+          choiceId: 'xhs-cover-carousel',
+          channel: 'credentialed-channel',
+          readback: 'visual-and-dom',
+          artifactFingerprint,
+          safeForCommit: true,
+          ...blocker,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('xiaohongshu', [manifest])
+    const publishAudit = audit.cannotClaim.find(requirement =>
+      requirement.requirement.id === 'published-url-or-platform-preview'
+    )
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toContain('style-proof-manifest-external-account-login-blocked')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
     expect(publishAudit?.status).toBe('invalid')
     expect(publishAudit?.issueIds).toContain('style-proof-manifest-external-account-login-blocked')
   })

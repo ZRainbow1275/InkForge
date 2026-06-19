@@ -1265,8 +1265,12 @@ Contracts:
 - `cover-thumbnail-check` also requires `coverThumbnailAccepted:true` on the same proof artifact;
   a cover crop/setup page remains invalid until the platform preview/share/list entry shows the
   exact accepted thumbnail.
-- `sync-readback` requires `channel:'credentialed-channel'`.
-- `published-url-or-platform-preview` requires `channel:'public-web'` or `channel:'phone-preview'`.
+- `credentialed-channel-response` and `sync-readback` require `channel:'credentialed-channel'`
+  plus `externalAccountAuthenticated:true` on the same proof artifact.
+- `published-url-or-platform-preview` requires `channel:'public-web'` or
+  `channel:'credentialed-channel'`, `action:'published-preview'`, an accepted published/platform
+  readback, and `externalAccountAuthenticated:true` on the same proof artifact. A phone-preview
+  readback is mobile preview proof only and must not satisfy the platform-publish row.
 - Progress reports must surface these failures as invalid authenticated-PC, phone-preview,
   credentialed-channel, or platform-publish gates and must not increase `proofSatisfiedChoices`.
 
@@ -1451,8 +1455,9 @@ Contracts:
 - The executable manifest fields for this boundary are
   `StyleProofArtifact.externalAccountAuthenticated?: boolean` and
   `StyleProofArtifact.externalAccountLoginBlocked?: boolean`. Credentialed-channel and platform-
-  publish runbook rows must expose `externalAccountAuthenticated` as a required field, but the
-  validator stays backward-compatible by treating only explicit blockers as invalid proof.
+  publish runbook rows must expose `externalAccountAuthenticated` as a required field, and the
+  validator must require `externalAccountAuthenticated:true` for
+  `credentialed-channel-response`, `sync-readback`, and `published-url-or-platform-preview`.
 - A manifest artifact with `externalAccountLoginBlocked:true`,
   `externalAccountAuthenticated:false`, or action `external-account-login-readback` must emit
   `style-proof-manifest-external-account-login-blocked`. Such an artifact can never satisfy XHS
@@ -1460,6 +1465,10 @@ Contracts:
   or any platform publish row. Requirement-level acceptance audit rows carrying this issue must
   be `invalid`, while ordinary missing external gates may remain `blocked-by-external` or
   `unsafe-to-automate`.
+- A credentialed-channel or platform-publish shaped artifact that omits positive
+  `externalAccountAuthenticated:true` must emit
+  `style-proof-manifest-external-account-auth-missing`. The row remains invalid even if channel,
+  action, readback, and artifact fingerprint otherwise match.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
@@ -1488,6 +1497,13 @@ Required tests:
 - XHS/Zhihu login-route or sign-in-route readback manifests must keep account upload, public-host,
   artifact-manifest, platform preview, and publish requirements invalid/cannot-claim through
   `style-proof-manifest-external-account-login-blocked`.
+- Single-factor regressions must prove each explicit external-account blocker works independently:
+  `externalAccountLoginBlocked:true`, `externalAccountAuthenticated:false`, and
+  `action:'external-account-login-readback'`.
+- Credentialed sync and published/platform-preview rows missing
+  `externalAccountAuthenticated:true` must be invalid through
+  `style-proof-manifest-external-account-auth-missing`; `phone-preview` artifacts must not satisfy
+  `published-url-or-platform-preview`.
 - WeChat phone preview blocker manifests must prove that scan/setup/PC-preview-shell/cover-setting
   rows cannot satisfy `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`, or
   `cover-thumbnail-check`, even when those rows carry a screenshot or a positive-looking Dark Mode

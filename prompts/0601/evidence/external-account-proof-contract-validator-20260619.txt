@@ -1,0 +1,48 @@
+External Account Proof Contract Validator - 2026-06-19
+
+Scope:
+- Local style proof manifest validator and runbook contract hardening.
+- No external platform upload, sync, phone preview, scheduled send, or publish action.
+
+Implemented:
+- Added validator issue style-proof-manifest-external-account-auth-missing.
+- credentialed-channel-response now requires channel credentialed-channel, action
+  credentialed-sync, readback api-response, and externalAccountAuthenticated:true on the same
+  proof artifact.
+- sync-readback now requires channel credentialed-channel, action sync-readback, an accepted
+  sync readback, and externalAccountAuthenticated:true on the same proof artifact.
+- published-url-or-platform-preview now requires public-web or credentialed-channel proof,
+  action published-preview, an accepted published or platform readback, exact artifact binding,
+  and externalAccountAuthenticated:true on the same proof artifact.
+- phone-preview artifacts no longer satisfy published-url-or-platform-preview. They remain
+  mobile-preview proof only.
+
+Regression coverage:
+- Missing externalAccountAuthenticated:true invalidates credentialed-channel-response.
+- Missing externalAccountAuthenticated:true invalidates sync-readback.
+- Missing externalAccountAuthenticated:true invalidates published-url-or-platform-preview.
+- A phone-preview shaped artifact cannot satisfy published-url-or-platform-preview even if it
+  carries positive-looking preview fields.
+- Single-factor external account blockers are independently covered:
+  externalAccountLoginBlocked:true, externalAccountAuthenticated:false, and
+  action external-account-login-readback.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 108 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 147 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1081 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 26.28s
+- inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local validator/runbook contract behavior only.
+- It does not prove account authentication, upload surface availability, public-host acceptance,
+  platform preview, public article rendering, scheduled-send, or publish success.

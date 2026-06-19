@@ -1121,3 +1121,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local validator/runbook proof only. It does not prove WeChat phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, platform preview, public article
   rendering, or publish success.
+
+## 2026-06-19 External Account Proof Contract Validator
+
+- [x] external-account-proof-contract-validator-20260619.txt
+- Local validator/runbook hardening adds
+  `style-proof-manifest-external-account-auth-missing`.
+- `credentialed-channel-response` and `sync-readback` require
+  `externalAccountAuthenticated:true` on the same proof artifact.
+- `published-url-or-platform-preview` requires `public-web` or `credentialed-channel` proof with
+  `externalAccountAuthenticated:true`; `phone-preview` remains mobile-preview proof only.
+- Single-factor regressions cover `externalAccountLoginBlocked:true`,
+  `externalAccountAuthenticated:false`, and `action:'external-account-login-readback'`.
+- Focused verification passed with `platform-export-rendering.test.ts` at 1 file / 108 tests.
+- 4-file cross-platform regression passed at 4 files / 147 tests, and full export serial
+  regression passed at 35 files / 1081 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; generated
+  `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: local validator/runbook proof only. It does not prove account authentication, upload
+  surface availability, public-host acceptance, platform preview, public article rendering,
+  scheduled-send, or publish success.
