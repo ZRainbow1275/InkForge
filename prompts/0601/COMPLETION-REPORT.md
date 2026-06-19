@@ -2038,6 +2038,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, or publish success.
 
+## 2026-06-19 Style Proof Scheduled Send Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-scheduled-send-audit-20260619.txt`.
+- Added an acceptance-audit regression proving same-account exact-artifact scheduled-send proof
+  rows without `scheduledSendVerified:true` stay `invalid`.
+- TDD failed first because `scheduled-send-readback` was classified as `unsafe-to-automate` in the
+  acceptance audit despite carrying `style-proof-manifest-scheduled-send-not-verified`.
+- Added `style-proof-manifest-scheduled-send-not-verified` to the acceptance-audit invalid issue
+  set while preserving ordinary missing scheduled-send gates as `unsafe-to-automate`.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 128 tests.
+- 4-file cross-platform export regression passed at 4 files / 167 tests, and full export serial
+  regression passed at 35 files / 1101 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.94s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, mobile
+  SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
+  availability, platform preview, public article rendering, or publish success.
+
 ## 2026-06-19 Style Proof External Account Auth Audit Addendum
 
 - Added `prompts/0601/evidence/style-proof-external-account-auth-audit-20260619.txt`.

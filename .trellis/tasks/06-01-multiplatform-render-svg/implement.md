@@ -4689,6 +4689,46 @@ Boundary:
 - It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
   platform preview, public article rendering, upload, or publish success.
 
+## 2026-06-19 Style Proof Scheduled Send Acceptance Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge buildStyleProofAcceptanceRequirementAudits --direction upstream`
+  reported LOW risk, 7 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Added a focused acceptance-audit regression for a scheduled-send proof row with matching
+  credentialed-channel action/readback, fingerprint, exact-artifact binding, positive external
+  account authentication, and safe commit hygiene, but no `scheduledSendVerified:true`.
+- Confirmed the TDD failure first: `scheduled-send-readback` was classified as
+  `unsafe-to-automate` in acceptance audit.
+- Added `style-proof-manifest-scheduled-send-not-verified` to the acceptance-audit invalid issue
+  set while preserving ordinary missing scheduled-send gates on the existing
+  `unsafe-to-automate` path.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed before the fix as expected, then passed with 1 file / 128 tests after the fix.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 167 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1101 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite built in
+  34.94s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-scheduled-send-audit-20260619.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is local validator/audit proof only.
+- It does not prove phone preview, credentialed sync, scheduled send, public-host availability,
+  platform preview, public article rendering, upload, or publish success.
+
 ## 2026-06-19 Style Proof External Account Auth Acceptance Slice
 
 Impact:

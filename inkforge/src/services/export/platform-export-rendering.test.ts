@@ -4597,6 +4597,48 @@ describe('platform native export rendering rules', () => {
     expect(phoneOnlyRequirementStatus.get('published-url-or-platform-preview')).toBe('invalid')
   })
 
+  it('keeps scheduled send proof without real scheduled state invalid in acceptance audit', () => {
+    const artifactFingerprint = 'sha256:redacted-scheduled-state-missing'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['published'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'scheduled-send-without-scheduled-state',
+          requirementId: 'scheduled-send-readback',
+          kind: 'channel-response',
+          label: 'scheduled send response without real send or schedule state',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'credentialed-channel',
+          action: 'scheduled-send',
+          readback: 'scheduled-send-state',
+          artifactFingerprint,
+          exactArtifact: true,
+          externalAccountAuthenticated: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getStyleProofAcceptanceAuditReport([manifest]).platformReports.wechat
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(issueIds).toContain('style-proof-manifest-scheduled-send-not-verified')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('invalid')
+    expect(auditStatus.get('scheduled-send-readback')).toBe('invalid')
+  })
+
   it('requires exact artifact binding for credentialed sync proof rows', () => {
     const artifactFingerprint = 'sha256:redacted-credentialed-exact-artifact'
     const manifest: StyleProofManifest = {

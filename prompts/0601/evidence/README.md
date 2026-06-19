@@ -1563,6 +1563,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, scheduled send, public-host availability, platform preview, public article rendering, or
   publish success.
 
+## 2026-06-19 Style Proof Scheduled Send Audit
+
+- [x] style-proof-scheduled-send-audit-20260619.txt
+- Local style-proof acceptance-audit contract hardening.
+- Added `style-proof-manifest-scheduled-send-not-verified` to the acceptance-audit invalid issue
+  set.
+- Same-account exact-artifact scheduled-send proof rows without `scheduledSendVerified:true` now
+  stay invalid in both manifest report and acceptance audit.
+- Ordinary missing scheduled-send gates still use the existing `unsafe-to-automate` status; the fix
+  only covers concrete invalid scheduled-send proof rows.
+- TDD failed first because `scheduled-send-readback` was classified as `unsafe-to-automate`;
+  focused verification passed after the fix.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 128 tests.
+- 4-file cross-platform export regression passed at 4 files / 167 tests, and full export serial
+  regression passed at 35 files / 1101 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  34.94s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local validator/audit proof only. It does not prove phone preview, credentialed
+  sync, scheduled send, public-host availability, platform preview, public article rendering, or
+  publish success.
+
 ## 2026-06-19 Style Proof External Account Auth Audit
 
 - [x] style-proof-external-account-auth-audit-20260619.txt

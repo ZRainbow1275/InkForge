@@ -1648,7 +1648,10 @@ Contracts:
   `exactArtifact:true` must emit `style-proof-manifest-exact-artifact-missing` for
   `credentialed-channel-response` or `sync-readback`.
 - A scheduled-send-shaped artifact that omits `scheduledSendVerified:true` on the exact
-  authenticated artifact must emit `style-proof-manifest-scheduled-send-not-verified`.
+  authenticated artifact must emit `style-proof-manifest-scheduled-send-not-verified`. Requirement
+  rows carrying this issue must be `invalid` in the acceptance audit, because a same-account,
+  exact-artifact schedule response without real send/schedule-state readback is failed proof rather
+  than an `unsafe-to-automate` placeholder.
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.

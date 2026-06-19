@@ -1,0 +1,40 @@
+Style Proof Scheduled Send Audit - 2026-06-19
+
+Scope:
+- Local style proof acceptance-audit contract hardening.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Issue found:
+- A scheduled-send proof row with credentialed-channel action/readback, artifact fingerprint,
+  exactArtifact:true, externalAccountAuthenticated:true, and safeForCommit:true could keep the
+  manifest requirement invalid while the acceptance audit still classified the requirement as
+  unsafe-to-automate when scheduledSendVerified:true was missing.
+- That classification was too weak: a proof row that reaches the scheduled-send shape but lacks
+  real send or schedule-state readback is concrete failed proof.
+
+Implemented:
+- Added style-proof-manifest-scheduled-send-not-verified to the acceptance-audit invalid issue set.
+- Kept ordinary missing scheduled-send gates on the existing unsafe-to-automate path.
+
+Regression coverage:
+- A same-account exact-artifact scheduled-send proof row without scheduledSendVerified:true remains
+  invalid in both manifest report and acceptance audit.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  TDD FAIL before fix: scheduled-send-readback acceptance status was unsafe-to-automate.
+  PASS after fix: 1 file / 128 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 167 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1101 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 34.94s; generated tsconfig build info was restored after validation.
+
+Boundary:
+- This proves local acceptance-audit classification only.
+- It does not prove WeChat phone preview, mobile Dark Mode, mobile SMIL/click, cover thumbnail acceptance, credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or publish success.

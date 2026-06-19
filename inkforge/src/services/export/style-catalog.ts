@@ -4661,6 +4661,7 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
   'style-proof-manifest-phone-content-missing',
   'style-proof-manifest-dark-mode-not-verified',
   'style-proof-manifest-cover-thumbnail-not-accepted',
+  'style-proof-manifest-scheduled-send-not-verified',
   'style-proof-manifest-exact-artifact-missing',
   'style-proof-manifest-proof-not-bound',
   'style-proof-manifest-contract-action-channel-mismatch',
