@@ -89,6 +89,9 @@ Manifest interpretation:
   with:
   - `authenticatedSessionVerified:true`;
   - `platformEditorDomVerified:true`;
+  - `platformEditorSurfaceVerified:true`, because the authenticated WeChat body editor was focused
+    before ordinary OS Ctrl+V and the post-paste readback came from body DOM metrics rather than the
+    title field, draft list, hidden native iframe, or local browser harness;
   - `ordinaryClipboardPasteVerified:true`;
   - `disposableDraft:true`;
   - `cleanupPathVerified:true`;
