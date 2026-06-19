@@ -1,0 +1,44 @@
+WeChat Draft Edit Entry CloakBrowser Readback - 2026-06-19
+
+Scope:
+- CloakBrowser-only, read-only WeChat Public Platform draft edit entry check.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation.
+- Raw credential parameters, account text, article titles, draft body, page text samples, raw
+  network URLs, browser session secrets, and local runtime paths were not recorded.
+
+Starting state:
+- The authenticated draft-list route was already reachable in the active CloakBrowser session.
+- The draft-list page had login/relogin blocker signals absent.
+- The page was not an article editor body before the edit-entry check.
+
+Edit-entry probe:
+- A visible draft-card small-icon group was inspected by structure only.
+- The delete-shaped control and publish-shaped control were distinguished from the edit-shaped
+  control by parent wrapper text flags and control placement.
+- Only the edit-shaped control was clicked.
+- No delete confirmation, publish action, save action, paste action, or preview action was clicked.
+
+Readback after edit-entry click:
+- After waiting for the active page to settle, the active CloakBrowser page remained on the
+  draft-list route shape.
+- Login/relogin blocker signals were absent.
+- Editor-body text signals were absent.
+- Save/preview/publish/cover/title-field editor signals were absent.
+
+Redacted selector counts after edit-entry click:
+- iframe: 0
+- contenteditable editor nodes: 0
+- textarea: 0
+- ProseMirror: 0
+- editor-like class/id nodes: 6
+- rich-media/appmsg-edit/js-editor nodes: 0
+- known JS editor ids: 0
+
+Boundary:
+- This proves that the authenticated draft list and an edit-shaped control were reachable, but the
+  active CloakBrowser page did not yield an article editor target readback.
+- It does not prove authenticated article editor DOM, ordinary PC paste, editor body mutation, safe
+  disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, or publish
+  success.

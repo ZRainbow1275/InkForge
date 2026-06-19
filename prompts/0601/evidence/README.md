@@ -1235,3 +1235,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   article editor target readback, ordinary PC paste, editor body mutation, safe disposable draft
   cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync,
   scheduled send, platform preview, public article rendering, or publish success.
+
+## 2026-06-19 WeChat Draft Edit Entry CloakBrowser Readback
+
+- [x] wechat-draft-edit-entry-cloakbrowser-readback-20260619.txt
+- CloakBrowser-only read-only draft edit-entry check from the authenticated draft-list surface.
+- No screenshot, form fill, paste, save, sync, phone preview, scheduled send, publish, delete, or
+  draft mutation.
+- Raw credential parameters, account text, article titles, draft body, page text samples, raw
+  network URLs, browser session secrets, and local runtime paths were not recorded.
+- The delete-shaped control and publish-shaped control were distinguished from the edit-shaped
+  control by parent wrapper text flags and control placement; only the edit-shaped control was
+  clicked.
+- After waiting for the active page to settle, the active CloakBrowser page remained on the
+  draft-list route shape.
+- Redacted selector counts after edit-entry click: iframe 0, contenteditable editor nodes 0,
+  textarea 0, ProseMirror 0, editor-like class/id nodes 6, rich-media/appmsg-edit/js-editor nodes 0,
+  known JS editor ids 0.
+- Boundary: authenticated draft-list and edit-shaped control reachability evidence only. It does
+  not prove authenticated article editor DOM, ordinary PC paste, editor body mutation, safe
+  disposable draft cleanup, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, or publish
+  success.
