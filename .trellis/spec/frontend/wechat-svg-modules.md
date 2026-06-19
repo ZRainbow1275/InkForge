@@ -1741,6 +1741,12 @@ Contracts:
 - Each open step must expose `cannotClaimReason`, `nextOperatorAction`, `successCriteria`,
   `failureSignals`, and `redactionBoundary`. These strings are checklist text only; they must not
   promote a style, create proof, or suppress validator issues.
+- `successCriteria` and `failureSignals` must describe `requiredFields` with field-level criteria,
+  not only raw field names. The raw field names must remain present for traceability, but operator
+  text must explain the real-world condition, especially `marketAppliedContentVerified:true` for
+  non-placeholder 135/Xiumi applied content, `ordinaryClipboardPasteVerified:true` for the ordinary
+  OS Ctrl+V path, `mojibakeFreeVerified:true` for editor fidelity, and
+  `artifactManifestValidated:true` for XHS/Zhihu artifact-manifest validators.
 - Phone-preview runbook `failureSignals` must explicitly reject scan entries, setup dialogs, PC
   preview shells, relogin pages, generic QR screens, local browser screenshots, and PC DOM as final
   phone article proof. Dark Mode rows must additionally reject settings pages and generic phone
@@ -1774,6 +1780,9 @@ Required tests:
   cannot treat those artifacts as phone preview, Dark Mode, or cover-thumbnail proof.
 - The runbook must expose `artifactManifestValidated` for XHS/Zhihu artifact-manifest rows, and
   validator-shaped rows missing that flag must keep the requirement invalid.
+- A runbook generated from a manifest claiming `applied-editor-element` must expose
+  `marketAppliedContentVerified:true` and non-placeholder applied-content criteria in both success
+  criteria and failure signals for `market-applied-dom-readback`.
 - A validator-passed artifact-manifest row missing `artifactRef` must also remain invalid.
 - Splitting `artifactRef`, `artifactManifestValidated:true`, and `safeForCommit:true` across
   multiple XHS/Zhihu artifact-manifest rows must remain invalid; one same proof row must carry all

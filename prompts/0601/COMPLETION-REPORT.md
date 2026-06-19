@@ -2512,3 +2512,24 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
   public-host availability, or publish success.
+
+## 2026-06-20 Style Proof Runbook Field Criteria Addendum
+
+- Added `prompts/0601/evidence/style-proof-runbook-field-criteria-20260620.txt`.
+- Added `STYLE_PROOF_ARTIFACT_FIELD_CRITERIA` and
+  `formatStyleProofArtifactVerificationFields()` in `style-catalog.ts`.
+- Execution runbook success criteria and failure signals now explain required and forbidden
+  artifact fields with field-level criteria while preserving exact field names for traceability.
+- Added regression coverage for a manifest claiming `applied-editor-element`: the
+  `market-applied-dom-readback` runbook step must expose `marketAppliedContentVerified:true` and
+  non-placeholder applied-content criteria.
+- Verification passed:
+  - focused execution-runbook regression at 2 selected tests / 136 skipped
+  - full `platform-export-rendering.test.ts` at 1 file / 138 tests
+  - cross-platform export regression at 4 files / 177 tests
+  - full export serial regression at 35 files / 1111 tests
+  - targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build
+- Boundary: this is local runbook wording and regression coverage only. It does not prove WeChat
+  paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public-host availability, or publish success.

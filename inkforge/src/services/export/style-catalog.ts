@@ -5102,6 +5102,43 @@ function getStyleProofExecutionRedactionBoundary(gate: StyleProofCollectionGate)
   return 'Committed evidence must be redacted local artifacts, logs, manifests, or summaries that contain no credentials, account data, QR codes, or local browser profile paths.'
 }
 
+const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerificationField, string> = {
+  artifactFingerprint: 'artifactFingerprint: non-empty fingerprint for the exact artifact',
+  artifactRef: 'artifactRef: redacted committed artifact reference',
+  exactArtifact: 'exactArtifact:true for the same exported artifact',
+  authenticatedSessionVerified: 'authenticatedSessionVerified:true for the same authenticated editor session',
+  externalAccountAuthenticated: 'externalAccountAuthenticated:true for the required platform account',
+  externalAccountLoginBlocked: 'externalAccountLoginBlocked:true only when login is the recorded blocker',
+  platformEditorTargetVerified: 'platformEditorTargetVerified:true for the intended editor route and target',
+  platformEditorSurfaceVerified: 'platformEditorSurfaceVerified:true for the intended title/body/editor surface',
+  platformEditorDomVerified: 'platformEditorDomVerified:true after the exact editor DOM is read back',
+  centralEditorChanged: 'centralEditorChanged:true after the 135/Xiumi center editor or canvas mutates',
+  marketAppliedContentVerified: 'marketAppliedContentVerified:true after meaningful non-placeholder applied DOM, controls, slots, metadata, or visible content are read back',
+  ordinaryClipboardPasteVerified: 'ordinaryClipboardPasteVerified:true for the ordinary OS Ctrl+V path',
+  sameEditorTabVerified: 'sameEditorTabVerified:true for the same browser/editor tab',
+  pasteInputEventVerified: 'pasteInputEventVerified:true after paste/input events reach the body editor',
+  editorBodyMutationVerified: 'editorBodyMutationVerified:true after the intended body editor mutates',
+  mojibakeFreeVerified: 'mojibakeFreeVerified:true after replacement glyph and mojibake damage are ruled out',
+  phonePreviewContentVerified: 'phonePreviewContentVerified:true after the exact article body is visible on phone',
+  phonePreviewBlocked: 'phonePreviewBlocked:true only when phone preview is the recorded blocker',
+  darkModeEnabledVerified: 'darkModeEnabledVerified:true while inspecting the exact mobile article body',
+  coverThumbnailAccepted: 'coverThumbnailAccepted:true after the exact cover thumbnail is accepted',
+  scheduledSendVerified: 'scheduledSendVerified:true after real scheduled-send state readback',
+  disposableDraft: 'disposableDraft:true for a draft that can be safely mutated and removed',
+  cleanupPathVerified: 'cleanupPathVerified:true after the cleanup path is proven',
+  artifactManifestValidated: 'artifactManifestValidated:true after the platform artifact manifest validator passes',
+  safeForCommit: 'safeForCommit:true after redaction and repository hygiene review',
+  committed: 'committed:true only for tracked proof artifacts',
+  sensitive: 'sensitive:true marks an artifact that must not satisfy committed proof',
+  hostStatus: 'hostStatus: accepted public or platform-hosted artifact host status',
+}
+
+function formatStyleProofArtifactVerificationFields(
+  fields: readonly StyleProofArtifactVerificationField[],
+): string {
+  return fields.map(field => STYLE_PROOF_ARTIFACT_FIELD_CRITERIA[field]).join('; ')
+}
+
 function buildStyleProofExecutionSuccessCriteria(
   audit: StyleProofAcceptanceRequirementAudit,
   contract: StyleProofExecutionArtifactContract,
@@ -5114,10 +5151,10 @@ function buildStyleProofExecutionSuccessCriteria(
   ]
 
   if (contract.requiredFields.length > 0) {
-    criteria.push(`Set required artifact fields: ${contract.requiredFields.join(', ')}.`)
+    criteria.push(`Set required artifact fields on one matching row: ${formatStyleProofArtifactVerificationFields(contract.requiredFields)}.`)
   }
   if (contract.forbiddenFields && contract.forbiddenFields.length > 0) {
-    criteria.push(`Do not set forbidden artifact fields: ${contract.forbiddenFields.join(', ')}.`)
+    criteria.push(`Do not set forbidden artifact fields: ${formatStyleProofArtifactVerificationFields(contract.forbiddenFields)}.`)
   }
   if (contract.acceptedHostStatuses && contract.acceptedHostStatuses.length > 0) {
     criteria.push(`Host status must be ${contract.acceptedHostStatuses.join(' or ')}.`)
@@ -5143,7 +5180,7 @@ function buildStyleProofExecutionFailureSignals(
   ]
 
   if (contract.requiredFields.length > 0) {
-    signals.push(`Any missing, false, or unbound required field invalidates this row: ${contract.requiredFields.join(', ')}.`)
+    signals.push(`Any missing, false, or unbound required field invalidates this row: ${formatStyleProofArtifactVerificationFields(contract.requiredFields)}.`)
   }
   if (manifestValidatorName) {
     signals.push(`Any ${manifestValidatorName} issue or missing artifactManifestValidated:true invalidates this artifact-manifest row.`)

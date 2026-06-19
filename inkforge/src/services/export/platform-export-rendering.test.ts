@@ -1576,12 +1576,20 @@ describe('platform native export rendering rules', () => {
   })
 
   it('builds style proof execution runbooks with exact external proof contracts', () => {
+    const marketRunbook = getPlatformStyleProofExecutionRunbook('wechat', [{
+      platform: 'wechat',
+      scope: 'style-choice',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['applied-editor-element'],
+      artifacts: [],
+    }])
     const runbook = getPlatformStyleProofExecutionRunbook(
       'wechat',
       getCommittedStyleProofLocalEvidenceManifests(),
     )
     const pcPasteStep = runbook.steps.find(step => step.requirement.id === 'pc-editor-paste-event')
     const pcDomStep = runbook.steps.find(step => step.requirement.id === 'pc-editor-dom-readback')
+    const marketStep = marketRunbook.steps.find(step => step.requirement.id === 'market-applied-dom-readback')
     const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
     const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
     const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
@@ -1621,6 +1629,14 @@ describe('platform native export rendering rules', () => {
       'platformEditorDomVerified',
       'safeForCommit',
     ]))
+    expect(marketStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
+      'centralEditorChanged',
+      'marketAppliedContentVerified',
+      'safeForCommit',
+    ]))
+    expect(marketStep?.successCriteria.join(' ')).toContain('marketAppliedContentVerified:true')
+    expect(marketStep?.successCriteria.join(' ')).toContain('non-placeholder')
+    expect(marketStep?.failureSignals.join(' ')).toContain('marketAppliedContentVerified:true')
 
     expect(phoneStep?.status).toBe('blocked-by-external')
     expect(phoneStep?.boundary).toBe('phone-preview')

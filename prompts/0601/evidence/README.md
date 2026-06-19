@@ -134,6 +134,10 @@ image/action/layer tree；仅沉淀 DOM 学习、schema/fallback/layout-report/r
 `market-applied-dom-readback` requires same-row `marketAppliedContentVerified:true`; a changed
 135/Xiumi center canvas that is only placeholder/listing/no-material evidence stays invalid and
 appears in acceptance-audit `cannotClaim`）。
+`style-proof-runbook-field-criteria-20260620.txt`（当前规则实现：
+execution runbook success/failure text formats required fields with field-level criteria while
+preserving exact field names; `marketAppliedContentVerified:true` is explained as non-placeholder
+applied DOM/controls/slots/visible content proof）。
 `phone-preview-content-gate-20260617.txt`（当前规则实现：`mobile-preview` requires
 `phonePreviewContentVerified:true`; scan/entry/setup states stay invalid）。
 `phone-dark-cover-gate-20260617.txt`（当前规则实现：`dark-mode-check` requires
@@ -343,6 +347,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
 [x] market-editor-applied-gate-20260617.txt # 当前规则实现：applied-editor-element requires centralEditorChanged:true; center-unchanged library/listing probes stay invalid
 [x] market-editor-placeholder-only-readback-contract-20260620.txt # 当前规则实现：market-applied-dom-readback also requires marketAppliedContentVerified:true
+[x] style-proof-runbook-field-criteria-20260620.txt # 当前规则实现：execution runbook requiredFields use field-level criteria text, not raw names only
 [x] phone-preview-content-gate-20260617.txt # 当前规则实现：mobile-preview requires phonePreviewContentVerified:true; scan/entry/setup states stay invalid
 [x] phone-dark-cover-gate-20260617.txt # 当前规则实现：Dark Mode/cover thumbnail require explicit verified mobile state flags
 [x] style-proof-phone-runbook-failure-signals-20260619.txt # 当前规则实现：执行手册明确拒绝 scan/setup/PC preview shell/cover-setting 等手机伪证据；不证明手机端通过
@@ -2209,3 +2214,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
+
+## 2026-06-20 Style Proof Runbook Field Criteria
+
+- [x] style-proof-runbook-field-criteria-20260620.txt
+- Added field-level criteria text for execution runbook required and forbidden fields while keeping
+  the raw field names in `requiredArtifact.requiredFields`.
+- Market-editor runbook text now explains that `marketAppliedContentVerified:true` means meaningful
+  non-placeholder applied DOM, controls, slots, metadata, or visible content was read back.
+- Added regression coverage with a manifest claiming `applied-editor-element` so the
+  `market-applied-dom-readback` runbook step must expose `marketAppliedContentVerified:true` and
+  `non-placeholder` in success/failure text.
+- Verification passed: focused execution-runbook regression, full `platform-export-rendering.test.ts`,
+  4-file cross-platform export regression, full export serial regression, targeted ESLint,
+  `vue-tsc`, and production build.
+- Boundary: this is local runbook wording and regression coverage only. It does not prove WeChat
+  paste, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public host, or publish success.

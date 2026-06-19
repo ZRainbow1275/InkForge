@@ -5935,3 +5935,51 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+
+## 2026-06-20 Style Proof Runbook Field Criteria Slice
+
+Impact:
+- `npx gitnexus impact -r InkForge buildStyleProofExecutionSuccessCriteria --direction upstream`
+  reported LOW risk, 2 impacted items, 1 direct caller, 1 affected module (`Export`), and
+  0 affected processes.
+
+Implementation:
+- Added `STYLE_PROOF_ARTIFACT_FIELD_CRITERIA` in `style-catalog.ts`.
+- Added `formatStyleProofArtifactVerificationFields()` and used it in
+  `buildStyleProofExecutionSuccessCriteria()` and `buildStyleProofExecutionFailureSignals()`.
+- Execution runbook text now preserves exact field names while explaining the operator condition
+  behind each required or forbidden artifact field.
+- `marketAppliedContentVerified:true` is now described as meaningful non-placeholder applied DOM,
+  controls, slots, metadata, or visible content rather than appearing only as a raw field name.
+- Programmatic `requiredArtifact.requiredFields` remains unchanged for UI/API consumers.
+
+Verification:
+- TDD calibration: the first focused assertion targeted the committed-local-evidence runbook and
+  failed because that runbook correctly does not include a market-editor step. The regression input
+  was corrected to a manifest explicitly claiming `applied-editor-element`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "execution runbooks" --reporter=default`
+  passed with 1 file / 2 selected tests / 136 skipped.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 138 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed with 4 files / 177 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 35 files / 1111 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- PowerShell `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed; Vite
+  built in 29.46s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build/typecheck validation.
+
+Artifacts:
+- Added `prompts/0601/evidence/style-proof-runbook-field-criteria-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Boundary:
+- This is local runbook wording and regression coverage only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

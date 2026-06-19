@@ -1,0 +1,56 @@
+Style Proof Runbook Field Criteria - 2026-06-20
+
+Scope:
+- Local operator-runbook wording and regression coverage for style-proof execution steps.
+- No platform action, account upload, phone preview, sync, scheduled send, publish, screenshot,
+  network capture, QR material, credential material, browser runtime artifact, or private editor
+  source is recorded here.
+
+Implemented:
+- Added `STYLE_PROOF_ARTIFACT_FIELD_CRITERIA` in `style-catalog.ts`.
+- Added `formatStyleProofArtifactVerificationFields()`.
+- `buildStyleProofExecutionSuccessCriteria()` now formats required and forbidden artifact fields
+  with field-level criteria instead of a raw field-name-only list.
+- `buildStyleProofExecutionFailureSignals()` now uses the same criteria text for missing, false, or
+  unbound required fields.
+
+Behavior:
+- Operator runbook text still preserves exact field names such as `marketAppliedContentVerified:true`
+  for machine traceability.
+- The text now explains the field meaning, including that `marketAppliedContentVerified:true`
+  requires meaningful non-placeholder applied DOM, controls, slots, metadata, or visible content.
+- `requiredArtifact.requiredFields` remains the typed raw field list for programmatic consumers.
+- No manifest availability, selectable, usable, blocked, unavailable, or acceptance-status logic is
+  changed by this slice.
+
+Regression coverage:
+- Added a WeChat runbook assertion for a manifest that explicitly claims `applied-editor-element`.
+- The market-editor runbook step must expose `centralEditorChanged`, `marketAppliedContentVerified`,
+  and `safeForCommit` as required fields.
+- The success criteria must contain both `marketAppliedContentVerified:true` and `non-placeholder`.
+- The failure signals must also contain `marketAppliedContentVerified:true`.
+
+Verification:
+- TDD calibration: an initial assertion against the committed-local-evidence runbook failed because
+  that runbook correctly does not include a market-editor step; the regression input was corrected
+  to a claimed `applied-editor-element` manifest.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "execution runbooks" --reporter=default`
+  PASS: 1 file / 2 selected tests / 136 skipped
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 138 tests
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 177 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1111 tests
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS: Vite built in 29.46s
+
+Boundary:
+- This proves local runbook wording and regression coverage only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
