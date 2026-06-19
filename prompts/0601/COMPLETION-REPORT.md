@@ -2313,3 +2313,21 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
   SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public-host
   availability, platform preview, public article rendering, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-06-20 WeChat Tempera Preview Entry Precondition Failed Addendum
+
+- Added `prompts/0601/evidence/wechat-tempera-preview-entry-precondition-failed-20260620.txt`.
+- Attempted to prepare the already-proven Tempera entity-safe artifact for a preview-entry probe,
+  but did not open preview because the live editor precondition failed.
+- Attempt 1 used `keybd_event` Ctrl+V without mouse movement/click; body paste/input/mutation
+  counters stayed 0 and the main body stayed placeholder-only.
+- Attempt 2 used `keybd_event` Ctrl+V after a fixed screen click inside the central editor area.
+  The foreground window stayed stable, but the artifact degraded to wrong-surface/plain-text:
+  `svgCount=0`, `dataInkSvgCount=0`, `dataInkBlockCount=0`, and `sectionNice=false`.
+- Cleanup cleared both ProseMirror surfaces, then authenticated home/draftbox readback found 0
+  matches for the cleanup sentinel, preview-gate marker, entity-safe hash, and artifact filename.
+  No delete action was performed because no current-run marker was present.
+- Boundary: this is negative precondition evidence only. It does not prove PC paste, phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, XHS/Zhihu account upload,
+  or publish success.

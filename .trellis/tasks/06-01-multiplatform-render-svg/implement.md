@@ -4794,6 +4794,55 @@ Boundary:
   credentialed sync, scheduled-send, public-host availability, platform preview, public article
   rendering, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-20 WeChat Tempera Preview Entry Precondition Failed Slice
+
+Scope:
+- CloakBrowser-only authenticated WeChat editor attempt.
+- Intended to open WeChat preview only if the already-proven Tempera entity-safe artifact reached
+  the main article body as rich HTML/SVG.
+- No preview, phone action, sync, upload, scheduled-send, publish, or draft delete action was
+  performed.
+
+Attempt:
+- Authenticated editor loaded with login/scan state absent and two visible ProseMirror surfaces.
+- Inserted cleanup sentinel title `InkForge preview gate 20260620-0115`.
+- Prepared `flagship-tempera.html` through the WeChat entity-safe clipboard transform:
+  source SHA-256 `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`,
+  entity-safe SHA-256 `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`,
+  `htmlBytes=46456`, `cfHtmlBytes=46625`, `nonAsciiCharCount=0`, `svgCount=35`,
+  `dataInkSvgCount=3`, and `dataInkBlockCount=23`.
+- Attempt 1 used Win32 `keybd_event` Ctrl+V with `-PreserveClipboard`, `-NoMove`, and `-NoClick`.
+  Body paste/input/mutation counters stayed 0 and the body stayed placeholder-only.
+- Attempt 2 used Win32 `keybd_event` Ctrl+V with a fixed screen click inside the central editor
+  area. The foreground window stayed stable, but rich SVG/HTML was not preserved.
+
+Result:
+- The exact artifact did not reach the main body editor, so preview was not opened.
+- Direct post-attempt counts were `svgCount=0`, `dataInkSvgCount=0`, `dataInkBlockCount=0`, and
+  `sectionNice=false`.
+- Direct editor-list cleanup readback showed the first ProseMirror/title surface held plain-text
+  payload text while the second ProseMirror body surface still had placeholder-length content. This
+  is wrong-surface/plain-text negative evidence, not PC paste proof.
+
+Cleanup:
+- Both ProseMirror surfaces were cleared before leaving the editor.
+- Authenticated home/draftbox readback found 0 matches for the cleanup sentinel, preview-gate
+  marker, entity-safe hash, and artifact filename.
+- No delete action was performed because no current-run marker was present; existing drafts were
+  left untouched.
+
+Artifacts:
+- Added `prompts/0601/evidence/wechat-tempera-preview-entry-precondition-failed-20260620.txt`.
+- Updated `prompts/0601/evidence/README.md`.
+- Updated `prompts/0601/COMPLETION-REPORT.md`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Boundary:
+- This is negative precondition and cleanup evidence only.
+- It does not prove `pc-editor-paste-event`, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, scheduled-send, public-host availability,
+  platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-19 Style Proof Gate Invalid Status Audit Slice
 
 Impact:

@@ -1,0 +1,83 @@
+WeChat Tempera Preview Entry Precondition Failed - 2026-06-20
+
+Scope:
+- CloakBrowser-only authenticated WeChat PC editor attempt.
+- Goal was to prepare the already-proven Tempera entity-safe artifact, then open the WeChat preview
+  entry only if the exact rich body was inserted into the main article body editor.
+- No preview, phone action, sync, upload, scheduled send, publish, or delete action was performed.
+- No account material, login artifact, local visual artifact, browser local directory, or platform
+  secret value is recorded in this evidence.
+
+Preconditions:
+- The authenticated WeChat new-article editor loaded successfully.
+- Login/scan state was absent.
+- Two visible ProseMirror text surfaces were present before mutation:
+  - title editor: empty, 578x30.
+  - main body editor: placeholder text, 586x538.
+- The main body editor was focused before clipboard preparation.
+- A cleanup sentinel title was inserted: `InkForge preview gate 20260620-0115`.
+
+Clipboard artifact:
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-tempera.html`.
+- Clipboard writer: `inkforge/scripts/set-windows-html-clipboard.ps1`.
+- Transform: `-EncodeNonAsciiEntities`.
+- Source SHA-256: `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Entity-safe SHA-256: `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- Source bytes: 41754.
+- Entity-safe HTML bytes: 46456.
+- CF_HTML bytes: 46625.
+- Source non-ASCII characters: 944.
+- Entity-safe non-ASCII characters: 0.
+- Decimal entity count: 944.
+- SVG count: 35.
+- `data-ink-svg` count: 3.
+- `data-ink-block` count: 23.
+
+Attempt:
+- Attempt 1 used Win32 `keybd_event` Ctrl+V with `-PreserveClipboard`, `-NoMove`, and `-NoClick`.
+- Attempt 1 foreground window stayed stable, but the body probe stayed at paste/input/beforeinput/
+  mutation count 0 and the main body remained placeholder-only.
+- Attempt 2 used Win32 `keybd_event` Ctrl+V with a fixed screen click inside the central editor
+  area before the key chord.
+- Attempt 2 foreground window stayed stable and the key event count was 4.
+
+Negative readback:
+- The body-level probe still reported paste 0, input 0, beforeinput 0, mutation 0, and no paste
+  types.
+- The rich SVG/HTML artifact was not preserved in the main article body:
+  - `svgCount`: 0.
+  - `dataInkSvgCount`: 0.
+  - `dataInkBlockCount`: 0.
+  - `sectionNice`: false.
+- Before cleanup, direct editor-list readback showed the first ProseMirror surface had text length
+  1262 and HTML length 1272, while the second ProseMirror body surface still had text length 8 and
+  HTML length 298.
+- This means the attempt degraded to a wrong-surface/plain-text result instead of a main-body rich
+  paste result.
+
+Cleanup:
+- Both ProseMirror surfaces were cleared before leaving the editor.
+- After clearing:
+  - first ProseMirror text length: 0, HTML length: 4.
+  - second ProseMirror text length: 0, HTML length: 0.
+- The authenticated home page and draftbox were then read back.
+- Draftbox marker checks returned 0 for:
+  - `InkForge preview gate 20260620-0115`.
+  - `preview gate 20260620`.
+  - the entity-safe SHA-256.
+  - `flagship-tempera.html`.
+- Because no current-run marker was present, no draft delete action was performed; existing user
+  drafts were left untouched.
+
+Interpretation:
+- The preview entry was not opened because the exact artifact never reached the main article body.
+- This must not satisfy `pc-editor-paste-event`, `phone-preview-readback`,
+  `phone-screenshot`, `dark-mode-check`, `cover-thumbnail-check`, or preview/publish proof.
+- Future preview-entry work must first re-prove same-surface rich body insertion in the current
+  session, then open preview only while the exact body artifact is present.
+
+Boundary:
+- This is negative precondition evidence and cleanup evidence only.
+- It does not prove phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, public-host availability, platform preview, public article
+  rendering, upload, XHS/Zhihu account actions, or publish success.

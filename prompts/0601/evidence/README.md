@@ -2004,3 +2004,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public host, platform preview, public article rendering, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-06-20 WeChat Tempera Preview Entry Precondition Failed
+
+- [x] wechat-tempera-preview-entry-precondition-failed-20260620.txt
+- Authenticated WeChat editor loaded and the already-proven Tempera entity-safe CF_HTML payload was
+  prepared, but preview was not opened because the exact artifact did not reach the main article
+  body.
+- Attempt 1 used `keybd_event` Ctrl+V without mouse movement/click; body paste/input/mutation
+  counters stayed 0 and the main body stayed placeholder-only.
+- Attempt 2 used `keybd_event` Ctrl+V after a fixed screen click inside the central editor area.
+  Foreground stayed stable, but rich SVG/HTML was not preserved: `svgCount=0`,
+  `dataInkSvgCount=0`, `dataInkBlockCount=0`, and `sectionNice=false`.
+- Direct cleanup readback showed the first ProseMirror/title surface had the plain-text payload,
+  while the second ProseMirror body surface still had placeholder-length content. Both surfaces were
+  cleared before leaving the editor.
+- Draftbox checks found 0 matches for the cleanup sentinel, preview-gate marker, entity-safe hash,
+  and artifact filename. No draft delete action was performed because no current-run marker was
+  present; existing drafts were left untouched.
+- Boundary: this is negative precondition evidence only. It does not prove PC paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, public host, platform preview, public article rendering, XHS/Zhihu account upload, or
+  publish success.

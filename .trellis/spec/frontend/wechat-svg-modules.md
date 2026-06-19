@@ -1558,6 +1558,13 @@ Contracts:
   route shape, editor shell selectors, title ProseMirror, hidden native iframes, or generic
   contenteditable counts must stay invalid until the main body editing surface itself is identified
   and read back with `platformEditorSurfaceVerified:true`.
+- 2026-06-20 preview-entry precondition attempt adds a concrete failure mode: after a wrong-surface
+  ordinary paste attempt, the title ProseMirror can expand enough to look like a large editor while
+  the real body ProseMirror remains placeholder-only. Post-paste readback must therefore re-identify
+  the main body surface by title/body role, DOM order, placeholder state, and body-level paste/input/
+  mutation counters; width/height alone is not sufficient. A title-surface plain-text payload with
+  body paste/input/mutation count 0 must keep `pc-editor-paste-event`, phone preview, Dark Mode,
+  cover-thumbnail, and publish rows invalid.
 - `safe-disposable-draft` proof requires `disposableDraft:true` and
   `cleanupPathVerified:true` on the same platform-editor proof row. Rows that prove only a draft
   exists, only a delete affordance exists, or split draft/cleanup flags across artifacts must emit
