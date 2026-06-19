@@ -2752,6 +2752,66 @@ describe('platform native export rendering rules', () => {
     expect(issueIds).not.toContain('style-proof-manifest-safe-commit-not-verified')
   })
 
+  it.each([
+    ['authenticatedSessionVerified', 'style-proof-manifest-authenticated-session-not-verified'],
+    ['platformEditorTargetVerified', 'style-proof-manifest-platform-editor-target-not-verified'],
+    ['platformEditorSurfaceVerified', 'style-proof-manifest-platform-editor-surface-not-verified'],
+    ['platformEditorDomVerified', 'style-proof-manifest-platform-editor-dom-not-verified'],
+  ] as const)(
+    'keeps PC paste proof missing %s invalid in acceptance audit',
+    (field, issueId) => {
+      const artifactFingerprint = `sha256:redacted-pc-paste-${field}`
+      const manifest: StyleProofManifest = {
+        platform: 'wechat',
+        choiceId: 'wechat-classic-inline',
+        scope: 'style-choice',
+        claimedEvidence: ['pc-editor-paste'],
+        artifactFingerprint,
+        artifacts: [
+          {
+            id: `pc-paste-missing-${field}`,
+            requirementId: 'pc-editor-paste-event',
+            kind: 'editor-readback',
+            label: `PC paste proof missing ${field}`,
+            evidenceLabel: 'pc-editor-paste',
+            platform: 'wechat',
+            choiceId: 'wechat-classic-inline',
+            channel: 'platform-editor',
+            action: 'pc-paste',
+            readback: 'visual-and-dom',
+            artifactFingerprint,
+            exactArtifact: true,
+            authenticatedSessionVerified: true,
+            platformEditorTargetVerified: true,
+            platformEditorSurfaceVerified: true,
+            platformEditorDomVerified: true,
+            ordinaryClipboardPasteVerified: true,
+            sameEditorTabVerified: true,
+            pasteInputEventVerified: true,
+            editorBodyMutationVerified: true,
+            mojibakeFreeVerified: true,
+            safeForCommit: true,
+            [field]: false,
+          },
+        ],
+      }
+
+      const report = getStyleProofManifestReport(manifest)
+      const issueIds = report.issues.map(issue => issue.id)
+      const requirementStatus = new Map(
+        report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+      )
+      const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+      const auditStatus = new Map(
+        audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+      )
+
+      expect(issueIds).toContain(issueId)
+      expect(requirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+      expect(auditStatus.get('pc-editor-paste-event')).toBe('invalid')
+    },
+  )
+
   it('rejects ordinary paste flags split across multiple PC paste artifacts', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',

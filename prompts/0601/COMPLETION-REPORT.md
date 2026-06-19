@@ -2233,3 +2233,26 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - Boundary: this is local acceptance-audit classification proof only. It does not prove phone
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-19 Style Proof PC Paste Editor Flags Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-pc-paste-editor-flags-audit-20260619.txt`.
+- Added table-driven PC paste regressions for concrete `pc-editor-paste-event` rows missing only
+  one of `authenticatedSessionVerified`, `platformEditorTargetVerified`,
+  `platformEditorSurfaceVerified`, or `platformEditorDomVerified`.
+- TDD failed first because those paste rows were classified as `unsafe-to-automate` despite being
+  concrete failed paste proof.
+- Added a requirement-specific invalid issue map for `pc-editor-paste-event`; the same issue ids
+  still keep their existing manual-gate behavior for `authenticated-editor-url` and
+  `pc-editor-dom-readback`.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 134 tests.
+- 4-file cross-platform export regression passed at 4 files / 173 tests, and full export serial
+  regression passed at 35 files / 1107 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  33.62s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local acceptance-audit classification proof only. It does not prove WeChat
+  ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft deletion, phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, upload, or publish success.

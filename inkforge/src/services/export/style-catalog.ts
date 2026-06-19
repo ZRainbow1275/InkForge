@@ -4681,12 +4681,27 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
   'style-proof-manifest-unsafe-commit-artifact',
 ] satisfies readonly StyleProofManifestIssueId[])
 
+const STYLE_PROOF_ACCEPTANCE_REQUIREMENT_INVALID_ISSUE_IDS: Partial<
+  Record<StyleProofRequirementId, readonly StyleProofManifestIssueId[]>
+> = {
+  'pc-editor-paste-event': [
+    'style-proof-manifest-authenticated-session-not-verified',
+    'style-proof-manifest-platform-editor-target-not-verified',
+    'style-proof-manifest-platform-editor-surface-not-verified',
+    'style-proof-manifest-platform-editor-dom-not-verified',
+  ],
+}
+
 function hasStyleProofAcceptanceInvalidIssue(
+  requirementId: StyleProofRequirementId,
   gate: StyleProofCollectionGate,
   issueIds: ReadonlySet<StyleProofManifestIssueId>,
 ): boolean {
   for (const issueId of issueIds) {
     if (STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS.has(issueId)) return true
+  }
+  for (const issueId of STYLE_PROOF_ACCEPTANCE_REQUIREMENT_INVALID_ISSUE_IDS[requirementId] ?? []) {
+    if (issueIds.has(issueId)) return true
   }
   if (
     gate !== 'authenticated-pc-editor'
@@ -4847,7 +4862,11 @@ function buildStyleProofAcceptanceRequirementAudits(
         invalid: accumulator.invalid,
         forcedInvalid: accumulator.blockedChoiceIds.size > 0,
       })
-      const status = hasStyleProofAcceptanceInvalidIssue(accumulator.gate, accumulator.issueIds)
+      const status = hasStyleProofAcceptanceInvalidIssue(
+        accumulator.requirement.id,
+        accumulator.gate,
+        accumulator.issueIds,
+      )
         ? 'invalid'
         : getStyleProofAcceptanceAuditStatus(accumulator.gate, progressStatus)
 

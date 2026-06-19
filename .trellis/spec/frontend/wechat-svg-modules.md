@@ -1465,6 +1465,10 @@ Contracts:
   safe-draft proof remains an authenticated-PC-editor manual gate, but a submitted safe-draft row
   without disposable draft identity or cleanup/rollback verification is concrete invalid proof.
 - Requirement rows carrying PC paste-specific issues must be `invalid` in the acceptance audit:
+  `style-proof-manifest-authenticated-session-not-verified`,
+  `style-proof-manifest-platform-editor-target-not-verified`,
+  `style-proof-manifest-platform-editor-surface-not-verified`,
+  `style-proof-manifest-platform-editor-dom-not-verified`,
   `style-proof-manifest-ordinary-paste-not-verified`,
   `style-proof-manifest-paste-editor-tab-not-verified`,
   `style-proof-manifest-paste-input-not-verified`,
@@ -1496,6 +1500,13 @@ Required tests:
 - A PC paste manifest whose `pc-paste` row is otherwise exact/authenticated/body-bound but has
   `ordinaryClipboardPasteVerified:false` must keep `pc-editor-paste-event` invalid in both the
   manifest report and the acceptance audit.
+- A PC paste manifest whose `pc-paste` row is otherwise exact, ordinary-paste, same-tab,
+  input/mutation, mojibake-free, and safe-for-commit but misses one of
+  `authenticatedSessionVerified`, `platformEditorTargetVerified`,
+  `platformEditorSurfaceVerified`, or `platformEditorDomVerified` must keep
+  `pc-editor-paste-event` invalid in the requirement-level acceptance audit. The same issue ids
+  remain manual-gate signals when they belong to `authenticated-editor-url` or
+  `pc-editor-dom-readback`.
 - A multi-platform audit must keep WeChat, Xiaohongshu, and Zhihu manifest progress isolated while
   surfacing XHS publish and Zhihu public-host/artifact-manifest gaps.
 - The real ExportModal e2e must show the acceptance audit summary, a preflight row, and per-card

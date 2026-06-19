@@ -1926,3 +1926,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local acceptance-audit classification proof only. It does not prove phone
   preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   public-host availability, platform preview, public article rendering, upload, or publish success.
+
+## 2026-06-19 Style Proof PC Paste Editor Flags Audit
+
+- [x] style-proof-pc-paste-editor-flags-audit-20260619.txt
+- Local acceptance-audit requirement classification hardening for concrete PC paste rows.
+- A `pc-editor-paste-event` row that carries exact artifact, ordinary paste, same editor tab,
+  paste/input, body mutation, mojibake-free, and safe-commit proof but misses authenticated session,
+  editor target, editor surface, or editor DOM proof must keep the requirement-level acceptance
+  audit `invalid`.
+- The same issue ids remain manual-gate signals for `authenticated-editor-url` and
+  `pc-editor-dom-readback`.
+- Focused verification passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  at 1 file / 134 tests.
+- 4-file cross-platform export regression passed at 4 files / 173 tests, and full export serial
+  regression passed at 35 files / 1107 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; Vite built in
+  33.62s and generated `inkforge/tsconfig.tsbuildinfo` was restored after validation.
+- Boundary: this is local acceptance-audit classification proof only. It does not prove WeChat
+  ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft deletion, phone preview,
+  mobile SMIL/click, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public-host availability, platform preview, public article rendering, upload, or publish success.

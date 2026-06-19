@@ -1,0 +1,54 @@
+Style Proof PC Paste Editor Flags Audit - 2026-06-19
+
+Scope:
+- Local requirement-level acceptance-audit classification for redacted StyleProofManifest inputs.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Implemented:
+- Added table-driven regressions for concrete pc-editor-paste-event rows that miss one editor
+  identity/readback flag at a time.
+- Added a requirement-specific invalid issue map for pc-editor-paste-event.
+
+TDD finding:
+- A pc-paste proof row could carry exactArtifact:true, artifactFingerprint, ordinary clipboard
+  paste, same editor tab, paste/input event, editor body mutation, mojibake-free readback, and
+  safeForCommit:true while omitting one of:
+  authenticatedSessionVerified, platformEditorTargetVerified, platformEditorSurfaceVerified, or
+  platformEditorDomVerified.
+- The manifest report already marked pc-editor-paste-event invalid through the corresponding
+  issue id.
+- The acceptance audit downgraded those concrete failed paste proofs to unsafe-to-automate.
+
+Behavior after fix:
+- For pc-editor-paste-event, the four editor identity/readback issue ids are invalid at the
+  requirement-level acceptance audit.
+- The same issue ids still keep authenticated-editor-url and pc-editor-dom-readback on the
+  manual authenticated-PC-editor boundary unless a more specific invalid proof issue is present.
+- The change does not create artifacts and does not change selectable, usable, blocked, or
+  unavailable catalog decisions.
+
+Focused verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 134 tests
+
+Regression verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 173 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1107 tests
+
+Quality gates:
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: Vite built in 33.62s
+- Generated inkforge/tsconfig.tsbuildinfo was restored after validation.
+
+Boundary:
+- This proves local acceptance-audit classification only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste on the live platform, safe draft
+  deletion, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public host acceptance, XHS/Zhihu account upload, or platform
+  publish success.
