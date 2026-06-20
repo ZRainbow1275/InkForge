@@ -2623,14 +2623,17 @@ cd src-tauri && cargo build            # exit 0ï¼ˆkeyring 3.6.3 windows-nativeï¼
 - The current status is `blocked-by-local-conflict` because the combined committed evidence pack
   still exposes exact-artifact fingerprint mismatch. Phone preview, external dependency,
   unsafe-to-automate, and mutating-platform blockers remain visible separately.
+- The local-conflict blocker now includes `fingerprintConflicts` for the current
+  `wechat-flagship-amber` and `wechat-flagship-tempera` local-vs-PC exact artifact conflicts, so
+  dashboards can show which choice/fingerprint families must be collected separately.
 - TDD first run failed because `getCommittedStyleProofEvidenceReleaseGateReport()` did not exist.
   After implementation, the focused release-claim regression passed with
   `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`.
 - Full local verification also passed:
   committed evidence plus release-claim focused group 5 selected tests,
-  `platform-export-rendering.test.ts` 149 tests, four-file cross-platform export regression
-  188 tests, full `src/services/export` serial run 35 files / 1122 tests, targeted ESLint,
-  `vue-tsc --noEmit`, and production build. Vite built in 24.65s, and generated
+  `platform-export-rendering.test.ts` 150 tests, four-file cross-platform export regression
+  189 tests, full `src/services/export` serial run 35 files / 1123 tests, targeted ESLint,
+  `vue-tsc --noEmit`, and production build. Vite built in 26.19s, and generated
   `inkforge/tsconfig.tsbuildinfo` was restored afterward.
 - Boundary: this is local release-claim blocking only. It does not prove WeChat ordinary Ctrl+V
   rich HTML/SVG paste for every flagship, phone preview, mobile SMIL/click, mobile Dark Mode, cover

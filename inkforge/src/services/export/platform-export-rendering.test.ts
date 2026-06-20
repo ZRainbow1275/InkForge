@@ -2003,6 +2003,24 @@ describe('platform native export rendering rules', () => {
       'mutating-platform',
     ]))
     expect(localConflictBlocker?.issueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(localConflictBlocker?.fingerprintConflicts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        platform: 'wechat',
+        choiceId: 'wechat-flagship-amber',
+        fingerprints: expect.arrayContaining([
+          'prompts/0601/evidence/e2e/flagship-amber.png@tauri-webview-e2e',
+          'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d',
+        ]),
+      }),
+      expect.objectContaining({
+        platform: 'wechat',
+        choiceId: 'wechat-flagship-tempera',
+        fingerprints: expect.arrayContaining([
+          'prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e',
+          'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878',
+        ]),
+      }),
+    ]))
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
     expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([

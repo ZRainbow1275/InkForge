@@ -9,6 +9,7 @@ Scope:
 Implemented:
 - CommittedStyleProofReleaseGateStatus
 - CommittedStyleProofReleaseGateBlocker
+- CommittedStyleProofReleaseFingerprintConflict
 - CommittedStyleProofReleaseGateReport
 - getCommittedStyleProofEvidenceReleaseGateReport()
 
@@ -19,6 +20,11 @@ Behavior:
 - Returns status blocked-by-local-conflict because combined committed evidence still exposes the
   exact-artifact fingerprint conflict between local WebView/browser evidence and WeChat PC paste
   evidence.
+- The local-conflict blocker now includes fingerprintConflicts for the current same-choice conflicts:
+  - wechat / wechat-flagship-amber: local Tauri/WebView2 screenshot fingerprint plus the Amber
+    exact HTML SHA.
+  - wechat / wechat-flagship-tempera: local Tauri/WebView2 screenshot fingerprint plus the Tempera
+    entity-safe exact HTML SHA.
 - Keeps external blockers visible at the same time:
   - phone-preview blocker includes phone-preview-readback and related phone rows.
   - external-dependency blocker includes public-image-host and credentialed sync dependencies.
@@ -28,6 +34,8 @@ Behavior:
 TDD:
 - First focused run failed because getCommittedStyleProofEvidenceReleaseGateReport() did not exist.
 - After implementation, the focused regression passed.
+- Conflict detail refresh first failed because fingerprintConflicts was absent on the local-conflict
+  blocker. After implementation, the focused release-claim regression passed again.
 
 Verification:
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default
@@ -35,17 +43,17 @@ Verification:
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default
   PASS: 1 file / 5 selected tests.
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
-  PASS: 1 file / 149 tests.
+  PASS: 1 file / 150 tests.
 - pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
-  PASS: 4 files / 188 tests.
+  PASS: 4 files / 189 tests.
 - pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
-  PASS: 35 files / 1122 tests.
+  PASS: 35 files / 1123 tests.
 - pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
   PASS.
 - pnpm -C inkforge exec vue-tsc --noEmit --pretty false
   PASS.
 - $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
-  PASS: Vite built in 24.65s.
+  PASS: Vite built in 26.19s.
 - Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
 
 Boundary:

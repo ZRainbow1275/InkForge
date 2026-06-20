@@ -6457,11 +6457,27 @@ Impact:
 Implementation:
 - Added `CommittedStyleProofReleaseGateStatus`.
 - Added `CommittedStyleProofReleaseGateBlocker`.
+- Added `CommittedStyleProofReleaseFingerprintConflict`.
 - Added `CommittedStyleProofReleaseGateReport`.
 - Added `getCommittedStyleProofEvidenceReleaseGateReport()`.
 - The report reads only from `getCommittedStyleProofEvidenceExecutionRunbookReport()` and groups
   blockers into local conflict, phone preview, external dependency, unsafe-to-automate, and
   mutating-platform buckets.
+
+Conflict detail refresh:
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge -d upstream --include-tests`
+  reported LOW risk, 1 impacted item, 1 direct test dependent, and 0 affected processes.
+- `npx gitnexus impact CommittedStyleProofReleaseGateBlocker -r InkForge -d upstream --include-tests`
+  reported LOW risk, 2 impacted items, `index.ts` as the direct type-export dependent, and
+  0 affected processes.
+- Added `getCommittedStyleProofReleaseFingerprintConflicts()` to collect same-platform same-choice
+  artifact fingerprint conflicts from committed redacted manifests.
+- The current local-conflict blocker now exposes `fingerprintConflicts` for `wechat-flagship-amber`
+  and `wechat-flagship-tempera`, showing the local Tauri/WebView2 screenshot fingerprints separately
+  from their WeChat PC exact HTML/entity-safe artifact SHAs.
+- TDD refresh first failed because `fingerprintConflicts` was absent; after implementation,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`
+  passed with 1 file / 1 selected test.
 
 Verification:
 - TDD first run failed as expected because `getCommittedStyleProofEvidenceReleaseGateReport()` did
@@ -6471,17 +6487,17 @@ Verification:
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
   - PASS: 1 file / 5 selected tests.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
-  - PASS: 1 file / 149 tests.
+  - PASS: 1 file / 150 tests.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
-  - PASS: 4 files / 188 tests.
+  - PASS: 4 files / 189 tests.
 - `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
-  - PASS: 35 files / 1122 tests.
+  - PASS: 35 files / 1123 tests.
 - `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
   - PASS.
 - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
   - PASS.
 - `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
-  - PASS: Vite built in 24.65s.
+  - PASS: Vite built in 26.19s.
 - Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
 
 Boundary:

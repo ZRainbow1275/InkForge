@@ -2005,7 +2005,9 @@ Contracts:
   conflicts, cannot-claim rows, phone-open steps, external-dependency-open steps,
   unsafe-to-automate rows, or mutating platform rows. Its blockers must group the current release
   barriers into local conflict, phone preview, external dependency, unsafe-to-automate, and
-  mutating-platform buckets.
+  mutating-platform buckets. The local-conflict blocker must expose `fingerprintConflicts` for
+  same-platform same-choice exact-artifact conflicts so operators can see which choices and
+  fingerprints need separate proof collection.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -2041,7 +2043,9 @@ Required tests:
   external-dependency, unsafe-to-automate, and mutating-platform blockers. It must include
   `style-proof-manifest-pack-fingerprint-mismatch`, `phone-preview-readback`, `public-image-host`,
   `sync-readback`, `scheduled-send-readback`, and `published-url-or-platform-preview` in the
-  appropriate blocker rows.
+  appropriate blocker rows, and its local-conflict blocker must include `fingerprintConflicts` for
+  current `wechat-flagship-amber` and `wechat-flagship-tempera` local-vs-PC artifact fingerprint
+  conflicts.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

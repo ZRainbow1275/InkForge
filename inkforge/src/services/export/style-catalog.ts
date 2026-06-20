@@ -886,6 +886,12 @@ export type CommittedStyleProofReleaseGateBlockerKind =
   | 'unsafe-to-automate'
   | 'mutating-platform'
 
+export interface CommittedStyleProofReleaseFingerprintConflict {
+  platform: Platform
+  choiceId: string
+  fingerprints: readonly string[]
+}
+
 export interface CommittedStyleProofReleaseGateBlocker {
   kind: CommittedStyleProofReleaseGateBlockerKind
   status: StyleProofAcceptanceAuditStatus | 'issue'
@@ -894,6 +900,7 @@ export interface CommittedStyleProofReleaseGateBlocker {
   issueIds: readonly StyleProofManifestIssueId[]
   stepCount: number
   message: string
+  fingerprintConflicts?: readonly CommittedStyleProofReleaseFingerprintConflict[]
 }
 
 export interface CommittedStyleProofReleaseGateReport {
@@ -5592,6 +5599,50 @@ function getCommittedStyleProofManifestIssueIds(
     )
 }
 
+function getCommittedStyleProofReleaseFingerprintConflicts(
+  manifests: readonly StyleProofManifest[],
+): CommittedStyleProofReleaseFingerprintConflict[] {
+  const fingerprintsByChoice = new Map<string, {
+    platform: Platform
+    choiceId: string
+    fingerprints: Set<string>
+  }>()
+
+  for (const manifest of manifests) {
+    if (!manifest.choiceId) continue
+    const key = `${manifest.platform}|${manifest.choiceId}`
+    const accumulator = fingerprintsByChoice.get(key) ?? {
+      platform: manifest.platform,
+      choiceId: manifest.choiceId,
+      fingerprints: new Set<string>(),
+    }
+
+    if (manifest.artifactFingerprint) {
+      accumulator.fingerprints.add(manifest.artifactFingerprint)
+    }
+
+    for (const artifact of manifest.artifacts) {
+      if (artifact.artifactFingerprint) {
+        accumulator.fingerprints.add(artifact.artifactFingerprint)
+      }
+    }
+
+    fingerprintsByChoice.set(key, accumulator)
+  }
+
+  return Array.from(fingerprintsByChoice.values())
+    .filter(accumulator => accumulator.fingerprints.size > 1)
+    .map(accumulator => ({
+      platform: accumulator.platform,
+      choiceId: accumulator.choiceId,
+      fingerprints: Array.from(accumulator.fingerprints).sort(),
+    }))
+    .sort((left, right) => {
+      if (left.platform !== right.platform) return left.platform.localeCompare(right.platform)
+      return left.choiceId.localeCompare(right.choiceId)
+    })
+}
+
 function buildCommittedStyleProofReleaseStepBlocker(
   kind: Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>,
   status: StyleProofAcceptanceAuditStatus,
@@ -5635,6 +5686,9 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
   const source = getCommittedStyleProofEvidenceExecutionRunbookReport()
   const openSteps = getCommittedStyleProofRunbookOpenSteps(source)
   const issueIds = getCommittedStyleProofManifestIssueIds(source)
+  const fingerprintConflicts = getCommittedStyleProofReleaseFingerprintConflicts(
+    getCommittedStyleProofEvidenceManifests(),
+  )
   const blockers: CommittedStyleProofReleaseGateBlocker[] = []
 
   if (source.summary.hasExactArtifactFingerprintConflicts || issueIds.length > 0) {
@@ -5646,6 +5700,7 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
       issueIds,
       stepCount: source.summary.combinedIssueCount,
       message: 'Committed local and PC evidence still contain local manifest conflicts; do not claim complete style proof.',
+      ...(fingerprintConflicts.length > 0 ? { fingerprintConflicts } : {}),
     })
   }
 
