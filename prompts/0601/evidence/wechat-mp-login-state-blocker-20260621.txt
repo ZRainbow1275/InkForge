@@ -1,0 +1,25 @@
+WeChat MP Login State Blocker - 2026-06-21
+
+Scope:
+- CloakBrowser-only visual/login-state check for WeChat Official Account Platform.
+- No editor mutation, no draft creation, no paste, no phone preview, no sync, no scheduled send, and no publish action.
+- No QR image, credential material, browser runtime artifact, account identifier, request payload, or raw platform response is committed.
+
+Observed page:
+- URL family: https://mp.weixin.qq.com/
+- Page title: 微信公众平台
+- Visible state: public login entry with the WeChat Official Account Platform brand and a WeChat scan-login panel.
+- The page did not expose an authenticated article editor, editor iframe, editable body, preview dialog, draft list, material manager, or publishing controls.
+
+Decision:
+- Do not treat this as WeChat editor proof.
+- Do not attempt to bypass login, decode the login panel, or automate a phone/account action.
+- Do not claim PC editor paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public rendering, or publish success from this page.
+
+Required operator step:
+- A human operator must complete the official login flow in the visible browser before the next WeChat editor proof attempt.
+- After login, the next safe readback target is an authenticated disposable draft/editor surface with redacted DOM/visual evidence and no committed account material.
+
+Boundary:
+- This is a login-state blocker only.
+- It confirms why the current CloakBrowser session cannot collect WeChat editor, phone, sync, or publish evidence.

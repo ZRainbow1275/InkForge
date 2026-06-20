@@ -7054,3 +7054,39 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 WeChat MP Login State Blocker Slice
+
+Scope:
+- CloakBrowser-only login-state check for the WeChat Official Account Platform.
+- Docs/evidence only. No editor mutation, draft creation, paste, phone preview, sync, upload,
+  scheduled send, publish, QR image artifact, browser runtime artifact, account identifier,
+  credential material, request payload, or raw platform response was committed.
+
+Observation:
+- Opened the WeChat Official Account Platform entry page.
+- Page title was `微信公众平台`.
+- The visible state was a public login page with a WeChat scan-login panel.
+- No authenticated editor, editor iframe, editable article body, preview dialog, draft list,
+  material manager, or publishing control surface was available.
+
+Implementation:
+- Added `prompts/0601/evidence/wechat-mp-login-state-blocker-20260621.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+- No runtime code change was needed; the existing release/runbook gate already treats login and
+  editor proof as external/operator work.
+
+Verification:
+- CloakBrowser status/title confirmed the public WeChat Official Account Platform entry page.
+- `git diff --check` on this docs/evidence slice passed with only Windows CRLF conversion
+  warnings.
+- Sensitive scan on the docs/evidence diff and new evidence file returned no matches.
+- GitNexus `detect_changes` reported low risk and 0 affected processes; unrelated dirty files
+  remain outside this slice's commit boundary.
+
+Boundary:
+- This is a login-state blocker only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, or publish success.

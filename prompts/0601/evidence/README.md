@@ -2659,3 +2659,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
   preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 WeChat MP Login State Blocker
+
+- [x] wechat-mp-login-state-blocker-20260621.txt
+- CloakBrowser opened the WeChat Official Account Platform entry page.
+- The visible state was a public login entry with a WeChat scan-login panel, not an authenticated
+  article editor, preview surface, draft list, material manager, or publishing control surface.
+- No QR image, browser runtime artifact, account identifier, credential material, request payload,
+  or raw platform response was committed.
+- The next WeChat proof attempt still requires a human operator to complete the official login flow
+  in the visible browser, then use a disposable authenticated editor/draft surface for redacted
+  DOM/visual readback.
+- Boundary: this is a login-state blocker only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, public
+  article rendering, or publish success.

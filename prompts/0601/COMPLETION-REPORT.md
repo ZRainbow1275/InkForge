@@ -3036,3 +3036,24 @@ Boundary:
 - Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
   preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 WeChat MP Login State Blocker Addendum
+
+- Added `prompts/0601/evidence/wechat-mp-login-state-blocker-20260621.txt`.
+- CloakBrowser opened the WeChat Official Account Platform entry page and confirmed page title
+  `微信公众平台`.
+- The visible state was a public login page with a WeChat scan-login panel, not an authenticated
+  article editor, editor iframe, preview dialog, draft list, material manager, or publishing
+  control surface.
+- No QR image, browser runtime artifact, account identifier, credential material, request payload,
+  or raw platform response was committed.
+- The next WeChat proof attempt still requires a human operator to complete the official login flow
+  in the visible browser before collecting redacted authenticated editor/draft readback.
+- Verification passed: CloakBrowser status/title check, `git diff --check` with only Windows CRLF
+  conversion warnings, sensitive scan with no matches, and GitNexus `detect_changes` low risk with
+  0 affected processes.
+- Boundary: this is a login-state blocker only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, public
+  article rendering, or publish success.

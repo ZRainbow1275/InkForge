@@ -2450,3 +2450,27 @@ Documentation rules:
 - Completion reports must state that this snapshot proves local accounting only.
 - The snapshot must not be used as phone preview, mobile interaction, Dark Mode, cover thumbnail,
   sync, scheduled-send, public-host, upload, or publish proof.
+
+## 22. WeChat MP Login-State Blocker - 2026-06-21
+
+WeChat Official Account Platform evidence must distinguish an authenticated editor surface from a
+public login entry.
+
+Contracts:
+- A visible scan-login panel, account-login form, sign-in route, or public landing page is a
+  blocker, not editor proof.
+- Login-state evidence may record the URL family, page title, and high-level visible state, but it
+  must not commit QR imagery, account identifiers, credential material, browser runtime artifacts,
+  raw request payloads, or raw platform responses.
+- A login-state blocker must not satisfy `authenticated-editor-url`, `pc-editor-paste-event`,
+  `pc-editor-dom-readback`, `phone-preview-readback`, `phone-screenshot`, `dark-mode-check`,
+  `cover-thumbnail-check`, `sync-readback`, `scheduled-send-readback`, or
+  `published-url-or-platform-preview`.
+- The next valid WeChat proof attempt requires a human-completed official login in the visible
+  browser, followed by a disposable authenticated editor/draft surface and redacted DOM/visual
+  readback.
+
+Required checks:
+- Documentation must name login-state pages as blockers, not proof.
+- Completion reports must keep this separate from WeChat paste, phone preview, sync,
+  scheduled-send, public preview, and publish acceptance.
