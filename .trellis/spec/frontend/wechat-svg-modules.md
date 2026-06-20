@@ -2265,6 +2265,11 @@ Required tests/checks:
   `tn-cell-type` / `tn-child-position`, `opera-tn-ra-*`, and `disable-tn-*` in publishable output.
 - CSS `url(...)` references to 135/Xiumi hosted media must fail as market editor residue, including
   background-image layers that do not use `<img>`/`<image>` tags.
+- 2026-06-21 CloakBrowser refresh adds two exact residue labels:
+  `135 SVG background style marker` for copied 135 inline `svg:135` background-SVG style markers,
+  and `Xiumi template renderer pipeline residue` for copied Xiumi template preview/injection
+  pipeline markers such as `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`,
+  `tn-tpl-pose-fit-box`, `renderer_accelerate`, and `validateImageTypeInHtml`.
 - Every platform style choice must expose the matching market-residue quality issue in
   `detectorBlockers`: `wechat-market-editor-residue`, `xhs-market-editor-residue`, or
   `zhihu-market-editor-residue`.

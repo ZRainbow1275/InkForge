@@ -788,6 +788,14 @@ Zhihu.
   `ant-switch-checked` trigger switches. This confirms that the existing detector coverage for
   trigger, placeholder, image-slot, spacing, gap, and slider authoring residue is still the right
   enforcement path.
+- 2026-06-21 CloakBrowser SVG background-style refresh: a material-included 135 free-trial layer
+  exposed a tall background SVG using `background-attachment`, `background-position`,
+  `background-repeat`, `background-size:100.1% 100.1%`, `margin-top:-1px`,
+  `pointer-events:none`, `user-select:none`, `vertical-align:top`, `width:100%`, and the
+  135-specific inline style marker `svg:135`. That marker must fail as
+  `135 SVG background style marker` if copied into WeChat/XHS/Zhihu publishable output. The
+  layout idea may only be rewritten into an InkForge-owned image-slot/fallback manifest plus a
+  layout report.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
@@ -840,6 +848,12 @@ Xiumi SVG/H5 rules:
   application proof. Do not automate restore/cancel decisions. Treat this as taxonomy and blocker
   evidence only until an operator safely clears the account/editor state and the center editor
   mutation is read back.
+- 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
+  injection/preview pipeline in the visible template list and hidden controls. Markers included
+  `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,
+  `renderer_accelerate`, and `validateImageTypeInHtml`. These are Xiumi authoring/rendering
+  pipeline residue, not portable article HTML. They must fail as
+  `Xiumi template renderer pipeline residue` if copied into WeChat/XHS/Zhihu output.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -855,6 +869,7 @@ Evidence:
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`
+- `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

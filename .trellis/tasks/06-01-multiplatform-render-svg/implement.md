@@ -7169,3 +7169,51 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 Market Editor SVG Pipeline Residue Refresh Slice
+
+Scope:
+- CloakBrowser-only live 135/Xiumi market-editor learning and local detector hardening.
+- No save, export, sync, upload, scheduled send, publish, phone preview, screenshot capture, HAR,
+  credential entry, account artifact, or browser profile artifact.
+
+Live observations:
+- 135 SVG editor: opened the live SVG editor, clicked a visible `免费试用` effect, and read the
+  center `.editor-content` DOM. The editor exposed 12 SVG nodes, 2 section wrappers, 39 inline
+  style nodes, 264 clickable/authoring candidates, zero-font/zero-line-height section wrappers,
+  and background SVG style markers including `svg:135`.
+- Xiumi v5: opened the live paper editor, cancelled the unsaved-draft recovery prompt, and read
+  taxonomy/export/animation/template DOM. The editor exposed export paths for preview/save/export,
+  sync to official account, plugin copy, continued copy/paste, and copy to WeChat. Template
+  renderer markers included `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`,
+  `tn-tpl-pose-fit-box`, `renderer_accelerate`, and `validateImageTypeInHtml`.
+
+Implementation:
+- Added `135 SVG background style marker` to market-editor residue detection.
+- Added `Xiumi template renderer pipeline residue` to market-editor residue detection.
+- Added regression fixtures and assertions in `platform-export-rendering.test.ts` so WeChat,
+  Xiaohongshu, and Zhihu all emit their platform-specific market-editor-residue issues for these
+  copied authoring markers.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`.
+
+Verification:
+- TDD first run failed because the 135 `svg:135` marker was unclassified and the Xiumi template
+  renderer pipeline only surfaced as generic tn/Angular residue.
+- Focused TDD pair passed after implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG background style markers|Xiumi template renderer pipeline" --reporter=default`
+  passed 1 file / 2 selected tests.
+- Adjacent market regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market editor|135 SVG|Xiumi" --reporter=default`
+  passed 1 file / 18 selected tests.
+- Pre-edit GitNexus impact for `MARKET_EDITOR_RESIDUE_RULES` was LOW with 0 impacted items and
+  0 affected processes.
+
+Boundary:
+- This is market-editor DOM learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

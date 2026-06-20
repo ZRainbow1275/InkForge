@@ -77,6 +77,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor layout control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bstyle\s*=\s*["'][^"']*\bsvg\s*:\s*135\b[^"']*["']/i,
+    label: '135 SVG background style marker',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\bdata-id\s*=\s*["']\d{3,}["'][^>]*(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])|(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])[^>]*\bdata-id\s*=\s*["']\d{3,}["'])/i,
     label: '135 numeric style id on copied market block',
   },
@@ -91,6 +95,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-image-inst-wrapper|tn-quick-input(?:-block|-comp)?|tn-page-vessel|tn-group-(?:box-wrapper|sortable-box|fixed-box)|tn-sortable-pin|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active|tn-overflow-hidden|tn-content-overlap)\b[^"']*["']/i,
     label: 'Xiumi SVG gallery state wrapper residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:\bng-bind-html\s*=\s*["'][^"']*(?:renderer_accelerate|validateImageTypeInHtml)|\bng-class\s*=\s*["'][^"']*tpl2BoxClasses|\bng-click\s*=\s*["'][^"']*tplLib\.onTemplateClicked|\bng-switch\s*=\s*["'][^"']*tpl2PresentType|\btn-tpl-pose-fit-box\s*=)/i,
+    label: 'Xiumi template renderer pipeline residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,

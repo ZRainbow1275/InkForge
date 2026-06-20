@@ -2708,3 +2708,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local Tauri/WebView2 e2e proof only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Market Editor SVG Pipeline Residue Refresh
+
+- [x] market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt
+- CloakBrowser opened the live 135 SVG editor, clicked a visible `免费试用` SVG effect, and read
+  the center `.editor-content` DOM without saving, exporting, syncing, uploading, publishing, or
+  capturing account artifacts.
+- 135 background SVG layers exposed a 135-specific `svg:135` inline-style marker alongside
+  background positioning/sizing, zero-gap section wrappers, `pointer-events:none`,
+  `user-select:none`, and tall `viewBox="0 0 1080 1920"` geometry.
+- CloakBrowser opened the live Xiumi v5 paper editor, cancelled the unsaved-draft recovery prompt,
+  and read taxonomy, export menu, animation controls, and template-renderer markers without
+  mutating account/editor state.
+- Xiumi exposed template pipeline markers such as `tplLib.onTemplateClicked`, `tpl2BoxClasses`,
+  `tpl2PresentType`, `tn-tpl-pose-fit-box`, `renderer_accelerate`, and
+  `validateImageTypeInHtml`.
+- Added detector labels `135 SVG background style marker` and
+  `Xiumi template renderer pipeline residue`, both routed through the existing
+  WeChat/XHS/Zhihu market-editor-residue issues.
+- Verification passed: focused TDD pair with 2 selected tests and adjacent market/135/Xiumi
+  regression with 18 selected tests.
+- Boundary: this is market-editor DOM learning and local detector enforcement only. It does not
+  prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, public preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.

@@ -3099,3 +3099,32 @@ Boundary:
 - Boundary: this is local Tauri/WebView2 e2e proof only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 Market Editor SVG Pipeline Residue Refresh Addendum
+
+- Added `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`.
+- Used CloakBrowser only. Opened the live 135 SVG editor, clicked a visible `免费试用` effect, and
+  read the center `.editor-content` DOM without save, export, sync, upload, publish, screenshot
+  capture, HAR, credential entry, account artifact, or browser profile artifact.
+- 135 observation: material-included background SVG layers exposed zero-gap section wrappers and
+  a 135-specific inline style marker `svg:135` alongside `background-attachment`,
+  `background-position`, `background-repeat`, `background-size:100.1% 100.1%`,
+  `margin-top:-1px`, `pointer-events:none`, `user-select:none`, `vertical-align:top`, and
+  `width:100%`.
+- Used CloakBrowser only on Xiumi v5 paper editor, cancelled the unsaved-draft recovery prompt,
+  and read taxonomy/export/animation/template DOM without mutating account/editor state.
+- Xiumi observation: the template list and hidden controls exposed renderer pipeline markers
+  `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,
+  `renderer_accelerate`, and `validateImageTypeInHtml`.
+- Added detector labels `135 SVG background style marker` and
+  `Xiumi template renderer pipeline residue`, both routed through existing
+  WeChat/XHS/Zhihu market-editor-residue issues.
+- Verification passed:
+  focused TDD pair at 1 file / 2 selected tests, and adjacent market/135/Xiumi regression at
+  1 file / 18 selected tests.
+- Boundary: this is market-editor DOM learning and local detector enforcement only. It does not
+  prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, public preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.

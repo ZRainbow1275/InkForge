@@ -200,6 +200,12 @@ const MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_BACKGROUND_STYLE_RESIDUE_HTML = [
+  '<section style="font-size:0 !important;line-height:0 !important;margin:0;padding:0;text-align:center">',
+  '<svg viewBox="0 0 1080 1920" style="background-attachment:scroll;background-position:center;background-repeat:no-repeat;background-size:100.1% 100.1%;display:inline-block;margin-top:-1px;pointer-events:none;svg:135;user-select:none;vertical-align:top;width:100%"></svg>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0" disable-tn-group-flex-box="block">',
@@ -256,6 +262,16 @@ const MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML = [
   '</div>',
   '</article>',
   '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML = [
+  '<li class="tn-tpl-item tn-lighting-box ng-scope" ng-repeat="tpl in tnDataList track by $id(tpl)" ng-click="tplLib.onTemplateClicked($event, tpl)" ng-switch="::tpl | tpl2PresentType:true">',
+  '<div class="tn-tpl-comp-box lighting-hover with-ra ng-scope" ng-class="::tpl | tpl2BoxClasses">',
+  '<div class="wrapper" tn-tpl-pose-fit-box="::tpl">',
+  '<div class="tn-tpl-comp-item tn-tpl-ra-bind-box ng-binding" ng-bind-html="::tpl.renderer_accelerate | validateImageTypeInHtml | unsafe">点击蓝字 关注我们</div>',
+  '</div>',
+  '</div>',
+  '</li>',
 ].join('')
 
 const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
@@ -6801,6 +6817,22 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
+  it('blocks 135 SVG background style markers copied from the live free-trial editor', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_BACKGROUND_STYLE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_BACKGROUND_STYLE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_BACKGROUND_STYLE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG background style marker')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG background style marker')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG background style marker')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
   it('blocks Xiumi applied-editor runtime binding attributes from publishable outputs', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'xiaohongshu')
@@ -6882,6 +6914,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi component binding attribute residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi component binding attribute residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi template renderer pipeline residues from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template renderer pipeline residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi template renderer pipeline residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi template renderer pipeline residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
