@@ -176,6 +176,18 @@ const MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div class="block-spacing" style="top:10px;left:0;display:none"></div>',
+  '<div class="block-gap" style="top:10px;left:0;display:none"></div>',
+  '<div class="gap-item-wrapper" style="display:none">',
+  '<div class="ant-slider-track" style="left:0%;width:90%"></div>',
+  '<div class="ant-slider-handle" style="left:90%;transform:translateX(-50%)"></div>',
+  '</div>',
+  '<input class="article-item__editing" style="display:none" value="135 SVG editor title">',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML = [
   '<section style="font-size:0;line-height:0;background-size:100.1% 100.1%;margin-top:-1px;vertical-align:top;pointer-events:none">',
   '<svg viewBox="0 0 1080 1920" width="100%"></svg>',
@@ -6505,6 +6517,22 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG editor shell residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG editor shell residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG editor layout controls from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

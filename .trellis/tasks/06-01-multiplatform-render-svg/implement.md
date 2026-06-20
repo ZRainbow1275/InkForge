@@ -6038,6 +6038,69 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 135 SVG Editor Layout Control Residue Contract Slice
+
+Scope:
+- CloakBrowser-only 135 SVG editor applied-state refresh plus local quality-detector hardening.
+- No save, export, sync, upload, publish, payment action, phone preview capture, screenshot
+  artifact, browser profile artifact, account artifact, QR material, token, cookie, HAR artifact,
+  template source, private SVG source, hosted material URL, or local browser path was committed.
+
+Impact:
+- GitNexus index refreshed after `408eb82`.
+- `MARKET_EDITOR_RESIDUE_RULES`: LOW risk, 0 affected processes.
+
+Observed:
+- Active 135 SVG editor free-trial page exposed SVG effect families such as click, carousel,
+  slide, auto, audio/video, expand, long-press, layout, WeChat, mini-program link, and other
+  categories.
+- After clicking a visible `免费试用` control, the center `.content-canvas` exposed
+  `nodes=328`, `svgs=11`, `images=4`, `inlineStyle=46`, `dataName=11`, `absolute=90`,
+  `zeroFont=4`, and `hidden=54`.
+- Newly relevant authoring-control residue included `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, `article-item__editing`, `ant-slider-track`, and `ant-slider-handle`.
+
+Implementation:
+- Added `135 SVG editor layout control residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- Added a regression fixture that contains only the new spacing/gap/title-edit controls, proving
+  the label is emitted across WeChat, Xiaohongshu, and Zhihu without relying on `_135editor`,
+  `app-content-canvas`, known builder `data-name`, trigger overlay classes, hosted material URLs,
+  or previous shell markers.
+
+Verification:
+- TDD first run failed as expected because the detector produced no market-editor residue issue for
+  the layout-control-only fixture.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor layout controls" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor layout controls|135 SVG editor shell wrappers|135 background-only SVG|135 SVG trigger|135 SVG builder canvas|market editor residue" --reporter=default`
+  - PASS: 1 file / 7 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 150 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 189 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1123 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 26.30s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+
+Artifacts:
+- Added `prompts/0601/evidence/135-svg-editor-layout-control-residue-contract-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`, and
+  `prompts/0601/evidence/README.md`.
+
+Boundary:
+- This is 135 SVG editor authoring-control learning and local detector enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.
+
 ## 2026-06-20 Style Proof Committed Evidence Combined Audit Slice
 
 Scope:

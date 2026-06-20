@@ -759,6 +759,11 @@ Zhihu.
   `block-img__inner`, `placeholder__help`, `placeholder__icon`, `article-item__inner`,
   `article-item__label`, and `article-item__del`. Specific shell markers are blocked as
   `135 SVG editor shell residue` if copied into WeChat/XHS/Zhihu output.
+- 2026-06-20 CloakBrowser layout-control refresh: a visible 135 SVG free-trial click populated the
+  center canvas with authoring-only spacing, gap, slider, and hidden title-edit controls such as
+  `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`,
+  `ant-slider-track`, and `ant-slider-handle`. These may inform InkForge-owned spacing policy and
+  gap-removal schema only; copied controls are blocked as `135 SVG editor layout control residue`.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
@@ -816,6 +821,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`
 - `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
 - `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`
+- `prompts/0601/evidence/135-svg-editor-layout-control-residue-contract-20260620.txt`
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

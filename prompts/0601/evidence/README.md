@@ -2268,6 +2268,31 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public host, or publish success.
 
+## 2026-06-20 135 SVG Editor Layout Control Residue Contract
+
+- [x] 135-svg-editor-layout-control-residue-contract-20260620.txt
+- Used CloakBrowser only on the active 135 SVG editor free-trial page after clicking a visible
+  `免费试用` control and reading the center `.content-canvas` state.
+- The applied center canvas exposed `nodes=328`, `svgs=11`, `images=4`, `inlineStyle=46`,
+  `dataName=11`, `absolute=90`, `zeroFont=4`, and `hidden=54`.
+- Newly blocked authoring-control residue includes `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, `article-item__editing`, `ant-slider-track`, and `ant-slider-handle`.
+- Converted these controls into the runtime residue label
+  `135 SVG editor layout control residue`, without relying on `_135editor`,
+  `app-content-canvas`, known builder `data-name`, trigger overlay classes, hosted material URLs,
+  or previous shell markers.
+- TDD first run failed because the layout-control-only fixture produced no market-editor residue
+  issue. After the rule update, the focused layout-control regression passed.
+- Full verification passed: adjacent 135/market residue regression 7 selected tests,
+  `platform-export-rendering.test.ts` 150 tests, four-file cross-platform export regression
+  189 tests, full export serial regression 35 files / 1123 tests, targeted ESLint, `vue-tsc`, and
+  production build. Vite built in 26.30s, and generated `inkforge/tsconfig.tsbuildinfo` was
+  restored afterward.
+- Boundary: this is 135 SVG editor authoring-control learning and local detector enforcement only.
+  It does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-06-20 135 Background-Only SVG Compatibility Fixture
 
 - [x] 135-background-only-svg-compatibility-fixture-20260620.txt

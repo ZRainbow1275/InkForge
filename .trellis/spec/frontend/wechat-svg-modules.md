@@ -2113,6 +2113,12 @@ Contracts:
   markers such as `block-img__inner`, `placeholder__help/icon`, `article-item__inner/label/del`,
   and `articles_pop` must fail as `135 SVG editor shell residue` if copied into WeChat/XHS/Zhihu
   publishable output.
+- 2026-06-20 135 SVG editor layout-control refresh: after a visible free-trial click, the center
+  `.content-canvas` can expose authoring-only spacing and title-edit controls such as
+  `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`,
+  `ant-slider-track`, and `ant-slider-handle`. These controls are residue, not reusable layout
+  source, and must fail as `135 SVG editor layout control residue` across WeChat, Xiaohongshu, and
+  Zhihu publishable output.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be

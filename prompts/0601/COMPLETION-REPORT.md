@@ -2556,6 +2556,34 @@ cd src-tauri && cargo build            # exit 0（keyring 3.6.3 windows-native�
 
 ---
 
+## 2026-06-20 135 SVG Editor Layout Control Residue Addendum
+
+- Added `prompts/0601/evidence/135-svg-editor-layout-control-residue-contract-20260620.txt`.
+- Used CloakBrowser only on the active 135 SVG editor free-trial page. No save, export, sync,
+  upload, publish, payment action, phone preview capture, screenshot artifact, profile artifact,
+  account artifact, QR material, token, cookie, HAR artifact, template source, private SVG source,
+  hosted material URL, or local browser path was committed.
+- After clicking a visible `免费试用` control, the center `.content-canvas` exposed
+  `nodes=328`, `svgs=11`, `images=4`, `inlineStyle=46`, `dataName=11`, `absolute=90`,
+  `zeroFont=4`, and `hidden=54`.
+- Added the dedicated runtime detector label `135 SVG editor layout control residue` for
+  `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`,
+  `ant-slider-track`, and `ant-slider-handle`.
+- TDD first run failed because the layout-control-only fixture produced no market-editor residue
+  issue. The focused regression then passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor layout controls" --reporter=default`.
+- Full local verification also passed:
+  adjacent 135/market residue regression 7 selected tests, `platform-export-rendering.test.ts`
+  150 tests, four-file cross-platform export regression 189 tests, full `src/services/export`
+  serial run 35 files / 1123 tests, targeted ESLint, `vue-tsc --noEmit`, and production build.
+  Vite built in 26.30s, and generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is 135 SVG editor authoring-control learning and local detector enforcement only.
+  It does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
 ## 2026-06-20 Style Proof Committed Evidence Runbook Report Addendum
 
 - Added `prompts/0601/evidence/style-proof-committed-evidence-runbook-report-20260620.txt`.
