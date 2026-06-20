@@ -1,0 +1,52 @@
+Xiumi SVG Recheck Recovery Modal Blocker - 2026-06-21
+
+Scope:
+- CloakBrowser-only live recheck of the Xiumi v5 paper editor.
+- Opened the live paper editor route and selected the left-side SVG category.
+- Attempted to inspect the center `.tn-editing-panel` before claiming any applied proof.
+- No screenshot file, browser capture artifact, network archive, credential material, QR artifact,
+  account data, browser-profile directory, or capture file location is committed as evidence.
+
+Observed route state:
+- Page title: "图文: (无标题) | 秀米XIUMI".
+- Editor root: `.tn-editing-panel`.
+- Left-side categories included title, card, layout, SVG, and component entries.
+- Clicking the SVG category exposed SVG families such as basic SVG, image carousel, click-expand,
+  path animation, slide trigger, click switch, page flip, zoom, long-press switch, area trigger,
+  and click + auto.
+- Visible SVG list items included gallery/scrolling effects and explicit notes that some samples
+  require sync or plugin upload to the WeChat backend.
+
+Center DOM readback before safe application:
+- `.tn-editing-panel` was readable.
+- htmlLength: 553528
+- tn-comp / tnComp-like nodes: 330 after SVG category open
+- tn-cell / tnCell-like nodes: 385 after SVG category open
+- raw-image markers: 67
+- img nodes: 184
+- svg nodes visible in the page after SVG category open: 241
+- ng-* attributes in page scope: 5876
+- tn-bind-comp-tpl-id: 2
+- tn-comp-role: 1
+- opera-tn-ra-* attributes: 5
+
+Blocker:
+- A visible recovery confirmation dialog blocked reliable application proof:
+  "检测到草稿上次没有保存到服务器，是否恢复?"
+- The dialog asks the operator to choose whether to restore a previous unsaved draft.
+- The safe action is not to click either recovery choice automatically. Restoring or discarding
+  a draft is account/editor state, not a local rendering proof step.
+
+Result:
+- This recheck proves only that the Xiumi SVG category and live editor DOM are reachable and that
+  the current session is blocked by an account/editor recovery decision.
+- It does not prove that the clicked SVG sample was applied into the center editor.
+- It does not create a valid `market-applied-dom-readback` row.
+- Existing rules remain correct: Xiumi SVG category/list evidence is taxonomy only until the
+  center `.tn-editing-panel` mutates and the mutated authoring DOM is read back.
+
+Boundary:
+- This is a blocked market-editor DOM recheck only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  sync, scheduled send, public preview, Xiaohongshu/Zhihu upload, public-host acceptance, or
+  publish success.

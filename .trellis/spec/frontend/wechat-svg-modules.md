@@ -2220,6 +2220,12 @@ Contracts:
   static/auto/raster/carousel-page/long-image fallbacks, but they must not satisfy mobile tap,
   swipe, long-press, or publish proof. Plugin/sync/enhanced-mode effects stay behind credentialed
   channel proof.
+- 2026-06-21 Xiumi SVG recovery-modal recheck: the live v5 paper editor exposed the SVG taxonomy
+  and a readable `.tn-editing-panel`, but a recovery confirmation dialog asked whether to restore a
+  previous unsaved draft. Do not automate either recovery choice. A blocked recovery dialog means
+  the run is taxonomy/readability evidence only; it is not `market-applied-dom-readback` and must
+  not satisfy applied proof until the center editor mutation is safely operator-confirmed and read
+  back.
 - 2026-06-20 executable fallback-catalog contract: market SVG/H5/rich-layout taxonomy is now
   represented in `PLATFORM_STYLE_CHOICES` as blocked fallback choices instead of hidden prose:
   `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and

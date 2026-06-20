@@ -835,6 +835,11 @@ Xiumi SVG/H5 rules:
   requires real image-page/long-image manifest proof; Zhihu requires public-host image fallback
   proof with alt/caption and manifest validation. None may map to a selectable preset until exact
   InkForge-owned artifacts exist.
+- 2026-06-21 Xiumi SVG recovery-modal recheck: the live v5 paper editor exposed the SVG taxonomy
+  and a readable `.tn-editing-panel`, but an unsaved-draft recovery confirmation blocked safe
+  application proof. Do not automate restore/cancel decisions. Treat this as taxonomy and blocker
+  evidence only until an operator safely clears the account/editor state and the center editor
+  mutation is read back.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -849,6 +854,7 @@ Evidence:
 - `prompts/0601/evidence/135-svg-free-trial-cloakbrowser-recheck-20260621.txt`
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
+- `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

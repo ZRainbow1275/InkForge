@@ -2991,3 +2991,21 @@ Boundary:
 - Boundary: this is market-editor DOM learning only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 Xiumi SVG Recovery Modal Blocker Addendum
+
+- Added `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`.
+- CloakBrowser opened the live Xiumi v5 paper editor, selected the SVG category, and read the
+  center `.tn-editing-panel` state.
+- The SVG category exposed families such as basic SVG, image carousel, click-expand, path
+  animation, slide trigger, click switch, page flip, zoom, long-press switch, area trigger, and
+  click + auto.
+- A recovery confirmation dialog asked whether to restore a previous unsaved draft. I did not click
+  either choice because that would mutate account/editor state.
+- No Xiumi applied proof was claimed from this run. The result is a blocked market-editor DOM
+  recheck, not a `market-applied-dom-readback` proof row.
+- Boundary: this does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail, sync, scheduled send, public preview, XHS/Zhihu upload, public-host acceptance, or
+  publish success.

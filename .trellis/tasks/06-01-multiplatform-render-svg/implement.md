@@ -6971,3 +6971,41 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 Xiumi SVG Recovery Modal Blocker Slice
+
+Scope:
+- CloakBrowser-only live recheck of the Xiumi v5 paper editor SVG category.
+- Docs/evidence only. No renderer, detector, UI, manifest, browser profile, capture artifact, QR,
+  credential material, or account artifact was added.
+
+Observation:
+- Opened the live Xiumi v5 paper editor and confirmed `.tn-editing-panel` plus left-side title,
+  card, layout, SVG, and component categories.
+- Clicked the SVG category and read the visible SVG taxonomy: basic SVG, image carousel,
+  click-expand, path animation, slide trigger, click switch, page flip, zoom, long-press switch,
+  area trigger, and click + auto.
+- SVG list items included explicit plugin/sync upload language for WeChat backend delivery.
+- Center DOM remained readable with high-volume `tn-*`, `ng-*`, `raw-image`, `tn-bind-comp-tpl-id`,
+  `tn-comp-role`, and `opera-tn-ra-*` markers.
+
+Blocker:
+- A visible Xiumi recovery confirmation dialog asked whether to restore a previous unsaved draft.
+- I did not click recovery or cancel. That account/editor state decision is unsafe to automate and
+  cannot be used as local rendering proof.
+- The attempted sample click did not produce a reliable center `.tn-editing-panel` mutation for
+  the selected sample, so this slice records a blocker rather than an applied proof.
+
+Implementation:
+- Added `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- `git diff --check` on this docs/evidence slice passed.
+
+Boundary:
+- This is a blocked market-editor DOM recheck only.
+- It does not prove Xiumi applied content, WeChat paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

@@ -2626,3 +2626,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is market-editor DOM learning only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Xiumi SVG Recovery Modal Blocker
+
+- [x] xiumi-svg-recheck-recovery-modal-blocker-20260621.txt
+- CloakBrowser opened the live Xiumi v5 paper editor and selected the left-side SVG category.
+- The SVG category exposed families such as basic SVG, image carousel, click-expand, path
+  animation, slide trigger, click switch, page flip, zoom, long-press switch, area trigger, and
+  click + auto.
+- The center `.tn-editing-panel` was readable and still contained high-volume `tn-*`, `ng-*`,
+  `raw-image`, `tn-bind-comp-tpl-id`, `tn-comp-role`, and `opera-tn-ra-*` authoring markers.
+- A recovery confirmation dialog asked whether to restore a previous unsaved draft, so no recovery
+  or cancel action was automated and no applied proof was claimed.
+- Boundary: this is a blocked market-editor DOM recheck only. It does not prove Xiumi applied
+  content, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
