@@ -3234,3 +3234,21 @@ Boundary:
   direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+---
+
+## 2026-06-21 WeChat Session Timeout Post-Reboot Recheck Addendum
+
+- Added `prompts/0601/evidence/wechat-session-timeout-post-reboot-recheck-20260621.txt`.
+- Used CloakBrowser only after the local reboot. The WeChat backend home route still returned
+  title `公众号` with visible relogin text beginning `请重新登录`.
+- DOM readback found zero authenticated editor candidates for `#js_editor`, `#js_appmsg_editor`,
+  `#ueditor_0`, `.edui-editor`, `.ProseMirror`, `.rich_media_content`,
+  `[contenteditable="true"]`, `iframe`, or `[data-action]`.
+- No login attempt, credential entry, QR capture, draft creation, paste, save, preview, sync,
+  upload, scheduled send, publish, screenshot capture, HAR capture, account artifact, browser
+  runtime artifact, or raw platform response was recorded.
+- Boundary: this is external session-state blocker evidence only. It does not prove authenticated
+  editor access, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.

@@ -1,0 +1,40 @@
+WeChat Session Timeout Post-Reboot Read-Only Recheck - 2026-06-21
+
+Scope:
+- CloakBrowser-only read-only check after the local machine reboot.
+- Opened the WeChat Official Account backend home route.
+- No login attempt, credential entry, QR capture, draft creation, paste, save, preview, sync,
+  upload, scheduled send, publish, screenshot capture, HAR capture, account artifact, browser
+  runtime artifact, or raw platform response was recorded.
+
+Observation:
+- Page title: `公众号`.
+- Page URL: `https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN`.
+- Visible text was limited to the relogin/public footer state:
+  `请重新登录 关于腾讯 服务协议 规则中心 腾讯客服 侵权投诉 Copyright © 2012-2026 Tencent. All Rights Reserved.`
+- DOM readback found no authenticated editor surface:
+  - `#js_editor`: 0
+  - `#js_appmsg_editor`: 0
+  - `#ueditor_0`: 0
+  - `.edui-editor`: 0
+  - `.ProseMirror`: 0
+  - `.rich_media_content`: 0
+  - `[contenteditable="true"]`: 0
+  - `iframe`: 0
+  - `[data-action]`: 0
+- Login/expired-session text was present.
+- Editor hint text was absent.
+
+Conclusion:
+- The fixed local CloakBrowser session is still not on an authenticated WeChat article editor after
+  reboot.
+- This page cannot satisfy PC editor DOM, PC paste, disposable draft, phone preview, cover,
+  Dark Mode, sync, scheduled send, platform preview, public article rendering, or publish proof.
+- The existing release gate must remain blocked for all WeChat credentialed, phone, sync, and
+  publish rows.
+
+Boundary:
+- This is external session-state blocker evidence only.
+- It does not prove authenticated editor access, WeChat paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public article rendering,
+  Xiaohongshu/Zhihu upload, public-host acceptance, or publish success.

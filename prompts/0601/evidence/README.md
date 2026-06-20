@@ -2819,3 +2819,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+## 2026-06-21 WeChat Session Timeout Post-Reboot Recheck
+
+- [x] wechat-session-timeout-post-reboot-recheck-20260621.txt
+- CloakBrowser-only read-only recheck after the local reboot opened the WeChat backend home route.
+- Page title remained `公众号`, visible text was the relogin/public footer state beginning with
+  `请重新登录`, and DOM readback found zero editor candidates for `#js_editor`,
+  `#js_appmsg_editor`, `#ueditor_0`, `.edui-editor`, `.ProseMirror`, `.rich_media_content`,
+  `[contenteditable="true"]`, `iframe`, or `[data-action]`.
+- No login attempt, credential entry, QR capture, draft creation, paste, save, preview, sync,
+  upload, scheduled send, publish, screenshot capture, HAR capture, account artifact, browser
+  runtime artifact, or raw platform response was recorded.
+- Boundary: this is session-state blocker evidence only. It does not prove authenticated editor
+  access, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.
