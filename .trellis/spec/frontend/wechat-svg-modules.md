@@ -2328,3 +2328,44 @@ Required checks:
 - Regression tests must reject a PC editor DOM row that has authenticated session, target, surface,
   DOM readback, and safe-for-commit flags but lacks `mojibakeFreeVerified:true`; unrelated
   `no-sensitive-artifact` hygiene rows must remain satisfiable in the same evidence-label report.
+
+## 19. External Proof Freshness Contract - 2026-06-20
+
+External proof rows are time-sensitive and must not be treated as reusable forever.
+
+Contracts:
+- `StyleProofArtifact.collectedAt` is the timestamp field for external proof collection. It must be
+  stored as a redacted parseable timestamp on the same matching proof row as the action, channel,
+  readback, exact-artifact, authentication, phone, public-host, or publish flags.
+- The default freshness window is 14 days. `StyleProofExecutionArtifactContract.maxFreshnessDays`
+  may narrow or widen a specific requirement later, but no current contract should use a longer
+  window without an explicit spec update and regression coverage.
+- The following requirement contracts require fresh `collectedAt`:
+  `market-applied-dom-readback`, `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `safe-disposable-draft`, `pc-editor-paste-event`, `phone-preview-readback`,
+  `phone-screenshot`, `dark-mode-check`, `cover-thumbnail-check`,
+  `credentialed-channel-response`, `sync-readback`, `scheduled-send-readback`,
+  `published-url-or-platform-preview`, and `public-image-host`.
+- Local-only proof rows do not require `collectedAt`: `catalog-source`,
+  `no-proprietary-template-source`, `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, `xhs-artifact-manifest`, `zhihu-artifact-manifest`, and
+  `no-sensitive-artifact`.
+- Missing timestamps emit `style-proof-manifest-collected-at-missing`; future or unparseable
+  timestamps emit `style-proof-manifest-collected-at-invalid`; timestamps older than the accepted
+  window emit `style-proof-manifest-proof-stale`.
+- These issue ids are acceptance-invalid. Requirement-level acceptance audits must keep the row in
+  `cannotClaim` and must not downgrade the gap to ordinary external blocking.
+- Committed proof helpers may record real historical collection dates, but must not auto-renew
+  those dates on local test runs. A stale committed proof is a release blocker that requires a new
+  real evidence collection.
+
+Required checks:
+- Regression tests must cover missing, future/invalid, and stale `collectedAt` values on external
+  proof rows.
+- Positive external proof fixtures that are expected to satisfy a requirement must carry a fresh
+  `collectedAt` value on the same row.
+- Tests must continue proving that local-only artifact manifests and sensitive-hygiene rows remain
+  satisfiable without timestamps.
+- Documentation and evidence must state that freshness accounting does not prove phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, public-host
+  acceptance, upload, or publish success.

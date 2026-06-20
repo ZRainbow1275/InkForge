@@ -841,3 +841,32 @@ Evidence:
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
+
+## 9. 2026-06-20 External Proof Freshness Contract
+
+Market-editor, authenticated editor, phone preview, public-host, credentialed channel, and
+platform-publish evidence are time-sensitive. A proof row collected against a live external surface
+must not be reused indefinitely as if it still represented the current platform behavior.
+
+Rules:
+- External proof rows must carry `collectedAt` as a parseable redacted timestamp on the same
+  matching `StyleProofArtifact` row that carries the proof flags.
+- The default freshness window is 14 days. Rows with no timestamp, a future/unparseable timestamp,
+  or a timestamp older than the window emit manifest issues and cannot satisfy acceptance.
+- Local-only proof remains reusable without `collectedAt`: unit tests, local browser rendering,
+  exact-artifact binding, artifact-manifest validation, and sensitive-hygiene reviews are not
+  external platform proof by themselves.
+- Existing committed WeChat PC proof keeps its real evidence collection dates. Those dates are not
+  automatically renewed by local test runs; once stale, the release gate must ask the operator to
+  refresh evidence instead of silently claiming success.
+- This contract strengthens accounting only. It does not create phone preview, sync, upload,
+  scheduled-send, public-host, or publish evidence.
+
+Runtime issue ids:
+- `style-proof-manifest-collected-at-missing`
+- `style-proof-manifest-collected-at-invalid`
+- `style-proof-manifest-proof-stale`
+
+Evidence:
+- `prompts/0601/evidence/style-proof-external-freshness-contract-20260620.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 19.

@@ -6812,3 +6812,66 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-20 External Proof Freshness Contract Slice
+
+Scope:
+- Local style-proof manifest validator, acceptance audit, execution runbook, committed WeChat PC
+  evidence manifest metadata, docs, and regression coverage.
+- No browser automation, platform click, phone preview, sync, upload, scheduled send, publish,
+  screenshot capture, QR capture, browser profile artifact, HAR, token, cookie, or account
+  artifact was created.
+
+Impact:
+- GitNexus impact for `STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS` was previously checked as LOW
+  risk with 0 affected processes.
+- GitNexus impact for `validateStyleProofRequirementCoverage` was previously checked as LOW risk
+  with 7 impacted items, 1 affected process (`progressChoices`), and direct caller
+  `validateStyleProofManifest`.
+
+Implementation:
+- Added `StyleProofArtifact.collectedAt` and `maxFreshnessDays` support on proof execution
+  contracts.
+- Added a default 14-day freshness window for external proof rows.
+- Required fresh `collectedAt` on market-editor, authenticated PC editor, phone-preview,
+  credentialed-channel, platform-publish, and public-host proof contracts.
+- Kept local-only proof rows timestamp-free: unit tests, local browser rendering, exact-artifact,
+  platform artifact manifests, and sensitive-hygiene reviews.
+- Added validator issues:
+  `style-proof-manifest-collected-at-missing`,
+  `style-proof-manifest-collected-at-invalid`, and
+  `style-proof-manifest-proof-stale`.
+- Added these issue ids to acceptance-invalid accounting so affected requirements stay
+  `invalid` and visible in `cannotClaim`.
+- Bound committed WeChat PC proof manifests to their actual evidence collection dates instead of
+  auto-renewing timestamps at runtime.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and added
+  `prompts/0601/evidence/style-proof-external-freshness-contract-20260620.txt`.
+
+Initial verification:
+- TDD first run exposed 9 expected conflicts where prior positive external proof fixtures lacked
+  `collectedAt`.
+- After implementation and fixture updates,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed: 1 file / 151 tests.
+- Four-file cross-platform export regression passed:
+  `platform-export-rendering.test.ts`, `pipeline-cross-platform.test.ts`, `xhs.test.ts`, and
+  `zhihu.test.ts` passed 4 files / 190 tests.
+- Full serial export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1124 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed, Vite built in
+  31.07s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build verification.
+
+Boundary:
+- This is local proof freshness enforcement only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or
+  publish success.

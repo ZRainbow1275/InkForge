@@ -2924,3 +2924,29 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
   platform preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or
   publish success.
+
+---
+
+## 2026-06-20 Style Proof External Freshness Contract Addendum
+
+- Added `prompts/0601/evidence/style-proof-external-freshness-contract-20260620.txt`.
+- Added `StyleProofArtifact.collectedAt` and a 14-day default freshness window for external proof
+  rows.
+- `collectedAt` is required on matching proof rows for market-editor, authenticated PC editor,
+  phone-preview, credentialed-channel, platform-publish, and public-host gates. Local-only unit,
+  browser, exact-artifact, artifact-manifest, and sensitive-hygiene rows remain timestamp-free.
+- Missing timestamps, future/unparseable timestamps, and stale timestamps now emit
+  `style-proof-manifest-collected-at-missing`, `style-proof-manifest-collected-at-invalid`, or
+  `style-proof-manifest-proof-stale`; these issue ids are acceptance-invalid and keep requirements
+  in `cannotClaim`.
+- Committed WeChat PC proof manifests now record their real evidence dates instead of auto-renewing
+  during local tests.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  with 151 tests; four-file cross-platform export regression with 190 tests; full
+  `src/services/export` serial regression with 35 files / 1124 tests; targeted ESLint;
+  `vue-tsc --noEmit`; and production build (Vite built in 31.07s). The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local proof freshness enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

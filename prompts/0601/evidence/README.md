@@ -2568,3 +2568,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local operator guidance and UI readout only. It does not prove WeChat paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
   preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-20 Style Proof External Freshness Contract
+
+- [x] style-proof-external-freshness-contract-20260620.txt
+- External proof rows now require `collectedAt` on the same matching proof row for market-editor,
+  authenticated PC editor, phone-preview, credentialed-channel, platform-publish, and public-host
+  gates.
+- The default freshness window is 14 days. Missing timestamps, future/unparseable timestamps, and
+  stale timestamps emit `style-proof-manifest-collected-at-missing`,
+  `style-proof-manifest-collected-at-invalid`, or `style-proof-manifest-proof-stale`.
+- These issue ids are acceptance-invalid, so affected requirements stay `invalid` and visible in
+  `cannotClaim`.
+- Committed WeChat PC proof manifests are bound to their real evidence collection dates; local test
+  runs do not auto-renew external proof.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  with 151 tests; four-file cross-platform export regression with 190 tests; full
+  `src/services/export` serial regression with 35 files / 1124 tests; targeted ESLint;
+  `vue-tsc --noEmit`; and production build (Vite built in 31.07s). The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local proof freshness enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

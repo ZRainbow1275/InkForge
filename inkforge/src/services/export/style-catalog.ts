@@ -232,6 +232,7 @@ export interface StyleProofArtifact {
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
   artifactManifestValidated?: boolean
+  collectedAt?: string
   safeForCommit?: boolean
   committed?: boolean
   sensitive?: boolean
@@ -267,6 +268,9 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-contract-action-channel-mismatch'
   | 'style-proof-manifest-forbidden-field-present'
   | 'style-proof-manifest-safe-commit-not-verified'
+  | 'style-proof-manifest-collected-at-missing'
+  | 'style-proof-manifest-collected-at-invalid'
+  | 'style-proof-manifest-proof-stale'
   | 'style-proof-manifest-phone-preview-blocked'
   | 'style-proof-manifest-phone-content-missing'
   | 'style-proof-manifest-dark-mode-not-verified'
@@ -314,6 +318,9 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-contract-action-channel-mismatch',
   'style-proof-manifest-forbidden-field-present',
   'style-proof-manifest-safe-commit-not-verified',
+  'style-proof-manifest-collected-at-missing',
+  'style-proof-manifest-collected-at-invalid',
+  'style-proof-manifest-proof-stale',
   'style-proof-manifest-phone-preview-blocked',
   'style-proof-manifest-phone-content-missing',
   'style-proof-manifest-dark-mode-not-verified',
@@ -756,6 +763,7 @@ export type StyleProofArtifactVerificationField =
   | 'disposableDraft'
   | 'cleanupPathVerified'
   | 'artifactManifestValidated'
+  | 'collectedAt'
   | 'safeForCommit'
   | 'committed'
   | 'sensitive'
@@ -778,6 +786,7 @@ export interface StyleProofExecutionArtifactContract {
   requiredFields: readonly StyleProofArtifactVerificationField[]
   forbiddenFields?: readonly StyleProofArtifactVerificationField[]
   acceptedHostStatuses?: readonly StyleProofHostStatus[]
+  maxFreshnessDays?: number
 }
 
 export interface StyleProofExecutionRunbookStep {
@@ -1156,6 +1165,9 @@ const STYLE_PROOF_COLLECTION_GATE_SEQUENCE: readonly StyleProofCollectionGate[] 
   'platform-publish',
 ]
 
+const STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS = 14
+const STYLE_PROOF_MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
+
 const STYLE_PROOF_COLLECTION_NOTES = {
   'local-evidence': 'Collect a redacted local artifact, test log, manifest, or local browser/Tauri proof before touching a real platform.',
   'sensitive-hygiene': 'Review proof references for tokens, cookies, QR codes, HAR files, browser profiles, account screenshots, and local credential paths.',
@@ -1180,7 +1192,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['market-editor'],
     requiredActions: ['applied-market-element'],
     requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
-    requiredFields: ['centralEditorChanged', 'marketAppliedContentVerified', 'safeForCommit'],
+    requiredFields: ['centralEditorChanged', 'marketAppliedContentVerified', 'collectedAt', 'safeForCommit'],
   },
   'no-proprietary-template-source': {
     requirementId: 'no-proprietary-template-source',
@@ -1195,7 +1207,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['platform-editor'],
     requiredActions: ['authenticated-editor-opened'],
     requiredReadbacks: ['dom', 'visual', 'visual-and-dom'],
-    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'safeForCommit'],
+    requiredFields: ['authenticatedSessionVerified', 'platformEditorTargetVerified', 'collectedAt', 'safeForCommit'],
   },
   'pc-editor-dom-readback': {
     requirementId: 'pc-editor-dom-readback',
@@ -1208,6 +1220,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'platformEditorSurfaceVerified',
       'platformEditorDomVerified',
       'mojibakeFreeVerified',
+      'collectedAt',
       'safeForCommit',
     ],
   },
@@ -1237,7 +1250,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['platform-editor'],
     requiredActions: ['safe-disposable-draft'],
     requiredReadbacks: ['dom', 'visual-and-dom', 'hygiene-log'],
-    requiredFields: ['disposableDraft', 'cleanupPathVerified', 'safeForCommit'],
+    requiredFields: ['disposableDraft', 'cleanupPathVerified', 'collectedAt', 'safeForCommit'],
   },
   'pc-editor-paste-event': {
     requirementId: 'pc-editor-paste-event',
@@ -1256,6 +1269,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'pasteInputEventVerified',
       'editorBodyMutationVerified',
       'mojibakeFreeVerified',
+      'collectedAt',
       'safeForCommit',
     ],
   },
@@ -1264,7 +1278,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['phone-preview'],
     requiredActions: ['phone-preview'],
     requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['phonePreviewBlocked'],
   },
   'phone-screenshot': {
@@ -1272,7 +1286,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['phone-preview'],
     requiredActions: ['phone-preview'],
     requiredReadbacks: ['screenshot'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'phonePreviewContentVerified', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['phonePreviewBlocked'],
   },
   'dark-mode-check': {
@@ -1285,6 +1299,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
       'exactArtifact',
       'phonePreviewContentVerified',
       'darkModeEnabledVerified',
+      'collectedAt',
       'safeForCommit',
     ],
     forbiddenFields: ['phonePreviewBlocked'],
@@ -1294,7 +1309,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['phone-preview'],
     requiredActions: ['cover-thumbnail-check'],
     requiredReadbacks: ['phone', 'visual', 'visual-and-dom', 'screenshot'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'coverThumbnailAccepted', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'coverThumbnailAccepted', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['phonePreviewBlocked'],
   },
   'credentialed-channel-response': {
@@ -1302,7 +1317,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['credentialed-sync'],
     requiredReadbacks: ['api-response'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'sync-readback': {
@@ -1310,7 +1325,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['sync-readback'],
     requiredReadbacks: ['dom', 'api-response', 'visual-and-dom'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'scheduled-send-readback': {
@@ -1318,7 +1333,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['credentialed-channel'],
     requiredActions: ['scheduled-send'],
     requiredReadbacks: ['api-response', 'dom', 'visual-and-dom', 'scheduled-send-state'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'scheduledSendVerified', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'scheduledSendVerified', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'published-url-or-platform-preview': {
@@ -1326,7 +1341,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['public-web', 'credentialed-channel'],
     requiredActions: ['published-preview'],
     requiredReadbacks: ['published-url', 'visual', 'visual-and-dom', 'screenshot'],
-    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'safeForCommit'],
+    requiredFields: ['artifactFingerprint', 'exactArtifact', 'externalAccountAuthenticated', 'collectedAt', 'safeForCommit'],
     forbiddenFields: ['externalAccountLoginBlocked'],
   },
   'public-image-host': {
@@ -1334,7 +1349,7 @@ const STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS = {
     requiredChannels: ['public-web'],
     requiredActions: ['public-image-host-check'],
     requiredReadbacks: ['visual', 'dom', 'manifest'],
-    requiredFields: ['artifactRef', 'hostStatus', 'safeForCommit'],
+    requiredFields: ['artifactRef', 'hostStatus', 'collectedAt', 'safeForCommit'],
     acceptedHostStatuses: ['public-https', 'platform-hosted'],
   },
   'xhs-artifact-manifest': {
@@ -2187,6 +2202,7 @@ interface CommittedStyleProofWechatPcEvidenceManifestOptions {
   artifactFingerprint: string
   reportRef: string
   pasteProofLabel: string
+  collectedAt: string
 }
 
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF =
@@ -2407,6 +2423,7 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         artifactRef: options.reportRef,
         authenticatedSessionVerified: true,
         platformEditorTargetVerified: true,
+        collectedAt: options.collectedAt,
         committed: true,
         safeForCommit: true,
       },
@@ -2427,6 +2444,7 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         platformEditorSurfaceVerified: true,
         platformEditorDomVerified: true,
         mojibakeFreeVerified: true,
+        collectedAt: options.collectedAt,
         committed: true,
         safeForCommit: true,
       },
@@ -2460,6 +2478,7 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         artifactRef: options.reportRef,
         disposableDraft: true,
         cleanupPathVerified: true,
+        collectedAt: options.collectedAt,
         committed: true,
         safeForCommit: true,
       },
@@ -2485,6 +2504,7 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
         pasteInputEventVerified: true,
         editorBodyMutationVerified: true,
         mojibakeFreeVerified: true,
+        collectedAt: options.collectedAt,
         committed: true,
         safeForCommit: true,
       },
@@ -2545,6 +2565,7 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT,
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF,
     pasteProofLabel: 'Amber committed ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-06-18T00:00:00.000Z',
   }),
   createCommittedStyleProofWechatPcEvidenceManifest({
     choiceId: 'wechat-flagship-tempera',
@@ -2553,6 +2574,7 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
     artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT,
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF,
     pasteProofLabel: 'Tempera committed entity-safe ordinary OS Ctrl+V rich HTML/SVG paste proof',
+    collectedAt: '2026-06-19T00:00:00.000Z',
   }),
 ] as const satisfies readonly StyleProofManifest[]
 
@@ -3795,6 +3817,7 @@ function validateStyleProofRequirementCoverage(
 
   validateStyleProofRequiredActionChannel(requirementId, artifacts, issues)
   validateStyleProofRequiredReadback(requirementId, artifacts, issues)
+  validateStyleProofRequiredCollectedAt(requirementId, artifacts, issues)
   validateStyleProofRequiredSafeCommit(requirementId, artifacts, issues)
   validateStyleProofRequiredArtifactFingerprint(requirementId, artifacts, issues)
   validateStyleProofRequiredExactArtifact(requirementId, artifacts, issues)
@@ -3834,6 +3857,36 @@ function getStyleProofContractCandidates(
 
   return getStyleProofContractActionChannelCandidates(requirementId, artifacts)
     .filter(artifact => isStyleProofReadbackAllowedByContract(contract, artifact.readback))
+}
+
+function getStyleProofCollectedAtTimestamp(artifact: StyleProofArtifact): number | null {
+  if (typeof artifact.collectedAt !== 'string') return null
+
+  const collectedAt = artifact.collectedAt.trim()
+  if (collectedAt.length === 0) return null
+
+  return Date.parse(collectedAt)
+}
+
+function isStyleProofCollectedAtInvalid(
+  artifact: StyleProofArtifact,
+  nowMs = Date.now(),
+): boolean {
+  const timestamp = getStyleProofCollectedAtTimestamp(artifact)
+  if (timestamp === null) return false
+
+  return !Number.isFinite(timestamp) || timestamp > nowMs
+}
+
+function isStyleProofCollectedAtFresh(
+  artifact: StyleProofArtifact,
+  maxFreshnessDays: number,
+  nowMs = Date.now(),
+): boolean {
+  const timestamp = getStyleProofCollectedAtTimestamp(artifact)
+  if (timestamp === null || !Number.isFinite(timestamp) || timestamp > nowMs) return false
+
+  return nowMs - timestamp <= maxFreshnessDays * STYLE_PROOF_MILLISECONDS_PER_DAY
 }
 
 function validateStyleProofRequiredActionChannel(
@@ -3886,6 +3939,65 @@ function validateStyleProofRequiredReadback(
     suggestion: `Record one of ${contract.requiredReadbacks.join(', ')} on the same proof row; fields from a different readback cannot satisfy this requirement.`,
     location: requirementId,
   })
+}
+
+function validateStyleProofRequiredCollectedAt(
+  requirementId: StyleProofRequirementId,
+  artifacts: readonly StyleProofArtifact[],
+  issues: QualityIssue[],
+): void {
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[requirementId] as StyleProofExecutionArtifactContract
+  if (!(contract.requiredFields as readonly StyleProofArtifactVerificationField[]).includes('collectedAt')) {
+    return
+  }
+
+  if (issues.some(issue =>
+    issue.location === requirementId
+    && (
+      issue.id === 'style-proof-manifest-collected-at-missing'
+      || issue.id === 'style-proof-manifest-collected-at-invalid'
+      || issue.id === 'style-proof-manifest-proof-stale'
+    )
+  )) {
+    return
+  }
+
+  const contractCandidates = getStyleProofContractCandidates(requirementId, artifacts)
+  if (contractCandidates.length === 0) return
+
+  const candidatesWithCollectedAt = contractCandidates.filter(artifact =>
+    typeof artifact.collectedAt === 'string' && artifact.collectedAt.trim().length > 0
+  )
+  if (candidatesWithCollectedAt.length === 0) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-collected-at-missing',
+      message: `${requirementId} proof lacks collectedAt on a matching external proof row.`,
+      suggestion: 'Record collectedAt as a redacted ISO timestamp on the same proof row when the external editor, phone, public host, credentialed channel, or publish readback is collected.',
+      location: requirementId,
+    })
+    return
+  }
+
+  const nowMs = Date.now()
+  if (candidatesWithCollectedAt.some(artifact => isStyleProofCollectedAtInvalid(artifact, nowMs))) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-collected-at-invalid',
+      message: `${requirementId} proof has an invalid or future collectedAt timestamp.`,
+      suggestion: 'Use a parseable timestamp collected no later than the current validation time; future-dated proof cannot satisfy an external platform gate.',
+      location: requirementId,
+    })
+    return
+  }
+
+  const maxFreshnessDays = contract.maxFreshnessDays ?? STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS
+  if (!candidatesWithCollectedAt.some(artifact => isStyleProofCollectedAtFresh(artifact, maxFreshnessDays, nowMs))) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-proof-stale',
+      message: `${requirementId} proof is older than the accepted freshness window.`,
+      suggestion: `Refresh this external proof and record a new collectedAt timestamp within ${maxFreshnessDays} days of validation before claiming the gate.`,
+      location: requirementId,
+    })
+  }
 }
 
 function validateStyleProofRequiredSafeCommit(
@@ -4083,6 +4195,11 @@ function isStyleProofRequiredFieldSatisfied(
       return artifact.cleanupPathVerified === true
     case 'artifactManifestValidated':
       return artifact.artifactManifestValidated === true
+    case 'collectedAt':
+      return isStyleProofCollectedAtFresh(
+        artifact,
+        contract.maxFreshnessDays ?? STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS,
+      )
     case 'safeForCommit':
       return artifact.safeForCommit === true
     case 'committed':
@@ -4907,6 +5024,9 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
   'style-proof-manifest-paste-mojibake-not-ruled-out',
   'style-proof-manifest-paste-proof-not-bound',
   'style-proof-manifest-exact-artifact-missing',
+  'style-proof-manifest-collected-at-missing',
+  'style-proof-manifest-collected-at-invalid',
+  'style-proof-manifest-proof-stale',
   'style-proof-manifest-market-editor-not-applied',
   'style-proof-manifest-market-editor-placeholder-only',
   'style-proof-manifest-proof-not-bound',
@@ -5321,6 +5441,7 @@ const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerification
   disposableDraft: 'disposableDraft:true for a draft that can be safely mutated and removed',
   cleanupPathVerified: 'cleanupPathVerified:true after the cleanup path is proven',
   artifactManifestValidated: 'artifactManifestValidated:true after the platform artifact manifest validator passes',
+  collectedAt: `collectedAt: parseable timestamp within ${STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS} days for external proof rows`,
   safeForCommit: 'safeForCommit:true after redaction and repository hygiene review',
   committed: 'committed:true only for tracked proof artifacts',
   sensitive: 'sensitive:true marks an artifact that must not satisfy committed proof',

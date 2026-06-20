@@ -109,6 +109,12 @@ const WECHAT_PRESET_IDS = [
   'tech',
 ] as const
 
+const freshStyleProofCollectedAt = new Date().toISOString()
+const createStaleStyleProofCollectedAt = (): string =>
+  new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+const createFutureStyleProofCollectedAt = (): string =>
+  new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+
 const MARKET_EDITOR_RESIDUE_HTML = [
   '<section class="_135editor" data-tools="135编辑器" data-id="173488">',
   '<section class="135brush" style="display:flex;background:linear-gradient(#fff,#eee);transform:rotate(5deg)">市场标题</section>',
@@ -1394,12 +1400,16 @@ describe('platform native export rendering rules', () => {
       requirement.requirement.id === 'pc-editor-dom-readback',
     )
 
-    expect(authenticatedUrlAudit?.status).toBe('unsafe-to-automate')
-    expect(authenticatedUrlAudit?.issueIds).toContain('style-proof-manifest-authenticated-session-not-verified')
-    expect(pcDomAudit?.status).toBe('unsafe-to-automate')
+    expect(authenticatedUrlAudit?.status).toBe('invalid')
+    expect(authenticatedUrlAudit?.issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-authenticated-session-not-verified',
+      'style-proof-manifest-collected-at-missing',
+    ]))
+    expect(pcDomAudit?.status).toBe('invalid')
     expect(pcDomAudit?.issueIds).toEqual(expect.arrayContaining([
       'style-proof-manifest-authenticated-session-not-verified',
       'style-proof-manifest-platform-editor-dom-not-verified',
+      'style-proof-manifest-collected-at-missing',
     ]))
   })
 
@@ -2537,6 +2547,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint: 'sha256:redacted-title-or-hidden-frame-dom',
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -2554,6 +2565,7 @@ describe('platform native export rendering rules', () => {
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
           platformEditorDomVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -2733,6 +2745,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint: 'sha256:redacted-classic-paste',
           disposableDraft: true,
           cleanupPathVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -2757,6 +2770,7 @@ describe('platform native export rendering rules', () => {
           pasteInputEventVerified: true,
           editorBodyMutationVerified: true,
           mojibakeFreeVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -2776,6 +2790,7 @@ describe('platform native export rendering rules', () => {
           platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
           mojibakeFreeVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3324,6 +3339,7 @@ describe('platform native export rendering rules', () => {
           readback: 'visual-and-dom',
           centralEditorChanged: true,
           marketAppliedContentVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3484,6 +3500,7 @@ describe('platform native export rendering rules', () => {
           exactArtifact: true,
           phonePreviewBlocked: true,
           phonePreviewContentVerified: false,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3500,6 +3517,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3517,6 +3535,7 @@ describe('platform native export rendering rules', () => {
           exactArtifact: true,
           phonePreviewContentVerified: true,
           darkModeEnabledVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3533,6 +3552,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           coverThumbnailAccepted: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
       ],
@@ -3918,6 +3938,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3934,6 +3955,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           phonePreviewContentVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3950,6 +3972,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           darkModeEnabledVerified: false,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -3966,6 +3989,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           exactArtifact: true,
           coverThumbnailAccepted: false,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
       ],
@@ -4244,6 +4268,138 @@ describe('platform native export rendering rules', () => {
     expect(report.summary.acceptedArtifactCount).toBe(0)
     expect(report.artifacts[0]?.status).toBe('unsafe-commit')
     expect(report.requirements[0]?.status).toBe('invalid')
+  })
+
+  it('requires fresh collectedAt timestamps for external proof rows', () => {
+    const artifactFingerprint = 'sha256:redacted-external-proof-freshness'
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      scope: 'style-choice',
+      claimedEvidence: ['mobile-preview'],
+      artifactFingerprint,
+      artifacts: [
+        {
+          id: 'freshness-local-exact-artifact',
+          requirementId: 'exact-artifact',
+          kind: 'doc-reference',
+          label: 'redacted exact local artifact binding',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'source-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          exactArtifact: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'freshness-phone-body-without-collected-at',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'phone body proof missing collectedAt',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          safeForCommit: true,
+        },
+        {
+          id: 'freshness-phone-screenshot-future-collected-at',
+          requirementId: 'phone-screenshot',
+          kind: 'screenshot',
+          label: 'phone screenshot proof with future collectedAt',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          collectedAt: createFutureStyleProofCollectedAt(),
+          safeForCommit: true,
+        },
+        {
+          id: 'freshness-dark-mode-stale-collected-at',
+          requirementId: 'dark-mode-check',
+          kind: 'screenshot',
+          label: 'dark mode proof with stale collectedAt',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'dark-mode-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          phonePreviewContentVerified: true,
+          darkModeEnabledVerified: true,
+          collectedAt: createStaleStyleProofCollectedAt(),
+          safeForCommit: true,
+        },
+        {
+          id: 'freshness-cover-thumbnail-fresh-collected-at',
+          requirementId: 'cover-thumbnail-check',
+          kind: 'screenshot',
+          label: 'cover thumbnail proof with fresh collectedAt',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'phone-preview',
+          action: 'cover-thumbnail-check',
+          readback: 'screenshot',
+          artifactFingerprint,
+          exactArtifact: true,
+          coverThumbnailAccepted: true,
+          collectedAt: freshStyleProofCollectedAt,
+          safeForCommit: true,
+        },
+        {
+          id: 'freshness-sensitive-hygiene',
+          requirementId: 'no-sensitive-artifact',
+          kind: 'hygiene-review',
+          label: 'redacted sensitive hygiene proof',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'local-artifact',
+          action: 'sensitive-hygiene-review',
+          readback: 'hygiene-log',
+          artifactFingerprint,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const audit = getPlatformStyleProofAcceptanceAuditReport('wechat', [manifest])
+    const auditStatus = new Map(
+      audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+
+    expect(issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-collected-at-missing',
+      'style-proof-manifest-collected-at-invalid',
+      'style-proof-manifest-proof-stale',
+    ]))
+    expect(requirementStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(requirementStatus.get('phone-screenshot')).toBe('invalid')
+    expect(requirementStatus.get('dark-mode-check')).toBe('invalid')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('satisfied')
+    expect(auditStatus.get('phone-preview-readback')).toBe('invalid')
+    expect(auditStatus.get('phone-screenshot')).toBe('invalid')
+    expect(auditStatus.get('dark-mode-check')).toBe('invalid')
+    expect(audit.cannotClaim.map(requirement => requirement.requirement.id)).toEqual(expect.arrayContaining([
+      'phone-preview-readback',
+      'phone-screenshot',
+      'dark-mode-check',
+    ]))
   })
 
   it('requires safeForCommit on matching proof contract rows across local editor and phone gates', () => {
@@ -4610,6 +4766,7 @@ describe('platform native export rendering rules', () => {
           action: 'phone-preview',
           readback: 'screenshot',
           artifactFingerprint,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
       ],
@@ -4840,6 +4997,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
       ],
@@ -4889,6 +5047,7 @@ describe('platform native export rendering rules', () => {
           artifactFingerprint,
           authenticatedSessionVerified: true,
           platformEditorTargetVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
@@ -4907,6 +5066,7 @@ describe('platform native export rendering rules', () => {
           platformEditorTargetVerified: true,
           platformEditorSurfaceVerified: true,
           platformEditorDomVerified: true,
+          collectedAt: freshStyleProofCollectedAt,
           safeForCommit: true,
         },
         {
