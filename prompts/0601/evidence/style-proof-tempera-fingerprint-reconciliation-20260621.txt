@@ -79,6 +79,24 @@ Verification:
   and built in 36.84s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
 - Runtime API readout through `pnpm -C inkforge exec tsx -e ...` confirmed
   `hasExactArtifactFingerprintConflicts=false` and `combinedIssueCount=11`.
+- Follow-up verification found a stale local-conflict operator action: after
+  `fingerprintConflicts=0`, the UI still pointed operators at manifest fingerprint reconciliation.
+- Updated `getCommittedStyleProofReleaseLocalConflictAction()` so the reconcile action is emitted
+  only when `style-proof-manifest-pack-fingerprint-mismatch` is present; otherwise it points at
+  the remaining missing proof rows before any release claim.
+- Follow-up checks passed:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`;
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  focused committed/release claim Vitest with 1 file / 5 selected tests.
+- Follow-up production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4652 modules
+  and built in 31.61s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- Follow-up Tauri/WebView2 e2e passed:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 spec / 6 tests, and `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests.
+- The real ExportModal preflight now shows `fingerprintConflicts 0` and an `operatorNext` action
+  beginning with `Complete the remaining committed proof rows`, instead of asking operators to
+  reconcile a fingerprint conflict that no longer exists.
 
 Boundary:
 - This is local catalog/evidence accounting only.

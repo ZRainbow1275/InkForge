@@ -2051,7 +2051,7 @@ describe('platform native export rendering rules', () => {
     expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-        action: expect.stringContaining('Reconcile the committed manifest pack'),
+        action: expect.stringContaining('Complete the remaining committed proof rows'),
       }),
     ]))
     expect(localConflictBlocker?.fingerprintConflicts).toBeUndefined()

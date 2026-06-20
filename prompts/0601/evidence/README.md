@@ -2806,11 +2806,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   represents the effective WeChat clipboard artifact, matching the committed PC proof.
 - Release gate still returns `canClaimComplete=false` and `status=blocked-by-local-conflict`, but
   `hasExactArtifactFingerprintConflicts=false` and `combinedIssueCount=11`.
+- Follow-up fixed the release-gate local-conflict `operatorNext` text: with
+  `fingerprintConflicts 0`, the UI now points at remaining proof collection instead of asking for
+  manifest fingerprint reconciliation.
 - Verification passed: GitNexus impact LOW for the manifest constant and release report; focused
   committed/release claim Vitest passed 1 file / 5 selected tests; full platform-export regression
   passed 153 tests; 4-file cross-platform export regression passed 192 tests; full export serial
   suite passed 35 files / 1126 tests; targeted ESLint, `vue-tsc`, and production build passed;
-  runtime API readout confirmed the updated counts.
+  runtime API readout confirmed the updated counts; follow-up `node --check`, targeted WDIO, and
+  full `pnpm -C inkforge test:e2e` passed against the updated preflight text.
 - Boundary: this is local catalog/evidence accounting only. It does not prove raw UTF-8 Tempera
   direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host

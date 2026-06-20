@@ -5913,9 +5913,13 @@ function getCommittedStyleProofReleaseLocalConflictAction(
 ): CommittedStyleProofReleaseNextOperatorAction[] {
   if (issueIds.length === 0) return []
 
+  const hasFingerprintMismatch = issueIds.includes('style-proof-manifest-pack-fingerprint-mismatch')
+
   return [{
     platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-    action: 'Reconcile the committed manifest pack before any release claim: remove stale conflicting proof rows or replace them with one exact redacted artifact fingerprint for each platform and choice.',
+    action: hasFingerprintMismatch
+      ? 'Reconcile the committed manifest pack before any release claim: remove stale conflicting proof rows or replace them with one exact redacted artifact fingerprint for each platform and choice.'
+      : 'Complete the remaining committed proof rows before any release claim; missing local, phone, credentialed, public-host, sync, scheduled-send, and publish proof cannot be inferred from existing manifests.',
   }]
 }
 

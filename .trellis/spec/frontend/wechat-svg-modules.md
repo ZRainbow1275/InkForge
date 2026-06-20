@@ -2028,7 +2028,8 @@ Contracts:
   prioritize phone-preview readback; external blockers must prioritize public-host or credentialed
   channel readback; unsafe and mutating blockers must prioritize platform-publish readback. The
   local-conflict blocker must instruct operators to reconcile stale conflicting committed
-  fingerprints before any release claim.
+  fingerprints only when fingerprint mismatches exist; otherwise it must point operators at the
+  remaining missing proof rows.
 - `ExportModal` may surface this committed-evidence release gate as a read-only preflight row.
   The row must read from `getCommittedStyleProofEvidenceReleaseGateReport()`, show
   `canClaimComplete`, blocker count, `fingerprintConflicts`, and a short `operatorNext` summary,

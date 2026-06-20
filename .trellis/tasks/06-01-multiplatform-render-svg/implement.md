@@ -7398,6 +7398,16 @@ Verification:
   in 36.84s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
 - Runtime API readout confirmed `hasExactArtifactFingerprintConflicts=false`,
   `combinedIssueCount=11`, and `canClaimComplete=false`.
+- Follow-up UI review found that the local-conflict `operatorNext` text still asked operators to
+  reconcile the committed manifest pack even after `fingerprintConflicts` had dropped to 0.
+- Updated `getCommittedStyleProofReleaseLocalConflictAction()` so manifest reconciliation is only
+  suggested when `style-proof-manifest-pack-fingerprint-mismatch` is still present; otherwise the
+  action instructs operators to complete the remaining committed proof rows before any release
+  claim.
+- Follow-up checks passed: focused committed/release claim Vitest with 1 file / 5 selected tests,
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`, targeted TS ESLint, production
+  build with 4652 transformed modules in 31.61s, targeted `svg-render.spec.cjs` WDIO with 1 spec /
+  6 tests, and full `pnpm -C inkforge test:e2e` with 2 specs / 17 tests.
 
 Boundary:
 - This is local catalog/evidence accounting only.

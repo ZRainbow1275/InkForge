@@ -494,7 +494,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat execution runbook summary').to.include('执行手册 开放');
     expect(wechat.summary, 'WeChat committed release gate summary').to.include('canClaimComplete=false');
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
-      .to.include('fingerprintConflicts 1');
+      .to.include('fingerprintConflicts 0');
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(17);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(5);
@@ -510,11 +510,11 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.releaseGatePreflightText, 'WeChat preflight blocks committed release claims')
       .to.include('canClaimComplete=false');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes committed fingerprint conflicts')
-      .to.include('fingerprintConflicts 1');
+      .to.include('fingerprintConflicts 0');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes release operator next actions')
       .to.include('operatorNext');
-    expect(wechat.releaseGatePreflightText, 'WeChat preflight points local conflict reconciliation')
-      .to.include('Reconcile the committed manifest pack');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight points remaining proof collection')
+      .to.include('Complete the remaining committed proof rows');
     expect(
       wechat.cards.some((card) =>
         card.text.includes('验收审计：不可宣称') &&

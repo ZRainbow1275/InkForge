@@ -3217,12 +3217,19 @@ Boundary:
   effective WeChat clipboard payload that passed ordinary OS Ctrl+V without mojibake.
 - The release gate remains blocked and unclaimable, but current committed evidence now reports
   `hasExactArtifactFingerprintConflicts=false`, `combinedIssueCount=11`, and `cannotClaimSteps=34`.
+- Follow-up fixed the stale local-conflict `operatorNext` action. When no
+  `style-proof-manifest-pack-fingerprint-mismatch` issue remains, the release preflight now asks
+  operators to complete the remaining committed proof rows; manifest reconciliation is only shown
+  for actual fingerprint conflicts.
 - Verification passed:
   `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
   passed 1 file / 5 selected tests; full `platform-export-rendering.test.ts` passed 153 tests;
   4-file cross-platform export regression passed 192 tests; full export serial suite passed 35
   files / 1126 tests; targeted ESLint passed; `vue-tsc` passed; production build passed with 4652
-  transformed modules; runtime API readout confirmed the updated release summary.
+  transformed modules; runtime API readout confirmed the updated release summary; follow-up
+  `node --check`, targeted `svg-render.spec.cjs` WDIO, and full `pnpm -C inkforge test:e2e` passed
+  after the rebuilt ExportModal showed `fingerprintConflicts 0` and the remaining-proof
+  `operatorNext` copy.
 - Boundary: this is local catalog/evidence accounting only. It does not prove raw UTF-8 Tempera
   direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host

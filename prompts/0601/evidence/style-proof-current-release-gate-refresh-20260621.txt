@@ -71,6 +71,16 @@ Next operator actions reported by the API:
 - Inspect a real platform preview or published result for the exact artifact; do not infer this
   from editor paste, sync success, or login-route readback.
 
+Follow-up UI verification:
+- The local-conflict operator action now asks operators to complete remaining committed proof rows
+  when `fingerprintConflicts=0`; the manifest reconciliation action is reserved for actual
+  `style-proof-manifest-pack-fingerprint-mismatch` rows.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 spec / 6 tests against the rebuilt Tauri/WebView2 app.
+- `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests.
+- ExportModal preflight displayed `fingerprintConflicts 0` and `operatorNext` with
+  `Complete the remaining committed proof rows`.
+
 Conclusion:
 - The committed evidence release gate is correctly blocked.
 - The current committed evidence must not be reported as complete platform acceptance.
