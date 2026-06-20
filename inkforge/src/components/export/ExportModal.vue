@@ -13,12 +13,14 @@ import {
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
+  getCommittedStyleProofEvidenceReleaseGateReport,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
 } from '@/services/export'
 import { resolveExportIcon } from '@/utils/iconography'
 import type {
   Platform, ExportOptions, ExportStats,
+  CommittedStyleProofReleaseGateBlocker,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
   WechatPublishStatus, WechatDraftPublishResult,
   ExportFontFamily, ExportFontSize,
@@ -187,6 +189,11 @@ const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionP
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
+const committedStyleProofReleaseGate = computed(() => getCommittedStyleProofEvidenceReleaseGateReport())
+const committedStyleProofReleaseConflictCount = computed(() =>
+  committedStyleProofReleaseGate.value.blockers.reduce((total, blocker) =>
+    total + (blocker.fingerprintConflicts?.length ?? 0), 0),
+)
 const styleProofStepsByChoice = computed(() => {
   const grouped = new Map<string, StyleProofCollectionStep[]>()
   for (const step of styleProofCollectionPlan.value.steps) {
@@ -235,6 +242,12 @@ const styleProofAcceptanceSummary = computed(() => {
   const audit = styleProofAcceptanceAudit.value
   const external = audit.summary.externalAccountOpenRequirements + audit.summary.phoneOpenRequirements
   return `不可宣称 ${audit.summary.cannotClaimRequirements}；外部/手机 ${external}；安全本地待补 ${audit.summary.safeToAutomateOpenRequirements}`
+})
+const styleProofReleaseGateSummary = computed(() => {
+  const gate = committedStyleProofReleaseGate.value
+  return gate.canClaimComplete
+    ? 'canClaimComplete=true；blockers 0；fingerprintConflicts 0'
+    : `canClaimComplete=false；blockers ${gate.blockers.length}；fingerprintConflicts ${committedStyleProofReleaseConflictCount.value}`
 })
 const selectedStyleChoiceApplication = computed(() =>
   styleApplicationReport.value.find(item =>
@@ -303,6 +316,45 @@ const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
     label: '验收宣称审计',
     state: 'warning',
     detail: `${styleProofAcceptanceSummary.value}；执行手册开放 ${runbook.summary.openSteps}；不可宣称步骤 ${runbook.summary.cannotClaimSteps}；下一手册 ${styleProofNextRunbookLabel.value}；不得声明手机预览、同步、发布或 public host 已完成。${nextParts.length ? ` 下一步 ${nextParts.join('；')}` : ''}`,
+  }
+})
+
+function styleProofReleaseBlockerLabel(blocker: CommittedStyleProofReleaseGateBlocker): string {
+  switch (blocker.kind) {
+    case 'local-conflict':
+      return `本地冲突 ${blocker.issueIds.length}`
+    case 'phone-preview':
+      return `手机预览 ${blocker.requirementIds.length}`
+    case 'external-dependency':
+      return `外部依赖 ${blocker.requirementIds.length}`
+    case 'unsafe-to-automate':
+      return `需人工 ${blocker.requirementIds.length}`
+    case 'mutating-platform':
+      return `平台变更 ${blocker.requirementIds.length}`
+    default:
+      return blocker.kind
+  }
+}
+
+const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
+  const gate = committedStyleProofReleaseGate.value
+  const blockerSummary = gate.blockers.map(styleProofReleaseBlockerLabel).join('；') || '无阻塞'
+  const conflictCount = committedStyleProofReleaseConflictCount.value
+
+  if (gate.canClaimComplete) {
+    return {
+      key: 'committed-proof-release',
+      label: '提交证据宣称门禁',
+      state: 'ready',
+      detail: `canClaimComplete=true；blockers 0；fingerprintConflicts ${conflictCount}；最终仍以平台证据文件为准。`,
+    }
+  }
+
+  return {
+    key: 'committed-proof-release',
+    label: '提交证据宣称门禁',
+    state: 'blocked',
+    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；不得声明手机预览、同步、发布或 public host 已完成。`,
   }
 })
 
@@ -874,6 +926,7 @@ const preflightRows = computed<PreflightRow[]>(() => {
     },
     styleCatalogPreflightRow.value,
     styleAcceptancePreflightRow.value,
+    committedStyleProofReleasePreflightRow.value,
     {
       key: 'clipboard',
       label: '剪贴板权限',
@@ -1254,6 +1307,7 @@ onUnmounted(() => {
                   <span>证据门禁由 runtime catalog 决定</span>
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
                   <span>验收审计 {{ styleProofAcceptanceSummary }}</span>
+                  <span>提交证据宣称 {{ styleProofReleaseGateSummary }}</span>
                   <span>执行手册 开放 {{ styleProofExecutionRunbook.summary.openSteps }}；不可宣称 {{ styleProofExecutionRunbook.summary.cannotClaimSteps }}；下一手册 {{ styleProofNextRunbookLabel }}</span>
                 </div>
                 <div class="style-choice-list">

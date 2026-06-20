@@ -1,0 +1,48 @@
+ExportModal Committed Release Gate Preflight - 2026-06-20
+
+Scope:
+- Local ExportModal UI readout for the committed style-proof release gate.
+- No platform click, phone preview, sync, upload, scheduled send, publish, account artifact,
+  browser profile artifact, QR material, token, cookie, HAR artifact, or screenshot path was
+  committed.
+
+Implemented:
+- ExportModal imports getCommittedStyleProofEvidenceReleaseGateReport().
+- The style capability summary now shows canClaimComplete, blocker count, and fingerprintConflicts.
+- The preflight list now includes a dedicated committed-proof release gate row.
+- The row is blocked while canClaimComplete is false and exposes release blockers without changing
+  platform proof state.
+- The existing SVG-render e2e probe now records releaseGatePreflightText and asserts the committed
+  release gate stays blocked with fingerprintConflicts 2.
+
+CloakBrowser local visual/DOM verification:
+- Local route: http://127.0.0.1:3005/workstation
+- Existing local article selected through the app store: title "未命名文章"; body marker
+  "应用元素证据检查"; body text length visible in ExportModal as 全文 54 字.
+- ExportModal opened from the real enabled export button.
+- Style capability summary text included:
+  canClaimComplete=false; blockers 5; fingerprintConflicts 2.
+- Dedicated preflight row:
+  className="preflight-row preflight-blocked"
+  text contained status blocked-by-local-conflict, blockers 5, fingerprintConflicts 2, and the
+  local-conflict / phone-preview / external-dependency / unsafe-to-automate / mutating-platform
+  blocker groups.
+- Layout check:
+  viewport 1400x900, panel 900x720, pageScrollWidth 1400, bodyScrollWidth 1400,
+  hasHorizontalOverflow=false.
+
+Verification:
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --ext .ts,.vue --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 24.34s.
+
+Boundary:
+- This proves only the local UI exposes the existing committed release gate truthfully.
+- It does not prove WeChat phone preview, mobile interaction, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  Xiaohongshu/Zhihu account upload, public-host acceptance, or publish success.

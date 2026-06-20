@@ -2008,6 +2008,11 @@ Contracts:
   mutating-platform buckets. The local-conflict blocker must expose `fingerprintConflicts` for
   same-platform same-choice exact-artifact conflicts so operators can see which choices and
   fingerprints need separate proof collection.
+- `ExportModal` may surface this committed-evidence release gate as a read-only preflight row.
+  The row must read from `getCommittedStyleProofEvidenceReleaseGateReport()`, show
+  `canClaimComplete`, blocker count, and `fingerprintConflicts`, and remain blocked while the
+  report is not ready. It must not create proof artifacts, run platform actions, or imply phone,
+  sync, public-host, scheduled-send, or publish completion.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
@@ -2046,6 +2051,10 @@ Required tests:
   appropriate blocker rows, and its local-conflict blocker must include `fingerprintConflicts` for
   current `wechat-flagship-amber` and `wechat-flagship-tempera` local-vs-PC artifact fingerprint
   conflicts.
+- The ExportModal style capability/preflight surface must show the committed release gate as
+  `canClaimComplete=false` with `fingerprintConflicts 2` for the current evidence pack. The visual
+  row must use the existing preflight state model and stay `blocked`; it is an operator diagnostic,
+  not a publish/sync action.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 

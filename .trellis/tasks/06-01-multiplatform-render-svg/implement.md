@@ -6507,6 +6507,54 @@ Boundary:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
   acceptance, or publish success.
 
+## 2026-06-20 ExportModal Committed Release Gate Preflight Slice
+
+Scope:
+- Read-only UI exposure for the committed style-proof release gate inside the existing ExportModal
+  preflight surface.
+- No platform click, phone preview, sync, upload, scheduled send, publish, browser profile artifact,
+  account artifact, QR material, token, cookie, HAR artifact, or committed screenshot was created.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge -d upstream --include-tests`
+  reported LOW risk, 1 impacted item, 1 direct test dependent, and 0 affected processes.
+- `npx gitnexus impact "Function:inkforge/src/components/export/ExportModal.vue:preflightRows" -r InkForge -d upstream --include-tests`
+  reported LOW risk, 0 impacted items, and 0 affected processes.
+
+Implementation:
+- ExportModal now imports `getCommittedStyleProofEvidenceReleaseGateReport()`.
+- Added a style capability summary segment with `canClaimComplete`, blocker count, and
+  `fingerprintConflicts`.
+- Added a dedicated `committed-proof-release` preflight row. It is `blocked` while
+  `canClaimComplete:false` and summarizes local conflict, phone preview, external dependency,
+  unsafe-to-automate, and mutating-platform blocker buckets.
+- Extended the existing SVG-render e2e probe to capture `releaseGatePreflightText` and assert
+  `canClaimComplete=false` plus `fingerprintConflicts 2`.
+- Added evidence:
+  `prompts/0601/evidence/exportmodal-release-gate-preflight-20260620.txt`.
+
+Verification:
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --ext .ts,.vue --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 24.34s.
+- CloakBrowser local DOM/visual check on `http://127.0.0.1:3005/workstation`:
+  - opened ExportModal from a real enabled export button after selecting the existing local article
+    "未命名文章";
+  - summary contained `canClaimComplete=false`, `blockers 5`, and `fingerprintConflicts 2`;
+  - release preflight row was `preflight-row preflight-blocked`;
+  - viewport 1400x900, panel 900x720, page/body scroll width 1400, horizontal overflow false.
+
+Boundary:
+- This is local UI/readout proof only.
+- It does not prove WeChat phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public-host acceptance, or publish success.
+
 ## 2026-06-20 Market Fallback Catalog Contract Slice
 
 Scope:

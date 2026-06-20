@@ -372,6 +372,10 @@ function collectStyleCapabilityProbe() {
         .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
         .filter((text) => text.includes('验收宣称审计'))
         .join(' | '),
+      releaseGatePreflightText: Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+        .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+        .filter((text) => text.includes('fingerprintConflicts'))
+        .join(' | '),
       cardCount: cards.length,
       availableCount: byClass('style-choice-available'),
       blockedCount: byClass('style-choice-blocked'),
@@ -488,6 +492,9 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 8/16');
     expect(wechat.summary, 'WeChat acceptance audit summary').to.include('验收审计 不可宣称');
     expect(wechat.summary, 'WeChat execution runbook summary').to.include('执行手册 开放');
+    expect(wechat.summary, 'WeChat committed release gate summary').to.include('canClaimComplete=false');
+    expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
+      .to.include('fingerprintConflicts 2');
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(16);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
@@ -500,6 +507,10 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('执行手册开放');
     expect(wechat.acceptancePreflightText, 'WeChat preflight points phone-preview next action')
       .to.include('手机：手机预览');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight blocks committed release claims')
+      .to.include('canClaimComplete=false');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes committed fingerprint conflicts')
+      .to.include('fingerprintConflicts 2');
     expect(
       wechat.cards.some((card) =>
         card.text.includes('验收审计：不可宣称') &&

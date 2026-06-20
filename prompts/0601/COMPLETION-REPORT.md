@@ -2875,3 +2875,25 @@ Boundary:
   WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click, mobile Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
   rendering, XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
+## 2026-06-20 ExportModal Committed Release Gate Preflight Addendum
+
+- Added `prompts/0601/evidence/exportmodal-release-gate-preflight-20260620.txt`.
+- ExportModal now reads `getCommittedStyleProofEvidenceReleaseGateReport()` and surfaces the
+  committed-evidence release gate in the existing style capability/preflight UI.
+- The style summary and dedicated preflight row expose `canClaimComplete=false`, blocker count, and
+  `fingerprintConflicts 2`; the preflight row remains `preflight-blocked`.
+- CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
+  article "未命名文章" and confirmed a nonblank panel, `preflight-blocked` release row, and no
+  horizontal overflow at a 1400x900 viewport.
+- Verification passed:
+  `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --ext .ts,.vue --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` (Vite built in 24.34s).
+- Boundary: this is local UI/readout proof only. It does not prove phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

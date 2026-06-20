@@ -361,6 +361,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-committed-evidence-combined-audit-20260620.txt # 当前规则实现：committed local + WeChat PC combined audit exposes fingerprint conflicts; external claims remain open
 [x] style-proof-committed-evidence-runbook-report-20260620.txt # 当前规则实现：committed local + WeChat PC execution runbook report keeps operator gates unclaimed
 [x] style-proof-committed-evidence-release-gate-20260620.txt # 当前规则实现：committed evidence release gate returns canClaimComplete=false until local/external blockers close
+[x] exportmodal-release-gate-preflight-20260620.txt # CloakBrowser local UI check：ExportModal preflight exposes canClaimComplete=false + fingerprintConflicts 2 without closing external gates
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
@@ -2528,3 +2529,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
+
+## 2026-06-20 ExportModal Committed Release Gate Preflight
+
+- [x] exportmodal-release-gate-preflight-20260620.txt
+- ExportModal now surfaces the committed-evidence release gate as a read-only preflight row.
+- The style capability summary and preflight row expose `canClaimComplete=false`, blocker count,
+  and `fingerprintConflicts 2` for the current committed local-vs-PC evidence conflicts.
+- CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
+  article "未命名文章" and confirmed the release row is `preflight-blocked`, the panel is nonblank,
+  and page/body scroll width stays equal to the 1400px viewport.
+- Verification passed: ExportModal ESLint, `vue-tsc --noEmit`, e2e CJS syntax check, and
+  production build. Vite built in 24.34s.
+- Boundary: this is local UI/readout proof only. It does not prove phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public preview,
+  XHS/Zhihu account upload, public-host acceptance, or publish success.
