@@ -2897,3 +2897,30 @@ Boundary:
   interaction, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+---
+
+## 2026-06-20 Release Gate Operator Actions Addendum
+
+- Added `prompts/0601/evidence/release-gate-operator-actions-20260620.txt`.
+- `CommittedStyleProofReleaseGateBlocker` now exposes `nextOperatorActions` derived from existing
+  execution-runbook open steps.
+- The local-conflict blocker now gives a committed-manifest reconciliation action; phone,
+  external-dependency, unsafe-to-automate, and mutating-platform blockers prioritize the relevant
+  phone-preview, public-host / credentialed-channel, or platform-publish proof action.
+- ExportModal now includes a short `operatorNext` summary in the committed-proof-release preflight
+  row while keeping `canClaimComplete=false`.
+- Focused verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks committed evidence release claims" --reporter=default`.
+- Full local verification also passed: `platform-export-rendering.test.ts` 150 tests, four-file
+  cross-platform export regression 189 tests, full `src/services/export` serial run 35 files /
+  1123 tests, targeted ESLint, `vue-tsc --noEmit`, e2e CJS syntax check, and production build
+  (Vite built in 25.23s). `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser local visual/DOM verification confirmed the committed-proof-release row is
+  `preflight-blocked`, contains `operatorNext`, contains the local-conflict reconciliation and
+  phone-preview actions, and has no horizontal overflow at 1400x900 or 390x844. Screenshots were
+  used only for local visual inspection and were not committed as evidence.
+- Boundary: this is local operator guidance and UI readout only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  platform preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or
+  publish success.

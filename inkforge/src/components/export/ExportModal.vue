@@ -336,10 +336,38 @@ function styleProofReleaseBlockerLabel(blocker: CommittedStyleProofReleaseGateBl
   }
 }
 
+function styleProofReleaseNextOperatorActionLabel(
+  action: CommittedStyleProofReleaseGateBlocker['nextOperatorActions'][number],
+): string {
+  const requirement = action.requirementId ? styleProofRequirementLabel(action.requirementId) : '本地冲突'
+  const boundary = action.boundary ? styleProofExecutionBoundaryLabel(action.boundary) : '本地'
+  return `${requirement}/${boundary}: ${action.action}`
+}
+
+function styleProofReleaseNextOperatorActions(
+  blockers: readonly CommittedStyleProofReleaseGateBlocker[],
+): string {
+  const labels: string[] = []
+  const seen = new Set<string>()
+
+  for (const blocker of blockers) {
+    for (const action of blocker.nextOperatorActions) {
+      const label = styleProofReleaseNextOperatorActionLabel(action)
+      if (seen.has(label)) continue
+      seen.add(label)
+      labels.push(label)
+      if (labels.length >= 2) return labels.join('；')
+    }
+  }
+
+  return labels.join('；') || '无'
+}
+
 const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
   const gate = committedStyleProofReleaseGate.value
   const blockerSummary = gate.blockers.map(styleProofReleaseBlockerLabel).join('；') || '无阻塞'
   const conflictCount = committedStyleProofReleaseConflictCount.value
+  const nextOperatorActions = styleProofReleaseNextOperatorActions(gate.blockers)
 
   if (gate.canClaimComplete) {
     return {
@@ -354,7 +382,7 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
     key: 'committed-proof-release',
     label: '提交证据宣称门禁',
     state: 'blocked',
-    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；不得声明手机预览、同步、发布或 public host 已完成。`,
+    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
   }
 })
 

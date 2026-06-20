@@ -6752,3 +6752,63 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
+
+## 2026-06-20 Release Gate Operator Actions Slice
+
+Scope:
+- Local committed-evidence release-gate report and ExportModal preflight readout.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR artifact, token, cookie, or HAR artifact was
+  created.
+
+Impact:
+- GitNexus impact for `getCommittedStyleProofEvidenceReleaseGateReport` reported LOW risk with
+  1 direct test dependent and 0 affected processes.
+- GitNexus impact for `buildCommittedStyleProofReleaseStepBlocker` reported LOW risk, 1 direct
+  caller, 1 affected module (`Export`), and 0 affected processes.
+- GitNexus impact for `Function:inkforge/src/components/export/ExportModal.vue:preflightRows`
+  reported LOW risk with 0 impacted items and 0 affected processes.
+
+Implementation:
+- Added `CommittedStyleProofReleaseNextOperatorAction`.
+- Every release-gate blocker now exposes `nextOperatorActions`.
+- The actions are derived from existing execution-runbook open steps and do not create proof or
+  change `canClaimComplete`.
+- Blocker-specific sorting prioritizes phone-preview readback, public-host / credentialed-channel
+  proof, and platform-publish readback where relevant.
+- Repeated action rows are deduplicated by platform, gate, boundary, and action text.
+- ExportModal committed-proof-release preflight row now includes a short `operatorNext` summary.
+- Added evidence:
+  `prompts/0601/evidence/release-gate-operator-actions-20260620.txt`.
+
+Initial verification:
+- TDD first exposed an external-dependency sorting gap, then an over-specific unsafe-action text
+  assertion. Both were corrected.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks committed evidence release claims" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 150 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 189 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 35 files / 1123 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --ext .ts,.vue --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  - PASS.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  - PASS: Vite built in 25.23s.
+- Restored generated `inkforge/tsconfig.tsbuildinfo` after type/build verification.
+- CloakBrowser local desktop and mobile checks confirmed the committed-proof-release row is
+  `preflight-blocked`, includes `operatorNext`, includes the local-conflict reconciliation and
+  phone-preview actions, and has no horizontal overflow at 1400x900 or 390x844. Screenshots were
+  used only for local visual inspection and were not committed as evidence.
+
+Boundary:
+- This is local operator guidance and UI readout only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

@@ -101,6 +101,7 @@ export type {
   CommittedStyleProofReleaseGateBlocker,
   CommittedStyleProofReleaseGateBlockerKind,
   CommittedStyleProofReleaseFingerprintConflict,
+  CommittedStyleProofReleaseNextOperatorAction,
   CommittedStyleProofReleaseGateReport,
   CommittedStyleProofReleaseGateStatus,
   StyleProofArtifactVerificationField,

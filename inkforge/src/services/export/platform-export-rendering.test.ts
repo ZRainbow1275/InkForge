@@ -2003,6 +2003,12 @@ describe('platform native export rendering rules', () => {
       'mutating-platform',
     ]))
     expect(localConflictBlocker?.issueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        platforms: ['wechat', 'xiaohongshu', 'zhihu'],
+        action: expect.stringContaining('Reconcile the committed manifest pack'),
+      }),
+    ]))
     expect(localConflictBlocker?.fingerprintConflicts).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platform: 'wechat',
@@ -2023,18 +2029,37 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
+    expect(phoneBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        platforms: ['wechat'],
+        requirementId: 'phone-preview-readback',
+        gate: 'phone-preview',
+        boundary: 'phone-preview',
+        action: expect.stringContaining('target phone preview'),
+      }),
+    ]))
     expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'public-image-host',
       'sync-readback',
     ]))
+    expect(externalBlocker?.nextOperatorActions.some(action =>
+      action.boundary === 'public-host' || action.action.includes('public host')
+    )).toBe(true)
     expect(unsafeBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
+    expect(unsafeBlocker?.nextOperatorActions.some(action =>
+      action.boundary === 'platform-publish' &&
+      action.requirementId === 'published-url-or-platform-preview'
+    )).toBe(true)
     expect(mutatingBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
+    expect(mutatingBlocker?.nextOperatorActions.some(action =>
+      action.boundary === 'platform-publish'
+    )).toBe(true)
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

@@ -2544,3 +2544,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local UI/readout proof only. It does not prove phone preview, mobile
   interaction, mobile Dark Mode, cover thumbnail, credentialed sync, scheduled send, public preview,
   XHS/Zhihu account upload, public-host acceptance, or publish success.
+
+## 2026-06-20 Release Gate Operator Actions
+
+- [x] release-gate-operator-actions-20260620.txt
+- Committed release-gate blockers now expose `nextOperatorActions` derived from the existing
+  execution runbook instead of inventing new proof rows.
+- ExportModal now includes a short `operatorNext` summary in the committed-proof-release preflight
+  row while keeping `canClaimComplete=false` and the row blocked.
+- TDD first exposed that external-dependency actions could hide public-host behind repeated PC
+  editor actions; sorting now prioritizes blocker-specific gates and deduplicates repeated
+  platform/gate/boundary/action rows.
+- Focused verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks committed evidence release claims" --reporter=default`.
+- Full verification also passed: `platform-export-rendering.test.ts` 150 tests, four-file
+  cross-platform export regression 189 tests, full `src/services/export` serial run 35 files /
+  1123 tests, targeted ESLint, `vue-tsc --noEmit`, e2e CJS syntax check, and production build
+  (Vite built in 25.23s). `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser local visual/DOM verification confirmed the committed-proof-release row contains
+  `operatorNext`, the reconciliation action, and the phone-preview action on desktop 1400x900 and
+  mobile 390x844, with no document/body/panel/row horizontal overflow. Screenshots were used only
+  for local visual inspection and were not committed as evidence.
+- Boundary: this is local operator guidance and UI readout only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
+  preview, XHS/Zhihu upload, public-host acceptance, or publish success.

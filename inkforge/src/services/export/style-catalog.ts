@@ -892,6 +892,14 @@ export interface CommittedStyleProofReleaseFingerprintConflict {
   fingerprints: readonly string[]
 }
 
+export interface CommittedStyleProofReleaseNextOperatorAction {
+  platforms: readonly Platform[]
+  requirementId?: StyleProofRequirementId
+  gate?: StyleProofCollectionGate
+  boundary?: StyleProofExecutionBoundary
+  action: string
+}
+
 export interface CommittedStyleProofReleaseGateBlocker {
   kind: CommittedStyleProofReleaseGateBlockerKind
   status: StyleProofAcceptanceAuditStatus | 'issue'
@@ -900,6 +908,7 @@ export interface CommittedStyleProofReleaseGateBlocker {
   issueIds: readonly StyleProofManifestIssueId[]
   stepCount: number
   message: string
+  nextOperatorActions: readonly CommittedStyleProofReleaseNextOperatorAction[]
   fingerprintConflicts?: readonly CommittedStyleProofReleaseFingerprintConflict[]
 }
 
@@ -5643,6 +5652,90 @@ function getCommittedStyleProofReleaseFingerprintConflicts(
     })
 }
 
+function getCommittedStyleProofReleaseStepActionPriority(
+  kind: Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>,
+  step: StyleProofExecutionRunbookStep,
+): number {
+  if (kind === 'phone-preview') {
+    if (step.requirement.id === 'phone-preview-readback') return 0
+    if (step.requirement.id === 'phone-screenshot') return 1
+    if (step.requirement.id === 'dark-mode-check') return 2
+    if (step.requirement.id === 'cover-thumbnail-check') return 3
+    return 4
+  }
+
+  if (kind === 'external-dependency') {
+    if (step.boundary === 'public-host') return 0
+    if (step.boundary === 'credentialed-channel') return 1
+    if (step.boundary === 'authenticated-pc-editor') return 2
+    if (step.requiresExternalAccount) return 3
+    return 4
+  }
+
+  if (kind === 'unsafe-to-automate' || kind === 'mutating-platform') {
+    if (step.boundary === 'platform-publish') return 0
+    if (step.mutatesPlatform) return 1
+    if (step.boundary === 'credentialed-channel') return 2
+    if (step.requiresExternalAccount) return 3
+    return 4
+  }
+
+  if (step.status === 'invalid') return 0
+  if (step.requiresPhone) return 1
+  if (step.mutatesPlatform) return 2
+  if (step.boundary === 'public-host') return 3
+  if (step.requiresExternalAccount) return 4
+  if (step.safeToAutomate) return 5
+  return 6
+}
+
+function getCommittedStyleProofReleaseNextOperatorActions(
+  kind: Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>,
+  steps: readonly StyleProofExecutionRunbookStep[],
+  limit = 3,
+): CommittedStyleProofReleaseNextOperatorAction[] {
+  const actions: CommittedStyleProofReleaseNextOperatorAction[] = []
+  const seen = new Set<string>()
+
+  for (const step of [...steps].sort((left, right) => {
+    const priority = getCommittedStyleProofReleaseStepActionPriority(kind, left) -
+      getCommittedStyleProofReleaseStepActionPriority(kind, right)
+    if (priority !== 0) return priority
+    if (left.platform !== right.platform) return left.platform.localeCompare(right.platform)
+    return left.order - right.order
+  })) {
+    const key = [
+      step.platform,
+      step.gate,
+      step.boundary,
+      step.nextOperatorAction,
+    ].join('|')
+    if (seen.has(key)) continue
+    seen.add(key)
+    actions.push({
+      platforms: [step.platform],
+      requirementId: step.requirement.id,
+      gate: step.gate,
+      boundary: step.boundary,
+      action: step.nextOperatorAction,
+    })
+    if (actions.length >= limit) break
+  }
+
+  return actions
+}
+
+function getCommittedStyleProofReleaseLocalConflictAction(
+  issueIds: readonly StyleProofManifestIssueId[],
+): CommittedStyleProofReleaseNextOperatorAction[] {
+  if (issueIds.length === 0) return []
+
+  return [{
+    platforms: ['wechat', 'xiaohongshu', 'zhihu'],
+    action: 'Reconcile the committed manifest pack before any release claim: remove stale conflicting proof rows or replace them with one exact redacted artifact fingerprint for each platform and choice.',
+  }]
+}
+
 function buildCommittedStyleProofReleaseStepBlocker(
   kind: Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>,
   status: StyleProofAcceptanceAuditStatus,
@@ -5663,6 +5756,7 @@ function buildCommittedStyleProofReleaseStepBlocker(
     ),
     stepCount: steps.length,
     message,
+    nextOperatorActions: getCommittedStyleProofReleaseNextOperatorActions(kind, steps),
   }
 }
 
@@ -5700,6 +5794,7 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
       issueIds,
       stepCount: source.summary.combinedIssueCount,
       message: 'Committed local and PC evidence still contain local manifest conflicts; do not claim complete style proof.',
+      nextOperatorActions: getCommittedStyleProofReleaseLocalConflictAction(issueIds),
       ...(fingerprintConflicts.length > 0 ? { fingerprintConflicts } : {}),
     })
   }

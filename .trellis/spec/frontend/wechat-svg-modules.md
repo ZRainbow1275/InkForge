@@ -415,6 +415,16 @@ export interface CommittedStyleProofExecutionRunbookReport {
 export function getCommittedStyleProofEvidenceExecutionRunbookReport(): CommittedStyleProofExecutionRunbookReport
 export type CommittedStyleProofReleaseGateStatus =
   | 'ready' | 'blocked-by-local-conflict' | 'blocked-by-external' | 'unsafe-to-automate'
+export interface CommittedStyleProofReleaseNextOperatorAction {
+  platforms: readonly Platform[]
+  requirementId?: StyleProofRequirementId
+  gate?: StyleProofCollectionGate
+  boundary?: StyleProofExecutionBoundary
+  action: string
+}
+export interface CommittedStyleProofReleaseGateBlocker {
+  nextOperatorActions: readonly CommittedStyleProofReleaseNextOperatorAction[]
+}
 export interface CommittedStyleProofReleaseGateReport {
   source: CommittedStyleProofExecutionRunbookReport
   canClaimComplete: boolean
@@ -2007,12 +2017,18 @@ Contracts:
   barriers into local conflict, phone preview, external dependency, unsafe-to-automate, and
   mutating-platform buckets. The local-conflict blocker must expose `fingerprintConflicts` for
   same-platform same-choice exact-artifact conflicts so operators can see which choices and
-  fingerprints need separate proof collection.
+  fingerprints need separate proof collection. Every blocker must also expose
+  `nextOperatorActions`, derived from the execution runbook rather than new proof, so the UI can
+  show the next real operator action without changing release status. Phone blockers must
+  prioritize phone-preview readback; external blockers must prioritize public-host or credentialed
+  channel readback; unsafe and mutating blockers must prioritize platform-publish readback. The
+  local-conflict blocker must instruct operators to reconcile stale conflicting committed
+  fingerprints before any release claim.
 - `ExportModal` may surface this committed-evidence release gate as a read-only preflight row.
   The row must read from `getCommittedStyleProofEvidenceReleaseGateReport()`, show
-  `canClaimComplete`, blocker count, and `fingerprintConflicts`, and remain blocked while the
-  report is not ready. It must not create proof artifacts, run platform actions, or imply phone,
-  sync, public-host, scheduled-send, or publish completion.
+  `canClaimComplete`, blocker count, `fingerprintConflicts`, and a short `operatorNext` summary,
+  and remain blocked while the report is not ready. It must not create proof artifacts, run
+  platform actions, or imply phone, sync, public-host, scheduled-send, or publish completion.
 
 Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local

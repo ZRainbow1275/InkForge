@@ -511,6 +511,10 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('canClaimComplete=false');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes committed fingerprint conflicts')
       .to.include('fingerprintConflicts 2');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes release operator next actions')
+      .to.include('operatorNext');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight points local conflict reconciliation')
+      .to.include('Reconcile the committed manifest pack');
     expect(
       wechat.cards.some((card) =>
         card.text.includes('验收审计：不可宣称') &&

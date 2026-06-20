@@ -1,0 +1,73 @@
+Release Gate Operator Actions - 2026-06-20
+
+Scope:
+- Local committed-evidence release-gate readout and ExportModal preflight UI.
+- No platform click, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR artifact, token, cookie, or HAR artifact was
+  created.
+
+Implemented:
+- Added CommittedStyleProofReleaseNextOperatorAction.
+- Each CommittedStyleProofReleaseGateBlocker now exposes nextOperatorActions derived from the
+  existing StyleProofExecutionRunbookStep.nextOperatorAction values.
+- Local-conflict blockers expose a reconciliation action for stale conflicting committed
+  fingerprints.
+- Phone-preview blockers prioritize phone-preview-readback.
+- External-dependency blockers prioritize public-host and credentialed-channel readback.
+- Unsafe-to-automate and mutating-platform blockers prioritize platform-publish readback.
+- ExportModal committed-proof-release preflight row now includes a short operatorNext summary.
+
+TDD notes:
+- First focused run failed after adding assertions because external-dependency actions were
+  dominated by authenticated PC editor rows and did not expose public-host in the first three
+  actions.
+- The sorter was corrected to prioritize blocker-specific gates and to deduplicate identical
+  platform/gate/boundary/action rows.
+- A second focused run failed because the unsafe-to-automate assertion was tied to wording rather
+  than structure.
+- The assertion was corrected to require platform-publish boundary plus
+  published-url-or-platform-preview.
+
+Focused verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks committed evidence release claims" --reporter=default
+  PASS: 1 file / 1 selected test
+
+Full local verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 150 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 189 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1123 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts src/components/export/ExportModal.vue --ext .ts,.vue --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 25.23s
+- Restored generated inkforge/tsconfig.tsbuildinfo after type/build verification.
+
+CloakBrowser local verification:
+- Desktop viewport 1400x900: opened the real local Workstation article "应用元素证据检查",
+  opened ExportModal from the enabled export button, and confirmed the committed-proof-release row
+  is preflight-blocked.
+- Desktop release row contains canClaimComplete=false, blockers 5, fingerprintConflicts 2,
+  operatorNext, the committed-manifest reconciliation action, the phone preview action, and the
+  "must not claim phone/sync/publish/public host complete" boundary.
+- Desktop panel measured 900x720 with document/body scroll width equal to the 1400px viewport and
+  no horizontal overflow.
+- Mobile viewport 390x844: opened the same local article, opened ExportModal, scrolled the release
+  row into view, and confirmed operatorNext, reconciliation, and phone-preview action text.
+- Mobile panel measured 374px wide, release row measured 332px wide, and document/body/panel/row
+  horizontal overflow checks were all false.
+- Screenshots were used only for local visual inspection and were not recorded as committed
+  evidence.
+
+Boundary:
+- This is local operator guidance and UI readout only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.
