@@ -489,18 +489,18 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     await openExportPanel('微信');
 
     const wechat = await collectStyleCapabilityProbe();
-    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 8/16');
+    expect(wechat.summary, 'WeChat style capability summary').to.include('微信公众号 当前可用 8/17');
     expect(wechat.summary, 'WeChat acceptance audit summary').to.include('验收审计 不可宣称');
     expect(wechat.summary, 'WeChat execution runbook summary').to.include('执行手册 开放');
     expect(wechat.summary, 'WeChat committed release gate summary').to.include('canClaimComplete=false');
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
       .to.include('fingerprintConflicts 2');
-    expect(wechat.cardCount, 'WeChat choice card count').to.equal(16);
+    expect(wechat.cardCount, 'WeChat choice card count').to.equal(17);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
-    expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(4);
+    expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(5);
     expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(4);
     expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 8/16；受限 4；不可用 4');
+      .to.include('样式能力目录可用 8/17；受限 5；不可用 4');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes execution runbook totals')
@@ -541,6 +541,13 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.text.includes('Mobile-only SVG effect candidate') &&
         card.text.includes('phone WeChat before/after evidence missing')),
       'mobile-only SVG effects stay blocked until phone WeChat evidence exists',
+    ).to.equal(true);
+    expect(
+      wechat.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Market SVG/H5 fallback matrix') &&
+        card.text.includes('135/Xiumi SVG and H5 taxonomy')),
+      'market SVG/H5 fallback matrix stays blocked until InkForge-owned fallback proof exists',
     ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
@@ -586,15 +593,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
 
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();
-    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/7');
+    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/8');
     expect(xhs.summary, 'XHS acceptance audit summary').to.include('验收审计 不可宣称');
     expect(xhs.summary, 'XHS execution runbook summary').to.include('执行手册 开放');
-    expect(xhs.cardCount, 'XHS choice card count').to.equal(7);
+    expect(xhs.cardCount, 'XHS choice card count').to.equal(8);
     expect(xhs.availableCount, 'XHS available choice count').to.equal(4);
-    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(2);
+    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(3);
     expect(xhs.unavailableCount, 'XHS unavailable choice count').to.equal(1);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+      .to.include('样式能力目录可用 4/8；受限 3；不可用 1');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes execution runbook totals')
@@ -617,18 +624,24 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.text.includes('H5 and design import boundary')),
       'XHS H5/design routes remain separate artifact-family checklists',
     ).to.equal(true);
+    expect(
+      xhs.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Market rich card image fallback')),
+      'XHS market rich card fallback remains blocked until real artifact proof exists',
+    ).to.equal(true);
 
     await selectExportPlatform('知乎');
     const zhihu = await collectStyleCapabilityProbe();
-    expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 4/7');
+    expect(zhihu.summary, 'Zhihu style capability summary').to.include('知乎 当前可用 4/8');
     expect(zhihu.summary, 'Zhihu acceptance audit summary').to.include('验收审计 不可宣称');
     expect(zhihu.summary, 'Zhihu execution runbook summary').to.include('执行手册 开放');
-    expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(7);
+    expect(zhihu.cardCount, 'Zhihu choice card count').to.equal(8);
     expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(4);
-    expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(2);
+    expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(3);
     expect(zhihu.unavailableCount, 'Zhihu unavailable choice count').to.equal(1);
     expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 4/7；受限 2；不可用 1');
+      .to.include('样式能力目录可用 4/8；受限 3；不可用 1');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes execution runbook totals')
@@ -650,6 +663,12 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.className.includes('style-choice-unavailable') &&
         card.text.includes('Public image upload checklist')),
       'Zhihu public image upload remains credentialed before publishability',
+    ).to.equal(true);
+    expect(
+      zhihu.cards.some((card) =>
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Market rich layout image fallback')),
+      'Zhihu market rich layout fallback remains blocked until public-host proof exists',
     ).to.equal(true);
 
     await closeExportModal();

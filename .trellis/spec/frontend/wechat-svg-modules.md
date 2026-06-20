@@ -2474,3 +2474,22 @@ Required checks:
 - Documentation must name login-state pages as blockers, not proof.
 - Completion reports must keep this separate from WeChat paste, phone preview, sync,
   scheduled-send, public preview, and publish acceptance.
+
+## 23. ExportModal Style Catalog E2E Count Contract - 2026-06-21
+
+The ExportModal e2e must assert the runtime catalog counts produced by the current
+`getPlatformStyleChoices()` catalog. Market fallback choices are intentionally visible as blocked
+choices, not hidden or deleted, so the counts must include them.
+
+Current runtime counts:
+- WeChat: 17 total choices, 8 available, 5 blocked, 4 unavailable.
+- Xiaohongshu: 8 total choices, 4 available, 3 blocked, 1 unavailable.
+- Zhihu: 8 total choices, 4 available, 3 blocked, 1 unavailable.
+
+Contracts:
+- `tests/e2e/specs/svg-render.spec.cjs` must assert the current counts visible in the real
+  ExportModal style capability summary and preflight row.
+- The e2e must keep market fallback choices blocked until real InkForge-owned fallback proof,
+  public-host proof, phone proof, or platform readback exists as required by the platform.
+- Updating the e2e count is allowed only after confirming `getPlatformStyleChoices()` and the
+  runtime ExportModal agree. Do not delete catalog entries to satisfy stale e2e counts.

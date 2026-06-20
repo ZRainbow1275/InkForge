@@ -7124,3 +7124,48 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 Style Acceptance ExportModal E2E Refresh Slice
+
+Scope:
+- Real Tauri/WebView2 WDIO e2e refresh for ExportModal style capability gates.
+- No external platform action, phone preview, sync, upload, scheduled send, or publish.
+
+Impact:
+- GitNexus impact for `File:inkforge/tests/e2e/specs/svg-render.spec.cjs` reported LOW risk,
+  0 impacted items, and 0 affected processes.
+
+Initial run:
+- `pnpm -C inkforge test:e2e` failed in `svg-render.spec.cjs`.
+- `visual.spec.cjs` passed 11 tests, and `svg-render.spec.cjs` passed 5 tests before the failing
+  style-capability-count assertion.
+- Failure reason: the e2e still expected stale WeChat catalog count `8/16`, while real ExportModal
+  reported `8/17`.
+
+Implementation:
+- Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` to assert current catalog counts:
+  WeChat `8/17`, Xiaohongshu `4/8`, and Zhihu `4/8`.
+- Updated card-count and blocked-count assertions to match `getPlatformStyleChoices()`:
+  WeChat 17 total / 8 available / 5 blocked / 4 unavailable; Xiaohongshu 8 total / 4 available /
+  3 blocked / 1 unavailable; Zhihu 8 total / 4 available / 3 blocked / 1 unavailable.
+- Added e2e assertions that market fallback choices remain blocked until real fallback/public-host
+  proof exists.
+- Added `prompts/0601/evidence/style-acceptance-exportmodal-e2e-refresh-20260621.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs` passed.
+- Targeted WDIO passed:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 spec / 6 tests.
+- Full WDIO passed:
+  `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests.
+- E2E PNG evidence files remain dirty from existing local runs and were not staged.
+
+Boundary:
+- This is local Tauri/WebView2 e2e proof only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

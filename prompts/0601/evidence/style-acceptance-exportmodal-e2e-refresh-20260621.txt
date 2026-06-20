@@ -1,0 +1,51 @@
+Style Acceptance ExportModal E2E Refresh - 2026-06-21
+
+Scope:
+- Real Tauri/WebView2 WDIO e2e refresh for ExportModal style capability gates.
+- No external platform action, no phone preview, no sync, no upload, no scheduled send, and no publish.
+
+Impact:
+- GitNexus impact for `File:inkforge/tests/e2e/specs/svg-render.spec.cjs` reported LOW risk,
+  0 impacted items, and 0 affected processes.
+
+Initial full e2e run:
+- Command: `pnpm -C inkforge test:e2e`
+- Result: failed in `tests/e2e/specs/svg-render.spec.cjs`.
+- Passing before the fix: `visual.spec.cjs` passed 11 tests; `svg-render.spec.cjs` passed 5 tests.
+- Failure reason: the e2e still expected stale style-catalog counts:
+  - WeChat expected `8/16`, actual runtime UI was `8/17`.
+
+Catalog authority check:
+- `getPlatformStyleChoices('wechat')`: 17 total, 8 available, 5 blocked, 4 unavailable.
+- `getPlatformStyleChoices('xiaohongshu')`: 8 total, 4 available, 3 blocked, 1 unavailable.
+- `getPlatformStyleChoices('zhihu')`: 8 total, 4 available, 3 blocked, 1 unavailable.
+- The extra blocked choices are the market fallback catalog entries. They are intentional
+  conservative fallback routes, not selectable/publishable proof.
+
+Implementation:
+- Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` to assert current catalog counts:
+  - WeChat: `8/17`, cardCount 17, blockedCount 5, unavailableCount 4.
+  - Xiaohongshu: `4/8`, cardCount 8, blockedCount 3, unavailableCount 1.
+  - Zhihu: `4/8`, cardCount 8, blockedCount 3, unavailableCount 1.
+- Added e2e assertions that the WeChat, Xiaohongshu, and Zhihu market fallback choices remain
+  blocked until real InkForge-owned fallback/public-host proof exists.
+
+Verification:
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  - PASS.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  - PASS: 1 spec, 6 tests.
+- `pnpm -C inkforge test:e2e`
+  - PASS: 2 specs, 17 tests.
+  - `svg-render.spec.cjs`: 6 passing.
+  - `visual.spec.cjs`: 11 passing.
+
+Non-failing warning:
+- Microsoft Edge WebDriver reported that the installed driver has not been tested with the local
+  Edge 149 runtime. The run still completed with all assertions passing.
+
+Boundary:
+- This is local Tauri/WebView2 e2e proof only.
+- It does not prove WeChat authenticated editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public preview, public article
+  rendering, Xiaohongshu/Zhihu account upload, public-host acceptance, or publish success.

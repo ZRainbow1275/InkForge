@@ -2690,3 +2690,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local validation only. It does not prove WeChat paste, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, public article
   rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Style Acceptance ExportModal E2E Refresh
+
+- [x] style-acceptance-exportmodal-e2e-refresh-20260621.txt
+- Initial full WDIO run failed because `svg-render.spec.cjs` still expected stale catalog counts:
+  WeChat `8/16` while the real runtime UI exposed `8/17`.
+- Catalog authority check returned current counts: WeChat 17 total / 8 available / 5 blocked / 4
+  unavailable; Xiaohongshu 8 total / 4 available / 3 blocked / 1 unavailable; Zhihu 8 total / 4
+  available / 3 blocked / 1 unavailable.
+- Updated the real Tauri/WebView2 e2e to assert current counts and to keep the market fallback
+  choices blocked until real fallback/public-host proof exists.
+- Verification passed:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`;
+  targeted `svg-render.spec.cjs` WDIO run with 1 spec / 6 tests; full `pnpm -C inkforge test:e2e`
+  with 2 specs / 17 tests.
+- Boundary: this is local Tauri/WebView2 e2e proof only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.

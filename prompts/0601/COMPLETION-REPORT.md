@@ -3079,3 +3079,23 @@ Boundary:
 - Boundary: this is local validation only. It does not prove WeChat paste, phone preview, mobile
   interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, public article
   rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 Style Acceptance ExportModal E2E Refresh Addendum
+
+- Added `prompts/0601/evidence/style-acceptance-exportmodal-e2e-refresh-20260621.txt`.
+- Initial `pnpm -C inkforge test:e2e` failed because `svg-render.spec.cjs` still expected stale
+  style catalog counts. Real ExportModal reported WeChat `8/17`, not `8/16`.
+- Confirmed current catalog counts through `getPlatformStyleChoices()`:
+  WeChat 17 total / 8 available / 5 blocked / 4 unavailable; Xiaohongshu 8 total / 4 available /
+  3 blocked / 1 unavailable; Zhihu 8 total / 4 available / 3 blocked / 1 unavailable.
+- Updated `inkforge/tests/e2e/specs/svg-render.spec.cjs` to assert those current counts and to
+  verify market fallback choices remain blocked until real fallback/public-host proof exists.
+- Verification passed:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`;
+  targeted `svg-render.spec.cjs` WDIO run with 1 spec / 6 tests; full `pnpm -C inkforge test:e2e`
+  with 2 specs / 17 tests.
+- Boundary: this is local Tauri/WebView2 e2e proof only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
