@@ -7009,3 +7009,48 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 Style Proof Current Release/Runbook Audit Slice
+
+Scope:
+- Local API readout of the already-committed style proof release gate and execution runbook reports.
+- Docs/evidence only. No browser automation, platform click, phone preview, sync, upload,
+  scheduled send, publish, screenshot capture, browser runtime artifact, HAR, QR, credential
+  material, account artifact, or raw platform response was created.
+
+Observation:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` returned
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
+- The release summary returned `localManifestCount=4`, `wechatPcManifestCount=2`,
+  `combinedManifestCount=6`, `combinedIssueCount=14`,
+  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and
+  `mutatingOpenSteps=14`.
+- The combined execution runbook returned 35 total/open/cannot-claim steps, 16 safe-to-automate
+  open local rows, 15 external-dependency-open rows, 4 phone-open rows, 14 unsafe-to-automate rows,
+  and 14 mutating rows.
+- Platform summaries stayed isolated: WeChat 17 open steps, Xiaohongshu 8 open steps, and Zhihu
+  10 open steps.
+
+Implementation:
+- Added `prompts/0601/evidence/style-proof-current-release-runbook-audit-20260621.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+- No runtime code change was needed because the existing release gate already exposes the expected
+  blocker buckets and counts.
+
+Verification:
+- Local API command passed:
+  `pnpm -C inkforge exec tsx -e "import { getCommittedStyleProofEvidenceReleaseGateReport, getCommittedStyleProofEvidenceExecutionRunbookReport } from './src/services/export/style-catalog'; ..."`
+- Focused committed-evidence regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed evidence" --reporter=default`
+  passed 1 file, 2 selected tests.
+- `git diff --check` on this docs/evidence slice passed with only Windows CRLF conversion
+  warnings.
+
+Boundary:
+- This is local committed-evidence accounting only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

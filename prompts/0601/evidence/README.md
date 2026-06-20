@@ -2641,3 +2641,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is a blocked market-editor DOM recheck only. It does not prove Xiumi applied
   content, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Style Proof Current Release/Runbook Audit
+
+- [x] style-proof-current-release-runbook-audit-20260621.txt
+- Local API readout of `getCommittedStyleProofEvidenceReleaseGateReport()` returned
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
+- The same readout reported `combinedManifestCount=6`, `combinedIssueCount=14`,
+  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and `mutatingOpenSteps=14`.
+- The combined execution runbook stayed fully open at 35 total/open/cannot-claim steps. Platform
+  summaries stayed isolated: WeChat 17 open steps, Xiaohongshu 8 open steps, and Zhihu 10 open
+  steps.
+- The release gate still exposes local-conflict, phone-preview, external-dependency,
+  unsafe-to-automate, and mutating-platform blocker buckets with operator actions. This is the
+  expected current state and must not be converted into a completion claim.
+- Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
+  preview, XHS/Zhihu upload, public-host acceptance, or publish success.

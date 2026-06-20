@@ -1,0 +1,74 @@
+Style Proof Current Release/Runbook Audit - 2026-06-21
+
+Scope:
+- Local API readout of committed redacted style proof evidence.
+- No browser automation, no phone preview, no sync, no upload, no scheduled send, no publish.
+- No screenshot, QR, HAR, credential material, browser runtime artifact, local runtime path,
+  account id, or raw platform response was recorded.
+
+Command:
+- pnpm -C inkforge exec tsx -e "import { getCommittedStyleProofEvidenceReleaseGateReport, getCommittedStyleProofEvidenceExecutionRunbookReport } from './src/services/export/style-catalog'; ..."
+
+Release gate result:
+- status: blocked-by-local-conflict
+- canClaimComplete: false
+- blockerCount: 5
+- localManifestCount: 4
+- wechatPcManifestCount: 2
+- combinedManifestCount: 6
+- combinedIssueCount: 14
+- hasExactArtifactFingerprintConflicts: true
+- cannotClaimSteps: 35
+- phoneOpenSteps: 4
+- externalDependencyOpenSteps: 15
+- unsafeToAutomateOpenSteps: 14
+- mutatingOpenSteps: 14
+
+Runbook combined summary:
+- manifestCount: 6
+- validManifestCount: 0
+- invalidManifestCount: 6
+- usableManifestCount: 6
+- duplicateArtifactIdCount: 0
+- issueCount: 14
+- totalSteps: 35
+- completedSteps: 0
+- openSteps: 35
+- cannotClaimSteps: 35
+- safeToAutomateOpenSteps: 16
+- externalDependencyOpenSteps: 15
+- phoneOpenSteps: 4
+- mutatingOpenSteps: 14
+- unsafeToAutomateOpenSteps: 14
+
+Platform runbook summary:
+- WeChat: 17 total steps, 17 open, 17 cannot-claim, 4 phone-open, 8 external-dependency-open, 8 unsafe-to-automate, 8 mutating.
+- Xiaohongshu: 8 total steps, 8 open, 8 cannot-claim, 2 external-dependency-open, 2 unsafe-to-automate, 2 mutating.
+- Zhihu: 10 total steps, 10 open, 10 cannot-claim, 5 external-dependency-open, 4 unsafe-to-automate, 4 mutating.
+
+Blocker classes:
+- local-conflict: current committed local and PC evidence still contain manifest issues and exact-artifact fingerprint conflicts.
+- phone-preview: WeChat phone preview, phone screenshot, Dark Mode, and cover thumbnail proof remain external gates.
+- external-dependency: credentialed account, public-host, sync, upload, and platform readback proof remain unproven.
+- unsafe-to-automate: several rows require mutating credentialed platform actions and exact readback.
+- mutating-platform: scheduled send, publish, and platform-preview proof mutate platform state and must be operator-proven.
+
+Fingerprint conflicts:
+- wechat-flagship-amber has separate local WebView/Tauri and PC ClipboardEvent artifact fingerprints.
+- wechat-flagship-tempera has separate local WebView/Tauri and PC entity-safe editor-return artifact fingerprints.
+- These rows must be reconciled or collected as one exact redacted artifact fingerprint per platform/style choice before any release claim.
+
+Next operator actions reported by the API:
+- Reconcile the committed manifest pack before any release claim by removing stale conflicting proof rows or replacing them with one exact redacted artifact fingerprint for each platform and choice.
+- Use the target phone preview for WeChat readback, screenshots, Dark Mode, cover thumbnail, and interaction checks; PC DOM proof is not enough.
+- Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting image fallback readiness.
+- Use a real credentialed sync, plugin, upload, or API channel and read back the created draft/material; login or sign-in pages must stay blocked evidence.
+- Inspect a real platform preview or published result for the exact artifact; do not infer this from editor paste, sync success, or login-route readback.
+
+Conclusion:
+- The committed evidence release gate is correctly blocked.
+- The current committed evidence must not be reported as complete platform acceptance.
+- This audit proves local accounting only: the runtime report exposes the remaining local conflicts and external gates.
+
+Boundary:
+- This does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public article rendering, Xiaohongshu/Zhihu account upload, public-host acceptance, or publish success.

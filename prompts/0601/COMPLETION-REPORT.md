@@ -3009,3 +3009,30 @@ Boundary:
 - Boundary: this does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail, sync, scheduled send, public preview, XHS/Zhihu upload, public-host acceptance, or
   publish success.
+
+---
+
+## 2026-06-21 Style Proof Current Release/Runbook Audit Addendum
+
+- Added `prompts/0601/evidence/style-proof-current-release-runbook-audit-20260621.txt`.
+- The local API readout of `getCommittedStyleProofEvidenceReleaseGateReport()` returned
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
+- Current committed evidence summary: 4 local manifests, 2 WeChat PC manifests, 6 combined
+  manifests, 14 combined issues, exact-artifact fingerprint conflicts, 35 cannot-claim steps, 4
+  phone-open steps, 15 external-dependency-open steps, 14 unsafe-to-automate steps, and 14
+  mutating-open steps.
+- Current combined execution runbook summary: 35 total steps, 35 open steps, 35 cannot-claim
+  steps, 16 safe-to-automate open local rows, 15 external-dependency-open rows, 4 phone-open rows,
+  14 unsafe-to-automate rows, and 14 mutating rows.
+- Platform isolation remained visible in the report: WeChat 17 open steps, Xiaohongshu 8 open
+  steps, and Zhihu 10 open steps.
+- No runtime code change was needed. The existing release gate already exposes local-conflict,
+  phone-preview, external-dependency, unsafe-to-automate, and mutating-platform blockers with next
+  operator actions.
+- Verification passed: local API assertion for `status=blocked-by-local-conflict`,
+  `canClaimComplete=false`, `blockerCount=5`, and `cannotClaimSteps=35`; focused committed-evidence
+  regression 2 selected tests; `git diff --check` on this docs/evidence slice with only Windows
+  CRLF conversion warnings.
+- Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
+  preview, XHS/Zhihu upload, public-host acceptance, or publish success.

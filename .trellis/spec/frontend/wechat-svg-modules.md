@@ -2422,3 +2422,31 @@ Required checks:
 - Documentation must keep the boundary clear: runbook freshness guidance does not prove phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send,
   public-host acceptance, upload, or publish success.
+
+## 21. Current Committed Release/Runbook Audit Snapshot - 2026-06-21
+
+The committed-evidence release gate is the source of truth for whether the current redacted proof
+pack may be described as complete platform acceptance. Snapshot evidence may record current counts,
+but consumers must still read the live report instead of hardcoding the numbers.
+
+Current audited state:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` currently returns
+  `status:"blocked-by-local-conflict"` and `canClaimComplete:false`.
+- The current report exposes five blocker buckets: local conflict, phone preview, external
+  dependency, unsafe-to-automate, and mutating platform.
+- The combined committed-evidence summary currently exposes 6 manifests, 14 issues, exact-artifact
+  fingerprint conflicts, 35 cannot-claim steps, 4 phone-open steps, 15 external-dependency-open
+  steps, 14 unsafe-to-automate steps, and 14 mutating-open steps.
+- The combined execution runbook currently keeps all 35 proof steps open and cannot-claim. This is
+  release-accounting state, not proof that local renderer features are absent.
+- The WeChat flagship Amber and Tempera combined packs currently contain local-vs-PC
+  exact-artifact fingerprint conflicts. Operators must reconcile stale conflicting proof rows or
+  collect one exact redacted artifact fingerprint per platform/style choice before any release
+  claim.
+
+Documentation rules:
+- Evidence files may include a local API snapshot of current counts when the command and boundary
+  are recorded.
+- Completion reports must state that this snapshot proves local accounting only.
+- The snapshot must not be used as phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  sync, scheduled-send, public-host, upload, or publish proof.
