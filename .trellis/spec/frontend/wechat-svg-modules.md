@@ -1971,8 +1971,10 @@ Contracts:
   the `public-image-host` gate.
 - `getCommittedStyleProofWechatPcEvidenceManifests()` is the separate bridge for committed,
   redacted WeChat PC editor proof. It must not be merged into the local evidence helper because the
-  PC paste artifact fingerprint is the exact exported HTML SHA, while local evidence rows may refer
-  to Tauri/WebView screenshots or raster outputs.
+  PC paste artifact fingerprint is the exact exported HTML SHA or WeChat clipboard payload SHA.
+  Local evidence rows may keep Tauri/WebView screenshots or raster outputs as `artifactRef`, but
+  WeChat flagship local rows that are reconciled to a proven PC clipboard payload must use that
+  same effective artifact fingerprint instead of a screenshot-path fingerprint.
 - The current WeChat PC committed pack may include `wechat-flagship-amber` evidence from
   `wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt` and `wechat-flagship-tempera`
   entity-safe evidence from `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`. It may
@@ -1996,10 +1998,11 @@ Contracts:
   WeChat PC pack without mutating either source helper.
 - `getCommittedStyleProofEvidenceAuditReport()` must expose three views: the local committed audit,
   the WeChat PC committed audit, and the combined audit. The combined view is allowed, and expected,
-  to expose `style-proof-manifest-pack-fingerprint-mismatch` when local WebView/browser evidence and
-  PC paste evidence for the same choice refer to different exact artifact fingerprints. The summary
-  must surface this as `hasExactArtifactFingerprintConflicts:true` so consumers do not treat the
-  combined view as a single completed exact-artifact proof.
+  to expose `style-proof-manifest-pack-fingerprint-mismatch` only when local WebView/browser
+  evidence and PC paste evidence for the same choice refer to different effective exact artifact
+  fingerprints. When no such split exists, the summary must surface
+  `hasExactArtifactFingerprintConflicts:false`; consumers must still keep phone, sync,
+  public-host, scheduled-send, and publish rows unclaimable.
 - `getCommittedStyleProofLocalEvidenceExecutionRunbook()` and
   `getCommittedStyleProofWechatPcEvidenceExecutionRunbook()` must be shorthand for running the
   existing execution-runbook layer over their matching committed manifest packs. They must not add
@@ -2042,6 +2045,10 @@ Required tests:
   Mode, cover, sync, and publish rows stay missing/unclaimable.
 - Amber is no longer catalog-blocked after the 2026-06-18 ordinary OS Ctrl+V exact proof, but local
   WebView2 evidence alone still leaves PC/phone/publish rows missing.
+- Tempera local committed evidence uses the proven entity-safe WeChat clipboard artifact
+  fingerprint from `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`, while keeping the
+  local Tauri/WebView screenshot as `artifactRef`. This must not be generalized into raw UTF-8
+  ordinary paste proof.
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
   `xhs-artifact-manifest` with same-row `artifactRef`, `artifactManifestValidated:true`, and
   `safeForCommit:true`, while
@@ -2055,26 +2062,27 @@ Required tests:
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
 - The combined committed-evidence audit must return 6 cloned manifests, keep artifact ids unique,
-  expose exact-artifact fingerprint conflicts only for still-divergent choice rows such as the
-  current Tempera raw-vs-entity-safe split, and keep phone preview, Dark Mode, cover thumbnail,
-  sync, scheduled-send, and publish/platform-preview rows unclaimable.
+  expose exact-artifact fingerprint conflicts only for still-divergent choice rows, and keep phone
+  preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
+  unclaimable. As of the 2026-06-21 Tempera reconciliation, the committed pack has no current
+  exact-artifact fingerprint conflicts.
 - The combined committed-evidence runbook report must return local / WeChat PC / combined runbook
   views for the same 6-manifest combined pack, keep exact-artifact conflicts visible at summary and
-  issue-list level, and keep WeChat phone preview blocked-by-external, WeChat scheduled-send and
-  XHS publish unsafe-to-automate, and Zhihu public-host blocked-by-external.
+  issue-list level only when they exist, and keep WeChat phone preview blocked-by-external, WeChat
+  scheduled-send and XHS publish unsafe-to-automate, and Zhihu public-host blocked-by-external.
 - The committed-evidence release gate report must return `canClaimComplete:false` and
   `status:"blocked-by-local-conflict"` for the current committed pack, while still exposing phone,
   external-dependency, unsafe-to-automate, and mutating-platform blockers. It must include
-  `style-proof-manifest-pack-fingerprint-mismatch`, `phone-preview-readback`, `public-image-host`,
-  `sync-readback`, `scheduled-send-readback`, and `published-url-or-platform-preview` in the
-  appropriate blocker rows, and its local-conflict blocker must include `fingerprintConflicts` for
-  current unresolved local-vs-PC artifact splits. As of the 2026-06-21 Amber reconciliation, the
-  current unresolved conflict is `wechat-flagship-tempera`; Amber's local manifest uses the same
-  exact raw HTML SHA as the 2026-06-18 PC proof.
+  `phone-preview-readback`, `public-image-host`, `sync-readback`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` in the appropriate blocker rows. Its local-conflict blocker
+  must include `fingerprintConflicts` only for current unresolved local-vs-PC artifact splits. As
+  of the 2026-06-21 Amber and Tempera reconciliations, the committed pack currently has
+  `hasExactArtifactFingerprintConflicts:false`; the report remains unclaimable because missing
+  proof, phone, external dependency, unsafe-to-automate, and mutating-platform rows remain open.
 - The ExportModal style capability/preflight surface must show the committed release gate as
-  `canClaimComplete=false` with the current `fingerprintConflicts` count for the evidence pack. The visual
-  row must use the existing preflight state model and stay `blocked`; it is an operator diagnostic,
-  not a publish/sync action.
+  `canClaimComplete=false` with the current blocker and fingerprint-conflict counts for the
+  evidence pack. The visual row must use the existing preflight state model and stay `blocked`; it
+  is an operator diagnostic, not a publish/sync action.
 
 ## 16. Market Editor DOM/CSS Learning Contract - 2026-06-18
 
@@ -2443,15 +2451,14 @@ Current audited state:
   `status:"blocked-by-local-conflict"` and `canClaimComplete:false`.
 - The current report exposes five blocker buckets: local conflict, phone preview, external
   dependency, unsafe-to-automate, and mutating platform.
-- The combined committed-evidence summary currently exposes 6 manifests, 14 issues, exact-artifact
-  fingerprint conflicts, 35 cannot-claim steps, 4 phone-open steps, 15 external-dependency-open
-  steps, 14 unsafe-to-automate steps, and 14 mutating-open steps.
-- The combined execution runbook currently keeps all 35 proof steps open and cannot-claim. This is
+- The combined committed-evidence summary currently exposes 6 manifests, 11 issues, no
+  exact-artifact fingerprint conflicts, 34 cannot-claim steps, 4 phone-open steps,
+  14 external-dependency-open steps, 13 unsafe-to-automate steps, and 13 mutating-open steps.
+- The combined execution runbook currently keeps 34 proof steps open and cannot-claim. This is
   release-accounting state, not proof that local renderer features are absent.
-- The WeChat flagship Amber and Tempera combined packs currently contain local-vs-PC
-  exact-artifact fingerprint conflicts. Operators must reconcile stale conflicting proof rows or
-  collect one exact redacted artifact fingerprint per platform/style choice before any release
-  claim.
+- The WeChat flagship Amber and Tempera combined packs no longer contain local-vs-PC
+  exact-artifact fingerprint conflicts. Operators must still collect phone, sync, public-host,
+  scheduled-send, platform-preview, and publish proof before any release claim.
 
 Documentation rules:
 - Evidence files may include a local API snapshot of current counts when the command and boundary

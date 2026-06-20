@@ -1,7 +1,8 @@
 Style Proof Current Release Gate Refresh - 2026-06-21
 
 Scope:
-- Local API readout after the Amber reconciliation and WeChat session-timeout recheck slices.
+- Local API readout after the Amber reconciliation, WeChat session-timeout recheck, and Tempera
+  fingerprint reconciliation slices.
 - Source APIs:
   - getCommittedStyleProofEvidenceReleaseGateReport()
   - getCommittedStyleProofEvidenceExecutionRunbookReport()
@@ -20,8 +21,8 @@ Release gate result:
 - localManifestCount: 4
 - wechatPcManifestCount: 2
 - combinedManifestCount: 6
-- combinedIssueCount: 12
-- hasExactArtifactFingerprintConflicts: true
+- combinedIssueCount: 11
+- hasExactArtifactFingerprintConflicts: false
 - cannotClaimSteps: 34
 - phoneOpenSteps: 4
 - externalDependencyOpenSteps: 14
@@ -29,8 +30,8 @@ Release gate result:
 - mutatingOpenSteps: 13
 
 Current blocker classes:
-- local-conflict: 12 current manifest issues remain. The only exact-artifact fingerprint conflict
-  now points to wechat-flagship-tempera.
+- local-conflict: 11 current missing-proof issues remain. No exact-artifact fingerprint conflict
+  remains in the committed pack.
 - phone-preview: 4 WeChat phone-side rows remain blocked by external phone proof.
 - external-dependency: 14 rows still need credentialed account, public-host, sync, upload, or
   platform readback proof.
@@ -38,11 +39,9 @@ Current blocker classes:
 - mutating-platform: 13 rows mutate platform state and must be operator-proven.
 
 Current exact-artifact fingerprint conflict:
-- wechat-flagship-tempera:
-  - prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e
-  - sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878
-- Amber is no longer listed in release gate fingerprintConflicts after the 2026-06-21
-  reconciliation slice.
+- None.
+- Amber and Tempera are no longer listed in release gate fingerprintConflicts after the
+  2026-06-21 reconciliation slices.
 
 Combined runbook summary:
 - WeChat: 17 total steps, 1 completed, 16 open, 16 cannot-claim, 5 safe-to-automate open, 7
@@ -61,9 +60,8 @@ Combined acceptance summary:
   4 mutating-open requirements.
 
 Next operator actions reported by the API:
-- Reconcile the committed manifest pack before any release claim by removing stale conflicting
-  proof rows or replacing them with one exact redacted artifact fingerprint for each platform and
-  choice.
+- Finish the remaining missing-proof rows before any release claim; local fingerprint conflicts are
+  no longer the active blocker.
 - Use the target phone preview for WeChat readback, screenshots, Dark Mode, cover thumbnail, and
   interaction checks; PC DOM proof is not enough.
 - Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting
@@ -76,8 +74,8 @@ Next operator actions reported by the API:
 Conclusion:
 - The committed evidence release gate is correctly blocked.
 - The current committed evidence must not be reported as complete platform acceptance.
-- This refresh supersedes earlier same-day current-release counts that still listed Amber as an
-  exact-artifact fingerprint conflict.
+- This refresh supersedes earlier same-day current-release counts that still listed Amber or
+  Tempera as exact-artifact fingerprint conflicts.
 
 Boundary:
 - This proves local accounting only.

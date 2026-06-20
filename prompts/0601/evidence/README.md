@@ -2537,7 +2537,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - ExportModal now surfaces the committed-evidence release gate as a read-only preflight row.
 - The style capability summary and preflight row expose `canClaimComplete=false`, blocker count,
   and the committed local-vs-PC evidence conflict count. The 2026-06-21 Amber reconciliation
-  refreshes the current count to `fingerprintConflicts 1`.
+  refreshed that then-current count to `fingerprintConflicts 1`; the later Tempera reconciliation
+  refreshes the current count to 0 while the preflight row remains blocked.
 - CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
   article "未命名文章" and confirmed the release row is `preflight-blocked`, the panel is nonblank,
   and page/body scroll width stays equal to the 1400px viewport.
@@ -2652,6 +2653,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - The same readout reported `combinedManifestCount=6`, `combinedIssueCount=14`,
   `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and `mutatingOpenSteps=14`.
+- This same-day snapshot is superseded by the later Amber and Tempera reconciliation slices; the
+  current release-gate refresh records `combinedIssueCount=11` and
+  `hasExactArtifactFingerprintConflicts=false`.
 - The combined execution runbook stayed fully open at 35 total/open/cannot-claim steps. Platform
   summaries stayed isolated: WeChat 17 open steps, Xiaohongshu 8 open steps, and Zhihu 10 open
   steps.
@@ -2759,10 +2763,11 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   publish proof remain open.
 - The committed local Amber manifest now uses the exact raw HTML artifact SHA
   `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; the local Tauri
-  screenshot path stays an `artifactRef`.
-- Tempera remains unresolved because its PC proof is the entity-safe clipboard payload, not the
-  raw source HTML artifact. Release gate `fingerprintConflicts` is now 1 and points only to
-  `wechat-flagship-tempera`.
+  screenshot evidence reference stays an `artifactRef`.
+- At this Amber-only checkpoint, Tempera still had a local-vs-PC fingerprint split. The later
+  `style-proof-tempera-fingerprint-reconciliation-20260621.txt` slice reconciles Tempera to the
+  entity-safe WeChat clipboard artifact fingerprint, so the current committed pack has no
+  `fingerprintConflicts`.
 - Verification passed: focused committed/release claim regression with 5 selected tests, full
   platform-export file with 153 tests, 4-file cross-platform export regression with 192 tests, full
   export serial suite with 1126 tests, targeted TS/Vue ESLint, `node --check`, targeted
@@ -2775,18 +2780,38 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## 2026-06-21 Style Proof Current Release Gate Refresh
 
 - [x] style-proof-current-release-gate-refresh-20260621.txt
-- Local API readout after Amber reconciliation and the WeChat session-timeout recheck returned
+- Local API readout after Amber reconciliation, the WeChat session-timeout recheck, and Tempera
+  fingerprint reconciliation returned
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
-- Current summary: `combinedManifestCount=6`, `combinedIssueCount=12`,
-  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+- Current summary: `combinedManifestCount=6`, `combinedIssueCount=11`,
+  `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
-- Amber is no longer listed in release gate `fingerprintConflicts`. The only current
-  exact-artifact conflict is `wechat-flagship-tempera`, between the local Tauri/WebView evidence
-  artifact reference and the entity-safe PC editor-return payload SHA.
+- Amber and Tempera are no longer listed in release gate `fingerprintConflicts`; no current
+  exact-artifact fingerprint conflict remains in the committed pack.
 - Combined runbook platform summaries now show WeChat 17 total / 1 completed / 16 open steps,
   Xiaohongshu 8 total / 0 completed / 8 open steps, and Zhihu 10 total / 0 completed / 10 open
   steps.
 - Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
   preview, public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Style Proof Tempera Fingerprint Reconciliation
+
+- [x] style-proof-tempera-fingerprint-reconciliation-20260621.txt
+- Reconciled `wechat-flagship-tempera` committed local evidence to the proven entity-safe WeChat
+  clipboard artifact SHA:
+  `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- Kept the local Tauri/WebView screenshot evidence reference as `artifactRef`; the fingerprint now
+  represents the effective WeChat clipboard artifact, matching the committed PC proof.
+- Release gate still returns `canClaimComplete=false` and `status=blocked-by-local-conflict`, but
+  `hasExactArtifactFingerprintConflicts=false` and `combinedIssueCount=11`.
+- Verification passed: GitNexus impact LOW for the manifest constant and release report; focused
+  committed/release claim Vitest passed 1 file / 5 selected tests; full platform-export regression
+  passed 153 tests; 4-file cross-platform export regression passed 192 tests; full export serial
+  suite passed 35 files / 1126 tests; targeted ESLint, `vue-tsc`, and production build passed;
+  runtime API readout confirmed the updated counts.
+- Boundary: this is local catalog/evidence accounting only. It does not prove raw UTF-8 Tempera
+  direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.

@@ -2548,7 +2548,7 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-tempera',
     label: 'Tempera academic flagship',
-    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT,
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-tempera.png',
   }),
   createCommittedStyleProofLocalEvidenceManifest({

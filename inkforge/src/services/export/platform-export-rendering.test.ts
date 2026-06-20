@@ -1542,6 +1542,7 @@ describe('platform native export rendering rules', () => {
     const manifests = getCommittedStyleProofLocalEvidenceManifests()
     const secondRead = getCommittedStyleProofLocalEvidenceManifests()
     const choiceIds = manifests.map(manifest => manifest.choiceId)
+    const temperaManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-tempera')
     const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
     const artifactRefs = manifests.flatMap(manifest =>
       manifest.artifacts.map(artifact => artifact.artifactRef).filter((ref): ref is string => Boolean(ref)),
@@ -1566,6 +1567,12 @@ describe('platform native export rendering rules', () => {
       artifact.committed === true && artifact.safeForCommit === true,
     )).toBe(true)
     expect(artifactRefs.every(ref => ref.startsWith('prompts/0601/evidence/'))).toBe(true)
+    expect(temperaManifest?.artifactFingerprint).toBe(
+      'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878',
+    )
+    expect(temperaManifest?.artifacts.every(artifact =>
+      artifact.artifactFingerprint === temperaManifest.artifactFingerprint
+    )).toBe(true)
 
     const packReport = getStyleProofManifestPackReport(manifests)
     const issueIds = packReport.issues.map(issue => issue.id)
@@ -1924,7 +1931,7 @@ describe('platform native export rendering rules', () => {
       manifestCount: 6,
       duplicateArtifactIdCount: 0,
     })
-    expect(packIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(packIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(packIssueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
     expect(packIssueIds).not.toContain('style-proof-manifest-sensitive-artifact')
     expect(packIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
@@ -1933,11 +1940,11 @@ describe('platform native export rendering rules', () => {
       localManifestCount: 4,
       wechatPcManifestCount: 2,
       combinedManifestCount: 6,
-      hasExactArtifactFingerprintConflicts: true,
+      hasExactArtifactFingerprintConflicts: false,
     })
     expect(audit.summary.combinedIssueCount).toBeGreaterThan(0)
     expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(0)
-    expect(combinedIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(combinedIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(wechatAudit.progress.ignoredManifestCount).toBe(1)
     expect(xhsAudit.progress.ignoredManifestCount).toBe(5)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
@@ -1947,7 +1954,7 @@ describe('platform native export rendering rules', () => {
     expect(temperaProgress?.manifestCount).toBe(2)
     expect(amberIssueIds).not.toContain('style-proof-manifest-choice-blocked')
     expect(amberIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
-    expect(temperaIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(temperaIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
       'exact-artifact',
       'phone-preview-readback',
@@ -1988,10 +1995,10 @@ describe('platform native export rendering rules', () => {
       localManifestCount: 4,
       wechatPcManifestCount: 2,
       combinedManifestCount: 6,
-      hasExactArtifactFingerprintConflicts: true,
+      hasExactArtifactFingerprintConflicts: false,
     })
     expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
-    expect(combinedIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(combinedIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(report.summary.cannotClaimSteps).toBe(report.combined.summary.cannotClaimSteps)
     expect(report.summary.phoneOpenSteps).toBeGreaterThan(0)
     expect(report.summary.externalDependencyOpenSteps).toBeGreaterThan(0)
@@ -2023,7 +2030,7 @@ describe('platform native export rendering rules', () => {
     expect(report.status).toBe('blocked-by-local-conflict')
     expect(report.summary).toMatchObject({
       combinedManifestCount: 6,
-      hasExactArtifactFingerprintConflicts: true,
+      hasExactArtifactFingerprintConflicts: false,
       combinedIssueCount: expect.any(Number),
       cannotClaimSteps: expect.any(Number),
       phoneOpenSteps: expect.any(Number),
@@ -2040,23 +2047,14 @@ describe('platform native export rendering rules', () => {
       'unsafe-to-automate',
       'mutating-platform',
     ]))
-    expect(localConflictBlocker?.issueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(localConflictBlocker?.issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platforms: ['wechat', 'xiaohongshu', 'zhihu'],
         action: expect.stringContaining('Reconcile the committed manifest pack'),
       }),
     ]))
-    expect(localConflictBlocker?.fingerprintConflicts).toEqual([
-      expect.objectContaining({
-        platform: 'wechat',
-        choiceId: 'wechat-flagship-tempera',
-        fingerprints: expect.arrayContaining([
-          'prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e',
-          'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878',
-        ]),
-      }),
-    ])
+    expect(localConflictBlocker?.fingerprintConflicts).toBeUndefined()
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
     expect(phoneBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([

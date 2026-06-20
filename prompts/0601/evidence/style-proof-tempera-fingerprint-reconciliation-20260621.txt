@@ -1,0 +1,91 @@
+Style Proof Tempera Fingerprint Reconciliation - 2026-06-21
+
+Scope:
+- Runtime catalog/evidence accounting fix for `wechat-flagship-tempera`.
+- No browser automation, no phone preview, no sync, no upload, no scheduled send, no publish.
+- No screenshot, QR, HAR, credential material, browser runtime artifact, local runtime path,
+  account id, or raw platform response was recorded.
+
+Reason:
+- The committed WeChat PC proof for Tempera is the entity-safe WeChat clipboard payload from
+  `prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`.
+- That proof records a source-owned `flagship-tempera.html` artifact transformed only by decimal
+  HTML entity encoding for non-ASCII characters before the ordinary OS Ctrl+V path.
+- The transformed payload preserves `svgCount=35`, `dataInkSvgCount=3`, and
+  `dataInkBlockCount=23`, reads back from the authenticated WeChat PC editor with
+  `replacementCharCount=0` and `mojibakeHintCount=0`, and has disposable-draft cleanup proof.
+- The product rule created by that evidence is that WeChat rich clipboard copy uses the
+  non-ASCII decimal entity transform at the clipboard boundary. The raw UTF-8 source artifact is
+  not claimed as ordinary WeChat Ctrl+V proof.
+
+Implementation:
+- Changed the committed local Tempera manifest fingerprint from the local Tauri/WebView screenshot
+  reference to the proven entity-safe WeChat clipboard artifact fingerprint:
+  `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- Kept the local Tauri/WebView screenshot evidence reference as `artifactRef` for local rendering
+  evidence.
+- Added regression assertions that the local Tempera manifest and all of its local proof artifacts
+  use the same entity-safe artifact fingerprint.
+- Updated release-gate assertions so current committed evidence has no exact-artifact fingerprint
+  conflicts, while all external phone/sync/publish gates remain unclaimable.
+
+Runtime API result after the fix:
+- status: blocked-by-local-conflict
+- canClaimComplete: false
+- blockerCount: 5
+- localManifestCount: 4
+- wechatPcManifestCount: 2
+- combinedManifestCount: 6
+- combinedIssueCount: 11
+- hasExactArtifactFingerprintConflicts: false
+- cannotClaimSteps: 34
+- phoneOpenSteps: 4
+- externalDependencyOpenSteps: 14
+- unsafeToAutomateOpenSteps: 13
+- mutatingOpenSteps: 13
+
+Current blocker classes:
+- local-conflict: 11 current missing-proof issues remain, but no exact-artifact fingerprint
+  conflict remains in the committed pack.
+- phone-preview: 4 WeChat phone-side rows remain blocked by external phone proof.
+- external-dependency: 14 rows still need credentialed account, public-host, sync, upload, or
+  platform readback proof.
+- unsafe-to-automate: 13 rows require mutating credentialed platform actions and exact readback.
+- mutating-platform: 13 rows mutate platform state and must be operator-proven.
+
+Verification:
+- GitNexus impact for `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected processes.
+- GitNexus impact for `getCommittedStyleProofEvidenceReleaseGateReport`: LOW, 2 direct dependents,
+  0 affected processes.
+- TDD first run exposed stale expectations that still required the Tempera fingerprint conflict.
+- Focused regression passed after updating code and assertions:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  passed 1 file / 5 selected tests.
+- Full platform-export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 153 tests.
+- Cross-platform export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 192 tests.
+- Full export service serial regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1126 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4652 modules
+  and built in 36.84s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- Runtime API readout through `pnpm -C inkforge exec tsx -e ...` confirmed
+  `hasExactArtifactFingerprintConflicts=false` and `combinedIssueCount=11`.
+
+Boundary:
+- This is local catalog/evidence accounting only.
+- It proves that the committed Tempera local/PC evidence pack now points at one exact entity-safe
+  WeChat clipboard artifact fingerprint.
+- It does not prove the raw UTF-8 `flagship-tempera.html` source artifact is accepted by ordinary
+  WeChat Ctrl+V without the entity-safe clipboard transform.
+- It does not prove WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, Xiaohongshu/Zhihu
+  account upload, public-host acceptance, or publish success.

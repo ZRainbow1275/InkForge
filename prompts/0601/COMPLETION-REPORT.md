@@ -2884,8 +2884,9 @@ Boundary:
 - ExportModal now reads `getCommittedStyleProofEvidenceReleaseGateReport()` and surfaces the
   committed-evidence release gate in the existing style capability/preflight UI.
 - The style summary and dedicated preflight row expose `canClaimComplete=false`, blocker count, and
-  the committed local-vs-PC evidence conflict count; the 2026-06-21 Amber reconciliation refreshes
-  the current count to `fingerprintConflicts 1`. The preflight row remains `preflight-blocked`.
+  the committed local-vs-PC evidence conflict count; the 2026-06-21 Amber reconciliation refreshed
+  that then-current count to `fingerprintConflicts 1`, and the later Tempera reconciliation
+  refreshes the current count to 0. The preflight row remains `preflight-blocked`.
 - CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
   article "未命名文章" and confirmed a nonblank panel, `preflight-blocked` release row, and no
   horizontal overflow at a 1400x900 viewport.
@@ -3145,10 +3146,11 @@ Boundary:
   `local-browser`; Amber is no longer catalog-hard-blocked, but it is not selectable there until
   `pc-editor-paste` evidence is present.
 - The committed local Amber manifest now uses the same exact raw HTML artifact fingerprint as the
-  PC proof. Tempera remains a real local conflict because the PC proof covers the entity-safe
-  clipboard payload, not the raw source HTML artifact.
-- Release gate remains `canClaimComplete=false` and `blocked-by-local-conflict`, but
-  `fingerprintConflicts` is now 1 and points only to `wechat-flagship-tempera`.
+  PC proof. At this Amber-only checkpoint, Tempera still had a local-vs-PC fingerprint split
+  because its PC proof covers the entity-safe clipboard payload, not the raw source HTML artifact.
+- The later `style-proof-tempera-fingerprint-reconciliation-20260621.txt` slice reconciles Tempera
+  to the entity-safe WeChat clipboard artifact fingerprint, so the current committed pack has no
+  `fingerprintConflicts`.
 - Verification passed:
   `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
   passed 1 file / 5 selected tests; full `platform-export-rendering.test.ts` passed 153 tests;
@@ -3185,16 +3187,16 @@ Boundary:
 ## 2026-06-21 Style Proof Current Release Gate Refresh Addendum
 
 - Added `prompts/0601/evidence/style-proof-current-release-gate-refresh-20260621.txt`.
-- Re-ran the local release/runbook/acceptance API readout after Amber reconciliation and the
-  WeChat session-timeout recheck.
+- Re-ran the local release/runbook/acceptance API readout after Amber reconciliation, the
+  WeChat session-timeout recheck, and Tempera fingerprint reconciliation.
 - Release gate remains blocked:
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, `blockerCount=5`,
-  `combinedManifestCount=6`, `combinedIssueCount=12`,
-  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+  `combinedManifestCount=6`, `combinedIssueCount=11`,
+  `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
-- Amber is no longer in release gate `fingerprintConflicts`; the only current exact-artifact
-  conflict is `wechat-flagship-tempera`.
+- Amber and Tempera are no longer in release gate `fingerprintConflicts`; no current
+  exact-artifact fingerprint conflict remains in the committed pack.
 - Current combined runbook platform summary:
   WeChat 17 total / 1 completed / 16 open steps; Xiaohongshu 8 total / 0 completed / 8 open steps;
   Zhihu 10 total / 0 completed / 10 open steps.
@@ -3202,3 +3204,26 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu upload, public-host acceptance, or
   publish success.
+
+---
+
+## 2026-06-21 Style Proof Tempera Fingerprint Reconciliation Addendum
+
+- Added `prompts/0601/evidence/style-proof-tempera-fingerprint-reconciliation-20260621.txt`.
+- Updated the committed local `wechat-flagship-tempera` manifest fingerprint to the proven
+  entity-safe WeChat clipboard artifact SHA
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- Kept the local Tauri/WebView screenshot as `artifactRef`; the fingerprint now names the
+  effective WeChat clipboard payload that passed ordinary OS Ctrl+V without mojibake.
+- The release gate remains blocked and unclaimable, but current committed evidence now reports
+  `hasExactArtifactFingerprintConflicts=false`, `combinedIssueCount=11`, and `cannotClaimSteps=34`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  passed 1 file / 5 selected tests; full `platform-export-rendering.test.ts` passed 153 tests;
+  4-file cross-platform export regression passed 192 tests; full export serial suite passed 35
+  files / 1126 tests; targeted ESLint passed; `vue-tsc` passed; production build passed with 4652
+  transformed modules; runtime API readout confirmed the updated release summary.
+- Boundary: this is local catalog/evidence accounting only. It does not prove raw UTF-8 Tempera
+  direct paste, WeChat phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
+  acceptance, or publish success.

@@ -7027,6 +7027,9 @@ Observation:
   `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and
   `mutatingOpenSteps=14`.
+- This same-day snapshot is superseded by the later Amber and Tempera reconciliation slices; the
+  current release-gate refresh records `combinedIssueCount=11` and
+  `hasExactArtifactFingerprintConflicts=false`.
 - The combined execution runbook returned 35 total/open/cannot-claim steps, 16 safe-to-automate
   open local rows, 15 external-dependency-open rows, 4 phone-open rows, 14 unsafe-to-automate rows,
   and 14 mutating rows.
@@ -7235,13 +7238,17 @@ Implementation:
 - Changed the committed local Amber manifest to use the same exact raw HTML artifact SHA as the
   PC proof:
   `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
-- Left Tempera unresolved because the PC proof covers the entity-safe clipboard payload
+- At this Amber-only checkpoint, left Tempera unresolved because the PC proof covers the
+  entity-safe clipboard payload
   `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`, while the raw source
-  artifact SHA is `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+  artifact SHA is `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`. The later
+  Tempera fingerprint reconciliation slice updates the committed local Tempera manifest to that
+  entity-safe WeChat clipboard artifact fingerprint.
 - Updated ExportModal e2e expectations to keep the conservative default WeChat UI count at
-  8 available / 17 total, 5 blocked, 4 unavailable, and `fingerprintConflicts 1`. Amber is no
-  longer catalog-hard-blocked, but the default UI only has `local-browser` evidence, so it remains
-  UI-blocked until `pc-editor-paste` evidence is present.
+  8 available / 17 total, 5 blocked, 4 unavailable, and the then-current `fingerprintConflicts 1`.
+  Amber is no longer catalog-hard-blocked, but the default UI only has `local-browser` evidence, so
+  it remains UI-blocked until `pc-editor-paste` evidence is present. The later Tempera
+  reconciliation slice refreshes the current fingerprint-conflict count to 0.
 - Added `prompts/0601/evidence/style-proof-amber-reconciliation-20260621.txt`.
 - Updated `docs/platform-rendering-rules/market-practices-catalog.md`,
   `docs/platform-rendering-rules/wechat-rules.md`, `docs/微信渲染规则.md`,
@@ -7324,19 +7331,19 @@ Boundary:
 
 Scope:
 - Local API readout of committed redacted evidence after Amber reconciliation and the WeChat
-  session-timeout read-only recheck.
+  session-timeout read-only recheck, refreshed after Tempera fingerprint reconciliation.
 - No browser automation, phone preview, sync, upload, scheduled send, publish, screenshot, HAR,
   credential material, account artifact, or browser profile artifact.
 
 Observation:
 - `getCommittedStyleProofEvidenceReleaseGateReport()` still returns
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
-- Current gate summary: `combinedManifestCount=6`, `combinedIssueCount=12`,
-  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+- Current gate summary: `combinedManifestCount=6`, `combinedIssueCount=11`,
+  `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
-- Amber is no longer listed in release gate `fingerprintConflicts`. The remaining
-  exact-artifact fingerprint conflict is `wechat-flagship-tempera`.
+- Amber and Tempera are no longer listed in release gate `fingerprintConflicts`; no current
+  exact-artifact fingerprint conflict remains in the committed pack.
 - Combined runbook platform summary now shows WeChat 17 total / 1 completed / 16 open steps,
   Xiaohongshu 8 total / 0 completed / 8 open steps, and Zhihu 10 total / 0 completed / 10 open
   steps.
@@ -7356,3 +7363,45 @@ Boundary:
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
   acceptance, or publish success.
+
+## 2026-06-21 Style Proof Tempera Fingerprint Reconciliation Slice
+
+Scope:
+- Runtime catalog/evidence accounting fix for `wechat-flagship-tempera`.
+- No browser automation, phone preview, sync, upload, scheduled send, publish, screenshot, HAR,
+  credential material, account artifact, or browser profile artifact.
+
+Implementation:
+- Changed the committed local Tempera manifest fingerprint from the local Tauri/WebView screenshot
+  reference to the proven entity-safe WeChat clipboard artifact fingerprint:
+  `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
+- Kept the local Tauri/WebView screenshot evidence reference as `artifactRef`.
+- Updated committed-evidence/release-gate regression assertions to require no current
+  exact-artifact fingerprint conflicts while keeping external phone/sync/publish gates open.
+- Added `prompts/0601/evidence/style-proof-tempera-fingerprint-reconciliation-20260621.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- GitNexus impact for `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected
+  processes.
+- GitNexus impact for `getCommittedStyleProofEvidenceReleaseGateReport`: LOW, 2 direct dependents,
+  0 affected processes.
+- TDD first run exposed stale expectations requiring the Tempera fingerprint conflict.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  passed 1 file / 5 selected tests.
+- Full platform-export regression passed 1 file / 153 tests.
+- 4-file cross-platform export regression passed 4 files / 192 tests.
+- Full export service serial regression passed 35 files / 1126 tests.
+- Targeted ESLint, `vue-tsc`, and production build passed; Vite transformed 4652 modules and built
+  in 36.84s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- Runtime API readout confirmed `hasExactArtifactFingerprintConflicts=false`,
+  `combinedIssueCount=11`, and `canClaimComplete=false`.
+
+Boundary:
+- This is local catalog/evidence accounting only.
+- It does not prove raw UTF-8 Tempera direct paste, WeChat phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.
