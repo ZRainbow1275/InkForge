@@ -1,0 +1,78 @@
+Zhihu Data Table Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local StyleProofManifest evidence for `zhihu-data-table`.
+- Exact artifact: `prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md`.
+- No Zhihu account login, account upload, public-host publication, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish action was executed or
+  claimed.
+
+Generated artifact:
+- Source path is source-owned redacted Markdown, not a platform readback.
+- Export path used the real local Zhihu clean Markdown pipeline:
+  `markdownToZhihuClean(source, { tableHandling: 'preserve', codeLangCoerce: true })`.
+- Clean Markdown output hash:
+  `sha256:9e828ff7b50d642be8f59f4907dc5cd47fc9973f465e904446a21f6e79bccd8f`.
+- Clean Markdown output length: 324 UTF-16 code units in the local Node readout.
+- Pipeline issues: none.
+
+Local preview readout:
+- Renderer path used the real local Zhihu preview fidelity renderer:
+  `renderZhihuMockHtml({ markdown: cleaned.markdown }, { presetId: 'tech' })`.
+- Preview HTML hash:
+  `sha256:f36d73b99f9be762449074f8e186f131953270439644519faf58c477078a2da6`.
+- Preview HTML length: 1974 UTF-16 code units in the local Node readout.
+- `tableCount=1`.
+- `inlineSvgCount=0`.
+- `dataInkSvgCount=0`.
+- `hasZhihuAnswer=true`.
+
+Committed manifest behavior:
+- Added one local `zhihu-data-table` manifest through
+  `getCommittedStyleProofLocalEvidenceManifests()`.
+- The manifest satisfies these local-only rows for the exact committed Markdown artifact:
+  - `unit-test-coverage`
+  - `local-browser-rendering`
+  - `exact-artifact`
+  - `no-sensitive-artifact`
+- The manifest intentionally does not satisfy:
+  - `zhihu-artifact-manifest`
+  - `public-image-host`
+  - `credentialed-channel-response`
+  - `sync-readback`
+  - `scheduled-send-readback`
+  - `published-url-or-platform-preview`
+
+Verification:
+- GitNexus impact for `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected
+  processes.
+- GitNexus impact for `getCommittedStyleProofLocalEvidenceManifests`: LOW, 4 direct dependents,
+  0 affected processes.
+- GitNexus impact for `getCommittedStyleProofEvidenceReleaseGateReport`: LOW, 2 direct dependents,
+  0 affected processes.
+- TDD first run exposed stale committed-manifest and release-gate count assertions.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform-export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 153 tests.
+- Cross-platform export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 192 tests.
+- Full export service serial regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1126 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4652 modules
+  and built in 37.77s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This proves local clean Markdown/table artifact accounting only.
+- It does not prove Zhihu public image-host acceptance, account upload, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish success.
+- It does not change WeChat or Xiaohongshu external gates.

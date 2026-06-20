@@ -3188,10 +3188,11 @@ Boundary:
 
 - Added `prompts/0601/evidence/style-proof-current-release-gate-refresh-20260621.txt`.
 - Re-ran the local release/runbook/acceptance API readout after Amber reconciliation, the
-  WeChat session-timeout recheck, and Tempera fingerprint reconciliation.
+  WeChat session-timeout recheck, Tempera fingerprint reconciliation, and Zhihu data-table local
+  evidence.
 - Release gate remains blocked:
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, `blockerCount=5`,
-  `combinedManifestCount=6`, `combinedIssueCount=11`,
+  `localManifestCount=5`, `combinedManifestCount=7`, `combinedIssueCount=13`,
   `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
@@ -3215,8 +3216,10 @@ Boundary:
   `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
 - Kept the local Tauri/WebView screenshot as `artifactRef`; the fingerprint now names the
   effective WeChat clipboard payload that passed ordinary OS Ctrl+V without mojibake.
-- The release gate remains blocked and unclaimable, but current committed evidence now reports
-  `hasExactArtifactFingerprintConflicts=false`, `combinedIssueCount=11`, and `cannotClaimSteps=34`.
+- At the Tempera checkpoint the release gate remained blocked and unclaimable with
+  `hasExactArtifactFingerprintConflicts=false`, `combinedIssueCount=11`, and
+  `cannotClaimSteps=34`. The later Zhihu data-table local evidence slice refreshes the current
+  committed count to `combinedIssueCount=13`.
 - Follow-up fixed the stale local-conflict `operatorNext` action. When no
   `style-proof-manifest-pack-fingerprint-mismatch` issue remains, the release preflight now asks
   operators to complete the remaining committed proof rows; manifest reconciliation is only shown
@@ -3252,3 +3255,31 @@ Boundary:
   editor access, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+---
+
+## 2026-06-21 Zhihu Data Table Local Evidence Addendum
+
+- Added `prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md` and
+  `prompts/0601/evidence/zhihu-data-table-local-evidence-20260621.txt`.
+- Generated the exact source-owned clean Markdown table artifact through the real local
+  `markdownToZhihuClean(..., { tableHandling:'preserve', codeLangCoerce:true })` path. The output
+  has hash `sha256:9e828ff7b50d642be8f59f4907dc5cd47fc9973f465e904446a21f6e79bccd8f` and no
+  pipeline issues.
+- Verified the local `zhihu-tech` preview fidelity path with `renderZhihuMockHtml(...)`: one
+  table, no inline SVG, no `data-ink-svg`, and a `#zhihu-answer` container.
+- Added one committed local `zhihu-data-table` manifest. It satisfies only local
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and `no-sensitive-artifact`
+  rows for the exact clean Markdown artifact.
+- Kept `zhihu-artifact-manifest`, `public-image-host`, credentialed sync, scheduled send,
+  platform preview, public article rendering, and publish rows missing or unclaimable.
+- Current committed release-gate readout is now `localManifestCount=5`,
+  `combinedManifestCount=7`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 37.77s.
+- Boundary: this is local clean Markdown/table artifact accounting only. It does not prove Zhihu
+  public image-host acceptance, account upload, editor preview, sync, scheduled send, platform
+  preview, public article rendering, or publish success.

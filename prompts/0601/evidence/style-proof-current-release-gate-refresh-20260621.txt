@@ -1,8 +1,8 @@
 Style Proof Current Release Gate Refresh - 2026-06-21
 
 Scope:
-- Local API readout after the Amber reconciliation, WeChat session-timeout recheck, and Tempera
-  fingerprint reconciliation slices.
+- Local API readout after the Amber reconciliation, WeChat session-timeout recheck, Tempera
+  fingerprint reconciliation, and Zhihu data-table local evidence slices.
 - Source APIs:
   - getCommittedStyleProofEvidenceReleaseGateReport()
   - getCommittedStyleProofEvidenceExecutionRunbookReport()
@@ -18,10 +18,10 @@ Release gate result:
 - status: blocked-by-local-conflict
 - canClaimComplete: false
 - blockerCount: 5
-- localManifestCount: 4
+- localManifestCount: 5
 - wechatPcManifestCount: 2
-- combinedManifestCount: 6
-- combinedIssueCount: 11
+- combinedManifestCount: 7
+- combinedIssueCount: 13
 - hasExactArtifactFingerprintConflicts: false
 - cannotClaimSteps: 34
 - phoneOpenSteps: 4
@@ -30,7 +30,7 @@ Release gate result:
 - mutatingOpenSteps: 13
 
 Current blocker classes:
-- local-conflict: 11 current missing-proof issues remain. No exact-artifact fingerprint conflict
+- local-conflict: 13 current missing-proof issues remain. No exact-artifact fingerprint conflict
   remains in the committed pack.
 - phone-preview: 4 WeChat phone-side rows remain blocked by external phone proof.
 - external-dependency: 14 rows still need credentialed account, public-host, sync, upload, or
@@ -42,6 +42,8 @@ Current exact-artifact fingerprint conflict:
 - None.
 - Amber and Tempera are no longer listed in release gate fingerprintConflicts after the
   2026-06-21 reconciliation slices.
+- The later Zhihu data-table local evidence slice adds one local manifest but does not introduce
+  any exact-artifact fingerprint conflict.
 
 Combined runbook summary:
 - WeChat: 17 total steps, 1 completed, 16 open, 16 cannot-claim, 5 safe-to-automate open, 7
@@ -50,6 +52,14 @@ Combined runbook summary:
   external-dependency open, 0 phone open, 2 mutating open, 2 unsafe-to-automate open.
 - Zhihu: 10 total steps, 0 completed, 10 open, 10 cannot-claim, 5 safe-to-automate open, 5
   external-dependency open, 0 phone open, 4 mutating open, 4 unsafe-to-automate open.
+
+Committed local-evidence inventory:
+- WeChat: three local flagship manifests remain in the local pack.
+- Xiaohongshu: one `xhs-cover-carousel` local manifest remains in the local pack.
+- Zhihu: one `zhihu-data-table` local manifest is now in the local pack. It satisfies local
+  unit/local-render/exact-artifact/hygiene rows for the committed clean Markdown table artifact,
+  while `zhihu-artifact-manifest`, `public-image-host`, credentialed sync, scheduled send, and
+  publish rows stay open.
 
 Combined acceptance summary:
 - WeChat: 6 gates, 17 requirements, 1 completed requirement, 16 cannot-claim requirements,
@@ -85,7 +95,8 @@ Conclusion:
 - The committed evidence release gate is correctly blocked.
 - The current committed evidence must not be reported as complete platform acceptance.
 - This refresh supersedes earlier same-day current-release counts that still listed Amber or
-  Tempera as exact-artifact fingerprint conflicts.
+  Tempera as exact-artifact fingerprint conflicts, and counts before the Zhihu data-table local
+  manifest was added.
 
 Boundary:
 - This proves local accounting only.

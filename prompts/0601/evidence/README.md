@@ -2653,8 +2653,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - The same readout reported `combinedManifestCount=6`, `combinedIssueCount=14`,
   `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and `mutatingOpenSteps=14`.
-- This same-day snapshot is superseded by the later Amber and Tempera reconciliation slices; the
-  current release-gate refresh records `combinedIssueCount=11` and
+- This same-day snapshot is superseded by the later Amber, Tempera, and Zhihu data-table local
+  evidence slices; the current release-gate refresh records `localManifestCount=5`,
+  `combinedManifestCount=7`, `combinedIssueCount=13`, and
   `hasExactArtifactFingerprintConflicts=false`.
 - The combined execution runbook stayed fully open at 35 total/open/cannot-claim steps. Platform
   summaries stayed isolated: WeChat 17 open steps, Xiaohongshu 8 open steps, and Zhihu 10 open
@@ -2780,10 +2781,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## 2026-06-21 Style Proof Current Release Gate Refresh
 
 - [x] style-proof-current-release-gate-refresh-20260621.txt
-- Local API readout after Amber reconciliation, the WeChat session-timeout recheck, and Tempera
-  fingerprint reconciliation returned
+- Local API readout after Amber reconciliation, the WeChat session-timeout recheck, Tempera
+  fingerprint reconciliation, and Zhihu data-table local evidence returned
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
-- Current summary: `combinedManifestCount=6`, `combinedIssueCount=11`,
+- Current summary: `localManifestCount=5`, `combinedManifestCount=7`, `combinedIssueCount=13`,
   `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
@@ -2804,8 +2805,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`.
 - Kept the local Tauri/WebView screenshot evidence reference as `artifactRef`; the fingerprint now
   represents the effective WeChat clipboard artifact, matching the committed PC proof.
-- Release gate still returns `canClaimComplete=false` and `status=blocked-by-local-conflict`, but
-  `hasExactArtifactFingerprintConflicts=false` and `combinedIssueCount=11`.
+- At the Tempera checkpoint the release gate still returned `canClaimComplete=false` and
+  `status=blocked-by-local-conflict`, with `hasExactArtifactFingerprintConflicts=false` and
+  `combinedIssueCount=11`. The later Zhihu data-table local evidence slice refreshes the current
+  committed count to `combinedIssueCount=13`.
 - Follow-up fixed the release-gate local-conflict `operatorNext` text: with
   `fingerprintConflicts 0`, the UI now points at remaining proof collection instead of asking for
   manifest fingerprint reconciliation.
@@ -2835,3 +2838,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   access, WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, platform preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+## 2026-06-21 Zhihu Data Table Local Evidence
+
+- [x] zhihu-data-table-local-artifact-20260621.md
+- [x] zhihu-data-table-local-evidence-20260621.txt
+- Generated a source-owned clean Markdown table artifact through the real local
+  `markdownToZhihuClean(..., { tableHandling:'preserve', codeLangCoerce:true })` path.
+- The exact clean Markdown artifact hash is
+  `sha256:9e828ff7b50d642be8f59f4907dc5cd47fc9973f465e904446a21f6e79bccd8f`.
+- The real local Zhihu preview fidelity renderer produced one table, no inline SVG, no
+  `data-ink-svg`, and a `#zhihu-answer` container for the `zhihu-tech` preset.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `zhihu-data-table` local
+  manifest. It satisfies local `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
+  and `no-sensitive-artifact` rows only.
+- The Zhihu local manifest intentionally keeps `zhihu-artifact-manifest`, `public-image-host`,
+  credentialed sync, scheduled send, platform preview, public article rendering, and publish rows
+  open/unclaimable.
+- Current release-gate readout after this slice is `localManifestCount=5`,
+  `combinedManifestCount=7`, `combinedIssueCount=13`, `hasExactArtifactFingerprintConflicts=false`,
+  and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 37.77s.
+- Boundary: this is local clean Markdown/table artifact accounting only. It does not prove Zhihu
+  public image-host acceptance, account upload, editor preview, sync, scheduled send, platform
+  preview, public article rendering, or publish success.

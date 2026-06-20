@@ -2037,9 +2037,9 @@ Contracts:
   platform actions, or imply phone, sync, public-host, scheduled-send, or publish completion.
 
 Required tests:
-- The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
-  manifest, all as safe committed artifacts, with no duplicate artifact ids and no
-  sensitive/unsafe commit issues.
+- The committed local pack returns three WeChat flagship manifests, the XHS cover-carousel local
+  manifest, and the Zhihu data-table local manifest, all as safe committed artifacts, with no
+  duplicate artifact ids and no sensitive/unsafe commit issues.
 - The pack report has `validManifestCount:0` because external proof is intentionally absent; this
   is expected and must not be relaxed.
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
@@ -2054,6 +2054,12 @@ Required tests:
   `xhs-artifact-manifest` with same-row `artifactRef`, `artifactManifestValidated:true`, and
   `safeForCommit:true`, while
   `published-url-or-platform-preview` remains missing and unsafe-to-automate.
+- The Zhihu data-table committed local manifest may satisfy only source-owned clean Markdown local
+  rows (`unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact`) for the exact redacted table artifact. It must not satisfy
+  `zhihu-artifact-manifest`, `public-image-host`, credentialed sync, scheduled-send,
+  platform-preview, public article rendering, or publish proof without separate validator,
+  public-host, and platform evidence.
 - The committed WeChat PC pack returns cloned Amber and Tempera manifests. Amber artifacts point
   to the redacted Amber PC evidence file with fingerprint
   `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; Tempera artifacts
@@ -2062,7 +2068,7 @@ Required tests:
 - The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
-- The combined committed-evidence audit must return 6 cloned manifests, keep artifact ids unique,
+- The combined committed-evidence audit must return 7 cloned manifests, keep artifact ids unique,
   expose exact-artifact fingerprint conflicts only for still-divergent choice rows, and keep phone
   preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
   unclaimable. As of the 2026-06-21 Tempera reconciliation, the committed pack has no current

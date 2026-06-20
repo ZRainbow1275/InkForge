@@ -7027,8 +7027,9 @@ Observation:
   `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=35`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=14`, and
   `mutatingOpenSteps=14`.
-- This same-day snapshot is superseded by the later Amber and Tempera reconciliation slices; the
-  current release-gate refresh records `combinedIssueCount=11` and
+- This same-day snapshot is superseded by the later Amber, Tempera, and Zhihu data-table local
+  evidence slices; the current release-gate refresh records `localManifestCount=5`,
+  `combinedManifestCount=7`, `combinedIssueCount=13`, and
   `hasExactArtifactFingerprintConflicts=false`.
 - The combined execution runbook returned 35 total/open/cannot-claim steps, 16 safe-to-automate
   open local rows, 15 external-dependency-open rows, 4 phone-open rows, 14 unsafe-to-automate rows,
@@ -7338,7 +7339,8 @@ Scope:
 Observation:
 - `getCommittedStyleProofEvidenceReleaseGateReport()` still returns
   `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
-- Current gate summary: `combinedManifestCount=6`, `combinedIssueCount=11`,
+- Current gate summary: `localManifestCount=5`, `combinedManifestCount=7`,
+  `combinedIssueCount=13`,
   `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
   `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
   `mutatingOpenSteps=13`.
@@ -7396,8 +7398,10 @@ Verification:
 - Full export service serial regression passed 35 files / 1126 tests.
 - Targeted ESLint, `vue-tsc`, and production build passed; Vite transformed 4652 modules and built
   in 36.84s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
-- Runtime API readout confirmed `hasExactArtifactFingerprintConflicts=false`,
-  `combinedIssueCount=11`, and `canClaimComplete=false`.
+- Runtime API readout at the Tempera checkpoint confirmed
+  `hasExactArtifactFingerprintConflicts=false`, `combinedIssueCount=11`, and
+  `canClaimComplete=false`. The later Zhihu data-table local evidence slice refreshes the current
+  committed count to `combinedIssueCount=13`.
 - Follow-up UI review found that the local-conflict `operatorNext` text still asked operators to
   reconcile the committed manifest pack even after `fingerprintConflicts` had dropped to 0.
 - Updated `getCommittedStyleProofReleaseLocalConflictAction()` so manifest reconciliation is only
@@ -7442,3 +7446,57 @@ Boundary:
 - It does not prove authenticated editor access, WeChat paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Zhihu Data Table Local Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `zhihu-data-table`.
+- No Zhihu account login, account upload, public-host publication, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish action was executed or
+  claimed.
+
+Implementation:
+- Added the exact source-owned artifact
+  `prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md`.
+- Added `prompts/0601/evidence/zhihu-data-table-local-evidence-20260621.txt`.
+- Added `createCommittedStyleProofZhihuLocalEvidenceManifest()` and included one
+  `zhihu-data-table` manifest in `getCommittedStyleProofLocalEvidenceManifests()`.
+- The manifest satisfies only local `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, and `no-sensitive-artifact` rows for the exact clean Markdown table artifact.
+- It intentionally leaves `zhihu-artifact-manifest`, `public-image-host`, credentialed sync,
+  scheduled send, platform preview, public article rendering, and publish rows missing or
+  unclaimable.
+
+Evidence:
+- `markdownToZhihuClean(..., { tableHandling:'preserve', codeLangCoerce:true })` produced clean
+  Markdown with hash `sha256:9e828ff7b50d642be8f59f4907dc5cd47fc9973f465e904446a21f6e79bccd8f`
+  and no pipeline issues.
+- `renderZhihuMockHtml(..., { presetId:'tech' })` produced a local preview with one table, no
+  inline SVG, no `data-ink-svg`, and a `#zhihu-answer` container.
+- Current release-gate readout after this slice: `localManifestCount=5`,
+  `combinedManifestCount=7`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+
+Verification:
+- GitNexus impact:
+  - `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 4 direct dependents, 0 affected
+    processes.
+  - `getCommittedStyleProofEvidenceReleaseGateReport`: LOW, 2 direct dependents, 0 affected
+    processes.
+- TDD first run exposed stale committed-manifest and release-gate counts.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform-export regression passed 1 file / 153 tests.
+- 4-file cross-platform export regression passed 4 files / 192 tests.
+- Full export service serial regression passed 35 files / 1126 tests.
+- Targeted ESLint passed for `style-catalog.ts` and `platform-export-rendering.test.ts`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 37.77s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This is local clean Markdown/table artifact accounting only.
+- It does not prove Zhihu public image-host acceptance, account upload, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish success.

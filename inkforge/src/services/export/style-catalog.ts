@@ -2206,6 +2206,14 @@ interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
   manifestArtifactRef: string
 }
 
+interface CommittedStyleProofZhihuLocalEvidenceManifestOptions {
+  choiceId: 'zhihu-data-table'
+  label: string
+  artifactFingerprint: string
+  localRenderArtifactRef: string
+  reportRef: string
+}
+
 interface CommittedStyleProofWechatPcEvidenceManifestOptions {
   choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera'
   idPrefix: string
@@ -2227,6 +2235,12 @@ const COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_ARTIFACT_REF =
+  'prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_REPORT_REF =
+  'prompts/0601/evidence/zhihu-data-table-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
@@ -2410,6 +2424,83 @@ function createCommittedStyleProofXhsLocalEvidenceManifest(
   }
 }
 
+function createCommittedStyleProofZhihuLocalEvidenceManifest(
+  options: CommittedStyleProofZhihuLocalEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId
+
+  return {
+    platform: 'zhihu',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested', 'local-browser'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-local-render-proof`,
+        requirementId: 'local-browser-rendering',
+        kind: 'browser-readback',
+        label: `${options.label} committed local Zhihu preview proof`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'local-browser',
+        action: 'local-render',
+        readback: 'visual-and-dom',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.localRenderArtifactRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact clean Markdown artifact binding`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.localRenderArtifactRef,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
 function createCommittedStyleProofWechatPcEvidenceManifest(
   options: CommittedStyleProofWechatPcEvidenceManifestOptions,
 ): StyleProofManifest {
@@ -2565,6 +2656,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
+  }),
+  createCommittedStyleProofZhihuLocalEvidenceManifest({
+    choiceId: 'zhihu-data-table',
+    label: 'Zhihu semantic Markdown table',
+    artifactFingerprint: 'sha256:9e828ff7b50d642be8f59f4907dc5cd47fc9973f465e904446a21f6e79bccd8f',
+    localRenderArtifactRef: COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_REPORT_REF,
   }),
 ] as const satisfies readonly StyleProofManifest[]
 
