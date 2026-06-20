@@ -1,0 +1,86 @@
+Style Proof Current Release Gate Refresh - 2026-06-21
+
+Scope:
+- Local API readout after the Amber reconciliation and WeChat session-timeout recheck slices.
+- Source APIs:
+  - getCommittedStyleProofEvidenceReleaseGateReport()
+  - getCommittedStyleProofEvidenceExecutionRunbookReport()
+  - getCommittedStyleProofEvidenceAuditReport()
+- No browser automation, no phone preview, no sync, no upload, no scheduled send, no publish.
+- No screenshot, QR, HAR, credential material, browser runtime artifact, local runtime path,
+  account id, or raw platform response was recorded.
+
+Commands:
+- pnpm -C inkforge exec tsx -e "import { getCommittedStyleProofEvidenceReleaseGateReport, getCommittedStyleProofEvidenceExecutionRunbookReport, getCommittedStyleProofEvidenceAuditReport } from './src/services/export/style-catalog'; ..."
+
+Release gate result:
+- status: blocked-by-local-conflict
+- canClaimComplete: false
+- blockerCount: 5
+- localManifestCount: 4
+- wechatPcManifestCount: 2
+- combinedManifestCount: 6
+- combinedIssueCount: 12
+- hasExactArtifactFingerprintConflicts: true
+- cannotClaimSteps: 34
+- phoneOpenSteps: 4
+- externalDependencyOpenSteps: 14
+- unsafeToAutomateOpenSteps: 13
+- mutatingOpenSteps: 13
+
+Current blocker classes:
+- local-conflict: 12 current manifest issues remain. The only exact-artifact fingerprint conflict
+  now points to wechat-flagship-tempera.
+- phone-preview: 4 WeChat phone-side rows remain blocked by external phone proof.
+- external-dependency: 14 rows still need credentialed account, public-host, sync, upload, or
+  platform readback proof.
+- unsafe-to-automate: 13 rows require mutating credentialed platform actions and exact readback.
+- mutating-platform: 13 rows mutate platform state and must be operator-proven.
+
+Current exact-artifact fingerprint conflict:
+- wechat-flagship-tempera:
+  - prompts/0601/evidence/e2e/flagship-tempera.png@tauri-webview-e2e
+  - sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878
+- Amber is no longer listed in release gate fingerprintConflicts after the 2026-06-21
+  reconciliation slice.
+
+Combined runbook summary:
+- WeChat: 17 total steps, 1 completed, 16 open, 16 cannot-claim, 5 safe-to-automate open, 7
+  external-dependency open, 4 phone open, 7 mutating open, 7 unsafe-to-automate open.
+- Xiaohongshu: 8 total steps, 0 completed, 8 open, 8 cannot-claim, 6 safe-to-automate open, 2
+  external-dependency open, 0 phone open, 2 mutating open, 2 unsafe-to-automate open.
+- Zhihu: 10 total steps, 0 completed, 10 open, 10 cannot-claim, 5 safe-to-automate open, 5
+  external-dependency open, 0 phone open, 4 mutating open, 4 unsafe-to-automate open.
+
+Combined acceptance summary:
+- WeChat: 6 gates, 17 requirements, 1 completed requirement, 16 cannot-claim requirements,
+  4 phone-open requirements, 7 mutating-open requirements.
+- Xiaohongshu: 3 gates, 8 requirements, 0 completed requirements, 8 cannot-claim requirements,
+  2 mutating-open requirements.
+- Zhihu: 5 gates, 10 requirements, 0 completed requirements, 10 cannot-claim requirements,
+  4 mutating-open requirements.
+
+Next operator actions reported by the API:
+- Reconcile the committed manifest pack before any release claim by removing stale conflicting
+  proof rows or replacing them with one exact redacted artifact fingerprint for each platform and
+  choice.
+- Use the target phone preview for WeChat readback, screenshots, Dark Mode, cover thumbnail, and
+  interaction checks; PC DOM proof is not enough.
+- Verify public HTTPS or platform-hosted image URLs with alt/caption context before reporting
+  image fallback readiness.
+- Use a real credentialed sync, plugin, upload, or API channel and read back the created
+  draft/material; login or sign-in pages must stay blocked evidence.
+- Inspect a real platform preview or published result for the exact artifact; do not infer this
+  from editor paste, sync success, or login-route readback.
+
+Conclusion:
+- The committed evidence release gate is correctly blocked.
+- The current committed evidence must not be reported as complete platform acceptance.
+- This refresh supersedes earlier same-day current-release counts that still listed Amber as an
+  exact-artifact fingerprint conflict.
+
+Boundary:
+- This proves local accounting only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail, credentialed sync, scheduled send, platform preview, public article
+  rendering, Xiaohongshu/Zhihu account upload, public-host acceptance, or publish success.

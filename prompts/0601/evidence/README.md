@@ -2771,3 +2771,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local catalog/evidence accounting only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public
   article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Style Proof Current Release Gate Refresh
+
+- [x] style-proof-current-release-gate-refresh-20260621.txt
+- Local API readout after Amber reconciliation and the WeChat session-timeout recheck returned
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
+- Current summary: `combinedManifestCount=6`, `combinedIssueCount=12`,
+  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
+  `mutatingOpenSteps=13`.
+- Amber is no longer listed in release gate `fingerprintConflicts`. The only current
+  exact-artifact conflict is `wechat-flagship-tempera`, between the local Tauri/WebView evidence
+  artifact reference and the entity-safe PC editor-return payload SHA.
+- Combined runbook platform summaries now show WeChat 17 total / 1 completed / 16 open steps,
+  Xiaohongshu 8 total / 0 completed / 8 open steps, and Zhihu 10 total / 0 completed / 10 open
+  steps.
+- Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public
+  preview, public article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.

@@ -3179,3 +3179,26 @@ Boundary:
   authenticated editor URL, PC editor DOM, PC paste, phone preview, mobile interaction, Dark Mode,
   cover thumbnail, sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 Style Proof Current Release Gate Refresh Addendum
+
+- Added `prompts/0601/evidence/style-proof-current-release-gate-refresh-20260621.txt`.
+- Re-ran the local release/runbook/acceptance API readout after Amber reconciliation and the
+  WeChat session-timeout recheck.
+- Release gate remains blocked:
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, `blockerCount=5`,
+  `combinedManifestCount=6`, `combinedIssueCount=12`,
+  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
+  `mutatingOpenSteps=13`.
+- Amber is no longer in release gate `fingerprintConflicts`; the only current exact-artifact
+  conflict is `wechat-flagship-tempera`.
+- Current combined runbook platform summary:
+  WeChat 17 total / 1 completed / 16 open steps; Xiaohongshu 8 total / 0 completed / 8 open steps;
+  Zhihu 10 total / 0 completed / 10 open steps.
+- Boundary: this is local committed-evidence accounting only. It does not prove WeChat paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu upload, public-host acceptance, or
+  publish success.

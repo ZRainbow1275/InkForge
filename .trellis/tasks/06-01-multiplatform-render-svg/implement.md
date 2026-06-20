@@ -7319,3 +7319,40 @@ Boundary:
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
   acceptance, or publish success.
+
+## 2026-06-21 Style Proof Current Release Gate Refresh Slice
+
+Scope:
+- Local API readout of committed redacted evidence after Amber reconciliation and the WeChat
+  session-timeout read-only recheck.
+- No browser automation, phone preview, sync, upload, scheduled send, publish, screenshot, HAR,
+  credential material, account artifact, or browser profile artifact.
+
+Observation:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` still returns
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, and `blockerCount=5`.
+- Current gate summary: `combinedManifestCount=6`, `combinedIssueCount=12`,
+  `hasExactArtifactFingerprintConflicts=true`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and
+  `mutatingOpenSteps=13`.
+- Amber is no longer listed in release gate `fingerprintConflicts`. The remaining
+  exact-artifact fingerprint conflict is `wechat-flagship-tempera`.
+- Combined runbook platform summary now shows WeChat 17 total / 1 completed / 16 open steps,
+  Xiaohongshu 8 total / 0 completed / 8 open steps, and Zhihu 10 total / 0 completed / 10 open
+  steps.
+
+Implementation:
+- Added `prompts/0601/evidence/style-proof-current-release-gate-refresh-20260621.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+- No runtime code change was needed.
+
+Verification:
+- Runtime API readout succeeded through `pnpm -C inkforge exec tsx -e ...` using the local
+  `style-catalog.ts` exports.
+
+Boundary:
+- This is current local committed-evidence accounting only.
+- It does not prove WeChat authenticated editor URL, PC editor DOM, PC paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
+  acceptance, or publish success.
