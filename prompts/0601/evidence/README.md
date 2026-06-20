@@ -870,6 +870,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: local detector proof only. It does not prove phone preview, mobile interaction, Dark
   Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish gates.
 
+## 2026-06-20 135 Ordinary Free Style Applied Readback Refresh
+
+- [x] 135-ordinary-free-style-applied-readback-refresh-20260620.txt
+- Reused CloakBrowser only on the active 135 ordinary editor page; no save, export, sync, upload,
+  preview, publish, screenshot, browser profile artifact, account artifact, template source, or
+  material URL was recorded.
+- After focusing the central UEditor iframe body and clicking visible non-VIP style
+  `#style-173703`, current readback confirmed `bodyChildren=6`, `bodyHtmlLen=25148`,
+  `nodes=186`, `sections=122`, `styleAttrs=131`, `dataTools=7`, `dataId=7`,
+  `dataBrushType=18`, `svgs=5`, `images=12`, and `style173703=2`.
+- This refresh confirms the existing applied-editor-element boundary and 135 residue rules. It
+  does not add a runtime detector rule because the already-blocked residues cover the observed
+  `_135editor`, `data-tools`, `data-id`, and `data-brushtype` families.
+- Verification passed: focused `market editor residue` regression 1 selected test and
+  `git diff --check` on this slice's docs/evidence files.
+- Boundary: market-editor authoring DOM learning only. It does not prove phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
+  gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt

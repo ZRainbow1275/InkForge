@@ -2123,6 +2123,14 @@ Contracts:
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
   read back.
+- 2026-06-20 CloakBrowser ordinary-style refresh confirmed the applied boundary again on the active
+  135 ordinary editor: after focusing the UEditor iframe and clicking `#style-173703`, current
+  readback reported `bodyChildren=6`, `bodyHtmlLen=25148`, `nodes=186`, `sections=122`,
+  `styleAttrs=131`, `dataTools=7`, `dataId=7`, `dataBrushType=18`, `svgs=5`, `images=12`, and
+  `style173703=2`. This is a valid applied-editor-element observation, but it only reinforces the
+  no-copy rule for `_135editor`, `data-tools`, market `data-id`, `data-brushtype`, inline authoring
+  structure, and style-list metadata. It does not require a new runtime rule or satisfy WeChat
+  paste, phone, sync, or publish proof.
 - Acceptance audit must preserve that same boundary: `centralEditorChanged:false` rows for
   `market-applied-dom-readback` emit `style-proof-manifest-market-editor-not-applied` and stay
   `invalid`, even though the broader market-editor gate normally requires an external account.

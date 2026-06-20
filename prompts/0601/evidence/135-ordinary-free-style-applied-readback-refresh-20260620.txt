@@ -1,0 +1,59 @@
+135 Ordinary Free Style Applied Readback Refresh - 2026-06-20
+
+Scope:
+- CloakBrowser-only live sampling of the authenticated 135 ordinary editor page.
+- Existing 135 editor session/profile was reused; no profile path, screenshot path, account
+  artifact, cookie, token, HAR, QR, template source, material URL, save, sync, upload, preview,
+  scheduled-send, or publish artifact is recorded here.
+- This refresh confirms the already-established 135 ordinary applied-style boundary. It does not
+  introduce a new runtime detector rule.
+
+Observed workflow:
+- The ordinary editor was open on the visual editing surface with the left style list and the
+  central same-origin UEditor iframe `#ueditor_0`.
+- Before the applied click in this 2026-06-20 pass, the iframe body was recorded as:
+  `bodyTextLen=1394`, `bodyHtmlLen=22462`, `nodes=170`, `sections=111`, `styleAttrs=123`,
+  `dataTools=6`, `dataId=6`, `dataBrushType=17`, `svgs=5`, and `images=12`.
+- After focusing the iframe body, clicking the free-style filter, and clicking the visible non-VIP
+  style card `#style-173703`, the central iframe changed.
+- Current readback after the click confirms:
+  `bodyChildren=6`, `bodyTextLen=2790`, `bodyHtmlLen=25148`, `nodes=186`, `sections=122`,
+  `styleAttrs=131`, `dataTools=7`, `dataId=7`, `dataBrushType=18`, `svgs=5`, `images=12`,
+  and `style173703=2`.
+- Tail style ids include `173597`, `173523`, `173488`, `173483`, `173483`, `173703`, and `173703`.
+- The last root blocks include two applied `_135editor` title sections with `data-id="173703"`.
+
+Rule outcome:
+- This is a real applied-editor-element readback because the center iframe changed and the
+  inserted style was read back from the editable body.
+- It confirms the existing market-editor residue boundary for 135 ordinary styles:
+  `_135editor`, `data-tools`, market `data-id`, `data-brushtype`, inline authoring structure,
+  and style-list metadata are not publishable InkForge output.
+- InkForge may learn hierarchy, rhythm, title/body grouping, spacing pressure, and insertion guard
+  requirements only after rewriting the idea as source-owned modules.
+- It must not copy 135 vendor DOM, helper classes, material URLs, paid/member assets, private SVG
+  source, account state, or template source.
+
+Public-source cross-check:
+- Grok and Exa public-source refreshes on 2026-06-20 corroborated that 135 and Xiumi publicly
+  describe SVG/H5/interactive article editing families such as click, slide, carousel, expand,
+  parallax, long-press, region trigger, image-sequence, and H5 surfaces.
+- Those public pages are taxonomy/background only. They do not prove InkForge artifact paste,
+  WeChat phone preview, mobile interaction, Dark Mode, cover acceptance, sync, scheduled send,
+  public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+Verification:
+- This file is documentation/evidence only.
+- Existing runtime enforcement remains the 2026-06-18 135 applied text-slot residue gate plus the
+  later market-editor residue detectors.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market editor residue" --reporter=default`
+  PASS: 1 file / 1 selected test.
+- `git diff --check` on this slice's docs/evidence files
+  PASS: no whitespace errors.
+
+Boundary:
+- This is 135 ordinary editor applied-authoring DOM learning only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.

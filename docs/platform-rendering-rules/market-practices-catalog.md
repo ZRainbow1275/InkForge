@@ -86,6 +86,22 @@
 These rules supersede taxonomy-only learning for future market probes. A later agent must not
 claim a 135/Xiumi rule was learned unless the applied-element chain above is recorded.
 
+2026-06-20 135 ordinary free-style applied readback refresh:
+
+- CloakBrowser-only refresh on the active 135 ordinary editor confirmed a visible non-VIP style
+  click as an applied-editor-element. After focusing `#ueditor_0` and clicking `#style-173703`,
+  current readback reported `bodyChildren=6`, `bodyHtmlLen=25148`, `nodes=186`, `sections=122`,
+  `styleAttrs=131`, `dataTools=7`, `dataId=7`, `dataBrushType=18`, `svgs=5`, `images=12`, and
+  `style173703=2`.
+- Grok/Exa public-source checks on the same day corroborated only the market taxonomy for
+  135/Xiumi SVG/H5 families such as click, slide, carousel, expand, long-press, region trigger,
+  and H5 surfaces.
+- This reconfirms the existing applied-element and no-copy boundary for 135 ordinary editor DOM.
+  Learn hierarchy, rhythm, title/body grouping, and insertion-risk patterns only after rewriting
+  them as source-owned InkForge modules. Do not add runtime availability or claim WeChat paste,
+  phone preview, sync, scheduled-send, public preview, XHS/Zhihu upload, or publish proof from this
+  evidence.
+
 2026-06-09 runtime gate:
 
 - Applied 135/Xiumi evidence now feeds a real export quality detector instead of staying doc-only.

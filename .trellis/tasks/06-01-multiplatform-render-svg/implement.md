@@ -6038,6 +6038,56 @@ Boundary:
   preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
   success.
 
+## 2026-06-20 135 Ordinary Free Style Applied Readback Refresh
+
+Scope:
+- CloakBrowser-only 135 ordinary editor applied-style refresh.
+- No save, export, sync, upload, preview, scheduled-send, publish, screenshot capture, browser
+  profile artifact, account artifact, template source, material URL, cookie, token, HAR, or QR
+  artifact was recorded.
+
+Observed:
+- The active 135 ordinary editor was on `beautify_editor.html` with a central same-origin UEditor
+  iframe `#ueditor_0`.
+- Before the applied click in this 2026-06-20 pass, the iframe body was recorded as
+  `bodyTextLen=1394`, `bodyHtmlLen=22462`, `nodes=170`, `sections=111`, `styleAttrs=123`,
+  `dataTools=6`, `dataId=6`, `dataBrushType=17`, `svgs=5`, and `images=12`.
+- After focusing the iframe body, clicking the free-style filter, and clicking visible non-VIP
+  style card `#style-173703`, current readback confirmed `bodyChildren=6`, `bodyTextLen=2790`,
+  `bodyHtmlLen=25148`, `nodes=186`, `sections=122`, `styleAttrs=131`, `dataTools=7`,
+  `dataId=7`, `dataBrushType=18`, `svgs=5`, `images=12`, and `style173703=2`.
+- Tail style ids include `173597`, `173523`, `173488`, `173483`, `173483`, `173703`, and
+  `173703`; the last root blocks include two applied `_135editor` title sections with
+  `data-id="173703"`.
+
+Outcome:
+- This confirms the existing applied-editor-element rule and no-copy boundary for 135 ordinary
+  editor styles.
+- No runtime detector change was needed because existing market-editor residue gates already cover
+  `_135editor`, `data-tools`, market `data-id`, `data-brushtype`, text-slot metadata, and
+  style-list metadata.
+- Grok/Exa public-source refreshes were used only to corroborate the market taxonomy for 135/Xiumi
+  SVG/H5 families; public pages do not prove InkForge platform availability.
+
+Artifacts:
+- Added `prompts/0601/evidence/135-ordinary-free-style-applied-readback-refresh-20260620.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market editor residue" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `git diff --check` on this slice's docs/evidence files
+  - PASS: no whitespace errors.
+
+Boundary:
+- This is 135 ordinary editor applied-authoring DOM learning only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host availability, or publish
+  success.
+
 ## 2026-06-20 135 SVG Editor Layout Control Residue Contract Slice
 
 Scope:

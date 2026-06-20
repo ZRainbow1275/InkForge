@@ -2847,3 +2847,28 @@ Boundary:
   does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, public-host availability, or publish success.
+
+---
+
+## 2026-06-20 135 Ordinary Free Style Applied Readback Refresh Addendum
+
+- Added `prompts/0601/evidence/135-ordinary-free-style-applied-readback-refresh-20260620.txt`.
+- Used CloakBrowser only on the active 135 ordinary editor page. No save, export, sync, upload,
+  preview, scheduled-send, publish, screenshot capture, browser profile artifact, account artifact,
+  template source, material URL, cookie, token, HAR, or QR artifact was recorded.
+- After focusing the central UEditor iframe body and clicking visible non-VIP style
+  `#style-173703`, current readback confirmed `bodyChildren=6`, `bodyTextLen=2790`,
+  `bodyHtmlLen=25148`, `nodes=186`, `sections=122`, `styleAttrs=131`, `dataTools=7`,
+  `dataId=7`, `dataBrushType=18`, `svgs=5`, `images=12`, and `style173703=2`.
+- This refresh confirms the existing applied-editor-element and no-copy boundary for 135 ordinary
+  styles. Existing market-editor residue gates already cover the observed `_135editor`,
+  `data-tools`, market `data-id`, and `data-brushtype` families, so no runtime detector change was
+  required.
+- Grok/Exa public-source refreshes corroborated 135/Xiumi SVG/H5 taxonomy only. Public pages do not
+  prove InkForge platform paste, phone preview, sync, upload, scheduled-send, or publish success.
+- Verification passed: focused `market editor residue` regression 1 selected test and
+  `git diff --check` on this slice's docs/evidence files.
+- Boundary: this is 135 ordinary editor applied-authoring DOM learning only. It does not prove
+  WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile SMIL/click, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public-host availability, or publish success.
