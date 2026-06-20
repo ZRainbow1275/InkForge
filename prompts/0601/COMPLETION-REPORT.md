@@ -2972,3 +2972,22 @@ Boundary:
 - Boundary: this is local runbook/operator guidance only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 135 SVG Free Trial CloakBrowser Recheck Addendum
+
+- Added `prompts/0601/evidence/135-svg-free-trial-cloakbrowser-recheck-20260621.txt`.
+- CloakBrowser opened the live 135 SVG editor, clicked a visible `免费试用` SVG effect, and read
+  the center editor DOM after mutation.
+- The post-click DOM contained duplicated `content-canvas` / `content-inner` /
+  `content-background` containers, ten `block-img__inner` image-slot shells, ten
+  `placeholder__help` helpers, spacing/gap controls, slider handles, and trigger switches.
+- No code change was needed because existing residue rules and tests already cover the observed
+  135 SVG authoring markers.
+- Focused verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG" --reporter=default`
+  with 5 selected tests.
+- Boundary: this is market-editor DOM learning only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

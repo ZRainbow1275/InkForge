@@ -780,6 +780,14 @@ Zhihu.
   `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`,
   `ant-slider-track`, and `ant-slider-handle`. These may inform InkForge-owned spacing policy and
   gap-removal schema only; copied controls are blocked as `135 SVG editor layout control residue`.
+- 2026-06-21 CloakBrowser free-trial recheck: after a visible `免费试用` click, the 135 SVG editor
+  center DOM contained two `content-canvas` / `content-inner` / `content-background` containers,
+  ten `block-img__inner` image-slot shells, ten `placeholder__help` helpers, two
+  `block-spacing` / `block-gap` controls, four `gap-item-wrapper` rows, four
+  `ant-slider-track` / `ant-slider-handle` controls, and `edit-trigger__switch` /
+  `ant-switch-checked` trigger switches. This confirms that the existing detector coverage for
+  trigger, placeholder, image-slot, spacing, gap, and slider authoring residue is still the right
+  enforcement path.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
@@ -838,6 +846,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
 - `prompts/0601/evidence/135-svg-editor-shell-residue-contract-20260620.txt`
 - `prompts/0601/evidence/135-svg-editor-layout-control-residue-contract-20260620.txt`
+- `prompts/0601/evidence/135-svg-free-trial-cloakbrowser-recheck-20260621.txt`
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.

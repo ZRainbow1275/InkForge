@@ -2148,6 +2148,15 @@ Contracts:
   `ant-slider-track`, and `ant-slider-handle`. These controls are residue, not reusable layout
   source, and must fail as `135 SVG editor layout control residue` across WeChat, Xiaohongshu, and
   Zhihu publishable output.
+- 2026-06-21 135 SVG editor free-trial recheck: a visible CloakBrowser click on a `免费试用`
+  effect again populated the center editor with authoring-only structure. The post-click DOM
+  contained two `content-canvas` / `content-inner` / `content-background` containers, ten
+  `block-img__inner` image-slot shells, ten `placeholder__help` helpers, two
+  `block-spacing` / `block-gap` controls, four `gap-item-wrapper` rows, four
+  `ant-slider-track` / `ant-slider-handle` controls, and `edit-trigger__switch` /
+  `ant-switch-checked` trigger switches. This confirms the existing residue rules remain correct:
+  these structures are schema inputs for InkForge-owned trigger-zone, image-slot, spacing,
+  fallback, and layout-report models only; they must not be copied into publishable output.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be

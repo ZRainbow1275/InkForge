@@ -2610,3 +2610,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local runbook/operator guidance only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 135 SVG Free Trial CloakBrowser Recheck
+
+- [x] 135-svg-free-trial-cloakbrowser-recheck-20260621.txt
+- CloakBrowser opened the live 135 SVG editor and clicked a visible `免费试用` effect.
+- Post-click center editor DOM contained duplicated `content-canvas` / `content-inner` /
+  `content-background` containers, ten `block-img__inner` image-slot shells, ten
+  `placeholder__help` helpers, spacing/gap controls, slider handles, and trigger switches.
+- No new detector code was needed: existing 135 SVG builder, editor-shell, trigger-hot-area, and
+  layout-control residue tests already cover the observed authoring markers.
+- Focused verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG" --reporter=default`
+  with 5 selected tests.
+- Boundary: this is market-editor DOM learning only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

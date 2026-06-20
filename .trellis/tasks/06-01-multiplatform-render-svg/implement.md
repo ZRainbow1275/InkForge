@@ -6934,3 +6934,40 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 135 SVG Free Trial CloakBrowser Recheck Slice
+
+Scope:
+- CloakBrowser-only live DOM recheck of the 135 SVG editor free-trial workflow requested by the
+  user.
+- Docs/evidence only. No renderer, detector, UI, manifest, browser profile, screenshot, HAR, QR,
+  cookie, token, or account artifact was added.
+
+Observation:
+- Started CloakBrowser with the existing InkForge browser profile and opened the live 135 SVG
+  editor.
+- Clicked a visible `免费试用` SVG effect button.
+- Post-click DOM readback showed the center editor had authoring-only structures: duplicated
+  `content-canvas` / `content-inner` / `content-background` containers, ten
+  `block-img__inner` image-slot shells, ten `placeholder__help` helpers, spacing/gap controls,
+  slider controls, and trigger switches.
+
+Implementation:
+- Added `prompts/0601/evidence/135-svg-free-trial-cloakbrowser-recheck-20260621.txt`.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md`,
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `prompts/0601/evidence/README.md`, and `prompts/0601/COMPLETION-REPORT.md`.
+- No code change was needed because existing detector/test coverage already blocks the observed
+  authoring markers.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG" --reporter=default`
+  passed: 1 file / 5 selected tests.
+- `git diff --check` on this docs/evidence slice must pass before commit.
+
+Boundary:
+- This is market-editor DOM learning only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

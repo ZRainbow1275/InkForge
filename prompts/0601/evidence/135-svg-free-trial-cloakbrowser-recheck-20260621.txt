@@ -1,0 +1,73 @@
+135 SVG Free Trial CloakBrowser Recheck - 2026-06-21
+
+Scope:
+- CloakBrowser-only live DOM recheck of https://www.135editor.com/svgeditor/.
+- A visible free-trial SVG effect button was clicked.
+- The center editor/canvas was inspected through DOM queries after the click.
+- No browser capture artifacts, network archives, credential material, QR artifacts, account data,
+  browser-profile directories, or capture file locations are committed as evidence.
+
+Observed after clicking a visible free-trial effect:
+- content-canvas: 2
+- content-inner: 2
+- content-background: 2
+- block-img__inner: 10
+- placeholder__help: 10
+- block-spacing: 2
+- block-gap: 2
+- gap-item-wrapper: 4
+- ant-slider-track: 4
+- ant-slider-handle: 4
+- svg: 67
+- section[style]: 8
+- contenteditable=true: 0
+
+Observed center-canvas class families:
+- content-canvas
+- content-wrapper
+- content-background
+- content-inner
+- block
+- block-inner
+- block-img
+- block-img__inner
+- edit-placeholder
+- block-img__default
+- placeholder__help
+- placeholder__icon
+- placeholder__name
+- edit-trigger
+- edit-trigger__switch
+- ant-switch
+- ant-switch-checked
+
+Observed toolbar/control families:
+- undo/redo controls
+- gap removal
+- move up / move down
+- spacing controls
+- copy / delete controls
+- block spacing and block gap controls
+- Ant slider track/handle controls
+
+Rule interpretation:
+- A 135 SVG free-trial click can populate the center editor with authoring-only image slots,
+  placeholders, trigger switches, hot-area prompts, spacing/gap controls, and Ant slider controls.
+- These structures are useful only as taxonomy and schema input for InkForge-owned trigger-zone,
+  image-slot, spacing, fallback, and layout-report rules.
+- Copied authoring wrappers must remain market-editor residue blockers in WeChat, Xiaohongshu,
+  and Zhihu publishable output.
+- Existing detector coverage for `edit-trigger`, `edit-trigger__switch`,
+  `trigger__ajuster`, `placeholder__help`, `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, and `ant-slider-track/handle` remains the correct enforcement path.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG" --reporter=default
+  PASS: 1 file / 5 selected tests
+
+Boundary:
+- This proves only a live 135 SVG free-trial applied-editor DOM observation.
+- It does not prove InkForge ordinary Ctrl+V paste into WeChat, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, Xiaohongshu/Zhihu upload, public-host acceptance, or publish
+  success.
