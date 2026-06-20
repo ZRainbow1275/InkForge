@@ -1,0 +1,41 @@
+WeChat Session Timeout Read-Only Recheck - 2026-06-21
+
+Scope:
+- CloakBrowser-only read-only recheck of the WeChat Official Account backend home route.
+- No login attempt, credential entry, QR capture, draft creation, paste, save, preview, sync,
+  upload, scheduled send, publish, screenshot capture, HAR capture, account artifact, browser
+  profile artifact, or raw platform response was committed.
+
+Route:
+- Opened `https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN`.
+- Page title: `公众号`.
+- Sanitized route shape: `/cgi-bin/home?t=home/index&lang=zh_CN`.
+
+Readback:
+- Visible text contained `登录超时，请重新登录`.
+- Login/timeout signals were present.
+- Editor/workbench signals were absent.
+- DOM readback found:
+  - contenteditable / `.ProseMirror`: 0.
+  - iframe: 0.
+  - editor candidates (`#js_editor`, `#js_appmsg_editor`, `#ueditor_0`, `.edui-editor`,
+    `.ProseMirror`, `.rich_media_content`, `[data-action]`): 0.
+  - only public footer links and a relogin link were visible as actionable anchors.
+
+Validator status:
+- Existing validator rules already treat login, relogin, expired-session, and non-editor DOM pages
+  as blocker evidence, not proof.
+- Targeted regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login or expired-session|session and editor DOM issue ids" --reporter=default`
+  PASS: 1 file / 2 selected tests.
+- GitNexus impact for `validateStyleProofManifest` was LOW: 6 impacted items, 1 affected process
+  (`progressChoices`), and the targeted regression covered the login/expired-session issue rows.
+
+Boundary:
+- This proves only the current external WeChat session state is blocked by login timeout.
+- It does not satisfy `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `pc-editor-paste-event`, `phone-preview-readback`, Dark Mode, cover thumbnail, credentialed
+  sync, scheduled send, platform preview, public article rendering, or publish success.
+- The next WeChat proof attempt still requires a human operator to complete the official login in
+  the visible browser, then use an authenticated disposable editor/draft surface and redacted
+  readback evidence.

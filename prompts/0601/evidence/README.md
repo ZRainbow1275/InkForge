@@ -384,6 +384,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] cloakbrowser-os-ctrlv-richhtml-local-probe-20260618.txt # 当前本机工具正向预检：keybd_event Ctrl+V + CF_HTML 在本地 contenteditable 中保留 SVG；不是微信草稿证明
 [x] wechat-draftbox-cleanup-path-readonly-20260618.txt # 当前平台状态：草稿箱清理 affordance 可读；未创建/删除 disposable draft，不满足 cleanupPathVerified
 [x] wechat-session-expired-gate-20260618.txt # 当前平台状态：微信后台要求重新登录；登录/过期页不能满足 authenticated editor 或 PC DOM proof
+[x] wechat-session-timeout-readonly-recheck-20260621.txt # 当前平台状态：微信后台再次返回登录超时；validator 回归确认不能满足 authenticated editor / PC DOM proof
 [x] wechat-auth-draftbox-readonly-refresh-20260618.txt # 当前平台状态：微信后台/草稿箱重新可达；本轮 edit 仍未进入 PC editor DOM
 [x] wechat-editor-dom-current-readonly-20260618.txt # 当前平台状态：微信 PC editor DOM 重新可读；未粘贴/保存/预览/发布
 [x] wechat-disposable-draft-runbook-20260618.md # pre-mutation contract：真实 disposable draft 创建/粘贴/手机/清理门禁步骤
@@ -2675,6 +2676,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is a login-state blocker only. It does not prove WeChat paste, phone preview,
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview, public
   article rendering, or publish success.
+
+## 2026-06-21 WeChat Session Timeout Read-Only Recheck
+
+- [x] wechat-session-timeout-readonly-recheck-20260621.txt
+- CloakBrowser opened the WeChat backend home route and the visible page reported
+  `登录超时，请重新登录`.
+- DOM readback found no contenteditable editor, no iframe, and no editor candidates such as
+  `#js_editor`, `#js_appmsg_editor`, `#ueditor_0`, `.edui-editor`, `.ProseMirror`, or
+  `.rich_media_content`.
+- Existing validator regressions passed for login/expired-session rows: 1 file / 2 selected tests.
+- Boundary: this is session-timeout blocker evidence only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview,
+  public article rendering, or publish success.
 
 ## 2026-06-21 Local Full Validation Sweep
 

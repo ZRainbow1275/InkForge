@@ -7283,3 +7283,39 @@ Boundary:
 - It does not prove WeChat phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, public-host acceptance, or publish success.
+
+## 2026-06-21 WeChat Session Timeout Read-Only Recheck Slice
+
+Scope:
+- CloakBrowser-only read-only recheck of the WeChat backend home route.
+- No login attempt, credential entry, QR capture, draft creation, paste, save, preview, sync,
+  upload, scheduled send, publish, screenshot capture, HAR capture, account artifact, browser
+  profile artifact, or raw platform response was committed.
+
+Observation:
+- Opened the WeChat backend home route.
+- Page title was `公众号`.
+- Visible text contained `登录超时，请重新登录`.
+- DOM readback found no contenteditable editor, no iframe, and no editor candidates such as
+  `#js_editor`, `#js_appmsg_editor`, `#ueditor_0`, `.edui-editor`, `.ProseMirror`,
+  `.rich_media_content`, or `[data-action]`.
+
+Implementation:
+- Added `prompts/0601/evidence/wechat-session-timeout-readonly-recheck-20260621.txt`.
+- Updated `prompts/0601/evidence/README.md` and `prompts/0601/COMPLETION-REPORT.md`.
+- No runtime code change was needed because the existing validator already rejects
+  login/relogin/expired-session pages as authenticated editor proof.
+
+Verification:
+- Existing validator regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login or expired-session|session and editor DOM issue ids" --reporter=default`
+  passed 1 file / 2 selected tests.
+- GitNexus impact for `validateStyleProofManifest`: LOW, 6 impacted items, 1 affected process
+  (`progressChoices`).
+
+Boundary:
+- This is current external session-state blocker evidence only.
+- It does not prove WeChat authenticated editor URL, PC editor DOM, PC paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public-host
+  acceptance, or publish success.

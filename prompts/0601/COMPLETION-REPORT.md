@@ -3159,3 +3159,23 @@ Boundary:
 - Boundary: this is local catalog/evidence accounting only. It does not prove WeChat phone preview,
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public
   article rendering, XHS/Zhihu account upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 WeChat Session Timeout Read-Only Recheck Addendum
+
+- Added `prompts/0601/evidence/wechat-session-timeout-readonly-recheck-20260621.txt`.
+- CloakBrowser opened the WeChat backend home route and the visible page reported
+  `登录超时，请重新登录`.
+- The DOM readback found zero contenteditable/`.ProseMirror` nodes, zero iframes, and zero editor
+  candidates for `#js_editor`, `#js_appmsg_editor`, `#ueditor_0`, `.edui-editor`,
+  `.ProseMirror`, `.rich_media_content`, or `[data-action]`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login or expired-session|session and editor DOM issue ids" --reporter=default`
+  passed 1 file / 2 selected tests.
+- GitNexus impact for `validateStyleProofManifest` was LOW with 6 impacted items and one affected
+  process (`progressChoices`).
+- Boundary: this is current external session-state blocker evidence only. It does not prove
+  authenticated editor URL, PC editor DOM, PC paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail, sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public-host acceptance, or publish success.
