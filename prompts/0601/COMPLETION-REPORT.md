@@ -3279,7 +3279,9 @@ Boundary:
 - Verification passed: focused committed/local/release runbook regression with 4 selected tests,
   full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
   with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
-  `vue-tsc`, and production build with 4652 transformed modules in 37.77s.
+  `vue-tsc`, and production build with 4652 transformed modules in 37.77s. Follow-up WDIO passed:
+  targeted `svg-render.spec.cjs` with 1 spec / 6 tests, then full `pnpm -C inkforge test:e2e`
+  with 2 specs / 17 tests covering the SVG/export gate and base visual checks.
 - Boundary: this is local clean Markdown/table artifact accounting only. It does not prove Zhihu
   public image-host acceptance, account upload, editor preview, sync, scheduled send, platform
   preview, public article rendering, or publish success.

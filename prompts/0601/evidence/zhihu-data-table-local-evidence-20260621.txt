@@ -70,6 +70,14 @@ Verification:
 - Production build passed:
   `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4652 modules
   and built in 37.77s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- Targeted SVG/rendering E2E passed:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 spec / 6 tests. The real WebView2 run seeded a real draft, opened the real ExportModal,
+  read the live style gate text, verified the three flagship SVG preview presets, and measured the
+  mobile-comfort line length at 20 chars/line.
+- Full WDIO E2E passed:
+  `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests. Coverage included the SVG/export gate
+  path and the base chrome, brand mark, design-variable, and theme-cascade visual checks.
 
 Boundary:
 - This proves local clean Markdown/table artifact accounting only.

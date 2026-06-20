@@ -7495,6 +7495,13 @@ Verification:
 - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
 - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
   modules and built in 37.77s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- Targeted WDIO passed:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed 1 spec / 6 tests, including real draft seeding, real ExportModal style gate readback,
+  three flagship SVG preview presets, and the 20 chars/line mobile-comfort assertion.
+- Full WDIO passed:
+  `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests, covering the SVG/export gate path and the
+  base chrome, brand mark, design-variable, and theme-cascade visual checks.
 
 Boundary:
 - This is local clean Markdown/table artifact accounting only.
