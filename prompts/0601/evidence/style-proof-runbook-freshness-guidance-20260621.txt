@@ -1,0 +1,54 @@
+Style Proof Runbook Freshness Guidance - 2026-06-21
+
+Scope:
+- Local execution runbook guidance for style-proof freshness blockers.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish, and no
+  browser/account artifact collection.
+
+Implemented:
+- StyleProofExecutionRunbookStep.requiresFreshCollectedAt
+- StyleProofExecutionRunbookStep.freshnessMaxDays
+- StyleProofExecutionRunbookStep.freshnessIssueIds
+- Freshness-specific cannotClaimReason messages.
+- Freshness-specific nextOperatorAction recapture guidance.
+- Freshness-window success criteria and failure signals.
+
+Behavior:
+- External proof contracts expose requiresFreshCollectedAt:true and freshnessMaxDays:14 in the
+  execution runbook.
+- Missing collectedAt, invalid/future collectedAt, and stale proof issue ids are copied into
+  freshnessIssueIds.
+- Operators are told to recapture the exact external proof and attach one matching proof row with
+  collectedAt inside the active freshness window.
+- Local-only proof rows such as exact-artifact remain requiresFreshCollectedAt:false with
+  freshnessMaxDays:null.
+
+Regression coverage:
+- Runbook external proof contracts expose freshness metadata.
+- Missing, future/invalid, and stale timestamps flow into freshnessIssueIds, cannotClaimReason, and
+  nextOperatorAction.
+- Fresh positive rows do not create freshness issues.
+- Local-only exact-artifact rows remain timestamp-free.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 151 tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default
+  PASS: 4 files / 190 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 35 files / 1124 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: Vite built in 1m 8s
+- git restore -- inkforge/tsconfig.tsbuildinfo
+  PASS: generated type-build cache restored after verification
+
+Boundary:
+- This proves local runbook guidance and freshness blocker visibility only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, Xiaohongshu/Zhihu account upload, public-host acceptance, or
+  publish success.

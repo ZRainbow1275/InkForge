@@ -2950,3 +2950,25 @@ Boundary:
 - Boundary: this is local proof freshness enforcement only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+---
+
+## 2026-06-21 Style Proof Runbook Freshness Guidance Addendum
+
+- Added `prompts/0601/evidence/style-proof-runbook-freshness-guidance-20260621.txt`.
+- Execution runbook steps now expose `requiresFreshCollectedAt`, `freshnessMaxDays`, and
+  `freshnessIssueIds` so UI/report consumers can display timestamp requirements without
+  reimplementing validator logic.
+- Missing, future/unparseable, and stale `collectedAt` issue ids now produce specialized
+  `cannotClaimReason` messages and `nextOperatorAction` recapture guidance.
+- Success criteria and failure signals now name the active 14-day freshness window for external
+  proof rows, while local-only rows such as `exact-artifact` remain timestamp-free.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  with 151 tests; four-file cross-platform export regression with 190 tests; full
+  `src/services/export` serial regression with 35 files / 1124 tests; targeted ESLint;
+  `vue-tsc --noEmit`; and production build (Vite built in 1m 8s). The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local runbook/operator guidance only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

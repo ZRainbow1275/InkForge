@@ -870,3 +870,23 @@ Runtime issue ids:
 Evidence:
 - `prompts/0601/evidence/style-proof-external-freshness-contract-20260620.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 19.
+
+## 10. 2026-06-21 Execution Runbook Freshness Guidance
+
+The execution runbook now carries the freshness contract forward into the operator-facing checklist.
+This keeps stale external proof visible in reports and UI consumers without changing the underlying
+platform rendering rules.
+
+Rules:
+- Every `StyleProofExecutionRunbookStep` exposes whether a fresh `collectedAt` timestamp is
+  required, the active freshness window, and the current freshness issue ids.
+- Missing, future/unparseable, and stale timestamps are presented as distinct cannot-claim reasons.
+- Freshness failures ask the operator to recapture the exact external proof and attach one matching
+  row with `collectedAt` inside the active window.
+- Local-only proof rows remain timestamp-free in the runbook.
+- This is guidance for real evidence collection. It does not claim that phone preview, Dark Mode,
+  cover thumbnail, sync, upload, scheduled send, public-host, or publish proof has been collected.
+
+Evidence:
+- `prompts/0601/evidence/style-proof-runbook-freshness-guidance-20260621.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 20.

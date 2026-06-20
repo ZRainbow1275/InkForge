@@ -6875,3 +6875,62 @@ Boundary:
   interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or
   publish success.
+
+## 2026-06-21 Execution Runbook Freshness Guidance Slice
+
+Scope:
+- Existing style-proof execution runbook metadata, operator-facing reason/action strings, docs,
+  evidence notes, and regression coverage.
+- No browser automation, platform click, phone preview, sync, upload, scheduled send, publish,
+  screenshot capture, QR capture, browser profile artifact, HAR, token, cookie, or account
+  artifact was created.
+
+Impact:
+- GitNexus impact for `getPlatformStyleProofExecutionRunbook` reported LOW risk with 2 direct
+  dependents (`platform-export-rendering.test.ts` and `ExportModal.vue`) and 0 affected processes.
+- GitNexus impact for `buildStyleProofExecutionRunbookStep` reported LOW risk with 1 direct caller,
+  1 affected module (`Export`), and 0 affected processes.
+- GitNexus impact for `StyleProofExecutionRunbookStep` reported LOW risk, with `index.ts` and the
+  export rendering regression as direct import/test consumers.
+
+Implementation:
+- Added structured freshness metadata to each `StyleProofExecutionRunbookStep`:
+  `requiresFreshCollectedAt`, `freshnessMaxDays`, and `freshnessIssueIds`.
+- Added centralized freshness issue filtering for
+  `style-proof-manifest-collected-at-missing`,
+  `style-proof-manifest-collected-at-invalid`, and
+  `style-proof-manifest-proof-stale`.
+- Specialized `cannotClaimReason` for missing, invalid/future, and stale `collectedAt` before the
+  generic external-blocker messages.
+- Specialized `nextOperatorAction` for freshness failures so the operator is told to recapture the
+  exact external proof with a fresh same-row `collectedAt`, not reuse stale or timestamp-free rows.
+- Added active freshness-window text to runbook success criteria and failure signals.
+- Kept local-only rows such as `exact-artifact` timestamp-free in the runbook.
+
+Initial verification:
+- First focused run failed on an over-broad assertion that treated one satisfied cover-thumbnail
+  manifest row as completing the platform-level runbook step. The assertion was corrected to check
+  freshness metadata without redefining platform-level completion.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed: 1 file / 151 tests.
+- Four-file cross-platform export regression passed:
+  `platform-export-rendering.test.ts`, `pipeline-cross-platform.test.ts`, `xhs.test.ts`, and
+  `zhihu.test.ts` passed 4 files / 190 tests.
+- Full serial export regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1124 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed, Vite built in
+  1m 8s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after build verification.
+- GitNexus `detect_changes` on all current worktree changes reported low risk and 0 affected
+  processes; unrelated dirty files remain outside this slice's commit boundary.
+
+Boundary:
+- This is runbook/operator guidance for already-local acceptance accounting only.
+- It does not prove WeChat ordinary Ctrl+V rich HTML/SVG paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
+  success.

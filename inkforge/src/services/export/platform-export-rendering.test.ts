@@ -1689,8 +1689,11 @@ describe('platform native export rendering rules', () => {
       'pasteInputEventVerified',
       'editorBodyMutationVerified',
       'mojibakeFreeVerified',
+      'collectedAt',
       'safeForCommit',
     ]))
+    expect(pcPasteStep?.requiresFreshCollectedAt).toBe(true)
+    expect(pcPasteStep?.freshnessMaxDays).toBe(14)
     expect(pcPasteStep?.cannotClaimReason).toContain('cannot be claimed')
     expect(pcPasteStep?.redactionBoundary).toContain('account')
     expect(pcDomStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
@@ -1698,23 +1701,33 @@ describe('platform native export rendering rules', () => {
       'platformEditorTargetVerified',
       'platformEditorSurfaceVerified',
       'platformEditorDomVerified',
+      'collectedAt',
       'safeForCommit',
     ]))
     expect(marketStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
       'centralEditorChanged',
       'marketAppliedContentVerified',
+      'collectedAt',
       'safeForCommit',
     ]))
+    expect(marketStep?.requiresFreshCollectedAt).toBe(true)
+    expect(marketStep?.freshnessMaxDays).toBe(14)
+    expect(marketStep?.freshnessIssueIds).toEqual([])
     expect(marketStep?.successCriteria.join(' ')).toContain('marketAppliedContentVerified:true')
     expect(marketStep?.successCriteria.join(' ')).toContain('non-placeholder')
+    expect(marketStep?.successCriteria.join(' ')).toContain('within 14 days')
     expect(marketStep?.failureSignals.join(' ')).toContain('marketAppliedContentVerified:true')
+    expect(marketStep?.failureSignals.join(' ')).toContain('older-than-14-days')
 
     expect(phoneStep?.status).toBe('blocked-by-external')
     expect(phoneStep?.boundary).toBe('phone-preview')
     expect(phoneStep?.requiresPhone).toBe(true)
+    expect(phoneStep?.requiresFreshCollectedAt).toBe(true)
+    expect(phoneStep?.freshnessMaxDays).toBe(14)
     expect(phoneStep?.requiredArtifact.requiredFields).toEqual(expect.arrayContaining([
       'phonePreviewContentVerified',
       'exactArtifact',
+      'collectedAt',
     ]))
     expect(phoneStep?.failureSignals.join(' ')).toContain('PC editor DOM')
     expect(phoneStep?.failureSignals.join(' ')).toContain('Phone preview scan entries')
@@ -4382,6 +4395,12 @@ describe('platform native export rendering rules', () => {
     const auditStatus = new Map(
       audit.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
     )
+    const runbook = getPlatformStyleProofExecutionRunbook('wechat', [manifest])
+    const phoneStep = runbook.steps.find(step => step.requirement.id === 'phone-preview-readback')
+    const phoneScreenshotStep = runbook.steps.find(step => step.requirement.id === 'phone-screenshot')
+    const darkModeStep = runbook.steps.find(step => step.requirement.id === 'dark-mode-check')
+    const coverStep = runbook.steps.find(step => step.requirement.id === 'cover-thumbnail-check')
+    const exactArtifactStep = runbook.steps.find(step => step.requirement.id === 'exact-artifact')
 
     expect(issueIds).toEqual(expect.arrayContaining([
       'style-proof-manifest-collected-at-missing',
@@ -4400,6 +4419,23 @@ describe('platform native export rendering rules', () => {
       'phone-screenshot',
       'dark-mode-check',
     ]))
+    expect(phoneStep?.requiresFreshCollectedAt).toBe(true)
+    expect(phoneStep?.freshnessMaxDays).toBe(14)
+    expect(phoneStep?.freshnessIssueIds).toEqual(['style-proof-manifest-collected-at-missing'])
+    expect(phoneStep?.cannotClaimReason).toContain('lacks collectedAt')
+    expect(phoneStep?.nextOperatorAction).toContain('Recapture')
+    expect(phoneStep?.nextOperatorAction).toContain('within 14 days')
+    expect(phoneStep?.successCriteria.join(' ')).toContain('collection time')
+    expect(phoneStep?.failureSignals.join(' ')).toContain('timestamp-free')
+    expect(phoneScreenshotStep?.freshnessIssueIds).toEqual(['style-proof-manifest-collected-at-invalid'])
+    expect(phoneScreenshotStep?.cannotClaimReason).toContain('future-dated')
+    expect(darkModeStep?.freshnessIssueIds).toEqual(['style-proof-manifest-proof-stale'])
+    expect(darkModeStep?.cannotClaimReason).toContain('freshness window')
+    expect(coverStep?.status).toBe('blocked-by-external')
+    expect(coverStep?.requiresFreshCollectedAt).toBe(true)
+    expect(coverStep?.freshnessIssueIds).toEqual([])
+    expect(exactArtifactStep?.requiresFreshCollectedAt).toBe(false)
+    expect(exactArtifactStep?.freshnessMaxDays).toBeNull()
   })
 
   it('requires safeForCommit on matching proof contract rows across local editor and phone gates', () => {

@@ -2591,3 +2591,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local proof freshness enforcement only. It does not prove WeChat paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-06-21 Style Proof Runbook Freshness Guidance
+
+- [x] style-proof-runbook-freshness-guidance-20260621.txt
+- Execution runbook steps now expose `requiresFreshCollectedAt`, `freshnessMaxDays`, and
+  `freshnessIssueIds`.
+- Missing, future/unparseable, and stale `collectedAt` issues now produce specialized
+  `cannotClaimReason` and recapture-oriented `nextOperatorAction` text.
+- Success criteria and failure signals now name the active freshness window, so UI/report consumers
+  do not need to duplicate validator logic.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  with 151 tests; four-file cross-platform export regression with 190 tests; full
+  `src/services/export` serial regression with 35 files / 1124 tests; targeted ESLint;
+  `vue-tsc --noEmit`; and production build (Vite built in 1m 8s). The generated
+  `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Boundary: this is local runbook/operator guidance only. It does not prove WeChat paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
+  XHS/Zhihu upload, public-host acceptance, or publish success.

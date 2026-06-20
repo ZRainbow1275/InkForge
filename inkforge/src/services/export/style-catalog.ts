@@ -340,6 +340,12 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-pack-fingerprint-mismatch',
 ] as const satisfies readonly StyleProofManifestIssueId[]
 
+const STYLE_PROOF_FRESHNESS_ISSUE_IDS: readonly StyleProofManifestIssueId[] = [
+  'style-proof-manifest-collected-at-missing',
+  'style-proof-manifest-collected-at-invalid',
+  'style-proof-manifest-proof-stale',
+]
+
 const STYLE_PROOF_MANIFEST_ISSUE_ID_SET = new Set<string>(STYLE_PROOF_MANIFEST_ISSUE_IDS)
 
 function isStyleProofManifestIssueId(issueId: string): issueId is StyleProofManifestIssueId {
@@ -809,6 +815,9 @@ export interface StyleProofExecutionRunbookStep {
   requiresExternalAccount: boolean
   requiresPhone: boolean
   safeToAutomate: boolean
+  requiresFreshCollectedAt: boolean
+  freshnessMaxDays: number | null
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
   cannotClaim: boolean
   cannotClaimReason: string | null
   nextOperatorAction: string
@@ -5378,10 +5387,39 @@ function getStyleProofExecutionBoundary(gate: StyleProofCollectionGate): StylePr
   return 'local-only'
 }
 
+function isStyleProofExecutionFreshCollectedAtRequired(
+  contract: StyleProofExecutionArtifactContract,
+): boolean {
+  return contract.requiredFields.includes('collectedAt')
+}
+
+function getStyleProofExecutionFreshnessMaxDays(
+  contract: StyleProofExecutionArtifactContract,
+): number | null {
+  if (!isStyleProofExecutionFreshCollectedAtRequired(contract)) return null
+  return contract.maxFreshnessDays ?? STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS
+}
+
+function getStyleProofExecutionFreshnessIssueIds(
+  audit: StyleProofAcceptanceRequirementAudit,
+): readonly StyleProofManifestIssueId[] {
+  return audit.issueIds.filter(issueId => STYLE_PROOF_FRESHNESS_ISSUE_IDS.includes(issueId))
+}
+
 function getStyleProofExecutionCannotClaimReason(
   audit: StyleProofAcceptanceRequirementAudit,
 ): string | null {
   if (audit.status === 'completed') return null
+  const freshnessIssueIds = getStyleProofExecutionFreshnessIssueIds(audit)
+  if (freshnessIssueIds.includes('style-proof-manifest-collected-at-missing')) {
+    return `${audit.requirement.label} cannot be claimed because the matching external proof row lacks collectedAt.`
+  }
+  if (freshnessIssueIds.includes('style-proof-manifest-collected-at-invalid')) {
+    return `${audit.requirement.label} cannot be claimed because collectedAt is unparseable or future-dated.`
+  }
+  if (freshnessIssueIds.includes('style-proof-manifest-proof-stale')) {
+    return `${audit.requirement.label} cannot be claimed because the external proof is older than the accepted freshness window.`
+  }
   if (audit.status === 'unsafe-to-automate') {
     return `${audit.requirement.label} cannot be claimed because it requires a mutating credentialed platform action and exact readback.`
   }
@@ -5468,6 +5506,10 @@ function buildStyleProofExecutionSuccessCriteria(
   if (contract.requiredFields.length > 0) {
     criteria.push(`Set required artifact fields on one matching row: ${formatStyleProofArtifactVerificationFields(contract.requiredFields)}.`)
   }
+  const freshnessMaxDays = getStyleProofExecutionFreshnessMaxDays(contract)
+  if (freshnessMaxDays !== null) {
+    criteria.push(`Capture collectedAt on the same matching proof row at collection time; it must stay parseable, non-future, and within ${freshnessMaxDays} days of validation.`)
+  }
   if (contract.forbiddenFields && contract.forbiddenFields.length > 0) {
     criteria.push(`Do not set forbidden artifact fields: ${formatStyleProofArtifactVerificationFields(contract.forbiddenFields)}.`)
   }
@@ -5497,6 +5539,11 @@ function buildStyleProofExecutionFailureSignals(
   if (contract.requiredFields.length > 0) {
     signals.push(`Any missing, false, or unbound required field invalidates this row: ${formatStyleProofArtifactVerificationFields(contract.requiredFields)}.`)
   }
+  const freshnessMaxDays = getStyleProofExecutionFreshnessMaxDays(contract)
+  const freshnessIssueIds = getStyleProofExecutionFreshnessIssueIds(audit)
+  if (freshnessMaxDays !== null) {
+    signals.push(`Missing, timestamp-free, unparseable, future-dated, or older-than-${freshnessMaxDays}-days collectedAt invalidates this external proof row.`)
+  }
   if (contract.forbiddenFields && contract.forbiddenFields.length > 0) {
     signals.push(`Any present forbidden field invalidates this row: ${formatStyleProofArtifactVerificationFields(contract.forbiddenFields)}.`)
   }
@@ -5505,6 +5552,9 @@ function buildStyleProofExecutionFailureSignals(
   }
   if (audit.issueIds.length > 0) {
     signals.push(`Current validator issue ids: ${audit.issueIds.join(', ')}.`)
+  }
+  if (freshnessIssueIds.length > 0) {
+    signals.push(`Current freshness issue ids: ${freshnessIssueIds.join(', ')}.`)
   }
   if (audit.requiresPhone) {
     signals.push('PC editor DOM, local browser screenshots, scan pages, or setup screens do not prove phone final-article rendering.')
@@ -5537,6 +5587,11 @@ function getStyleProofExecutionNextOperatorAction(
   if (manifestValidatorName) {
     return `Run ${manifestValidatorName} for the exact redacted artifact manifest, then attach the validator-passed manifest proof with artifactManifestValidated:true.`
   }
+  const contract = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[audit.requirement.id]
+  const freshnessMaxDays = getStyleProofExecutionFreshnessMaxDays(contract)
+  if (freshnessMaxDays !== null && getStyleProofExecutionFreshnessIssueIds(audit).length > 0) {
+    return `Recapture ${audit.requirement.label} for the exact artifact and attach one matching proof row with collectedAt within ${freshnessMaxDays} days; do not reuse stale, future-dated, or timestamp-free external proof.`
+  }
   if (audit.safeToAutomate) return STYLE_PROOF_COLLECTION_NOTES[audit.gate]
   if (audit.requiresPhone) return STYLE_PROOF_COLLECTION_NOTES['phone-preview']
   if (audit.gate === 'public-host') return STYLE_PROOF_COLLECTION_NOTES['public-host']
@@ -5556,6 +5611,8 @@ function buildStyleProofExecutionRunbookStep(
   audit: StyleProofAcceptanceRequirementAudit,
 ): StyleProofExecutionRunbookStep {
   const requiredArtifact = STYLE_PROOF_EXECUTION_ARTIFACT_CONTRACTS[audit.requirement.id]
+  const freshnessMaxDays = getStyleProofExecutionFreshnessMaxDays(requiredArtifact)
+  const freshnessIssueIds = getStyleProofExecutionFreshnessIssueIds(audit)
 
   return {
     platform,
@@ -5577,6 +5634,9 @@ function buildStyleProofExecutionRunbookStep(
     requiresExternalAccount: audit.requiresExternalAccount,
     requiresPhone: audit.requiresPhone,
     safeToAutomate: audit.safeToAutomate,
+    requiresFreshCollectedAt: freshnessMaxDays !== null,
+    freshnessMaxDays,
+    freshnessIssueIds,
     cannotClaim: audit.cannotClaim,
     cannotClaimReason: getStyleProofExecutionCannotClaimReason(audit),
     nextOperatorAction: getStyleProofExecutionNextOperatorAction(audit),

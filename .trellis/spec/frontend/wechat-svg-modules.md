@@ -2369,3 +2369,41 @@ Required checks:
 - Documentation and evidence must state that freshness accounting does not prove phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, public-host
   acceptance, upload, or publish success.
+
+## 20. Execution Runbook Freshness Guidance - 2026-06-21
+
+The execution runbook is the operator-facing bridge from acceptance audit rows to real evidence
+collection. It must make freshness blockers visible instead of leaving operators to infer them from
+generic invalid-proof messages.
+
+Contracts:
+- `StyleProofExecutionRunbookStep` must expose freshness metadata derived from the exact
+  `StyleProofExecutionArtifactContract` and the requirement-level acceptance audit:
+  `requiresFreshCollectedAt`, `freshnessMaxDays`, and `freshnessIssueIds`.
+- `requiresFreshCollectedAt` is true only when the execution artifact contract requires the
+  `collectedAt` field. Local-only proof rows must continue to expose `false` and
+  `freshnessMaxDays:null`.
+- `freshnessIssueIds` is limited to:
+  `style-proof-manifest-collected-at-missing`,
+  `style-proof-manifest-collected-at-invalid`, and
+  `style-proof-manifest-proof-stale`.
+- `cannotClaimReason` must name freshness failures before generic external blockers:
+  missing `collectedAt`, unparseable/future timestamps, and stale proof each require a distinct
+  operator-readable reason.
+- `nextOperatorAction` must instruct the operator to recapture the exact external proof and attach
+  one matching proof row with `collectedAt` inside the active freshness window. It must not suggest
+  reusing stale, future-dated, timestamp-free, or cross-artifact proof.
+- `successCriteria` and `failureSignals` must state the active freshness window so UI/report
+  consumers can display the rule without reimplementing validator logic.
+
+Required checks:
+- Regression tests must assert that external runbook steps expose `requiresFreshCollectedAt:true`,
+  `freshnessMaxDays:14`, and empty freshness issues when no freshness issue is present.
+- Regression tests must assert that missing, future/invalid, and stale timestamp issues flow into
+  `freshnessIssueIds`, specialized `cannotClaimReason`, and recapture-oriented
+  `nextOperatorAction`.
+- Regression tests must assert that local-only steps such as `exact-artifact` remain
+  `requiresFreshCollectedAt:false` with `freshnessMaxDays:null`.
+- Documentation must keep the boundary clear: runbook freshness guidance does not prove phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send,
+  public-host acceptance, upload, or publish success.
