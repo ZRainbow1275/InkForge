@@ -6529,7 +6529,7 @@ Implementation:
   `canClaimComplete:false` and summarizes local conflict, phone preview, external dependency,
   unsafe-to-automate, and mutating-platform blocker buckets.
 - Extended the existing SVG-render e2e probe to capture `releaseGatePreflightText` and assert
-  `canClaimComplete=false` plus `fingerprintConflicts 2`.
+  `canClaimComplete=false` plus the current committed fingerprint conflict count.
 - Added evidence:
   `prompts/0601/evidence/exportmodal-release-gate-preflight-20260620.txt`.
 
@@ -6545,7 +6545,8 @@ Verification:
 - CloakBrowser local DOM/visual check on `http://127.0.0.1:3005/workstation`:
   - opened ExportModal from a real enabled export button after selecting the existing local article
     "未命名文章";
-  - summary contained `canClaimComplete=false`, `blockers 5`, and `fingerprintConflicts 2`;
+  - summary contained `canClaimComplete=false`, `blockers 5`, and the then-current committed
+    fingerprint conflict count;
   - release preflight row was `preflight-row preflight-blocked`;
   - viewport 1400x900, panel 900x720, page/body scroll width 1400, horizontal overflow false.
 
@@ -7217,3 +7218,68 @@ Boundary:
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public article rendering, XHS/Zhihu account upload, public-host acceptance, or publish
   success.
+
+## 2026-06-21 Style Proof Amber Reconciliation Slice
+
+Scope:
+- Runtime catalog and committed-evidence reconciliation for `wechat-flagship-amber`.
+- No platform action, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  HAR, credential material, account artifact, QR material, or browser profile artifact.
+
+Implementation:
+- Changed `wechat-flagship-amber` from catalog `blocked` to `available` because the later
+  2026-06-18 CloakBrowser-only ordinary OS Ctrl+V proof covers the exact raw
+  `flagship-amber.html` artifact.
+- Kept Amber publish evidence separated: mobile preview, mobile Dark Mode, cover thumbnail,
+  platform preview, sync, scheduled send, and publish remain open and cannot be claimed.
+- Changed the committed local Amber manifest to use the same exact raw HTML artifact SHA as the
+  PC proof:
+  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- Left Tempera unresolved because the PC proof covers the entity-safe clipboard payload
+  `sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`, while the raw source
+  artifact SHA is `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`.
+- Updated ExportModal e2e expectations to keep the conservative default WeChat UI count at
+  8 available / 17 total, 5 blocked, 4 unavailable, and `fingerprintConflicts 1`. Amber is no
+  longer catalog-hard-blocked, but the default UI only has `local-browser` evidence, so it remains
+  UI-blocked until `pc-editor-paste` evidence is present.
+- Added `prompts/0601/evidence/style-proof-amber-reconciliation-20260621.txt`.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `docs/platform-rendering-rules/wechat-rules.md`, `docs/微信渲染规则.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, `prompts/0601/evidence/README.md`, and
+  `prompts/0601/COMPLETION-REPORT.md`.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  passed 1 file / 5 selected tests after the TDD first run exposed stale Amber-blocked and
+  fingerprint-conflicts assertions.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 153 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 192 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 35 files / 1126 tests.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs` passed.
+- The first targeted post-change WDIO run exposed the stale `9/17` UI expectation. After correcting
+  the default-evidence semantics and surfacing the Amber evidence-floor copy in ExportModal,
+  `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs` passed
+  1 spec / 6 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 32.76s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+- `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests.
+- GitNexus impact:
+  - `getCommittedStyleProofEvidenceReleaseGateReport`: LOW, 2 direct dependents, 0 affected
+    processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 4 direct dependents, 0 affected
+    processes.
+  - `PLATFORM_STYLE_CHOICES_BASE`: LOW, 0 affected processes.
+  - `STYLE_CHOICE_APPLICATIONS`: LOW, 0 affected processes.
+  - `styleChoiceDetail`: LOW, 1 direct dependent, 0 affected processes.
+
+Boundary:
+- This is local catalog/evidence accounting only.
+- It does not prove WeChat phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public-host acceptance, or publish success.

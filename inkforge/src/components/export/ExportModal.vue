@@ -674,10 +674,14 @@ function styleChoiceDetail(availability: StyleChoiceAvailability): string {
     return `当前证据 ${evidence}，${fallback}`
   }
 
+  const evidenceGap = availability.choice.status === 'available'
+    ? `当前证据 ${availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'}，需 ${styleEvidenceLabel(availability.requiredEvidence)}`
+    : ''
   const blockers = availability.choice.blockers.length > 0
     ? availability.choice.blockers.join('；')
-    : availability.reason
-  return `${blockers}；${fallback}`
+    : ''
+  const detail = [evidenceGap, blockers || availability.reason].filter(Boolean).join('；')
+  return `${detail}；${fallback}`
 }
 
 function selectPreset(id: string, source: 'preset' | 'style-choice' = 'preset') {

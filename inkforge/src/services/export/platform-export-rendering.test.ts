@@ -429,9 +429,8 @@ describe('platform native export rendering rules', () => {
     expect(amberRequirementIds.filter(requirementId => requirementId === 'no-sensitive-artifact')).toHaveLength(1)
 
     const amberAvailability = evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview', 'published'])
-    expect(amberAvailability.usable).toBe(false)
-    expect(amberAvailability.status).toBe('blocked')
-    expect(amberAvailability.reason).toContain('plain text')
+    expect(amberAvailability.usable).toBe(true)
+    expect(amberAvailability.status).toBe('available')
 
     const xhsCleanText = getStyleChoiceById('xhs-clean-text')
     expect(xhsCleanText).toBeDefined()
@@ -543,7 +542,7 @@ describe('platform native export rendering rules', () => {
 
     const report = getStyleProofManifestReport(draft)
     expect(report.valid).toBe(false)
-    expect(report.choiceStatus).toBe('blocked')
+    expect(report.choiceStatus).toBe('available')
     expect(report.summary.artifactCount).toBe(0)
     expect(report.summary.acceptedArtifactCount).toBe(0)
     expect(report.summary.required).toBeGreaterThanOrEqual(9)
@@ -559,7 +558,7 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
       'no-sensitive-artifact',
     ]))
-    expect(report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+    expect(report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-choice-blocked')
   })
 
   it('creates evidence-label proof drafts only for explicitly claimed labels', () => {
@@ -598,8 +597,8 @@ describe('platform native export rendering rules', () => {
     expect(amberReadiness).toBeDefined()
     if (!amberReadiness) return
 
-    expect(amberReadiness.blockedByCatalog).toBe(true)
-    expect(amberReadiness.report.choiceStatus).toBe('blocked')
+    expect(amberReadiness.blockedByCatalog).toBe(false)
+    expect(amberReadiness.report.choiceStatus).toBe('available')
     expect(amberReadiness.missingRequirementIds).toEqual(expect.arrayContaining([
       'exact-artifact',
       'safe-disposable-draft',
@@ -664,7 +663,7 @@ describe('platform native export rendering rules', () => {
       expect.arrayContaining(['phone-preview-readback', 'phone-screenshot', 'dark-mode-check', 'cover-thumbnail-check']),
     )
     expect(amberSteps.every(step => step.status === 'missing')).toBe(true)
-    expect(amberSteps.every(step => step.blockedByCatalog)).toBe(true)
+    expect(amberSteps.every(step => !step.blockedByCatalog)).toBe(true)
 
     const xhsManifestStep = xhsPlan.steps.find(step =>
       step.choice.id === 'xhs-cover-carousel' && step.requirement.id === 'xhs-artifact-manifest',
@@ -849,8 +848,8 @@ describe('platform native export rendering rules', () => {
     expect(platformLocalGate?.satisfied).toBeGreaterThan(0)
     expect(platformLocalGate?.missing).toBeGreaterThan(0)
     expect(platformLocalGate?.safeToAutomateRequirements).toBe(platformLocalGate?.required)
-    expect(amberProgress?.blockedByCatalog).toBe(true)
-    expect(amberProgress?.report.choiceStatus).toBe('blocked')
+    expect(amberProgress?.blockedByCatalog).toBe(false)
+    expect(amberProgress?.report.choiceStatus).toBe('available')
     expect(getPlatformStyleAvailabilityReport('wechat').choices.find(choice =>
       choice.choice.id === 'wechat-flagship-amber',
     )?.usable).toBe(false)
@@ -952,7 +951,7 @@ describe('platform native export rendering rules', () => {
     expect(exactArtifactAudit?.status).toBe('invalid')
   })
 
-  it('keeps fully evidenced blocked choices invalid in style proof progress', () => {
+  it('keeps synthetic Amber proof invalid without real external artifact refs and freshness', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',
       choiceId: 'wechat-flagship-amber',
@@ -1143,7 +1142,7 @@ describe('platform native export rendering rules', () => {
 
     expect(amberProgress?.summary.missing).toBe(0)
     expect(amberProgress?.report.valid).toBe(false)
-    expect(amberProgress?.report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+    expect(amberProgress?.report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-choice-blocked')
     expect(amberProgress?.status).toBe('invalid')
     expect(progress.summary.proofSatisfiedChoices).toBe(0)
     expect(progress.summary.proofInvalidChoices).toBeGreaterThan(0)
@@ -1608,9 +1607,9 @@ describe('platform native export rendering rules', () => {
 
     expect(temperaProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status).toBe('satisfied')
     expect(temperaProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status).toBe('satisfied')
-    expect(amberProgress?.blockedByCatalog).toBe(true)
-    expect(amberProgress?.status).toBe('invalid')
-    expect(amberProgress?.report.issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
+    expect(amberProgress?.blockedByCatalog).toBe(false)
+    expect(amberProgress?.status).toBe('missing')
+    expect(amberProgress?.report.issues.map(issue => issue.id)).not.toContain('style-proof-manifest-choice-blocked')
 
     const xhsProgress = packReport.platformReports.xiaohongshu
     const xhsCoverProgress = xhsProgress.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')
@@ -1842,14 +1841,14 @@ describe('platform native export rendering rules', () => {
     })
     expect(issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
-    expect(amberReportIssueIds).toContain('style-proof-manifest-choice-blocked')
+    expect(amberReportIssueIds).not.toContain('style-proof-manifest-choice-blocked')
     expect(temperaReportIssueIds).not.toContain('style-proof-manifest-choice-blocked')
     expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-sensitive-artifact')
     expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-unsafe-commit-artifact')
     expect(wechatProgress.ignoredManifestCount).toBe(0)
     expect(wechatProgress.summary.choicesWithManifest).toBe(2)
-    expect(amberProgress?.blockedByCatalog).toBe(true)
-    expect(amberProgress?.status).toBe('invalid')
+    expect(amberProgress?.blockedByCatalog).toBe(false)
+    expect(amberProgress?.status).toBe('missing')
     expect(temperaProgress?.blockedByCatalog).toBe(false)
     expect(temperaProgress?.status).toBe('missing')
     expect(amberProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.satisfied)
@@ -1877,7 +1876,7 @@ describe('platform native export rendering rules', () => {
     expect(audit.summary.manifestCount).toBe(2)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(2)
     expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.status)
-      .toBe('invalid')
+      .toBe('missing')
     expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')?.status)
       .toBe('missing')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
@@ -1946,8 +1945,8 @@ describe('platform native export rendering rules', () => {
     expect(kilnProgress?.manifestCount).toBe(1)
     expect(amberProgress?.manifestCount).toBe(2)
     expect(temperaProgress?.manifestCount).toBe(2)
-    expect(amberIssueIds).toContain('style-proof-manifest-choice-blocked')
-    expect(amberIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(amberIssueIds).not.toContain('style-proof-manifest-choice-blocked')
+    expect(amberIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(temperaIssueIds).toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
       'exact-artifact',
@@ -2048,15 +2047,7 @@ describe('platform native export rendering rules', () => {
         action: expect.stringContaining('Reconcile the committed manifest pack'),
       }),
     ]))
-    expect(localConflictBlocker?.fingerprintConflicts).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        platform: 'wechat',
-        choiceId: 'wechat-flagship-amber',
-        fingerprints: expect.arrayContaining([
-          'prompts/0601/evidence/e2e/flagship-amber.png@tauri-webview-e2e',
-          'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d',
-        ]),
-      }),
+    expect(localConflictBlocker?.fingerprintConflicts).toEqual([
       expect.objectContaining({
         platform: 'wechat',
         choiceId: 'wechat-flagship-tempera',
@@ -2065,7 +2056,7 @@ describe('platform native export rendering rules', () => {
           'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878',
         ]),
       }),
-    ]))
+    ])
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
     expect(phoneBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
@@ -3444,33 +3435,28 @@ describe('platform native export rendering rules', () => {
   })
 
   it('does not let a style proof manifest promote blocked choices', () => {
-    const amber = getStyleChoiceById('wechat-flagship-amber')
-    expect(amber).toBeDefined()
-    if (!amber) return
+    const mobileOnly = getStyleChoiceById('wechat-mobile-only-effect')
+    expect(mobileOnly).toBeDefined()
+    if (!mobileOnly) return
 
     const manifest: StyleProofManifest = {
       platform: 'wechat',
-      choiceId: 'wechat-flagship-amber',
-      claimedEvidence: ['pc-editor-paste', 'mobile-preview', 'published'],
+      choiceId: 'wechat-mobile-only-effect',
+      claimedEvidence: ['mobile-preview', 'published'],
       artifacts: [
         {
-          id: 'amber-claimed-paste',
-          requirementId: 'pc-editor-paste-event',
-          kind: 'editor-readback',
-          label: 'claimed paste proof cannot override runtime blocker',
-          evidenceLabel: 'pc-editor-paste',
+          id: 'mobile-only-claimed-phone',
+          requirementId: 'phone-preview-readback',
+          kind: 'phone-readback',
+          label: 'claimed phone proof cannot override runtime blocker',
+          evidenceLabel: 'mobile-preview',
           platform: 'wechat',
-          choiceId: 'wechat-flagship-amber',
-          channel: 'platform-editor',
-          action: 'pc-paste',
-          readback: 'visual-and-dom',
+          choiceId: 'wechat-mobile-only-effect',
+          channel: 'phone-preview',
+          action: 'phone-preview',
+          readback: 'phone',
           exactArtifact: true,
-          disposableDraft: true,
-          ordinaryClipboardPasteVerified: true,
-          sameEditorTabVerified: true,
-          pasteInputEventVerified: true,
-          editorBodyMutationVerified: true,
-          mojibakeFreeVerified: true,
+          phonePreviewContentVerified: true,
           safeForCommit: true,
         },
       ],
@@ -3478,7 +3464,7 @@ describe('platform native export rendering rules', () => {
     const issues = validateStyleProofManifest(manifest)
 
     expect(issues.map(issue => issue.id)).toContain('style-proof-manifest-choice-blocked')
-    expect(evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview', 'published']).usable).toBe(false)
+    expect(evaluateStyleChoiceAvailability(mobileOnly, ['mobile-preview', 'published']).usable).toBe(false)
   })
 
   it('rejects weak local evidence for stronger mobile preview proof requirements', () => {
@@ -6181,19 +6167,18 @@ describe('platform native export rendering rules', () => {
   })
 
   it('keeps blocked or unavailable market styles from being reported as usable', () => {
-    const amber = getStyleChoiceById('wechat-flagship-amber')
+    const mobileOnly = getStyleChoiceById('wechat-mobile-only-effect')
     const clickReveal = getStyleChoiceById('wechat-click-reveal')
     const officialWidget = getStyleChoiceById('wechat-official-widget-checklist')
-    expect(amber).toBeDefined()
+    expect(mobileOnly).toBeDefined()
     expect(clickReveal).toBeDefined()
     expect(officialWidget).toBeDefined()
 
-    if (!amber || !clickReveal || !officialWidget) return
+    if (!mobileOnly || !clickReveal || !officialWidget) return
 
-    const amberAvailability = evaluateStyleChoiceAvailability(amber, ['pc-editor-paste', 'mobile-preview'])
-    expect(amberAvailability.usable).toBe(false)
-    expect(amberAvailability.status).toBe('blocked')
-    expect(amberAvailability.reason).toContain('plain text')
+    const mobileOnlyAvailability = evaluateStyleChoiceAvailability(mobileOnly, ['mobile-preview'])
+    expect(mobileOnlyAvailability.usable).toBe(false)
+    expect(mobileOnlyAvailability.status).toBe('blocked')
 
     const clickAvailability = evaluateStyleChoiceAvailability(clickReveal, ['local-browser'])
     expect(clickAvailability.usable).toBe(false)
@@ -6349,8 +6334,7 @@ describe('platform native export rendering rules', () => {
 
     const amberApplication = evaluateStyleChoiceApplication(amber, ['pc-editor-paste', 'mobile-preview'])
     expect(amberApplication.application?.presetId).toBe('flagship-amber')
-    expect(amberApplication.selectable).toBe(false)
-    expect(amberApplication.reason).toContain('plain text')
+    expect(amberApplication.selectable).toBe(true)
 
     const toolbarApplication = evaluateStyleChoiceApplication(toolbarMap, ['local-browser'])
     expect(toolbarApplication.application).toBeNull()

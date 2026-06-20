@@ -201,7 +201,7 @@ Executable mirror:
 | `wechat-card-rich` | 微信 | 金句、数据、对比、时间线、清单 | card-system | medium-high | static | inline HTML | static fallback | `local-browser` | 固定容器、透明图叠 SVG、Dark Mode 证据缺失 |
 | `wechat-flagship-kiln` | 微信 | 标题、金句、数据、分隔、落款 | headline-system | high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、封面缩略图仍需另证 |
 | `wechat-flagship-tempera` | 微信 | 学术长文、报告、目录 | headline-system | medium-high | static | WeChat-safe SVG | image fallback | `local-browser` | 手机预览、Dark Mode 仍需另证 |
-| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | headline-system | medium-high | static | WeChat-safe SVG | static fallback | `pc-editor-paste` | 普通 Ctrl+V 仍降级为纯文本；2026-06-09 CloakBrowser ClipboardEvent PC readback 不证明手机/发布 |
+| `wechat-flagship-amber` | 微信 | 商业结构稿、对比、时间线、卡片 | headline-system | medium-high | static | WeChat-safe SVG | static fallback | `pc-editor-paste` | 2026-06-18 普通 OS Ctrl+V exact proof 已覆盖 PC 粘贴；手机预览、Dark Mode、封面缩略图和发布仍需另证 |
 | `wechat-click-reveal` | 微信 | 点击展开、渐进披露 | interactive-system | high | click-candidate | WeChat-safe SVG | static fallback | `mobile-preview` | SMIL/click 手机前后证据缺失 |
 | `wechat-mobile-only-effect` | 微信 | 长按、touch-only、区域触发 | interactive-system | high | mobile-only | WeChat-safe SVG | static fallback | `mobile-preview` | 市场标签提示仅手机端触发，默认 blocked |
 | `wechat-carousel-switch` | 微信 | 图片轮播、点击切换、序列帧、滑动触发 | interactive-system | high | mobile-only | WeChat-safe SVG | image fallback | `mobile-preview` | 手机微信读回和静态 fallback 缺失 |
@@ -237,7 +237,10 @@ Executable mirror:
 - 高级样式必须有低风险 fallback。微信互动 SVG 的 fallback 是静态 SVG 或图片；XHS/Zhihu 的 fallback 是图片/长图或语义 Markdown。
 - 市场工具 taxonomy 可以扩充 `Choice id`，但不得导入第三方模板代码、会员素材、私有 SVG、账号数据或 copyrighted layout geometry。
 - 所有选择项都必须经过对应平台质量检测器。检测失败时 UI 应显示阻断原因，不应继续导出为成功状态。
-- `wechat-flagship-amber` 当前在 executable catalog 中仍为 `blocked`。普通剪贴板路径失败不代表本地渲染失败；2026-06-09 CloakBrowser ClipboardEvent 读回只证明该 PC channel，不足以开放手机预览、Dark Mode、封面缩略图、同步或发布状态。
+- `wechat-flagship-amber` 当前在 executable catalog 中为 `available`，证据地板是
+  `pc-editor-paste`。依据是 2026-06-18 CloakBrowser-only 普通 OS Ctrl+V exact
+  `flagship-amber.html` disposable-draft 证明；它只开放 PC 粘贴地板，不开放手机预览、
+  Dark Mode、封面缩略图、同步、定时发送或发布状态。
 
 ## 3. InkForge Rule Catalog
 

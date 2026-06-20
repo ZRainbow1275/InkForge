@@ -494,7 +494,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat execution runbook summary').to.include('执行手册 开放');
     expect(wechat.summary, 'WeChat committed release gate summary').to.include('canClaimComplete=false');
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
-      .to.include('fingerprintConflicts 2');
+      .to.include('fingerprintConflicts 1');
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(17);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(5);
@@ -510,7 +510,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.releaseGatePreflightText, 'WeChat preflight blocks committed release claims')
       .to.include('canClaimComplete=false');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes committed fingerprint conflicts')
-      .to.include('fingerprintConflicts 2');
+      .to.include('fingerprintConflicts 1');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes release operator next actions')
       .to.include('operatorNext');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight points local conflict reconciliation')
@@ -528,13 +528,24 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.text.includes('字段 phonePreviewContentVerified')),
       'WeChat cards expose execution runbook field contracts without claiming phone proof',
     ).to.equal(true);
+    const amberCapabilityCard = wechat.cards.find((card) =>
+      card.text.includes('Amber business flagship'));
     expect(
-      wechat.cards.some((card) =>
-        card.className.includes('style-choice-blocked') &&
-        card.text.includes('Amber business flagship') &&
-        card.text.includes('ordinary Ctrl+V reduced the rich HTML artifact to plain text')),
-      'Amber stays blocked after the ordinary WeChat paste failure evidence',
-    ).to.equal(true);
+      amberCapabilityCard,
+      'Amber capability card is present in the WeChat style catalog',
+    ).to.exist;
+    expect(
+      amberCapabilityCard.className,
+      'Amber remains UI-blocked until pc-editor-paste evidence is present',
+    ).to.include('style-choice-blocked');
+    expect(
+      amberCapabilityCard.text,
+      'Amber blocked card exposes the default evidence floor',
+    ).to.include('需 PC 编辑器');
+    expect(
+      amberCapabilityCard.text,
+      'Amber blocked card still exposes phone/publish blockers',
+    ).to.include('mobile preview proof missing');
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&

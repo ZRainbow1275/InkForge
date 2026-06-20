@@ -1979,10 +1979,12 @@ Contracts:
   satisfy `authenticated-editor-url`, `pc-editor-dom-readback`, `exact-artifact`,
   `safe-disposable-draft`, `pc-editor-paste-event`, and `no-sensitive-artifact` for the exact
   committed PC payload fingerprints only.
-- The WeChat PC committed pack must keep Amber blocked/invalid and Tempera missing at style-choice
-  level until mobile preview, Dark Mode, cover thumbnail, sync, scheduled-send, public
-  URL/platform preview, and publish proof exists. It must not generalize Amber PC proof or Tempera
-  entity-safe PC proof to raw UTF-8 Tempera direct paste, Kiln, phone, sync, or publish rows.
+- The WeChat PC committed pack must keep Amber and Tempera incomplete at style-choice level until
+  mobile preview, Dark Mode, cover thumbnail, sync, scheduled-send, public URL/platform preview,
+  and publish proof exists. After the 2026-06-21 reconciliation, Amber is no longer
+  catalog-blocked, so its committed PC progress is `missing` rather than `invalid`; Tempera also
+  remains `missing`. Do not generalize Amber PC proof or Tempera entity-safe PC proof to raw UTF-8
+  Tempera direct paste, Kiln, phone, sync, or publish rows.
 - Negative Kiln PC attempts, including the raw plain-text proof and the 2026-06-19 entity-safe
   editor-return/no-rich-readback proof, must stay out of
   `getCommittedStyleProofWechatPcEvidenceManifests()`. They are evidence for blocked claims and
@@ -2034,11 +2036,12 @@ Required tests:
 - The committed pack returns three WeChat flagship manifests plus the XHS cover-carousel local
   manifest, all as safe committed artifacts, with no duplicate artifact ids and no
   sensitive/unsafe commit issues.
-- The pack report has `validManifestCount:0` because external proof is intentionally absent and
-  amber is still blocked; this is expected and must not be relaxed.
+- The pack report has `validManifestCount:0` because external proof is intentionally absent; this
+  is expected and must not be relaxed.
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
   Mode, cover, sync, and publish rows stay missing/unclaimable.
-- Amber remains blocked/invalid even with local WebView2 evidence.
+- Amber is no longer catalog-blocked after the 2026-06-18 ordinary OS Ctrl+V exact proof, but local
+  WebView2 evidence alone still leaves PC/phone/publish rows missing.
 - The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
   `xhs-artifact-manifest` with same-row `artifactRef`, `artifactManifestValidated:true`, and
   `safeForCommit:true`, while
@@ -2052,9 +2055,9 @@ Required tests:
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
 - The combined committed-evidence audit must return 6 cloned manifests, keep artifact ids unique,
-  expose exact-artifact fingerprint conflicts for the merged WeChat local+PC choice rows, and keep
-  phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
-  unclaimable.
+  expose exact-artifact fingerprint conflicts only for still-divergent choice rows such as the
+  current Tempera raw-vs-entity-safe split, and keep phone preview, Dark Mode, cover thumbnail,
+  sync, scheduled-send, and publish/platform-preview rows unclaimable.
 - The combined committed-evidence runbook report must return local / WeChat PC / combined runbook
   views for the same 6-manifest combined pack, keep exact-artifact conflicts visible at summary and
   issue-list level, and keep WeChat phone preview blocked-by-external, WeChat scheduled-send and
@@ -2065,10 +2068,11 @@ Required tests:
   `style-proof-manifest-pack-fingerprint-mismatch`, `phone-preview-readback`, `public-image-host`,
   `sync-readback`, `scheduled-send-readback`, and `published-url-or-platform-preview` in the
   appropriate blocker rows, and its local-conflict blocker must include `fingerprintConflicts` for
-  current `wechat-flagship-amber` and `wechat-flagship-tempera` local-vs-PC artifact fingerprint
-  conflicts.
+  current unresolved local-vs-PC artifact splits. As of the 2026-06-21 Amber reconciliation, the
+  current unresolved conflict is `wechat-flagship-tempera`; Amber's local manifest uses the same
+  exact raw HTML SHA as the 2026-06-18 PC proof.
 - The ExportModal style capability/preflight surface must show the committed release gate as
-  `canClaimComplete=false` with `fingerprintConflicts 2` for the current evidence pack. The visual
+  `canClaimComplete=false` with the current `fingerprintConflicts` count for the evidence pack. The visual
   row must use the existing preflight state model and stay `blocked`; it is an operator diagnostic,
   not a publish/sync action.
 

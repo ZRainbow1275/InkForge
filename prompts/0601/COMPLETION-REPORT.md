@@ -2884,7 +2884,8 @@ Boundary:
 - ExportModal now reads `getCommittedStyleProofEvidenceReleaseGateReport()` and surfaces the
   committed-evidence release gate in the existing style capability/preflight UI.
 - The style summary and dedicated preflight row expose `canClaimComplete=false`, blocker count, and
-  `fingerprintConflicts 2`; the preflight row remains `preflight-blocked`.
+  the committed local-vs-PC evidence conflict count; the 2026-06-21 Amber reconciliation refreshes
+  the current count to `fingerprintConflicts 1`. The preflight row remains `preflight-blocked`.
 - CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
   article "未命名文章" and confirmed a nonblank panel, `preflight-blocked` release row, and no
   horizontal overflow at a 1400x900 viewport.
@@ -3128,3 +3129,33 @@ Boundary:
   prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, public preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+---
+
+## 2026-06-21 Style Proof Amber Reconciliation Addendum
+
+- Added `prompts/0601/evidence/style-proof-amber-reconciliation-20260621.txt`.
+- Reconciled `wechat-flagship-amber` with the later 2026-06-18 CloakBrowser-only ordinary OS
+  Ctrl+V exact proof. The raw `flagship-amber.html` SHA is
+  `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`.
+- Runtime catalog now marks Amber `available` for the `pc-editor-paste` evidence floor, while
+  mobile preview, Dark Mode, cover thumbnail, platform preview, sync, scheduled send, and publish
+  proof remain unproven.
+- Default ExportModal availability still reports WeChat `8/17` because the UI's default evidence is
+  `local-browser`; Amber is no longer catalog-hard-blocked, but it is not selectable there until
+  `pc-editor-paste` evidence is present.
+- The committed local Amber manifest now uses the same exact raw HTML artifact fingerprint as the
+  PC proof. Tempera remains a real local conflict because the PC proof covers the entity-safe
+  clipboard payload, not the raw source HTML artifact.
+- Release gate remains `canClaimComplete=false` and `blocked-by-local-conflict`, but
+  `fingerprintConflicts` is now 1 and points only to `wechat-flagship-tempera`.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  passed 1 file / 5 selected tests; full `platform-export-rendering.test.ts` passed 153 tests;
+  4-file cross-platform export regression passed 192 tests; full export serial suite passed 35
+  files / 1126 tests; targeted TS/Vue ESLint passed; `node --check` passed; targeted
+  `svg-render.spec.cjs` WDIO passed 1 spec / 6 tests; `vue-tsc` passed; production build passed
+  with 4652 transformed modules; full `pnpm -C inkforge test:e2e` passed 2 specs / 17 tests.
+- Boundary: this is local catalog/evidence accounting only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public
+  article rendering, XHS/Zhihu account upload, public-host acceptance, or publish success.

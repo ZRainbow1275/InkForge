@@ -1475,7 +1475,7 @@ const STYLE_CHOICE_APPLICATIONS = [
     presetId: 'flagship-amber',
     presetLabel: '黄铜旗舰',
     scope: 'styled-and-native',
-    note: 'kept mapped but disabled until mobile preview and publish proof exist; ordinary Ctrl+V remains blocked',
+    note: 'direct mapping to the existing Amber flagship preset; ordinary OS Ctrl+V PC proof exists, while mobile preview and publish proof remain separate gates',
   },
   {
     choiceId: 'xhs-clean-text',
@@ -1668,12 +1668,14 @@ const PLATFORM_STYLE_CHOICES_BASE = [
     motion: 'static',
     primaryOutput: 'wechat-safe-svg',
     fallbackOutput: 'static-fallback',
-    status: 'blocked',
+    status: 'available',
     evidenceFloor: 'pc-editor-paste',
     publishEvidence: ['mobile-preview', 'published'],
     blockers: [
-      'ordinary Ctrl+V reduced the rich HTML artifact to plain text; 2026-06-09 CloakBrowser ClipboardEvent PC DOM readback is channel-specific',
       'mobile preview proof missing',
+      'Dark Mode phone proof missing',
+      'cover thumbnail not separately proven',
+      'platform preview or publish proof missing',
     ],
     detectorBlockers: ['wechat-unsafe-svg-construct', 'wechat-unsupported-css', 'wechat-event-handler'],
   },
@@ -2552,7 +2554,7 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-amber',
     label: 'Amber business flagship',
-    artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-amber.png@tauri-webview-e2e',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT,
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-amber.png',
   }),
   createCommittedStyleProofXhsLocalEvidenceManifest({

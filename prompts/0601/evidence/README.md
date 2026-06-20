@@ -361,7 +361,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-committed-evidence-combined-audit-20260620.txt # 当前规则实现：committed local + WeChat PC combined audit exposes fingerprint conflicts; external claims remain open
 [x] style-proof-committed-evidence-runbook-report-20260620.txt # 当前规则实现：committed local + WeChat PC execution runbook report keeps operator gates unclaimed
 [x] style-proof-committed-evidence-release-gate-20260620.txt # 当前规则实现：committed evidence release gate returns canClaimComplete=false until local/external blockers close
-[x] exportmodal-release-gate-preflight-20260620.txt # CloakBrowser local UI check：ExportModal preflight exposes canClaimComplete=false + fingerprintConflicts 2 without closing external gates
+[x] exportmodal-release-gate-preflight-20260620.txt # CloakBrowser local UI check：ExportModal preflight exposes canClaimComplete=false without closing external gates; current conflict count is refreshed by style-proof-amber-reconciliation-20260621.txt
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
 [x] market-editor-dom-learning-20260617.txt # CloakBrowser-only applied DOM refresh：135/Xiumi 规则学习；无账号/本地浏览器目录/登录凭据/扫码材料/模板源码
@@ -2535,7 +2535,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - [x] exportmodal-release-gate-preflight-20260620.txt
 - ExportModal now surfaces the committed-evidence release gate as a read-only preflight row.
 - The style capability summary and preflight row expose `canClaimComplete=false`, blocker count,
-  and `fingerprintConflicts 2` for the current committed local-vs-PC evidence conflicts.
+  and the committed local-vs-PC evidence conflict count. The 2026-06-21 Amber reconciliation
+  refreshes the current count to `fingerprintConflicts 1`.
 - CloakBrowser local DOM/visual verification opened the real ExportModal from the existing local
   article "未命名文章" and confirmed the release row is `preflight-blocked`, the panel is nonblank,
   and page/body scroll width stays equal to the 1400px viewport.
@@ -2733,3 +2734,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync,
   scheduled send, public preview, public article rendering, XHS/Zhihu upload, public-host
   acceptance, or publish success.
+
+## 2026-06-21 Style Proof Amber Reconciliation
+
+- [x] style-proof-amber-reconciliation-20260621.txt
+- Reconciled the runtime catalog with the 2026-06-18 CloakBrowser-only ordinary OS Ctrl+V exact
+  `flagship-amber.html` proof.
+- `wechat-flagship-amber` is now `available` for its `pc-editor-paste` evidence floor, while
+  phone preview, mobile Dark Mode, cover thumbnail, platform preview, sync, scheduled send, and
+  publish proof remain open.
+- The committed local Amber manifest now uses the exact raw HTML artifact SHA
+  `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; the local Tauri
+  screenshot path stays an `artifactRef`.
+- Tempera remains unresolved because its PC proof is the entity-safe clipboard payload, not the
+  raw source HTML artifact. Release gate `fingerprintConflicts` is now 1 and points only to
+  `wechat-flagship-tempera`.
+- Verification passed: focused committed/release claim regression with 5 selected tests, full
+  platform-export file with 153 tests, 4-file cross-platform export regression with 192 tests, full
+  export serial suite with 1126 tests, targeted TS/Vue ESLint, `node --check`, targeted
+  `svg-render.spec.cjs` WDIO with 1 spec / 6 tests, `vue-tsc`, production build, and full WDIO e2e
+  with 2 specs / 17 tests.
+- Boundary: this is local catalog/evidence accounting only. It does not prove WeChat phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public
+  article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.

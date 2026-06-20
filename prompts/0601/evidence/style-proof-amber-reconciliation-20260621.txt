@@ -1,0 +1,94 @@
+Style Proof Amber Reconciliation - 2026-06-21
+
+Scope:
+- Local runtime catalog and committed-evidence accounting reconciliation.
+- No browser action, phone preview, sync, upload, scheduled send, publish, screenshot capture,
+  browser profile artifact, account artifact, QR material, token, cookie, or HAR artifact was
+  created in this slice.
+
+Reason:
+- `wechat-flagship-amber` still carried the historical blocked status from the 2026-06-08 ordinary
+  clipboard failure and the 2026-06-09 programmatic ClipboardEvent-only proof.
+- The later 2026-06-18 CloakBrowser-only evidence proves the exact raw
+  `prompts/0601/evidence/wechat-paste/flagship-amber.html` artifact through ordinary OS Ctrl+V in
+  the authenticated WeChat PC editor.
+- The local committed manifest was still using the local Tauri/WebView2 screenshot path as the
+  exact artifact fingerprint, while the PC proof uses the raw HTML artifact SHA.
+
+Verified source:
+- `sha256sum prompts/0601/evidence/wechat-paste/flagship-amber.html`
+- Result: `09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`
+- This matches the 2026-06-18 Amber PC proof file:
+  `prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt`.
+
+Implemented:
+- `wechat-flagship-amber` runtime catalog status changed from `blocked` to `available`.
+- Amber still requires `pc-editor-paste` as its evidence floor and still lists
+  `mobile-preview` and `published` as separate publish evidence.
+- Amber blockers now remain phone/publish scoped: mobile preview proof, mobile Dark Mode proof,
+  cover-thumbnail proof, and platform preview/publish proof are still missing.
+- The committed local Amber manifest now uses the same exact raw HTML artifact fingerprint as the
+  2026-06-18 PC proof. The local screenshot path remains an `artifactRef`, not an exact artifact
+  fingerprint.
+- Tempera was not merged. Its raw source SHA is
+  `d173f8dd2ba807b2fe90b7f0c2a6dea7907a3672d6c225fc0acc918751392585`, while the PC proof covers
+  the entity-safe clipboard payload SHA
+  `f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878`. That raw-vs-entity-safe
+  split remains a real local conflict until same-payload local evidence is collected.
+
+Runtime readback after implementation:
+- Amber status: `available`.
+- Default ExportModal WeChat availability remains 8/17 because the runtime UI only supplies the
+  platform default `local-browser` evidence, while Amber still requires the `pc-editor-paste`
+  evidence floor before it is selectable.
+- Release gate `canClaimComplete`: false.
+- Release gate status: `blocked-by-local-conflict`.
+- Combined issue count: 12.
+- Cannot-claim steps: 34.
+- Phone open steps: 4.
+- External dependency open steps: 14.
+- Unsafe-to-automate open steps: 13.
+- Mutating open steps: 13.
+- Fingerprint conflicts: 1, only `wechat-flagship-tempera`.
+
+Regression coverage:
+- Committed local evidence test now expects Amber to be not catalog-blocked, but still missing
+  external proof rows when only local evidence is present.
+- Committed WeChat PC evidence test now expects Amber to be missing, not invalid, because PC paste
+  rows are satisfied while phone/publish rows remain missing.
+- Combined committed-evidence audit now expects Amber to have no choice-blocked or fingerprint
+  mismatch issue, while Tempera still exposes the fingerprint mismatch.
+- Release-gate test now expects the local-conflict blocker to include only the Tempera fingerprint
+  conflict.
+- ExportModal e2e probe now expects WeChat style capability counts of 8 available / 17 total,
+  5 blocked, 4 unavailable, and `fingerprintConflicts 1`; it also checks that Amber is no longer
+  catalog-hard-blocked but remains UI-blocked until `pc-editor-paste` evidence is present.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed.*evidence|release claims" --reporter=default`
+  PASS: 1 file / 5 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 153 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  PASS: 4 files / 192 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 35 files / 1126 tests.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  PASS.
+- `pnpm exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  PASS: 1 spec / 6 tests after the first post-change run exposed the stale `9/17` UI expectation
+  and the Amber card evidence-floor copy was made explicit.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: Vite transformed 4652 modules and built in 32.76s.
+- `pnpm -C inkforge test:e2e`
+  PASS: 2 specs / 17 tests.
+
+Boundary:
+- This proves local catalog/evidence accounting reconciliation only.
+- It does not prove WeChat phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  Xiaohongshu/Zhihu account upload, public-host acceptance, or publish success.
