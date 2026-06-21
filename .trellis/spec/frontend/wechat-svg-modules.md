@@ -3142,3 +3142,41 @@ Required checks:
   WeChat phone preview, official editor paste, mobile interaction, Dark Mode, cover thumbnail,
   credentialed sync, public-host acceptance, scheduled-send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
+
+## 40. ExportModal Local Actionability Surface - 2026-06-22
+
+Contracts:
+- ExportModal may surface `getCommittedStyleProofLocalActionabilityReport()` as a read-only
+  operator summary inside the style capability area. It must not derive local actionability from
+  duplicated UI constants, DOM text, style-choice card counts, or preflight string parsing.
+- The surface must not mutate release-gate accounting, proof manifests, style catalog
+  availability, style selection, renderer output, clipboard output, sync/upload/publish actions,
+  platform accounts, or browser/platform state.
+- The visible summary must expose the current report counts:
+  `actionableLocalRows`, `catalogBlockedLocalRows`, `safeLocalOpenRows`, and
+  `externalChecklistRows`.
+- The grouped display must keep direct local work and catalog-blocked local rows separate. Known
+  labels are `本地可做` for `actionable-local` and `目录阻断` for `catalog-blocked`.
+- When `actionableLocalRows=0`, the UI must explicitly warn that catalog-blocked rows and external
+  platform rows must not be treated as completed local proof work.
+- The committed release preflight row may include the same local actionability summary so the
+  blocked release claim can be audited from one row. While `canClaimComplete:false`, that row must
+  stay blocked and must continue to say phone preview, sync, public-host, scheduled-send,
+  platform-preview, upload, public rendering, and publish success are not claimable.
+- The UI must use existing design tokens and installed icon systems only. Do not introduce emoji
+  icons, missing CSS variables, nested cards, or marketing-style decorative sections.
+- The layout must fit narrow WebView and browser viewports without horizontal page overflow,
+  clipped counts, or row text pushing outside its container.
+
+Required checks:
+- E2E coverage must open the real ExportModal and assert the local actionability summary, the
+  zero-actionable warning, both group labels/counts, and the release preflight row copy.
+- Tauri/WebView2 E2E must keep the existing SVG flagship and 20-22 CJK chars/line assertions
+  passing after the local actionability surface is added.
+- CloakBrowser verification must use a real local article and the real `发布` modal at a narrow
+  viewport, confirming `document.scrollWidth === document.clientWidth`, `overflowCount=0`, and the
+  local actionability text is visible.
+- Evidence docs must record the readback values and explicitly state that this UI surface is not
+  WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, public-host acceptance, scheduled-send, platform-preview, public
+  rendering, Xiaohongshu upload, Zhihu upload, or publish proof.

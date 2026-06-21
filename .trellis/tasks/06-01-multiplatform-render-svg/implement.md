@@ -8774,6 +8774,53 @@ Boundary:
   sync, public-host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
   upload, Zhihu upload, or publish success.
 
+## 2026-06-22 ExportModal Local Actionability Surface Slice
+
+Scope:
+- ExportModal read-only visibility for the committed local actionability report.
+- No release-gate algorithm, proof manifest, catalog availability, renderer output, clipboard,
+  sync, upload, scheduled-send, public rendering, or publish behavior was changed.
+
+Implementation:
+- ExportModal now consumes `getCommittedStyleProofLocalActionabilityReport()` and shows a local
+  actionability block in the style capability area.
+- The block exposes the current summary `本地可行动 0；目录阻断 11；安全本地 11；外部清单 18`.
+- Two visible rows keep `本地可做` and `目录阻断` separate. When there is no direct local action,
+  the UI says `当前没有可直接本地补证行；先处理目录阻断或外部证明`.
+- The committed release preflight row embeds the same local actionability summary while remaining
+  blocked with `canClaimComplete=false`.
+- The new CSS reuses existing secondary accent tokens and keeps the block aligned with the existing
+  external checklist surface.
+- `svg-render.spec.cjs` now reads `.style-proof-local-actionability` from the real ExportModal DOM
+  and asserts the current counts, zero-actionable warning, both groups, and preflight summary.
+
+Verification:
+- `npx gitnexus impact File:inkforge/src/components/export/ExportModal.vue -r InkForge --depth 3`:
+  LOW risk, zero affected processes.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`: passed.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "local actionability" --reporter=default`:
+  passed, 1 file / 1 selected test.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 57.49s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`:
+  passed, 1 spec / 6 tests in the real Tauri/WebView2 runner after rebuilding `dist`. The run
+  opened the real ExportModal, asserted local actionability, rechecked all three flagship SVG
+  previews, and measured 20 mobile-emulated CJK chars/line.
+- CloakBrowser narrow viewport readback at `390x844` used a real local article and the real
+  `发布` button. ExportModal readback reported `本地可行动 0`, `目录阻断 11`, `安全本地 11`,
+  `外部清单 18`, both `本地可做` and `目录阻断` groups, `canClaimComplete=false`, release
+  preflight including `本地可行动 0`, `document.scrollWidth=390`, `document.clientWidth=390`,
+  `panel.scrollWidth=374`, `panel.clientWidth=374`, local block `331/331`, and `overflowCount=0`.
+  Runtime screenshots were used only for local visual inspection and are not committed artifacts.
+
+Boundary:
+- This is local UI exposure and no-claim accounting only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
+  upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 ExportModal External Checklist Surface Slice
 
 Scope:

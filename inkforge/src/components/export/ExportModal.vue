@@ -14,6 +14,7 @@ import {
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
   getCommittedStyleProofExternalProofChecklistReport,
+  getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
@@ -23,6 +24,7 @@ import type {
   Platform, ExportOptions, ExportStats,
   CommittedStyleProofReleaseGateBlocker,
   CommittedStyleProofExternalProofChecklistGroup,
+  CommittedStyleProofLocalActionabilityReport,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
   WechatPublishStatus, WechatDraftPublishResult,
   ExportFontFamily, ExportFontSize,
@@ -123,6 +125,13 @@ interface ExternalProofChecklistDisplay {
   detail: string
 }
 
+interface LocalActionabilityDisplay {
+  kind: 'actionable-local' | 'catalog-blocked'
+  label: string
+  rowCount: number
+  detail: string
+}
+
 interface StyleChoiceDisplay {
   availability: StyleChoiceAvailability
   application: StyleChoiceApplication | null
@@ -200,6 +209,7 @@ const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollection
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
 const committedStyleProofExternalChecklist = computed(() => getCommittedStyleProofExternalProofChecklistReport())
+const committedStyleProofLocalActionability = computed(() => getCommittedStyleProofLocalActionabilityReport())
 const committedStyleProofReleaseGate = computed(() => getCommittedStyleProofEvidenceReleaseGateReport())
 const committedStyleProofReleaseConflictCount = computed(() =>
   committedStyleProofReleaseGate.value.blockers.reduce((total, blocker) =>
@@ -263,6 +273,27 @@ const styleProofReleaseGateSummary = computed(() => {
 const styleProofExternalChecklistSummary = computed(() => {
   const checklist = committedStyleProofExternalChecklist.value
   return `外部证明清单 ${checklist.summary.uniqueChecklistRowCount} 行；分组 ${checklist.summary.groupCount}；手机 ${checklist.summary.phoneRows}；账号 ${checklist.summary.externalAccountRows}；public host ${checklist.summary.publicHostRows}；需人工 ${checklist.summary.unsafeToAutomateRows}`
+})
+const styleProofLocalActionabilitySummary = computed(() => {
+  const report = committedStyleProofLocalActionability.value
+  return `本地可行动 ${report.summary.actionableLocalRows}；目录阻断 ${report.summary.catalogBlockedLocalRows}；安全本地 ${report.summary.safeLocalOpenRows}；外部清单 ${report.summary.externalChecklistRows}`
+})
+const styleProofLocalActionabilityRows = computed<LocalActionabilityDisplay[]>(() => {
+  const report = committedStyleProofLocalActionability.value
+  return [
+    {
+      kind: 'actionable-local',
+      label: '本地可做',
+      rowCount: report.summary.actionableLocalRows,
+      detail: styleProofLocalActionabilityDetail(report, 'actionable-local'),
+    },
+    {
+      kind: 'catalog-blocked',
+      label: '目录阻断',
+      rowCount: report.summary.catalogBlockedLocalRows,
+      detail: styleProofLocalActionabilityDetail(report, 'catalog-blocked'),
+    },
+  ]
 })
 const styleProofExternalChecklistRows = computed<ExternalProofChecklistDisplay[]>(() =>
   committedStyleProofExternalChecklist.value.groups.map(group => ({
@@ -378,6 +409,23 @@ function styleProofExternalChecklistGroupDetail(
   ].filter(Boolean)
 
   return parts.join('；') || '等待真实外部证明'
+}
+
+function styleProofLocalActionabilityDetail(
+  report: CommittedStyleProofLocalActionabilityReport,
+  kind: LocalActionabilityDisplay['kind'],
+): string {
+  if (kind === 'actionable-local') {
+    const row = report.nextLocalActionableRow
+    return row
+      ? `${platformLabel(row.platform)} ${styleProofRequirementLabel(row.requirementId)}；${row.nextOperatorAction}`
+      : '当前没有可直接本地补证行；先处理目录阻断或外部证明'
+  }
+
+  const row = report.nextCatalogBlockedRow
+  return row
+    ? `${platformLabel(row.platform)} ${styleProofRequirementLabel(row.requirementId)}；缺项 ${row.missing}/${row.blockedChoiceCount}；${row.choiceIds.slice(0, 2).join('、')}`
+    : '当前没有目录阻断的本地安全行'
 }
 
 function styleProofReleaseIssueIdLabel(issueId: CommittedStyleProofReleaseGateBlocker['issueCounts'][number]['issueId']): string {
@@ -537,13 +585,14 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
   const nextOperatorActions = styleProofReleaseNextOperatorActions(gate.blockers)
   const requirementCounts = styleProofReleaseRequirementCounts(gate.blockers)
   const checklistSummary = styleProofExternalChecklistSummary.value
+  const localActionabilitySummary = styleProofLocalActionabilitySummary.value
 
   if (gate.canClaimComplete) {
     return {
       key: 'committed-proof-release',
       label: '提交证据宣称门禁',
       state: 'ready',
-      detail: `canClaimComplete=true；blockers 0；fingerprintConflicts ${conflictCount}；${checklistSummary}；最终仍以平台证据文件为准。`,
+      detail: `canClaimComplete=true；blockers 0；fingerprintConflicts ${conflictCount}；${localActionabilitySummary}；${checklistSummary}；最终仍以平台证据文件为准。`,
     }
   }
 
@@ -551,7 +600,7 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
     key: 'committed-proof-release',
     label: '提交证据宣称门禁',
     state: 'blocked',
-    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${checklistSummary}；${blockerSummary}；requirementCounts ${requirementCounts}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
+    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${localActionabilitySummary}；${checklistSummary}；${blockerSummary}；requirementCounts ${requirementCounts}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
   }
 })
 
@@ -1545,6 +1594,28 @@ onUnmounted(() => {
                   <span>执行手册 开放 {{ styleProofExecutionRunbook.summary.openSteps }}；不可宣称 {{ styleProofExecutionRunbook.summary.cannotClaimSteps }}；下一手册 {{ styleProofNextRunbookLabel }}</span>
                 </div>
                 <div
+                  class="style-proof-local-actionability"
+                  aria-label="本地证明可行动性"
+                >
+                  <div class="style-proof-local-actionability__summary">
+                    <span>{{ styleProofLocalActionabilitySummary }}</span>
+                    <span>本地可做为 0 时不得把目录阻断或外部平台行当作本地补证完成</span>
+                  </div>
+                  <div class="style-proof-local-actionability__groups">
+                    <div
+                      v-for="row in styleProofLocalActionabilityRows"
+                      :key="row.kind"
+                      class="style-proof-local-actionability__group"
+                    >
+                      <div class="style-proof-local-actionability__head">
+                        <span>{{ row.label }}</span>
+                        <strong>{{ row.rowCount }}</strong>
+                      </div>
+                      <p>{{ row.detail }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div
                   class="style-proof-external-checklist"
                   aria-label="外部证明清单"
                 >
@@ -2420,6 +2491,7 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
+.style-proof-local-actionability,
 .style-proof-external-checklist {
   display: grid;
   min-width: 0;
@@ -2431,6 +2503,12 @@ onUnmounted(() => {
   background: color-mix(in srgb, var(--warning-light) 34%, var(--bg-surface));
 }
 
+.style-proof-local-actionability {
+  border-color: color-mix(in srgb, var(--accent-secondary) 24%, var(--hairline));
+  background: color-mix(in srgb, var(--accent-secondary-light) 24%, var(--bg-surface));
+}
+
+.style-proof-local-actionability__summary,
 .style-proof-external-checklist__summary {
   display: grid;
   min-width: 0;
@@ -2441,11 +2519,13 @@ onUnmounted(() => {
   line-height: 1.45;
 }
 
+.style-proof-local-actionability__summary span,
 .style-proof-external-checklist__summary span {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
+.style-proof-local-actionability__groups,
 .style-proof-external-checklist__groups {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
@@ -2453,6 +2533,7 @@ onUnmounted(() => {
   gap: 6px;
 }
 
+.style-proof-local-actionability__group,
 .style-proof-external-checklist__group {
   min-width: 0;
   padding: 7px;
@@ -2461,6 +2542,7 @@ onUnmounted(() => {
   background: var(--bg-rice-paper);
 }
 
+.style-proof-local-actionability__head,
 .style-proof-external-checklist__head {
   display: flex;
   align-items: center;
@@ -2473,6 +2555,7 @@ onUnmounted(() => {
   line-height: 1.35;
 }
 
+.style-proof-local-actionability__head span,
 .style-proof-external-checklist__head span {
   min-width: 0;
   overflow: hidden;
@@ -2480,6 +2563,7 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+.style-proof-local-actionability__head strong,
 .style-proof-external-checklist__head strong {
   flex-shrink: 0;
   min-width: 22px;
@@ -2492,6 +2576,12 @@ onUnmounted(() => {
   line-height: 1.4;
 }
 
+.style-proof-local-actionability__head strong {
+  background: var(--accent-secondary-light);
+  color: var(--accent-secondary);
+}
+
+.style-proof-local-actionability__group p,
 .style-proof-external-checklist__group p {
   margin: 5px 0 0;
   color: var(--text-secondary);

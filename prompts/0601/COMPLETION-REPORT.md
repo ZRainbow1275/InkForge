@@ -4264,3 +4264,27 @@ Boundary:
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
   upload, Zhihu upload, or publish success.
+
+---
+
+## 2026-06-22 ExportModal Local Actionability Surface Addendum
+
+- ExportModal now surfaces `getCommittedStyleProofLocalActionabilityReport()` as a read-only local
+  actionability block inside the style capability area.
+- The visible summary reads `本地可行动 0；目录阻断 11；安全本地 11；外部清单 18`.
+- The visible groups are `本地可做` with 0 rows and `目录阻断` with 11 rows. The zero-actionable
+  row says there is currently no direct local proof task and points the operator to catalog
+  blockers or external proof instead.
+- The committed proof release preflight row now includes the same local actionability summary but
+  remains blocked while `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/exportmodal-local-actionability-surface-20260622.txt`.
+- Verification passed: GitNexus impact for `ExportModal.vue`; `node --check` for
+  `svg-render.spec.cjs`; targeted ExportModal ESLint; focused local-actionability Vitest;
+  `vue-tsc`; production build with 4653 modules transformed; real Tauri/WebView2
+  `svg-render.spec.cjs` with 1 spec / 6 tests; and CloakBrowser narrow viewport readback with no
+  horizontal overflow.
+- Boundary: this is UI exposure and no-claim accounting only. It does not prove WeChat official
+  editor paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public host acceptance, scheduled send, platform preview, public
+  rendering, Xiaohongshu upload, Zhihu upload, or publish success.

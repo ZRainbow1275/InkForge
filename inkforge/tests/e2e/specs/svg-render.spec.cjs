@@ -373,6 +373,11 @@ function collectStyleCapabilityProbe() {
         .replace(/\s+/g, ' '),
       externalChecklistGroups: Array.from(document.querySelectorAll('.export-panel .style-proof-external-checklist__group'))
         .map((group) => (group.textContent || '').trim().replace(/\s+/g, ' ')),
+      localActionabilityText: (document.querySelector('.export-panel .style-proof-local-actionability')?.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' '),
+      localActionabilityGroups: Array.from(document.querySelectorAll('.export-panel .style-proof-local-actionability__group'))
+        .map((group) => (group.textContent || '').trim().replace(/\s+/g, ' ')),
       acceptancePreflightText: Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
         .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
         .filter((text) => text.includes('验收宣称审计'))
@@ -506,6 +511,33 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('当前不会启用发布、同步或平台成功宣称');
     expect(wechat.externalChecklistGroups, 'external proof checklist exposes four release blocker groups')
       .to.have.length(4);
+    expect(wechat.localActionabilityText, 'WeChat local actionability summary is visible')
+      .to.include('本地可行动 0');
+    expect(wechat.localActionabilityText, 'WeChat local actionability exposes catalog-blocked rows')
+      .to.include('目录阻断 11');
+    expect(wechat.localActionabilityText, 'WeChat local actionability exposes safe local row count')
+      .to.include('安全本地 11');
+    expect(wechat.localActionabilityText, 'WeChat local actionability links back to external checklist')
+      .to.include('外部清单 18');
+    expect(wechat.localActionabilityText, 'WeChat local actionability prevents false local completion claims')
+      .to.include('不得把目录阻断或外部平台行当作本地补证完成');
+    expect(wechat.localActionabilityGroups, 'local actionability exposes local/catalog groups')
+      .to.have.length(2);
+    expect(
+      wechat.localActionabilityGroups.some((group) =>
+        group.includes('本地可做') &&
+        group.includes('0') &&
+        group.includes('当前没有可直接本地补证行')),
+      'local actionability marks there is no direct local proof task',
+    ).to.equal(true);
+    expect(
+      wechat.localActionabilityGroups.some((group) =>
+        group.includes('目录阻断') &&
+        group.includes('11') &&
+        group.includes('微信公众号') &&
+        group.includes('目录来源')),
+      'local actionability keeps catalog-blocked rows separate from actionable local work',
+    ).to.equal(true);
     expect(
       wechat.externalChecklistGroups.some((group) =>
         group.includes('手机预览') &&
@@ -556,6 +588,8 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('canClaimComplete=false');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes committed fingerprint conflicts')
       .to.include('fingerprintConflicts 0');
+    expect(wechat.releaseGatePreflightText, 'WeChat preflight embeds local actionability summary')
+      .to.include('本地可行动 0');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes release operator next actions')
       .to.include('operatorNext');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight points remaining proof collection')

@@ -1,0 +1,67 @@
+ExportModal Local Actionability Surface - 2026-06-22
+
+Scope:
+- Read-only ExportModal surface for the committed local actionability report.
+- No platform action, phone preview, official editor paste, sync, upload, scheduled send,
+  public rendering, or publish action was performed.
+
+Implemented:
+- ExportModal consumes getCommittedStyleProofLocalActionabilityReport().
+- The style capability area now shows:
+  本地可行动 0；目录阻断 11；安全本地 11；外部清单 18
+- The UI separates:
+  - 本地可做: 0
+  - 目录阻断: 11
+- The zero-actionable state says:
+  当前没有可直接本地补证行；先处理目录阻断或外部证明
+- The UI warns that catalog-blocked rows or external platform rows must not be treated as
+  completed local proof work.
+- The committed release preflight row includes the local actionability summary while keeping
+  canClaimComplete=false.
+
+Tauri/WebView2 verification:
+- pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+  PASS: 1 spec / 6 tests.
+- The real ExportModal DOM exposed the local actionability summary and both local/catalog groups.
+- The same run kept the three flagship SVG preview checks passing.
+- Mobile-emulated body rhythm remained 20 CJK chars/line in the 20-22 target band.
+
+CloakBrowser verification:
+- Narrow viewport: 390x844.
+- Used a real local article created through the app store and opened the real 发布 modal.
+- Readback:
+  - 本地可行动 0
+  - 目录阻断 11
+  - 安全本地 11
+  - 外部清单 18
+  - canClaimComplete=false
+  - release preflight includes 本地可行动 0
+  - document.scrollWidth=390
+  - document.clientWidth=390
+  - panel.scrollWidth=374
+  - panel.clientWidth=374
+  - local block scrollWidth=331
+  - local block clientWidth=331
+  - overflowCount=0
+- Runtime screenshots were used only for local visual inspection and are not committed artifacts.
+
+Additional verification:
+- npx gitnexus impact File:inkforge/src/components/export/ExportModal.vue -r InkForge --depth 3
+  PASS: LOW risk, zero affected processes.
+- node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+  PASS.
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "local actionability" --reporter=default
+  PASS: 1 file / 1 selected test.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 57.49s.
+
+Boundary:
+- This proves UI visibility, no-claim wording, local actionability grouping, and narrow viewport
+  layout only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance, scheduled send,
+  platform preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

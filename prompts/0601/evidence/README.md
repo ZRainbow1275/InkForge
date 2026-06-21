@@ -3680,3 +3680,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
   upload, Zhihu upload, or publish success.
+
+## 2026-06-22 ExportModal Local Actionability Surface
+
+- [x] exportmodal-local-actionability-surface-20260622.txt
+- ExportModal now displays the committed local actionability report as a read-only style capability
+  block.
+- Current UI readback shows `本地可行动 0；目录阻断 11；安全本地 11；外部清单 18`.
+- The visible groups are `本地可做` with 0 rows and `目录阻断` with 11 rows. The zero-actionable
+  row says `当前没有可直接本地补证行；先处理目录阻断或外部证明`.
+- The committed proof release preflight row includes `本地可行动 0` while keeping
+  `canClaimComplete=false`.
+- Verification passed: `node --check` for the WDIO spec, targeted ExportModal ESLint, focused
+  local-actionability Vitest, `vue-tsc`, production build, real Tauri/WebView2
+  `svg-render.spec.cjs` with 1 spec / 6 tests, and CloakBrowser narrow viewport readback at
+  `390x844` with `document.scrollWidth=390`, `document.clientWidth=390`, panel `374/374`, local
+  block `331/331`, and `overflowCount=0`.
+- Boundary: this UI surface does not prove WeChat official editor paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance,
+  Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
+  success.
