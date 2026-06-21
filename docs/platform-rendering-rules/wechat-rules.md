@@ -35,6 +35,17 @@ pipeline blockers such as `wechat-line-height-zero`, `wechat-fixed-container-siz
 used as PC editor paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, public
 preview, or publish proof.
 
+2026-06-21 local proof note: `wechat-quiet-editorial` has a committed local browser/exact HTML
+artifact generated through `markdownToWechatWithStats(..., getPresetById('flagship-tempera'), ...)`.
+The local browser readback proves the committed artifact renders the quiet editorial block family
+locally with no horizontal overflow at a 677 px proof container: reading bar, lede, quote, banner,
+list marker, citation, footer, and cover SVG sentinels are present. Current
+`detectQuality(html, 'wechat')` still reports flagship pipeline blockers such as
+`wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+`wechat-layout-report-required`, so this evidence must not be used as PC editor paste, phone
+preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering, or
+publish proof.
+
 ### 0.1 产物类型
 
 | 产物 | 默认用途 | 要求 |

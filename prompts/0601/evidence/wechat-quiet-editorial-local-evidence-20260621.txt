@@ -1,0 +1,87 @@
+WeChat Quiet Editorial Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local browser/exact-artifact evidence for `wechat-quiet-editorial`.
+- No WeChat account login, official editor paste, phone preview, Dark Mode check, cover thumbnail
+  check, credentialed sync, scheduled send, platform preview, public rendering, or publish action
+  was executed or claimed.
+
+Generation:
+- Generated the exact HTML artifact through the real WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- Options:
+  `enableReadingTime=true`, `enableCiteStatus=true`, `enableCodeHighlight=false`,
+  `enableEnhancedTable=false`, `enableCjkSpacing=true`, `maxContentWidth=677`.
+- The source Markdown is InkForge-owned and covers Quiet Press editorial blocks:
+  lede, reading bar, pullquote/quote, banner, list markers, citation card, footer, and cover SVG.
+- The source does not contain 135/Xiumi template source, vendor class names, hosted media,
+  account artifacts, browser profile material, QR artifacts, HAR payloads, or credential material.
+
+Artifact:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html`.
+- HTML hash:
+  `sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e`.
+- HTML bytes: 15324.
+- Source Markdown hash:
+  `sha256:ed57e4a7006141cf236db45ff7a7f526919bbb40b5f30577818531c0d33a577a`.
+- Export stats:
+  `wordCount=302`, `readingTime=2`, `headingCount=3`, `codeBlockCount=0`, `linkCount=0`,
+  `imageCount=0`, `tableCount=0`.
+
+Local Browser Readback:
+- CloakBrowser loaded a local read-only artifact preview and measured the committed HTML artifact.
+- Root width: 677 px.
+- `#nice` width: 677 px.
+- Viewport width: 1400 px.
+- Document scroll width: 1385 px.
+- Horizontal overflow: false.
+- Overflowing element count: 0.
+- Text length: 486.
+- `data-ink-block` readback:
+  `flagship-readbar=1`, `flagship-h2=1`, `flagship-quote=1`, `flagship-banner=1`,
+  `flagship-lede=1`, `flagship-ul=4`, `flagship-h3=1`, `flagship-citation=1`,
+  `flagship-footer=1`.
+- `data-ink-svg` readback:
+  `cover-title=1`.
+- SVG element count: 17.
+- Market residue check: false.
+- Sensitive marker check: false.
+
+Quality Detector Boundary:
+- Browser-side and generator-side `detectQuality(html, 'wechat')` reported:
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`.
+- These are current flagship-pipeline detector blockers. They do not invalidate the local DOM
+  visibility/overflow readback above, but they prevent this evidence from being described as PC
+  editor paste proof, phone preview proof, Dark Mode proof, cover-thumbnail proof, sync proof, or
+  publish proof.
+
+Committed Manifest:
+- Added one committed local `wechat-quiet-editorial` manifest.
+- The manifest claims only `unit-tested` and `local-browser` evidence.
+- It satisfies `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` accounting for this exact HTML artifact.
+- It intentionally leaves `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`,
+  `cover-thumbnail-check`, `credentialed-channel-response`, `sync-readback`,
+  `scheduled-send-readback`, and `published-url-or-platform-preview` unproven.
+
+Release Gate Readout:
+- CloakBrowser runtime smoke from local Vite confirmed:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=16`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=18`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+
+Verification Started:
+- Independent Node evidence verification passed SHA-256, byte length, marker presence, market
+  residue scan, and sensitive marker scan.
+- Focused committed/local/release regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  -> 1 file / 4 selected tests.
+
+Boundary:
+- This is local WeChat quiet editorial browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

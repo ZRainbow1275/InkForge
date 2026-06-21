@@ -8098,3 +8098,83 @@ Boundary:
 - It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-21 WeChat Quiet Editorial Local Browser Evidence Slice
+
+Scope:
+- Repository-committed local browser/exact-artifact evidence for `wechat-quiet-editorial`.
+- No WeChat account login, PC paste into the official editor, phone preview, Dark Mode check,
+  cover thumbnail check, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish action was executed or claimed.
+
+Implementation:
+- Generated the committed HTML artifact through the real source-owned path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- The source Markdown covers quiet editorial blocks: lede, reading bar, quote, banner, list
+  markers, citation card, footer, and cover SVG. It avoids 135/Xiumi template source, vendor class
+  names, remote media, account artifacts, and browser profile material.
+- Added `prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html`.
+- Added `prompts/0601/evidence/wechat-quiet-editorial-local-evidence-20260621.txt`.
+- Added one committed local `wechat-quiet-editorial` manifest. It claims only `unit-tested` and
+  `local-browser` evidence and satisfies unit, local-browser, exact-artifact, and
+  sensitive-hygiene accounting for the exact HTML artifact.
+
+Evidence:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html`.
+- HTML hash:
+  `sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e`.
+- HTML bytes: 15324.
+- Source Markdown hash:
+  `sha256:ed57e4a7006141cf236db45ff7a7f526919bbb40b5f30577818531c0d33a577a`.
+- Local browser artifact readback:
+  `rootWidth=677`, `niceWidth=677`, `viewportWidth=1400`, `documentScrollWidth=1385`,
+  `bodyOverflowX=false`, `overflowing=[]`, `svgElementCount=17`, `textLength=486`.
+- DOM sentinel readback:
+  `flagship-readbar=1`, `flagship-h2=1`, `flagship-quote=1`, `flagship-banner=1`,
+  `flagship-lede=1`, `flagship-ul=4`, `flagship-h3=1`, `flagship-citation=1`,
+  `flagship-footer=1`, and `data-ink-svg="cover-title"=1`.
+- Browser-side `detectQuality(html, 'wechat')` still reported `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`; these are documented blockers, not external-platform success
+  proof.
+
+Initial verification:
+- GitNexus impact:
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 0 affected processes.
+  - `createCommittedStyleProofLocalEvidenceManifest`: LOW, 0 affected processes.
+- Independent Node evidence verification:
+  passed SHA-256, byte length, marker presence, SVG sentinel, market-editor residue scan, and
+  sensitive marker scan.
+- CloakBrowser runtime smoke from local Vite:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=16`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=18`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules and built in 1m19s.
+- `npx gitnexus detect-changes -r InkForge --scope all`:
+  completed with 39 dirty files observed in the whole worktree, 28 changed symbols, 0 affected
+  processes, and low risk. The dirty-file count includes unrelated pre-existing local changes;
+  commit staging for this slice must remain exact-file only.
+
+Boundary:
+- This is local WeChat quiet editorial browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

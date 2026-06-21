@@ -412,6 +412,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] market-editor-residue-gate-20260609.txt # 当前规则实现：135/秀米 authoring residue 三平台 runtime 阻断 + focused tests/lint
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] wechat-classic-inline-local-evidence-20260621.txt # 当前规则实现：WeChat classic inline 本地 unit/exact HTML artifact；不证明 PC 粘贴/手机/发布
+[x] wechat-quiet-editorial-local-evidence-20260621.txt # 当前规则实现：WeChat quiet editorial 本地 browser/exact HTML artifact；不证明 PC 粘贴/手机/发布
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] xhs-raster-manifest-builder-20260619.txt # 当前规则实现：real raster metadata/data URL -> XHS manifest builder; no upload/publish claim
 [x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
@@ -426,6 +427,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json  # XHS market-rich fallback 本地 manifest pack
 [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-*.png  # XHS market-rich fallback 4 页 1080x1440 PNG
 [x] wechat-classic-inline-local-artifact-20260621.html # WeChat classic inline 本地 exact HTML artifact
+[x] wechat-quiet-editorial-local-artifact-20260621.html # WeChat quiet editorial 本地 exact HTML artifact
 [x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
 [ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰可提交截图补证；当前只有脱敏文本读回，普通剪贴板路径已失败
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
@@ -3086,6 +3088,54 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   only. It does not prove official editor paste, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-21 WeChat Quiet Editorial Local Evidence
+
+- [x] wechat-quiet-editorial-local-evidence-20260621.txt
+- [x] wechat-quiet-editorial-local-artifact-20260621.html
+- Generated the exact HTML artifact through the real WeChat path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- The source Markdown is InkForge-owned and exercises quiet editorial blocks: lede, reading bar,
+  quote, banner, list markers, citation card, footer, and cover SVG. It does not contain 135/Xiumi
+  template source, vendor class names, hosted media, cookies, tokens, HAR files, QR artifacts,
+  account screenshots, or browser profile material.
+- Artifact hash:
+  `sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e`.
+- Source Markdown hash:
+  `sha256:ed57e4a7006141cf236db45ff7a7f526919bbb40b5f30577818531c0d33a577a`.
+- Independent Node verification re-read the committed HTML, checked the hash, byte length 15324,
+  `id="nice"`, editorial block sentinels, SVG sentinel, and absence of obvious market-editor
+  residue or credential path markers.
+- CloakBrowser loaded a local read-only artifact preview and measured the committed artifact:
+  `rootWidth=677`, `niceWidth=677`, `viewportWidth=1400`, `documentScrollWidth=1385`,
+  `bodyOverflowX=false`, `overflowing=[]`, `svgElementCount=17`, `textLength=486`.
+- Local DOM readback found `flagship-readbar=1`, `flagship-h2=1`, `flagship-quote=1`,
+  `flagship-banner=1`, `flagship-lede=1`, `flagship-ul=4`, `flagship-h3=1`,
+  `flagship-citation=1`, `flagship-footer=1`, and `data-ink-svg="cover-title"=1`.
+- Browser-side `detectQuality(html, 'wechat')` still reports `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`. These are recorded as flagship-pipeline detector blockers and
+  are not treated as PC editor paste, phone preview, Dark Mode, cover thumbnail, sync, or publish
+  proof.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `wechat-quiet-editorial`
+  manifest. It claims only `unit-tested` and `local-browser` evidence and satisfies unit,
+  local-browser, exact-artifact, and sensitive-hygiene accounting for this exact HTML artifact.
+- CloakBrowser runtime smoke from local Vite confirmed the release gate remains blocked with
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=16`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=18`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Verification passed: independent HTML evidence verification; CloakBrowser artifact readback;
+  CloakBrowser runtime smoke; focused committed/local/release regression with 1 file / 4 selected
+  tests; `platform-export-rendering.test.ts` with 1 file / 155 tests; 4-file cross-platform export
+  regression with 4 files / 194 tests; full `src/services/export` serial regression with
+  36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 transformed modules in 1m19s. GitNexus detect reported 39 dirty files across the whole
+  worktree, 0 affected processes, and low risk; this includes unrelated pre-existing local changes.
+- Boundary: this is local WeChat quiet editorial browser/exact-artifact/sensitive-hygiene
+  accounting only. It does not prove official editor paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
+  rendering, or publish success.
 
 ## 2026-06-21 Zhihu Clean Column Local Evidence
 

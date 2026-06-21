@@ -2206,6 +2206,14 @@ interface CommittedStyleProofWechatUnitEvidenceManifestOptions {
   reportRef: string
 }
 
+interface CommittedStyleProofWechatLocalHtmlEvidenceManifestOptions {
+  choiceId: 'wechat-quiet-editorial'
+  label: string
+  artifactFingerprint: string
+  artifactRef: string
+  reportRef: string
+}
+
 interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
   choiceId:
     | 'xhs-cover-carousel'
@@ -2268,6 +2276,12 @@ const COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_REPORT_REF =
   'prompts/0601/evidence/wechat-classic-inline-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF =
+  'prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html'
+
+const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF =
+  'prompts/0601/evidence/wechat-quiet-editorial-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
@@ -2428,6 +2442,83 @@ function createCommittedStyleProofWechatUnitEvidenceManifest(
         channel: 'unit-test',
         action: 'test-run',
         readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact HTML artifact binding`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.artifactRef,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
+function createCommittedStyleProofWechatLocalHtmlEvidenceManifest(
+  options: CommittedStyleProofWechatLocalHtmlEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId.replace(/^wechat-/, '')
+
+  return {
+    platform: 'wechat',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested', 'local-browser'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-local-browser-proof`,
+        requirementId: 'local-browser-rendering',
+        kind: 'browser-readback',
+        label: `${options.label} committed local browser DOM and overflow proof`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-browser',
+        action: 'local-render',
+        readback: 'visual-and-dom',
         artifactFingerprint: options.artifactFingerprint,
         artifactRef: options.reportRef,
         committed: true,
@@ -2897,6 +2988,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     artifactFingerprint: 'sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562',
     artifactRef: COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_ARTIFACT_REF,
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_REPORT_REF,
+  }),
+  createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
+    choiceId: 'wechat-quiet-editorial',
+    label: 'Quiet Press editorial blocks',
+    artifactFingerprint: 'sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e',
+    artifactRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF,
   }),
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',

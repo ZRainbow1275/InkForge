@@ -3641,3 +3641,52 @@ Boundary:
   only. It does not prove official editor paste, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
   publish success.
+
+---
+
+## 2026-06-21 WeChat Quiet Editorial Local Browser Evidence Addendum
+
+- Added `prompts/0601/evidence/wechat-quiet-editorial-local-artifact-20260621.html`.
+- Added `prompts/0601/evidence/wechat-quiet-editorial-local-evidence-20260621.txt`.
+- Generated the exact HTML artifact through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- The source Markdown is InkForge-owned and exercises quiet editorial blocks: lede, reading bar,
+  quote, banner, list markers, citation card, footer, and cover SVG. It does not copy 135/Xiumi
+  template source, vendor class names, remote media, account artifacts, or browser profile
+  material.
+- HTML artifact hash:
+  `sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e`.
+- HTML bytes: 15324.
+- Source Markdown hash:
+  `sha256:ed57e4a7006141cf236db45ff7a7f526919bbb40b5f30577818531c0d33a577a`.
+- CloakBrowser loaded a local read-only artifact preview and measured `rootWidth=677`,
+  `niceWidth=677`, `bodyOverflowX=false`, `overflowing=[]`, `svgElementCount=17`, and
+  `textLength=486`.
+- DOM readback found `flagship-readbar=1`, `flagship-h2=1`, `flagship-quote=1`,
+  `flagship-banner=1`, `flagship-lede=1`, `flagship-ul=4`, `flagship-h3=1`,
+  `flagship-citation=1`, `flagship-footer=1`, and `data-ink-svg="cover-title"=1`.
+- Browser-side `detectQuality(html, 'wechat')` still reports `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`. These are recorded blockers; this evidence is not PC editor
+  paste proof, phone preview proof, Dark Mode proof, cover-thumbnail proof, sync proof, or publish
+  proof.
+- Added one committed local `wechat-quiet-editorial` manifest. It claims only `unit-tested` and
+  `local-browser` evidence and satisfies unit, local-browser, exact-artifact, and
+  sensitive-hygiene accounting for this exact HTML artifact.
+- Current committed release-gate readout remains blocked with `canClaimComplete=false`,
+  `status=blocked-by-local-conflict`, `localManifestCount=16`, `wechatPcManifestCount=2`,
+  `combinedManifestCount=18`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Verification passed: independent HTML evidence verification; CloakBrowser artifact readback;
+  CloakBrowser runtime smoke; focused committed/local/release regression with 1 file / 4 selected
+  tests; `platform-export-rendering.test.ts` with 1 file / 155 tests; 4-file cross-platform export
+  regression with 4 files / 194 tests; full `src/services/export` serial regression with
+  36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 transformed modules in 1m19s. GitNexus detect reported 39 dirty files across the whole
+  worktree, 0 affected processes, and low risk; unrelated pre-existing local changes remain
+  outside this slice's commit boundary.
+- Boundary: this is local WeChat quiet editorial browser/exact-artifact/sensitive-hygiene
+  accounting only. It does not prove official editor paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
+  rendering, or publish success.
