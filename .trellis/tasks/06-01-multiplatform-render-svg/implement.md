@@ -8788,6 +8788,62 @@ Boundary:
   mobile/platform preview, scheduled send, public article rendering, public URL acceptance, or
   publish success.
 
+## 2026-06-22 XHS Style Choice Application Mapping Slice
+
+Scope:
+- Application mapping for already proven Xiaohongshu local-browser style choices only.
+- No renderer output, proof manifest artifact, account upload, platform preview, scheduled send,
+  public rendering, public URL acceptance, or publish behavior was changed.
+
+Implementation:
+- Added real `STYLE_CHOICE_APPLICATIONS` entries:
+  - `xhs-data-card` -> `xhs-tech` / `科技数码`
+  - `xhs-long-report` -> `xhs-simple` / `极简高级`
+  - `xhs-market-rich-card-fallback` -> `xhs-nature` / `自然清新`
+- Updated unit regression and Tauri e2e expectations so the three choices are selectable and
+  click through to existing Xiaohongshu presets.
+- Updated spec, platform rendering rules, evidence README, and added
+  `prompts/0601/evidence/xhs-style-choice-application-mapping-20260622.txt`.
+
+Runtime boundary:
+- Mapping makes the local-browser available choices actionable in ExportModal.
+- It does not change committed release-gate accounting and does not claim upload, platform preview,
+  scheduled send, public article rendering, public URL acceptance, or publish success.
+
+Verification:
+- `npx gitnexus impact STYLE_CHOICE_APPLICATIONS -r InkForge --depth 3`: LOW risk, 0 affected
+  processes.
+- `npx gitnexus impact evaluateStyleChoiceApplication -r InkForge --depth 3`: LOW risk, 0
+  affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style choices|selectable style actions|market editor fallback" --reporter=default`:
+  passed, 1 file / 3 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 155 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, `vue-tsc -b` and
+  Vite production build, 4653 modules transformed and built in 39.75s.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`:
+  passed, 1 spec / 6 tests in the real Tauri/WebView2 runner after rebuilding `dist`.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1132 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- CloakBrowser narrow viewport readback at `390x844` used a real local article and the real `发布`
+  button. XHS showed `7/8` available; `xhs-data-card`, `xhs-long-report`, and
+  `xhs-market-rich-card-fallback` were enabled as `style-choice-available`; clicking Data -> Long
+  -> Market selected `xhs-nature / 自然清新`; the preflight row read
+  `已选择 Market rich card image fallback → 自然清新（xhs-nature）`; `scrollWidth=390`,
+  `clientWidth=390`, and `overflowCount=0`.
+- Final `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 40 dirty files across
+  the whole working tree, 25 changed symbols, and 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This is local style-choice application mapping only. It does not prove Xiaohongshu account
+  upload, mobile/platform preview, scheduled send, public article rendering, public URL
+  acceptance, or publish success.
+
 ## 2026-06-22 Style Proof Blocked-Choice-Only Local Conflict Scope Slice
 
 Scope:

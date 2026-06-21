@@ -4095,3 +4095,33 @@ Boundary:
   WeChat PC paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
+
+---
+
+## 2026-06-22 XHS Style Choice Application Mapping Addendum
+
+- `xhs-data-card`, `xhs-long-report`, and `xhs-market-rich-card-fallback` now have real
+  `STYLE_CHOICE_APPLICATIONS` mappings to existing Xiaohongshu presets.
+- Exact mappings: `xhs-data-card -> xhs-tech / 科技数码`,
+  `xhs-long-report -> xhs-simple / 极简高级`, and
+  `xhs-market-rich-card-fallback -> xhs-nature / 自然清新`.
+- This makes the previously local-browser available choices selectable in ExportModal without
+  introducing any new upload, sync, public-host, scheduled-send, preview, or publish path.
+- Added evidence file:
+  `prompts/0601/evidence/xhs-style-choice-application-mapping-20260622.txt`.
+- Verification passed: GitNexus impact for `STYLE_CHOICE_APPLICATIONS` and
+  `evaluateStyleChoiceApplication`; focused style-choice regression with 1 file / 3 selected
+  tests; full platform style-catalog regression with 1 file / 155 tests; full export serial
+  regression with 36 files / 1132 tests; targeted ESLint; e2e script syntax check; `vue-tsc`;
+  production build with 4653 modules in 39.75s; and Tauri/WebView2 e2e with 1 spec / 6 tests.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  XHS showed `7/8` available; the three mapped cards were enabled as `style-choice-available`;
+  clicking Data -> Long -> Market selected `xhs-nature / 自然清新`; the preflight row read
+  `已选择 Market rich card image fallback → 自然清新（xhs-nature）`; `scrollWidth=390`,
+  `clientWidth=390`, and `overflowCount=0`.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 25 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- Boundary: this is local application mapping only. It does not prove Xiaohongshu account upload,
+  mobile/platform preview, public URL acceptance, scheduled send, public article rendering, public
+  host acceptance, or publish success.

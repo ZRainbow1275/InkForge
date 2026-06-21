@@ -2568,8 +2568,9 @@ Contracts:
   ExportModal style capability summary and preflight row.
 - The e2e must keep unproven market fallback choices blocked until real InkForge-owned fallback
   proof, public-host proof, phone proof, or platform readback exists as required by the platform.
-  XHS image-page fallback choices may be locally available after exact local raster/manifest proof,
-  but they remain disabled in the UI when no `STYLE_CHOICE_APPLICATIONS` mapping exists.
+  XHS image-page fallback choices may be locally available after exact local raster/manifest proof.
+  They may become selectable only when `STYLE_CHOICE_APPLICATIONS` maps them to an existing
+  InkForge Xiaohongshu preset or export option that actually changes the current output.
 - Updating the e2e count is allowed only after confirming `getPlatformStyleChoices()` and the
   runtime ExportModal agree. Do not delete catalog entries to satisfy stale e2e counts.
 
@@ -2585,8 +2586,9 @@ Contracts:
 - `xhs-data-card` is now a local-browser available catalog choice because the committed pack proves
   the previously missing overflow/readability/manifest blocker. The progress report must keep local
   and sensitive-hygiene gates satisfied while platform-publish remains missing.
-- A committed manifest must not make `xhs-data-card` selectable or publishable. Selectability still
-  requires a real preset/export-option mapping, and release completion still requires platform proof.
+- A committed manifest must not make `xhs-data-card` publishable. Selectability is allowed only
+  through the real `STYLE_CHOICE_APPLICATIONS` mapping to `xhs-tech` / `科技数码`; release
+  completion still requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
@@ -2611,8 +2613,9 @@ Contracts:
 - `xhs-long-report` is now a local-browser available catalog choice because the committed pack proves
   the previously missing crop/file-size/manifest blocker for the local artifact. The progress report
   must keep local and sensitive-hygiene gates satisfied while platform-publish remains missing.
-- A committed manifest must not make `xhs-long-report` selectable or publishable. Selectability still
-  requires a real preset/export-option mapping, and release completion still requires platform proof.
+- A committed manifest must not make `xhs-long-report` publishable. Selectability is allowed only
+  through the real `STYLE_CHOICE_APPLICATIONS` mapping to `xhs-simple` / `极简高级`; release
+  completion still requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
@@ -2642,9 +2645,9 @@ Contracts:
   committed pack proves source-owned image-page/manifest materialization for the fallback family.
   The progress report must keep local and sensitive-hygiene gates satisfied while platform-publish
   remains missing.
-- A committed manifest must not make `xhs-market-rich-card-fallback` selectable or publishable.
-  Selectability still requires a real preset/export-option mapping, and release completion still
-  requires platform proof.
+- A committed manifest must not make `xhs-market-rich-card-fallback` publishable. Selectability is
+  allowed only through the real `STYLE_CHOICE_APPLICATIONS` mapping to `xhs-nature` / `自然清新`;
+  release completion still requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
@@ -2946,3 +2949,30 @@ Required checks:
   capability UI and that the Chinese `降级：` label remains readable.
 - Documentation must keep the boundary clear: localized copy does not prove phone preview,
   public-host, sync, scheduled-send, platform-preview, upload, or publish success.
+
+## 35. XHS Style Choice Application Mapping - 2026-06-22
+
+Contracts:
+- `STYLE_CHOICE_APPLICATIONS` may map a Xiaohongshu style choice only to an existing
+  `XiaohongshuPreset` or export option that is already wired through the normal ExportModal
+  preview/native pipeline.
+- The 2026-06-22 mappings are:
+  - `xhs-data-card` -> `xhs-tech` / `科技数码`
+  - `xhs-long-report` -> `xhs-simple` / `极简高级`
+  - `xhs-market-rich-card-fallback` -> `xhs-nature` / `自然清新`
+- These mappings make the local-browser available choices selectable in the UI. They do not change
+  style-proof manifests, release-gate reports, upload/sync/publish availability, or the
+  `canClaimComplete:false` committed proof boundary.
+- An unmapped available choice must still render as read-only/disabled. A mapped choice must select
+  the real preset and the style-catalog preflight row must name the selected choice and preset.
+- XHS `platform-publish`, public URL acceptance, account upload, platform preview, scheduled send,
+  public article rendering, and publish success remain external proof gates even after local
+  selection is enabled.
+
+Required checks:
+- Unit tests must prove the three choices are selectable and resolve to their exact preset ids.
+- Tauri/WebView2 e2e must click the mapped XHS cards in the real ExportModal and read back the
+  active preset plus selected style preflight row.
+- CloakBrowser narrow-viewport verification must use a real local article and the real `发布`
+  modal, confirming the mapped cards are enabled, no horizontal overflow appears, and the release
+  gate remains `blocked-by-external`.

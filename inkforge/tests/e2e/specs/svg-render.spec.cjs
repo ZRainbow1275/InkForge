@@ -630,9 +630,16 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       xhs.cards.some((card) =>
         card.className.includes('style-choice-available') &&
-        card.disabled &&
+        !card.disabled &&
         card.text.includes('Long report image artifact')),
-      'XHS long-image report is locally available but remains disabled without a preset-backed action',
+      'XHS long-image report is locally available and visible as a preset-backed action',
+    ).to.equal(true);
+    expect(
+      xhs.cards.some((card) =>
+        card.className.includes('style-choice-available') &&
+        !card.disabled &&
+        card.text.includes('Data and table image card')),
+      'XHS data-card choice is selectable after mapping to a real preset',
     ).to.equal(true);
     expect(
       xhs.cards.some((card) =>
@@ -643,10 +650,59 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       xhs.cards.some((card) =>
         card.className.includes('style-choice-available') &&
-        card.disabled &&
+        !card.disabled &&
         card.text.includes('Market rich card image fallback')),
-      'XHS market rich card fallback is locally available but remains disabled without a preset-backed action',
+      'XHS market rich card fallback is locally available and mapped to a real preset-backed action',
     ).to.equal(true);
+
+    const xhsApplicationProbe = await browser.executeAsync((done) => {
+      const clickChoice = (label) => {
+        const card = Array.from(document.querySelectorAll('.export-panel .style-choice-card'))
+          .find((item) => (item.textContent || '').includes(label));
+        if (card && !card.disabled) card.click();
+      };
+      const read = () => {
+        const cardsAfter = Array.from(document.querySelectorAll('.export-panel .style-choice-card'));
+        const dataAfter = cardsAfter.find((card) => (card.textContent || '').includes('Data and table image card'));
+        const longAfter = cardsAfter.find((card) => (card.textContent || '').includes('Long report image artifact'));
+        const marketAfter = cardsAfter.find((card) => (card.textContent || '').includes('Market rich card image fallback'));
+        const activePreset = Array.from(document.querySelectorAll('.export-panel .preset-card'))
+          .find((card) => card.classList.contains('active'));
+        const preflight = Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
+          .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
+          .find((text) => text.includes('样式能力目录')) || '';
+
+        done({
+          dataDisabled: Boolean(dataAfter?.disabled),
+          longDisabled: Boolean(longAfter?.disabled),
+          marketDisabled: Boolean(marketAfter?.disabled),
+          dataPressed: dataAfter?.getAttribute('aria-pressed') || '',
+          longPressed: longAfter?.getAttribute('aria-pressed') || '',
+          marketPressed: marketAfter?.getAttribute('aria-pressed') || '',
+          activePresetText: (activePreset?.textContent || '').trim().replace(/\s+/g, ' '),
+          preflight,
+        });
+      };
+
+      clickChoice('Data and table image card');
+      window.setTimeout(() => {
+        clickChoice('Long report image artifact');
+        window.setTimeout(() => {
+          clickChoice('Market rich card image fallback');
+          window.setTimeout(read, 350);
+        }, 250);
+      }, 250);
+    });
+    expect(xhsApplicationProbe.dataDisabled, 'XHS data-card style is selectable').to.equal(false);
+    expect(xhsApplicationProbe.longDisabled, 'XHS long-report style is selectable').to.equal(false);
+    expect(xhsApplicationProbe.marketDisabled, 'XHS market fallback style is selectable').to.equal(false);
+    expect(xhsApplicationProbe.marketPressed, 'last clicked XHS mapped style exposes selected state').to.equal('true');
+    expect(xhsApplicationProbe.dataPressed, 'previous XHS mapped style is no longer selected').to.equal('false');
+    expect(xhsApplicationProbe.longPressed, 'previous XHS mapped style is no longer selected').to.equal('false');
+    expect(xhsApplicationProbe.activePresetText, 'XHS mapped style click selects the real Nature preset')
+      .to.include('自然清新');
+    expect(xhsApplicationProbe.preflight, 'XHS preflight names the selected style and real preset')
+      .to.include('已选择 Market rich card image fallback → 自然清新（xhs-nature）');
 
     await selectExportPlatform('知乎');
     const zhihu = await collectStyleCapabilityProbe();

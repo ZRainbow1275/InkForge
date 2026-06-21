@@ -6823,7 +6823,7 @@ describe('platform native export rendering rules', () => {
     expect(xhsMarketFallback.status).toBe('available')
     expect(xhsMarketAvailability.usable).toBe(true)
     expect(xhsMarketAvailability.status).toBe('available')
-    expect(getStyleChoiceApplication('xhs-market-rich-card-fallback')).toBeNull()
+    expect(getStyleChoiceApplication('xhs-market-rich-card-fallback')?.presetId).toBe('xhs-nature')
     expect(xhsMarketFallback.detectorBlockers).toContain('xhs-market-editor-residue')
     expect(xhsMarketFallback.primaryOutput).toBe('image-page')
     expect(xhsMarketRequirementIds).toEqual(expect.arrayContaining([
@@ -6863,6 +6863,9 @@ describe('platform native export rendering rules', () => {
     const toolbarMap = getStyleChoiceById('wechat-toolbar-parameter-map')
     const xhsCarousel = getStyleChoiceById('xhs-cover-carousel')
     const xhsClean = getStyleChoiceById('xhs-clean-text')
+    const xhsDataCard = getStyleChoiceById('xhs-data-card')
+    const xhsLongReport = getStyleChoiceById('xhs-long-report')
+    const xhsMarketFallback = getStyleChoiceById('xhs-market-rich-card-fallback')
     const zhihuTable = getStyleChoiceById('zhihu-data-table')
     expect(kiln).toBeDefined()
     expect(kilnPasteSafe).toBeDefined()
@@ -6870,9 +6873,15 @@ describe('platform native export rendering rules', () => {
     expect(toolbarMap).toBeDefined()
     expect(xhsCarousel).toBeDefined()
     expect(xhsClean).toBeDefined()
+    expect(xhsDataCard).toBeDefined()
+    expect(xhsLongReport).toBeDefined()
+    expect(xhsMarketFallback).toBeDefined()
     expect(zhihuTable).toBeDefined()
 
-    if (!kiln || !kilnPasteSafe || !amber || !toolbarMap || !xhsCarousel || !xhsClean || !zhihuTable) return
+    if (
+      !kiln || !kilnPasteSafe || !amber || !toolbarMap || !xhsCarousel || !xhsClean
+      || !xhsDataCard || !xhsLongReport || !xhsMarketFallback || !zhihuTable
+    ) return
 
     expect(getStyleChoiceApplication('wechat-flagship-kiln')?.presetId).toBe('flagship-kiln')
     expect(getStyleChoiceApplication('wechat-flagship-kiln-paste-safe')?.presetId).toBe('flagship-kiln-paste-safe')
@@ -6895,6 +6904,12 @@ describe('platform native export rendering rules', () => {
 
     expect(evaluateStyleChoiceApplication(xhsClean, ['unit-tested']).application?.presetId).toBe('xhs-fresh')
     expect(evaluateStyleChoiceApplication(xhsClean, ['unit-tested']).selectable).toBe(true)
+    expect(evaluateStyleChoiceApplication(xhsDataCard, ['local-browser']).application?.presetId).toBe('xhs-tech')
+    expect(evaluateStyleChoiceApplication(xhsDataCard, ['local-browser']).selectable).toBe(true)
+    expect(evaluateStyleChoiceApplication(xhsLongReport, ['local-browser']).application?.presetId).toBe('xhs-simple')
+    expect(evaluateStyleChoiceApplication(xhsLongReport, ['local-browser']).selectable).toBe(true)
+    expect(evaluateStyleChoiceApplication(xhsMarketFallback, ['local-browser']).application?.presetId).toBe('xhs-nature')
+    expect(evaluateStyleChoiceApplication(xhsMarketFallback, ['local-browser']).selectable).toBe(true)
     expect(evaluateStyleChoiceApplication(zhihuTable, ['unit-tested']).application?.presetId).toBe('zhihu-tech')
     expect(evaluateStyleChoiceApplication(zhihuTable, ['unit-tested']).selectable).toBe(true)
   })
@@ -6944,11 +6959,18 @@ describe('platform native export rendering rules', () => {
 
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-clean-text')?.selectable).toBe(true)
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-cover-carousel')?.selectable).toBe(false)
-    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-data-card')?.selectable).toBe(false)
-    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-long-report')?.selectable).toBe(false)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-data-card')?.selectable).toBe(true)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-long-report')?.selectable).toBe(true)
     expect(xhsApplications.find(item =>
       item.availability.choice.id === 'xhs-market-rich-card-fallback'
-    )?.selectable).toBe(false)
+    )?.selectable).toBe(true)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-data-card')?.application?.presetId)
+      .toBe('xhs-tech')
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-long-report')?.application?.presetId)
+      .toBe('xhs-simple')
+    expect(xhsApplications.find(item =>
+      item.availability.choice.id === 'xhs-market-rich-card-fallback'
+    )?.application?.presetId).toBe('xhs-nature')
 
     expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-clean-column')?.selectable).toBe(true)
     expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-diagram-article')?.selectable).toBe(false)

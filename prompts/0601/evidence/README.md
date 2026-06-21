@@ -418,8 +418,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-card-rich-local-evidence-20260622.txt # 当前规则实现：WeChat rich card/timeline/gallery 本地 browser/exact HTML artifact；不证明 PC 粘贴/手机/发布
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] xhs-raster-manifest-builder-20260619.txt # 当前规则实现：real raster metadata/data URL -> XHS manifest builder; no upload/publish claim
-[x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未映射/未发布
-[x] xhs-market-rich-card-fallback-local-evidence-20260621.txt # 当前规则实现：XHS market-rich fallback 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未映射/未发布
+[x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未发布
+[x] xhs-market-rich-card-fallback-local-evidence-20260621.txt # 当前规则实现：XHS market-rich fallback 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未发布
 [x] zhihu-image-manifest-gate-20260609.txt # 当前规则实现：Zhihu image fallback artifact manifest 本地/host preflight 门禁
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
@@ -429,6 +429,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-*.png  # XHS long-report 4 页 1080x1440 PNG
 [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json  # XHS market-rich fallback 本地 manifest pack
 [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-*.png  # XHS market-rich fallback 4 页 1080x1440 PNG
+[x] xhs-style-choice-application-mapping-20260622.txt # XHS data-card / long-report / market-rich fallback 映射到现有真实小红书 presets；不证明上传/发布
 [x] wechat-classic-inline-local-artifact-20260621.html # WeChat classic inline 本地 exact HTML artifact
 [x] wechat-quiet-editorial-local-artifact-20260621.html # WeChat quiet editorial 本地 exact HTML artifact
 [x] wechat-toolbar-parameter-map-local-artifact-20260622.html # WeChat toolbar 参数映射本地 exact HTML artifact
@@ -885,6 +886,34 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   available but disabled/unmapped.
 - Boundary: this opens local catalog availability only. It does not prove Xiaohongshu account
   upload, mobile/platform preview, scheduled send, public article rendering, or publish success.
+
+## 2026-06-22 XHS Style Choice Application Mapping
+
+- [x] xhs-style-choice-application-mapping-20260622.txt
+- `xhs-data-card`, `xhs-long-report`, and `xhs-market-rich-card-fallback` now map to existing
+  Xiaohongshu presets through `STYLE_CHOICE_APPLICATIONS`.
+- Exact mappings: `xhs-data-card -> xhs-tech / 科技数码`,
+  `xhs-long-report -> xhs-simple / 极简高级`, and
+  `xhs-market-rich-card-fallback -> xhs-nature / 自然清新`.
+- These choices are now selectable in the real ExportModal after their local-browser availability
+  proof. The mapping selects existing presets only; it does not add upload, preview, scheduled
+  send, public article, public URL, or publish proof.
+- Verification passed: GitNexus impact for `STYLE_CHOICE_APPLICATIONS` and
+  `evaluateStyleChoiceApplication`; focused style-choice regression with 1 file / 3 selected
+  tests; full platform style-catalog regression with 1 file / 155 tests; full export serial
+  regression with 36 files / 1132 tests; targeted ESLint; e2e script syntax check; `vue-tsc`;
+  production build with 4653 modules in 39.75s; and Tauri/WebView2 e2e with 1 spec / 6 tests.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 25 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  XHS showed `7/8` available; the three mapped cards were enabled as `style-choice-available`;
+  clicking Data -> Long -> Market selected `xhs-nature / 自然清新`; the preflight row read
+  `已选择 Market rich card image fallback → 自然清新（xhs-nature）`; `scrollWidth=390`,
+  `clientWidth=390`, and `overflowCount=0`.
+- Boundary: this is local application mapping only. Xiaohongshu account upload, mobile/platform
+  preview, public URL acceptance, scheduled send, public article rendering, and publish success
+  remain external proof gates.
 
 ## 2026-06-22 Style Proof Release Local Conflict Scope
 
