@@ -958,7 +958,7 @@ Rules:
   cover thumbnail, sync, upload, public-host, scheduled-send, platform-preview, public rendering,
   or publish success.
 
-Current 2026-06-22 snapshot after the WeChat Kiln paste-safe committed local proof:
+Current 2026-06-22 snapshot after the blocked-choice-only local-conflict follow-up:
 - `status=blocked-by-local-conflict`
 - `canClaimComplete=false`
 - `localManifestCount=20`
@@ -971,18 +971,23 @@ Current 2026-06-22 snapshot after the WeChat Kiln paste-safe committed local pro
 - `unsafeToAutomateOpenSteps=13`
 - `mutatingOpenSteps=13`
 - `blockerCount=5`
-- local conflict issue count: `6`
-- local conflict issue counts: `style-proof-manifest-requirement-missing=3`,
-  `style-proof-manifest-choice-blocked=3`
-- local conflict requirement ids: `zhihu-artifact-manifest`, `unit-test-coverage`,
-  `local-browser-rendering`
+- local conflict issue count: `3`
+- local conflict issue counts: `style-proof-manifest-choice-blocked=3`
+- local conflict requirement ids: none
 - phone preview platform counts: `wechat=4`
 - external dependency platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=5`
 - unsafe-to-automate platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=4`
+- Missing `zhihu-artifact-manifest` rows that require public/platform image hosts remain
+  unclaimable, but they are not displayed as local artifact chores in the committed release
+  blocker.
+- Aggregate `unit-test-coverage` and `local-browser-rendering` gaps whose remaining missing rows
+  are entirely blocked catalog choices no longer create separate local requirement-missing
+  conflicts.
 
 Evidence:
 - `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`
 - `prompts/0601/evidence/style-proof-release-local-conflict-scope-20260622.txt`
+- `prompts/0601/evidence/style-proof-release-blocked-choice-only-scope-20260622.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 33.
 
 ## 12. 2026-06-22 ExportModal Style Choice Notice Localization

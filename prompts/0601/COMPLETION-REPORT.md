@@ -3988,6 +3988,45 @@ Boundary:
 
 ---
 
+## 2026-06-22 Style Proof Blocked-Choice-Only Local Conflict Scope Addendum
+
+- `getCommittedStyleProofEvidenceReleaseGateReport()` now excludes blocked-choice-only aggregate
+  local requirement gaps from the `local-conflict` blocker.
+- `zhihu-artifact-manifest` gaps that require public/platform image hosts remain unclaimable, but
+  they are no longer displayed as local artifact chores in the committed release blocker.
+- Current live committed-evidence release report remains blocked and unclaimable:
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, `combinedIssueCount=16`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, and `blockerCount=5`.
+- The local-conflict blocker now reports only committed proof rows targeting catalog-blocked
+  choices: `issueCount=3`, `style-proof-manifest-choice-blocked=3`, and no local requirement ids.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-release-blocked-choice-only-scope-20260622.txt`.
+- Verification passed so far: GitNexus impact for
+  `getCommittedStyleProofEvidenceReleaseGateReport` and `getCommittedStyleProofRunbookOpenSteps`;
+  TDD first focused release-claims test failed while requirement-missing still appeared in
+  local-conflict; focused release-claims regression passed after the implementation; runtime report
+  readback showed `local-conflict issueCount=3` while phone/external/unsafe/mutating blockers
+  stayed open.
+- Follow-up verification passed: targeted ESLint, focused `release claims` regression, four-file
+  cross-platform export regression with 4 files / 194 tests, full export serial regression with
+  36 files / 1132 tests, `vue-tsc`, and production build with 4653 modules in 46.56s.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  ExportModal showed `本地冲突 3`, no `本地冲突 6`, no `本地冲突 16`, no stale local
+  artifact-manifest summary, `目录阻断 3`, `手机预览 4`, `外部依赖 14`,
+  `canClaimComplete=false`, the updated choice-only local-conflict operator summary,
+  `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`. Runtime screenshots were not
+  saved as committed artifacts.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 18 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- Boundary: this is release-gate classification precision only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload,
+  Zhihu upload, or publish success.
+
+---
+
 ## 2026-06-22 Style Choice Notice Localization Addendum
 
 - ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese

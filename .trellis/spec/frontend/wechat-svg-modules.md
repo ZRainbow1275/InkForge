@@ -2857,16 +2857,28 @@ Contracts:
   in local-conflict only when the requirement is local evidence or local manifest hygiene:
   `catalog-source`, `market-applied-dom-readback`, `no-proprietary-template-source`,
   `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
-  `xhs-artifact-manifest`, `zhihu-artifact-manifest`, or `no-sensitive-artifact`. Missing phone,
+  `xhs-artifact-manifest`, or `no-sensitive-artifact`. Missing phone,
   authenticated PC editor, credentialed-channel, public-host, scheduled-send, and publish rows
   must remain in their dedicated step-backed blockers.
+- `zhihu-artifact-manifest` is not a pure local release-conflict row when the live runbook points
+  to public-host or platform-host image proof. The Zhihu manifest validator may be a local
+  preflight API, but its passing evidence depends on a publishable final image host; release
+  accounting must keep that gap in public-host / external-dependency blockers instead of
+  displaying it as a local artifact chore.
+- Aggregate local requirements whose remaining `missing` count is entirely explained by
+  blocked catalog choices must not become local requirement-missing conflicts. They stay
+  unclaimable through the blocked choice itself or through the appropriate external/public-host
+  gate, unless a committed manifest is actively trying to promote a blocked choice.
 - Catalog-blocked committed proof rows remain local conflicts because committed artifacts must not
   promote blocked choices.
 - Current committed evidence may be documented as a snapshot only. As of the 2026-06-22
-  Kiln paste-safe local proof, the live report remains `canClaimComplete:false` with
+  blocked-choice-only local-conflict follow-up, the live report remains `canClaimComplete:false`
+  with
   `localManifestCount=20`, `wechatPcManifestCount=2`, `combinedManifestCount=22`,
   `combinedIssueCount=16`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
-  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, and five blocker buckets.
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, five blocker buckets, and a
+  local-conflict issue count of `3` for the committed proof rows that still target
+  catalog-blocked choices.
 - Snapshot counts are not proof. Consumers must read the live report and keep phone preview,
   Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform preview,
   public rendering, and publish rows unclaimable until exact redacted external evidence exists.
@@ -2884,6 +2896,8 @@ Required checks:
   current local conflict counts.
 - Regression tests must prove local-conflict issue counting is narrower than `combinedIssueCount`
   when external phone/account/public-host/publish rows are still missing.
+- Regression tests must prove blocked-choice-only aggregate local gaps and Zhihu public-host image
+  manifest gaps do not appear as missing local artifact requirements in the release blocker.
 - Regression tests must prove phone, external-dependency, unsafe-to-automate, and
   mutating-platform blockers expose platform and requirement step counts.
 - Evidence docs must include the current report status, manifest counts, blocker counts, and the

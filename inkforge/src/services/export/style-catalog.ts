@@ -6447,7 +6447,6 @@ const COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS = new Set<StyleProofRequi
   'local-browser-rendering',
   'exact-artifact',
   'xhs-artifact-manifest',
-  'zhihu-artifact-manifest',
   'no-sensitive-artifact',
 ])
 
@@ -6460,10 +6459,29 @@ function isCommittedStyleProofReleaseLocalRequirement(value: string | undefined)
     COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS.has(value)
 }
 
-function isCommittedStyleProofReleaseLocalConflictIssue(issue: QualityIssue): boolean {
+function isCommittedStyleProofReleaseBlockedChoiceOnlyRequirementGap(
+  report: CommittedStyleProofExecutionRunbookReport,
+  requirementId: StyleProofRequirementId,
+): boolean {
+  const matchingSteps = getCommittedStyleProofRunbookOpenSteps(report)
+    .filter(step =>
+      step.requirement.id === requirementId &&
+      step.issueIds.includes('style-proof-manifest-requirement-missing')
+    )
+
+  return matchingSteps.length > 0 &&
+    matchingSteps.every(step => step.missing > 0 && step.missing <= step.blockedChoiceCount)
+}
+
+function isCommittedStyleProofReleaseLocalConflictIssue(
+  issue: QualityIssue,
+  report: CommittedStyleProofExecutionRunbookReport,
+): boolean {
   if (!STYLE_PROOF_MANIFEST_ISSUE_IDS.includes(issue.id as StyleProofManifestIssueId)) return false
   if (issue.id === 'style-proof-manifest-requirement-missing') {
-    return isCommittedStyleProofReleaseLocalRequirement(issue.location)
+    if (!isStyleProofRequirementId(issue.location)) return false
+    if (!isCommittedStyleProofReleaseLocalRequirement(issue.location)) return false
+    return !isCommittedStyleProofReleaseBlockedChoiceOnlyRequirementGap(report, issue.location)
   }
   return true
 }
@@ -6472,7 +6490,7 @@ function getCommittedStyleProofReleaseLocalConflictIssues(
   report: CommittedStyleProofExecutionRunbookReport,
 ): QualityIssue[] {
   return report.combined.issues
-    .filter(isCommittedStyleProofReleaseLocalConflictIssue)
+    .filter(issue => isCommittedStyleProofReleaseLocalConflictIssue(issue, report))
 }
 
 function getCommittedStyleProofManifestIssueIds(
@@ -6617,13 +6635,16 @@ function getCommittedStyleProofReleaseLocalConflictAction(
 
   const hasFingerprintMismatch = issueIds.includes('style-proof-manifest-pack-fingerprint-mismatch')
   const hasChoiceBlocked = issueIds.includes('style-proof-manifest-choice-blocked')
+  const hasRequirementMissing = issueIds.includes('style-proof-manifest-requirement-missing')
 
   return [{
     platforms: ['wechat', 'xiaohongshu', 'zhihu'],
     action: hasFingerprintMismatch
       ? 'Reconcile the committed manifest pack before any release claim: remove stale conflicting proof rows or replace them with one exact redacted artifact fingerprint for each platform and choice.'
-      : hasChoiceBlocked
+      : hasChoiceBlocked && hasRequirementMissing
         ? 'Reconcile committed proof rows that target catalog-blocked choices or missing local artifact requirements; external phone, account, public-host, sync, scheduled-send, and publish gates remain separate blockers.'
+        : hasChoiceBlocked
+          ? 'Reconcile committed proof rows that target catalog-blocked choices; external phone, account, public-host, sync, scheduled-send, and publish gates remain separate blockers.'
         : 'Complete the remaining local committed proof rows before any release claim; external phone, account, public-host, sync, scheduled-send, and publish proof cannot be inferred from local manifests.',
   }]
 }

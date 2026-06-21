@@ -8726,3 +8726,64 @@ Boundary:
   PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
+
+## 2026-06-22 Style Proof Blocked-Choice-Only Local Conflict Scope Slice
+
+Scope:
+- Local committed-evidence release-gate classification only.
+- No renderer output, catalog availability, proof manifests, sync, preview, upload, scheduled
+  send, public rendering, or publish behavior was changed.
+
+Implementation:
+- `zhihu-artifact-manifest` is no longer counted as a pure local release-conflict requirement.
+  Its validator is local, but a passing Zhihu image manifest still requires public/platform image
+  host evidence, so the release gate must keep that gap with public-host / external blockers.
+- Aggregate local requirement gaps are excluded from the `local-conflict` blocker when their
+  remaining `missing` count is fully explained by blocked catalog choices.
+- Choice-blocked committed proof rows remain local conflicts because committed manifests must not
+  promote blocked choices.
+- ExportModal now maps a choice-only local-conflict action to Chinese copy that mentions
+  catalog-blocked committed proof rows without mentioning local artifact manifest gaps.
+
+Runtime snapshot:
+- `status=blocked-by-local-conflict`, `canClaimComplete=false`, `combinedIssueCount=16`, and
+  `blockerCount=5` remain unchanged.
+- `local-conflict issueCount` is now 3 instead of 6:
+  `style-proof-manifest-choice-blocked=3`.
+- Local conflict requirement ids are now empty.
+- Phone, external-dependency, unsafe-to-automate, and mutating-platform blockers still report
+  their previous issue and step counts.
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`:
+  LOW risk, one ExportModal dependent, zero affected processes.
+- `npx gitnexus impact getCommittedStyleProofRunbookOpenSteps -r InkForge --depth 3`: LOW risk,
+  one direct release-gate dependent, one direct Export module hit, zero affected processes.
+- TDD first run failed while `style-proof-manifest-requirement-missing` still appeared in the
+  `local-conflict` blocker; after the implementation, focused `release claims` regression passed
+  1 file / 1 selected test.
+- Runtime report readback showed `local-conflict issueCount=3`, `issueIds=[choice-blocked]`, and
+  no local conflict requirement ids while phone/external/unsafe/mutating blockers remained open.
+- Targeted ESLint for `style-catalog.ts`, `platform-export-rendering.test.ts`, and ExportModal
+  passed.
+- Four-file cross-platform export regression passed 4 files / 194 tests.
+- Full export serial regression passed 36 files / 1132 tests.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`: passed, 4653 modules
+  transformed and built in 46.56s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+  `390x844`, ExportModal readback reported `本地冲突 3`, no `本地冲突 6`, no `本地冲突 16`, no
+  stale local artifact-manifest summary, `目录阻断 3`, `手机预览 4`, `外部依赖 14`,
+  `canClaimComplete=false`, updated choice-only local-conflict operator text, `scrollWidth=390`,
+  `bodyScrollWidth=390`, and `overflowCount=0`.
+- Runtime screenshots were not saved as committed artifacts.
+- Final `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 40 dirty files across
+  the whole working tree, 18 changed symbols, and 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This is release-gate classification precision only. It does not make release proof complete,
+  reduce `combinedIssueCount`, remove any phone/account/public-host/publish gate, or prove WeChat
+  PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.

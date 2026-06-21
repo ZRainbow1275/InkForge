@@ -826,6 +826,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
   preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
 
+## 2026-06-22 Style Proof Release Blocked-Choice-Only Scope
+
+- [x] style-proof-release-blocked-choice-only-scope-20260622.txt
+- `getCommittedStyleProofEvidenceReleaseGateReport()` now excludes blocked-choice-only aggregate
+  local requirement gaps from the `local-conflict` blocker.
+- `zhihu-artifact-manifest` gaps that require public/platform image hosts remain unclaimable, but
+  they stay with public-host / external dependency proof instead of appearing as a local artifact
+  chore.
+- Runtime readout remains unclaimable: `status=blocked-by-local-conflict`,
+  `canClaimComplete=false`, `combinedIssueCount=16`, `blockerCount=5`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, and `mutatingOpenSteps=13`.
+- The local-conflict blocker now reports only the three committed proof rows that target
+  catalog-blocked choices: `issueCount=3`, `issueIds=[style-proof-manifest-choice-blocked]`, and
+  no local requirement ids.
+- Focused TDD first failed while `style-proof-manifest-requirement-missing` was still present in
+  `local-conflict`; after the implementation, focused `release claims` regression passed.
+- Verification passed: targeted ESLint, focused `release claims` regression, four-file
+  cross-platform export regression with 4 files / 194 tests, full export serial regression with
+  36 files / 1132 tests, `vue-tsc`, and production build with 4653 modules in 46.56s.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  ExportModal showed `本地冲突 3`, no `本地冲突 6`, no `本地冲突 16`, no stale local
+  artifact-manifest summary, `目录阻断 3`, `手机预览 4`, `外部依赖 14`,
+  `canClaimComplete=false`, the updated choice-only local-conflict operator summary,
+  `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 18 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- Boundary: this is release-gate classification precision only. It does not prove WeChat PC paste,
+  phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send,
+  platform preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
+
 ## 2026-06-22 Style Proof Release Local Conflict Scope
 
 - [x] style-proof-release-local-conflict-scope-20260622.txt

@@ -2563,31 +2563,22 @@ describe('platform native export rendering rules', () => {
     ]))
     expect(report.summary.blockerCount).toBe(5)
     expect(localConflictBlocker?.issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
-    expect(localConflictBlocker?.issueIds).toEqual(expect.arrayContaining([
-      'style-proof-manifest-requirement-missing',
+    expect(localConflictBlocker?.issueIds).toEqual([
       'style-proof-manifest-choice-blocked',
-    ]))
-    expect(localConflictBlocker?.issueIds).toHaveLength(2)
-    expect(localConflictBlocker?.requirementIds).toEqual(expect.arrayContaining([
-      'local-browser-rendering',
-      'unit-test-coverage',
-      'zhihu-artifact-manifest',
-    ]))
-    expect(localConflictBlocker?.requirementIds).toHaveLength(3)
-    expect(localConflictBlocker?.issueCount).toBe(6)
-    expect(localConflictBlocker?.stepCount).toBe(6)
+    ])
+    expect(localConflictBlocker?.requirementIds).toEqual([])
+    expect(localConflictBlocker?.issueCount).toBe(3)
+    expect(localConflictBlocker?.stepCount).toBe(3)
     expect(localConflictBlocker?.issueCount).toBeLessThan(report.summary.combinedIssueCount)
-    expect(localConflictBlocker?.issueCounts).toEqual(expect.arrayContaining([
-      { issueId: 'style-proof-manifest-requirement-missing', count: 3 },
+    expect(localConflictBlocker?.issueCounts).toEqual([
       { issueId: 'style-proof-manifest-choice-blocked', count: 3 },
-    ]))
-    expect(localConflictBlocker?.issueCounts).toHaveLength(2)
+    ])
     expect(localConflictBlocker?.platformStepCounts).toEqual([])
     expect(localConflictBlocker?.requirementStepCounts).toEqual([])
     expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-        action: expect.stringContaining('catalog-blocked choices or missing local artifact requirements'),
+        action: expect.stringContaining('catalog-blocked choices'),
       }),
     ]))
     expect(localConflictBlocker?.fingerprintConflicts).toBeUndefined()

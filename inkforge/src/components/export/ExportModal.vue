@@ -442,8 +442,11 @@ function styleProofReleaseNextOperatorActionSummary(
     if (action.action.includes('fingerprint')) {
       return '先统一已提交 manifest 指纹；每个平台和样式只能保留同一脱敏产物指纹'
     }
-    if (action.action.includes('catalog-blocked choices')) {
+    if (action.action.includes('missing local artifact requirements')) {
       return '先处理目录阻断样式和本地 artifact manifest 缺项；手机、授权、public host、同步、定时/发送和发布仍由后续门禁单独证明'
+    }
+    if (action.action.includes('catalog-blocked choices')) {
+      return '先处理已提交证据中的目录阻断样式；手机、授权、public host、同步、定时/发送和发布仍由后续门禁单独证明'
     }
     return '补齐剩余本地已提交证据行；外部平台证明不得由现有 manifest 推断'
   }
