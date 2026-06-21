@@ -418,8 +418,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] wechat-card-rich-local-evidence-20260622.txt # 当前规则实现：WeChat rich card/timeline/gallery 本地 browser/exact HTML artifact；不证明 PC 粘贴/手机/发布
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] xhs-raster-manifest-builder-20260619.txt # 当前规则实现：real raster metadata/data URL -> XHS manifest builder; no upload/publish claim
-[x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
-[x] xhs-market-rich-card-fallback-local-evidence-20260621.txt # 当前规则实现：XHS market-rich fallback 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
+[x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未映射/未发布
+[x] xhs-market-rich-card-fallback-local-evidence-20260621.txt # 当前规则实现：XHS market-rich fallback 本地 4 页 CloakBrowser raster pack + manifest；本地可用但未映射/未发布
 [x] zhihu-image-manifest-gate-20260609.txt # 当前规则实现：Zhihu image fallback artifact manifest 本地/host preflight 门禁
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
@@ -856,6 +856,35 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is release-gate classification precision only. It does not prove WeChat PC paste,
   phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send,
   platform preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
+
+## 2026-06-22 XHS Local Catalog Open
+
+- [x] xhs-local-catalog-open-20260622.txt
+- `xhs-data-card`, `xhs-long-report`, and `xhs-market-rich-card-fallback` are now
+  `local-browser` available catalog choices because the committed CloakBrowser raster packs prove
+  exact image-page manifests, 1080 x 1440 PNG dimensions, `overflow=false`, `cropStatus=ok`, body
+  references, and `validationIssueIds=[]`.
+- They remain unselectable in ExportModal because no `STYLE_CHOICE_APPLICATIONS` mapping points to a
+  real InkForge preset/export option yet.
+- Runtime release-gate readout remains unclaimable but is now external-gate blocked:
+  `status=blocked-by-external`, `canClaimComplete=false`, `combinedIssueCount=13`,
+  `blockerCount=4`, with `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform` blockers. There is no `local-conflict` blocker in this snapshot.
+- Verification passed: focused style catalog regression with 1 file / 155 tests; full export
+  serial regression with 36 files / 1132 tests; targeted ESLint; e2e script syntax check;
+  `vue-tsc`; production build with 4653 modules in 31.91s; and Tauri/WebView2 e2e with 1 spec /
+  6 passing.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 41 dirty files
+  across the whole working tree, 27 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser visual/DOM readback at `390x844` used a real local article and the real `发布`
+  button. The XHS summary showed `7/8` available, cards counted `total=8`, `available=7`,
+  `blocked=0`, `unavailable=1`, `overflowingCards=0`, `document scrollWidth=390/clientWidth=390`,
+  `panel scrollWidth=374/clientWidth=374`, `status blocked-by-external`, `blockers 4`,
+  `canClaimComplete=false`, no local-conflict blocker, and the three opened choices rendered as
+  available but disabled/unmapped.
+- Boundary: this opens local catalog availability only. It does not prove Xiaohongshu account
+  upload, mobile/platform preview, scheduled send, public article rendering, or publish success.
 
 ## 2026-06-22 Style Proof Release Local Conflict Scope
 
@@ -3157,8 +3186,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
   verification re-read JSON/PNG files, checked hashes, bytes, and 1080 x 1440 dimensions.
 - `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-data-card` manifest.
-  Because `xhs-data-card` remains a blocked catalog choice, its progress gates remain invalid and
-  include `style-proof-manifest-choice-blocked`; this local evidence does not make it publishable.
+  The catalog row is now local-browser available; progress local and sensitive-hygiene gates are
+  satisfied while platform-publish remains missing. This local evidence does not make it selectable
+  or publishable.
 - Boundary: this is local XHS data-card raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
@@ -3188,12 +3218,13 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   verification re-read JSON/PNG files, checked hashes, bytes, 1080 x 1440 dimensions,
   `overflow=false`, body references `[1, 2, 3, 4]`, and page crop/reference fields.
 - `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-long-report` manifest.
-  Because `xhs-long-report` remains a blocked catalog choice, its progress gates remain invalid
-  and include `style-proof-manifest-choice-blocked`; this local evidence does not make it
-  publishable.
-- Current release-gate readout after this slice is `localManifestCount=13`,
-  `combinedManifestCount=15`, `combinedIssueCount=15`,
-  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+  The catalog row is now local-browser available; progress local and sensitive-hygiene gates are
+  satisfied while platform-publish remains missing. This local evidence does not make it selectable
+  or publishable.
+- Current release-gate readout after the 2026-06-22 XHS catalog-open slice is
+  `localManifestCount=20`, `combinedManifestCount=22`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, `status=blocked-by-external`, and
+  `canClaimComplete=false`.
 - Boundary: this is local XHS long-report raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
@@ -3228,14 +3259,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   verification re-read JSON/PNG files, checked hashes, bytes, 1080 x 1440 dimensions,
   `overflow=false`, body references `[1, 2, 3, 4]`, cover marking, and page crop/reference fields.
 - `getCommittedStyleProofLocalEvidenceManifests()` now includes one
-  `xhs-market-rich-card-fallback` manifest. Because `xhs-market-rich-card-fallback` remains a
-  blocked catalog choice, its progress gates remain invalid and include
-  `style-proof-manifest-choice-blocked`; this local evidence does not make it publishable.
-- Current release-gate readout after this slice remains blocked with
-  `localManifestCount=14`, `combinedManifestCount=16`, `combinedIssueCount=16`,
-  `hasExactArtifactFingerprintConflicts=false`, `canClaimComplete=false`, and blocker kinds
-  `local-conflict`, `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
-  `mutating-platform`.
+  `xhs-market-rich-card-fallback` manifest. The catalog row is now local-browser available;
+  progress local and sensitive-hygiene gates are satisfied while platform-publish remains missing.
+  This local evidence does not make it selectable or publishable.
+- Current release-gate readout after the 2026-06-22 XHS catalog-open slice remains blocked with
+  `localManifestCount=20`, `combinedManifestCount=22`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, `status=blocked-by-external`,
+  `canClaimComplete=false`, and blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`.
 - Boundary: this is local XHS market-rich fallback raster/image-manifest accounting only. It does
   not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled
   send, public article rendering, or publish success.

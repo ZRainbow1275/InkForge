@@ -213,9 +213,9 @@ Executable mirror:
 | `xhs-cover-carousel` | 小红书 | 封面、步骤卡、图文卡、图表 | figure-system | high | none | image page | long image | `local-browser` | manifest、格式、页数上限检查不通过 |
 | `xhs-cover-hook` | 小红书 | 封面标题、副标题、主题钩子 | headline-system | high | none | image page | plain text | `local-browser` | 封面裁切、对比、manifest cover 标记缺失 |
 | `xhs-markdown-card-slicer` | 小红书 | H2 分页、手动分页、清单、代码卡 | figure-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；平台上传/预览/发布仍需另证 |
-| `xhs-data-card` | 小红书 | 数据表、对比、指标、图表摘要 | card-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 3 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，密集表格/手机可读性/平台上传发布仍需另证 |
-| `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，平台上传/预览/发布仍需另证 |
-| `xhs-market-rich-card-fallback` | 小红书 | 市场富卡片、H5/互动降级、图文层转译 | fallback-system | medium | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，平台上传/预览/发布仍需另证 |
+| `xhs-data-card` | 小红书 | 数据表、对比、指标、图表摘要 | card-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 3 页 CloakBrowser raster pack + manifest 通过；目录已开放为本地可用，暂无 preset 映射，平台上传/预览/发布仍需另证 |
+| `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录已开放为本地可用，暂无 preset 映射，平台上传/预览/发布仍需另证 |
+| `xhs-market-rich-card-fallback` | 小红书 | 市场富卡片、H5/互动降级、图文层转译 | fallback-system | medium | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录已开放为本地可用，暂无 preset 映射，平台上传/预览/发布仍需另证 |
 | `xhs-h5-design-import-boundary` | 小红书 | H5、设计海报、视频/PDF、贴纸图文 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 需先落成图片页/纯文本，不是正文富文本 |
 | `zhihu-clean-column` | 知乎 | 标题、段落、引用、列表、代码 | body-system | medium | none | clean Markdown | clean Markdown | `unit-tested` | 微信 wrapper、HTML/CSS、inline SVG 泄漏 |
 | `zhihu-academic-latex-column` | 知乎 | LaTeX、脚注、代码、引用 | body-system | medium | none | clean Markdown | image fallback | `unit-tested` | 2026-06-21 本地 clean Markdown exact artifact 已提交；公式预览、public host、artifact manifest、平台发布仍需另证 |
@@ -839,16 +839,13 @@ Xiumi SVG/H5 rules:
   `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`, `tn-atom-context`,
   `tn-link`, and `tn-image-usage`. These bindings are editor/runtime schema and must be blocked as
   `Xiumi component binding attribute residue` if copied into WeChat/XHS/Zhihu output.
-- 2026-06-20 executable fallback-catalog contract: the market SVG/H5/rich-layout family is visible
-  in the runtime style catalog only as blocked fallback choices:
-  `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
-  `zhihu-market-rich-layout-fallback`. They document available design directions and required
-  fallback paths without claiming availability. WeChat requires phone preview/publish proof; XHS
-  requires real image-page/long-image manifest proof; Zhihu requires public-host image fallback
-  proof with alt/caption and manifest validation. The 2026-06-21 `xhs-market-rich-card-fallback`
-  local raster pack supplies source-owned image-page/manifest proof only; it does not satisfy
-  upload, preview, public article, or publish proof. None may map to a selectable preset until all
-  required InkForge-owned artifacts and platform proof exist.
+- 2026-06-22 executable fallback-catalog contract refresh: the market SVG/H5/rich-layout family is
+  visible in the runtime style catalog by platform-specific proof state. WeChat
+  `wechat-market-svg-h5-fallback-matrix` and Zhihu `zhihu-market-rich-layout-fallback` remain
+  blocked; XHS `xhs-market-rich-card-fallback` is local-browser available after the source-owned
+  image-page/manifest pack passed. The XHS row still does not satisfy upload, preview, public
+  article, or publish proof, and it may not map to a selectable preset until a real InkForge
+  preset/export-option mapping exists.
 - 2026-06-21 Xiumi SVG recovery-modal recheck: the live v5 paper editor exposed the SVG taxonomy
   and a readable `.tn-editing-panel`, but an unsaved-draft recovery confirmation blocked safe
   application proof. Do not automate restore/cancel decisions. Treat this as taxonomy and blocker
@@ -958,22 +955,20 @@ Rules:
   cover thumbnail, sync, upload, public-host, scheduled-send, platform-preview, public rendering,
   or publish success.
 
-Current 2026-06-22 snapshot after the blocked-choice-only local-conflict follow-up:
-- `status=blocked-by-local-conflict`
+Current 2026-06-22 snapshot after the XHS local catalog-open follow-up:
+- `status=blocked-by-external`
 - `canClaimComplete=false`
 - `localManifestCount=20`
 - `wechatPcManifestCount=2`
 - `combinedManifestCount=22`
-- `combinedIssueCount=16`
-- `cannotClaimSteps=32`
+- `combinedIssueCount=13`
+- `cannotClaimSteps=29`
 - `phoneOpenSteps=4`
 - `externalDependencyOpenSteps=14`
 - `unsafeToAutomateOpenSteps=13`
 - `mutatingOpenSteps=13`
-- `blockerCount=5`
-- local conflict issue count: `3`
-- local conflict issue counts: `style-proof-manifest-choice-blocked=3`
-- local conflict requirement ids: none
+- `blockerCount=4`
+- no local-conflict blocker remains
 - phone preview platform counts: `wechat=4`
 - external dependency platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=5`
 - unsafe-to-automate platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=4`
@@ -988,6 +983,7 @@ Evidence:
 - `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`
 - `prompts/0601/evidence/style-proof-release-local-conflict-scope-20260622.txt`
 - `prompts/0601/evidence/style-proof-release-blocked-choice-only-scope-20260622.txt`
+- `prompts/0601/evidence/xhs-local-catalog-open-20260622.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 33.
 
 ## 12. 2026-06-22 ExportModal Style Choice Notice Localization

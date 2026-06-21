@@ -8727,6 +8727,67 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 XHS Local Catalog Open Slice
+
+Scope:
+- Local Xiaohongshu catalog availability and committed proof accounting only.
+- No renderer output, proof manifest artifact, account upload, platform preview, scheduled send,
+  public rendering, or publish behavior was changed.
+
+Implementation:
+- Opened `xhs-data-card`, `xhs-long-report`, and `xhs-market-rich-card-fallback` from catalog
+  `blocked` to `available` because their committed CloakBrowser raster packs already satisfy
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, `xhs-artifact-manifest`, and
+  `no-sensitive-artifact`.
+- Kept all three unselectable in ExportModal because no `STYLE_CHOICE_APPLICATIONS` mapping points
+  to a real preset/export option yet.
+- Updated regression tests, e2e catalog count expectations, spec docs, platform rendering rules,
+  evidence README, and added `prompts/0601/evidence/xhs-local-catalog-open-20260622.txt`.
+
+Runtime snapshot:
+- XHS catalog stats are now `total=8`, `usable=7`, `blocked=0`, `unavailable=1`.
+- Committed release gate now reports `status=blocked-by-external`, `canClaimComplete=false`,
+  `combinedIssueCount=13`, `cannotClaimSteps=29`, and `blockerCount=4`.
+- The local-conflict blocker is absent. Remaining blockers are `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+
+Verification:
+- `npx gitnexus impact PLATFORM_STYLE_CHOICES -r InkForge --depth 3`: LOW risk, 0 affected
+  processes.
+- `npx gitnexus impact evaluateStyleChoiceAvailability -r InkForge --depth 3`: LOW risk, one
+  Export module, 0 affected processes.
+- `npx gitnexus impact validateStyleProofManifest -r InkForge --depth 3`: LOW risk, one Export
+  module, 1 affected progress process.
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`:
+  LOW risk, one ExportModal dependent, 0 affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 31.91s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`:
+  passed, 1 spec / 6 tests.
+- CloakBrowser narrow viewport readback at `390x844` used a real local article and the real
+  `发布` button. ExportModal showed XHS `7/8` available, `total=8`, `available=7`, `blocked=0`,
+  `unavailable=1`, `overflowingCards=0`, `document scrollWidth=390/clientWidth=390`,
+  `panel scrollWidth=374/clientWidth=374`, `status blocked-by-external`, `blockers 4`,
+  `canClaimComplete=false`, no local-conflict blocker, and the three opened choices as available
+  but disabled/unmapped. Runtime screenshots were used only for local visual inspection and are
+  not committed artifacts.
+- Final `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 41 dirty files across
+  the whole working tree, 27 changed symbols, and 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This opens local catalog availability only. It does not prove Xiaohongshu account upload,
+  mobile/platform preview, scheduled send, public article rendering, public URL acceptance, or
+  publish success.
+
 ## 2026-06-22 Style Proof Blocked-Choice-Only Local Conflict Scope Slice
 
 Scope:

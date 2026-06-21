@@ -514,7 +514,7 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.releaseGatePreflightText, 'WeChat preflight exposes release operator next actions')
       .to.include('operatorNext');
     expect(wechat.releaseGatePreflightText, 'WeChat preflight points remaining proof collection')
-      .to.include('Complete the remaining committed proof rows');
+      .to.include('不得声明手机预览、同步、发布或 public host 已完成');
     expect(
       wechat.cards.some((card) =>
         card.text.includes('验收审计：不可宣称') &&
@@ -545,19 +545,23 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(
       amberCapabilityCard.text,
       'Amber blocked card still exposes phone/publish blockers',
-    ).to.include('mobile preview proof missing');
+    ).to.include('手机预览证明缺失');
+    expect(
+      amberCapabilityCard.text,
+      'Amber blocked card still exposes publish blockers',
+    ).to.include('平台预览或发布证明缺失');
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Mobile-only SVG effect candidate') &&
-        card.text.includes('phone WeChat before/after evidence missing')),
+        card.text.includes('微信手机端前后对照证据缺失')),
       'mobile-only SVG effects stay blocked until phone WeChat evidence exists',
     ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Market SVG/H5 fallback matrix') &&
-        card.text.includes('135/Xiumi SVG and H5 taxonomy')),
+        card.text.includes('135/秀米 SVG 与 H5 规则必须重写')),
       'market SVG/H5 fallback matrix stays blocked until InkForge-owned fallback proof exists',
     ).to.equal(true);
     expect(
@@ -604,15 +608,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
 
     await selectExportPlatform('小红书');
     const xhs = await collectStyleCapabilityProbe();
-    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 4/8');
+    expect(xhs.summary, 'XHS style capability summary').to.include('小红书 当前可用 7/8');
     expect(xhs.summary, 'XHS acceptance audit summary').to.include('验收审计 不可宣称');
     expect(xhs.summary, 'XHS execution runbook summary').to.include('执行手册 开放');
     expect(xhs.cardCount, 'XHS choice card count').to.equal(8);
-    expect(xhs.availableCount, 'XHS available choice count').to.equal(4);
-    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(3);
+    expect(xhs.availableCount, 'XHS available choice count').to.equal(7);
+    expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(0);
     expect(xhs.unavailableCount, 'XHS unavailable choice count').to.equal(1);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
-      .to.include('样式能力目录可用 4/8；受限 3；不可用 1');
+      .to.include('样式能力目录可用 7/8；受限 0；不可用 1');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
       .to.include('验收宣称审计不可宣称');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes execution runbook totals')
@@ -625,9 +629,10 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     ).to.equal(true);
     expect(
       xhs.cards.some((card) =>
-        card.className.includes('style-choice-blocked') &&
+        card.className.includes('style-choice-available') &&
+        card.disabled &&
         card.text.includes('Long report image artifact')),
-      'XHS long-image report remains blocked until artifact crop/size proof exists',
+      'XHS long-image report is locally available but remains disabled without a preset-backed action',
     ).to.equal(true);
     expect(
       xhs.cards.some((card) =>
@@ -637,9 +642,10 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     ).to.equal(true);
     expect(
       xhs.cards.some((card) =>
-        card.className.includes('style-choice-blocked') &&
+        card.className.includes('style-choice-available') &&
+        card.disabled &&
         card.text.includes('Market rich card image fallback')),
-      'XHS market rich card fallback remains blocked until real artifact proof exists',
+      'XHS market rich card fallback is locally available but remains disabled without a preset-backed action',
     ).to.equal(true);
 
     await selectExportPlatform('知乎');

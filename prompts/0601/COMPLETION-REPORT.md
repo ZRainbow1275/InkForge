@@ -4027,6 +4027,45 @@ Boundary:
 
 ---
 
+## 2026-06-22 XHS Local Catalog Open Addendum
+
+- `xhs-data-card`, `xhs-long-report`, and `xhs-market-rich-card-fallback` are now local-browser
+  available catalog choices. The committed CloakBrowser raster packs already prove exact
+  image-page manifests, 1080 x 1440 PNG dimensions, `overflow=false`, `cropStatus=ok`, body
+  references, and `validationIssueIds=[]`.
+- They remain unselectable in ExportModal because no `STYLE_CHOICE_APPLICATIONS` mapping points to
+  a real InkForge preset/export option yet.
+- Current live committed-evidence release report remains blocked and unclaimable, but now by
+  external gates: `status=blocked-by-external`, `canClaimComplete=false`,
+  `combinedIssueCount=13`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, and `blockerCount=4`.
+- The local-conflict blocker is absent in this snapshot. Remaining blockers are `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Added evidence file:
+  `prompts/0601/evidence/xhs-local-catalog-open-20260622.txt`.
+- Verification passed so far: GitNexus impact for `PLATFORM_STYLE_CHOICES`,
+  `evaluateStyleChoiceAvailability`, `validateStyleProofManifest`, and
+  `getCommittedStyleProofEvidenceReleaseGateReport`; focused
+  `platform-export-rendering.test.ts` with 1 file / 155 tests.
+- Follow-up verification passed: full export serial regression with 36 files / 1132 tests;
+  targeted ESLint; e2e script syntax check; `vue-tsc`; production build with 4653 modules in
+  31.91s; and Tauri/WebView2 e2e with 1 spec / 6 passing.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 41 dirty files
+  across the whole working tree, 27 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser visual/DOM readback at `390x844` used a real local article and the real `发布`
+  button. ExportModal showed XHS `7/8` available, `total=8`, `available=7`, `blocked=0`,
+  `unavailable=1`, `overflowingCards=0`, no horizontal document/panel overflow,
+  `status blocked-by-external`, `blockers 4`, `canClaimComplete=false`, no local-conflict blocker,
+  and the three opened choices rendered as available but disabled/unmapped. Runtime screenshots
+  were used only for local visual inspection and are not committed artifacts.
+- Boundary: this opens local catalog availability only. It does not prove Xiaohongshu account
+  upload, mobile/platform preview, scheduled send, public article rendering, public URL acceptance,
+  or publish success.
+
+---
+
 ## 2026-06-22 Style Choice Notice Localization Addendum
 
 - ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese

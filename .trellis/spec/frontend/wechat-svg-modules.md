@@ -2555,19 +2555,21 @@ Required checks:
 ## 23. ExportModal Style Catalog E2E Count Contract - 2026-06-21
 
 The ExportModal e2e must assert the runtime catalog counts produced by the current
-`getPlatformStyleChoices()` catalog. Market fallback choices are intentionally visible as blocked
-choices, not hidden or deleted, so the counts must include them.
+`getPlatformStyleChoices()` catalog. Market fallback choices are intentionally visible at their
+current runtime status, not hidden or deleted, so the counts must include them.
 
 Current runtime counts:
 - WeChat: 17 total choices, 8 available, 5 blocked, 4 unavailable.
-- Xiaohongshu: 8 total choices, 4 available, 3 blocked, 1 unavailable.
+- Xiaohongshu: 8 total choices, 7 available, 0 blocked, 1 unavailable.
 - Zhihu: 8 total choices, 4 available, 3 blocked, 1 unavailable.
 
 Contracts:
 - `tests/e2e/specs/svg-render.spec.cjs` must assert the current counts visible in the real
   ExportModal style capability summary and preflight row.
-- The e2e must keep market fallback choices blocked until real InkForge-owned fallback proof,
-  public-host proof, phone proof, or platform readback exists as required by the platform.
+- The e2e must keep unproven market fallback choices blocked until real InkForge-owned fallback
+  proof, public-host proof, phone proof, or platform readback exists as required by the platform.
+  XHS image-page fallback choices may be locally available after exact local raster/manifest proof,
+  but they remain disabled in the UI when no `STYLE_CHOICE_APPLICATIONS` mapping exists.
 - Updating the e2e count is allowed only after confirming `getPlatformStyleChoices()` and the
   runtime ExportModal agree. Do not delete catalog entries to satisfy stale e2e counts.
 
@@ -2580,17 +2582,19 @@ Contracts:
   dimensions, `overflow=false`, and `validateXhsImageArtifactManifest() === []`.
 - Visual QA must reject packs with overflow warnings, blank pages, cropped content, text overlap,
   unreadable table/slash wrapping, or mixed English/number hard breaks.
-- Because `xhs-data-card` remains a blocked catalog choice, a committed manifest must not make it
-  selectable, usable for release, or publishable. The progress report must keep
-  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- `xhs-data-card` is now a local-browser available catalog choice because the committed pack proves
+  the previously missing overflow/readability/manifest blocker. The progress report must keep local
+  and sensitive-hygiene gates satisfied while platform-publish remains missing.
+- A committed manifest must not make `xhs-data-card` selectable or publishable. Selectability still
+  requires a real preset/export-option mapping, and release completion still requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
 Required checks:
 - Regression tests must include the committed `xhs-data-card` manifest in local and combined
   evidence packs.
-- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
-  progress invalid and release claims unavailable.
+- Tests must assert the local raster/manifest rows exist, the catalog row is no longer blocked, and
+  release claims remain unavailable through external platform-publish gates.
 - Evidence docs must name the visual iterations rejected before the final committed raster pack.
 
 ## 25. XHS Long Report Local Raster Evidence - 2026-06-21
@@ -2604,17 +2608,19 @@ Contracts:
 - Visual QA must reject packs with sparse/weak report coverage, overflow warnings, blank pages,
   cropped content, text overlap, unreadable wrapping, or platform-publish wording that implies
   success without account evidence.
-- Because `xhs-long-report` remains a blocked catalog choice, a committed manifest must not make it
-  selectable, usable for release, or publishable. The progress report must keep
-  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- `xhs-long-report` is now a local-browser available catalog choice because the committed pack proves
+  the previously missing crop/file-size/manifest blocker for the local artifact. The progress report
+  must keep local and sensitive-hygiene gates satisfied while platform-publish remains missing.
+- A committed manifest must not make `xhs-long-report` selectable or publishable. Selectability still
+  requires a real preset/export-option mapping, and release completion still requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
 Required checks:
 - Regression tests must include the committed `xhs-long-report` manifest in local and combined
   evidence packs.
-- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
-  progress invalid and release claims unavailable.
+- Tests must assert the local raster/manifest rows exist, the catalog row is no longer blocked, and
+  release claims remain unavailable through external platform-publish gates.
 - Evidence docs must name the first sparse variant rejection and the final committed raster pack.
 
 ## 26. XHS Market Rich Card Fallback Local Raster Evidence - 2026-06-21
@@ -2632,17 +2638,21 @@ Contracts:
 - Visual QA must reject packs with overflow warnings, blank pages, cropped content, text overlap,
   unreadable wrapping, vendor residue, or platform-publish wording that implies success without
   account evidence.
-- Because `xhs-market-rich-card-fallback` remains a blocked catalog choice, a committed manifest
-  must not make it selectable, usable for release, or publishable. The progress report must keep
-  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- `xhs-market-rich-card-fallback` is now a local-browser available catalog choice because the
+  committed pack proves source-owned image-page/manifest materialization for the fallback family.
+  The progress report must keep local and sensitive-hygiene gates satisfied while platform-publish
+  remains missing.
+- A committed manifest must not make `xhs-market-rich-card-fallback` selectable or publishable.
+  Selectability still requires a real preset/export-option mapping, and release completion still
+  requires platform proof.
 - Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, and publish success remain external proof gates.
 
 Required checks:
 - Regression tests must include the committed `xhs-market-rich-card-fallback` manifest in local
   and combined evidence packs.
-- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
-  progress invalid and release claims unavailable.
+- Tests must assert the local raster/manifest rows exist, the catalog row is no longer blocked, and
+  release claims remain unavailable through external platform-publish gates.
 - Evidence docs must name the source-owned fallback boundary and the final committed raster pack.
 
 ## 27. WeChat Classic Inline Local Unit Evidence - 2026-06-21
@@ -2872,13 +2882,12 @@ Contracts:
 - Catalog-blocked committed proof rows remain local conflicts because committed artifacts must not
   promote blocked choices.
 - Current committed evidence may be documented as a snapshot only. As of the 2026-06-22
-  blocked-choice-only local-conflict follow-up, the live report remains `canClaimComplete:false`
-  with
+  XHS local catalog-open follow-up, the live report remains `canClaimComplete:false` with
   `localManifestCount=20`, `wechatPcManifestCount=2`, `combinedManifestCount=22`,
-  `combinedIssueCount=16`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
-  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, five blocker buckets, and a
-  local-conflict issue count of `3` for the committed proof rows that still target
-  catalog-blocked choices.
+  `combinedIssueCount=13`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, four blocker buckets, and no
+  local-conflict blocker. The remaining catalog-blocked XHS row is
+  `xhs-h5-design-import-boundary`, which has no committed manifest.
 - Snapshot counts are not proof. Consumers must read the live report and keep phone preview,
   Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform preview,
   public rendering, and publish rows unclaimable until exact redacted external evidence exists.
@@ -2892,10 +2901,11 @@ Contracts:
   release state.
 
 Required checks:
-- Regression tests must prove `issueIds` is de-duplicated while `issueCounts` preserves the
-  current local conflict counts.
+- Regression tests must prove `issueIds` is de-duplicated while `issueCounts` preserves any current
+  local conflict counts when local conflicts exist.
 - Regression tests must prove local-conflict issue counting is narrower than `combinedIssueCount`
-  when external phone/account/public-host/publish rows are still missing.
+  when local conflicts exist, and that the local-conflict blocker disappears when all remaining
+  open rows are external phone/account/public-host/publish gates.
 - Regression tests must prove blocked-choice-only aggregate local gaps and Zhihu public-host image
   manifest gaps do not appear as missing local artifact requirements in the release blocker.
 - Regression tests must prove phone, external-dependency, unsafe-to-automate, and

@@ -1975,19 +1975,19 @@ describe('platform native export rendering rules', () => {
     expect(xhsCardSlicerRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(xhsCardSlicerRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(xhsDataCardProgress?.manifestCount).toBe(1)
-    expect(xhsDataCardProgress?.status).toBe('invalid')
-    expect(xhsDataCardProgress?.blockedByCatalog).toBe(true)
+    expect(xhsDataCardProgress?.status).toBe('missing')
+    expect(xhsDataCardProgress?.blockedByCatalog).toBe(false)
     expect(xhsDataCardProgress?.manifest.artifactFingerprint).toBe(
       'prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21.json@sha256:bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a',
     )
     expect(xhsDataCardProgress?.report.issues.map(issue => issue.id))
-      .toContain('style-proof-manifest-choice-blocked')
+      .not.toContain('style-proof-manifest-choice-blocked')
     expect(xhsDataCardProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsDataCardProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsDataCardProgress?.gates.find(gate => gate.gate === 'platform-publish')?.status)
-      .toBe('invalid')
+      .toBe('missing')
     expect(xhsDataCardRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(xhsDataCardRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(xhsDataCardRequirementStatus.get('exact-artifact')).toBe('satisfied')
@@ -1996,19 +1996,19 @@ describe('platform native export rendering rules', () => {
     expect(xhsDataCardRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(xhsDataCardRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(xhsLongReportProgress?.manifestCount).toBe(1)
-    expect(xhsLongReportProgress?.status).toBe('invalid')
-    expect(xhsLongReportProgress?.blockedByCatalog).toBe(true)
+    expect(xhsLongReportProgress?.status).toBe('missing')
+    expect(xhsLongReportProgress?.blockedByCatalog).toBe(false)
     expect(xhsLongReportProgress?.manifest.artifactFingerprint).toBe(
       'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json@sha256:102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e',
     )
     expect(xhsLongReportProgress?.report.issues.map(issue => issue.id))
-      .toContain('style-proof-manifest-choice-blocked')
+      .not.toContain('style-proof-manifest-choice-blocked')
     expect(xhsLongReportProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsLongReportProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsLongReportProgress?.gates.find(gate => gate.gate === 'platform-publish')?.status)
-      .toBe('invalid')
+      .toBe('missing')
     expect(xhsLongReportRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(xhsLongReportRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(xhsLongReportRequirementStatus.get('exact-artifact')).toBe('satisfied')
@@ -2017,19 +2017,19 @@ describe('platform native export rendering rules', () => {
     expect(xhsLongReportRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(xhsLongReportRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(xhsMarketFallbackProgress?.manifestCount).toBe(1)
-    expect(xhsMarketFallbackProgress?.status).toBe('invalid')
-    expect(xhsMarketFallbackProgress?.blockedByCatalog).toBe(true)
+    expect(xhsMarketFallbackProgress?.status).toBe('missing')
+    expect(xhsMarketFallbackProgress?.blockedByCatalog).toBe(false)
     expect(xhsMarketFallbackProgress?.manifest.artifactFingerprint).toBe(
       'prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json@sha256:beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b',
     )
     expect(xhsMarketFallbackProgress?.report.issues.map(issue => issue.id))
-      .toContain('style-proof-manifest-choice-blocked')
+      .not.toContain('style-proof-manifest-choice-blocked')
     expect(xhsMarketFallbackProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsMarketFallbackProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
-      .toBe('invalid')
+      .toBe('satisfied')
     expect(xhsMarketFallbackProgress?.gates.find(gate => gate.gate === 'platform-publish')?.status)
-      .toBe('invalid')
+      .toBe('missing')
     expect(xhsMarketFallbackRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(xhsMarketFallbackRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(xhsMarketFallbackRequirementStatus.get('exact-artifact')).toBe('satisfied')
@@ -2540,12 +2540,12 @@ describe('platform native export rendering rules', () => {
     const localConflictBlocker = report.blockers.find(blocker => blocker.kind === 'local-conflict')
 
     expect(report.canClaimComplete).toBe(false)
-    expect(report.status).toBe('blocked-by-local-conflict')
+    expect(report.status).toBe('blocked-by-external')
     expect(report.summary).toMatchObject({
       localManifestCount: 20,
       combinedManifestCount: 22,
       hasExactArtifactFingerprintConflicts: false,
-      combinedIssueCount: 16,
+      combinedIssueCount: 13,
       cannotClaimSteps: expect.any(Number),
       phoneOpenSteps: expect.any(Number),
       externalDependencyOpenSteps: expect.any(Number),
@@ -2555,33 +2555,14 @@ describe('platform native export rendering rules', () => {
     expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
     expect(report.summary.cannotClaimSteps).toBeGreaterThan(0)
     expect(blockerKinds).toEqual(expect.arrayContaining([
-      'local-conflict',
       'phone-preview',
       'external-dependency',
       'unsafe-to-automate',
       'mutating-platform',
     ]))
-    expect(report.summary.blockerCount).toBe(5)
-    expect(localConflictBlocker?.issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
-    expect(localConflictBlocker?.issueIds).toEqual([
-      'style-proof-manifest-choice-blocked',
-    ])
-    expect(localConflictBlocker?.requirementIds).toEqual([])
-    expect(localConflictBlocker?.issueCount).toBe(3)
-    expect(localConflictBlocker?.stepCount).toBe(3)
-    expect(localConflictBlocker?.issueCount).toBeLessThan(report.summary.combinedIssueCount)
-    expect(localConflictBlocker?.issueCounts).toEqual([
-      { issueId: 'style-proof-manifest-choice-blocked', count: 3 },
-    ])
-    expect(localConflictBlocker?.platformStepCounts).toEqual([])
-    expect(localConflictBlocker?.requirementStepCounts).toEqual([])
-    expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-        action: expect.stringContaining('catalog-blocked choices'),
-      }),
-    ]))
-    expect(localConflictBlocker?.fingerprintConflicts).toBeUndefined()
+    expect(blockerKinds).not.toContain('local-conflict')
+    expect(report.summary.blockerCount).toBe(4)
+    expect(localConflictBlocker).toBeUndefined()
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
     expect(phoneBlocker?.issueIds).toEqual(['style-proof-manifest-requirement-missing'])
@@ -6781,14 +6762,13 @@ describe('platform native export rendering rules', () => {
     }
   })
 
-  it('keeps market-inspired SVG and rich-layout fallback choices blocked until exact artifact proof exists', () => {
-    const marketFallbackIds = [
+  it('keeps unproven market-inspired SVG and rich-layout fallback choices blocked until exact artifact proof exists', () => {
+    const blockedMarketFallbackIds = [
       'wechat-market-svg-h5-fallback-matrix',
-      'xhs-market-rich-card-fallback',
       'zhihu-market-rich-layout-fallback',
     ] as const
 
-    for (const choiceId of marketFallbackIds) {
+    for (const choiceId of blockedMarketFallbackIds) {
       const choice = getStyleChoiceById(choiceId)
       expect(choice).toBeDefined()
       if (!choice) continue
@@ -6817,16 +6797,6 @@ describe('platform native export rendering rules', () => {
         ]))
       }
 
-      if (choice.platform === 'xiaohongshu') {
-        expect(choice.primaryOutput).toBe('image-page')
-        expect(requirementIds).toEqual(expect.arrayContaining([
-          'local-browser-rendering',
-          'xhs-artifact-manifest',
-          'published-url-or-platform-preview',
-        ]))
-        expect(requirementIds).not.toContain('phone-preview-readback')
-      }
-
       if (choice.platform === 'zhihu') {
         expect(choice.primaryOutput).toBe('image-fallback')
         expect(requirementIds).toEqual(expect.arrayContaining([
@@ -6838,6 +6808,30 @@ describe('platform native export rendering rules', () => {
         expect(requirementIds).not.toContain('xhs-artifact-manifest')
       }
     }
+
+    const xhsMarketFallback = getStyleChoiceById('xhs-market-rich-card-fallback')
+    expect(xhsMarketFallback).toBeDefined()
+    if (!xhsMarketFallback) return
+
+    const xhsMarketAvailability = evaluateStyleChoiceAvailability(
+      xhsMarketFallback,
+      getDefaultStyleEvidence('xiaohongshu'),
+    )
+    const xhsMarketRequirementIds = getStyleChoiceProofRequirements(xhsMarketFallback)
+      .map(requirement => requirement.id)
+
+    expect(xhsMarketFallback.status).toBe('available')
+    expect(xhsMarketAvailability.usable).toBe(true)
+    expect(xhsMarketAvailability.status).toBe('available')
+    expect(getStyleChoiceApplication('xhs-market-rich-card-fallback')).toBeNull()
+    expect(xhsMarketFallback.detectorBlockers).toContain('xhs-market-editor-residue')
+    expect(xhsMarketFallback.primaryOutput).toBe('image-page')
+    expect(xhsMarketRequirementIds).toEqual(expect.arrayContaining([
+      'local-browser-rendering',
+      'xhs-artifact-manifest',
+      'published-url-or-platform-preview',
+    ]))
+    expect(xhsMarketRequirementIds).not.toContain('phone-preview-readback')
   })
 
   it('requires exact evidence floor before enabling available style choices', () => {
@@ -6920,9 +6914,16 @@ describe('platform native export rendering rules', () => {
 
     expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-cover-carousel')?.usable).toBe(true)
     expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-markdown-card-slicer')?.usable).toBe(true)
-    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-long-report')?.usable).toBe(false)
-    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-market-rich-card-fallback')?.usable).toBe(false)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-data-card')?.usable).toBe(true)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-long-report')?.usable).toBe(true)
+    expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-market-rich-card-fallback')?.usable).toBe(true)
     expect(xhsReport.choices.find(choice => choice.choice.id === 'xhs-h5-design-import-boundary')?.usable).toBe(false)
+    expect(xhsReport.stats).toMatchObject({
+      total: 8,
+      usable: 7,
+      blocked: 0,
+      unavailable: 1,
+    })
 
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-clean-column')?.usable).toBe(true)
     expect(zhihuReport.choices.find(choice => choice.choice.id === 'zhihu-academic-latex-column')?.usable).toBe(true)
@@ -6943,6 +6944,11 @@ describe('platform native export rendering rules', () => {
 
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-clean-text')?.selectable).toBe(true)
     expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-cover-carousel')?.selectable).toBe(false)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-data-card')?.selectable).toBe(false)
+    expect(xhsApplications.find(item => item.availability.choice.id === 'xhs-long-report')?.selectable).toBe(false)
+    expect(xhsApplications.find(item =>
+      item.availability.choice.id === 'xhs-market-rich-card-fallback'
+    )?.selectable).toBe(false)
 
     expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-clean-column')?.selectable).toBe(true)
     expect(zhihuApplications.find(item => item.availability.choice.id === 'zhihu-diagram-article')?.selectable).toBe(false)
