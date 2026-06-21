@@ -2618,3 +2618,31 @@ Required checks:
 - Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
   progress invalid and release claims unavailable.
 - Evidence docs must name the source-owned fallback boundary and the final committed raster pack.
+
+## 27. WeChat Classic Inline Local Unit Evidence - 2026-06-21
+
+Contracts:
+- `wechat-classic-inline` committed local evidence may use the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('report'), options)`.
+- The committed artifact may satisfy `unit-test-coverage`, `exact-artifact`, and
+  `no-sensitive-artifact` rows only when the exact HTML hash, byte length, source hash, and
+  hygiene checks are recorded.
+- The committed manifest must claim only `unit-tested` evidence. It must not claim
+  `local-browser`, `pc-editor-paste`, `mobile-preview`, `credentialed-sync`, or `published`.
+- If `detectQuality(html, 'wechat')` reports existing classic-pipeline blockers such as
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, or
+  `wechat-layout-report-required`, the evidence must remain local accounting only. Do not describe
+  it as render-quality, PC paste, phone preview, or publish proof.
+- The source Markdown must be InkForge-owned and must not include 135/Xiumi template source,
+  vendor class names, hosted media, cookies, tokens, HAR files, QR artifacts, account screenshots,
+  or browser profile material.
+- PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, and publish success remain
+  external proof gates.
+
+Required checks:
+- Regression tests must include the committed `wechat-classic-inline` manifest in local and
+  combined evidence packs.
+- Tests must assert the manifest is unit-only, keeps external WeChat requirements missing, and does
+  not change release-gate `canClaimComplete:false`.
+- Evidence docs must name the detector blockers and cannot-claim boundary.

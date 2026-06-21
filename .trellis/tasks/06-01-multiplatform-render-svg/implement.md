@@ -8022,3 +8022,79 @@ Boundary:
   sensitive-hygiene accounting only.
 - It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
   scheduled send, public article rendering, or publish success.
+
+## 2026-06-21 WeChat Classic Inline Local Unit Evidence Slice
+
+Scope:
+- Repository-committed local unit/exact-artifact evidence for `wechat-classic-inline`.
+- No WeChat account login, PC paste into the official editor, phone preview, Dark Mode check,
+  cover thumbnail check, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish action was executed or claimed.
+
+Implementation:
+- Used CloakBrowser against the local Vite app, importing `/src/services/export/index.ts`.
+- Generated the committed HTML artifact through the real source-owned path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('report'), options)`.
+- The source Markdown covers headings, paragraphs, quote, list, and code flow. It avoids 135/Xiumi
+  template source, vendor class names, remote media, account artifacts, and browser profile
+  material.
+- Added `prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html`.
+- Added `prompts/0601/evidence/wechat-classic-inline-local-evidence-20260621.txt`.
+- Added one committed local `wechat-classic-inline` manifest. It claims only `unit-tested`
+  evidence and satisfies unit, exact-artifact, and sensitive-hygiene accounting for the exact HTML
+  artifact.
+
+Evidence:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html`.
+- HTML hash:
+  `sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562`.
+- HTML bytes: 3605.
+- Source Markdown hash:
+  `sha256:e147546a1ef52498b139cc226c7dfbf4f3a1f91160dce9fb8a2e2ef652870aa7`.
+- Independent Node evidence verification re-read the committed HTML, recomputed the hash, checked
+  `id="nice"`, inline style presence, and absence of obvious market-editor residue and credential
+  path markers.
+- Browser-side `detectQuality(html, 'wechat')` still reported `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`; these are documented blockers, not success proof.
+
+Initial verification:
+- GitNexus impact:
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 0 affected processes.
+  - `createCommittedStyleProofLocalEvidenceManifest`: LOW, 0 affected processes.
+- CloakBrowser runtime smoke from local Vite:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=15`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=17`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- Independent HTML evidence verification:
+  passed SHA-256, byte length, `id="nice"`, inline style presence, and sensitive/market-editor
+  residue checks.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules and built in 30.43s.
+- `npx gitnexus detect-changes -r InkForge --scope all`:
+  completed with 39 dirty files observed in the whole worktree, 31 changed symbols, 0 affected
+  processes, and low risk. The dirty-file count includes unrelated pre-existing local changes;
+  commit staging for this slice must remain exact-file only.
+
+Boundary:
+- This is local WeChat classic inline unit/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

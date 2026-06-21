@@ -27,6 +27,14 @@ invalid proof requirements into ordered gates. For WeChat, `local-evidence` and
 schedules future proof work; it does not promote `blocked` choices or prove mobile preview, Dark
 Mode, cover thumbnail, sync, or publish success.
 
+2026-06-21 local proof note: `wechat-classic-inline` has a committed local unit/exact HTML
+artifact generated through `markdownToWechatWithStats(..., getPresetById('report'), ...)`.
+It records hash/hygiene proof only. Current `detectQuality(html, 'wechat')` still reports classic
+pipeline blockers such as `wechat-line-height-zero`, `wechat-fixed-container-size`,
+`wechat-class-id-dependency`, and `wechat-layout-report-required`, so this evidence must not be
+used as PC editor paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send, public
+preview, or publish proof.
+
 ### 0.1 产物类型
 
 | 产物 | 默认用途 | 要求 |

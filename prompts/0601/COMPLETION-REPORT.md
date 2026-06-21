@@ -3596,3 +3596,48 @@ Boundary:
   exact-artifact, and sensitive-hygiene accounting only. It does not prove Xiaohongshu account
   upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, or publish success.
+
+---
+
+## 2026-06-21 WeChat Classic Inline Local Unit Evidence Addendum
+
+- Added `prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html`.
+- Added `prompts/0601/evidence/wechat-classic-inline-local-evidence-20260621.txt`.
+- Generated the exact HTML artifact through CloakBrowser against the local Vite app, importing
+  `/src/services/export/index.ts` and running:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('report'), options)`.
+- The source Markdown is InkForge-owned and covers headings, paragraphs, quote, list, and code
+  flow. It does not copy 135/Xiumi template source, vendor class names, remote media, account
+  artifacts, or browser profile material.
+- HTML artifact hash:
+  `sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562`.
+- HTML bytes: 3605.
+- Source Markdown hash:
+  `sha256:e147546a1ef52498b139cc226c7dfbf4f3a1f91160dce9fb8a2e2ef652870aa7`.
+- Independent Node verification re-read the committed HTML, checked the hash, byte length,
+  `id="nice"`, inline style presence, and absence of obvious market-editor residue or credential
+  path markers.
+- Browser-side `detectQuality(html, 'wechat')` still reports `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`. These are recorded blockers; this evidence is not render-quality
+  proof, PC editor paste proof, phone preview proof, or publish proof.
+- Added one committed local `wechat-classic-inline` manifest. It claims only `unit-tested`
+  evidence and satisfies unit, exact-artifact, and sensitive-hygiene accounting for this exact HTML
+  artifact.
+- Current committed release-gate readout remains blocked with `canClaimComplete=false`,
+  `status=blocked-by-local-conflict`, `localManifestCount=15`, `wechatPcManifestCount=2`,
+  `combinedManifestCount=17`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Verification passed: independent HTML evidence verification; CloakBrowser runtime smoke; focused
+  committed/local/release regression with 1 file / 4 selected tests;
+  `platform-export-rendering.test.ts` with 1 file / 155 tests; 4-file cross-platform export
+  regression with 4 files / 194 tests; full `src/services/export` serial regression with
+  36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 transformed modules in 30.43s. GitNexus detect reported 39 dirty files across the whole
+  worktree, 0 affected processes, and low risk; unrelated pre-existing local changes remain
+  outside this slice's commit boundary.
+- Boundary: this is local WeChat classic inline unit/exact-artifact/sensitive-hygiene accounting
+  only. It does not prove official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

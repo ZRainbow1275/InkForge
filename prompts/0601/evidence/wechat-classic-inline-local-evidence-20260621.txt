@@ -1,0 +1,62 @@
+WeChat Classic Inline Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local unit/exact-artifact evidence for wechat-classic-inline.
+- No WeChat account login, PC paste into the official editor, phone preview, Dark Mode check,
+  cover thumbnail check, credentialed sync, scheduled send, platform preview, public rendering,
+  or publish action was executed or claimed.
+
+Generation route:
+- CloakBrowser opened the local Vite app.
+- Imported module: /src/services/export/index.ts.
+- Source preset: getPresetById('report').
+- Render path:
+  markdownToWechatWithStats(sourceMarkdown, reportPreset, options).
+- Options:
+  enableReadingTime=true, enableCiteStatus=true, enableCodeHighlight=false,
+  enableEnhancedTable=false, enableCjkSpacing=true, maxContentWidth=677.
+
+Source:
+- Source-owned Markdown only.
+- The source verifies headings, paragraphs, quote, list, and code flow for the classic inline
+  WeChat preset.
+- The source does not contain 135/Xiumi template source, vendor class names, remote media, cookies,
+  tokens, HAR files, QR artifacts, account screenshots, or browser profile material.
+- Source Markdown hash:
+  sha256:e147546a1ef52498b139cc226c7dfbf4f3a1f91160dce9fb8a2e2ef652870aa7.
+
+Evidence file:
+- prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html
+
+Artifact:
+- HTML bytes: 3605.
+- HTML hash:
+  sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562.
+- The generated artifact contains section id="nice" and inline style attributes.
+- Independent Node verification re-read the committed HTML, recomputed the SHA-256, verified
+  id="nice", verified inline style presence, and checked for obvious market-editor residue and
+  credential/path markers.
+
+Known quality boundary:
+- Browser-side detectQuality(html, 'wechat') returned these issue ids:
+  wechat-line-height-zero, wechat-fixed-container-size, wechat-class-id-dependency,
+  wechat-layout-report-required.
+- These issues come from the current classic inline WeChat pipeline's spacer/clamp/class-id
+  output and are not treated as platform proof. They keep this evidence limited to
+  unit-test-coverage, exact-artifact, and no-sensitive-artifact accounting.
+- This report must not be used to claim PC editor paste, phone preview, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+
+Committed manifest:
+- getCommittedStyleProofLocalEvidenceManifests() includes one wechat-classic-inline manifest.
+- It claims only unit-tested evidence.
+- It satisfies local unit, exact artifact, and sensitive-hygiene rows for the exact committed
+  HTML artifact.
+- It does not claim local-browser rendering or any external WeChat proof gate.
+
+Boundary:
+- This is local WeChat classic inline unit/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

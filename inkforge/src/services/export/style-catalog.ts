@@ -2198,6 +2198,14 @@ interface CommittedStyleProofLocalEvidenceManifestOptions {
   localRenderArtifactRef: string
 }
 
+interface CommittedStyleProofWechatUnitEvidenceManifestOptions {
+  choiceId: 'wechat-classic-inline'
+  label: string
+  artifactFingerprint: string
+  artifactRef: string
+  reportRef: string
+}
+
 interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
   choiceId:
     | 'xhs-cover-carousel'
@@ -2254,6 +2262,12 @@ const COMMITTED_STYLE_PROOF_ACCEPTANCE_UI_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF =
   'prompts/0601/evidence/xhs-raster/README.md'
+
+const COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_ARTIFACT_REF =
+  'prompts/0601/evidence/wechat-classic-inline-local-artifact-20260621.html'
+
+const COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_REPORT_REF =
+  'prompts/0601/evidence/wechat-classic-inline-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
@@ -2385,6 +2399,68 @@ function createCommittedStyleProofLocalEvidenceManifest(
         readback: 'hygiene-log',
         artifactFingerprint: options.artifactFingerprint,
         artifactRef: COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
+function createCommittedStyleProofWechatUnitEvidenceManifest(
+  options: CommittedStyleProofWechatUnitEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId.replace(/^wechat-/, '')
+
+  return {
+    platform: 'wechat',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact HTML artifact binding`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.artifactRef,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         committed: true,
         safeForCommit: true,
       },
@@ -2815,6 +2891,13 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
 }
 
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
+  createCommittedStyleProofWechatUnitEvidenceManifest({
+    choiceId: 'wechat-classic-inline',
+    label: 'Classic WeChat inline preset',
+    artifactFingerprint: 'sha256:13531674720c5015b00b652e05c8127c75c01b6395922d0f1572726a5b030562',
+    artifactRef: COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_CLASSIC_INLINE_REPORT_REF,
+  }),
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',
     label: 'Kiln creative flagship',
