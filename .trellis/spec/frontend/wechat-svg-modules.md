@@ -2865,6 +2865,10 @@ Contracts:
   show `issueCount`, `stepCount`, platform step counts, and leading requirement step counts, but
   it must not change the row's `blocked` state while `canClaimComplete:false`, and it must not
   enable publish/sync actions.
+- ExportModal must not dump raw service-layer English `nextOperatorActions` into the Chinese UI.
+  It should map the release gate action fields (`requirementId`, `boundary`, and blocker kind)
+  into compact Chinese operator summaries while preserving the underlying runbook data and blocked
+  release state.
 
 Required checks:
 - Regression tests must prove `issueIds` is de-duplicated while `issueCounts` preserves the
@@ -2876,3 +2880,5 @@ Required checks:
 - ExportModal verification must use the real UI surface and prove the preflight row displays the
   counted blocker details without claiming phone, sync, public host, scheduled send, or publish
   completion.
+- ExportModal narrow-viewport verification must read back the real `发布` modal at mobile width and
+  confirm the localized operator summary has no horizontal overflow or clipped blocker counts.

@@ -8550,6 +8550,31 @@ Verification:
 - `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 39 dirty files across the
   whole working tree, 24 changed symbols, 0 affected processes. The dirty-file count includes
   unrelated pre-existing files.
+- Follow-up UI localization:
+  - Replaced raw service-layer English `nextOperatorActions` in the ExportModal committed proof
+    preflight row with compact Chinese summaries derived from `requirementId` and `boundary`.
+  - The release gate still reports `canClaimComplete=false`, `status=blocked-by-local-conflict`,
+    five blockers, and the same count fields.
+  - Targeted verification passed:
+    - `npx gitnexus impact styleProofReleaseBlockerLabel -r InkForge --depth 3`: LOW risk, zero
+      affected processes.
+    - `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:committedStyleProofReleasePreflightRow -r InkForge --depth 3`:
+      LOW risk, zero affected processes.
+    - `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+    - `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`: passed.
+    - `pnpm --dir inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`:
+      passed 1 file / 1 selected test.
+    - `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`: passed, 4653 modules
+      transformed and built in 33.19s.
+    - `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 39 dirty files across the
+      whole working tree, 15 changed symbols, 0 affected processes. The dirty-file count includes
+      unrelated pre-existing files.
+  - CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+    `390x844`, the committed proof row showed the same blocker counts, replaced the old English
+    action strings with Chinese summaries, retained the cannot-claim sentence, and reported
+    `scrollWidth=390`, `bodyScrollWidth=390`, `overflowCount=0`.
+  - Local visual inspection of the target row found no clipping or horizontal overflow. Runtime
+    screenshots were used only for inspection and are not recorded as committed artifacts.
 
 Boundary:
 - This is release-gate accounting only.

@@ -946,6 +946,10 @@ Rules:
 - ExportModal may display these counts in the committed proof preflight row, but the row stays
   blocked while `canClaimComplete=false` and must not enable sync, upload, scheduled-send, preview,
   or publish actions.
+- ExportModal must translate release-gate operator actions into concise Chinese UI summaries from
+  structured fields such as `requirementId` and `boundary`. Raw service-layer runbook prose should
+  remain available to developer-facing reports, but it should not be dumped into the compact
+  operator row.
 - Snapshot counts are diagnostic only. They must never be used to infer phone preview, Dark Mode,
   cover thumbnail, sync, upload, public-host, scheduled-send, platform-preview, public rendering,
   or publish success.

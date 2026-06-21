@@ -395,7 +395,56 @@ function styleProofReleaseNextOperatorActionLabel(
 ): string {
   const requirement = action.requirementId ? styleProofRequirementLabel(action.requirementId) : '本地冲突'
   const boundary = action.boundary ? styleProofExecutionBoundaryLabel(action.boundary) : '本地'
-  return `${requirement}/${boundary}: ${action.action}`
+  return `${requirement}/${boundary}：${styleProofReleaseNextOperatorActionSummary(action)}`
+}
+
+function styleProofReleaseNextOperatorActionSummary(
+  action: CommittedStyleProofReleaseGateBlocker['nextOperatorActions'][number],
+): string {
+  switch (action.requirementId) {
+    case 'phone-preview-readback':
+      return '在目标手机预览中读取同一正文，PC DOM 不能替代手机最终呈现'
+    case 'phone-screenshot':
+      return '采集可脱敏的手机截图或读回证据，且正文必须可见'
+    case 'dark-mode-check':
+      return '在手机暗黑模式下检查同一正文，设置页或 PC 预览不算完成'
+    case 'cover-thumbnail-check':
+      return '在手机分享、预览入口或平台列表确认封面缩略图被接受'
+    case 'credentialed-channel-response':
+      return '用真实授权通道取得响应，并绑定同一导出产物'
+    case 'sync-readback':
+      return '同步后回读草稿或素材状态，确认不是其他产物'
+    case 'scheduled-send-readback':
+      return '读取真实定时或发送状态；仅同步、草稿或预览不算完成'
+    case 'published-url-or-platform-preview':
+      return '读取平台预览或发布 URL；请求成功本身不算完成'
+    case 'public-image-host':
+      return '确认 public host 可访问，并绑定同一导出产物'
+    case 'xhs-artifact-manifest':
+      return '运行小红书图片 manifest 校验并提交通过结果'
+    case 'zhihu-artifact-manifest':
+      return '运行知乎图片 manifest 校验并提交通过结果'
+    case 'catalog-source':
+      return '补齐目录来源证据；市场观察不能直接当作发布证明'
+    case 'exact-artifact':
+      return '绑定同一导出产物指纹，不能复用其他产物证据'
+    case 'no-sensitive-artifact':
+      return '确认提交证据不含账号、profile、令牌、QR、HAR 或本机凭据材料'
+    default:
+      break
+  }
+
+  if (action.boundary === 'phone-preview') return '完成目标手机预览读回，不能用 PC 或本机截图替代'
+  if (action.boundary === 'public-host') return '完成 public host 可访问读回，并绑定同一导出产物'
+  if (action.boundary === 'platform-publish') return '由人工完成平台预览、定时或发布后的精确读回'
+  if (action.boundary === 'credentialed-channel') return '由人工完成授权通道动作和精确读回'
+  if (!action.requirementId) {
+    return action.action.includes('fingerprint')
+      ? '先统一已提交 manifest 指纹；每个平台和样式只能保留同一脱敏产物指纹'
+      : '补齐剩余已提交证据行；缺失的本地、手机、授权、public host、同步、定时/发送和发布证据不得由现有 manifest 推断'
+  }
+
+  return '按执行手册补齐该证据行，并附加同一导出产物的脱敏读回'
 }
 
 function styleProofReleaseNextOperatorActions(

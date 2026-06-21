@@ -129,6 +129,40 @@ Verification:
   - Desktop viewport readback: `width=1400`, `height=900`, `scrollWidth=1400`,
     `bodyScrollWidth=1400`, `overflowCount=0`.
 
+ExportModal localized operator-action follow-up:
+- The committed proof preflight row now maps release-gate `nextOperatorActions` to compact Chinese
+  UI summaries by `requirementId` and `boundary` instead of showing raw service-layer English
+  strings.
+- The underlying release-gate report and runbook data are unchanged. The row remains blocked with
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, and the same five blocker buckets.
+- CloakBrowser narrow viewport verification used the real local article and the real `发布` button:
+  - viewport: `390x844`
+  - row found: `提交证据宣称门禁`
+  - count readback still included `本地冲突 16`, `缺项 13`, `目录阻断 3`, `手机预览 4`,
+    `外部依赖 14`, `小红书 2`, `知乎 5`, and `requirementCounts`
+  - localized action readback found `补齐剩余已提交证据行` and
+    `在目标手机预览中读取同一正文`
+  - old raw strings `Complete the remaining committed proof rows` and
+    `Use the target phone preview` were absent from the committed proof row
+  - cannot-claim text remained present: `不得声明手机预览、同步、发布或 public host 已完成`
+  - layout readback: `scrollWidth=390`, `bodyScrollWidth=390`, `overflowCount=0`
+- Local visual inspection of the target row found no clipped blocker counts or horizontal overflow.
+  Runtime screenshots were used only for visual inspection and are not committed evidence.
+- Additional verification:
+  - `npx gitnexus impact styleProofReleaseBlockerLabel -r InkForge --depth 3`
+    - LOW risk, zero affected processes.
+  - `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:committedStyleProofReleasePreflightRow -r InkForge --depth 3`
+    - LOW risk, zero affected processes.
+  - `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`
+    - PASS.
+  - `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`
+    - PASS.
+  - `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`
+    - PASS after localized operator-action UI follow-up: 4653 modules transformed, built in 33.19s.
+  - `npx gitnexus detect-changes -r InkForge --scope all`
+    - low risk, 39 dirty files across the whole working tree, 15 changed symbols, zero affected
+      processes. The dirty-file count includes unrelated pre-existing files.
+
 Boundary:
 - This proves release-gate accounting fields and regression coverage only.
 - It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover

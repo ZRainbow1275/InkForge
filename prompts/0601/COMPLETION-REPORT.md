@@ -3933,6 +3933,16 @@ Boundary:
   `本地冲突 16`, `缺项 13`, `目录阻断 3`, `手机预览 4`, `外部依赖 14`, `小红书 2`,
   `知乎 5`, `requirementCounts`, and the cannot-claim sentence; desktop readback reported
   `scrollWidth=1400`, `bodyScrollWidth=1400`, and `overflowCount=0`.
+- Follow-up UI localization passed: ExportModal now maps release-gate `nextOperatorActions` into
+  Chinese operator summaries instead of showing raw service-layer English strings. CloakBrowser
+  narrow readback at `390x844` found `补齐剩余已提交证据行`,
+  `在目标手机预览中读取同一正文`, the same blocker counts, the cannot-claim sentence,
+  `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`. Follow-up checks passed:
+  targeted ExportModal ESLint, `vue-tsc`, focused `release claims` Vitest, and production build
+  with 4653 modules in 33.19s. GitNexus detect reported low risk, 39 dirty files across the whole
+  working tree, 15 changed symbols, and 0 affected processes; the dirty-file count includes
+  unrelated pre-existing files. Runtime screenshots were used only for local visual inspection
+  and are not committed artifacts.
 - Boundary: this is release-gate accounting only. It does not prove WeChat PC paste, phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
   host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu

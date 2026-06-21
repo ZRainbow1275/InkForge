@@ -813,6 +813,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `本地冲突 16`, `缺项 13`, `目录阻断 3`, `手机预览 4`, `外部依赖 14`, `小红书 2`,
   `知乎 5`, `requirementCounts`, and the cannot-claim sentence; desktop readback reported
   `scrollWidth=1400`, `bodyScrollWidth=1400`, and `overflowCount=0`.
+- Follow-up narrow UI smoke passed through CloakBrowser at `390x844`: the same real ExportModal
+  row replaced raw English `nextOperatorActions` with Chinese summaries, kept
+  `canClaimComplete=false`, retained the blocker counts and cannot-claim sentence, and reported
+  `scrollWidth=390`, `bodyScrollWidth=390`, `overflowCount=0`. Follow-up targeted ExportModal
+  ESLint, `vue-tsc`, focused `release claims` Vitest, and production build with 4653 modules in
+  33.19s passed. GitNexus detect reported low risk, 39 dirty files across the whole working tree,
+  15 changed symbols, and 0 affected processes; the dirty-file count includes unrelated
+  pre-existing files. Runtime screenshots were used only for local visual inspection and are not
+  committed artifacts.
 - Boundary: this is release-gate accounting only. It does not prove WeChat PC paste, phone
   preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
   preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
