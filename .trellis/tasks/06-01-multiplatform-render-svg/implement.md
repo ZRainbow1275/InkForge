@@ -8773,6 +8773,53 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 Zhihu Clean-Primary Requirement Scope Slice
+
+Scope:
+- Style proof requirement generation for Zhihu clean-primary outputs only.
+- No renderer output, committed artifact bytes, platform account action, upload, sync, phone
+  preview, public host, scheduled send, platform preview, public rendering, or publish behavior was
+  changed.
+
+Implementation:
+- `getStyleChoiceProofRequirements()` no longer adds `public-image-host` and
+  `zhihu-artifact-manifest` just because a Zhihu choice has `fallbackOutput:'image-fallback'`.
+- Zhihu choices still get these two requirements when `primaryOutput:'image-fallback'`, and
+  `zhihu-public-image-upload-checklist` still gets them explicitly.
+- Regression coverage now asserts that `zhihu-data-table` and `zhihu-clean-column` do not carry
+  image fallback manifest/public-host requirements, while `zhihu-diagram-article` and the upload
+  checklist still do.
+- Committed local evidence regression now treats clean-primary Zhihu local evidence as local-gate
+  satisfied where the committed unit/exact/local-browser/hygiene rows exist, while publish proof
+  remains missing.
+
+Verification:
+- `npx gitnexus impact getStyleChoiceProofRequirements -r InkForge --depth 3`: LOW risk, 0
+  affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style proof requirements|committed local evidence manifests|execution runbooks" --reporter=default`:
+  passed, 1 file / 3 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 156 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1133 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 33.90s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Runtime report readback after the change: committed release gate remains
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, and `phoneOpenSteps=4`; `combinedIssueCount` is reduced from 13 to 11.
+- Safe local open rows now keep `zhihu-artifact-manifest` scoped to
+  `zhihu-complex-table-fallback`, `zhihu-diagram-article`, `zhihu-market-rich-layout-fallback`,
+  and `zhihu-public-image-upload-checklist`.
+
+Boundary:
+- This is requirement-scope cleanup only. It does not prove Zhihu public image-host acceptance,
+  account upload, editor sync, scheduled send, platform preview, public article rendering, or
+  publish success. It also does not change WeChat or Xiaohongshu external gates.
+
 ## 2026-06-22 Committed External Proof Checklist Slice
 
 Scope:

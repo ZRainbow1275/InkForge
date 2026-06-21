@@ -3069,3 +3069,35 @@ Required checks:
   WeChat phone preview, official editor paste, mobile Dark Mode, cover-thumbnail acceptance,
   credentialed sync, XHS/Zhihu upload, public-host acceptance, scheduled-send, platform-preview,
   public rendering, or publish proof.
+
+## 38. Zhihu Clean-Primary Image-Fallback Scope - 2026-06-22
+
+Contracts:
+- Zhihu style choices whose `primaryOutput` is `clean-markdown` must not automatically require
+  `public-image-host` or `zhihu-artifact-manifest` only because their `fallbackOutput` is
+  `image-fallback`.
+- Zhihu choices whose `primaryOutput` is `image-fallback`, and the explicit
+  `zhihu-public-image-upload-checklist`, must still require both `public-image-host` and
+  `zhihu-artifact-manifest`.
+- A clean-primary committed manifest may satisfy `unit-test-coverage`, `local-browser-rendering`
+  when applicable, `exact-artifact`, and `no-sensitive-artifact` without carrying image fallback
+  manifest proof. It still must not claim account upload, public-host acceptance, platform preview,
+  scheduled-send, public rendering, or publish proof.
+- `zhihu-artifact-manifest` remains a local preflight requirement for image-fallback primary
+  choices only. Passing that validator is not public-host proof; `public-image-host` stays external
+  until a real public HTTPS or platform-hosted image readback exists.
+- Requirement generation must stay platform-isolated: this Zhihu scope change must not remove
+  `xhs-artifact-manifest` from Xiaohongshu image-page/long-image choices or weaken WeChat phone,
+  paste, sync, or publish gates.
+
+Required checks:
+- Unit tests must prove `zhihu-data-table` and `zhihu-clean-column` do not include
+  `zhihu-artifact-manifest` or `public-image-host`.
+- Unit tests must prove `zhihu-diagram-article` and `zhihu-public-image-upload-checklist` still
+  include `zhihu-artifact-manifest`, `public-image-host`, and publish/platform-preview proof.
+- Committed local evidence regression must prove clean-primary Zhihu manifests keep local evidence
+  satisfied where their local rows exist, while `published-url-or-platform-preview` remains
+  missing.
+- Release-gate regression must keep `canClaimComplete:false` and external blockers open; this
+  scope change reduces local issue noise only and must not close phone, public-host, scheduled-send,
+  upload, platform-preview, public-rendering, or publish gates.

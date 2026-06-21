@@ -497,10 +497,14 @@ describe('platform native export rendering rules', () => {
     expect(xhsCarouselRequirementIds).not.toContain('public-image-host')
 
     const zhihuDiagram = getStyleChoiceById('zhihu-diagram-article')
+    const zhihuDataTable = getStyleChoiceById('zhihu-data-table')
+    const zhihuCleanColumn = getStyleChoiceById('zhihu-clean-column')
     const zhihuUpload = getStyleChoiceById('zhihu-public-image-upload-checklist')
     expect(zhihuDiagram).toBeDefined()
+    expect(zhihuDataTable).toBeDefined()
+    expect(zhihuCleanColumn).toBeDefined()
     expect(zhihuUpload).toBeDefined()
-    if (!zhihuDiagram || !zhihuUpload) return
+    if (!zhihuDiagram || !zhihuDataTable || !zhihuCleanColumn || !zhihuUpload) return
 
     expect(getStyleChoiceProofRequirements(zhihuDiagram).map(requirement => requirement.id)).toEqual(expect.arrayContaining([
       'local-browser-rendering',
@@ -508,6 +512,18 @@ describe('platform native export rendering rules', () => {
       'zhihu-artifact-manifest',
       'published-url-or-platform-preview',
     ]))
+    expect(getStyleChoiceProofRequirements(zhihuDataTable).map(requirement => requirement.id)).toEqual(expect.arrayContaining([
+      'unit-test-coverage',
+      'published-url-or-platform-preview',
+    ]))
+    expect(getStyleChoiceProofRequirements(zhihuDataTable).map(requirement => requirement.id))
+      .not.toContain('zhihu-artifact-manifest')
+    expect(getStyleChoiceProofRequirements(zhihuDataTable).map(requirement => requirement.id))
+      .not.toContain('public-image-host')
+    expect(getStyleChoiceProofRequirements(zhihuCleanColumn).map(requirement => requirement.id))
+      .not.toContain('zhihu-artifact-manifest')
+    expect(getStyleChoiceProofRequirements(zhihuCleanColumn).map(requirement => requirement.id))
+      .not.toContain('public-image-host')
     expect(getStyleChoiceProofRequirements(zhihuUpload).map(requirement => requirement.id)).toEqual(expect.arrayContaining([
       'credentialed-channel-response',
       'public-image-host',
@@ -2088,12 +2104,12 @@ describe('platform native export rendering rules', () => {
     expect(zhihuAcademicProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
       .toBe('satisfied')
     expect(zhihuAcademicProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('missing')
+      .toBe('satisfied')
     expect(zhihuAcademicRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(zhihuAcademicRequirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(zhihuAcademicRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
-    expect(zhihuAcademicRequirementStatus.get('zhihu-artifact-manifest')).toBe('missing')
-    expect(zhihuAcademicRequirementStatus.get('public-image-host')).toBe('missing')
+    expect(zhihuAcademicRequirementStatus.has('zhihu-artifact-manifest')).toBe(false)
+    expect(zhihuAcademicRequirementStatus.has('public-image-host')).toBe(false)
     expect(zhihuAcademicRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(zhihuAdaptedProgress?.manifestCount).toBe(1)
     expect(zhihuAdaptedProgress?.status).toBe('missing')
@@ -2103,12 +2119,12 @@ describe('platform native export rendering rules', () => {
     expect(zhihuAdaptedProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
       .toBe('satisfied')
     expect(zhihuAdaptedProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('missing')
+      .toBe('satisfied')
     expect(zhihuAdaptedRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(zhihuAdaptedRequirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(zhihuAdaptedRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
-    expect(zhihuAdaptedRequirementStatus.get('zhihu-artifact-manifest')).toBe('missing')
-    expect(zhihuAdaptedRequirementStatus.get('public-image-host')).toBe('missing')
+    expect(zhihuAdaptedRequirementStatus.has('zhihu-artifact-manifest')).toBe(false)
+    expect(zhihuAdaptedRequirementStatus.has('public-image-host')).toBe(false)
     expect(zhihuAdaptedRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(zhihuDataProgress?.manifestCount).toBe(1)
     expect(zhihuDataProgress?.status).toBe('missing')
@@ -2118,13 +2134,13 @@ describe('platform native export rendering rules', () => {
     expect(zhihuDataProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
       .toBe('satisfied')
     expect(zhihuDataProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
-      .toBe('missing')
+      .toBe('satisfied')
     expect(zhihuRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
     expect(zhihuRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
     expect(zhihuRequirementStatus.get('exact-artifact')).toBe('satisfied')
     expect(zhihuRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
-    expect(zhihuRequirementStatus.get('zhihu-artifact-manifest')).toBe('missing')
-    expect(zhihuRequirementStatus.get('public-image-host')).toBe('missing')
+    expect(zhihuRequirementStatus.has('zhihu-artifact-manifest')).toBe(false)
+    expect(zhihuRequirementStatus.has('public-image-host')).toBe(false)
     expect(zhihuRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
 
     const audit = getCommittedStyleProofLocalEvidenceAuditReport()
@@ -2546,7 +2562,7 @@ describe('platform native export rendering rules', () => {
       localManifestCount: 20,
       combinedManifestCount: 22,
       hasExactArtifactFingerprintConflicts: false,
-      combinedIssueCount: 13,
+      combinedIssueCount: 11,
       cannotClaimSteps: expect.any(Number),
       phoneOpenSteps: expect.any(Number),
       externalDependencyOpenSteps: expect.any(Number),
@@ -5876,18 +5892,18 @@ describe('platform native export rendering rules', () => {
   it('requires Zhihu image fallback proof artifacts for full style-choice proof validation', () => {
     const manifest: StyleProofManifest = {
       platform: 'zhihu',
-      choiceId: 'zhihu-data-table',
+      choiceId: 'zhihu-diagram-article',
       scope: 'style-choice',
       claimedEvidence: ['unit-tested'],
       artifacts: [
         {
-          id: 'zhihu-table-unit-log',
+          id: 'zhihu-diagram-unit-log',
           requirementId: 'unit-test-coverage',
           kind: 'test-log',
-          label: 'semantic table unit proof',
+          label: 'diagram fallback unit proof',
           evidenceLabel: 'unit-tested',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'unit-test',
           action: 'test-run',
           readback: 'test-assertion',
@@ -6603,7 +6619,7 @@ describe('platform native export rendering rules', () => {
     const artifactFingerprint = 'sha256:redacted-zhihu-login-gate'
     const manifest: StyleProofManifest = {
       platform: 'zhihu',
-      choiceId: 'zhihu-data-table',
+      choiceId: 'zhihu-diagram-article',
       scope: 'style-choice',
       claimedEvidence: ['published'],
       artifactFingerprint,
@@ -6614,7 +6630,7 @@ describe('platform native export rendering rules', () => {
           kind: 'browser-readback',
           label: 'redacted zhihu sign-in gate cannot prove public image host',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'credentialed-channel',
           action: 'external-account-login-readback',
           readback: 'visual-and-dom',
@@ -6630,7 +6646,7 @@ describe('platform native export rendering rules', () => {
           kind: 'browser-readback',
           label: 'redacted zhihu sign-in gate cannot prove upload manifest',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'credentialed-channel',
           action: 'external-account-login-readback',
           readback: 'visual-and-dom',
@@ -6645,7 +6661,7 @@ describe('platform native export rendering rules', () => {
           kind: 'browser-readback',
           label: 'redacted zhihu sign-in gate cannot prove publish preview',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'credentialed-channel',
           action: 'external-account-login-readback',
           readback: 'visual-and-dom',
@@ -6692,7 +6708,7 @@ describe('platform native export rendering rules', () => {
     const artifactFingerprint = 'sha256:redacted-zhihu-local-host'
     const manifest: StyleProofManifest = {
       platform: 'zhihu',
-      choiceId: 'zhihu-data-table',
+      choiceId: 'zhihu-diagram-article',
       scope: 'style-choice',
       claimedEvidence: ['published'],
       artifactFingerprint,
@@ -6703,7 +6719,7 @@ describe('platform native export rendering rules', () => {
           kind: 'image-host-check',
           label: 'local-only image host cannot prove public fallback hosting',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'public-web',
           action: 'public-image-host-check',
           readback: 'manifest',
@@ -6735,7 +6751,7 @@ describe('platform native export rendering rules', () => {
     const artifactFingerprint = 'sha256:redacted-zhihu-public-host'
     const manifest: StyleProofManifest = {
       platform: 'zhihu',
-      choiceId: 'zhihu-data-table',
+      choiceId: 'zhihu-diagram-article',
       scope: 'style-choice',
       claimedEvidence: ['published'],
       artifactFingerprint,
@@ -6746,7 +6762,7 @@ describe('platform native export rendering rules', () => {
           kind: 'image-host-check',
           label: 'redacted public host check without traceable artifact ref',
           platform: 'zhihu',
-          choiceId: 'zhihu-data-table',
+          choiceId: 'zhihu-diagram-article',
           channel: 'public-web',
           action: 'public-image-host-check',
           readback: 'manifest',

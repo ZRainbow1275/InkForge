@@ -4210,3 +4210,28 @@ Boundary:
   editor paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail
   acceptance, credentialed sync, public host acceptance, scheduled send, platform preview, public
   rendering, Xiaohongshu upload, Zhihu upload, or publish success.
+
+---
+
+## 2026-06-22 Zhihu Clean-Primary Requirement Scope Addendum
+
+- Zhihu clean-primary outputs no longer inherit image fallback manifest/public-host requirements
+  just because `fallbackOutput` is `image-fallback`.
+- `zhihu-data-table` and `zhihu-clean-column` now keep image fallback proof out of their primary
+  clean Markdown requirement set.
+- `zhihu-diagram-article`, `zhihu-complex-table-fallback`,
+  `zhihu-market-rich-layout-fallback`, and `zhihu-public-image-upload-checklist` remain bound to
+  `zhihu-artifact-manifest` and `public-image-host` gates.
+- Added evidence file:
+  `prompts/0601/evidence/zhihu-clean-primary-requirement-scope-20260622.txt`.
+- Verification passed: GitNexus impact for `getStyleChoiceProofRequirements`; focused Vitest for
+  style proof requirements, committed local evidence manifests, and execution runbooks; full
+  `platform-export-rendering.test.ts` with 156 tests; targeted ESLint; full `src/services/export`
+  serial regression with 36 files / 1133 tests; `vue-tsc`; and production build with 4653 modules
+  transformed in 33.90s.
+- Runtime readback after the change keeps `canClaimComplete=false`, `status=blocked-by-external`,
+  and `blockerCount=4`; `combinedIssueCount` drops from 13 to 11 without closing phone, account,
+  public-host, scheduled-send, platform-preview, public-rendering, upload, or publish gates.
+- Boundary: this is local requirement-scope correction only. It does not prove Zhihu public
+  image-host acceptance, account upload, editor sync, scheduled send, platform preview, public
+  rendering, or publish success.

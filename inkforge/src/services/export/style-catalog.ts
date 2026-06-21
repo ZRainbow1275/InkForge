@@ -2304,7 +2304,6 @@ export function getStyleChoiceProofRequirements(choice: PlatformStyleChoice): re
     choice.platform === 'zhihu'
     && (
       choice.primaryOutput === 'image-fallback'
-      || choice.fallbackOutput === 'image-fallback'
       || choice.id === 'zhihu-public-image-upload-checklist'
     )
   ) {

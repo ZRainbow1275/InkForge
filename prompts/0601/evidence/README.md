@@ -3639,3 +3639,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance,
   Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-22 Zhihu Clean-Primary Requirement Scope
+
+- [x] zhihu-clean-primary-requirement-scope-20260622.txt
+- `getStyleChoiceProofRequirements()` now scopes Zhihu `public-image-host` and
+  `zhihu-artifact-manifest` to image-fallback primary outputs and the explicit upload checklist.
+- Clean Markdown primary choices such as `zhihu-data-table` and `zhihu-clean-column` no longer
+  inherit image fallback manifest requirements solely from their fallback path.
+- Runtime readback after the change keeps the committed release gate
+  `status=blocked-by-external`, `canClaimComplete=false`, and `blockerCount=4`; only local issue
+  noise drops from `combinedIssueCount=13` to `combinedIssueCount=11`.
+- Verification passed: focused style proof requirements / committed manifests / execution runbooks
+  regression; full `platform-export-rendering.test.ts` with 156 tests; targeted ESLint; full
+  `src/services/export` serial regression with 36 files / 1133 tests; `vue-tsc`; and production
+  build with 4653 modules transformed in 33.90s.
+- Boundary: this does not prove Zhihu public image-host acceptance, account upload, editor sync,
+  scheduled send, platform preview, public rendering, or publish success.

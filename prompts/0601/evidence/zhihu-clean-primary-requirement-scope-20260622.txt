@@ -1,0 +1,59 @@
+Zhihu Clean-Primary Requirement Scope - 2026-06-22
+
+Scope:
+- Requirement generation for Zhihu style choices.
+- No renderer output, committed artifact bytes, external account action, upload, sync, phone
+  preview, public host, scheduled send, platform preview, public rendering, or publish behavior was
+  changed.
+
+Implemented:
+- getStyleChoiceProofRequirements() no longer adds public-image-host or zhihu-artifact-manifest
+  solely from fallbackOutput:'image-fallback'.
+- Zhihu choices still require public-image-host and zhihu-artifact-manifest when
+  primaryOutput:'image-fallback'.
+- zhihu-public-image-upload-checklist still requires public-image-host and
+  zhihu-artifact-manifest explicitly.
+
+Proof points:
+- zhihu-data-table requirements include unit-test-coverage and published-url-or-platform-preview.
+- zhihu-data-table requirements do not include public-image-host or zhihu-artifact-manifest.
+- zhihu-clean-column requirements do not include public-image-host or zhihu-artifact-manifest.
+- zhihu-diagram-article still includes local-browser-rendering, public-image-host,
+  zhihu-artifact-manifest, and published-url-or-platform-preview.
+- zhihu-public-image-upload-checklist still includes credentialed-channel-response,
+  public-image-host, zhihu-artifact-manifest, and published-url-or-platform-preview.
+
+Runtime readback after change:
+- committed release gate status: blocked-by-external
+- canClaimComplete: false
+- blockerCount: 4
+- combinedIssueCount: 11
+- phoneOpenSteps: 4
+- externalDependencyOpenSteps: 14
+- unsafeToAutomateOpenSteps: 13
+- mutatingOpenSteps: 13
+- zhihu-artifact-manifest safe local rows remain scoped to:
+  zhihu-complex-table-fallback, zhihu-diagram-article,
+  zhihu-market-rich-layout-fallback, zhihu-public-image-upload-checklist
+
+Verification:
+- npx gitnexus impact getStyleChoiceProofRequirements -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style proof requirements|committed local evidence manifests|execution runbooks" --reporter=default
+  PASS: 1 file / 3 selected tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 156 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1133 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 33.90s
+
+Boundary:
+- This is a local requirement-scope correction only.
+- It does not prove Zhihu public image-host acceptance, account upload, editor sync, scheduled
+  send, platform preview, public article rendering, upload success, or publish success.
+- It does not change WeChat phone/editor/sync/publish gates or Xiaohongshu upload/publish gates.
