@@ -1,0 +1,90 @@
+XHS Markdown Card Slicer Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local evidence for `xhs-markdown-card-slicer`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish action was executed or claimed.
+
+Implemented:
+- Added `sliceMarkdownToXhsCards(markdown, options)`.
+- Added `renderXhsMarkdownCardSliceSvg(slice, options)`.
+- Added `createXhsMarkdownCardSliceManifestInputs(slices, options)`.
+- Exported the slicer through `svg-modules/index.ts` and `services/export/index.ts`.
+
+Evidence path:
+- CloakBrowser opened the local Vite app at `http://127.0.0.1:3005/`.
+- The page imported `/src/services/export/svg-modules/index.ts`.
+- Render path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Ratio: `3:4`.
+- Result: four 1080 x 1440 PNG pages, `overflow=false`, body references `[1, 2, 3, 4]`.
+- Visual QA was performed on pages 1, 2, 3, and 4. A first pass exposed awkward short
+  lines and code-string breaks; the slicer line wrapping was adjusted and the committed
+  PNG pack was regenerated.
+
+Exact artifacts:
+- `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21.json`
+  - SHA-256: `e3716eb5903b1b11a167b467c3c2aae4c6eff793ef5e0c29b39ddeb3b0da375c`
+- `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-01.png`
+  - bytes: 112055
+  - SHA-256: `a0fd32a89ce85c0b520052b8b4ed034481ef2599d10a0ccb9ffee8639a647965`
+- `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-02.png`
+  - bytes: 115256
+  - SHA-256: `3acf196a8aa512ad4664e28842fbfd99092d50baaeed5dab187499fe5a8d28fe`
+- `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-03.png`
+  - bytes: 116284
+  - SHA-256: `26ec2555f23dfd73400763813f9d929b6cf5299b8b4a9c5ba53c3ef6c74cea05`
+- `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-04.png`
+  - bytes: 95434
+  - SHA-256: `0bb2f4bb8348bc11264c1036e005185475b8cd5efca9be83e6b36ecd37d5798d`
+
+Validator proof:
+- The evidence writer recorded PNG SHA-256 and byte length metadata while committing the
+  CloakBrowser-generated PNG pack.
+- Independent Node evidence verification re-reads the committed JSON and PNG files, recomputes
+  every PNG SHA-256, checks byte lengths, rebuilds a `XhsImageArtifactManifest`, and verifies
+  `validateXhsImageArtifactManifest() === []`.
+- `src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts` keeps runtime coverage on
+  Markdown slicing, source-owned SVG rendering safety, and manifest-input generation.
+
+Committed style-proof manifest:
+- Added one committed local `xhs-markdown-card-slicer` manifest.
+- The manifest satisfies only:
+  - `unit-test-coverage`
+  - `local-browser-rendering`
+  - `exact-artifact`
+  - `xhs-artifact-manifest`
+  - `no-sensitive-artifact`
+- `published-url-or-platform-preview` remains missing and unsafe to automate.
+
+Focused verification:
+- `pnpm -C inkforge exec vitest run src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts --reporter=default`
+  - PASS: 1 file / 4 tests.
+- Independent Node evidence verification:
+  - PASS: JSON SHA-256, PNG SHA-256, byte lengths, 1080 x 1440 dimensions, body references,
+    and XHS image artifact manifest.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  - PASS: 1 file / 4 selected tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `pnpm -C inkforge exec vitest run src/services/export/svg-modules --reporter=default`
+  - PASS: 15 files / 386 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 153 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 192 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 36 files / 1130 tests.
+- Targeted ESLint:
+  - PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS.
+- CloakBrowser release-gate readout from local Vite:
+  - `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=9`,
+    `combinedManifestCount=11`, `combinedIssueCount=13`, `blockerCount=5`.
+
+Boundary:
+- This proves local Markdown-to-card slicing, source-owned SVG rendering, browser-canvas
+  PNG generation, exact artifact hashing, and XHS image artifact manifest validation only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL
+  acceptance, scheduled send, public article rendering, or publish success.

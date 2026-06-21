@@ -2199,7 +2199,7 @@ interface CommittedStyleProofLocalEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
-  choiceId: 'xhs-cover-carousel' | 'xhs-cover-hook'
+  choiceId: 'xhs-cover-carousel' | 'xhs-cover-hook' | 'xhs-markdown-card-slicer'
   label: string
   artifactFingerprint: string
   localRenderArtifactRef: string
@@ -2254,6 +2254,9 @@ const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-cover-hook-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_XHS_CARD_SLICER_MANIFEST_REF =
+  'prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21.json'
 
 const COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_ARTIFACT_REF =
   'prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt'
@@ -2827,6 +2830,15 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF,
+  }),
+  createCommittedStyleProofXhsLocalEvidenceManifest({
+    choiceId: 'xhs-markdown-card-slicer',
+    label: 'XHS Markdown card slicer',
+    artifactFingerprint:
+      'prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21.json@sha256:e3716eb5903b1b11a167b467c3c2aae4c6eff793ef5e0c29b39ddeb3b0da375c',
+    localRenderArtifactRef:
+      'prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-01.png',
+    manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_CARD_SLICER_MANIFEST_REF,
   }),
   createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
     choiceId: 'zhihu-clean-column',

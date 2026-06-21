@@ -156,6 +156,21 @@ export type {
   ZhihuImageArtifactManifestOptions,
 } from './image-pipeline'
 
+export type {
+  XhsMarkdownCardSlice,
+  XhsMarkdownCardSliceKind,
+  XhsMarkdownCardSliceManifestInput,
+  XhsMarkdownCardSliceRenderOptions,
+  XhsMarkdownCardSlicerOptions,
+  XhsMarkdownCardSlicerResult,
+} from './svg-modules/xhs-card-slicer'
+
+export {
+  createXhsMarkdownCardSliceManifestInputs,
+  renderXhsMarkdownCardSliceSvg,
+  sliceMarkdownToXhsCards,
+} from './svg-modules/xhs-card-slicer'
+
 // 主题相关导出
 export {
   themePresets,

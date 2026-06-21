@@ -72,6 +72,57 @@ Visual QA:
 - The first two generated variants had a subtitle ellipsis. The committed PNG uses the shorter
   subtitle `InkForge 本地验证` and was visually checked to avoid truncation.
 
+## Markdown Card Slicer Raster Evidence - 2026-06-21
+
+Purpose: local `xhs-markdown-card-slicer` proof that InkForge can turn source Markdown sections,
+manual page breaks, lists, and code fences into source-owned XHS 3:4 image pages through the local
+browser canvas path before any platform upload or publish claim.
+
+Browser route:
+
+- CloakBrowser opened the local Vite app.
+- Imported module: `/src/services/export/svg-modules/index.ts`.
+- Render path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Target: `xhs`; ratio: `3:4`; body references: `[1, 2, 3, 4]`; overflow: `false`.
+
+Probe result:
+
+```json
+{
+  "sourceModule": "xhs-card-slicer",
+  "ratio": "3:4",
+  "pageCount": 4,
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "overflow": false,
+  "packSha256": "e3716eb5903b1b11a167b467c3c2aae4c6eff793ef5e0c29b39ddeb3b0da375c"
+}
+```
+
+Evidence files:
+
+- `xhs-markdown-card-slicer-browser-2026-06-21.json`
+- `xhs-markdown-card-slicer-browser-2026-06-21-page-01.png`
+- `xhs-markdown-card-slicer-browser-2026-06-21-page-02.png`
+- `xhs-markdown-card-slicer-browser-2026-06-21-page-03.png`
+- `xhs-markdown-card-slicer-browser-2026-06-21-page-04.png`
+
+Visual QA:
+
+- A first pass showed awkward short-line wrapping in the section card and string breaks in the
+  code card. The slicer line wrapping was adjusted, the PNG pack was regenerated, and pages 1-4
+  were visually checked again.
+
+Validation:
+
+- Independent Node evidence verification reads this committed JSON and PNG pack, recomputes
+  every PNG SHA-256, checks byte lengths, rebuilds a `XhsImageArtifactManifest`, and verifies
+  `validateXhsImageArtifactManifest() === []`.
+- `src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts` validates the Markdown
+  slicer, source-owned SVG output, and manifest-input generation without adding Node globals to
+  the browser-targeted TS config.
+
 Finding fixed during this probe:
 
 - `buildSvgDataUri()` previously passed a full `<section>...<svg>...</svg></section>` HTML

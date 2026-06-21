@@ -22,6 +22,7 @@ export * from './wechat-safe'
 export * from './inject'
 export * from './raster'
 export * from './html-blocks'
+export * from './xhs-card-slicer'
 
 export { headerModules } from './headers'
 export { dividerModules } from './dividers'

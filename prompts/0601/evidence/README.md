@@ -112,6 +112,14 @@ ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能
 `xhs-cover-carousel` 与 `xhs-cover-hook`，引用 tracked browser-canvas raster PNG 和 XHS
 image-manifest gate report，只满足本地 raster / manifest / exact-artifact / sensitive-hygiene
 rows；不证明 XHS account upload、platform preview、public URL acceptance 或 publish 成功）。
+`xhs-markdown-card-slicer-local-evidence-20260621.txt`（当前规则实现：source-owned Markdown
+card slicer 将 H2 sections、manual page breaks、lists 和 code fences 切成 4 页 1080×1440
+XHS PNG；CloakBrowser 通过本地 Vite + `renderXhsPosterCard` 生成 exact raster pack，
+独立 Node evidence verification 会读取 committed JSON/PNG、重算 SHA-256、重建
+`XhsImageArtifactManifest` 并验证 `validateXhsImageArtifactManifest() === []`，Vitest 覆盖
+Markdown 切片、SVG 安全和 manifest 输入生成；只满足本地
+raster / manifest / exact-artifact / sensitive-hygiene rows，不证明 XHS account upload、
+platform preview、public URL acceptance 或 publish 成功）。
 `style-proof-committed-wechat-pc-evidence-20260619.txt`（当前规则实现：
 committed WeChat PC evidence pack 已包含 exact Amber ordinary OS Ctrl+V + disposable-draft cleanup
 redacted proof，以及 Tempera entity-safe ordinary OS Ctrl+V + cleanup redacted proof；只满足对应

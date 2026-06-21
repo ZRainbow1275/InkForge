@@ -7670,3 +7670,72 @@ Boundary:
 - This is local Zhihu clean Markdown export and exact-artifact accounting only.
 - It does not prove Zhihu public image-host acceptance, account upload, editor preview, sync,
   scheduled send, platform preview, public article rendering, or publish success.
+
+## 2026-06-21 XHS Markdown Card Slicer Local Evidence Slice
+
+Scope:
+- Repository-committed local evidence and source-owned implementation for `xhs-markdown-card-slicer`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance, scheduled
+  send, public article rendering, or publish action was executed or claimed.
+
+Implementation:
+- Added `sliceMarkdownToXhsCards()`, `renderXhsMarkdownCardSliceSvg()`, and
+  `createXhsMarkdownCardSliceManifestInputs()` under `svg-modules`.
+- Exported the slicer through `svg-modules/index.ts` and `services/export/index.ts`.
+- Generated four 1080 x 1440 PNG pages through CloakBrowser against the local Vite app:
+  Markdown H2 sections, manual page breaks, lists, and a fenced code block were sliced into
+  cover / section / section / code cards, then rasterized through `renderXhsPosterCard`.
+- Added metadata pack
+  `prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21.json`.
+- Added one committed local `xhs-markdown-card-slicer` manifest. It satisfies only local
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, `xhs-artifact-manifest`, and
+  `no-sensitive-artifact` rows.
+- `published-url-or-platform-preview` remains missing and unsafe-to-automate.
+
+Evidence:
+- Visual QA caught awkward short-line wrapping and code-string breaks in the first generated
+  variant; the slicer line wrapping was adjusted and the PNG pack was regenerated.
+- Final PNG page hashes:
+  - page 01: `sha256:a0fd32a89ce85c0b520052b8b4ed034481ef2599d10a0ccb9ffee8639a647965`
+  - page 02: `sha256:3acf196a8aa512ad4664e28842fbfd99092d50baaeed5dab187499fe5a8d28fe`
+  - page 03: `sha256:26ec2555f23dfd73400763813f9d929b6cf5299b8b4a9c5ba53c3ef6c74cea05`
+  - page 04: `sha256:0bb2f4bb8348bc11264c1036e005185475b8cd5efca9be83e6b36ecd37d5798d`
+- JSON pack hash:
+  `sha256:e3716eb5903b1b11a167b467c3c2aae4c6eff793ef5e0c29b39ddeb3b0da375c`.
+
+Initial verification:
+- `pnpm -C inkforge exec vitest run src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts --reporter=default`:
+  passed 1 file / 4 tests.
+- Independent Node evidence verification re-read the committed JSON/PNG pack, recomputed every
+  PNG SHA-256, checked byte lengths, and rebuilt a validator-clean `XhsImageArtifactManifest`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`:
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- `pnpm -C inkforge exec vitest run src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts --reporter=default`:
+  passed 1 file / 4 tests.
+- Independent Node evidence verification:
+  passed JSON SHA-256, PNG SHA-256, byte length, 1080 x 1440 dimensions, and body references.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/svg-modules --reporter=default`:
+  passed 15 files / 386 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 153 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 192 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1130 tests.
+- `pnpm -C inkforge exec eslint src/services/export/svg-modules/xhs-card-slicer.ts src/services/export/svg-modules/index.ts src/services/export/index.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts src/services/export/svg-modules/__tests__/xhs-card-slicer.test.ts --quiet`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed.
+- CloakBrowser release-gate readout from local Vite:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=9`,
+  `combinedManifestCount=11`, `combinedIssueCount=13`, `blockerCount=5`.
+
+Boundary:
+- This is local Markdown-to-card slicing, browser-canvas raster, image-manifest, exact-artifact,
+  and sensitive-hygiene accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

@@ -212,7 +212,7 @@ Executable mirror:
 | `xhs-clean-text` | 小红书 | 标题、短段、列表、话题 | body-system | low | none | plain text | plain text | `unit-tested` | HTML/SVG/Markdown 控制符泄漏 |
 | `xhs-cover-carousel` | 小红书 | 封面、步骤卡、图文卡、图表 | figure-system | high | none | image page | long image | `local-browser` | manifest、格式、页数上限检查不通过 |
 | `xhs-cover-hook` | 小红书 | 封面标题、副标题、主题钩子 | headline-system | high | none | image page | plain text | `local-browser` | 封面裁切、对比、manifest cover 标记缺失 |
-| `xhs-markdown-card-slicer` | 小红书 | H2 分页、手动分页、清单、代码卡 | figure-system | medium-high | none | image page | long image | `local-browser` | 页序、正文图号引用、overflow 未修正 |
+| `xhs-markdown-card-slicer` | 小红书 | H2 分页、手动分页、清单、代码卡 | figure-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；平台上传/预览/发布仍需另证 |
 | `xhs-data-card` | 小红书 | 数据表、对比、指标、图表摘要 | card-system | medium-high | none | image page | long image | `local-browser` | 密集表格/小字需要逐页 overflow 和手机可读性证明 |
 | `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 裁切、横向溢出、资源不可加载 |
 | `xhs-h5-design-import-boundary` | 小红书 | H5、设计海报、视频/PDF、贴纸图文 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 需先落成图片页/纯文本，不是正文富文本 |

@@ -3375,3 +3375,52 @@ Boundary:
 - Boundary: this is local Zhihu clean Markdown export and exact-artifact accounting only. It does
   not prove Zhihu public image-host acceptance, account upload, editor preview, sync, scheduled
   send, platform preview, public article rendering, or publish success.
+
+---
+
+## 2026-06-21 XHS Markdown Card Slicer Local Evidence Addendum
+
+- Added source-owned XHS Markdown card slicer APIs:
+  `sliceMarkdownToXhsCards()`, `renderXhsMarkdownCardSliceSvg()`, and
+  `createXhsMarkdownCardSliceManifestInputs()`.
+- Exported the slicer through `svg-modules/index.ts` and `services/export/index.ts`, so future
+  UI/export integration can consume the same runtime code used by the evidence path.
+- Generated the committed raster pack with CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts` and running:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Added four 1080 x 1440 PNG pages under `prompts/0601/evidence/xhs-raster/`:
+  cover, section, section, and code cards. JSON metadata pack:
+  `xhs-markdown-card-slicer-browser-2026-06-21.json`.
+- Visual QA caught awkward short-line wrapping and code-string breaks in the first generated
+  variant. The slicer line wrapping was adjusted, then the PNG pack was regenerated and checked
+  again.
+- JSON pack hash:
+  `sha256:e3716eb5903b1b11a167b467c3c2aae4c6eff793ef5e0c29b39ddeb3b0da375c`.
+- Page hashes:
+  page 01 `sha256:a0fd32a89ce85c0b520052b8b4ed034481ef2599d10a0ccb9ffee8639a647965`;
+  page 02 `sha256:3acf196a8aa512ad4664e28842fbfd99092d50baaeed5dab187499fe5a8d28fe`;
+  page 03 `sha256:26ec2555f23dfd73400763813f9d929b6cf5299b8b4a9c5ba53c3ef6c74cea05`;
+  page 04 `sha256:0bb2f4bb8348bc11264c1036e005185475b8cd5efca9be83e6b36ecd37d5798d`.
+- Independent Node evidence verification re-reads the committed JSON/PNG evidence pack,
+  recomputes every PNG hash, checks byte lengths, rebuilds a `XhsImageArtifactManifest`, and
+  verifies `validateXhsImageArtifactManifest() === []`. The Vitest coverage stays focused on
+  parser, SVG render safety, and manifest-input generation without adding Node globals to the
+  browser-targeted TS config.
+- Added one committed local `xhs-markdown-card-slicer` manifest. It satisfies only local
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, `xhs-artifact-manifest`, and
+  `no-sensitive-artifact` rows.
+- CloakBrowser release-gate readout from the local Vite runtime:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=9`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=11`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, `cannotClaimSteps=34`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  and `blockerCount=5`.
+- Verification passed: `xhs-card-slicer.test.ts` with 1 file / 4 tests, independent JSON/PNG
+  evidence-pack hash verification, `vue-tsc`, `svg-modules` at 15 files / 386 tests,
+  `platform-export-rendering.test.ts` at 1 file / 153 tests, 4-file cross-platform export
+  regression at 4 files / 192 tests, full `src/services/export` serial regression at
+  36 files / 1130 tests, targeted ESLint, and production build.
+- Boundary: this is local Markdown-to-card slicing, browser-canvas raster, image-manifest,
+  exact-artifact, and sensitive-hygiene accounting only. It does not prove Xiaohongshu account
+  upload, mobile/platform preview, public URL acceptance, scheduled send, public article
+  rendering, or publish success.

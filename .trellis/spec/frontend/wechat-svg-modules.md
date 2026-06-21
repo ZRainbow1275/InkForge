@@ -240,6 +240,15 @@ construct breaks.
   `inkforge/src/extensions/BlockBoundaryInsertion.ts` so source-owned cards/SVG/H5 placeholders
   are inserted as top-level siblings. Raw `insertContent()` is reserved for inline text or
   commands that intentionally modify the current block.
+- 2026-06-21 XHS Markdown card slicer contract: `sliceMarkdownToXhsCards()` may convert source
+  Markdown headings, manual page breaks, lists, and fenced code blocks into ordered XHS card
+  slices; `renderXhsMarkdownCardSliceSvg()` must keep those slices source-owned and SVG-safe; and
+  `createXhsMarkdownCardSliceManifestInputs()` must feed the existing XHS raster manifest builder
+  instead of inventing a parallel manifest format. The committed
+  `xhs-markdown-card-slicer-browser-2026-06-21.json` pack is local proof only: it satisfies local
+  raster, exact-artifact, XHS artifact-manifest, and sensitive-hygiene rows, but it must not be
+  used as Xiaohongshu account upload, platform preview, public URL acceptance, scheduled-send, or
+  publish proof.
 
 ---
 

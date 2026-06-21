@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-06-21T00:00:00.000Z",
+  "tool": "CloakBrowser local Vite browser canvas",
+  "sourceTitle": "InkForge 小红书卡片切片",
+  "sourceModule": "xhs-card-slicer",
+  "renderPath": "sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard",
+  "ratio": "3:4",
+  "overflow": false,
+  "bodyReferences": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "kind": "cover",
+      "title": "InkForge 小红书卡片切片",
+      "sourceLineStart": 1,
+      "sourceLineEnd": 19,
+      "fileName": "xhs-markdown-card-slicer-browser-2026-06-21-page-01.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1440,
+      "byteLength": 112055,
+      "sha256": "a0fd32a89ce85c0b520052b8b4ed034481ef2599d10a0ccb9ffee8639a647965",
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-01.png"
+    },
+    {
+      "page": 2,
+      "kind": "section",
+      "title": "选题结构",
+      "sourceLineStart": 3,
+      "sourceLineEnd": 6,
+      "fileName": "xhs-markdown-card-slicer-browser-2026-06-21-page-02.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1440,
+      "byteLength": 115256,
+      "sha256": "3acf196a8aa512ad4664e28842fbfd99092d50baaeed5dab187499fe5a8d28fe",
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-02.png"
+    },
+    {
+      "page": 3,
+      "kind": "section",
+      "title": "发布前检查",
+      "sourceLineStart": 10,
+      "sourceLineEnd": 13,
+      "fileName": "xhs-markdown-card-slicer-browser-2026-06-21-page-03.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1440,
+      "byteLength": 116284,
+      "sha256": "26ec2555f23dfd73400763813f9d929b6cf5299b8b4a9c5ba53c3ef6c74cea05",
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-03.png"
+    },
+    {
+      "page": 4,
+      "kind": "code",
+      "title": "代码卡片 / ts",
+      "sourceLineStart": 15,
+      "sourceLineEnd": 19,
+      "fileName": "xhs-markdown-card-slicer-browser-2026-06-21-page-04.png",
+      "naturalWidth": 1080,
+      "naturalHeight": 1440,
+      "byteLength": 95434,
+      "sha256": "0bb2f4bb8348bc11264c1036e005185475b8cd5efca9be83e6b36ecd37d5798d",
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-markdown-card-slicer-browser-2026-06-21-page-04.png"
+    }
+  ]
+}
