@@ -1,0 +1,51 @@
+<p style="font-size:0;line-height:0;margin:0;padding:0">&nbsp;</p><section id="nice" style="letter-spacing:0;margin:0 auto;padding:0 4px;line-height:1.75;text-justify:inter-ideograph;word-break:break-word;line-break:strict;font-feature-settings:'palt';-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#ffffff;color:#1A3A5C;counter-reset:report-h2;font-family:'Source Han Serif SC', 'Noto Serif SC', 'Source Han Serif CN', STSong, Georgia, 'Times New Roman', Times, serif;font-size:17px"><div data-wechat-clamp="1" style="max-width:677px;margin:0 auto;">
+<div style="margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid #E8EAED;color:#8E959D;font-size:13px;letter-spacing:0.2px;line-height:1.6">
+  <span>阅读约 1 分钟</span><span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px"></span><span>全文 237 字</span><span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px"></span><span>1 段代码</span><span aria-hidden="true" style="display:inline-block;width:3px;height:3px;border-radius:50%;background:#C7CDD3;vertical-align:middle;margin:0 10px"></span><span>1 张表</span>
+</div>
+<h1 id="工具栏参数映射实测" style="border-bottom:2px solid #E6ECF2;font-size:2em;font-weight:800;margin:0.2em 0 0.6em;color:#0F766E;letter-spacing:-0.01em;line-height:1.25;padding:0.6em 0.8em;background:#F2F5F9;border-left:6px solid #0F766E">工具栏参数映射实测<span style="display:block;width:60px;height:3px;background:#004080;margin-top:0.4em"></span></h1>
+
+<p style="padding:0;margin:0 0 1.15em;line-height:1.75;margin-bottom:0.95em;text-align:justify;text-indent:2em">首段用于验证字号、字体、主色、行高、首行缩进、窄空格和两侧边距映射。微信工具栏的参数不能绕过现有 renderer，只能落到 InkForge 当前支持的安全 inline HTML。</p>
+<p style="padding:0;margin:0 0 1.15em;line-height:1.75;margin-bottom:0.95em;text-align:justify;text-indent:2em">第二段混排 Vue3 与 React18，检验 CJK spacing 是否仍由平台合规层统一处理，并保持正文列宽在 677px 内。</p>
+<h2 id="段落节奏" style="margin:30px 0 16px 0;padding:8px 0 8px 14px;line-height:1.45;border-left:4px solid #0066cc;background:#F7FAFC;border-radius:0 4px 4px 0;color:#0F766E;letter-spacing:0.01em;margin-top:0;font-size:1.4em;counter-increment:report-h2;border-bottom:1px solid #0F766E;padding-bottom:0.3em;margin-bottom:0.9em;font-weight:700"><span style="font-family:'Inter',sans-serif;font-weight:800;color:#fff;background:#004080;padding:0.1em 0.5em;font-size:0.7em;border-radius:3px;letter-spacing:0.05em;margin-right:0.6em;display:inline-block">01</span>段落节奏</h2>
+
+<blockquote style="border-radius:0 4px 4px 0;border-top:2px solid #0F766E;border-bottom:2px solid #0F766E;border-left:none;background:transparent;padding:1em 0;margin:1.6em 0;text-align:center;font-style:italic;color:#2a2a2a">
+<p style="padding:0;line-height:1.75;margin-bottom:0.95em;text-align:justify;text-indent:2em;margin:4px 0">工具栏学习结果应转成 preset/options/report，而不是复制 135 或秀米的 authoring DOM。</p>
+</blockquote>
+<ul style="margin:16px 0;padding-left:24px">
+<li style="line-height:1.8;margin-bottom:0.4em">字号：通过 <code style="font-size:0.92em;word-break:break-word;font-family:'Inter', 'Consolas', monospace;background:#EFF3F7;color:#0F766E;padding:0.05em 0.3em;border-radius:2px">fontSize</code> 覆盖。</li>
+<li style="line-height:1.8;margin-bottom:0.4em">字体：通过 <code style="font-size:0.92em;word-break:break-word;font-family:'Inter', 'Consolas', monospace;background:#EFF3F7;color:#0F766E;padding:0.05em 0.3em;border-radius:2px">fontFamily</code> 覆盖。</li>
+<li style="line-height:1.8;margin-bottom:0.4em">主题色：通过 <code style="font-size:0.92em;word-break:break-word;font-family:'Inter', 'Consolas', monospace;background:#EFF3F7;color:#0F766E;padding:0.05em 0.3em;border-radius:2px">primaryColor</code> 覆盖。</li>
+<li style="line-height:1.8;margin-bottom:0.4em">缩进：通过 <code style="font-size:0.92em;word-break:break-word;font-family:'Inter', 'Consolas', monospace;background:#EFF3F7;color:#0F766E;padding:0.05em 0.3em;border-radius:2px">enableTextIndent</code> 覆盖。</li>
+<li style="line-height:1.8;margin-bottom:0.4em">两侧边距：通过 <code style="font-size:0.92em;word-break:break-word;font-family:'Inter', 'Consolas', monospace;background:#EFF3F7;color:#0F766E;padding:0.05em 0.3em;border-radius:2px">maxContentWidth</code> clamp 表达边界。</li>
+</ul>
+<section style="margin:16px 0;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08)"><table width="100%" style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;border-collapse:collapse;width:100%;text-align:left;font-size:14px">
+<thead style="background:#0F766E;color:#fff;font-weight:600;padding:10px 14px;border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;text-align:left">
+<tr style="background:#ffffff">
+<th align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;background:#F2F5F9;color:#1A3A5C;font-weight:700;border-bottom:3px solid #0F766E;text-transform:uppercase;font-size:0.88em;letter-spacing:0.05em;padding:10px 14px;border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;text-align:left">参数</th>
+<th align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;background:#F2F5F9;color:#1A3A5C;font-weight:700;border-bottom:3px solid #0F766E;text-transform:uppercase;font-size:0.88em;letter-spacing:0.05em;padding:10px 14px;border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:600;text-align:left">InkForge 映射</th>
+</tr>
+</thead>
+<tbody><tr style="background:#f8f9fa">
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">字号</td>
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">fontSize=17px</td>
+</tr>
+<tr style="background:#ffffff">
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">字体</td>
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">fontFamily=serif</td>
+</tr>
+<tr style="background:#f8f9fa">
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">主色</td>
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">primaryColor=#0F766E</td>
+</tr>
+<tr style="background:#ffffff">
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">首行缩进</td>
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">enableTextIndent=true</td>
+</tr>
+<tr style="background:#f8f9fa">
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">内容列宽</td>
+<td align="left" style="padding:10px 12px;border:1px solid #D8E2EC;text-align:left;line-height:1.65;border-color:#E6ECF2;font-variant-numeric:tabular-nums;padding:10px 14px;border:1px solid #e8e8e8;color:#333;word-break:break-word">maxContentWidth=677</td>
+</tr>
+</tbody></table></section>
+<pre style="margin:18px 0;padding:16px;background:#282c34;border-radius:6px;overflow-x:auto"><code style="word-break:break-word;font-family:'Inter', 'Consolas', monospace;border-radius:2px;background:transparent;color:#abb2bf;padding:0;font-size:14px;line-height:1.6">const toolbarParameterMap = "renderer-owned";
+</code></pre>
+</div></section><p style="font-size:0;line-height:0;margin:0;padding:0">&nbsp;</p>

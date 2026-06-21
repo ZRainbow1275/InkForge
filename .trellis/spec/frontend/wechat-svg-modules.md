@@ -2743,3 +2743,37 @@ Required checks:
   including `cover-thumbnail-check`, and does not change release-gate `canClaimComplete:false`.
 - Evidence docs must name the cover/divider/footer DOM readback, SVG safety counts, detector
   blockers, and cannot-claim boundary.
+
+## 31. WeChat Toolbar Parameter Map Local Browser Evidence - 2026-06-22
+
+Contracts:
+- `wechat-toolbar-parameter-map` committed local evidence may use the real local WeChat export
+  path: `markdownToWechatWithStats(sourceMarkdown, getDefaultPreset(), options)`.
+- The source Markdown must exercise InkForge-owned toolbar-parameter taxonomy through the current
+  renderer: font family, font size, primary color, line height, letter spacing, first-line indent,
+  content-width clamp, paragraph rhythm, quote, list, table, inline code, and code block output.
+- It must not copy 135/Xiumi template source, vendor class names, hosted media, credential/runtime
+  capture artifacts, account-captured images, or local browser runtime material.
+- Toolbar concepts learned from 135/Xiumi may become renderer options, preset rules, report fields,
+  UI taxonomy, or blocked requirements only. They must not bypass `markdownToWechatWithStats`,
+  `convertToWechatWithStats`, `postProcessForWechat`, `enforcePlatformCSS`, or
+  `wechatComplianceTransform`.
+- The committed artifact may satisfy `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, and `no-sensitive-artifact` rows only when the exact HTML hash, byte length,
+  source hash, independent file verification, local browser DOM readback, 677px clamp readback,
+  page-overflow readback, parameter sentinels, and hygiene checks are recorded.
+- The committed manifest may claim only `unit-tested` and `local-browser` evidence. It must not
+  claim `pc-editor-paste`, `mobile-preview`, `credentialed-sync`, or `published`.
+- If `detectQuality(html, 'wechat')` reports current renderer blockers such as
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`,
+  `wechat-unsupported-css`, `wechat-layout-report-required`, or `render-html-table`, those
+  blockers must remain cannot-claim boundaries for PC paste, phone preview, Dark Mode, sync,
+  scheduled send, platform preview, public rendering, and publish proof.
+
+Required checks:
+- Regression tests must include the committed `wechat-toolbar-parameter-map` manifest in local and
+  combined evidence packs.
+- Tests must assert the manifest is local-browser only, keeps external WeChat requirements missing,
+  and does not change release-gate `canClaimComplete:false`.
+- Evidence docs must name the typography/parameter DOM readback, no-style/no-class safety counts,
+  detector blockers, renderer-boundary rule, and cannot-claim boundary.

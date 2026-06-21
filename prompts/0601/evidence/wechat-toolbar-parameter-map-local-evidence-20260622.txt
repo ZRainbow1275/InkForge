@@ -1,0 +1,127 @@
+WeChat Toolbar Parameter Map Local Browser Evidence - 2026-06-22
+
+Scope:
+- Repository-committed local browser and exact-artifact evidence for `wechat-toolbar-parameter-map`.
+- No WeChat account login, official editor paste, phone preview, mobile Dark Mode check,
+  credentialed sync, scheduled send, platform preview, public rendering, or publish action was
+  executed or claimed.
+
+Generation:
+- Artifact:
+  `prompts/0601/evidence/wechat-toolbar-parameter-map-local-artifact-20260622.html`.
+- Generated through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getDefaultPreset(), options)`.
+- Options:
+  `enableReadingTime=true`, `enableCiteStatus=true`, `enableCodeHighlight=false`,
+  `enableEnhancedTable=true`, `enableCjkSpacing=true`, `enableTextIndent=true`,
+  `primaryColor=#0F766E`, `fontFamily=serif`, `fontSize=17px`, `maxContentWidth=677`.
+- Source Markdown is InkForge-owned and exercises toolbar-parameter taxonomy through the existing
+  renderer: title, paragraphs, blockquote, list, table, inline code, code block, font family, font
+  size, primary color, line height, letter spacing, first-line indent, and content-width clamp.
+- The source does not copy 135/Xiumi template source, vendor class names, hosted media, account
+  artifacts, or local browser runtime material.
+
+Hashes:
+- HTML hash:
+  `sha256:f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79`.
+- HTML bytes: 9058.
+- Source Markdown hash:
+  `sha256:c9be54a38b16d9765d8168bd1b47692a26db6f925aa32fa9cbebdb5a16f3d1cb`.
+
+Independent file verification:
+- Re-read the committed HTML artifact from disk.
+- Recomputed SHA-256 and byte length.
+- Verified required sentinels:
+  `id="nice"`, `data-wechat-clamp="1"`, `max-width:677px`, `font-size:17px`, `#0F766E`,
+  `text-indent:2em`, `工具栏参数映射实测`, `参数`, `InkForge 映射`, and `renderer-owned`.
+- Verified no publishable residue markers:
+  no `<style>`, no `<foreignObject>`, no active script protocol, no `_135editor` / `135brush` /
+  `data-tools="135编辑器"`, no structured `tn-*` or `ng-*` authoring attributes/classes, no
+  `statics.xiumi.us`, no `app-content-canvas`, and no `contenteditable`.
+- Independent DOM counts from the committed file:
+  `paragraph=5`, `blockquote=1`, `table=1`, `code=6`, `clamp=1`.
+
+CloakBrowser local artifact readback:
+- Loaded the read-only local artifact preview through CloakBrowser.
+- Desktop viewport readback:
+  `viewportWidth=1400`, `viewportHeight=900`, `documentScrollWidth=1385`,
+  `documentClientWidth=1385`, `bodyScrollWidth=1385`, `bodyClientWidth=1385`,
+  `bodyOverflowX=false`.
+- Export shell readback:
+  `nice.width=1369`, `nice.scrollWidth=1369`, `nice.clientWidth=1369`,
+  `clamp.width=677`, `clamp.left=354`, `clamp.right=1031`, `clamp.scrollWidth=677`,
+  `clamp.clientWidth=677`, `clamp.style=max-width:677px;margin:0 auto;`.
+- Page overflow readback:
+  `pageOverflowing=[]`.
+- DOM safety readback:
+  `styleElementCount=0`, `classAttrCount=0`, `foreignObjectCount=0`, `scriptCount=0`,
+  `svgElementCount=0`, `textLength=579`.
+- DOM parameter readback:
+  `fontSize17=true`, `primaryColor=true`, `textIndent=true`, `maxWidth677=true`.
+- Structural readback:
+  `paragraph=5`, `h1=1`, `h2=1`, `blockquote=1`, `ul=1`, `table=1`, `code=6`.
+- Style samples:
+  `h1` included `font-size:2em`, `color:#0F766E`, `letter-spacing:-0.01em`,
+  `line-height:1.25`, and side padding.
+  The second paragraph included `line-height:1.75`, `text-align:justify`, and
+  `text-indent:2em`.
+  The table included `width:100%` and `font-size:14px`.
+  Inline code included `color:#0F766E` and safe padding.
+
+Quality detector boundary:
+- `detectQuality(html, 'wechat')` still reports:
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`,
+  `wechat-unsupported-css`, `wechat-layout-report-required`, and `render-html-table`.
+- These are current flagship/default renderer blockers and must remain cannot-claim boundaries.
+  They do not invalidate this local evidence row, but they prevent claiming PC paste, phone
+  preview, mobile Dark Mode, sync, scheduled send, platform preview, public rendering, or publish
+  success from this local artifact.
+
+Runtime manifest behavior:
+- Added one committed local `wechat-toolbar-parameter-map` manifest.
+- It claims only `unit-tested` and `local-browser` evidence.
+- It satisfies only `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` accounting for the exact HTML artifact.
+- It keeps `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`, and
+  `published-url-or-platform-preview` missing.
+- Toolbar parameters that are not exposed by current `WechatExportOptions` remain rule and UI
+  taxonomy only; they must not bypass `markdownToWechatWithStats` or the existing WeChat renderer.
+
+Verification:
+- Temporary generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-toolbar-parameter-map-artifact.tmp.test.ts --reporter=default`
+  passed before the temporary generator file was deleted.
+- Independent Node file verification passed after using structured market-residue attribute/class
+  checks instead of raw substring checks.
+- CloakBrowser local artifact readback passed for desktop DOM, clamp width, page overflow,
+  parameter sentinels, and safety counts.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 155 tests.
+- Cross-platform export regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 194 tests.
+- Full export serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 36 files / 1132 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Typecheck passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4653 modules
+  and built in 36.36s. The generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --check` passed for the toolbar-parameter slice files with only Windows line-ending
+  conversion warnings.
+- GitNexus detect reported the whole working tree at 39 files / 32 changed symbols /
+  0 affected processes / low risk; the count includes unrelated pre-existing dirty files outside
+  this slice.
+
+Boundary:
+- This is local WeChat toolbar-parameter browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode,
+  credentialed sync, scheduled send, platform preview, public article rendering, or publish
+  success.

@@ -493,3 +493,31 @@ Step 8: 输出 WeChat-Compatible HTML
   `cover-thumbnail-check` 仍必须由真实手机/平台预览或分享入口另行证明。
 - PC 粘贴、手机预览、Dark Mode、封面缩略图、同步、定时发送、平台预览、公网渲染和发布成功
   仍是外部门禁，不能由本地 artifact 自动升级。
+
+## 十、工具栏参数映射本地证据规则
+
+2026-06-22 `wechat-toolbar-parameter-map` 本地证据确认：InkForge 当前微信导出器可以通过
+`markdownToWechatWithStats(sourceMarkdown, getDefaultPreset(), options)` 把部分市场编辑器工具栏
+概念落到现有 renderer 支持的安全 inline HTML。
+
+已证明的本地映射：
+
+- `fontFamily=serif` 会进入导出 HTML 的 `font-family` inline style。
+- `fontSize=17px` 会进入导出 HTML 的 `font-size:17px`。
+- `primaryColor=#0F766E` 会替换标题、引用、代码等安全色值。
+- `enableTextIndent=true` 会把正文段落落成 `text-indent:2em`。
+- 预设行高、字距和 padding 会在 juice/post-process 后以内联样式保留。
+- `maxContentWidth=677` 会通过 `data-wechat-clamp="1"` 与 `max-width:677px` 保持内容列宽。
+
+本地规则：
+
+- 工具栏学习只能转成 `WechatExportOptions`、preset CSS、quality detector、style catalog、UI taxonomy
+  或 blocked requirements。不得绕过 `markdownToWechatWithStats` / `convertToWechatWithStats`
+  创建第二套微信排版器。
+- 当前未暴露为 `WechatExportOptions` 的字距、段前/段后、两侧边距等市场工具栏项，必须先作为
+  规则和 UI taxonomy 留档，不能伪装成已支持的用户可选 runtime 控件。
+- 本地 artifact 必须记录 exact HTML hash、source hash、CloakBrowser DOM readback、参数哨兵、
+  无 `<style>` / class / `foreignObject` / script 的安全计数，以及 market-editor residue scan。
+- 本地 browser/exact artifact 证据最多满足 `unit-test-coverage`、`local-browser-rendering`、
+  `exact-artifact`、`no-sensitive-artifact`。PC 粘贴、手机预览、Dark Mode、同步、定时发送、
+  平台预览、公网渲染和发布成功仍是外部门禁。

@@ -8333,3 +8333,72 @@ Boundary:
 - It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, sync, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-22 WeChat Toolbar Parameter Map Local Browser Evidence Slice
+
+Scope:
+- Repository-committed local browser/exact-artifact evidence for `wechat-toolbar-parameter-map`.
+- No WeChat account login, official editor paste, phone preview, Dark Mode check, credentialed
+  sync, scheduled send, platform preview, public rendering, or publish action was executed or
+  claimed.
+
+Implementation:
+- Generated the committed HTML artifact through the real source-owned path:
+  `markdownToWechatWithStats(sourceMarkdown, getDefaultPreset(), options)`.
+- The source Markdown covers renderer-owned toolbar mappings: font family, font size, primary
+  color, line height, letter spacing, first-line indent, content-width clamp, paragraph rhythm,
+  quote, list, table, inline code, and code block output.
+- The source and artifact avoid 135/Xiumi template source, vendor class names, hosted media,
+  account artifacts, and local browser runtime material.
+- Added `prompts/0601/evidence/wechat-toolbar-parameter-map-local-artifact-20260622.html`.
+- Added `prompts/0601/evidence/wechat-toolbar-parameter-map-local-evidence-20260622.txt`.
+- Added one committed local `wechat-toolbar-parameter-map` manifest. It claims only
+  `unit-tested` and `local-browser` evidence and satisfies unit, local-browser, exact-artifact,
+  and sensitive-hygiene accounting for the exact HTML artifact.
+
+Evidence:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-toolbar-parameter-map-local-artifact-20260622.html`.
+- HTML hash:
+  `sha256:f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79`.
+- HTML bytes: 9058.
+- Source Markdown hash:
+  `sha256:c9be54a38b16d9765d8168bd1b47692a26db6f925aa32fa9cbebdb5a16f3d1cb`.
+- Independent Node evidence verification re-read the committed HTML, recomputed the hash, checked
+  required parameter sentinels, structural sentinels, and sensitive / market-editor residue scan.
+- CloakBrowser local artifact readback:
+  `viewportWidth=1400`, `clamp.width=677`, `clamp.scrollWidth=677`, `bodyOverflowX=false`,
+  `pageOverflowing=[]`, `styleElementCount=0`, `classAttrCount=0`, `foreignObjectCount=0`,
+  `scriptCount=0`, `svgElementCount=0`, `textLength=579`.
+- DOM parameter readback:
+  `fontSize17=true`, `primaryColor=true`, `textIndent=true`, `maxWidth677=true`.
+- DOM structure readback:
+  `paragraph=5`, `h1=1`, `h2=1`, `blockquote=1`, `ul=1`, `table=1`, and `code=6`.
+- Browser-side `detectQuality(html, 'wechat')` still reported `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, `wechat-unsupported-css`,
+  `wechat-layout-report-required`, and `render-html-table`; these are documented blockers, not
+  external-platform success proof.
+
+Verification:
+- Temporary artifact generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-toolbar-parameter-map-artifact.tmp.test.ts --reporter=default`
+  passed, then the temporary generator file was deleted.
+- Independent HTML evidence verification passed.
+- CloakBrowser artifact readback passed.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full `platform-export-rendering.test.ts` regression passed 1 file / 155 tests.
+- Four-file cross-platform export regression passed 4 files / 194 tests.
+- Full export serial regression passed 36 files / 1132 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. Vite
+  transformed 4653 modules and built in 36.36s; generated `inkforge/tsconfig.tsbuildinfo` was
+  restored afterward.
+- `git diff --check` passed for the slice files with only Windows line-ending conversion warnings.
+- GitNexus detect reported 39 dirty files across the whole working tree, 32 changed symbols,
+  0 affected processes, and low risk. The dirty-file count includes unrelated pre-existing files.
+
+Boundary:
+- This is local WeChat toolbar-parameter browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, sync,
+  scheduled send, platform preview, public rendering, or publish success.

@@ -3797,3 +3797,56 @@ Boundary:
   accounting only. It does not prove official editor paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
   rendering, or publish success.
+
+---
+
+## 2026-06-22 WeChat Toolbar Parameter Map Local Browser Evidence Addendum
+
+- Added `prompts/0601/evidence/wechat-toolbar-parameter-map-local-artifact-20260622.html`.
+- Added `prompts/0601/evidence/wechat-toolbar-parameter-map-local-evidence-20260622.txt`.
+- Generated the exact HTML artifact through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getDefaultPreset(), options)`.
+- The source Markdown is InkForge-owned and exercises renderer-owned toolbar mappings:
+  font family, font size, primary color, line height, letter spacing, first-line indent,
+  content-width clamp, paragraph rhythm, quote, list, table, inline code, and code block output.
+  It does not copy 135/Xiumi template source, vendor class names, remote media, account artifacts,
+  or local browser runtime material.
+- HTML artifact hash:
+  `sha256:f5e6487905e11bfc64e2998d553de45de29b372a87b584014076e38b49263e79`.
+- HTML bytes: 9058.
+- Source Markdown hash:
+  `sha256:c9be54a38b16d9765d8168bd1b47692a26db6f925aa32fa9cbebdb5a16f3d1cb`.
+- Independent Node verification re-read the committed HTML, checked the hash, byte length,
+  parameter sentinels, structural sentinels, and structured sensitive / market-editor residue
+  scan.
+- CloakBrowser loaded a local read-only artifact preview and measured `clamp.width=677`,
+  `clamp.scrollWidth=677`, `bodyOverflowX=false`, `pageOverflowing=[]`, `styleElementCount=0`,
+  `classAttrCount=0`, `foreignObjectCount=0`, `scriptCount=0`, `svgElementCount=0`, and
+  `textLength=579`.
+- DOM readback found `fontSize17=true`, `primaryColor=true`, `textIndent=true`,
+  `maxWidth677=true`, `paragraph=5`, `h1=1`, `h2=1`, `blockquote=1`, `ul=1`, `table=1`,
+  and `code=6`.
+- Browser-side `detectQuality(html, 'wechat')` still reports `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, `wechat-unsupported-css`,
+  `wechat-layout-report-required`, and `render-html-table`. These are recorded blockers; this
+  evidence is not PC editor paste proof, phone preview proof, Dark Mode proof, sync proof, or
+  publish proof.
+- Added one committed local `wechat-toolbar-parameter-map` manifest. It claims only
+  `unit-tested` and `local-browser` evidence and satisfies unit, local-browser, exact-artifact,
+  and sensitive-hygiene accounting for this exact HTML artifact.
+- Current committed release-gate accounting remains blocked with `canClaimComplete=false`,
+  `status=blocked-by-local-conflict`, `localManifestCount=19`, `wechatPcManifestCount=2`,
+  `combinedManifestCount=21`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Verification passed: temporary artifact generator; independent HTML evidence verification;
+  CloakBrowser artifact readback; focused committed/local/release regression with 1 file /
+  4 selected tests; full `platform-export-rendering.test.ts` regression with 1 file / 155 tests;
+  four-file cross-platform export regression with 4 files / 194 tests; full export serial
+  regression with 36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 transformed modules in 36.36s. `git diff --check` passed for the slice files, and GitNexus
+  detect reported 39 dirty files across the whole working tree, 32 changed symbols, 0 affected
+  processes, and low risk; the dirty-file count includes unrelated pre-existing files.
+- Boundary: this is local WeChat toolbar-parameter browser/exact-artifact/sensitive-hygiene
+  accounting only. It does not prove official editor paste, phone preview, mobile interaction,
+  Dark Mode, sync, scheduled send, platform preview, public article rendering, or publish success.
