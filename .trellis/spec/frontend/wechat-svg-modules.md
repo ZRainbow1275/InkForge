@@ -2990,3 +2990,43 @@ Required checks:
 - CloakBrowser narrow-viewport verification must use a real local article and the real `发布`
   modal, confirming the mapped cards are enabled, no horizontal overflow appears, and the release
   gate remains `blocked-by-external`.
+
+## 36. Committed External Proof Checklist - 2026-06-22
+
+Contracts:
+- `getCommittedStyleProofExternalProofChecklistReport()` is a read-only checklist API above
+  `getCommittedStyleProofEvidenceReleaseGateReport()`. It must not create proof artifacts, mutate
+  platform state, open browsers, sync drafts, upload images, schedule sends, publish articles,
+  change catalog availability, or change style selection.
+- The report must include the source `releaseGate`, mirror `status` and `canClaimComplete`, and
+  keep `canClaimComplete:false` while the committed release gate is not `ready`.
+- Checklist rows are external proof rows only. They may include authenticated PC editor, phone
+  preview, credentialed-channel, public-host, and platform-publish boundaries. They must exclude
+  `local-only` local evidence / sensitive-hygiene rows so the operator does not confuse local
+  cleanup with phone, account, public host, or publish proof.
+- A single open runbook step may belong to multiple blocker groups. For example, a platform
+  publish row is part of `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+  The report must expose both `uniqueChecklistRowCount` and `groupRowCount` so overlapping blocker
+  memberships remain explicit.
+- Each row must preserve its runbook proof contract: platform, requirement id/label, gate,
+  boundary, status, issue ids, missing/invalid counts, phone/account/platform mutation flags,
+  `cannotClaimReason`, `nextOperatorAction`, required channels/actions/readbacks, required fields,
+  forbidden fields, accepted host statuses, freshness max days, success criteria, failure signals,
+  and redaction boundary.
+- The API is a proof-collection handoff only. It must not be consumed as renderer success, WeChat
+  editor paste success, phone preview success, mobile Dark Mode success, cover thumbnail
+  acceptance, XHS/Zhihu upload success, scheduled-send success, public URL acceptance, or publish
+  success.
+
+Required checks:
+- Regression tests must use the current committed manifest pack, not mock manifests, and assert the
+  report remains `blocked-by-external` with `canClaimComplete:false`.
+- Regression tests must prove current groups are `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with no local-conflict group in this snapshot.
+- Regression tests must prove all checklist rows are non-local, non-completed, and not safe to
+  automate locally.
+- Regression tests must prove WeChat phone rows require phone proof and forbid
+  `phonePreviewBlocked`; XHS publish rows remain external/unsafe/mutating; and Zhihu public-host
+  rows require public HTTPS or platform-hosted image proof.
+- Evidence docs must record the checklist counts and the cannot-claim boundary without claiming
+  any external gate has been completed.

@@ -959,6 +959,91 @@ export interface CommittedStyleProofReleaseGateReport {
   }
 }
 
+export type CommittedStyleProofExternalProofChecklistBlockerKind =
+  Exclude<CommittedStyleProofReleaseGateBlockerKind, 'local-conflict'>
+
+export interface CommittedStyleProofExternalProofArtifactTemplate {
+  requirementId: StyleProofRequirementId
+  requiredChannels: readonly StyleProofChannel[]
+  requiredActions: readonly StyleProofAction[]
+  requiredReadbacks: readonly StyleProofReadback[]
+  requiredFields: readonly StyleProofArtifactVerificationField[]
+  forbiddenFields: readonly StyleProofArtifactVerificationField[]
+  acceptedHostStatuses: readonly StyleProofHostStatus[]
+  maxFreshnessDays: number | null
+  redactionBoundary: string
+  successCriteria: readonly string[]
+  failureSignals: readonly string[]
+}
+
+export interface CommittedStyleProofExternalProofChecklistRow {
+  id: string
+  blockerKinds: readonly CommittedStyleProofExternalProofChecklistBlockerKind[]
+  platform: Platform
+  choiceIds: readonly string[]
+  requirementId: StyleProofRequirementId
+  requirementLabel: string
+  gate: StyleProofCollectionGate
+  boundary: StyleProofExecutionBoundary
+  order: number
+  status: StyleProofAcceptanceAuditStatus
+  issueIds: readonly StyleProofManifestIssueId[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  blockedChoiceCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
+  safeToAutomate: boolean
+  requiresFreshCollectedAt: boolean
+  freshnessMaxDays: number | null
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  cannotClaim: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  artifactTemplate: CommittedStyleProofExternalProofArtifactTemplate
+}
+
+export interface CommittedStyleProofExternalProofChecklistGroup {
+  kind: CommittedStyleProofExternalProofChecklistBlockerKind
+  status: StyleProofAcceptanceAuditStatus | 'issue'
+  message: string
+  platforms: readonly Platform[]
+  requirementIds: readonly StyleProofRequirementId[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  issueCount: number
+  stepCount: number
+  rowCount: number
+  platformStepCounts: readonly CommittedStyleProofReleasePlatformStepCount[]
+  requirementStepCounts: readonly CommittedStyleProofReleaseRequirementStepCount[]
+  issueCounts: readonly CommittedStyleProofReleaseIssueCount[]
+  nextOperatorActions: readonly CommittedStyleProofReleaseNextOperatorAction[]
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+}
+
+export interface CommittedStyleProofExternalProofChecklistReport {
+  releaseGate: CommittedStyleProofReleaseGateReport
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+  groups: readonly CommittedStyleProofExternalProofChecklistGroup[]
+  summary: CommittedStyleProofReleaseGateReport['summary'] & {
+    groupCount: number
+    groupRowCount: number
+    uniqueChecklistRowCount: number
+    phoneRows: number
+    externalAccountRows: number
+    publicHostRows: number
+    mutatingRows: number
+    unsafeToAutomateRows: number
+    safeToAutomateRows: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -6790,6 +6875,202 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
     summary: {
       ...source.summary,
       blockerCount: blockers.length,
+    },
+  }
+}
+
+const COMMITTED_STYLE_PROOF_EXTERNAL_CHECKLIST_BLOCKER_ORDER: readonly CommittedStyleProofExternalProofChecklistBlockerKind[] = [
+  'phone-preview',
+  'external-dependency',
+  'unsafe-to-automate',
+  'mutating-platform',
+]
+
+function isCommittedStyleProofExternalProofChecklistBlockerKind(
+  kind: CommittedStyleProofReleaseGateBlockerKind,
+): kind is CommittedStyleProofExternalProofChecklistBlockerKind {
+  return kind !== 'local-conflict'
+}
+
+function getCommittedStyleProofExternalProofChecklistRowId(
+  step: StyleProofExecutionRunbookStep,
+): string {
+  return [
+    'committed-style-proof',
+    step.platform,
+    step.requirement.id,
+    step.gate,
+    step.boundary,
+  ].join(':')
+}
+
+function doesCommittedStyleProofExternalProofChecklistStepMatchBlocker(
+  kind: CommittedStyleProofExternalProofChecklistBlockerKind,
+  step: StyleProofExecutionRunbookStep,
+): boolean {
+  if (kind === 'phone-preview') return step.requiresPhone
+  if (kind === 'external-dependency') {
+    return step.requiresExternalAccount || step.boundary === 'public-host'
+  }
+  if (kind === 'unsafe-to-automate') return step.status === 'unsafe-to-automate'
+  return step.mutatesPlatform
+}
+
+function getCommittedStyleProofExternalProofChecklistBlockerOrder(
+  kind: CommittedStyleProofExternalProofChecklistBlockerKind,
+): number {
+  return COMMITTED_STYLE_PROOF_EXTERNAL_CHECKLIST_BLOCKER_ORDER.indexOf(kind)
+}
+
+function buildCommittedStyleProofExternalProofArtifactTemplate(
+  step: StyleProofExecutionRunbookStep,
+): CommittedStyleProofExternalProofArtifactTemplate {
+  return {
+    requirementId: step.requiredArtifact.requirementId,
+    requiredChannels: step.requiredArtifact.requiredChannels,
+    requiredActions: step.requiredArtifact.requiredActions,
+    requiredReadbacks: step.requiredArtifact.requiredReadbacks,
+    requiredFields: step.requiredArtifact.requiredFields,
+    forbiddenFields: step.requiredArtifact.forbiddenFields ?? [],
+    acceptedHostStatuses: step.requiredArtifact.acceptedHostStatuses ?? [],
+    maxFreshnessDays: step.requiredArtifact.maxFreshnessDays ?? null,
+    redactionBoundary: step.redactionBoundary,
+    successCriteria: step.successCriteria,
+    failureSignals: step.failureSignals,
+  }
+}
+
+function buildCommittedStyleProofExternalProofChecklistRow(
+  step: StyleProofExecutionRunbookStep,
+  blockerKinds: readonly CommittedStyleProofExternalProofChecklistBlockerKind[],
+): CommittedStyleProofExternalProofChecklistRow {
+  return {
+    id: getCommittedStyleProofExternalProofChecklistRowId(step),
+    blockerKinds: [...blockerKinds].sort((left, right) =>
+      getCommittedStyleProofExternalProofChecklistBlockerOrder(left) -
+      getCommittedStyleProofExternalProofChecklistBlockerOrder(right)
+    ),
+    platform: step.platform,
+    choiceIds: step.choiceIds,
+    requirementId: step.requirement.id,
+    requirementLabel: step.requirement.label,
+    gate: step.gate,
+    boundary: step.boundary,
+    order: step.order,
+    status: step.status,
+    issueIds: step.issueIds,
+    required: step.required,
+    satisfied: step.satisfied,
+    missing: step.missing,
+    invalid: step.invalid,
+    artifactCount: step.artifactCount,
+    acceptedArtifactCount: step.acceptedArtifactCount,
+    blockedChoiceCount: step.blockedChoiceCount,
+    mutatesPlatform: step.mutatesPlatform,
+    requiresExternalAccount: step.requiresExternalAccount,
+    requiresPhone: step.requiresPhone,
+    safeToAutomate: step.safeToAutomate,
+    requiresFreshCollectedAt: step.requiresFreshCollectedAt,
+    freshnessMaxDays: step.freshnessMaxDays,
+    freshnessIssueIds: step.freshnessIssueIds,
+    cannotClaim: step.cannotClaim,
+    cannotClaimReason: step.cannotClaimReason,
+    nextOperatorAction: step.nextOperatorAction,
+    artifactTemplate: buildCommittedStyleProofExternalProofArtifactTemplate(step),
+  }
+}
+
+function sortCommittedStyleProofExternalProofChecklistRows(
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[],
+): CommittedStyleProofExternalProofChecklistRow[] {
+  return [...rows].sort((left, right) => {
+    if (left.platform !== right.platform) return left.platform.localeCompare(right.platform)
+    if (left.order !== right.order) return left.order - right.order
+    return left.requirementId.localeCompare(right.requirementId)
+  })
+}
+
+export function getCommittedStyleProofExternalProofChecklistReport(): CommittedStyleProofExternalProofChecklistReport {
+  const releaseGate = getCommittedStyleProofEvidenceReleaseGateReport()
+  const openSteps = getCommittedStyleProofRunbookOpenSteps(releaseGate.source)
+  const rowInputs = new Map<string, {
+    step: StyleProofExecutionRunbookStep
+    blockerKinds: Set<CommittedStyleProofExternalProofChecklistBlockerKind>
+  }>()
+  const stepIdsByBlocker = new Map<CommittedStyleProofExternalProofChecklistBlockerKind, string[]>()
+
+  for (const blocker of releaseGate.blockers) {
+    if (!isCommittedStyleProofExternalProofChecklistBlockerKind(blocker.kind)) continue
+    const stepIds: string[] = []
+    for (const step of openSteps) {
+      if (!doesCommittedStyleProofExternalProofChecklistStepMatchBlocker(blocker.kind, step)) {
+        continue
+      }
+
+      const rowId = getCommittedStyleProofExternalProofChecklistRowId(step)
+      const input = rowInputs.get(rowId) ?? {
+        step,
+        blockerKinds: new Set<CommittedStyleProofExternalProofChecklistBlockerKind>(),
+      }
+      input.blockerKinds.add(blocker.kind)
+      rowInputs.set(rowId, input)
+      stepIds.push(rowId)
+    }
+    stepIdsByBlocker.set(blocker.kind, stepIds)
+  }
+
+  const rows = sortCommittedStyleProofExternalProofChecklistRows(
+    Array.from(rowInputs.values()).map(input =>
+      buildCommittedStyleProofExternalProofChecklistRow(input.step, Array.from(input.blockerKinds))
+    )
+  )
+  const rowsById = new Map(rows.map(row => [row.id, row]))
+  const groups = releaseGate.blockers
+    .filter((blocker): blocker is CommittedStyleProofReleaseGateBlocker & {
+      kind: CommittedStyleProofExternalProofChecklistBlockerKind
+    } => isCommittedStyleProofExternalProofChecklistBlockerKind(blocker.kind))
+    .map((blocker): CommittedStyleProofExternalProofChecklistGroup => {
+      const blockerRows = sortCommittedStyleProofExternalProofChecklistRows(
+        (stepIdsByBlocker.get(blocker.kind) ?? [])
+          .map(rowId => rowsById.get(rowId))
+          .filter((row): row is CommittedStyleProofExternalProofChecklistRow => Boolean(row))
+      )
+
+      return {
+        kind: blocker.kind,
+        status: blocker.status,
+        message: blocker.message,
+        platforms: blocker.platforms,
+        requirementIds: blocker.requirementIds,
+        issueIds: blocker.issueIds,
+        issueCount: blocker.issueCount,
+        stepCount: blocker.stepCount,
+        rowCount: blockerRows.length,
+        platformStepCounts: blocker.platformStepCounts,
+        requirementStepCounts: blocker.requirementStepCounts,
+        issueCounts: blocker.issueCounts,
+        nextOperatorActions: blocker.nextOperatorActions,
+        rows: blockerRows,
+      }
+    })
+
+  return {
+    releaseGate,
+    canClaimComplete: releaseGate.canClaimComplete,
+    status: releaseGate.status,
+    rows,
+    groups,
+    summary: {
+      ...releaseGate.summary,
+      groupCount: groups.length,
+      groupRowCount: groups.reduce((total, group) => total + group.rowCount, 0),
+      uniqueChecklistRowCount: rows.length,
+      phoneRows: rows.filter(row => row.requiresPhone).length,
+      externalAccountRows: rows.filter(row => row.requiresExternalAccount).length,
+      publicHostRows: rows.filter(row => row.boundary === 'public-host').length,
+      mutatingRows: rows.filter(row => row.mutatesPlatform).length,
+      unsafeToAutomateRows: rows.filter(row => row.status === 'unsafe-to-automate').length,
+      safeToAutomateRows: rows.filter(row => row.safeToAutomate).length,
     },
   }
 }

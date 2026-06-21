@@ -16,6 +16,7 @@ import {
   evaluateStyleChoiceAvailability,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
+  getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
   getCommittedStyleProofEvidenceManifests,
   getCommittedStyleProofLocalEvidenceAuditReport,
@@ -2624,6 +2625,105 @@ describe('platform native export rendering rules', () => {
     expect(mutatingBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'platform-publish'
     )).toBe(true)
+  })
+
+  it('builds committed external proof checklist without converting blockers into proof', () => {
+    const report = getCommittedStyleProofExternalProofChecklistReport()
+    const groupKinds = report.groups.map(group => group.kind)
+    const wechatPhoneRow = report.rows.find(row =>
+      row.platform === 'wechat' && row.requirementId === 'phone-preview-readback'
+    )
+    const xhsPublishRow = report.rows.find(row =>
+      row.platform === 'xiaohongshu' && row.requirementId === 'published-url-or-platform-preview'
+    )
+    const zhihuPublicHostRow = report.rows.find(row =>
+      row.platform === 'zhihu' && row.requirementId === 'public-image-host'
+    )
+    const phoneGroup = report.groups.find(group => group.kind === 'phone-preview')
+    const externalGroup = report.groups.find(group => group.kind === 'external-dependency')
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).toBe('blocked-by-external')
+    expect(report.releaseGate.canClaimComplete).toBe(false)
+    expect(groupKinds).toEqual([
+      'phone-preview',
+      'external-dependency',
+      'unsafe-to-automate',
+      'mutating-platform',
+    ])
+    expect(report.summary).toMatchObject({
+      blockerCount: 4,
+      groupCount: 4,
+      groupRowCount: 44,
+      uniqueChecklistRowCount: 18,
+      phoneRows: 4,
+      externalAccountRows: 13,
+      publicHostRows: 1,
+      mutatingRows: 13,
+      unsafeToAutomateRows: 13,
+      safeToAutomateRows: 0,
+    })
+    expect(report.rows.every(row => row.status !== 'completed')).toBe(true)
+    expect(report.rows.every(row => row.safeToAutomate === false)).toBe(true)
+    expect(report.rows.some(row => row.boundary === 'local-only')).toBe(false)
+
+    expect(phoneGroup?.rowCount).toBe(4)
+    expect(phoneGroup?.rows.every(row => row.requiresPhone)).toBe(true)
+    expect(externalGroup?.rowCount).toBe(14)
+    expect(externalGroup?.rows.some(row => row.boundary === 'public-host')).toBe(true)
+
+    expect(wechatPhoneRow).toMatchObject({
+      blockerKinds: ['phone-preview'],
+      boundary: 'phone-preview',
+      status: 'blocked-by-external',
+      requiresPhone: true,
+      mutatesPlatform: false,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(wechatPhoneRow?.cannotClaimReason).toContain('phone-side preview evidence')
+    expect(wechatPhoneRow?.artifactTemplate.requiredChannels).toEqual(['phone-preview'])
+    expect(wechatPhoneRow?.artifactTemplate.requiredFields).toEqual(expect.arrayContaining([
+      'artifactFingerprint',
+      'exactArtifact',
+      'phonePreviewContentVerified',
+      'collectedAt',
+      'safeForCommit',
+    ]))
+    expect(wechatPhoneRow?.artifactTemplate.forbiddenFields).toContain('phonePreviewBlocked')
+
+    expect(xhsPublishRow).toMatchObject({
+      blockerKinds: ['external-dependency', 'unsafe-to-automate', 'mutating-platform'],
+      boundary: 'platform-publish',
+      status: 'unsafe-to-automate',
+      requiresExternalAccount: true,
+      mutatesPlatform: true,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(xhsPublishRow?.artifactTemplate.requiredActions).toContain('published-preview')
+    expect(xhsPublishRow?.artifactTemplate.requiredReadbacks).toContain('published-url')
+    expect(xhsPublishRow?.nextOperatorAction).toContain('real platform preview')
+
+    expect(zhihuPublicHostRow).toMatchObject({
+      blockerKinds: ['external-dependency'],
+      boundary: 'public-host',
+      status: 'blocked-by-external',
+      requiresExternalAccount: false,
+      mutatesPlatform: false,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(zhihuPublicHostRow?.artifactTemplate.requiredFields).toEqual(expect.arrayContaining([
+      'artifactRef',
+      'hostStatus',
+      'collectedAt',
+      'safeForCommit',
+    ]))
+    expect(zhihuPublicHostRow?.artifactTemplate.acceptedHostStatuses).toEqual([
+      'public-https',
+      'platform-hosted',
+    ])
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

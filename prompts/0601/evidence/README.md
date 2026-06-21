@@ -3518,6 +3518,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WeChat paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, XHS/Zhihu upload,
   scheduled send, public rendering, or publish success.
 
+## 2026-06-22 Style Proof External Checklist
+
+- [x] style-proof-external-checklist-20260622.txt
+- Added the read-only `getCommittedStyleProofExternalProofChecklistReport()` API to turn the
+  current committed release-gate blockers into an operator handoff checklist.
+- Current snapshot remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerCount=4`, `groupCount=4`, `groupRowCount=44`, `uniqueChecklistRowCount=18`,
+  `phoneRows=4`, `externalAccountRows=13`, `publicHostRows=1`, `mutatingRows=13`,
+  `unsafeToAutomateRows=13`, and `safeToAutomateRows=0`.
+- Checklist groups are `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`; local-only proof chores are intentionally excluded from the checklist rows.
+- Verification passed: refreshed GitNexus index; impact analysis for the committed release gate,
+  committed runbook report, and shared runbook; focused external-checklist Vitest with 1 file / 1
+  selected test; full `platform-export-rendering.test.ts` with 1 file / 156 tests; full
+  `src/services/export` serial regression with 36 files / 1133 tests; targeted ESLint;
+  `vue-tsc`; production build with 4653 modules transformed in 30.78s; `git diff --check`; and
+  GitNexus detect with low risk, 39 dirty files across the whole working tree, 19 changed
+  symbols, and 0 affected processes. The dirty-file count includes unrelated pre-existing local
+  changes.
+- Boundary: this checklist is proof-collection handoff only. It does not prove official WeChat
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public host acceptance, scheduled send, platform preview, public rendering, XHS/Zhihu
+  upload, or publish success.
+
 ## 2026-06-22 WeChat Card Rich Local Evidence
 
 - [x] wechat-card-rich-local-evidence-20260622.txt

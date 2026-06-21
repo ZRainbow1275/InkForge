@@ -4152,3 +4152,39 @@ Boundary:
   official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, XHS/Zhihu upload, scheduled send, platform preview, public rendering, or
   publish success.
+
+---
+
+## 2026-06-22 Style Proof External Checklist Addendum
+
+- Added `getCommittedStyleProofExternalProofChecklistReport()` as a read-only operator checklist
+  above the existing committed release-gate report.
+- The checklist mirrors the current committed release state:
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `groupCount=4`, `groupRowCount=44`, `uniqueChecklistRowCount=18`, `phoneRows=4`,
+  `externalAccountRows=13`, `publicHostRows=1`, `mutatingRows=13`,
+  `unsafeToAutomateRows=13`, and `safeToAutomateRows=0`.
+- The four checklist groups are `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`. They preserve overlapping blocker membership instead of flattening platform
+  publish rows into a single misleading bucket.
+- Each checklist row preserves the runbook proof contract: required channels, actions, readbacks,
+  fields, forbidden fields, accepted host statuses, freshness, success criteria, failure signals,
+  redaction boundary, cannot-claim reason, and next operator action.
+- Local-only rows are intentionally excluded from the external checklist. This prevents local
+  evidence cleanup from being confused with phone, account, public-host, scheduled-send,
+  platform-preview, upload, public-rendering, or publish proof.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-external-checklist-20260622.txt`.
+- Verification passed: refreshed GitNexus index; impact analysis for
+  `getCommittedStyleProofEvidenceReleaseGateReport`,
+  `getCommittedStyleProofEvidenceExecutionRunbookReport`, and `getStyleProofExecutionRunbook`;
+  focused external-checklist Vitest with 1 file / 1 selected test; full
+  `platform-export-rendering.test.ts` with 1 file / 156 tests; full `src/services/export` serial
+  regression with 36 files / 1133 tests; targeted ESLint; `vue-tsc`; production build with
+  4653 modules transformed in 30.78s; `git diff --check`; and GitNexus detect with low risk,
+  39 dirty files across the whole working tree, 19 changed symbols, and 0 affected processes.
+  The dirty-file count includes unrelated pre-existing local changes.
+- Boundary: this is proof-collection handoff only. It does not prove WeChat PC editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
+  host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
+  upload, or publish success.

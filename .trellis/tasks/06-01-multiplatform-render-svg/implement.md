@@ -8727,6 +8727,65 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 Committed External Proof Checklist Slice
+
+Scope:
+- Read-only committed evidence release-gate checklist only.
+- No renderer output, catalog availability, selectable state, proof manifest artifact, browser
+  automation, account sync, upload, scheduled send, platform preview, public rendering, or publish
+  behavior was changed.
+
+Implementation:
+- Added `getCommittedStyleProofExternalProofChecklistReport()` above the existing committed
+  release-gate report.
+- The report mirrors the live release gate and groups the remaining non-local proof rows by
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Checklist rows preserve runbook artifact contracts: required channels/actions/readbacks,
+  required and forbidden artifact fields, accepted host statuses, freshness, success criteria,
+  failure signals, redaction boundary, cannot-claim reason, and next operator action.
+- `local-only` rows are intentionally excluded from the external checklist so local evidence chores
+  cannot be mistaken for phone/account/public-host/publish success proof.
+
+Runtime snapshot:
+- `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`.
+- External checklist snapshot: `groupCount=4`, `groupRowCount=44`,
+  `uniqueChecklistRowCount=18`, `phoneRows=4`, `externalAccountRows=13`,
+  `publicHostRows=1`, `mutatingRows=13`, `unsafeToAutomateRows=13`,
+  and `safeToAutomateRows=0`.
+- The group rows overlap by design: platform publish steps belong to external dependency,
+  unsafe-to-automate, and mutating-platform groups.
+
+Verification:
+- `npx gitnexus analyze`: refreshed the InkForge index before impact analysis.
+- `gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport`: LOW risk, 2 direct
+  dependents, 0 affected processes.
+- `gitnexus impact getCommittedStyleProofEvidenceExecutionRunbookReport`: LOW risk, 1 direct
+  dependent, 0 affected processes.
+- `gitnexus impact getStyleProofExecutionRunbook`: LOW risk, 6 impacted symbols, 0 affected
+  processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external proof checklist" --reporter=default`:
+  passed, 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 156 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1133 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 30.78s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --check` for the touched slice files passed with only normal Windows `autocrlf`
+  warnings.
+- Final GitNexus `detect_changes` reported low risk, 39 dirty files across the whole working
+  tree, 19 changed symbols, and 0 affected processes. The dirty-file count includes unrelated
+  pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This checklist is an operator handoff for future real proof collection. It does not prove WeChat
+  PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 XHS Local Catalog Open Slice
 
 Scope:
