@@ -2199,7 +2199,12 @@ interface CommittedStyleProofLocalEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
-  choiceId: 'xhs-cover-carousel' | 'xhs-cover-hook' | 'xhs-markdown-card-slicer' | 'xhs-data-card'
+  choiceId:
+    | 'xhs-cover-carousel'
+    | 'xhs-cover-hook'
+    | 'xhs-markdown-card-slicer'
+    | 'xhs-data-card'
+    | 'xhs-long-report'
   label: string
   artifactFingerprint: string
   localRenderArtifactRef: string
@@ -2260,6 +2265,9 @@ const COMMITTED_STYLE_PROOF_XHS_CARD_SLICER_MANIFEST_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_DATA_CARD_MANIFEST_REF =
   'prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21.json'
+
+const COMMITTED_STYLE_PROOF_XHS_LONG_REPORT_MANIFEST_REF =
+  'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json'
 
 const COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_ARTIFACT_REF =
   'prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt'
@@ -2863,6 +2871,15 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21-page-01.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_DATA_CARD_MANIFEST_REF,
+  }),
+  createCommittedStyleProofXhsLocalEvidenceManifest({
+    choiceId: 'xhs-long-report',
+    label: 'XHS long report',
+    artifactFingerprint:
+      'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json@sha256:102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e',
+    localRenderArtifactRef:
+      'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21-page-01.png',
+    manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_LONG_REPORT_MANIFEST_REF,
   }),
   createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
     choiceId: 'zhihu-clean-column',

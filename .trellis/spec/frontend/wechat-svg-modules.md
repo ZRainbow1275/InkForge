@@ -2566,3 +2566,27 @@ Required checks:
 - Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
   progress invalid and release claims unavailable.
 - Evidence docs must name the visual iterations rejected before the final committed raster pack.
+
+## 25. XHS Long Report Local Raster Evidence - 2026-06-21
+
+Contracts:
+- `xhs-long-report` local evidence must use the real browser canvas path:
+  `sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard`.
+- Evidence must record the exact JSON pack hash, every PNG hash, byte length, 1080 x 1440
+  dimensions, `overflow=false`, body references, crop/reference fields, and
+  `validateXhsImageArtifactManifest() === []`.
+- Visual QA must reject packs with sparse/weak report coverage, overflow warnings, blank pages,
+  cropped content, text overlap, unreadable wrapping, or platform-publish wording that implies
+  success without account evidence.
+- Because `xhs-long-report` remains a blocked catalog choice, a committed manifest must not make it
+  selectable, usable for release, or publishable. The progress report must keep
+  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
+  rendering, and publish success remain external proof gates.
+
+Required checks:
+- Regression tests must include the committed `xhs-long-report` manifest in local and combined
+  evidence packs.
+- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
+  progress invalid and release claims unavailable.
+- Evidence docs must name the first sparse variant rejection and the final committed raster pack.

@@ -7872,3 +7872,76 @@ Boundary:
   sensitive-hygiene accounting only.
 - It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
   scheduled send, public article rendering, or publish success.
+
+## 2026-06-21 XHS Long Report Local Raster Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `xhs-long-report`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish action was executed or claimed.
+
+Implementation:
+- Used CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts`.
+- Generated the committed raster pack through the real source-owned path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Visual QA inspected a first sparse variant and regenerated the pack with six short Chinese
+  report rows per page before committing.
+- Added four 1080 x 1440 PNG pages and one JSON metadata pack under
+  `prompts/0601/evidence/xhs-raster/`.
+- Added `prompts/0601/evidence/xhs-long-report-local-evidence-20260621.txt`.
+- Added one committed local `xhs-long-report` manifest. Because the catalog choice remains
+  `blocked`, progress gates stay `invalid` and include `style-proof-manifest-choice-blocked`.
+
+Evidence:
+- JSON pack:
+  `prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json`.
+- JSON hash:
+  `sha256:102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e`.
+- Source Markdown hash:
+  `sha256:2b0c9fdd024cd30822a82e11833267f234bf24ffa0fbe0c0d1cfbddad6205958`.
+- PNG hashes:
+  - page 01: `sha256:5b71f34ef0df133f61ae87e2e4849cd4530067ac8092ee7a2459995a44960cce`
+  - page 02: `sha256:167e6d909d09f85922c6e80fb6fcc871e6a49f3127d378585ba13ae8b7fc036c`
+  - page 03: `sha256:a86d239369571a66c71014ce5a10a8845a1f6f3db0918fa81e8c2ff15751e7ea`
+  - page 04: `sha256:fb7fcdfeacc7c0c964ac58eb3539cc7ac89eba23ada45d0ef3129137c6fe1b8c`
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`.
+- Independent Node evidence verification re-read JSON/PNG files, recomputed hashes, checked bytes,
+  confirmed 1080 x 1440 dimensions, `overflow=false`, body references `[1, 2, 3, 4]`, and
+  crop/reference fields.
+
+Initial verification:
+- GitNexus impact:
+  - `createCommittedStyleProofXhsLocalEvidenceManifest`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 0 affected processes.
+  - `validateXhsImageArtifactManifest`: LOW, 0 affected processes.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- Independent Node evidence verification:
+  passed JSON SHA-256, PNG SHA-256, byte length, 1080 x 1440 dimensions, `overflow=false`,
+  body references `[1, 2, 3, 4]`, and crop/reference fields.
+- CloakBrowser runtime smoke from local Vite:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=13`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=15`, `combinedIssueCount=15`,
+  and `blockerCount=5`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules.
+
+Boundary:
+- This is local XHS long-report raster, visual QA, image-manifest, exact-artifact, and
+  sensitive-hygiene accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

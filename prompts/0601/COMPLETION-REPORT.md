@@ -3499,3 +3499,46 @@ Boundary:
   sensitive-hygiene accounting only. It does not prove Xiaohongshu account upload,
   mobile/platform preview, public URL acceptance, scheduled send, public article rendering, or
   publish success.
+
+---
+
+## 2026-06-21 XHS Long Report Local Raster Evidence Addendum
+
+- Added `prompts/0601/evidence/xhs-long-report-local-evidence-20260621.txt`.
+- Added the committed raster pack:
+  `prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json` and
+  pages 01-04 PNG under the same directory.
+- Generated the final pack through CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts` and running:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Visual QA inspected a first sparse variant and regenerated the final pack with six short
+  Chinese report rows per page. The committed pack has no overflow warning, blank page, crop, or
+  overlap.
+- JSON pack hash:
+  `sha256:102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e`.
+- Page hashes:
+  page 01 `sha256:5b71f34ef0df133f61ae87e2e4849cd4530067ac8092ee7a2459995a44960cce`;
+  page 02 `sha256:167e6d909d09f85922c6e80fb6fcc871e6a49f3127d378585ba13ae8b7fc036c`;
+  page 03 `sha256:a86d239369571a66c71014ce5a10a8845a1f6f3db0918fa81e8c2ff15751e7ea`;
+  page 04 `sha256:fb7fcdfeacc7c0c964ac58eb3539cc7ac89eba23ada45d0ef3129137c6fe1b8c`.
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
+  verification re-read committed JSON/PNG files, recomputed hashes, checked bytes, confirmed
+  1080 x 1440 dimensions, `overflow=false`, body references `[1, 2, 3, 4]`, and page
+  crop/reference fields.
+- Added one committed local `xhs-long-report` manifest. Because the catalog choice still remains
+  `blocked`, progress gates remain invalid and include `style-proof-manifest-choice-blocked`;
+  the evidence does not make `xhs-long-report` publishable.
+- Current committed release-gate readout is now `localManifestCount=13`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=15`, `combinedIssueCount=15`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: independent JSON/PNG evidence verification; CloakBrowser runtime smoke
+  showing `canClaimComplete=false`, `localManifestCount=13`, `combinedManifestCount=15`, and
+  `combinedIssueCount=15`; focused committed/local/release regression with 1 file / 4 selected
+  tests; `platform-export-rendering.test.ts` with 1 file / 155 tests; 4-file cross-platform
+  export regression with 4 files / 194 tests; full `src/services/export` serial regression with
+  36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with 4653 transformed
+  modules.
+- Boundary: this is local XHS long-report raster, visual QA, image-manifest, exact-artifact, and
+  sensitive-hygiene accounting only. It does not prove Xiaohongshu account upload,
+  mobile/platform preview, public URL acceptance, scheduled send, public article rendering, or
+  publish success.

@@ -179,3 +179,56 @@ Validation:
 - Independent Node evidence verification re-read the committed JSON/PNG evidence pack,
   recomputed every PNG SHA-256, checked byte lengths and 1080 x 1440 dimensions, and confirmed
   the JSON pack hash above.
+
+## Long Report Raster Evidence - 2026-06-21
+
+Purpose: local `xhs-long-report` proof that InkForge can turn a source-owned multi-section report
+into XHS 3:4 image pages through the local browser canvas path before any platform upload or
+publish claim.
+
+Browser route:
+
+- CloakBrowser opened the local Vite app.
+- Imported module: `/src/services/export/svg-modules/index.ts`.
+- Render path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Target: `xhs`; ratio: `3:4`; body references: `[1, 2, 3, 4]`; overflow: `false`.
+
+Probe result:
+
+```json
+{
+  "sourceModule": "xhs-card-slicer",
+  "choiceId": "xhs-long-report",
+  "ratio": "3:4",
+  "pageCount": 4,
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "overflow": false,
+  "packSha256": "102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e"
+}
+```
+
+Evidence files:
+
+- `xhs-long-report-browser-2026-06-21.json`
+- `xhs-long-report-browser-2026-06-21-page-01.png`
+- `xhs-long-report-browser-2026-06-21-page-02.png`
+- `xhs-long-report-browser-2026-06-21-page-03.png`
+- `xhs-long-report-browser-2026-06-21-page-04.png`
+
+Visual QA:
+
+- A first sparse variant passed manifest validation but was regenerated to better exercise the
+  long-report layout. The committed pass uses six short Chinese rows per page.
+- Pages 1-4 were visually checked to avoid blank output, crop, overlap, unreadable wrapping, and
+  overflow warnings.
+
+Validation:
+
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact pack.
+- Independent Node evidence verification re-read the committed JSON/PNG evidence pack,
+  recomputed every PNG SHA-256, checked byte lengths, confirmed 1080 x 1440 dimensions,
+  `overflow=false`, body references `[1, 2, 3, 4]`, and the JSON pack hash above.
+- The committed manifest is local proof only. Because `xhs-long-report` remains blocked in the
+  style catalog, progress must stay invalid and release claims must remain unavailable.

@@ -413,11 +413,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] layout-report-runtime-gate-20260609.txt # 当前规则实现：WeChat 自由布局/图层/背景/触发区 runtime 阻断 + CloakBrowser local visual
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] xhs-raster-manifest-builder-20260619.txt # 当前规则实现：real raster metadata/data URL -> XHS manifest builder; no upload/publish claim
+[x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
 [x] zhihu-image-manifest-gate-20260609.txt # 当前规则实现：Zhihu image fallback artifact manifest 本地/host preflight 门禁
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
 [x] e2e/flagship-amber.png               # A2 真 WebView2：黄铜旗舰 SVG 注入截图
 [x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
+[x] xhs-raster/xhs-long-report-browser-2026-06-21.json  # XHS long-report 本地 manifest pack
+[x] xhs-raster/xhs-long-report-browser-2026-06-21-page-*.png  # XHS long-report 4 页 1080x1440 PNG
 [x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
 [ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰可提交截图补证；当前只有脱敏文本读回，普通剪贴板路径已失败
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
@@ -2958,6 +2961,41 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Because `xhs-data-card` remains a blocked catalog choice, its progress gates remain invalid and
   include `style-proof-manifest-choice-blocked`; this local evidence does not make it publishable.
 - Boundary: this is local XHS data-card raster/image-manifest accounting only. It does not prove
+  Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.
+
+## 2026-06-21 XHS Long Report Local Evidence
+
+- [x] xhs-long-report-local-evidence-20260621.txt
+- [x] xhs-raster/xhs-long-report-browser-2026-06-21.json
+- [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-01.png
+- [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-02.png
+- [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-03.png
+- [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-04.png
+- CloakBrowser opened the local Vite app and generated the exact PNG pack through the source-owned
+  browser canvas path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- A first sparse variant passed manifest validation but was regenerated to better exercise the
+  long-report layout. The committed pack uses six short Chinese rows per page and has no overflow
+  warning.
+- Final JSON pack hash:
+  `sha256:102dafef61c4d978f8fd4cb501f7469d714f4db5125e1943e940f77df59d2a9e`.
+- Final page hashes:
+  page 01 `sha256:5b71f34ef0df133f61ae87e2e4849cd4530067ac8092ee7a2459995a44960cce`;
+  page 02 `sha256:167e6d909d09f85922c6e80fb6fcc871e6a49f3127d378585ba13ae8b7fc036c`;
+  page 03 `sha256:a86d239369571a66c71014ce5a10a8845a1f6f3db0918fa81e8c2ff15751e7ea`;
+  page 04 `sha256:fb7fcdfeacc7c0c964ac58eb3539cc7ac89eba23ada45d0ef3129137c6fe1b8c`.
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
+  verification re-read JSON/PNG files, checked hashes, bytes, 1080 x 1440 dimensions,
+  `overflow=false`, body references `[1, 2, 3, 4]`, and page crop/reference fields.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-long-report` manifest.
+  Because `xhs-long-report` remains a blocked catalog choice, its progress gates remain invalid
+  and include `style-proof-manifest-choice-blocked`; this local evidence does not make it
+  publishable.
+- Current release-gate readout after this slice is `localManifestCount=13`,
+  `combinedManifestCount=15`, `combinedIssueCount=15`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Boundary: this is local XHS long-report raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
 
