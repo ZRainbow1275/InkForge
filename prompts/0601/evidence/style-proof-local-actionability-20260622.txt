@@ -1,0 +1,79 @@
+Style Proof Local Actionability Report - 2026-06-22
+
+Scope:
+- Local actionability accounting for committed style proof evidence.
+- No browser automation, platform mutation, sync, upload, schedule, publish, or proof artifact
+  creation.
+
+Implemented:
+- getCommittedStyleProofLocalActionabilityReport()
+- CommittedStyleProofLocalActionabilityReport
+- CommittedStyleProofLocalActionabilityRow
+- CommittedStyleProofLocalActionabilityStatus
+
+Behavior:
+- Reads the committed release gate and committed external proof checklist as source data.
+- Mirrors status and canClaimComplete from the committed release gate.
+- Includes local safe open rows only: safeToAutomate:true and boundary:'local-only'.
+- Classifies each included row as actionable-local or catalog-blocked.
+- catalog-blocked means the row has no invalid artifact failures, uses only
+  style-proof-manifest-requirement-missing issue ids, and its missing count is fully explained by
+  blockedChoiceCount.
+- actionable-local is reserved for local-only safe rows whose remaining gap is not fully explained
+  by blocked catalog choices.
+- External phone/account/public-host/platform rows stay in the external checklist and are not
+  converted into local chores.
+
+Runtime readback:
+- status=blocked-by-external
+- canClaimComplete=false
+- localManifestCount=20
+- wechatPcManifestCount=2
+- combinedManifestCount=22
+- combinedIssueCount=11
+- hasExactArtifactFingerprintConflicts=false
+- blockerCount=4
+- safeLocalOpenRows=11
+- actionableLocalRows=0
+- catalogBlockedLocalRows=11
+- externalChecklistRows=18
+- externalChecklistGroupRows=44
+- phoneExternalRows=4
+- unsafeExternalRows=13
+- mutatingExternalRows=13
+- safeExternalRows=0
+- nextLocalActionableRow=null
+- first catalog-blocked row: wechat catalog-source for wechat-h5-design-boundary
+
+Local actionability rows:
+- wechat catalog-source: catalog-blocked, missing=1, blockedChoiceCount=1
+- wechat exact-artifact: catalog-blocked, missing=8, blockedChoiceCount=8
+- wechat no-sensitive-artifact: catalog-blocked, missing=8, blockedChoiceCount=8
+- xiaohongshu catalog-source: catalog-blocked, missing=1, blockedChoiceCount=1
+- xiaohongshu exact-artifact: catalog-blocked, missing=1, blockedChoiceCount=1
+- xiaohongshu no-sensitive-artifact: catalog-blocked, missing=1, blockedChoiceCount=1
+- zhihu exact-artifact: catalog-blocked, missing=4, blockedChoiceCount=4
+- zhihu local-browser-rendering: catalog-blocked, missing=3, blockedChoiceCount=3
+- zhihu unit-test-coverage: catalog-blocked, missing=3, blockedChoiceCount=3
+- zhihu zhihu-artifact-manifest: catalog-blocked, missing=4, blockedChoiceCount=4
+- zhihu no-sensitive-artifact: catalog-blocked, missing=4, blockedChoiceCount=4
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "local actionability" --reporter=default
+  PASS: 1 file / 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 157 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1134 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 54.34s
+
+Boundary:
+- This proves local actionability accounting only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public-host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

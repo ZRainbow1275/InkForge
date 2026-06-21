@@ -3101,3 +3101,44 @@ Required checks:
 - Release-gate regression must keep `canClaimComplete:false` and external blockers open; this
   scope change reduces local issue noise only and must not close phone, public-host, scheduled-send,
   upload, platform-preview, public-rendering, or publish gates.
+
+## 39. Committed Local Actionability Report - 2026-06-22
+
+Contracts:
+- `getCommittedStyleProofLocalActionabilityReport()` is a read-only report above the committed
+  release gate and committed external proof checklist. It must not create proof artifacts, mutate
+  platform state, open browsers, sync drafts, upload images, schedule sends, publish articles,
+  change style availability, or change style selection.
+- The report must include the source `releaseGate`, the source `externalChecklist`, mirror
+  `status` and `canClaimComplete`, and keep `canClaimComplete:false` while the committed release
+  gate is not `ready`.
+- Rows are local safe open runbook steps only: `safeToAutomate:true` and `boundary:'local-only'`.
+  Phone preview, authenticated PC editor, credentialed channel, public-host, platform-preview,
+  scheduled-send, upload, public rendering, and publish rows remain in the external checklist and
+  must not be relabeled as local work.
+- A local safe row is `catalog-blocked` when the row has no invalid artifact failures, all open
+  issue ids are `style-proof-manifest-requirement-missing`, and the remaining missing count is
+  fully explained by `blockedChoiceCount`. These rows are not direct local proof chores; they need
+  catalog/status reconciliation or later real proof for the blocked choice before local evidence can
+  be meaningfully collected.
+- A local safe row is `actionable-local` only when it is local-only and safe to automate but is not
+  fully explained by catalog-blocked missing choices. Such rows may guide local artifact, test-log,
+  manifest, local-browser, or sensitive-hygiene follow-up, but still must not claim external phone,
+  account, public-host, scheduled-send, platform-preview, upload, public rendering, or publish
+  success.
+- The current committed snapshot is a boundary case: `safeLocalOpenRows=11`,
+  `actionableLocalRows=0`, `catalogBlockedLocalRows=11`, `externalChecklistRows=18`,
+  `externalChecklistGroupRows=44`, and `safeExternalRows=0`.
+
+Required checks:
+- Regression tests must use the current committed manifest pack and assert the report remains
+  `blocked-by-external` with `canClaimComplete:false`.
+- Regression tests must prove current safe local open rows are all `catalog-blocked`, expose no
+  `nextLocalActionableRow`, and preserve the first catalog-blocked row for operator handoff.
+- Regression tests must prove external proof rows are not moved into the local actionability report:
+  the external checklist still reports phone, external account/public-host, unsafe, mutating, and
+  zero safe-to-automate external rows.
+- Evidence docs must record the live summary counts and the cannot-claim boundary without claiming
+  WeChat phone preview, official editor paste, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, public-host acceptance, scheduled-send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.

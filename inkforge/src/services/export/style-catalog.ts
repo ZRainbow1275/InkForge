@@ -1044,6 +1044,63 @@ export interface CommittedStyleProofExternalProofChecklistReport {
   }
 }
 
+export type CommittedStyleProofLocalActionabilityStatus =
+  | 'actionable-local'
+  | 'catalog-blocked'
+
+export interface CommittedStyleProofLocalActionabilityRow {
+  id: string
+  actionability: CommittedStyleProofLocalActionabilityStatus
+  catalogBlockedOnly: boolean
+  platform: Platform
+  choiceIds: readonly string[]
+  requirementId: StyleProofRequirementId
+  requirementLabel: string
+  gate: StyleProofCollectionGate
+  boundary: StyleProofExecutionBoundary
+  order: number
+  status: StyleProofAcceptanceAuditStatus
+  issueIds: readonly StyleProofManifestIssueId[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  blockedChoiceCount: number
+  safeToAutomate: boolean
+  cannotClaim: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
+  requiredArtifact: StyleProofExecutionArtifactContract
+  successCriteria: readonly string[]
+  failureSignals: readonly string[]
+  redactionBoundary: string
+}
+
+export interface CommittedStyleProofLocalActionabilityReport {
+  releaseGate: CommittedStyleProofReleaseGateReport
+  externalChecklist: CommittedStyleProofExternalProofChecklistReport
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  rows: readonly CommittedStyleProofLocalActionabilityRow[]
+  actionableRows: readonly CommittedStyleProofLocalActionabilityRow[]
+  catalogBlockedRows: readonly CommittedStyleProofLocalActionabilityRow[]
+  nextLocalActionableRow: CommittedStyleProofLocalActionabilityRow | null
+  nextCatalogBlockedRow: CommittedStyleProofLocalActionabilityRow | null
+  summary: CommittedStyleProofReleaseGateReport['summary'] & {
+    safeLocalOpenRows: number
+    actionableLocalRows: number
+    catalogBlockedLocalRows: number
+    externalChecklistRows: number
+    externalChecklistGroupRows: number
+    phoneExternalRows: number
+    unsafeExternalRows: number
+    mutatingExternalRows: number
+    safeExternalRows: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -7070,6 +7127,122 @@ export function getCommittedStyleProofExternalProofChecklistReport(): CommittedS
       mutatingRows: rows.filter(row => row.mutatesPlatform).length,
       unsafeToAutomateRows: rows.filter(row => row.status === 'unsafe-to-automate').length,
       safeToAutomateRows: rows.filter(row => row.safeToAutomate).length,
+    },
+  }
+}
+
+function getCommittedStyleProofLocalActionabilityRowId(
+  step: StyleProofExecutionRunbookStep,
+): string {
+  return [
+    'committed-style-proof-local',
+    step.platform,
+    step.requirement.id,
+    step.gate,
+    step.boundary,
+  ].join(':')
+}
+
+function isCommittedStyleProofLocalStepCatalogBlockedOnly(
+  step: StyleProofExecutionRunbookStep,
+): boolean {
+  return step.safeToAutomate
+    && step.boundary === 'local-only'
+    && step.invalid === 0
+    && step.missing > 0
+    && step.missing <= step.blockedChoiceCount
+    && step.issueIds.every(issueId => issueId === 'style-proof-manifest-requirement-missing')
+}
+
+function getCommittedStyleProofLocalActionabilityStatus(
+  step: StyleProofExecutionRunbookStep,
+): CommittedStyleProofLocalActionabilityStatus {
+  return isCommittedStyleProofLocalStepCatalogBlockedOnly(step)
+    ? 'catalog-blocked'
+    : 'actionable-local'
+}
+
+function buildCommittedStyleProofLocalActionabilityRow(
+  step: StyleProofExecutionRunbookStep,
+): CommittedStyleProofLocalActionabilityRow {
+  const actionability = getCommittedStyleProofLocalActionabilityStatus(step)
+
+  return {
+    id: getCommittedStyleProofLocalActionabilityRowId(step),
+    actionability,
+    catalogBlockedOnly: actionability === 'catalog-blocked',
+    platform: step.platform,
+    choiceIds: step.choiceIds,
+    requirementId: step.requirement.id,
+    requirementLabel: step.requirement.label,
+    gate: step.gate,
+    boundary: step.boundary,
+    order: step.order,
+    status: step.status,
+    issueIds: step.issueIds,
+    required: step.required,
+    satisfied: step.satisfied,
+    missing: step.missing,
+    invalid: step.invalid,
+    artifactCount: step.artifactCount,
+    acceptedArtifactCount: step.acceptedArtifactCount,
+    blockedChoiceCount: step.blockedChoiceCount,
+    safeToAutomate: step.safeToAutomate,
+    cannotClaim: step.cannotClaim,
+    cannotClaimReason: step.cannotClaimReason,
+    nextOperatorAction: step.nextOperatorAction,
+    requiredArtifact: step.requiredArtifact,
+    successCriteria: step.successCriteria,
+    failureSignals: step.failureSignals,
+    redactionBoundary: step.redactionBoundary,
+  }
+}
+
+function sortCommittedStyleProofLocalActionabilityRows(
+  rows: readonly CommittedStyleProofLocalActionabilityRow[],
+): CommittedStyleProofLocalActionabilityRow[] {
+  return [...rows].sort((left, right) => {
+    if (left.platform !== right.platform) return left.platform.localeCompare(right.platform)
+    if (left.actionability !== right.actionability) {
+      return left.actionability.localeCompare(right.actionability)
+    }
+    if (left.order !== right.order) return left.order - right.order
+    return left.requirementId.localeCompare(right.requirementId)
+  })
+}
+
+export function getCommittedStyleProofLocalActionabilityReport(): CommittedStyleProofLocalActionabilityReport {
+  const externalChecklist = getCommittedStyleProofExternalProofChecklistReport()
+  const releaseGate = externalChecklist.releaseGate
+  const rows = sortCommittedStyleProofLocalActionabilityRows(
+    getCommittedStyleProofRunbookOpenSteps(releaseGate.source)
+      .filter(step => step.safeToAutomate && step.boundary === 'local-only')
+      .map(buildCommittedStyleProofLocalActionabilityRow)
+  )
+  const actionableRows = rows.filter(row => row.actionability === 'actionable-local')
+  const catalogBlockedRows = rows.filter(row => row.actionability === 'catalog-blocked')
+
+  return {
+    releaseGate,
+    externalChecklist,
+    canClaimComplete: releaseGate.canClaimComplete,
+    status: releaseGate.status,
+    rows,
+    actionableRows,
+    catalogBlockedRows,
+    nextLocalActionableRow: actionableRows[0] ?? null,
+    nextCatalogBlockedRow: catalogBlockedRows[0] ?? null,
+    summary: {
+      ...releaseGate.summary,
+      safeLocalOpenRows: rows.length,
+      actionableLocalRows: actionableRows.length,
+      catalogBlockedLocalRows: catalogBlockedRows.length,
+      externalChecklistRows: externalChecklist.summary.uniqueChecklistRowCount,
+      externalChecklistGroupRows: externalChecklist.summary.groupRowCount,
+      phoneExternalRows: externalChecklist.summary.phoneRows,
+      unsafeExternalRows: externalChecklist.summary.unsafeToAutomateRows,
+      mutatingExternalRows: externalChecklist.summary.mutatingRows,
+      safeExternalRows: externalChecklist.summary.safeToAutomateRows,
     },
   }
 }

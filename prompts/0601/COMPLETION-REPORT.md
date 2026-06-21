@@ -4235,3 +4235,32 @@ Boundary:
 - Boundary: this is local requirement-scope correction only. It does not prove Zhihu public
   image-host acceptance, account upload, editor sync, scheduled send, platform preview, public
   rendering, or publish success.
+
+---
+
+## 2026-06-22 Style Proof Local Actionability Addendum
+
+- Added `getCommittedStyleProofLocalActionabilityReport()` as a read-only report above the
+  committed release gate and committed external proof checklist.
+- The report exposes only local safe open rows (`safeToAutomate:true`, `boundary:'local-only'`)
+  and classifies them as `actionable-local` or `catalog-blocked`.
+- Current committed snapshot remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `localManifestCount=20`, `wechatPcManifestCount=2`, `combinedManifestCount=22`,
+  `combinedIssueCount=11`, `hasExactArtifactFingerprintConflicts=false`, and `blockerCount=4`.
+- Current local actionability summary:
+  `safeLocalOpenRows=11`, `actionableLocalRows=0`, `catalogBlockedLocalRows=11`,
+  `externalChecklistRows=18`, `externalChecklistGroupRows=44`, `phoneExternalRows=4`,
+  `unsafeExternalRows=13`, `mutatingExternalRows=13`, and `safeExternalRows=0`.
+- The report deliberately has `nextLocalActionableRow=null`: all current local safe open rows are
+  fully explained by blocked catalog choices. External phone/account/public-host/platform rows stay
+  in the external checklist and are not converted into local chores.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-local-actionability-20260622.txt`.
+- Verification passed: focused `local actionability` Vitest with 1 file / 1 selected test; full
+  `platform-export-rendering.test.ts` with 1 file / 157 tests; full `src/services/export` serial
+  regression with 36 files / 1134 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 modules transformed in 54.34s.
+- Boundary: this is local actionability accounting only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
+  upload, Zhihu upload, or publish success.

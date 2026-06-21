@@ -8727,6 +8727,53 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 Committed Local Actionability Report Slice
+
+Scope:
+- Read-only local actionability accounting above the committed release gate and committed external
+  proof checklist.
+- No renderer output, proof manifest artifact, catalog availability, style selection, browser
+  automation, sync, upload, scheduled send, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `CommittedStyleProofLocalActionabilityReport` plus
+  `getCommittedStyleProofLocalActionabilityReport()`.
+- The report keeps `releaseGate` and `externalChecklist` as source data, mirrors
+  `status`/`canClaimComplete`, and exposes only local safe open rows
+  (`safeToAutomate:true`, `boundary:'local-only'`).
+- Local rows are classified as:
+  - `catalog-blocked` when missing local requirements are fully explained by blocked catalog
+    choices and have no invalid artifact failures.
+  - `actionable-local` only when a local-only safe row is not fully explained by catalog-blocked
+    choices.
+- Exported the new types and API through `src/services/export/index.ts`.
+
+Runtime snapshot:
+- `status=blocked-by-external`, `canClaimComplete=false`.
+- `safeLocalOpenRows=11`, `actionableLocalRows=0`, `catalogBlockedLocalRows=11`.
+- `externalChecklistRows=18`, `externalChecklistGroupRows=44`, `phoneExternalRows=4`,
+  `unsafeExternalRows=13`, `mutatingExternalRows=13`, `safeExternalRows=0`.
+- `nextLocalActionableRow=null`; first catalog-blocked row is WeChat `catalog-source` for
+  `wechat-h5-design-boundary`.
+
+Verification:
+- Focused regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "local actionability" --reporter=default`
+  passed, 1 file / 1 selected test.
+- Full `platform-export-rendering.test.ts` regression passed, 1 file / 157 tests.
+- Full `src/services/export` serial regression passed, 36 files / 1134 tests.
+- Targeted ESLint for `style-catalog.ts`, `index.ts`, and `platform-export-rendering.test.ts`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 54.34s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Boundary:
+- This report is local actionability classification only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public-host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
+  upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 ExportModal External Checklist Surface Slice
 
 Scope:

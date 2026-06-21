@@ -377,6 +377,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] style-proof-committed-evidence-combined-audit-20260620.txt # 当前规则实现：committed local + WeChat PC combined audit exposes fingerprint conflicts; external claims remain open
 [x] style-proof-committed-evidence-runbook-report-20260620.txt # 当前规则实现：committed local + WeChat PC execution runbook report keeps operator gates unclaimed
 [x] style-proof-committed-evidence-release-gate-20260620.txt # 当前规则实现：committed evidence release gate returns canClaimComplete=false until local/external blockers close
+[x] style-proof-local-actionability-20260622.txt # 当前规则实现：committed local safe open rows -> actionable-local/catalog-blocked split; external proof rows stay in external checklist
 [x] exportmodal-release-gate-preflight-20260620.txt # CloakBrowser local UI check：ExportModal preflight exposes canClaimComplete=false without closing external gates; current conflict count is refreshed by style-proof-amber-reconciliation-20260621.txt
 [x] style-proof-artifact-manifest-validation-20260619.txt # 当前规则实现：XHS/Zhihu artifact manifests require validator-passed proof flag
 [x] completion-gap-audit-20260617.txt # 当前完成度审计：AC1-AC10 + WeChat/XHS/Zhihu hard gates；总任务仍未完成
@@ -3656,3 +3657,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   build with 4653 modules transformed in 33.90s.
 - Boundary: this does not prove Zhihu public image-host acceptance, account upload, editor sync,
   scheduled send, platform preview, public rendering, or publish success.
+
+## 2026-06-22 Style Proof Local Actionability
+
+- [x] style-proof-local-actionability-20260622.txt
+- Added the read-only `getCommittedStyleProofLocalActionabilityReport()` API above the committed
+  release gate and external proof checklist.
+- Current snapshot remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerCount=4`, `safeLocalOpenRows=11`, `actionableLocalRows=0`,
+  `catalogBlockedLocalRows=11`, `externalChecklistRows=18`, `externalChecklistGroupRows=44`,
+  `phoneExternalRows=4`, `unsafeExternalRows=13`, `mutatingExternalRows=13`, and
+  `safeExternalRows=0`.
+- All current local safe open rows are `catalog-blocked`: their missing counts are fully explained
+  by blocked catalog choices, so the report exposes no `nextLocalActionableRow`.
+- External phone/account/public-host/platform rows stay in the external checklist and are not
+  converted into local chores.
+- Verification passed: focused `local actionability` Vitest with 1 file / 1 selected test; full
+  `platform-export-rendering.test.ts` with 1 file / 157 tests; full `src/services/export` serial
+  regression with 36 files / 1134 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 modules transformed in 54.34s.
+- Boundary: this is local actionability accounting only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
+  upload, Zhihu upload, or publish success.

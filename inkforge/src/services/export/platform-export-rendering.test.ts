@@ -17,6 +17,7 @@ import {
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
   getCommittedStyleProofExternalProofChecklistReport,
+  getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
   getCommittedStyleProofEvidenceManifests,
   getCommittedStyleProofLocalEvidenceAuditReport,
@@ -2740,6 +2741,84 @@ describe('platform native export rendering rules', () => {
       'public-https',
       'platform-hosted',
     ])
+  })
+
+  it('separates committed local actionability from catalog-blocked and external proof rows', () => {
+    const report = getCommittedStyleProofLocalActionabilityReport()
+    const rowKeys = report.rows.map(row => `${row.platform}:${row.requirementId}`)
+    const wechatCatalogRow = report.catalogBlockedRows.find(row =>
+      row.platform === 'wechat' && row.requirementId === 'catalog-source'
+    )
+    const zhihuArtifactRow = report.catalogBlockedRows.find(row =>
+      row.platform === 'zhihu' && row.requirementId === 'zhihu-artifact-manifest'
+    )
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).toBe('blocked-by-external')
+    expect(report.releaseGate.canClaimComplete).toBe(false)
+    expect(report.externalChecklist.summary.safeToAutomateRows).toBe(0)
+    expect(report.summary).toMatchObject({
+      blockerCount: 4,
+      safeLocalOpenRows: 11,
+      actionableLocalRows: 0,
+      catalogBlockedLocalRows: 11,
+      externalChecklistRows: 18,
+      externalChecklistGroupRows: 44,
+      phoneExternalRows: 4,
+      unsafeExternalRows: 13,
+      mutatingExternalRows: 13,
+      safeExternalRows: 0,
+    })
+
+    expect(report.actionableRows).toEqual([])
+    expect(report.nextLocalActionableRow).toBeNull()
+    expect(report.nextCatalogBlockedRow).toMatchObject({
+      actionability: 'catalog-blocked',
+      catalogBlockedOnly: true,
+      safeToAutomate: true,
+      boundary: 'local-only',
+      issueIds: ['style-proof-manifest-requirement-missing'],
+    })
+    expect(report.rows.every(row => row.safeToAutomate)).toBe(true)
+    expect(report.rows.every(row => row.boundary === 'local-only')).toBe(true)
+    expect(report.rows.every(row => row.actionability === 'catalog-blocked')).toBe(true)
+    expect(report.rows.every(row => row.missing > 0 && row.missing <= row.blockedChoiceCount)).toBe(true)
+    expect(rowKeys).toEqual(expect.arrayContaining([
+      'wechat:catalog-source',
+      'wechat:exact-artifact',
+      'wechat:no-sensitive-artifact',
+      'xiaohongshu:catalog-source',
+      'xiaohongshu:exact-artifact',
+      'xiaohongshu:no-sensitive-artifact',
+      'zhihu:exact-artifact',
+      'zhihu:local-browser-rendering',
+      'zhihu:unit-test-coverage',
+      'zhihu:zhihu-artifact-manifest',
+      'zhihu:no-sensitive-artifact',
+    ]))
+
+    expect(wechatCatalogRow).toMatchObject({
+      actionability: 'catalog-blocked',
+      catalogBlockedOnly: true,
+      platform: 'wechat',
+      requirementId: 'catalog-source',
+      missing: 1,
+      blockedChoiceCount: 1,
+      choiceIds: ['wechat-h5-design-boundary'],
+      cannotClaim: true,
+    })
+    expect(zhihuArtifactRow).toMatchObject({
+      actionability: 'catalog-blocked',
+      catalogBlockedOnly: true,
+      platform: 'zhihu',
+      requirementId: 'zhihu-artifact-manifest',
+      requiredArtifact: expect.objectContaining({
+        requirementId: 'zhihu-artifact-manifest',
+        requiredFields: expect.arrayContaining(['artifactRef', 'artifactManifestValidated', 'safeForCommit']),
+      }),
+      cannotClaim: true,
+    })
+    expect(zhihuArtifactRow?.nextOperatorAction).toContain('validateZhihuImageArtifactManifest()')
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {
