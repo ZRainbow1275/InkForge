@@ -2882,3 +2882,26 @@ Required checks:
   completion.
 - ExportModal narrow-viewport verification must read back the real `发布` modal at mobile width and
   confirm the localized operator summary has no horizontal overflow or clipped blocker counts.
+
+## 34. ExportModal Style Choice Notice Localization - 2026-06-22
+
+Contracts:
+- ExportModal style cards are operator-facing UI. Known catalog `blockers` and `reason` strings
+  from market-inspired choices must be translated into compact Chinese display copy in the UI
+  layer.
+- The localization must not mutate `PLATFORM_STYLE_CHOICES`, `StyleChoiceAvailability`,
+  `selectable`, `usable`, release-gate reports, execution runbooks, or manifest proof state.
+- Unknown future catalog notice strings may fall back to their original text so new upstream
+  blockers remain visible instead of being silently hidden.
+- Chinese notice rendering must keep market/H5/SVG fallback boundaries explicit:
+  mobile-preview proof missing, Dark Mode proof missing, cover-thumbnail proof missing,
+  public-host/upload gaps, credentialed sync gaps, plugin-transfer observations, and H5/design
+  artifact boundaries are still blockers, not success evidence.
+
+Required checks:
+- ExportModal verification must use the real `发布` modal and show that known English blocker
+  fragments are absent while their Chinese equivalents are present.
+- Narrow-viewport verification must confirm no horizontal overflow or clipped style-card text at
+  mobile width.
+- Documentation must keep the boundary clear: localized copy does not prove phone preview,
+  public-host, sync, scheduled-send, platform-preview, upload, or publish success.

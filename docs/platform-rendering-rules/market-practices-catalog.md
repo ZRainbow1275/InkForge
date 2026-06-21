@@ -976,3 +976,23 @@ Current 2026-06-22 snapshot after the WeChat Kiln paste-safe committed local pro
 Evidence:
 - `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 33.
+
+## 12. 2026-06-22 ExportModal Style Choice Notice Localization
+
+The runtime style catalog may keep terse technical blocker strings for tests and developer reports,
+but ExportModal is an operator surface. Known catalog blocker and reason strings must be mapped to
+compact Chinese copy before they appear inside style cards.
+
+Rules:
+- Localize only in the UI display layer. Do not mutate `PLATFORM_STYLE_CHOICES`, availability
+  decisions, style proof manifests, release-gate reports, or execution runbooks.
+- Keep blocker meaning intact: translated notices still mean "missing proof" or "blocked until
+  external proof exists", not "verified".
+- Unknown future catalog strings should remain visible as-is until a reviewed localization is
+  added.
+- Narrow UI checks must cover style-card details at mobile width because these cards contain dense
+  evidence summaries, blocker chips, and execution-runbook counts.
+
+Evidence:
+- `prompts/0601/evidence/style-choice-notice-localization-20260622.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 34.

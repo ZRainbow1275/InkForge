@@ -826,6 +826,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
   preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
 
+## 2026-06-22 Style Choice Notice Localization
+
+- [x] style-choice-notice-localization-20260622.txt
+- ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese
+  display copy without mutating the runtime catalog, availability decisions, selectable state,
+  release-gate reports, execution runbooks, or proof manifests.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  Known English blocker fragments were absent, expected Chinese fragments were present, the Amber
+  card remained blocked, and layout readback reported `scrollWidth=390`,
+  `bodyScrollWidth=390`, `overflowCount=0`.
+- Verification passed: GitNexus impact for the exact `styleChoiceRows` function reported LOW risk
+  and 0 affected processes; targeted ExportModal ESLint, `vue-tsc`, and production build with
+  4653 modules in 32.90s passed. GitNexus detect reported low risk, 38 dirty files across the
+  whole working tree, 17 changed symbols, and 0 affected processes; the dirty-file count includes
+  unrelated pre-existing files.
+- Boundary: this is UI copy localization and narrow viewport proof only. It does not prove WeChat
+  PC paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-18 WeChat Kiln Paste-Safe Ctrl+V Tab-Mismatch Cleanup
 
 - [x] wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt

@@ -1,0 +1,79 @@
+Style Choice Notice Localization - 2026-06-22
+
+Scope:
+- Local ExportModal UI copy only.
+- No platform action, phone preview, upload, sync, scheduled send, platform preview, public
+  rendering, or publish action was executed or claimed.
+
+Implemented:
+- Added an ExportModal display-layer notice mapping for known market/catalog blocker and reason
+  strings.
+- The mapping translates the compact style-card blocker copy into Chinese while leaving the
+  service-layer catalog, release gate, runbook data, availability state, selectable state, and
+  proof status unchanged.
+- Unknown future notice strings intentionally fall back to their original text so catalog updates
+  are still visible instead of being hidden.
+
+Covered notice families:
+- WeChat mobile-preview, Dark Mode, cover-thumbnail, platform-preview, and publish proof gaps.
+- WeChat SMIL/click, mobile-only, carousel/switch, and 135/Xiumi SVG/H5 fallback blockers.
+- WeChat official-account permission, plugin transfer, credentialed draft sync, and H5/design
+  artifact-boundary blockers.
+- Xiaohongshu image-page/plain-text/materialization and long-image fallback blockers.
+- Zhihu formula, complex-table, public-host upload, and market-rich layout fallback blockers.
+
+CloakBrowser verification:
+- Opened a real local article in Workstation through the InkForge UI.
+- Opened ExportModal through the real `发布` button.
+- Viewport: `390x844`.
+- DOM readback found all expected Chinese notice fragments, including:
+  - `手机预览证明缺失`
+  - `暗黑模式手机证明缺失`
+  - `封面缩略图尚未单独证明`
+  - `平台预览或发布证明缺失`
+  - `市场标注为仅手机端触发效果`
+  - `微信手机端前后对照证据缺失`
+  - `轮播/切换行为必须在微信手机端读回`
+  - `导出成功前必须提供静态或图片降级`
+  - `需要真实公众号权限或编辑器/API 状态`
+  - `插件传输仅作为市场流程观察`
+  - `需要真实账号授权和同步响应`
+  - `H5/设计/媒体导出属于独立产物族`
+- DOM readback confirmed the old English blocker fragments were absent from the visible modal text:
+  - `mobile preview proof missing`
+  - `Dark Mode phone proof missing`
+  - `cover thumbnail not separately proven`
+  - `platform preview or publish proof missing`
+  - `market labels say the effect only triggers on mobile`
+  - `phone WeChat before/after evidence missing`
+  - `carousel/switch behavior must be read back on phone WeChat`
+  - `static or image fallback required before export success`
+  - `requires real official-account permission or editor/API state`
+  - `plugin transfer was observed as a market workflow only`
+  - `requires real account authorization and sync response`
+  - `H5/design/media exports are separate artifact families`
+- Amber card readback stayed blocked and unclaimable:
+  `手机预览证明缺失；暗黑模式手机证明缺失；封面缩略图尚未单独证明；平台预览或发布证明缺失`.
+- Layout readback: `scrollWidth=390`, `bodyScrollWidth=390`, `overflowCount=0`.
+- Local visual inspection of the target style card found no clipped text or horizontal overflow.
+  Runtime screenshots were used only for local visual inspection and are not committed artifacts.
+
+Verification:
+- `npx gitnexus impact styleChoiceRows -r InkForge --depth 3`
+  - disambiguated to `Function:inkforge/src/components/export/ExportModal.vue:styleChoiceRows`;
+    LOW risk, zero affected processes.
+- `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`
+  - PASS.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`
+  - PASS: 4653 modules transformed, built in 32.90s.
+- `npx gitnexus detect-changes -r InkForge --scope all`
+  - low risk, 38 dirty files across the whole working tree, 17 changed symbols, zero affected
+    processes. The dirty-file count includes unrelated pre-existing files.
+
+Boundary:
+- This proves only localized ExportModal style-card notice rendering and narrow viewport behavior.
+- It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

@@ -3947,3 +3947,25 @@ Boundary:
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
   host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
   upload, or publish success.
+
+---
+
+## 2026-06-22 Style Choice Notice Localization Addendum
+
+- ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese
+  display copy before rendering the operator UI.
+- This is a display-layer mapping only: the runtime catalog, style availability, selectable state,
+  release-gate reports, execution runbooks, and committed proof manifests are unchanged.
+- Added evidence file:
+  `prompts/0601/evidence/style-choice-notice-localization-20260622.txt`.
+- Verification passed: GitNexus impact for exact `styleChoiceRows` reported LOW risk with 0
+  affected processes; targeted ExportModal ESLint, `vue-tsc`, and production build with
+  4653 modules in 32.90s passed; GitNexus detect reported low risk, 38 dirty files across the
+  whole working tree, 17 changed symbols, and 0 affected processes; CloakBrowser narrow readback
+  at `390x844` through a real local article and the real `发布` button found known English blocker
+  fragments absent, Chinese notices present, the Amber card still blocked, and `scrollWidth=390`,
+  `bodyScrollWidth=390`, `overflowCount=0`.
+- Boundary: this is UI copy localization and narrow viewport validation only. It does not prove
+  WeChat PC paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.

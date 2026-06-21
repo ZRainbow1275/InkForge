@@ -8581,3 +8581,43 @@ Boundary:
 - It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
   preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.
+
+## 2026-06-22 Style Choice Notice Localization Slice
+
+Scope:
+- Local ExportModal style-card copy only.
+- No platform action, phone preview, upload, sync, scheduled send, platform preview, public
+  rendering, or publish action was executed or claimed.
+
+Implementation:
+- Added a display-layer map for known catalog blocker/reason strings in ExportModal.
+- `styleChoiceDetail()` now translates known WeChat, Xiaohongshu, and Zhihu blocker notices before
+  rendering style cards.
+- The runtime style catalog, availability decisions, selectable state, release-gate reports,
+  execution runbooks, and proof manifests remain unchanged.
+- Unknown future notice strings intentionally fall back to their original text so new blockers are
+  not hidden.
+
+Verification:
+- `npx gitnexus impact styleChoiceRows -r InkForge --depth 3` was disambiguated to
+  `Function:inkforge/src/components/export/ExportModal.vue:styleChoiceRows` and reported LOW risk
+  with zero affected processes.
+- `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`: passed, 4653 modules
+  transformed and built in 32.90s.
+- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 38 dirty files across the
+  whole working tree, 17 changed symbols, 0 affected processes. The dirty-file count includes
+  unrelated pre-existing files.
+- CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+  `390x844`, the modal text contained all expected Chinese blocker notices, omitted the known
+  English blocker fragments, kept the Amber card blocked, and reported `scrollWidth=390`,
+  `bodyScrollWidth=390`, `overflowCount=0`.
+- Local visual inspection of the Amber style-card row found no clipped text or horizontal overflow.
+  Runtime screenshots were used only for inspection and are not recorded as committed artifacts.
+
+Boundary:
+- This is UI localization and narrow viewport validation only.
+- It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

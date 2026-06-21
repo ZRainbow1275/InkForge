@@ -771,6 +771,38 @@ function styleRuleGroupLabel(group: StyleRuleGroup): string {
   return labels[group]
 }
 
+const STYLE_CHOICE_NOTICE_LABELS: Record<string, string> = {
+  'mobile preview proof missing': '手机预览证明缺失',
+  'Dark Mode phone proof missing': '暗黑模式手机证明缺失',
+  'cover thumbnail not separately proven': '封面缩略图尚未单独证明',
+  'platform preview or publish proof missing': '平台预览或发布证明缺失',
+  'SMIL/click behavior must be proven on phone WeChat before availability': 'SMIL/click 行为必须先在微信手机端证明后才可开放',
+  'market labels say the effect only triggers on mobile': '市场标注为仅手机端触发效果',
+  'phone WeChat before/after evidence missing': '微信手机端前后对照证据缺失',
+  'carousel/switch behavior must be read back on phone WeChat': '轮播/切换行为必须在微信手机端读回',
+  'static or image fallback required before export success': '导出成功前必须提供静态或图片降级',
+  '135/Xiumi SVG and H5 taxonomy must be rewritten as InkForge-owned modules, image manifests, or static/raster fallback': '135/秀米 SVG 与 H5 规则必须重写为 InkForge 自有模块、图片 manifest 或静态/栅格降级',
+  'phone WeChat proof is missing for tap, swipe, long-press, and region-trigger behavior': '点击、滑动、长按和区域触发行为缺少微信手机端证明',
+  'market authoring DOM, hosted media, and plugin/sync state cannot appear in publishable output': '市场编辑 DOM、托管媒体和插件/同步状态不得进入可发布输出',
+  'requires real official-account permission or editor/API state': '需要真实公众号权限或编辑器/API 状态',
+  'plugin transfer was observed as a market workflow only, not executed in InkForge': '插件传输仅作为市场流程观察，尚未在 InkForge 执行',
+  'channel-specific DOM readback missing': '缺少通道专属 DOM 读回',
+  'requires real account authorization and sync response': '需要真实账号授权和同步响应',
+  'sync does not prove mobile preview or publish': '同步不等于手机预览或发布证明',
+  'H5/design/media exports are separate artifact families, not WeChat article body rendering': 'H5/设计/媒体导出属于独立产物族，不等于微信公众号正文渲染',
+  'H5/design/video/PDF artifacts must materialize as XHS image pages or plain text before export': 'H5/设计/视频/PDF 产物必须先落为小红书图片页或纯文本',
+  'page crop, file format, page order, and body reference proof are missing for this fallback family': '该降级族缺少页面裁剪、文件格式、页序和正文引用证明',
+  'unmatched formula delimiters': '公式分隔符未配对',
+  'formula preview or image fallback missing': '缺少公式预览或图片降级证明',
+  'complex table needs simplification or public image fallback with alt/caption': '复杂表格需要简化，或提供带 alt/caption 的公共图片降级',
+  'requires real Zhihu or public-host upload response before image fallback can be publishable': '图片降级可发布前需要真实知乎或 public host 上传响应',
+  '135/Xiumi rich layout must be rewritten as clean Markdown or public-host image fallback with alt and caption': '135/秀米复杂布局必须重写为干净 Markdown，或带 alt/caption 的 public host 图片降级',
+}
+
+function styleChoiceNoticeLabel(notice: string): string {
+  return STYLE_CHOICE_NOTICE_LABELS[notice] ?? notice
+}
+
 function styleChoiceDetail(availability: StyleChoiceAvailability): string {
   const fallback = `fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`
   if (availability.usable) {
@@ -782,9 +814,10 @@ function styleChoiceDetail(availability: StyleChoiceAvailability): string {
     ? `当前证据 ${availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'}，需 ${styleEvidenceLabel(availability.requiredEvidence)}`
     : ''
   const blockers = availability.choice.blockers.length > 0
-    ? availability.choice.blockers.join('；')
+    ? availability.choice.blockers.map(styleChoiceNoticeLabel).join('；')
     : ''
-  const detail = [evidenceGap, blockers || availability.reason].filter(Boolean).join('；')
+  const reason = availability.reason ? styleChoiceNoticeLabel(availability.reason) : ''
+  const detail = [evidenceGap, blockers || reason].filter(Boolean).join('；')
   return `${detail}；${fallback}`
 }
 
