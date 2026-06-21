@@ -8788,6 +8788,43 @@ Boundary:
   mobile/platform preview, scheduled send, public article rendering, public URL acceptance, or
   publish success.
 
+## 2026-06-22 Market Live Recheck - 135 SVG and Xiumi Slice
+
+Scope:
+- CloakBrowser-only post-reboot market-rule recheck.
+- No renderer behavior, proof manifest, account upload, sync, phone preview, platform preview,
+  scheduled send, public rendering, or publish behavior was changed.
+
+Observed:
+- 135 SVG editor accepted a visible `免费试用` click and the material-included confirmation, then
+  inserted an active `coverclickmovewithspread` center-editor block.
+- The sampled block used a zero-font/zero-line-height section plus a background-only
+  `viewBox="0 0 1080 1920"` SVG with `background-size:100.1% 100.1%`,
+  `display:inline-block`, `margin-top:-1px`, `pointer-events:none`, `svg:135`,
+  `user-select:none`, `vertical-align:top`, and `width:100%`.
+- The rule remains a market-derived schema input for InkForge-owned image slots, trigger zones,
+  fallback, and layout reports. Copied `svg:135`, builder `data-name`, trigger overlays, hosted
+  135 material URLs, and authoring wrappers stay market-editor residue.
+- Xiumi Studio v5 stayed on the editor-selection/login surface after `图文排版` was clicked. This
+  run is login-state blocker evidence only and must not be treated as Xiumi applied-editor DOM
+  proof.
+
+Artifacts:
+- `prompts/0601/evidence/market-live-recheck-135-xiumi-20260622.txt`
+
+Verification:
+- `git diff --check` for the touched docs/evidence files passed with only normal Windows
+  `autocrlf` warnings.
+- Final `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 37 dirty files across
+  the whole working tree, 7 changed symbols, and 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This is market-rule extraction and blocker evidence only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, XHS/Zhihu upload, scheduled send, platform preview, public rendering, or
+  publish success.
+
 ## 2026-06-22 XHS Style Choice Application Mapping Slice
 
 Scope:

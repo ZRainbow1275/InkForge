@@ -4125,3 +4125,30 @@ Boundary:
 - Boundary: this is local application mapping only. It does not prove Xiaohongshu account upload,
   mobile/platform preview, public URL acceptance, scheduled send, public article rendering, public
   host acceptance, or publish success.
+
+---
+
+## 2026-06-22 Market Live Recheck - 135 SVG and Xiumi Addendum
+
+- CloakBrowser post-reboot recheck opened the live 135 SVG editor, clicked a visible
+  `免费试用` effect, accepted the material-included confirmation, and read back an active
+  `coverclickmovewithspread` center-editor block.
+- The sampled 135 block used a zero-font/zero-line-height section plus a background-only
+  `viewBox="0 0 1080 1920"` SVG with `background-size:100.1% 100.1%`,
+  `display:inline-block`, `margin-top:-1px`, `pointer-events:none`, `svg:135`,
+  `user-select:none`, `vertical-align:top`, and `width:100%`.
+- This confirms the existing 135 background-style residue fixture and keeps the rule as
+  InkForge-owned image-slot, trigger-zone, fallback, and layout-report schema input. Copied 135
+  markers and hosted material remain market-editor residue.
+- The same CloakBrowser profile opened Xiumi Studio v5 but stayed on the editor-selection/login
+  surface after `图文排版` was clicked. This is current login-state blocker evidence only, not
+  Xiumi applied-editor DOM proof.
+- Added evidence file:
+  `prompts/0601/evidence/market-live-recheck-135-xiumi-20260622.txt`.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 37 dirty files
+  across the whole working tree, 7 changed symbols, and 0 affected processes; the dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+- Boundary: this is market-rule extraction and blocker evidence only. It does not prove WeChat
+  official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, XHS/Zhihu upload, scheduled send, platform preview, public rendering, or
+  publish success.

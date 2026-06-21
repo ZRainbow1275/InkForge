@@ -1,0 +1,71 @@
+Market Live Recheck - 135 SVG and Xiumi - 2026-06-22
+
+Scope:
+- CloakBrowser-only post-reboot market-rule recheck for 135 SVG editor and Xiumi Studio.
+- No platform upload, sync, phone preview, public preview, scheduled send, or publish action.
+- No local runtime path, account image, browser credential material, request archive, QR, or private
+  template source is recorded here.
+
+135 SVG editor live observation:
+- Opened the live 135 SVG editor and clicked a visible SVG effect "免费试用".
+- The editor asked whether to include default design material; the material-included branch was
+  selected so the complete authoring structure could be inspected.
+- The center editor inserted an active block with data-name coverclickmovewithspread.
+- The selected block contained one section wrapper:
+  font-size:0 !important; line-height:0 !important; margin:0 !important; padding:0 !important;
+  text-align:center.
+- The section contained a background-only inline svg:
+  viewBox="0 0 1080 1920"; background-attachment:scroll; background-position:center;
+  background-repeat:no-repeat; background-size:100.1% 100.1%; display:inline-block;
+  margin-top:-1px; pointer-events:none; svg:135; user-select:none; vertical-align:top;
+  width:100%.
+- The computed SVG box at the sampled viewport was 336px by about 597px, matching the 1080x1920
+  ratio.
+- The same active block exposed an edit-trigger overlay with percentage inset geometry, z-index 9,
+  resize handles, and a visible trigger-area switch. These are authoring controls, not publishable
+  output.
+
+135 rule extracted:
+- The 100.1% background sizing and -1px vertical compensation are a gap-sealing tactic for
+  background-image SVG shells.
+- In InkForge this pattern may inform source-owned image-slot, hotspot, expanded-content, fallback,
+  and layout-report schemas.
+- Copied 135 markers such as svg:135, block-img__trigger, edit-trigger, trigger__ajuster,
+  coverclickmovewithspread, and hosted 135 material URLs remain market-editor residue and must not
+  enter WeChat/XHS/Zhihu publishable output.
+
+Xiumi Studio live observation:
+- The same CloakBrowser profile opened Xiumi Studio v5 and reached the editor-selection page.
+- The visible page still showed "登录" and did not enter the paper editor after clicking 图文排版.
+- Because the center paper editor was not reached, this run is not applied-editor-element evidence
+  for Xiumi.
+
+Xiumi rule boundary:
+- Existing Xiumi rules remain valid from prior applied-editor runs and public-source cross-checks:
+  opera-tn-* / tn-* / ng-* / tn-bind-comp-tpl-id attributes are authoring/runtime bindings, while
+  core section layout and visual inline styles must be translated into InkForge-owned structures
+  rather than bluntly deleted.
+- This 2026-06-22 run only proves the current external login-state blocker. It does not satisfy
+  Xiumi applied DOM, WeChat paste, phone preview, mobile interaction, sync, public preview, or
+  publish proof.
+
+Existing executable coverage:
+- platform-export-rendering.test.ts already includes the 135 background-style residue fixture with
+  svg:135, background-size:100.1% 100.1%, margin-top:-1px, pointer-events:none, user-select:none,
+  vertical-align:top, and width:100%.
+- Existing quality gates block this fixture as market-editor residue on WeChat, Xiaohongshu, and
+  Zhihu.
+
+Verification:
+- git diff --check for the touched docs/evidence files passed; Git reported only normal Windows
+  autocrlf warnings.
+- npx gitnexus detect-changes -r InkForge --scope all
+  PASS: low risk, 37 dirty files across the whole working tree, 7 changed symbols, and 0 affected
+  processes. The dirty-file count includes unrelated pre-existing local changes and does not define
+  the staged boundary.
+
+Boundary:
+- This is market-rule extraction and blocker evidence only.
+- It does not prove InkForge final WeChat editor paste, phone preview, Dark Mode, cover thumbnail,
+  credentialed sync, Xiaohongshu/Zhihu account upload, scheduled send, public rendering, or publish
+  success.

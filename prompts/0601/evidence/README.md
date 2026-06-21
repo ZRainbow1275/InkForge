@@ -3495,6 +3495,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
   rendering, or publish success.
 
+## 2026-06-22 Market Live Recheck - 135 SVG and Xiumi
+
+- [x] market-live-recheck-135-xiumi-20260622.txt
+- CloakBrowser post-reboot recheck opened the live 135 SVG editor, clicked a visible
+  `免费试用` effect, accepted the material-included confirmation, and read back an active
+  `coverclickmovewithspread` block in the center editor.
+- The sampled 135 block used a zero-font/zero-line-height wrapper and a background-only
+  `viewBox="0 0 1080 1920"` SVG with `background-size:100.1% 100.1%`, `display:inline-block`,
+  `margin-top:-1px`, `pointer-events:none`, `svg:135`, `user-select:none`, `vertical-align:top`,
+  and `width:100%`.
+- The 135 rule is retained as schema/gap-sealing evidence for InkForge-owned image slots, trigger
+  zones, fallback, and layout reports. Copied 135 markers and hosted material remain
+  market-editor residue.
+- The same CloakBrowser profile opened Xiumi Studio v5 but stayed on the editor-selection/login
+  surface after `图文排版` was clicked. This is login-state blocker evidence only, not Xiumi
+  applied-editor DOM evidence.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 37 dirty files
+  across the whole working tree, 7 changed symbols, and 0 affected processes; the dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+- Boundary: this is market-rule extraction and blocker evidence only. It does not prove official
+  WeChat paste, phone preview, Dark Mode, cover thumbnail, credentialed sync, XHS/Zhihu upload,
+  scheduled send, public rendering, or publish success.
+
 ## 2026-06-22 WeChat Card Rich Local Evidence
 
 - [x] wechat-card-rich-local-evidence-20260622.txt

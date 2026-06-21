@@ -2230,6 +2230,15 @@ Contracts:
   `ant-switch-checked` trigger switches. This confirms the existing residue rules remain correct:
   these structures are schema inputs for InkForge-owned trigger-zone, image-slot, spacing,
   fallback, and layout-report models only; they must not be copied into publishable output.
+- 2026-06-22 post-reboot 135 SVG editor recheck: a visible CloakBrowser `免费试用` click plus the
+  material-included confirmation again inserted a `coverclickmovewithspread` active block. The
+  sampled block used a zero-font/zero-line-height section and a background-only `svg
+  viewBox="0 0 1080 1920"` with `background-size:100.1% 100.1%`, `display:inline-block`,
+  `margin-top:-1px`, `pointer-events:none`, `svg:135`, `user-select:none`,
+  `vertical-align:top`, and `width:100%`. Treat `100.1%` sizing and `-1px` compensation as
+  gap-sealing tactics for InkForge-owned image-slot/fallback/layout-report schemas only. Copied
+  markers such as `svg:135`, `coverclickmovewithspread`, `edit-trigger`, `trigger__ajuster`, and
+  hosted 135 material URLs must remain market-editor residue.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -2299,6 +2308,11 @@ Contracts:
   the run is taxonomy/readability evidence only; it is not `market-applied-dom-readback` and must
   not satisfy applied proof until the center editor mutation is safely operator-confirmed and read
   back.
+- 2026-06-22 post-reboot Xiumi Studio recheck: the fixed CloakBrowser profile opened Studio v5 but
+  stayed on the editor-selection/login surface after clicking `图文排版`. That run is an external
+  login-state blocker only. It must not be recorded as Xiumi `applied-editor-element` evidence or
+  used to satisfy center-paper mutation, SVG/title/card insertion, WeChat paste, phone-preview,
+  sync, platform-preview, or publish proof.
 - 2026-06-20 executable fallback-catalog contract: market SVG/H5/rich-layout taxonomy is now
   represented in `PLATFORM_STYLE_CHOICES` as blocked fallback choices instead of hidden prose:
   `wechat-market-svg-h5-fallback-matrix`, `xhs-market-rich-card-fallback`, and
