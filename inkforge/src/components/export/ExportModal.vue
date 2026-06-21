@@ -13,6 +13,7 @@ import {
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
+  getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
   WECHAT_DRAFT_TITLE_MAX_CHARS,
   markdownToWechatWithStats, publishWechatDraft
@@ -21,6 +22,7 @@ import { resolveExportIcon } from '@/utils/iconography'
 import type {
   Platform, ExportOptions, ExportStats,
   CommittedStyleProofReleaseGateBlocker,
+  CommittedStyleProofExternalProofChecklistGroup,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
   WechatPublishStatus, WechatDraftPublishResult,
   ExportFontFamily, ExportFontSize,
@@ -113,6 +115,14 @@ interface PublishIntegrationStatus {
   detail: string
 }
 
+interface ExternalProofChecklistDisplay {
+  kind: CommittedStyleProofExternalProofChecklistGroup['kind']
+  label: string
+  statusLabel: string
+  rowCount: number
+  detail: string
+}
+
 interface StyleChoiceDisplay {
   availability: StyleChoiceAvailability
   application: StyleChoiceApplication | null
@@ -189,6 +199,7 @@ const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionP
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
+const committedStyleProofExternalChecklist = computed(() => getCommittedStyleProofExternalProofChecklistReport())
 const committedStyleProofReleaseGate = computed(() => getCommittedStyleProofEvidenceReleaseGateReport())
 const committedStyleProofReleaseConflictCount = computed(() =>
   committedStyleProofReleaseGate.value.blockers.reduce((total, blocker) =>
@@ -249,6 +260,19 @@ const styleProofReleaseGateSummary = computed(() => {
     ? 'canClaimComplete=true；blockers 0；fingerprintConflicts 0'
     : `canClaimComplete=false；blockers ${gate.blockers.length}；fingerprintConflicts ${committedStyleProofReleaseConflictCount.value}`
 })
+const styleProofExternalChecklistSummary = computed(() => {
+  const checklist = committedStyleProofExternalChecklist.value
+  return `外部证明清单 ${checklist.summary.uniqueChecklistRowCount} 行；分组 ${checklist.summary.groupCount}；手机 ${checklist.summary.phoneRows}；账号 ${checklist.summary.externalAccountRows}；public host ${checklist.summary.publicHostRows}；需人工 ${checklist.summary.unsafeToAutomateRows}`
+})
+const styleProofExternalChecklistRows = computed<ExternalProofChecklistDisplay[]>(() =>
+  committedStyleProofExternalChecklist.value.groups.map(group => ({
+    kind: group.kind,
+    label: styleProofExternalChecklistKindLabel(group.kind),
+    statusLabel: group.status === 'issue' ? '待处理' : styleProofAcceptanceStatusLabel(group.status),
+    rowCount: group.rowCount,
+    detail: styleProofExternalChecklistGroupDetail(group),
+  })),
+)
 const selectedStyleChoiceApplication = computed(() =>
   styleApplicationReport.value.find(item =>
     item.availability.choice.id === selectedStyleChoiceIds.value[selectedPlatform.value],
@@ -321,6 +345,39 @@ const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
 
 function platformLabel(platform: Platform): string {
   return PLATFORMS.find(item => item.id === platform)?.name ?? platform
+}
+
+function styleProofExternalChecklistKindLabel(
+  kind: CommittedStyleProofExternalProofChecklistGroup['kind'],
+): string {
+  const labels: Record<CommittedStyleProofExternalProofChecklistGroup['kind'], string> = {
+    'phone-preview': '手机预览',
+    'external-dependency': '外部依赖',
+    'unsafe-to-automate': '需人工',
+    'mutating-platform': '平台变更',
+  }
+  return labels[kind]
+}
+
+function styleProofExternalChecklistGroupDetail(
+  group: CommittedStyleProofExternalProofChecklistGroup,
+): string {
+  const platforms = group.platformStepCounts
+    .slice(0, 3)
+    .map(item => `${platformLabel(item.platform)} ${item.stepCount}`)
+    .join('，')
+  const requirements = group.requirementStepCounts
+    .slice(0, 2)
+    .map(item => `${styleProofRequirementLabel(item.requirementId)} ${item.stepCount}`)
+    .join('，')
+  const issueCounts = styleProofReleaseIssueCountsLabel(group)
+  const parts = [
+    platforms ? `平台 ${platforms}` : '',
+    requirements ? `证明 ${requirements}` : '',
+    issueCounts ? `问题 ${issueCounts}` : '',
+  ].filter(Boolean)
+
+  return parts.join('；') || '等待真实外部证明'
 }
 
 function styleProofReleaseIssueIdLabel(issueId: CommittedStyleProofReleaseGateBlocker['issueCounts'][number]['issueId']): string {
@@ -479,13 +536,14 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
   const conflictCount = committedStyleProofReleaseConflictCount.value
   const nextOperatorActions = styleProofReleaseNextOperatorActions(gate.blockers)
   const requirementCounts = styleProofReleaseRequirementCounts(gate.blockers)
+  const checklistSummary = styleProofExternalChecklistSummary.value
 
   if (gate.canClaimComplete) {
     return {
       key: 'committed-proof-release',
       label: '提交证据宣称门禁',
       state: 'ready',
-      detail: `canClaimComplete=true；blockers 0；fingerprintConflicts ${conflictCount}；最终仍以平台证据文件为准。`,
+      detail: `canClaimComplete=true；blockers 0；fingerprintConflicts ${conflictCount}；${checklistSummary}；最终仍以平台证据文件为准。`,
     }
   }
 
@@ -493,7 +551,7 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
     key: 'committed-proof-release',
     label: '提交证据宣称门禁',
     state: 'blocked',
-    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；requirementCounts ${requirementCounts}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
+    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${checklistSummary}；${blockerSummary}；requirementCounts ${requirementCounts}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
   }
 })
 
@@ -1486,6 +1544,28 @@ onUnmounted(() => {
                   <span>提交证据宣称 {{ styleProofReleaseGateSummary }}</span>
                   <span>执行手册 开放 {{ styleProofExecutionRunbook.summary.openSteps }}；不可宣称 {{ styleProofExecutionRunbook.summary.cannotClaimSteps }}；下一手册 {{ styleProofNextRunbookLabel }}</span>
                 </div>
+                <div
+                  class="style-proof-external-checklist"
+                  aria-label="外部证明清单"
+                >
+                  <div class="style-proof-external-checklist__summary">
+                    <span>{{ styleProofExternalChecklistSummary }}</span>
+                    <span>当前不会启用发布、同步或平台成功宣称</span>
+                  </div>
+                  <div class="style-proof-external-checklist__groups">
+                    <div
+                      v-for="row in styleProofExternalChecklistRows"
+                      :key="row.kind"
+                      class="style-proof-external-checklist__group"
+                    >
+                      <div class="style-proof-external-checklist__head">
+                        <span>{{ row.label }}</span>
+                        <strong>{{ row.rowCount }}</strong>
+                      </div>
+                      <p>{{ row.statusLabel }}；{{ row.detail }}</p>
+                    </div>
+                  </div>
+                </div>
                 <div class="style-choice-list">
                   <button
                     v-for="row in styleChoiceRows"
@@ -2337,6 +2417,87 @@ onUnmounted(() => {
 
 .style-catalog-summary span {
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.style-proof-external-checklist {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 9px;
+  border: 1px solid color-mix(in srgb, var(--warning) 26%, var(--hairline));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning-light) 34%, var(--bg-surface));
+}
+
+.style-proof-external-checklist__summary {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.style-proof-external-checklist__summary span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.style-proof-external-checklist__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  min-width: 0;
+  gap: 6px;
+}
+
+.style-proof-external-checklist__group {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  background: var(--bg-rice-paper);
+}
+
+.style-proof-external-checklist__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 6px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.style-proof-external-checklist__head span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.style-proof-external-checklist__head strong {
+  flex-shrink: 0;
+  min-width: 22px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--warning-light);
+  color: var(--warning);
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.style-proof-external-checklist__group p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 

@@ -8727,6 +8727,52 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 ExportModal External Checklist Surface Slice
+
+Scope:
+- Read-only ExportModal UI exposure for the committed external proof checklist.
+- No renderer output, style catalog availability, proof manifest, upload, sync, phone preview,
+  platform preview, scheduled send, public rendering, public host, or publish behavior was
+  changed.
+
+Implementation:
+- ExportModal now consumes `getCommittedStyleProofExternalProofChecklistReport()` and displays the
+  live checklist summary inside the style capability section.
+- The release preflight row includes the same checklist summary while keeping
+  `canClaimComplete=false` and the blocked no-claim language.
+- The visible UI exposes four localized groups:
+  `手机预览`, `外部依赖`, `需人工`, and `平台变更`.
+- The grouped checklist uses compact responsive CSS with stable min-width handling and no emoji
+  iconography.
+- `svg-render.spec.cjs` now reads the real ExportModal DOM and asserts the 18-row checklist,
+  no publish/sync success warning, and all four group buckets.
+
+Verification:
+- `npx gitnexus impact` before editing reported LOW risk for
+  `committedStyleProofReleasePreflightRow`, `styleCatalogPreflightRow`, and
+  `getCommittedStyleProofExternalProofChecklistReport`, with 0 affected processes.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 27.83s.
+- CloakBrowser desktop readback used a real local article and the real `发布` modal. At
+  `1400x900`, the checklist read `外部证明清单 18 行；分组 4；手机 4；账号 13；public host 1；需人工 13`,
+  exposed four groups, the release preflight contained `外部证明清单 18 行`, and
+  `overflowCount=0`.
+- CloakBrowser mobile readback used the same real modal at `390x844`. It found group count 4,
+  release preflight checklist text present, `documentScrollWidth=390`,
+  `documentClientWidth=390`, `panelScrollWidth=374`, `panelClientWidth=374`,
+  `checklistScrollWidth=331`, `checklistClientWidth=331`, and `overflowCount=0`.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`:
+  passed in the real Tauri/WebView2 runner, 1 spec / 6 tests.
+
+Boundary:
+- This is UI visibility and operator accounting only. It does not prove WeChat official editor
+  paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 Committed External Proof Checklist Slice
 
 Scope:

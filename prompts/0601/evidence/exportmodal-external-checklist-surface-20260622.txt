@@ -1,0 +1,67 @@
+ExportModal External Checklist Surface - 2026-06-22
+
+Scope:
+- Read-only ExportModal UI exposure for the committed external proof checklist.
+- No renderer output, proof manifest, catalog availability, sync, upload, phone preview,
+  scheduled send, public host, platform preview, public rendering, or publish behavior changed.
+
+Implemented:
+- ExportModal consumes getCommittedStyleProofExternalProofChecklistReport().
+- The style capability section displays the external checklist summary and four grouped buckets.
+- The committed proof release preflight row includes the same checklist summary while remaining
+  blocked when canClaimComplete=false.
+- svg-render.spec.cjs reads the real ExportModal DOM and asserts the visible checklist rows.
+
+Visible checklist snapshot:
+- Summary: 外部证明清单 18 行；分组 4；手机 4；账号 13；public host 1；需人工 13
+- Group: 手机预览, 4 rows, 外部阻断
+- Group: 外部依赖, 14 rows, 外部阻断
+- Group: 需人工, 13 rows, 需人工
+- Group: 平台变更, 13 rows, 需人工
+- UI warning: 当前不会启用发布、同步或平台成功宣称
+
+CloakBrowser desktop readback:
+- Viewport: 1400x900
+- Real local article and real 发布 modal were used.
+- Checklist visible: yes
+- Release preflight contains 外部证明清单 18 行: yes
+- Document scroll width: 1400
+- Panel width/client width: 900/900
+- Checklist width/client width: 348/348
+- Overflow count: 0
+
+CloakBrowser mobile readback:
+- Viewport: 390x844
+- Real local article and real 发布 modal were used.
+- Checklist group count: 4
+- Release preflight contains checklist summary: yes
+- Document scroll width/client width: 390/390
+- Panel scroll width/client width: 374/374
+- Checklist scroll width/client width: 331/331
+- Overflow count: 0
+
+Verification:
+- npx gitnexus impact committedStyleProofReleasePreflightRow -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes
+- npx gitnexus impact styleCatalogPreflightRow -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes
+- npx gitnexus impact getCommittedStyleProofExternalProofChecklistReport -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed
+- pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+  PASS: 1 spec / 6 tests in the real Tauri/WebView2 runner
+
+Boundary:
+- This proves only local UI visibility, local accounting, and no-overflow rendering of the
+  external proof checklist.
+- It does not prove WeChat official editor paste, WeChat phone preview, mobile SMIL/click
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, public host
+  acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
+  upload, or publish success.

@@ -3621,3 +3621,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local Zhihu clean Markdown export and exact-artifact accounting only. It does
   not prove Zhihu public image-host acceptance, account upload, editor preview, sync, scheduled
   send, platform preview, public article rendering, or publish success.
+
+## 2026-06-22 ExportModal External Checklist Surface
+
+- [x] exportmodal-external-checklist-surface-20260622.txt
+- ExportModal now displays the committed external proof checklist as a read-only operator surface.
+- Current UI readback shows `外部证明清单 18 行；分组 4；手机 4；账号 13；public host 1；需人工 13`
+  and four groups: `手机预览`, `外部依赖`, `需人工`, and `平台变更`.
+- The release preflight row includes the same checklist summary while keeping
+  `canClaimComplete=false` and the warning that publish, sync, phone preview, public host,
+  scheduled send, platform preview, public rendering, upload, and publish success are not
+  claimable.
+- Verification passed: targeted ExportModal ESLint, `vue-tsc`, E2E script syntax check,
+  production build, CloakBrowser desktop and mobile readback with no horizontal overflow, and
+  real Tauri/WebView2 `svg-render.spec.cjs` with 1 spec / 6 tests.
+- Boundary: this UI surface does not prove WeChat official editor paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance,
+  Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
+  success.

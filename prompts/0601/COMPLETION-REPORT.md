@@ -4188,3 +4188,25 @@ Boundary:
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
   host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
   upload, or publish success.
+
+---
+
+## 2026-06-22 ExportModal External Checklist Surface Addendum
+
+- ExportModal now surfaces `getCommittedStyleProofExternalProofChecklistReport()` as a read-only
+  checklist inside the style capability area.
+- The visible summary reads `外部证明清单 18 行；分组 4；手机 4；账号 13；public host 1；需人工 13`.
+- Four localized groups are shown: `手机预览` with 4 rows, `外部依赖` with 14 rows, `需人工` with
+  13 rows, and `平台变更` with 13 rows.
+- The committed proof release preflight row now includes the same checklist summary but remains
+  blocked while `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/exportmodal-external-checklist-surface-20260622.txt`.
+- Verification passed: GitNexus impact before editing; targeted ExportModal ESLint; `vue-tsc`;
+  E2E script syntax check; production build with 4653 modules transformed; CloakBrowser desktop
+  readback at `1400x900`; CloakBrowser mobile readback at `390x844`; and real Tauri/WebView2
+  `svg-render.spec.cjs` with 1 spec / 6 tests.
+- Boundary: this is UI exposure and no-claim accounting only. It does not prove WeChat official
+  editor paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public host acceptance, scheduled send, platform preview, public
+  rendering, Xiaohongshu upload, Zhihu upload, or publish success.

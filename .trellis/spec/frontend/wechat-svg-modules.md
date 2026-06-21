@@ -3030,3 +3030,42 @@ Required checks:
   rows require public HTTPS or platform-hosted image proof.
 - Evidence docs must record the checklist counts and the cannot-claim boundary without claiming
   any external gate has been completed.
+
+## 37. ExportModal External Proof Checklist Surface - 2026-06-22
+
+Contracts:
+- ExportModal may surface the committed external proof checklist as a read-only operator aid. It
+  must consume `getCommittedStyleProofExternalProofChecklistReport()` directly and must not derive
+  its own blocker accounting from ad hoc DOM text or duplicated constants.
+- The UI surface must not mutate `selectable`, `usable`, style choice availability, release-gate
+  state, proof manifests, runbook rows, renderer output, upload/sync/publish actions, or platform
+  account state.
+- The checklist summary shown in ExportModal must expose the current live counts:
+  `uniqueChecklistRowCount`, `groupCount`, `phoneRows`, `externalAccountRows`, `publicHostRows`,
+  and `unsafeToAutomateRows`.
+- The grouped display must preserve the four checklist groups from the service layer:
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Labels and detail strings must be localized for the operator UI. Known group labels are:
+  `手机预览`, `外部依赖`, `需人工`, and `平台变更`. Service-layer English identifiers may remain in
+  type names and tests, but not as the primary visible UI labels.
+- The release preflight row may include the same checklist summary so the blocked release state is
+  auditable in one place. While `canClaimComplete:false`, that row must remain blocked and must
+  continue to say phone preview, sync, public-host, scheduled-send, platform-preview, upload,
+  public rendering, and publish success are not claimable.
+- The surface must not use emoji icons. If future actions are added, use the installed icon system
+  and keep the current checklist itself read-only.
+- The layout must fit narrow WebView and browser viewports without horizontal page overflow,
+  clipped counts, or nested-card visual stacking.
+
+Required checks:
+- Unit or E2E coverage must assert the visible checklist count, the no-publish/no-sync success
+  warning, and all four group labels and counts.
+- Tauri/WebView2 E2E must open the real ExportModal, read the checklist from the actual DOM, and
+  keep the existing SVG flagship and 20-22 CJK chars/line assertions passing.
+- CloakBrowser visual verification must use a real local article and the real `发布` modal at
+  desktop and mobile widths, confirming `document.scrollWidth === document.clientWidth` and no
+  checklist group overflows its container.
+- Evidence docs must record the readback values and explicitly state that this UI surface is not
+  WeChat phone preview, official editor paste, mobile Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, XHS/Zhihu upload, public-host acceptance, scheduled-send, platform-preview,
+  public rendering, or publish proof.

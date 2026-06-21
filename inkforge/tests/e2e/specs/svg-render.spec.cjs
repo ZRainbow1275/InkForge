@@ -368,6 +368,11 @@ function collectStyleCapabilityProbe() {
       summary: (document.querySelector('.export-panel .style-catalog-summary')?.textContent || '')
         .trim()
         .replace(/\s+/g, ' '),
+      externalChecklistText: (document.querySelector('.export-panel .style-proof-external-checklist')?.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' '),
+      externalChecklistGroups: Array.from(document.querySelectorAll('.export-panel .style-proof-external-checklist__group'))
+        .map((group) => (group.textContent || '').trim().replace(/\s+/g, ' ')),
       acceptancePreflightText: Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
         .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
         .filter((text) => text.includes('验收宣称审计'))
@@ -495,6 +500,46 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.summary, 'WeChat committed release gate summary').to.include('canClaimComplete=false');
     expect(wechat.summary, 'WeChat committed release gate exposes exact-artifact conflicts')
       .to.include('fingerprintConflicts 0');
+    expect(wechat.externalChecklistText, 'WeChat external proof checklist is visible')
+      .to.include('外部证明清单 18 行');
+    expect(wechat.externalChecklistText, 'external proof checklist keeps publish/sync success disabled')
+      .to.include('当前不会启用发布、同步或平台成功宣称');
+    expect(wechat.externalChecklistGroups, 'external proof checklist exposes four release blocker groups')
+      .to.have.length(4);
+    expect(
+      wechat.externalChecklistGroups.some((group) =>
+        group.includes('手机预览') &&
+        group.includes('4') &&
+        group.includes('外部阻断') &&
+        group.includes('封面缩略图 1') &&
+        group.includes('暗黑模式 1')),
+      'external proof checklist exposes phone preview rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalChecklistGroups.some((group) =>
+        group.includes('外部依赖') &&
+        group.includes('14') &&
+        group.includes('微信公众号 7') &&
+        group.includes('小红书 2') &&
+        group.includes('知乎 5')),
+      'external proof checklist exposes external dependency rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalChecklistGroups.some((group) =>
+        group.includes('需人工') &&
+        group.includes('13') &&
+        group.includes('发布/平台预览 3') &&
+        group.includes('定时/发送读回 3')),
+      'external proof checklist exposes unsafe-to-automate rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalChecklistGroups.some((group) =>
+        group.includes('平台变更') &&
+        group.includes('13') &&
+        group.includes('发布/平台预览 3') &&
+        group.includes('定时/发送读回 3')),
+      'external proof checklist exposes mutating platform rows',
+    ).to.equal(true);
     expect(wechat.cardCount, 'WeChat choice card count').to.equal(17);
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(5);
