@@ -7739,3 +7739,70 @@ Boundary:
   and sensitive-hygiene accounting only.
 - It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
   scheduled send, public article rendering, or publish success.
+
+## 2026-06-21 Zhihu Available Clean Markdown Local Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `zhihu-academic-latex-column` and
+  `zhihu-wechat-adapted`.
+- No Zhihu account login, upload, public-host publication, editor preview, sync, scheduled send,
+  platform preview, public article rendering, or publish action was executed or claimed.
+
+Implementation:
+- Added `prompts/0601/evidence/zhihu-academic-latex-local-artifact-20260621.md`, generated
+  through the real `markdownToZhihuClean()` path from source-owned Markdown containing block
+  LaTeX, inline LaTeX, a footnote, a quote, and a typed code fence.
+- Added `prompts/0601/evidence/zhihu-wechat-adapted-local-artifact-20260621.md`, generated
+  through the same clean Markdown path from a WeChat-style source fragment containing
+  `section`, inline `style`, `data-ink-block`, inline SVG, and a styled `span`.
+- Added two evidence reports:
+  `zhihu-academic-latex-local-evidence-20260621.txt` and
+  `zhihu-wechat-adapted-local-evidence-20260621.txt`.
+- Added two committed local manifests through
+  `createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest()`.
+- The manifests satisfy only `unit-test-coverage`, `exact-artifact`, and
+  `no-sensitive-artifact` rows for their exact persisted Markdown artifacts.
+- `public-image-host`, `zhihu-artifact-manifest`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` remain missing or unsafe-to-automate.
+
+Evidence:
+- Academic artifact hash:
+  `sha256:0bed075e0f24a94f4ecb0a9bf410e42f5de6caaff560347e6b016757916a7ff9`; bytes: 815.
+- Academic exporter counters: `latexCount=2`, `latexBlocksConverted=1`, `mermaidCount=0`,
+  `tablesConverted=0`, `cleanedHtmlTags=[]`.
+- WeChat-adapted artifact hash:
+  `sha256:5aaf2834bcd50e8251b2d8e99deb72c550826909598dc17e3f80ec7ac3efba63`; bytes: 372.
+- WeChat-adapted exporter counters: `cleanedHtmlTags=["section","svg","path","span"]`,
+  `latexCount=0`, `latexBlocksConverted=0`, `mermaidCount=0`, `tablesConverted=0`.
+- Current release-gate readout after this slice: `localManifestCount=11`,
+  `combinedManifestCount=13`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+
+Initial verification:
+- GitNexus impact:
+  - `createCommittedStyleProofLocalEvidenceManifest`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 0 affected processes.
+  - `validateStyleProofArtifactScope`: LOW, 1 affected process, no HIGH/CRITICAL risk.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Zhihu academic LaTeX|WeChat decorative residue|committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 6 selected tests.
+
+Final verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules.
+
+Boundary:
+- This is local Zhihu clean Markdown export and exact-artifact accounting only.
+- It does not prove Zhihu formula preview acceptance, public image-host acceptance,
+  artifact-manifest acceptance, account upload, editor preview, sync, scheduled send,
+  platform preview, public article rendering, or publish success.

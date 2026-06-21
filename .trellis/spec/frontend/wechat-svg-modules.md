@@ -249,6 +249,14 @@ construct breaks.
   raster, exact-artifact, XHS artifact-manifest, and sensitive-hygiene rows, but it must not be
   used as Xiaohongshu account upload, platform preview, public URL acceptance, scheduled-send, or
   publish proof.
+- 2026-06-21 Zhihu available clean Markdown evidence contract:
+  `zhihu-academic-latex-column` and `zhihu-wechat-adapted` may use committed
+  `markdownToZhihuClean()` artifacts as local exact-artifact proof. Academic LaTeX proof covers
+  block/inline equation image Markdown, footnotes, and typed code fences; WeChat-adapted proof
+  covers removal of `section`, inline SVG, `data-ink-*`, `style`, and `class` residue. These rows
+  satisfy only unit-test, exact-artifact, and sensitive-hygiene proof. They must not satisfy
+  `public-image-host`, `zhihu-artifact-manifest`, account upload, platform preview,
+  scheduled-send, or publish proof without separate redacted platform evidence.
 
 ---
 

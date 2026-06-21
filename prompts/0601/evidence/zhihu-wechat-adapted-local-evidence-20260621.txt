@@ -1,0 +1,49 @@
+Zhihu WeChat Adapted Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local evidence for `zhihu-wechat-adapted`.
+- No Zhihu account login, upload, platform preview, public URL acceptance, scheduled
+  send, public article rendering, or publish action was executed or claimed.
+
+Implemented:
+- Used the existing `markdownToZhihuClean()` path to generate the exact committed
+  clean Markdown artifact from a WeChat-style source fragment.
+- The source included `section`, inline `style`, `data-ink-block`, inline SVG, and
+  a styled `span`; the committed artifact keeps only readable Markdown/text.
+- Bound the artifact to the committed style-proof manifest through exact SHA-256,
+  unit-test coverage, and sensitive-hygiene rows.
+
+Exact artifact:
+- `prompts/0601/evidence/zhihu-wechat-adapted-local-artifact-20260621.md`
+- SHA-256: `5aaf2834bcd50e8251b2d8e99deb72c550826909598dc17e3f80ec7ac3efba63`
+- bytes: 372
+- Generated output properties:
+  - `cleanedHtmlTags=["section","svg","path","span"]`
+  - `latexCount=0`
+  - `latexBlocksConverted=0`
+  - `mermaidCount=0`
+  - `tablesConverted=0`
+- The exact artifact contains no `data-ink-*`, inline SVG, `style=`, or `class=`
+  residue.
+
+Committed style-proof manifest:
+- Adds one local `zhihu-wechat-adapted` manifest.
+- The manifest satisfies only:
+  - `unit-test-coverage`
+  - `exact-artifact`
+  - `no-sensitive-artifact`
+- `public-image-host`, `zhihu-artifact-manifest`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` remain missing or unsafe to automate.
+
+Verification:
+- Focused committed/local/release regression: PASS, 1 file / 6 selected tests.
+- Full platform export regression: PASS, 1 file / 155 tests.
+- Cross-platform export regression: PASS, 4 files / 194 tests.
+- Full export serial regression: PASS, 36 files / 1132 tests.
+- Targeted ESLint, `vue-tsc`, and production build: PASS.
+
+Boundary:
+- This proves local WeChat-to-Zhihu semantic cleanup, exact artifact hashing, and
+  repository hygiene only.
+- It does not prove Zhihu account upload, platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

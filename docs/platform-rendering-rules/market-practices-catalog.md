@@ -217,8 +217,8 @@ Executable mirror:
 | `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 裁切、横向溢出、资源不可加载 |
 | `xhs-h5-design-import-boundary` | 小红书 | H5、设计海报、视频/PDF、贴纸图文 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 需先落成图片页/纯文本，不是正文富文本 |
 | `zhihu-clean-column` | 知乎 | 标题、段落、引用、列表、代码 | body-system | medium | none | clean Markdown | clean Markdown | `unit-tested` | 微信 wrapper、HTML/CSS、inline SVG 泄漏 |
-| `zhihu-academic-latex-column` | 知乎 | LaTeX、脚注、代码、引用 | body-system | medium | none | clean Markdown | image fallback | `unit-tested` | 公式括号不匹配、公式预览/图片 fallback 缺失 |
-| `zhihu-wechat-adapted` | 知乎 | 微信标题、引用、卡片、列表、落款 | fallback-system | medium | none | clean Markdown | image fallback | `unit-tested` | `data-ink-*`、inline SVG、style/class 依赖未清理 |
+| `zhihu-academic-latex-column` | 知乎 | LaTeX、脚注、代码、引用 | body-system | medium | none | clean Markdown | image fallback | `unit-tested` | 2026-06-21 本地 clean Markdown exact artifact 已提交；公式预览、public host、artifact manifest、平台发布仍需另证 |
+| `zhihu-wechat-adapted` | 知乎 | 微信标题、引用、卡片、列表、落款 | fallback-system | medium | none | clean Markdown | image fallback | `unit-tested` | 2026-06-21 本地 WeChat residue cleanup exact artifact 已提交；public host、artifact manifest、平台发布仍需另证 |
 | `zhihu-diagram-article` | 知乎 | 公式图、图表图、表格图 | figure-system | medium | none | image fallback | clean Markdown | `local-browser` | public HTTPS / platform-host 证明、alt/caption 缺失 |
 | `zhihu-complex-table-fallback` | 知乎 | 宽表、多段单元格、表格截图、题注 | card-system | medium | none | image fallback | clean Markdown | `local-browser` | 栅格 artifact 与公开图片 host 证据缺失 |
 | `zhihu-data-table` | 知乎 | 简单表、数据摘要、对比行 | card-system | medium | none | clean Markdown | image fallback | `unit-tested` | 表格分隔线非法、复杂表格未简化或缺 alt/caption |

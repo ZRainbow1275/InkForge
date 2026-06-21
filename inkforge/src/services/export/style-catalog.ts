@@ -2223,7 +2223,7 @@ interface CommittedStyleProofZhihuLocalEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofZhihuCleanMarkdownEvidenceManifestOptions {
-  choiceId: 'zhihu-clean-column'
+  choiceId: 'zhihu-clean-column' | 'zhihu-academic-latex-column' | 'zhihu-wechat-adapted'
   label: string
   artifactFingerprint: string
   artifactRef: string
@@ -2275,6 +2275,18 @@ const COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_REPORT_REF =
   'prompts/0601/evidence/zhihu-clean-column-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_ACADEMIC_LATEX_ARTIFACT_REF =
+  'prompts/0601/evidence/zhihu-academic-latex-local-artifact-20260621.md'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_ACADEMIC_LATEX_REPORT_REF =
+  'prompts/0601/evidence/zhihu-academic-latex-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_ARTIFACT_REF =
+  'prompts/0601/evidence/zhihu-wechat-adapted-local-artifact-20260621.md'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_REPORT_REF =
+  'prompts/0601/evidence/zhihu-wechat-adapted-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
@@ -2846,6 +2858,20 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     artifactFingerprint: 'sha256:eccc28007327ade6c6b05fd37567dd31632b9daada68b28aa7146afe8b64b329',
     artifactRef: COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_ARTIFACT_REF,
     reportRef: COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_REPORT_REF,
+  }),
+  createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
+    choiceId: 'zhihu-academic-latex-column',
+    label: 'Zhihu academic LaTeX column',
+    artifactFingerprint: 'sha256:0bed075e0f24a94f4ecb0a9bf410e42f5de6caaff560347e6b016757916a7ff9',
+    artifactRef: COMMITTED_STYLE_PROOF_ZHIHU_ACADEMIC_LATEX_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_ZHIHU_ACADEMIC_LATEX_REPORT_REF,
+  }),
+  createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
+    choiceId: 'zhihu-wechat-adapted',
+    label: 'Zhihu WeChat semantic cleanup',
+    artifactFingerprint: 'sha256:5aaf2834bcd50e8251b2d8e99deb72c550826909598dc17e3f80ec7ac3efba63',
+    artifactRef: COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_ZHIHU_WECHAT_ADAPTED_REPORT_REF,
   }),
   createCommittedStyleProofZhihuLocalEvidenceManifest({
     choiceId: 'zhihu-data-table',

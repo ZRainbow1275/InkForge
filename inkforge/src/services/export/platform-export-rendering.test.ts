@@ -79,6 +79,48 @@ const REAL_EXPORT_MARKDOWN = [
   '<span class="legacy" style="color:red">HTML文本</span>',
 ].join('\n')
 
+const ZHIHU_ACADEMIC_LATEX_MARKDOWN = [
+  '# 公式与代码的知乎专栏验收',
+  '',
+  '本文用于验证学术专栏在知乎 clean Markdown 通道里的公式、脚注、引用和代码块。',
+  '',
+  '## 公式段落',
+  '',
+  '能量关系使用块级公式表达：',
+  '',
+  '$$E=mc^2$$',
+  '',
+  '行内公式使用 $a^2+b^2=c^2$，并保留解释文本。',
+  '',
+  '> 公式必须可预览；如果平台不接受公式图片，后续必须走图片 fallback，不可直接宣称发布成功。',
+  '',
+  '## 脚注与代码',
+  '',
+  '这是一个带脚注的结论。[^note]',
+  '',
+  '```ts',
+  'export const stable = true',
+  '```',
+  '',
+  '[^note]: 本地 artifact 只证明 clean Markdown 输出，不证明知乎平台预览或发布。',
+].join('\n')
+
+const ZHIHU_WECHAT_ADAPTED_MARKDOWN = [
+  '# 微信稿迁移到知乎的语义验收',
+  '',
+  '<section data-ink-block="flagship-h2" style="background:#111;color:#fff"><svg data-ink-svg="divider-grid" viewBox="0 0 100 20"><path d="M0 0h100v20H0z"></path></svg>迁移标题</section>',
+  '',
+  '> 原微信稿中的视觉卡片需要降级为知乎可读引用，而不是保留 SVG、style、class 或 data-ink 属性。',
+  '',
+  '## 可迁移结构',
+  '',
+  '- 标题层级保留为 Markdown。',
+  '- 卡片正文转成普通段落。',
+  '- 结尾署名保留文本，不保留装饰容器。',
+  '',
+  '<span class="legacy" style="color:red">这段旧 HTML 应被清理为文本。</span>',
+].join('\n')
+
 const RICH_WECHAT_PRESET_HTML = [
   '<h1>微信排版视觉手测稿</h1>',
   '<p>这是用于验证 <strong>12 个微信预设</strong> 预览与导出视觉差异的真实编辑器内容。</p>',
@@ -1543,15 +1585,22 @@ describe('platform native export rendering rules', () => {
     const secondRead = getCommittedStyleProofLocalEvidenceManifests()
     const choiceIds = manifests.map(manifest => manifest.choiceId)
     const temperaManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-tempera')
-    const nonLocalBrowserChoiceIds = new Set(['xhs-clean-text', 'zhihu-clean-column'])
+    const nonLocalBrowserChoiceIds = new Set([
+      'xhs-clean-text',
+      'zhihu-clean-column',
+      'zhihu-academic-latex-column',
+      'zhihu-wechat-adapted',
+    ])
     const xhsCleanManifest = manifests.find(manifest => manifest.choiceId === 'xhs-clean-text')
     const zhihuCleanManifest = manifests.find(manifest => manifest.choiceId === 'zhihu-clean-column')
+    const zhihuAcademicManifest = manifests.find(manifest => manifest.choiceId === 'zhihu-academic-latex-column')
+    const zhihuAdaptedManifest = manifests.find(manifest => manifest.choiceId === 'zhihu-wechat-adapted')
     const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
     const artifactRefs = manifests.flatMap(manifest =>
       manifest.artifacts.map(artifact => artifact.artifactRef).filter((ref): ref is string => Boolean(ref)),
     )
 
-    expect(manifests).toHaveLength(9)
+    expect(manifests).toHaveLength(11)
     expect(secondRead[0]).not.toBe(manifests[0])
     expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
     expect(choiceIds).toEqual([
@@ -1563,6 +1612,8 @@ describe('platform native export rendering rules', () => {
       'xhs-cover-hook',
       'xhs-markdown-card-slicer',
       'zhihu-clean-column',
+      'zhihu-academic-latex-column',
+      'zhihu-wechat-adapted',
       'zhihu-data-table',
     ])
     expect(new Set(artifactIds).size).toBe(artifactIds.length)
@@ -1575,6 +1626,8 @@ describe('platform native export rendering rules', () => {
       .every(manifest => manifest.claimedEvidence.includes('local-browser'))).toBe(true)
     expect(xhsCleanManifest?.claimedEvidence).toEqual(['unit-tested'])
     expect(zhihuCleanManifest?.claimedEvidence).toEqual(['unit-tested'])
+    expect(zhihuAcademicManifest?.claimedEvidence).toEqual(['unit-tested'])
+    expect(zhihuAdaptedManifest?.claimedEvidence).toEqual(['unit-tested'])
     expect(manifests.flatMap(manifest => manifest.artifacts).every(artifact =>
       artifact.committed === true && artifact.safeForCommit === true,
     )).toBe(true)
@@ -1597,17 +1650,17 @@ describe('platform native export rendering rules', () => {
     )
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 9,
+      manifestCount: 11,
       validManifestCount: 0,
-      invalidManifestCount: 9,
-      usableManifestCount: 9,
-      artifactCount: 37,
+      invalidManifestCount: 11,
+      usableManifestCount: 11,
+      artifactCount: 43,
       duplicateArtifactIdCount: 0,
     })
     expect(issueIds).not.toContain('style-proof-manifest-sensitive-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
-    expect(wechatProgress.ignoredManifestCount).toBe(6)
+    expect(wechatProgress.ignoredManifestCount).toBe(8)
     expect(wechatProgress.summary.choicesWithManifest).toBe(3)
     expect(wechatProgress.summary.proofSatisfiedChoices).toBe(0)
     expect(wechatProgress.summary.proofInvalidChoices).toBeGreaterThan(0)
@@ -1659,7 +1712,7 @@ describe('platform native export rendering rules', () => {
       ?? [],
     )
 
-    expect(xhsProgress.ignoredManifestCount).toBe(5)
+    expect(xhsProgress.ignoredManifestCount).toBe(7)
     expect(xhsProgress.summary.choicesWithManifest).toBe(4)
     expect(xhsCleanProgress?.manifestCount).toBe(1)
     expect(xhsCleanProgress?.status).toBe('missing')
@@ -1725,9 +1778,21 @@ describe('platform native export rendering rules', () => {
 
     const zhihuProgress = packReport.platformReports.zhihu
     const zhihuCleanProgress = zhihuProgress.choices.find(choice => choice.choice.id === 'zhihu-clean-column')
+    const zhihuAcademicProgress = zhihuProgress.choices.find(choice =>
+      choice.choice.id === 'zhihu-academic-latex-column'
+    )
+    const zhihuAdaptedProgress = zhihuProgress.choices.find(choice => choice.choice.id === 'zhihu-wechat-adapted')
     const zhihuDataProgress = zhihuProgress.choices.find(choice => choice.choice.id === 'zhihu-data-table')
     const zhihuCleanRequirementStatus = new Map(
       zhihuCleanProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status])
+      ?? [],
+    )
+    const zhihuAcademicRequirementStatus = new Map(
+      zhihuAcademicProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status])
+      ?? [],
+    )
+    const zhihuAdaptedRequirementStatus = new Map(
+      zhihuAdaptedProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status])
       ?? [],
     )
     const zhihuRequirementStatus = new Map(
@@ -1735,7 +1800,7 @@ describe('platform native export rendering rules', () => {
     )
 
     expect(zhihuProgress.ignoredManifestCount).toBe(7)
-    expect(zhihuProgress.summary.choicesWithManifest).toBe(2)
+    expect(zhihuProgress.summary.choicesWithManifest).toBe(4)
     expect(zhihuCleanProgress?.manifestCount).toBe(1)
     expect(zhihuCleanProgress?.status).toBe('missing')
     expect(zhihuCleanProgress?.manifest.artifactFingerprint).toBe(
@@ -1752,6 +1817,36 @@ describe('platform native export rendering rules', () => {
     expect(zhihuCleanRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     expect(zhihuCleanRequirementStatus.get('scheduled-send-readback')).toBe('missing')
     expect(zhihuCleanRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+    expect(zhihuAcademicProgress?.manifestCount).toBe(1)
+    expect(zhihuAcademicProgress?.status).toBe('missing')
+    expect(zhihuAcademicProgress?.manifest.artifactFingerprint).toBe(
+      'sha256:0bed075e0f24a94f4ecb0a9bf410e42f5de6caaff560347e6b016757916a7ff9',
+    )
+    expect(zhihuAcademicProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
+      .toBe('satisfied')
+    expect(zhihuAcademicProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
+      .toBe('missing')
+    expect(zhihuAcademicRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(zhihuAcademicRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(zhihuAcademicRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(zhihuAcademicRequirementStatus.get('zhihu-artifact-manifest')).toBe('missing')
+    expect(zhihuAcademicRequirementStatus.get('public-image-host')).toBe('missing')
+    expect(zhihuAcademicRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+    expect(zhihuAdaptedProgress?.manifestCount).toBe(1)
+    expect(zhihuAdaptedProgress?.status).toBe('missing')
+    expect(zhihuAdaptedProgress?.manifest.artifactFingerprint).toBe(
+      'sha256:5aaf2834bcd50e8251b2d8e99deb72c550826909598dc17e3f80ec7ac3efba63',
+    )
+    expect(zhihuAdaptedProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status)
+      .toBe('satisfied')
+    expect(zhihuAdaptedProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status)
+      .toBe('missing')
+    expect(zhihuAdaptedRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(zhihuAdaptedRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(zhihuAdaptedRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(zhihuAdaptedRequirementStatus.get('zhihu-artifact-manifest')).toBe('missing')
+    expect(zhihuAdaptedRequirementStatus.get('public-image-host')).toBe('missing')
+    expect(zhihuAdaptedRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
     expect(zhihuDataProgress?.manifestCount).toBe(1)
     expect(zhihuDataProgress?.status).toBe('missing')
     expect(zhihuDataProgress?.manifest.artifactFingerprint).toBe(
@@ -1777,10 +1872,10 @@ describe('platform native export rendering rules', () => {
     const xhsCannotClaimIds = xhsAudit.cannotClaim.map(requirement => requirement.requirement.id)
     const zhihuCannotClaimIds = zhihuAudit.cannotClaim.map(requirement => requirement.requirement.id)
 
-    expect(audit.summary.manifestCount).toBe(9)
+    expect(audit.summary.manifestCount).toBe(11)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
     expect(xhsAudit.progress.summary.choicesWithManifest).toBe(4)
-    expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(2)
+    expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(4)
     expect(wechatAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
     expect(xhsAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
     expect(zhihuAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
@@ -2035,7 +2130,7 @@ describe('platform native export rendering rules', () => {
     const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
     const choiceIds = manifests.map(manifest => manifest.choiceId)
 
-    expect(manifests).toHaveLength(11)
+    expect(manifests).toHaveLength(13)
     expect(secondRead[0]).not.toBe(manifests[0])
     expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
     expect(choiceIds).toEqual([
@@ -2047,6 +2142,8 @@ describe('platform native export rendering rules', () => {
       'xhs-cover-hook',
       'xhs-markdown-card-slicer',
       'zhihu-clean-column',
+      'zhihu-academic-latex-column',
+      'zhihu-wechat-adapted',
       'zhihu-data-table',
       'wechat-flagship-amber',
       'wechat-flagship-tempera',
@@ -2069,7 +2166,7 @@ describe('platform native export rendering rules', () => {
     const temperaIssueIds = temperaProgress?.report.issues.map(issue => issue.id) ?? []
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 11,
+      manifestCount: 13,
       duplicateArtifactIdCount: 0,
     })
     expect(packIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
@@ -2078,20 +2175,20 @@ describe('platform native export rendering rules', () => {
     expect(packIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
 
     expect(audit.summary).toMatchObject({
-      localManifestCount: 9,
+      localManifestCount: 11,
       wechatPcManifestCount: 2,
-      combinedManifestCount: 11,
+      combinedManifestCount: 13,
       hasExactArtifactFingerprintConflicts: false,
     })
     expect(audit.summary.combinedIssueCount).toBeGreaterThan(0)
     expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(0)
     expect(combinedIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
-    expect(wechatAudit.progress.ignoredManifestCount).toBe(6)
-    expect(xhsAudit.progress.ignoredManifestCount).toBe(7)
+    expect(wechatAudit.progress.ignoredManifestCount).toBe(8)
+    expect(xhsAudit.progress.ignoredManifestCount).toBe(9)
     expect(zhihuAudit.progress.ignoredManifestCount).toBe(9)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(3)
     expect(xhsAudit.progress.summary.choicesWithManifest).toBe(4)
-    expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(2)
+    expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(4)
     expect(kilnProgress?.manifestCount).toBe(1)
     expect(amberProgress?.manifestCount).toBe(2)
     expect(temperaProgress?.manifestCount).toBe(2)
@@ -2133,13 +2230,13 @@ describe('platform native export rendering rules', () => {
       step.requirement.id === 'public-image-host'
     )
 
-    expect(report.local.summary.manifestCount).toBe(9)
+    expect(report.local.summary.manifestCount).toBe(11)
     expect(report.wechatPc.summary.manifestCount).toBe(2)
-    expect(report.combined.summary.manifestCount).toBe(11)
+    expect(report.combined.summary.manifestCount).toBe(13)
     expect(report.summary).toMatchObject({
-      localManifestCount: 9,
+      localManifestCount: 11,
       wechatPcManifestCount: 2,
-      combinedManifestCount: 11,
+      combinedManifestCount: 13,
       hasExactArtifactFingerprintConflicts: false,
     })
     expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
@@ -2174,8 +2271,8 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
     expect(report.status).toBe('blocked-by-local-conflict')
     expect(report.summary).toMatchObject({
-      localManifestCount: 9,
-      combinedManifestCount: 11,
+      localManifestCount: 11,
+      combinedManifestCount: 13,
       hasExactArtifactFingerprintConflicts: false,
       combinedIssueCount: 13,
       cannotClaimSteps: expect.any(Number),
@@ -7312,6 +7409,30 @@ describe('platform native export rendering rules', () => {
 
     const quality = detectQuality([REAL_EXPORT_MARKDOWN, '', '$$E=mc^2$$'].join(String.fromCharCode(10)), 'zhihu')
     expect(quality.issues.some(issue => issue.id === 'zhihu-latex-preview')).toBe(true)
+  })
+
+  it('converts Zhihu academic LaTeX source into equation-image Markdown without raw formula fences', () => {
+    const result = markdownToZhihuClean(ZHIHU_ACADEMIC_LATEX_MARKDOWN)
+
+    expect(result.latexCount).toBe(2)
+    expect(result.latexBlocksConverted).toBe(1)
+    expect(result.cleanedHtmlTags).toEqual([])
+    expect(result.markdown).toContain('https://www.zhihu.com/equation?tex=E%3Dmc%5E2')
+    expect(result.markdown).toContain('https://www.zhihu.com/equation?tex=a%5E2%2Bb%5E2%3Dc%5E2')
+    expect(result.markdown).toContain('```ts')
+    expect(result.markdown).toContain('[^note]: 本地 artifact 只证明 clean Markdown 输出，不证明知乎平台预览或发布。')
+    expect(result.markdown).not.toContain('$$E=mc^2$$')
+    expect(result.markdown).not.toContain('$a^2+b^2=c^2$')
+  })
+
+  it('strips WeChat decorative residue when adapting a WeChat-style article to Zhihu clean Markdown', () => {
+    const result = markdownToZhihuClean(ZHIHU_WECHAT_ADAPTED_MARKDOWN)
+
+    expect(result.cleanedHtmlTags).toEqual(['section', 'svg', 'path', 'span'])
+    expect(result.markdown).toContain('迁移标题')
+    expect(result.markdown).toContain('这段旧 HTML 应被清理为文本。')
+    expect(result.markdown).not.toMatch(/data-ink-|<svg|<section|<span|style=|class=/i)
+    expect(detectQuality(result.markdown, 'zhihu').passed).toBe(true)
   })
 
   it('blocks WeChat flagship decorations from XHS and Zhihu publishable outputs', () => {

@@ -1,0 +1,48 @@
+Zhihu Academic LaTeX Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local evidence for `zhihu-academic-latex-column`.
+- No Zhihu account login, upload, platform preview, public URL acceptance, scheduled
+  send, public article rendering, or publish action was executed or claimed.
+
+Implemented:
+- Used the existing `markdownToZhihuClean()` path to generate the exact committed
+  clean Markdown artifact.
+- Covered block LaTeX, inline LaTeX, a Markdown footnote, a quote, and a typed code
+  fence.
+- Bound the artifact to the committed style-proof manifest through exact SHA-256,
+  unit-test coverage, and sensitive-hygiene rows.
+
+Exact artifact:
+- `prompts/0601/evidence/zhihu-academic-latex-local-artifact-20260621.md`
+- SHA-256: `0bed075e0f24a94f4ecb0a9bf410e42f5de6caaff560347e6b016757916a7ff9`
+- bytes: 815
+- Generated output properties:
+  - `latexCount=2`
+  - `latexBlocksConverted=1`
+  - `mermaidCount=0`
+  - `tablesConverted=0`
+  - `cleanedHtmlTags=[]`
+
+Committed style-proof manifest:
+- Adds one local `zhihu-academic-latex-column` manifest.
+- The manifest satisfies only:
+  - `unit-test-coverage`
+  - `exact-artifact`
+  - `no-sensitive-artifact`
+- `public-image-host`, `zhihu-artifact-manifest`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` remain missing or unsafe to automate.
+
+Verification:
+- Focused committed/local/release regression: PASS, 1 file / 6 selected tests.
+- Full platform export regression: PASS, 1 file / 155 tests.
+- Cross-platform export regression: PASS, 4 files / 194 tests.
+- Full export serial regression: PASS, 36 files / 1132 tests.
+- Targeted ESLint, `vue-tsc`, and production build: PASS.
+
+Boundary:
+- This proves local clean Markdown conversion, formula-image Markdown output,
+  exact artifact hashing, and repository hygiene only.
+- It does not prove Zhihu formula preview acceptance, public image fallback,
+  account upload, platform preview, public URL acceptance, scheduled send, public
+  article rendering, or publish success.

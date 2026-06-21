@@ -3424,3 +3424,39 @@ Boundary:
   exact-artifact, and sensitive-hygiene accounting only. It does not prove Xiaohongshu account
   upload, mobile/platform preview, public URL acceptance, scheduled send, public article
   rendering, or publish success.
+
+---
+
+## 2026-06-21 Zhihu Available Clean Markdown Local Evidence Addendum
+
+- Added `prompts/0601/evidence/zhihu-academic-latex-local-artifact-20260621.md` and
+  `prompts/0601/evidence/zhihu-academic-latex-local-evidence-20260621.txt`.
+- Added `prompts/0601/evidence/zhihu-wechat-adapted-local-artifact-20260621.md` and
+  `prompts/0601/evidence/zhihu-wechat-adapted-local-evidence-20260621.txt`.
+- Generated both exact artifacts through the real local `markdownToZhihuClean()` path.
+  `zhihu-academic-latex-column` covers block/inline LaTeX equation image Markdown, a footnote,
+  a quote, and a typed code fence. `zhihu-wechat-adapted` proves WeChat-style `section`,
+  inline SVG, `data-ink-block`, `style`, `class`, and `span` residue is stripped to readable
+  Markdown/text.
+- Academic artifact hash:
+  `sha256:0bed075e0f24a94f4ecb0a9bf410e42f5de6caaff560347e6b016757916a7ff9`; persisted bytes:
+  815.
+- WeChat-adapted artifact hash:
+  `sha256:5aaf2834bcd50e8251b2d8e99deb72c550826909598dc17e3f80ec7ac3efba63`; persisted bytes:
+  372.
+- Added two committed local Zhihu manifests. They satisfy only `unit-test-coverage`,
+  `exact-artifact`, and `no-sensitive-artifact`; `public-image-host`,
+  `zhihu-artifact-manifest`, scheduled-send, platform preview, public article rendering, and
+  publish rows remain missing or unclaimable.
+- Current committed release-gate readout is now `localManifestCount=11`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=13`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release regression with 1 file / 6 selected tests,
+  `platform-export-rendering.test.ts` with 1 file / 155 tests, 4-file cross-platform export
+  regression with 4 files / 194 tests, full `src/services/export` serial regression with
+  36 files / 1132 tests, targeted ESLint, `vue-tsc`, and production build with 4653 transformed
+  modules.
+- Boundary: this is local Zhihu clean Markdown export and exact-artifact accounting only. It does
+  not prove Zhihu formula preview acceptance, public image-host acceptance,
+  artifact-manifest acceptance, account upload, editor preview, sync, scheduled send, platform
+  preview, public article rendering, or publish success.

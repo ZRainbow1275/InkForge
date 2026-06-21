@@ -120,6 +120,13 @@ XHS PNG；CloakBrowser 通过本地 Vite + `renderXhsPosterCard` 生成 exact ra
 Markdown 切片、SVG 安全和 manifest 输入生成；只满足本地
 raster / manifest / exact-artifact / sensitive-hygiene rows，不证明 XHS account upload、
 platform preview、public URL acceptance 或 publish 成功）。
+`zhihu-academic-latex-local-evidence-20260621.txt` 与
+`zhihu-wechat-adapted-local-evidence-20260621.txt`（当前规则实现：committed local manifest
+pack 已包含 `zhihu-academic-latex-column` 与 `zhihu-wechat-adapted`；前者通过真实
+`markdownToZhihuClean()` 输出 block/inline LaTeX equation img、脚注和代码块，后者把
+WeChat-style `section`/inline SVG/style/class/data-ink 残留清为可读 Markdown；只满足
+unit-test / exact-artifact / sensitive-hygiene rows，不证明 Zhihu public-image-host、
+zhihu-artifact-manifest、account upload、platform preview、scheduled send 或 publish 成功）。
 `style-proof-committed-wechat-pc-evidence-20260619.txt`（当前规则实现：
 committed WeChat PC evidence pack 已包含 exact Amber ordinary OS Ctrl+V + disposable-draft cleanup
 redacted proof，以及 Tempera entity-safe ordinary OS Ctrl+V + cleanup redacted proof；只满足对应
