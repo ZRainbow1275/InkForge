@@ -2711,3 +2711,35 @@ Required checks:
   and does not change release-gate `canClaimComplete:false`.
 - Evidence docs must name the card/timeline/gallery DOM readback, internal gallery scroll boundary,
   detector blockers, and cannot-claim boundary.
+
+## 30. WeChat Cover Seal Divider Local Browser Evidence - 2026-06-22
+
+Contracts:
+- `wechat-cover-seal-divider` committed local evidence may use the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-kiln'), options)`.
+- The source Markdown must exercise InkForge-owned static SVG cover/seal/divider output:
+  `cover-grid`, `divider-forge`, reading bar, H2/H3, callout, lede, list markers, footer, and
+  endmark/seal motifs. It must not copy 135/Xiumi template source, vendor class names, hosted
+  media, credential/runtime capture artifacts, account-captured images, or local browser runtime
+  material.
+- The committed artifact may satisfy `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, and `no-sensitive-artifact` rows only when the exact HTML hash, byte length,
+  source hash, independent file verification, local browser DOM readback, 677px clamp readback,
+  page-overflow readback, SVG safety counts, and hygiene checks are recorded.
+- The committed manifest may claim only `unit-tested` and `local-browser` evidence. It must not
+  claim `pc-editor-paste`, `mobile-preview`, `credentialed-sync`, or `published`.
+- If `detectQuality(html, 'wechat')` reports current flagship-pipeline blockers such as
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, or
+  `wechat-layout-report-required`, those blockers must remain cannot-claim boundaries for PC paste,
+  phone preview, Dark Mode, cover thumbnail, sync, and publish proof.
+- PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, and publish success remain
+  external proof gates.
+
+Required checks:
+- Regression tests must include the committed `wechat-cover-seal-divider` manifest in local and
+  combined evidence packs.
+- Tests must assert the manifest is local-browser only, keeps external WeChat requirements missing,
+  including `cover-thumbnail-check`, and does not change release-gate `canClaimComplete:false`.
+- Evidence docs must name the cover/divider/footer DOM readback, SVG safety counts, detector
+  blockers, and cannot-claim boundary.

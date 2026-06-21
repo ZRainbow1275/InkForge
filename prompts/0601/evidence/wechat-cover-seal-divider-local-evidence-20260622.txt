@@ -1,0 +1,112 @@
+WeChat Cover Seal Divider Local Browser Evidence - 2026-06-22
+
+Scope:
+- Repository-committed local browser and exact-artifact evidence for `wechat-cover-seal-divider`.
+- No WeChat account login, official editor paste, phone preview, mobile Dark Mode check, cover
+  thumbnail check, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish action was executed or claimed.
+
+Generation:
+- Artifact:
+  `prompts/0601/evidence/wechat-cover-seal-divider-local-artifact-20260622.html`.
+- Generated through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-kiln'), options)`.
+- Options:
+  `enableReadingTime=true`, `enableCiteStatus=true`, `enableCodeHighlight=false`,
+  `enableEnhancedTable=false`, `enableCjkSpacing=true`, `maxContentWidth=677`.
+- Source Markdown is InkForge-owned and exercises static SVG cover/seal/divider blocks:
+  `cover-grid`, two `divider-forge` blocks, reading bar, H2/H3, callout, lede, list markers,
+  footer, and endmark/seal motifs. It does not copy 135/Xiumi template source, vendor class names,
+  remote media, account artifacts, or local browser runtime material.
+
+Hashes:
+- HTML hash:
+  `sha256:e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f`.
+- HTML bytes: 15452.
+- Source Markdown hash:
+  `sha256:50fb494a48a0e320dda15913b793e65860fa9181b18969e25788310081c2dabd`.
+
+Independent file verification:
+- Re-read the committed HTML artifact from disk.
+- Recomputed SHA-256 and byte length.
+- Verified required sentinels:
+  `id="nice"`, `data-ink-svg="cover-grid"`, `data-ink-svg="divider-forge"`,
+  `flagship-readbar`, `flagship-h2`, `flagship-h3`, `flagship-callout`, and `flagship-footer`.
+- Verified no credential/runtime residue markers and no structured 135/Xiumi residue:
+  no account/session/credential capture strings, no `_135editor` / `135brush` /
+  `data-tools="135编辑器"`, no `tn-*` or `ng-*` authoring attributes/classes, and no market editor
+  CDN references.
+
+CloakBrowser local artifact readback:
+- Loaded the read-only local artifact preview through CloakBrowser.
+- Desktop viewport readback:
+  `viewportWidth=1400`, `viewportHeight=900`, `documentScrollWidth=1385`,
+  `documentClientWidth=1385`, `bodyScrollWidth=1385`, `bodyClientWidth=1385`,
+  `bodyOverflowX=false`.
+- Export shell readback:
+  `nice.width=1369`, `clamp.width=677`, `clamp.left=354`, `clamp.right=1031`,
+  `clamp.scrollWidth=677`, `clamp.clientWidth=677`.
+- Page overflow readback:
+  `pageOverflowing=[]`.
+- DOM safety readback:
+  `svgElementCount=16`, `styleElementCount=0`, `foreignObjectCount=0`, `imageInSvgCount=0`,
+  `scriptCount=0`, `textLength=503`.
+- DOM sentinel readback:
+  `cover-grid=1`, `divider-forge=2`, `flagship-callout=1`, `flagship-footer=1`,
+  `flagship-h2=1`, `flagship-h3=1`, `flagship-lede=1`, `flagship-readbar=1`, and
+  `flagship-ul=4`.
+
+Quality detector boundary:
+- `detectQuality(html, 'wechat')` still reports:
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`.
+- These are current flagship-pipeline blockers and must remain cannot-claim boundaries. They do
+  not invalidate this local evidence row, but they prevent claiming PC paste, phone preview,
+  mobile Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public rendering, or
+  publish success from this local artifact.
+
+Runtime manifest behavior:
+- Added one committed local `wechat-cover-seal-divider` manifest.
+- It claims only `unit-tested` and `local-browser` evidence.
+- It satisfies only `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` accounting for the exact HTML artifact.
+- It keeps `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`,
+  `cover-thumbnail-check`, and `published-url-or-platform-preview` missing.
+
+Verification:
+- Temporary generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-cover-seal-divider-artifact.tmp.test.ts --reporter=default`
+  passed before the temporary generator file was deleted.
+- Independent Node file verification passed.
+- CloakBrowser local artifact readback passed for desktop DOM, clamp width, page overflow,
+  sentinel counts, and SVG safety counts.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 155 tests.
+- Cross-platform export regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 194 tests.
+- Full export serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 36 files / 1132 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Typecheck passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4653 modules
+  and built in 32.60s. The generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --check` passed for the cover-seal-divider slice files with only Windows line-ending
+  conversion warnings.
+- GitNexus detect reported the whole working tree at 39 files / 24 symbols / 0 affected processes
+  / low risk; the count includes unrelated pre-existing dirty files outside this slice.
+
+Boundary:
+- This is local WeChat cover/seal/divider browser/exact-artifact/sensitive-hygiene accounting
+  only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, or publish success.

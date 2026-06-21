@@ -474,3 +474,22 @@ Step 8: 输出 WeChat-Compatible HTML
 - 若 `detectQuality(html, 'wechat')` 仍报告 `wechat-line-height-zero`、
   `wechat-fixed-container-size`、`wechat-class-id-dependency`、`wechat-layout-report-required`，
   这些 issue 必须继续作为 cannot-claim 边界记录，不能被本地证据覆盖。
+
+## 九、静态封面 / 分隔线 / 落款 SVG 本地证据规则
+
+2026-06-22 `wechat-cover-seal-divider` 本地证据确认：InkForge 赤陶旗舰预设可以通过
+`markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-kiln'), options)` 生成
+`cover-grid`、`divider-forge`、阅读条、章节头、提示卡、列表和文末落款。
+
+本地规则：
+
+- 封面、分隔线、落款只能使用 InkForge 自有 SVG 几何和 HTML block；不得导入第三方模板 geometry、
+  私有 class/id、远程素材或 credential/runtime capture 残留。
+- SVG 安全读回应记录 `styleElementCount=0`、`foreignObjectCount=0`、`imageInSvgCount=0`、
+  `scriptCount=0`，并记录 `cover-grid` / `divider-forge` 等 `data-ink-svg` 哨兵数量。
+- 内容列仍应由导出器 clamp 到 677px 或当前配置宽度，且 `bodyOverflowX=false`。
+- 本地 browser/exact artifact 证据最多满足 `unit-test-coverage`、`local-browser-rendering`、
+  `exact-artifact`、`no-sensitive-artifact`。封面 SVG 存活不等于微信封面缩略图验收；
+  `cover-thumbnail-check` 仍必须由真实手机/平台预览或分享入口另行证明。
+- PC 粘贴、手机预览、Dark Mode、封面缩略图、同步、定时发送、平台预览、公网渲染和发布成功
+  仍是外部门禁，不能由本地 artifact 自动升级。

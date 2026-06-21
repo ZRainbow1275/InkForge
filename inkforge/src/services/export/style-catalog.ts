@@ -2207,7 +2207,7 @@ interface CommittedStyleProofWechatUnitEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofWechatLocalHtmlEvidenceManifestOptions {
-  choiceId: 'wechat-quiet-editorial' | 'wechat-card-rich'
+  choiceId: 'wechat-quiet-editorial' | 'wechat-cover-seal-divider' | 'wechat-card-rich'
   label: string
   artifactFingerprint: string
   artifactRef: string
@@ -2282,6 +2282,12 @@ const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF =
   'prompts/0601/evidence/wechat-quiet-editorial-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_COVER_SEAL_DIVIDER_ARTIFACT_REF =
+  'prompts/0601/evidence/wechat-cover-seal-divider-local-artifact-20260622.html'
+
+const COMMITTED_STYLE_PROOF_WECHAT_COVER_SEAL_DIVIDER_REPORT_REF =
+  'prompts/0601/evidence/wechat-cover-seal-divider-local-evidence-20260622.txt'
 
 const COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_ARTIFACT_REF =
   'prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html'
@@ -3001,6 +3007,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     artifactFingerprint: 'sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e',
     artifactRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF,
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF,
+  }),
+  createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
+    choiceId: 'wechat-cover-seal-divider',
+    label: 'Static cover seal and divider SVG',
+    artifactFingerprint: 'sha256:e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f',
+    artifactRef: COMMITTED_STYLE_PROOF_WECHAT_COVER_SEAL_DIVIDER_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_COVER_SEAL_DIVIDER_REPORT_REF,
   }),
   createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
     choiceId: 'wechat-card-rich',

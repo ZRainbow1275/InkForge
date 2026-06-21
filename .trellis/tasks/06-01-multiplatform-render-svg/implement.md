@@ -8262,3 +8262,74 @@ Boundary:
 - It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, sync, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-22 WeChat Cover Seal Divider Local Browser Evidence Slice
+
+Scope:
+- Repository-committed local browser/exact-artifact evidence for `wechat-cover-seal-divider`.
+- No WeChat account login, official editor paste, phone preview, Dark Mode check, cover thumbnail
+  check, credentialed sync, scheduled send, platform preview, public rendering, or publish action
+  was executed or claimed.
+
+Implementation:
+- Generated the committed HTML artifact through the real source-owned path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-kiln'), options)`.
+- The source Markdown covers static SVG cover/seal/divider blocks: `cover-grid`, two
+  `divider-forge` blocks, reading bar, H2/H3, callout, lede, list markers, footer, and
+  endmark/seal motifs.
+- The source and artifact avoid 135/Xiumi template source, vendor class names, hosted media,
+  account artifacts, and local browser runtime material.
+- Added `prompts/0601/evidence/wechat-cover-seal-divider-local-artifact-20260622.html`.
+- Added `prompts/0601/evidence/wechat-cover-seal-divider-local-evidence-20260622.txt`.
+- Added one committed local `wechat-cover-seal-divider` manifest. It claims only `unit-tested`
+  and `local-browser` evidence and satisfies unit, local-browser, exact-artifact, and
+  sensitive-hygiene accounting for the exact HTML artifact.
+
+Evidence:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-cover-seal-divider-local-artifact-20260622.html`.
+- HTML hash:
+  `sha256:e8537db3ddff4b51b5fc6cd189d92cc71fdc9dcc7b8beea7879c7dc96ecfcb2f`.
+- HTML bytes: 15452.
+- Source Markdown hash:
+  `sha256:50fb494a48a0e320dda15913b793e65860fa9181b18969e25788310081c2dabd`.
+- Independent Node evidence verification re-read the committed HTML, recomputed the hash, checked
+  required static SVG sentinels, block sentinels, and sensitive / market-editor residue scan.
+- CloakBrowser local artifact readback:
+  `viewportWidth=1400`, `clamp.width=677`, `clamp.scrollWidth=677`, `bodyOverflowX=false`,
+  `pageOverflowing=[]`, `svgElementCount=16`, `styleElementCount=0`,
+  `foreignObjectCount=0`, `imageInSvgCount=0`, `scriptCount=0`, `textLength=503`.
+- DOM sentinel readback:
+  `cover-grid=1`, `divider-forge=2`, `flagship-callout=1`, `flagship-footer=1`,
+  `flagship-h2=1`, `flagship-h3=1`, `flagship-lede=1`, `flagship-readbar=1`, and
+  `flagship-ul=4`.
+- Browser-side `detectQuality(html, 'wechat')` still reported `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`; these are documented blockers, not external-platform success
+  proof.
+
+Verification:
+- Temporary artifact generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-cover-seal-divider-artifact.tmp.test.ts --reporter=default`
+  passed, then the temporary generator file was deleted.
+- Independent HTML evidence verification passed.
+- CloakBrowser artifact readback passed.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full `platform-export-rendering.test.ts` regression passed 1 file / 155 tests.
+- Four-file cross-platform export regression passed 4 files / 194 tests.
+- Full export serial regression passed 36 files / 1132 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. Vite
+  transformed 4653 modules and built in 32.60s; generated `inkforge/tsconfig.tsbuildinfo` was
+  restored afterward.
+- `git diff --check` passed for the slice files with only Windows line-ending conversion warnings.
+- GitNexus detect reported 39 dirty files across the whole working tree, 24 changed symbols,
+  0 affected processes, and low risk. The dirty-file count includes unrelated pre-existing files.
+
+Boundary:
+- This is local WeChat cover/seal/divider browser/exact-artifact/sensitive-hygiene accounting
+  only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public rendering, or publish
+  success.
