@@ -439,9 +439,13 @@ function styleProofReleaseNextOperatorActionSummary(
   if (action.boundary === 'platform-publish') return '由人工完成平台预览、定时或发布后的精确读回'
   if (action.boundary === 'credentialed-channel') return '由人工完成授权通道动作和精确读回'
   if (!action.requirementId) {
-    return action.action.includes('fingerprint')
-      ? '先统一已提交 manifest 指纹；每个平台和样式只能保留同一脱敏产物指纹'
-      : '补齐剩余已提交证据行；缺失的本地、手机、授权、public host、同步、定时/发送和发布证据不得由现有 manifest 推断'
+    if (action.action.includes('fingerprint')) {
+      return '先统一已提交 manifest 指纹；每个平台和样式只能保留同一脱敏产物指纹'
+    }
+    if (action.action.includes('catalog-blocked choices')) {
+      return '先处理目录阻断样式和本地 artifact manifest 缺项；手机、授权、public host、同步、定时/发送和发布仍由后续门禁单独证明'
+    }
+    return '补齐剩余本地已提交证据行；外部平台证明不得由现有 manifest 推断'
   }
 
   return '按执行手册补齐该证据行，并附加同一导出产物的脱敏读回'

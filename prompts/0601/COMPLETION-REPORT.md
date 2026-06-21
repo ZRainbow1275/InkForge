@@ -3950,6 +3950,44 @@ Boundary:
 
 ---
 
+## 2026-06-22 Style Proof Release Local Conflict Scope Addendum
+
+- `getCommittedStyleProofEvidenceReleaseGateReport()` now filters the `local-conflict` blocker to
+  true local committed-evidence and catalog conflicts.
+- Missing proof rows for phone preview, authenticated PC editor, credentialed channel, public host,
+  scheduled send, and platform publish remain in their dedicated step-backed blocker buckets.
+- Current live committed-evidence release report remains blocked and unclaimable:
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, `combinedIssueCount=16`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, and `blockerCount=5`.
+- The local-conflict blocker now reports `issueCount=6`, with
+  `style-proof-manifest-choice-blocked=3`,
+  `style-proof-manifest-requirement-missing=3`, and requirement ids
+  `zhihu-artifact-manifest`, `unit-test-coverage`, `local-browser-rendering`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-release-local-conflict-scope-20260622.txt`.
+- Verification passed: GitNexus impact for `getCommittedStyleProofManifestIssueIds`,
+  `getCommittedStyleProofReleaseGateStatus`, and
+  `getCommittedStyleProofEvidenceReleaseGateReport`; TDD first focused release-claims test failed
+  while local-conflict still counted 16 rows; focused release-claims regression passed after the
+  implementation; targeted ESLint passed; four-file cross-platform export regression passed 4
+  files / 194 tests; full export serial regression passed 36 files / 1132 tests; `vue-tsc` passed;
+  and production build passed with 4653 modules in 53.68s after the UI summary follow-up.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 22 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  ExportModal showed `本地冲突 6`, no `本地冲突 16`, `缺项 3`, `目录阻断 3`, `手机预览 4`,
+  `外部依赖 14`, `canClaimComplete=false`, the updated local-conflict operator summary,
+  `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`. Runtime screenshots were used
+  only for local visual inspection and are not committed artifacts.
+- Boundary: this is release-gate classification precision only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload,
+  Zhihu upload, or publish success.
+
+---
+
 ## 2026-06-22 Style Choice Notice Localization Addendum
 
 - ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese

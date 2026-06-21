@@ -8663,3 +8663,66 @@ Boundary:
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
   host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
   upload, or publish success.
+
+## 2026-06-22 Style Proof Release Local Conflict Scope Slice
+
+Scope:
+- Local committed-evidence release-gate accounting only.
+- No renderer output, catalog availability, proof manifests, sync, preview, upload, scheduled
+  send, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added a local-conflict scope filter for committed release-gate manifest issues.
+- `style-proof-manifest-requirement-missing` now enters the local-conflict blocker only for local
+  evidence and local manifest requirements: `catalog-source`, `market-applied-dom-readback`,
+  `no-proprietary-template-source`, `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, `xhs-artifact-manifest`, `zhihu-artifact-manifest`, and
+  `no-sensitive-artifact`.
+- Catalog-blocked committed proof rows remain local conflicts.
+- Missing phone preview, authenticated PC editor, credentialed channel, public-host,
+  scheduled-send, and platform-publish rows remain in their dedicated step-backed blockers.
+
+Runtime snapshot:
+- `status=blocked-by-local-conflict`, `canClaimComplete=false`, `combinedIssueCount=16`, and
+  `blockerCount=5` remain unchanged.
+- `local-conflict issueCount` is now 6 instead of 16:
+  `style-proof-manifest-choice-blocked=3`,
+  `style-proof-manifest-requirement-missing=3`.
+- Local conflict requirement ids are `zhihu-artifact-manifest`, `unit-test-coverage`, and
+  `local-browser-rendering`.
+- Phone, external-dependency, unsafe-to-automate, and mutating-platform blockers still report
+  their previous issue and step counts.
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofManifestIssueIds -r InkForge --depth 3`: LOW risk,
+  one direct release-gate dependent, zero affected processes.
+- `npx gitnexus impact getCommittedStyleProofReleaseGateStatus -r InkForge --depth 3`: LOW risk,
+  one direct release-gate dependent, zero affected processes.
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`:
+  LOW risk, one ExportModal dependent, zero affected processes.
+- TDD first run failed with `local-conflict issueCount=16`; after the implementation, focused
+  `release claims` regression passed 1 file / 1 selected test.
+- Targeted ESLint for `style-catalog.ts`, `platform-export-rendering.test.ts`, and ExportModal
+  passed.
+- Four-file cross-platform export regression passed 4 files / 194 tests.
+- Full export serial regression passed 36 files / 1132 tests.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`: passed, 4653 modules
+  transformed and built in 53.68s after the UI summary follow-up. `inkforge/tsconfig.tsbuildinfo`
+  was restored afterward.
+- Final `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 40 dirty files across
+  the whole working tree, 22 changed symbols, and 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+  `390x844`, ExportModal readback reported `本地冲突 6`, no `本地冲突 16`, `缺项 3`,
+  `目录阻断 3`, `手机预览 4`, `外部依赖 14`, `canClaimComplete=false`, updated local-conflict
+  operatorNext text, `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`.
+- Runtime screenshots were used only for local visual inspection and are not recorded as committed
+  artifacts.
+
+Boundary:
+- This is release-gate classification precision only. It does not make release proof complete,
+  reduce `combinedIssueCount`, remove any phone/account/public-host/publish gate, or prove WeChat
+  PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.

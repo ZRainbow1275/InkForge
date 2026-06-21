@@ -1,0 +1,84 @@
+Style Proof Release Local Conflict Scope - 2026-06-22
+
+Scope:
+- Local committed-evidence release-gate accounting only.
+- No platform action, phone preview, upload, sync, scheduled send, platform preview, public
+  rendering, or publish action was executed or claimed.
+
+Implemented:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` now filters the `local-conflict` blocker to
+  true local or catalog conflicts.
+- `style-proof-manifest-requirement-missing` rows enter `local-conflict` only when their
+  requirement is a local committed-evidence requirement:
+  `catalog-source`, `market-applied-dom-readback`, `no-proprietary-template-source`,
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
+  `xhs-artifact-manifest`, `zhihu-artifact-manifest`, or `no-sensitive-artifact`.
+- Catalog-blocked committed proof rows remain local conflicts because proof artifacts must not
+  promote blocked choices.
+- Phone preview, authenticated PC editor, credentialed channel, public-host, scheduled-send, and
+  platform-publish gaps remain in their dedicated blocker buckets.
+
+Runtime readout after the change:
+- `status=blocked-by-local-conflict`
+- `canClaimComplete=false`
+- `localManifestCount=20`
+- `wechatPcManifestCount=2`
+- `combinedManifestCount=22`
+- `combinedIssueCount=16`
+- `cannotClaimSteps=32`
+- `phoneOpenSteps=4`
+- `externalDependencyOpenSteps=14`
+- `unsafeToAutomateOpenSteps=13`
+- `mutatingOpenSteps=13`
+- `blockerCount=5`
+- `local-conflict issueCount=6`
+- `local-conflict issueCounts=[choice-blocked:3, requirement-missing:3]`
+- `local-conflict requirementIds=[zhihu-artifact-manifest, unit-test-coverage, local-browser-rendering]`
+- `phone-preview issueCount=4`
+- `external-dependency issueCount=14`
+- `unsafe-to-automate issueCount=13`
+- `mutating-platform issueCount=13`
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofManifestIssueIds -r InkForge --depth 3`
+  - LOW risk, one direct release-gate dependent, zero affected processes.
+- `npx gitnexus impact getCommittedStyleProofReleaseGateStatus -r InkForge --depth 3`
+  - LOW risk, one direct release-gate dependent, zero affected processes.
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`
+  - LOW risk, one ExportModal dependent, zero affected processes.
+- TDD first run failed while `local-conflict issueCount` still reported 16.
+- Focused regression after implementation:
+  `pnpm --dir inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- `pnpm --dir inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`
+  - PASS.
+- Cross-platform export regression:
+  `pnpm --dir inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 194 tests.
+- Full export serial regression:
+  `pnpm --dir inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 36 files / 1132 tests.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`
+  - PASS: 4653 modules transformed, built in 53.68s after the UI summary follow-up.
+- `npx gitnexus detect-changes -r InkForge --scope all`
+  - PASS: low risk, 40 dirty files across the whole working tree, 22 changed symbols, and 0
+    affected processes.
+  - The dirty-file count includes unrelated pre-existing local changes and does not define the
+    staged boundary.
+- CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+  `390x844`, ExportModal readback reported `本地冲突 6`, no `本地冲突 16`, `缺项 3`,
+  `目录阻断 3`, `手机预览 4`, `外部依赖 14`, `canClaimComplete=false`, the new local-conflict
+  operator summary, no old broad local-conflict operator summary, `scrollWidth=390`,
+  `bodyScrollWidth=390`, and `overflowCount=0`.
+- Runtime screenshots were used only for local visual inspection and are not committed artifacts.
+
+Boundary:
+- This makes the release-gate report more precise; it does not reduce `combinedIssueCount`, remove
+  any external gate, or make `canClaimComplete` true.
+- It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

@@ -6439,14 +6439,58 @@ function getCommittedStyleProofRunbookOpenSteps(
   )
 }
 
-function getCommittedStyleProofManifestIssueIds(
+const COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS = new Set<StyleProofRequirementId>([
+  'catalog-source',
+  'market-applied-dom-readback',
+  'no-proprietary-template-source',
+  'unit-test-coverage',
+  'local-browser-rendering',
+  'exact-artifact',
+  'xhs-artifact-manifest',
+  'zhihu-artifact-manifest',
+  'no-sensitive-artifact',
+])
+
+function isStyleProofRequirementId(value: string | undefined): value is StyleProofRequirementId {
+  return value ? STYLE_PROOF_REQUIREMENT_BY_ID.has(value as StyleProofRequirementId) : false
+}
+
+function isCommittedStyleProofReleaseLocalRequirement(value: string | undefined): boolean {
+  return isStyleProofRequirementId(value) &&
+    COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS.has(value)
+}
+
+function isCommittedStyleProofReleaseLocalConflictIssue(issue: QualityIssue): boolean {
+  if (!STYLE_PROOF_MANIFEST_ISSUE_IDS.includes(issue.id as StyleProofManifestIssueId)) return false
+  if (issue.id === 'style-proof-manifest-requirement-missing') {
+    return isCommittedStyleProofReleaseLocalRequirement(issue.location)
+  }
+  return true
+}
+
+function getCommittedStyleProofReleaseLocalConflictIssues(
   report: CommittedStyleProofExecutionRunbookReport,
-): StyleProofManifestIssueId[] {
+): QualityIssue[] {
   return report.combined.issues
+    .filter(isCommittedStyleProofReleaseLocalConflictIssue)
+}
+
+function getCommittedStyleProofManifestIssueIds(
+  issues: readonly QualityIssue[],
+): StyleProofManifestIssueId[] {
+  return issues
     .map(issue => issue.id)
     .filter((issueId): issueId is StyleProofManifestIssueId =>
       STYLE_PROOF_MANIFEST_ISSUE_IDS.includes(issueId as StyleProofManifestIssueId)
     )
+}
+
+function getCommittedStyleProofManifestRequirementIds(
+  issues: readonly QualityIssue[],
+): StyleProofRequirementId[] {
+  return getUniqueCommittedStyleProofReleaseValues(
+    issues.map(issue => issue.location).filter(isStyleProofRequirementId)
+  )
 }
 
 function getCommittedStyleProofReleaseFingerprintConflicts(
@@ -6572,12 +6616,15 @@ function getCommittedStyleProofReleaseLocalConflictAction(
   if (issueIds.length === 0) return []
 
   const hasFingerprintMismatch = issueIds.includes('style-proof-manifest-pack-fingerprint-mismatch')
+  const hasChoiceBlocked = issueIds.includes('style-proof-manifest-choice-blocked')
 
   return [{
     platforms: ['wechat', 'xiaohongshu', 'zhihu'],
     action: hasFingerprintMismatch
       ? 'Reconcile the committed manifest pack before any release claim: remove stale conflicting proof rows or replace them with one exact redacted artifact fingerprint for each platform and choice.'
-      : 'Complete the remaining committed proof rows before any release claim; missing local, phone, credentialed, public-host, sync, scheduled-send, and publish proof cannot be inferred from existing manifests.',
+      : hasChoiceBlocked
+        ? 'Reconcile committed proof rows that target catalog-blocked choices or missing local artifact requirements; external phone, account, public-host, sync, scheduled-send, and publish gates remain separate blockers.'
+        : 'Complete the remaining local committed proof rows before any release claim; external phone, account, public-host, sync, scheduled-send, and publish proof cannot be inferred from local manifests.',
   }]
 }
 
@@ -6614,7 +6661,8 @@ function buildCommittedStyleProofReleaseStepBlocker(
 function getCommittedStyleProofReleaseGateStatus(
   report: CommittedStyleProofExecutionRunbookReport,
 ): CommittedStyleProofReleaseGateStatus {
-  if (report.summary.hasExactArtifactFingerprintConflicts || report.summary.combinedIssueCount > 0) {
+  const localConflictIssues = getCommittedStyleProofReleaseLocalConflictIssues(report)
+  if (report.summary.hasExactArtifactFingerprintConflicts || localConflictIssues.length > 0) {
     return 'blocked-by-local-conflict'
   }
   if (report.summary.phoneOpenSteps > 0 || report.summary.externalDependencyOpenSteps > 0) {
@@ -6630,7 +6678,8 @@ function getCommittedStyleProofReleaseGateStatus(
 export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyleProofReleaseGateReport {
   const source = getCommittedStyleProofEvidenceExecutionRunbookReport()
   const openSteps = getCommittedStyleProofRunbookOpenSteps(source)
-  const issueIds = getCommittedStyleProofManifestIssueIds(source)
+  const localConflictIssues = getCommittedStyleProofReleaseLocalConflictIssues(source)
+  const issueIds = getCommittedStyleProofManifestIssueIds(localConflictIssues)
   const fingerprintConflicts = getCommittedStyleProofReleaseFingerprintConflicts(
     getCommittedStyleProofEvidenceManifests(),
   )
@@ -6641,10 +6690,10 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
       kind: 'local-conflict',
       status: 'issue',
       platforms: ['wechat', 'xiaohongshu', 'zhihu'],
-      requirementIds: [],
+      requirementIds: getCommittedStyleProofManifestRequirementIds(localConflictIssues),
       issueIds: getUniqueCommittedStyleProofReleaseValues(issueIds),
-      issueCount: issueIds.length,
-      stepCount: source.summary.combinedIssueCount,
+      issueCount: localConflictIssues.length,
+      stepCount: localConflictIssues.length,
       platformStepCounts: [],
       requirementStepCounts: [],
       issueCounts: getCommittedStyleProofReleaseIssueCounts(issueIds),

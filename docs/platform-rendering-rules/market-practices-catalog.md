@@ -943,6 +943,10 @@ Rules:
   see whether the remaining work is WeChat phone preview, credentialed editor/channel work, public
   host validation, scheduled send, or platform publish readback.
 - The local-conflict blocker summarizes manifest issues and may have empty step-count arrays.
+- The local-conflict blocker must only count local committed-evidence and catalog conflicts.
+  Missing phone preview, authenticated editor, credentialed channel, public host, scheduled-send,
+  and platform publish rows remain in their dedicated blocker buckets even though they still make
+  the overall release unclaimable.
 - ExportModal may display these counts in the committed proof preflight row, but the row stays
   blocked while `canClaimComplete=false` and must not enable sync, upload, scheduled-send, preview,
   or publish actions.
@@ -967,14 +971,18 @@ Current 2026-06-22 snapshot after the WeChat Kiln paste-safe committed local pro
 - `unsafeToAutomateOpenSteps=13`
 - `mutatingOpenSteps=13`
 - `blockerCount=5`
-- local conflict issue counts: `style-proof-manifest-requirement-missing=13`,
+- local conflict issue count: `6`
+- local conflict issue counts: `style-proof-manifest-requirement-missing=3`,
   `style-proof-manifest-choice-blocked=3`
+- local conflict requirement ids: `zhihu-artifact-manifest`, `unit-test-coverage`,
+  `local-browser-rendering`
 - phone preview platform counts: `wechat=4`
 - external dependency platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=5`
 - unsafe-to-automate platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=4`
 
 Evidence:
 - `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`
+- `prompts/0601/evidence/style-proof-release-local-conflict-scope-20260622.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 33.
 
 ## 12. 2026-06-22 ExportModal Style Choice Notice Localization

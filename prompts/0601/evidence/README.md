@@ -826,6 +826,38 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
   preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
 
+## 2026-06-22 Style Proof Release Local Conflict Scope
+
+- [x] style-proof-release-local-conflict-scope-20260622.txt
+- `getCommittedStyleProofEvidenceReleaseGateReport()` now scopes `local-conflict` to local
+  committed-evidence and catalog conflicts instead of counting every missing external proof row.
+- Runtime readout remains unclaimable: `status=blocked-by-local-conflict`,
+  `canClaimComplete=false`, `combinedIssueCount=16`, and `blockerCount=5`.
+- The local-conflict blocker now reports `issueCount=6`, with
+  `style-proof-manifest-choice-blocked=3` and
+  `style-proof-manifest-requirement-missing=3`.
+- Local-conflict requirement ids are `zhihu-artifact-manifest`, `unit-test-coverage`, and
+  `local-browser-rendering`.
+- Phone preview, external dependency, unsafe-to-automate, and mutating-platform blockers still
+  remain open and continue to carry their external/phone/platform proof requirements.
+- Verification passed: GitNexus impact for `getCommittedStyleProofManifestIssueIds`,
+  `getCommittedStyleProofReleaseGateStatus`, and
+  `getCommittedStyleProofEvidenceReleaseGateReport`; TDD first focused run failed before the
+  implementation; focused `release claims` regression passed after implementation; targeted
+  ESLint passed; four-file cross-platform export regression passed 4 files / 194 tests; full
+  export serial regression passed 36 files / 1132 tests; `vue-tsc` passed; and production build
+  passed with 4653 modules in 53.68s after the UI summary follow-up.
+- Final `npx gitnexus detect-changes -r InkForge --scope all` reported low risk, 40 dirty files
+  across the whole working tree, 22 changed symbols, and 0 affected processes; the dirty-file
+  count includes unrelated pre-existing local changes and does not define the staged boundary.
+- CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
+  The committed proof row showed `本地冲突 6`, no `本地冲突 16`, `缺项 3`, `目录阻断 3`,
+  `手机预览 4`, `外部依赖 14`, `canClaimComplete=false`, the updated local-conflict operator
+  summary, `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`.
+- Boundary: this is release-gate classification precision only. It does not prove WeChat PC paste,
+  phone preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send,
+  platform preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
+
 ## 2026-06-22 Style Choice Notice Localization
 
 - [x] style-choice-notice-localization-20260622.txt
