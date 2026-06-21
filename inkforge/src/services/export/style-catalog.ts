@@ -2205,6 +2205,7 @@ interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
     | 'xhs-markdown-card-slicer'
     | 'xhs-data-card'
     | 'xhs-long-report'
+    | 'xhs-market-rich-card-fallback'
   label: string
   artifactFingerprint: string
   localRenderArtifactRef: string
@@ -2268,6 +2269,9 @@ const COMMITTED_STYLE_PROOF_XHS_DATA_CARD_MANIFEST_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_LONG_REPORT_MANIFEST_REF =
   'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21.json'
+
+const COMMITTED_STYLE_PROOF_XHS_MARKET_RICH_CARD_FALLBACK_MANIFEST_REF =
+  'prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json'
 
 const COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_ARTIFACT_REF =
   'prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt'
@@ -2880,6 +2884,15 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-long-report-browser-2026-06-21-page-01.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_LONG_REPORT_MANIFEST_REF,
+  }),
+  createCommittedStyleProofXhsLocalEvidenceManifest({
+    choiceId: 'xhs-market-rich-card-fallback',
+    label: 'XHS market rich card fallback',
+    artifactFingerprint:
+      'prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json@sha256:beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b',
+    localRenderArtifactRef:
+      'prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-01.png',
+    manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_MARKET_RICH_CARD_FALLBACK_MANIFEST_REF,
   }),
   createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
     choiceId: 'zhihu-clean-column',

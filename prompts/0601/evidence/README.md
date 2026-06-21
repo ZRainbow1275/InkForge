@@ -414,6 +414,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] xhs-image-manifest-gate-20260609.txt # 当前规则实现：XHS image artifact manifest 本地 preflight 门禁 + CloakBrowser local visual
 [x] xhs-raster-manifest-builder-20260619.txt # 当前规则实现：real raster metadata/data URL -> XHS manifest builder; no upload/publish claim
 [x] xhs-long-report-local-evidence-20260621.txt # 当前规则实现：XHS long-report 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
+[x] xhs-market-rich-card-fallback-local-evidence-20260621.txt # 当前规则实现：XHS market-rich fallback 本地 4 页 CloakBrowser raster pack + manifest；目录仍 blocked
 [x] zhihu-image-manifest-gate-20260609.txt # 当前规则实现：Zhihu image fallback artifact manifest 本地/host preflight 门禁
 [x] e2e/flagship-kiln.png                # A2 真 WebView2：赤陶旗舰 SVG 注入截图
 [x] e2e/flagship-tempera.png             # A2 真 WebView2：铜绿旗舰 SVG 注入截图
@@ -421,6 +422,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 [x] xhs-raster/xhs-raster-cover-grid-browser-*.png  # AC6 真浏览器 canvas：小红书 3:4 PNG 产图
 [x] xhs-raster/xhs-long-report-browser-2026-06-21.json  # XHS long-report 本地 manifest pack
 [x] xhs-raster/xhs-long-report-browser-2026-06-21-page-*.png  # XHS long-report 4 页 1080x1440 PNG
+[x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json  # XHS market-rich fallback 本地 manifest pack
+[x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-*.png  # XHS market-rich fallback 4 页 1080x1440 PNG
 [x] wechat-paste/wechat-*.png            # B PC 后台：真实公众号编辑器粘贴/重粘截图（kiln/tempera 路径证据）
 [ ] wechat-paste/wechat-amber-*.png      # B PC 后台：黄铜旗舰可提交截图补证；当前只有脱敏文本读回，普通剪贴板路径已失败
 [ ] wechat-flagship-kiln-mobile-<日期>.png      # B 手机预览：赤陶旗舰公众号渲染
@@ -2998,6 +3001,48 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local XHS long-report raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
+
+## 2026-06-21 XHS Market Rich Card Fallback Local Evidence
+
+- [x] xhs-market-rich-card-fallback-local-evidence-20260621.txt
+- [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json
+- [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-01.png
+- [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-02.png
+- [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-03.png
+- [x] xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-04.png
+- CloakBrowser opened the local Vite app and generated the exact PNG pack through the source-owned
+  browser canvas path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- The committed source Markdown captures market-rich fallback rules as InkForge-owned image-page
+  guidance. It does not copy 135/Xiumi template source, vendor class names, remote media, cookies,
+  tokens, HAR files, QR artifacts, account screenshots, or browser profile material.
+- Visual QA inspected pages 1-4. The committed pack has no blank output, crop, overlap,
+  unreadable wrapping, or overflow warning. The final page states that platform upload needs an
+  account and must not be described as publish success.
+- Final JSON pack hash:
+  `sha256:beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b`.
+- Source Markdown hash:
+  `sha256:a157969d5a838589e9d2f42e6da717666af3b96257512db7377e0b57a6426644`.
+- Final page hashes:
+  page 01 `sha256:4fe54645576d8bd55fb232ee543011199834a45d65b4e60e1edacde59c9687df`;
+  page 02 `sha256:0c181783d54ea487b92cb0bd3883e1f6d5271abf0dcff26a97956cdb3f08086f`;
+  page 03 `sha256:43ad3d12495da5a670818aefba1fe34aacc1187f56d57b897989c9ffa40e7968`;
+  page 04 `sha256:ae31e128b05d26621ea2451688b981109cd7c47b323bc94fd6bf787587aad4d3`.
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
+  verification re-read JSON/PNG files, checked hashes, bytes, 1080 x 1440 dimensions,
+  `overflow=false`, body references `[1, 2, 3, 4]`, cover marking, and page crop/reference fields.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one
+  `xhs-market-rich-card-fallback` manifest. Because `xhs-market-rich-card-fallback` remains a
+  blocked catalog choice, its progress gates remain invalid and include
+  `style-proof-manifest-choice-blocked`; this local evidence does not make it publishable.
+- Current release-gate readout after this slice remains blocked with
+  `localManifestCount=14`, `combinedManifestCount=16`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, `canClaimComplete=false`, and blocker kinds
+  `local-conflict`, `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`.
+- Boundary: this is local XHS market-rich fallback raster/image-manifest accounting only. It does
+  not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled
+  send, public article rendering, or publish success.
 
 ## 2026-06-21 Zhihu Clean Column Local Evidence
 

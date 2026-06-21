@@ -232,3 +232,60 @@ Validation:
   `overflow=false`, body references `[1, 2, 3, 4]`, and the JSON pack hash above.
 - The committed manifest is local proof only. Because `xhs-long-report` remains blocked in the
   style catalog, progress must stay invalid and release claims must remain unavailable.
+
+## Market Rich Card Fallback Raster Evidence - 2026-06-21
+
+Purpose: local `xhs-market-rich-card-fallback` proof that InkForge can translate market-rich
+card patterns into source-owned XHS 3:4 image pages through the local browser canvas path before
+any platform upload or publish claim.
+
+Browser route:
+
+- CloakBrowser opened the local Vite app.
+- Imported module: `/src/services/export/svg-modules/index.ts`.
+- Imported validator: `/src/services/export/quality-detector.ts`.
+- Render path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Target: `xhs`; ratio: `3:4`; body references: `[1, 2, 3, 4]`; overflow: `false`.
+
+Probe result:
+
+```json
+{
+  "sourceModule": "xhs-card-slicer",
+  "choiceId": "xhs-market-rich-card-fallback",
+  "ratio": "3:4",
+  "pageCount": 4,
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "overflow": false,
+  "packSha256": "beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b"
+}
+```
+
+Evidence files:
+
+- `xhs-market-rich-card-fallback-browser-2026-06-21.json`
+- `xhs-market-rich-card-fallback-browser-2026-06-21-page-01.png`
+- `xhs-market-rich-card-fallback-browser-2026-06-21-page-02.png`
+- `xhs-market-rich-card-fallback-browser-2026-06-21-page-03.png`
+- `xhs-market-rich-card-fallback-browser-2026-06-21-page-04.png`
+
+Visual QA:
+
+- Pages 1-4 were visually checked to avoid blank output, crop, overlap, unreadable wrapping, and
+  overflow warnings.
+- The source text is InkForge-owned fallback guidance. It does not copy 135/Xiumi template source,
+  vendor class names, remote media, or account artifacts.
+- The final page explicitly keeps platform upload behind an account gate and says not to claim
+  publish success.
+
+Validation:
+
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact pack.
+- Independent Node evidence verification re-read the committed JSON/PNG evidence pack,
+  recomputed every PNG SHA-256, checked byte lengths, confirmed 1080 x 1440 dimensions,
+  `overflow=false`, body references `[1, 2, 3, 4]`, cover marking, and the JSON pack hash above.
+- The committed manifest is local proof only. Because `xhs-market-rich-card-fallback` remains
+  blocked in the style catalog, progress must stay invalid and release claims must remain
+  unavailable.

@@ -7945,3 +7945,80 @@ Boundary:
   sensitive-hygiene accounting only.
 - It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
   scheduled send, public article rendering, or publish success.
+
+## 2026-06-21 XHS Market Rich Card Fallback Local Raster Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `xhs-market-rich-card-fallback`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish action was executed or claimed.
+
+Implementation:
+- Used CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts` and `/src/services/export/quality-detector.ts`.
+- Generated the committed raster pack through the real source-owned path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- The source Markdown records market-rich fallback rules as InkForge-owned image-page guidance and
+  avoids copying 135/Xiumi template source, vendor class names, remote media, account artifacts, or
+  browser profile material.
+- Visual QA inspected all four generated 1080 x 1440 PNG pages and found no blank output, crop,
+  overlap, unreadable wrapping, or overflow warning.
+- Added four PNG pages and one JSON metadata pack under `prompts/0601/evidence/xhs-raster/`.
+- Added `prompts/0601/evidence/xhs-market-rich-card-fallback-local-evidence-20260621.txt`.
+- Added one committed local `xhs-market-rich-card-fallback` manifest. Because the catalog choice
+  remains `blocked`, progress gates stay `invalid` and include
+  `style-proof-manifest-choice-blocked`.
+
+Evidence:
+- JSON pack:
+  `prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json`.
+- JSON hash:
+  `sha256:beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b`.
+- Source Markdown hash:
+  `sha256:a157969d5a838589e9d2f42e6da717666af3b96257512db7377e0b57a6426644`.
+- PNG hashes:
+  - page 01: `sha256:4fe54645576d8bd55fb232ee543011199834a45d65b4e60e1edacde59c9687df`
+  - page 02: `sha256:0c181783d54ea487b92cb0bd3883e1f6d5271abf0dcff26a97956cdb3f08086f`
+  - page 03: `sha256:43ad3d12495da5a670818aefba1fe34aacc1187f56d57b897989c9ffa40e7968`
+  - page 04: `sha256:ae31e128b05d26621ea2451688b981109cd7c47b323bc94fd6bf787587aad4d3`
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`.
+- Independent Node evidence verification re-read JSON/PNG files, recomputed hashes, checked bytes,
+  confirmed 1080 x 1440 dimensions, `overflow=false`, body references `[1, 2, 3, 4]`, cover
+  marking, and page crop/reference fields.
+
+Initial verification:
+- CloakBrowser runtime smoke from local Vite:
+  `canClaimComplete=false`, `status=blocked-by-local-conflict`, `localManifestCount=14`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=16`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims|Xiaohongshu image artifact manifest" --reporter=default`
+  passed 1 file / 6 selected tests.
+
+Final verification:
+- Independent Node evidence verification:
+  passed JSON SHA-256, PNG SHA-256, byte length, 1080 x 1440 dimensions, `overflow=false`,
+  body references `[1, 2, 3, 4]`, cover marking, and page crop/reference fields.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules and built in 33.17s.
+- `npx gitnexus detect-changes -r InkForge --scope all`:
+  completed with 41 dirty files observed in the whole worktree, 23 changed symbols, 0 affected
+  processes, and low risk. The dirty-file count includes unrelated pre-existing local changes;
+  commit staging for this slice must remain exact-file only.
+
+Boundary:
+- This is local XHS market-rich fallback raster, visual QA, image-manifest, exact-artifact, and
+  sensitive-hygiene accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

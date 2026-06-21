@@ -215,6 +215,7 @@ Executable mirror:
 | `xhs-markdown-card-slicer` | 小红书 | H2 分页、手动分页、清单、代码卡 | figure-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；平台上传/预览/发布仍需另证 |
 | `xhs-data-card` | 小红书 | 数据表、对比、指标、图表摘要 | card-system | medium-high | none | image page | long image | `local-browser` | 2026-06-21 本地 3 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，密集表格/手机可读性/平台上传发布仍需另证 |
 | `xhs-long-report` | 小红书 | 长文、宽表、分段报告 | fallback-system | medium | none | long image | image page | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，平台上传/预览/发布仍需另证 |
+| `xhs-market-rich-card-fallback` | 小红书 | 市场富卡片、H5/互动降级、图文层转译 | fallback-system | medium | none | image page | long image | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，平台上传/预览/发布仍需另证 |
 | `xhs-h5-design-import-boundary` | 小红书 | H5、设计海报、视频/PDF、贴纸图文 | editor-workflow-system | low | none | publish checklist | unavailable | `doc-only` | 需先落成图片页/纯文本，不是正文富文本 |
 | `zhihu-clean-column` | 知乎 | 标题、段落、引用、列表、代码 | body-system | medium | none | clean Markdown | clean Markdown | `unit-tested` | 微信 wrapper、HTML/CSS、inline SVG 泄漏 |
 | `zhihu-academic-latex-column` | 知乎 | LaTeX、脚注、代码、引用 | body-system | medium | none | clean Markdown | image fallback | `unit-tested` | 2026-06-21 本地 clean Markdown exact artifact 已提交；公式预览、public host、artifact manifest、平台发布仍需另证 |
@@ -844,8 +845,10 @@ Xiumi SVG/H5 rules:
   `zhihu-market-rich-layout-fallback`. They document available design directions and required
   fallback paths without claiming availability. WeChat requires phone preview/publish proof; XHS
   requires real image-page/long-image manifest proof; Zhihu requires public-host image fallback
-  proof with alt/caption and manifest validation. None may map to a selectable preset until exact
-  InkForge-owned artifacts exist.
+  proof with alt/caption and manifest validation. The 2026-06-21 `xhs-market-rich-card-fallback`
+  local raster pack supplies source-owned image-page/manifest proof only; it does not satisfy
+  upload, preview, public article, or publish proof. None may map to a selectable preset until all
+  required InkForge-owned artifacts and platform proof exist.
 - 2026-06-21 Xiumi SVG recovery-modal recheck: the live v5 paper editor exposed the SVG taxonomy
   and a readable `.tn-editing-panel`, but an unsaved-draft recovery confirmation blocked safe
   application proof. Do not automate restore/cancel decisions. Treat this as taxonomy and blocker

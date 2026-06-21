@@ -1,0 +1,65 @@
+XHS Market Rich Card Fallback Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local evidence for xhs-market-rich-card-fallback.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish action was executed or claimed.
+
+Browser route:
+- CloakBrowser opened the local Vite app.
+- Imported module: /src/services/export/svg-modules/index.ts.
+- Imported validator: /src/services/export/quality-detector.ts.
+- Render path:
+  sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard.
+- Target: xhs; ratio: 3:4; body references: [1, 2, 3, 4]; overflow: false.
+
+Source:
+- Source-owned Markdown only.
+- The source describes market-rich card fallback rules without copying 135, Xiumi, or other
+  vendor template source, class names, remote media, cookies, tokens, HAR files, QR artifacts,
+  account screenshots, or browser profile material.
+- Source Markdown hash:
+  sha256:a157969d5a838589e9d2f42e6da717666af3b96257512db7377e0b57a6426644.
+
+Evidence files:
+- prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21.json
+- prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-01.png
+- prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-02.png
+- prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-03.png
+- prompts/0601/evidence/xhs-raster/xhs-market-rich-card-fallback-browser-2026-06-21-page-04.png
+
+Hashes:
+- JSON pack:
+  sha256:beefe00ac8ceaa97aaaf1ad27b72055e70a3967bc148372666cd1d9e3f6a1b7b.
+- Page 01:
+  sha256:4fe54645576d8bd55fb232ee543011199834a45d65b4e60e1edacde59c9687df;
+  bytes: 123080.
+- Page 02:
+  sha256:0c181783d54ea487b92cb0bd3883e1f6d5271abf0dcff26a97956cdb3f08086f;
+  bytes: 130487.
+- Page 03:
+  sha256:43ad3d12495da5a670818aefba1fe34aacc1187f56d57b897989c9ffa40e7968;
+  bytes: 120108.
+- Page 04:
+  sha256:ae31e128b05d26621ea2451688b981109cd7c47b323bc94fd6bf787587aad4d3;
+  bytes: 120956.
+
+Visual QA:
+- Pages 01-04 were inspected from the generated PNG files.
+- The committed pack has no blank output, crop, overlap, unreadable wrapping, or overflow warning.
+- The final page explicitly states that platform upload requires an account and does not claim
+  publish success.
+
+Validation:
+- Browser-side validateXhsImageArtifactManifest() returned issues=[] for the exact manifest.
+- Independent Node verification re-read JSON and PNG files, recomputed hashes, checked byte
+  lengths, confirmed 1080 x 1440 PNG dimensions, overflow=false, body references [1, 2, 3, 4],
+  cover page marking, and page crop/reference fields.
+- The committed local manifest must remain blocked/invalid because xhs-market-rich-card-fallback
+  remains a blocked catalog choice.
+
+Boundary:
+- This is local XHS market-rich-card fallback raster, visual QA, image-manifest, exact-artifact,
+  and sensitive-hygiene accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

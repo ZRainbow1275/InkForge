@@ -2590,3 +2590,31 @@ Required checks:
 - Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
   progress invalid and release claims unavailable.
 - Evidence docs must name the first sparse variant rejection and the final committed raster pack.
+
+## 26. XHS Market Rich Card Fallback Local Raster Evidence - 2026-06-21
+
+Contracts:
+- `xhs-market-rich-card-fallback` local evidence must use the real browser canvas path:
+  `sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard`.
+- Evidence must record the exact JSON pack hash, every PNG hash, byte length, 1080 x 1440
+  dimensions, `overflow=false`, body references, cover marking, crop/reference fields, and
+  `validateXhsImageArtifactManifest() === []`.
+- The source Markdown must be InkForge-owned fallback guidance. It may encode lessons from market
+  editors as rules, but it must not copy 135/Xiumi template source, vendor class names, hosted
+  media, cookies, tokens, HAR files, QR artifacts, account screenshots, or browser profile
+  material.
+- Visual QA must reject packs with overflow warnings, blank pages, cropped content, text overlap,
+  unreadable wrapping, vendor residue, or platform-publish wording that implies success without
+  account evidence.
+- Because `xhs-market-rich-card-fallback` remains a blocked catalog choice, a committed manifest
+  must not make it selectable, usable for release, or publishable. The progress report must keep
+  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
+  rendering, and publish success remain external proof gates.
+
+Required checks:
+- Regression tests must include the committed `xhs-market-rich-card-fallback` manifest in local
+  and combined evidence packs.
+- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
+  progress invalid and release claims unavailable.
+- Evidence docs must name the source-owned fallback boundary and the final committed raster pack.
