@@ -129,3 +129,53 @@ Finding fixed during this probe:
   fragment into `data:image/svg+xml`, which caused browser image loading to fail.
 - The raster boundary now extracts the first `<svg>...</svg>` document before injecting
   fixed PNG dimensions. Bare SVG input and raw shape fragments still work.
+
+## Data Card Raster Evidence - 2026-06-21
+
+Purpose: local `xhs-data-card` proof that InkForge can turn source-owned metric rows into XHS
+3:4 image pages through the local browser canvas path before any platform upload or publish
+claim.
+
+Browser route:
+
+- CloakBrowser opened the local Vite app.
+- Imported module: `/src/services/export/svg-modules/index.ts`.
+- Render path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Target: `xhs`; ratio: `3:4`; body references: `[1, 2, 3]`; overflow: `false`.
+
+Probe result:
+
+```json
+{
+  "sourceModule": "xhs-card-slicer",
+  "choiceId": "xhs-data-card",
+  "ratio": "3:4",
+  "pageCount": 3,
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "overflow": false,
+  "packSha256": "bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a"
+}
+```
+
+Evidence files:
+
+- `xhs-data-card-browser-2026-06-21.json`
+- `xhs-data-card-browser-2026-06-21-page-01.png`
+- `xhs-data-card-browser-2026-06-21-page-02.png`
+- `xhs-data-card-browser-2026-06-21-page-03.png`
+
+Visual QA:
+
+- A first pass used Markdown table syntax and produced slash/table wrapping plus overflow warnings.
+- A second pass removed overflow but still split mixed English terms and percentages.
+- The committed pass uses short Chinese metric rows. Pages 1-3 were visually checked to avoid
+  blank output, crop, overlap, unreadable wrapping, and overflow warnings.
+
+Validation:
+
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact pack.
+- Independent Node evidence verification re-read the committed JSON/PNG evidence pack,
+  recomputed every PNG SHA-256, checked byte lengths and 1080 x 1440 dimensions, and confirmed
+  the JSON pack hash above.

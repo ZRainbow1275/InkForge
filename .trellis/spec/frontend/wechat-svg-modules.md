@@ -2486,7 +2486,7 @@ Current audited state:
   `status:"blocked-by-local-conflict"` and `canClaimComplete:false`.
 - The current report exposes five blocker buckets: local conflict, phone preview, external
   dependency, unsafe-to-automate, and mutating platform.
-- The combined committed-evidence summary currently exposes 10 manifests, 13 issues, no
+- The combined committed-evidence summary currently exposes 14 manifests, 14 issues, no
   exact-artifact fingerprint conflicts, 34 cannot-claim steps, 4 phone-open steps,
   14 external-dependency-open steps, 13 unsafe-to-automate steps, and 13 mutating-open steps.
 - The combined execution runbook currently keeps 34 proof steps open and cannot-claim. This is
@@ -2544,3 +2544,25 @@ Contracts:
   public-host proof, phone proof, or platform readback exists as required by the platform.
 - Updating the e2e count is allowed only after confirming `getPlatformStyleChoices()` and the
   runtime ExportModal agree. Do not delete catalog entries to satisfy stale e2e counts.
+
+## 24. XHS Data Card Local Raster Evidence - 2026-06-21
+
+Contracts:
+- `xhs-data-card` local evidence must use the real browser canvas path:
+  `sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard`.
+- Evidence must record the exact JSON pack hash, every PNG hash, byte length, 1080 x 1440
+  dimensions, `overflow=false`, and `validateXhsImageArtifactManifest() === []`.
+- Visual QA must reject packs with overflow warnings, blank pages, cropped content, text overlap,
+  unreadable table/slash wrapping, or mixed English/number hard breaks.
+- Because `xhs-data-card` remains a blocked catalog choice, a committed manifest must not make it
+  selectable, usable for release, or publishable. The progress report must keep
+  `style-proof-manifest-choice-blocked` visible and the release gate blocked.
+- Platform upload, mobile/platform preview, public URL acceptance, scheduled send, public article
+  rendering, and publish success remain external proof gates.
+
+Required checks:
+- Regression tests must include the committed `xhs-data-card` manifest in local and combined
+  evidence packs.
+- Tests must assert the local raster/manifest rows exist while the blocked catalog state keeps
+  progress invalid and release claims unavailable.
+- Evidence docs must name the visual iterations rejected before the final committed raster pack.

@@ -1,0 +1,61 @@
+XHS Data Card Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local evidence for `xhs-data-card`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL
+  acceptance, scheduled send, public article rendering, or publish action was
+  executed or claimed.
+
+Implemented:
+- CloakBrowser opened the local Vite app and imported
+  `/src/services/export/svg-modules/index.ts`.
+- Generated source-owned metric-card Markdown through the existing local path:
+  `sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard`.
+- The first two visual passes were rejected:
+  - Pass 1 used Markdown table syntax and produced awkward slash/table wrapping plus
+    overflow warnings.
+  - Pass 2 removed overflow but still split mixed English terms and percentages.
+- The committed pass uses short Chinese metric rows, three 1080 x 1440 PNG pages,
+  `overflow=false`, and body references `[1,2,3]`.
+
+Exact artifact pack:
+- JSON: `prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21.json`
+- JSON SHA-256:
+  `bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a`
+
+PNG pages:
+- page 01: `sha256:00fb3bd22433e7a65bc630bb0f39d44acfbef11da7bf873182939ec15002577f`,
+  bytes: 126569, dimensions: 1080 x 1440
+- page 02: `sha256:0fdcefa6f1fcd285c2cb8f16f580b994ae689d7db7e19794b1e70bc2ab3c9e48`,
+  bytes: 128346, dimensions: 1080 x 1440
+- page 03: `sha256:7ced2189801b60ee22a279874b65b8f64167661c081a1c3712119daaef433a67`,
+  bytes: 123731, dimensions: 1080 x 1440
+
+Manifest validation:
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]` for the
+  exact pack.
+- Independent Node verification re-read the committed JSON/PNG files, recomputed
+  every PNG SHA-256, checked bytes and PNG dimensions, and confirmed the JSON
+  SHA-256 above.
+
+Verification:
+- Focused committed/local/release regression: PASS, 1 file / 4 selected tests.
+- Full platform export regression: PASS, 1 file / 155 tests.
+- Cross-platform export regression: PASS, 4 files / 194 tests.
+- Full export serial regression: PASS, 36 files / 1132 tests.
+- Targeted ESLint, `vue-tsc`, and production build: PASS.
+
+Committed style-proof manifest:
+- Adds one local `xhs-data-card` manifest.
+- The manifest records local `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, `xhs-artifact-manifest`, and `no-sensitive-artifact` rows.
+- Because the catalog choice itself remains `blocked`, acceptance/progress gates
+  remain `invalid` and include `style-proof-manifest-choice-blocked`.
+- `published-url-or-platform-preview` remains unclaimable until real platform
+  upload/preview/publish evidence exists.
+
+Boundary:
+- This proves local data-card raster generation, visual QA, image-manifest
+  validation, exact artifact hashing, and repository hygiene only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public
+  URL acceptance, scheduled send, public article rendering, or publish success.

@@ -91,7 +91,7 @@ instead of duplicating this document's matrix.
 | `xhs-cover-carousel` | 封面、多页图文、图表 | high | 3:4/1:1 图片页 + manifest | `local-browser` | manifest、格式、页数上限检查不通过 |
 | `xhs-cover-hook` | 首图封面、标题钩子 | high | 3:4 cover image | `local-browser` | 标题裁切、对比不足、manifest 缺失 |
 | `xhs-markdown-card-slicer` | 教程、清单、方法论、Markdown 分页 | medium-high | 多页图片 + 顺序 manifest | `local-browser` | 2026-06-21 本地 4 页 CloakBrowser raster pack + manifest 通过；平台上传/预览/发布仍需另证 |
-| `xhs-data-card` | 数据、表格、对比 | medium | 图片页或长图 | `local-browser` | 低分辨率、过密小字、格式非 JPG/PNG 且未转换 |
+| `xhs-data-card` | 数据、表格、对比 | medium | 图片页或长图 | `local-browser` | 2026-06-21 本地 3 页 CloakBrowser raster pack + manifest 通过；目录仍 blocked，密集表格、手机可读性、平台上传发布仍需另证 |
 | `xhs-long-report` | 长文、报告、图文混排 | medium | 长图 artifact | `local-browser` | 裁切、横向溢出、资源不可加载 |
 | `xhs-h5-design-import-boundary` | H5、设计海报、视频/PDF、贴纸图文 | low | publish checklist | `doc-only` | 必须先落成图片页/纯文本，不是正文富文本 |
 

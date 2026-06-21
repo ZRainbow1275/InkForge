@@ -3460,3 +3460,42 @@ Boundary:
   not prove Zhihu formula preview acceptance, public image-host acceptance,
   artifact-manifest acceptance, account upload, editor preview, sync, scheduled send, platform
   preview, public article rendering, or publish success.
+
+---
+
+## 2026-06-21 XHS Data Card Local Raster Evidence Addendum
+
+- Added `prompts/0601/evidence/xhs-data-card-local-evidence-20260621.txt`.
+- Added the committed raster pack:
+  `prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21.json` and
+  pages 01-03 PNG under the same directory.
+- Generated the final pack through CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts` and running:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Visual QA rejected two earlier variants because of Markdown table slash wrapping, overflow
+  warnings, mixed English term splits, and percentage line breaks. The committed pack uses short
+  Chinese metric rows and has no overflow warning, blank page, crop, or overlap.
+- JSON pack hash:
+  `sha256:bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a`.
+- Page hashes:
+  page 01 `sha256:00fb3bd22433e7a65bc630bb0f39d44acfbef11da7bf873182939ec15002577f`;
+  page 02 `sha256:0fdcefa6f1fcd285c2cb8f16f580b994ae689d7db7e19794b1e70bc2ab3c9e48`;
+  page 03 `sha256:7ced2189801b60ee22a279874b65b8f64167661c081a1c3712119daaef433a67`.
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
+  verification re-read committed JSON/PNG files, recomputed hashes, checked bytes, and confirmed
+  1080 x 1440 dimensions.
+- Added one committed local `xhs-data-card` manifest. Because the catalog choice still remains
+  `blocked`, progress gates remain invalid and include `style-proof-manifest-choice-blocked`;
+  the evidence does not make `xhs-data-card` publishable.
+- Current committed release-gate readout is now `localManifestCount=12`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=14`, `combinedIssueCount=14`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: independent JSON/PNG evidence verification; focused committed/local/release
+  regression with 1 file / 4 selected tests; `platform-export-rendering.test.ts` with 1 file /
+  155 tests; 4-file cross-platform export regression with 4 files / 194 tests; full
+  `src/services/export` serial regression with 36 files / 1132 tests; targeted ESLint;
+  `vue-tsc`; and production build with 4653 transformed modules.
+- Boundary: this is local XHS data-card raster, visual QA, image-manifest, exact-artifact, and
+  sensitive-hygiene accounting only. It does not prove Xiaohongshu account upload,
+  mobile/platform preview, public URL acceptance, scheduled send, public article rendering, or
+  publish success.

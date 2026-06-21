@@ -2933,6 +2933,34 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
 
+## 2026-06-21 XHS Data Card Local Evidence
+
+- [x] xhs-data-card-local-evidence-20260621.txt
+- [x] xhs-raster/xhs-data-card-browser-2026-06-21.json
+- [x] xhs-raster/xhs-data-card-browser-2026-06-21-page-01.png
+- [x] xhs-raster/xhs-data-card-browser-2026-06-21-page-02.png
+- [x] xhs-raster/xhs-data-card-browser-2026-06-21-page-03.png
+- CloakBrowser opened the local Vite app and generated the exact PNG pack through the source-owned
+  browser canvas path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Visual QA rejected two earlier variants because of table/slash wrapping, overflow warnings, and
+  mixed English term splits. The committed pack uses short Chinese metric rows and has no overflow
+  warning.
+- Final JSON pack hash:
+  `sha256:bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a`.
+- Final page hashes:
+  page 01 `sha256:00fb3bd22433e7a65bc630bb0f39d44acfbef11da7bf873182939ec15002577f`;
+  page 02 `sha256:0fdcefa6f1fcd285c2cb8f16f580b994ae689d7db7e19794b1e70bc2ab3c9e48`;
+  page 03 `sha256:7ced2189801b60ee22a279874b65b8f64167661c081a1c3712119daaef433a67`.
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`; independent Node
+  verification re-read JSON/PNG files, checked hashes, bytes, and 1080 x 1440 dimensions.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-data-card` manifest.
+  Because `xhs-data-card` remains a blocked catalog choice, its progress gates remain invalid and
+  include `style-proof-manifest-choice-blocked`; this local evidence does not make it publishable.
+- Boundary: this is local XHS data-card raster/image-manifest accounting only. It does not prove
+  Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.
+
 ## 2026-06-21 Zhihu Clean Column Local Evidence
 
 - [x] zhihu-clean-column-local-artifact-20260621.md

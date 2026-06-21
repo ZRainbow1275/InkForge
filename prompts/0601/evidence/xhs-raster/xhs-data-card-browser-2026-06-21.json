@@ -1,0 +1,132 @@
+{
+  "choiceId": "xhs-data-card",
+  "generatedAt": "2026-06-21",
+  "renderPath": "sliceMarkdownToXhsCards -> renderXhsMarkdownCardSliceSvg -> renderXhsPosterCard",
+  "source": "CloakBrowser against local Vite app importing /src/services/export modules",
+  "sourceMarkdownSha256": "cc79a08d5690d6a09ae02a47b0475a540fb2e1eb7c74c991ff126ec27da0a7df",
+  "sourceTitle": "三渠道首发数据卡",
+  "overflow": false,
+  "bodyReferences": [
+    1,
+    2,
+    3
+  ],
+  "manifest": {
+    "kind": "image-page",
+    "pages": [
+      {
+        "page": 1,
+        "fileName": "xhs-data-card-browser-2026-06-21-page-01.png",
+        "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-01",
+        "exists": true,
+        "width": 1080,
+        "height": 1440,
+        "ratio": "3:4",
+        "format": "png",
+        "bytes": 126569,
+        "cover": true,
+        "referencedByBody": true,
+        "cropStatus": "ok"
+      },
+      {
+        "page": 2,
+        "fileName": "xhs-data-card-browser-2026-06-21-page-02.png",
+        "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-02",
+        "exists": true,
+        "width": 1080,
+        "height": 1440,
+        "ratio": "3:4",
+        "format": "png",
+        "bytes": 128346,
+        "cover": false,
+        "referencedByBody": true,
+        "cropStatus": "ok"
+      },
+      {
+        "page": 3,
+        "fileName": "xhs-data-card-browser-2026-06-21-page-03.png",
+        "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-03",
+        "exists": true,
+        "width": 1080,
+        "height": 1440,
+        "ratio": "3:4",
+        "format": "png",
+        "bytes": 123731,
+        "cover": false,
+        "referencedByBody": true,
+        "cropStatus": "ok"
+      }
+    ],
+    "bodyReferences": [
+      1,
+      2,
+      3
+    ]
+  },
+  "validationIssueIds": [],
+  "pages": [
+    {
+      "page": 1,
+      "kind": "section",
+      "title": "三渠道首发数据卡",
+      "sourceLineStart": 5,
+      "sourceLineEnd": 9,
+      "overflow": false,
+      "bodyReference": 1,
+      "fileName": "xhs-data-card-browser-2026-06-21-page-01.png",
+      "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-01",
+      "referencedByBody": true,
+      "cropStatus": "ok",
+      "width": 1080,
+      "height": 1440,
+      "ratio": "3:4",
+      "format": "png",
+      "bytes": 126569,
+      "exists": true,
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21-page-01.png",
+      "sha256": "00fb3bd22433e7a65bc630bb0f39d44acfbef11da7bf873182939ec15002577f"
+    },
+    {
+      "page": 2,
+      "kind": "section",
+      "title": "三渠道首发数据卡",
+      "sourceLineStart": 13,
+      "sourceLineEnd": 17,
+      "overflow": false,
+      "bodyReference": 2,
+      "fileName": "xhs-data-card-browser-2026-06-21-page-02.png",
+      "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-02",
+      "referencedByBody": true,
+      "cropStatus": "ok",
+      "width": 1080,
+      "height": 1440,
+      "ratio": "3:4",
+      "format": "png",
+      "bytes": 128346,
+      "exists": true,
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21-page-02.png",
+      "sha256": "0fdcefa6f1fcd285c2cb8f16f580b994ae689d7db7e19794b1e70bc2ab3c9e48"
+    },
+    {
+      "page": 3,
+      "kind": "section",
+      "title": "三渠道首发数据卡",
+      "sourceLineStart": 21,
+      "sourceLineEnd": 25,
+      "overflow": false,
+      "bodyReference": 3,
+      "fileName": "xhs-data-card-browser-2026-06-21-page-03.png",
+      "src": "inkforge-asset://xhs-data-card-browser-2026-06-21-page-03",
+      "referencedByBody": true,
+      "cropStatus": "ok",
+      "width": 1080,
+      "height": 1440,
+      "ratio": "3:4",
+      "format": "png",
+      "bytes": 123731,
+      "exists": true,
+      "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21-page-03.png",
+      "sha256": "7ced2189801b60ee22a279874b65b8f64167661c081a1c3712119daaef433a67"
+    }
+  ]
+}

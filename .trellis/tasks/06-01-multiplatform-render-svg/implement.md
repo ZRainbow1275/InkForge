@@ -7806,3 +7806,69 @@ Boundary:
 - It does not prove Zhihu formula preview acceptance, public image-host acceptance,
   artifact-manifest acceptance, account upload, editor preview, sync, scheduled send,
   platform preview, public article rendering, or publish success.
+
+## 2026-06-21 XHS Data Card Local Raster Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `xhs-data-card`.
+- No Xiaohongshu account login, upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish action was executed or claimed.
+
+Implementation:
+- Used CloakBrowser against the local Vite app, importing
+  `/src/services/export/svg-modules/index.ts`.
+- Generated the committed raster pack through the real source-owned path:
+  `sliceMarkdownToXhsCards` -> `renderXhsMarkdownCardSliceSvg` -> `renderXhsPosterCard`.
+- Visual QA rejected two earlier variants:
+  - Markdown table syntax produced awkward slash/table wrapping and overflow warnings.
+  - The next variant removed overflow but still split mixed English terms and percentages.
+- The committed pack uses short Chinese metric rows and three 1080 x 1440 PNG pages with
+  `overflow=false`, body references `[1,2,3]`, and no visual crop/overlap/blank-page issue.
+- Added `prompts/0601/evidence/xhs-data-card-local-evidence-20260621.txt`.
+- Added one committed local `xhs-data-card` manifest. Because the catalog choice remains
+  `blocked`, the progress gates stay `invalid` and include `style-proof-manifest-choice-blocked`.
+
+Evidence:
+- JSON pack:
+  `prompts/0601/evidence/xhs-raster/xhs-data-card-browser-2026-06-21.json`.
+- JSON hash:
+  `sha256:bb78392d7b217251509eff0a9295ff3d601303747dd4eaa772e1b871c60bdc1a`.
+- PNG hashes:
+  - page 01: `sha256:00fb3bd22433e7a65bc630bb0f39d44acfbef11da7bf873182939ec15002577f`
+  - page 02: `sha256:0fdcefa6f1fcd285c2cb8f16f580b994ae689d7db7e19794b1e70bc2ab3c9e48`
+  - page 03: `sha256:7ced2189801b60ee22a279874b65b8f64167661c081a1c3712119daaef433a67`
+- Browser-side `validateXhsImageArtifactManifest()` returned `issues=[]`.
+- Independent Node evidence verification re-read JSON/PNG files, recomputed hashes, checked bytes,
+  and confirmed 1080 x 1440 PNG dimensions.
+
+Initial verification:
+- GitNexus impact:
+  - `createCommittedStyleProofXhsLocalEvidenceManifest`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 0 affected processes.
+  - `validateXhsImageArtifactManifest`: LOW, 0 affected processes.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- Independent Node evidence verification:
+  passed JSON SHA-256, PNG SHA-256, byte length, 1080 x 1440 dimensions, `overflow=false`,
+  body references `[1,2,3]`, and empty browser-side manifest validation issue ids.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules.
+
+Boundary:
+- This is local XHS data-card raster, visual QA, image-manifest, exact-artifact, and
+  sensitive-hygiene accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.
