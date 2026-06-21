@@ -14,6 +14,14 @@ Implemented:
 - Unknown future notice strings intentionally fall back to their original text so catalog updates
   are still visible instead of being hidden.
 
+Follow-up display consistency:
+- `styleChoiceDetail()` now labels fallback output as `降级：...` instead of `fallback：...`.
+- The style catalog preflight blocked row now passes `selectedAction.reason` through
+  `styleChoiceNoticeLabel()` before rendering.
+- This keeps style cards and preflight rows on the same Chinese operator-facing notice surface.
+- The preflight blocked branch remains a display-only row and does not change availability,
+  selectable state, manifests, release gates, runbooks, sync, preview, or publish behavior.
+
 Covered notice families:
 - WeChat mobile-preview, Dark Mode, cover-thumbnail, platform-preview, and publish proof gaps.
 - WeChat SMIL/click, mobile-only, carousel/switch, and 135/Xiumi SVG/H5 fallback blockers.
@@ -62,15 +70,36 @@ Verification:
 - `npx gitnexus impact styleChoiceRows -r InkForge --depth 3`
   - disambiguated to `Function:inkforge/src/components/export/ExportModal.vue:styleChoiceRows`;
     LOW risk, zero affected processes.
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:styleChoiceDetail -r InkForge --depth 3`
+  - LOW risk, one direct dependent, zero affected processes.
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:styleCatalogPreflightRow -r InkForge --depth 3`
+  - LOW risk, zero affected processes.
 - `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`
   - PASS.
+- `pnpm --dir inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style choice|release claims" --reporter=default`
+  - PASS: 1 file / 4 selected tests.
 - `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`
   - PASS.
 - `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`
-  - PASS: 4653 modules transformed, built in 32.90s.
+  - PASS: 4653 modules transformed, built in 37.62s for the follow-up run.
 - `npx gitnexus detect-changes -r InkForge --scope all`
-  - low risk, 38 dirty files across the whole working tree, 17 changed symbols, zero affected
+  - follow-up run: low risk, 39 dirty files across the whole working tree, 10 changed symbols, zero
+    affected processes. The dirty-file count includes unrelated pre-existing files.
+  - prior localization run: low risk, 38 dirty files across the whole working tree, 17 changed symbols, zero affected
     processes. The dirty-file count includes unrelated pre-existing files.
+
+Follow-up CloakBrowser verification:
+- Opened a real local article in Workstation through the InkForge UI.
+- Opened ExportModal through the real `发布` button.
+- Viewport: `390x844`.
+- DOM readback reported `fallbackOld=false`, `fallbackNewCount=17`,
+  `unavailableEnglishReasons=[]`, `scrollWidth=390`, `bodyScrollWidth=390`, and
+  `overflowCount=0`.
+- The style-catalog preflight blocked branch was not visible under the current available selected
+  style; this branch now reuses the same `styleChoiceNoticeLabel()` mapper and is covered by
+  lint/type/build checks.
+- A runtime screenshot was used only for local visual inspection and is not committed or cited as
+  account/platform evidence.
 
 Boundary:
 - This proves only localized ExportModal style-card notice rendering and narrow viewport behavior.

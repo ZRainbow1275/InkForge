@@ -832,15 +832,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese
   display copy without mutating the runtime catalog, availability decisions, selectable state,
   release-gate reports, execution runbooks, or proof manifests.
+- Follow-up display consistency now replaces the remaining raw `fallback：` label with `降级：`
+  and localizes the style-catalog preflight blocked action reason with the same notice mapper.
+- Follow-up CloakBrowser readback at `390x844` reported `fallbackOld=false`,
+  `fallbackNewCount=17`, no known English reason fragments, `scrollWidth=390`,
+  `bodyScrollWidth=390`, and `overflowCount=0`. The current selected style was available, so the
+  preflight blocked branch was not visible; that branch now reuses the same notice mapper and was
+  covered by lint/type/build.
 - CloakBrowser narrow readback at `390x844` used a real local article and the real `发布` button.
   Known English blocker fragments were absent, expected Chinese fragments were present, the Amber
   card remained blocked, and layout readback reported `scrollWidth=390`,
   `bodyScrollWidth=390`, `overflowCount=0`.
 - Verification passed: GitNexus impact for the exact `styleChoiceRows` function reported LOW risk
   and 0 affected processes; targeted ExportModal ESLint, `vue-tsc`, and production build with
-  4653 modules in 32.90s passed. GitNexus detect reported low risk, 38 dirty files across the
-  whole working tree, 17 changed symbols, and 0 affected processes; the dirty-file count includes
-  unrelated pre-existing files.
+  4653 modules in 32.90s passed. Follow-up checks also passed: GitNexus impact for
+  `styleChoiceDetail` and exact `styleCatalogPreflightRow` reported LOW risk and 0 affected
+  processes; targeted ExportModal ESLint; focused style/release Vitest with 1 file / 4 selected
+  tests; `vue-tsc`; production build with 4653 modules in 37.62s; and GitNexus detect with low
+  risk, 39 dirty files across the whole working tree, 10 changed symbols, and 0 affected
+  processes. Dirty-file counts include unrelated pre-existing files.
 - Boundary: this is UI copy localization and narrow viewport proof only. It does not prove WeChat
   PC paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,

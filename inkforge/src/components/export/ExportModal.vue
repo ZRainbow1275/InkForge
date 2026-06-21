@@ -278,7 +278,7 @@ const styleCatalogPreflightRow = computed<PreflightRow>(() => {
       key: 'style-catalog',
       label: '样式能力目录',
       state: 'blocked',
-      detail: `${selectedAction.availability.choice.label} 当前不可应用：${selectedAction.reason}；${proofTail}`,
+      detail: `${selectedAction.availability.choice.label} 当前不可应用：${styleChoiceNoticeLabel(selectedAction.reason)}；${proofTail}`,
     }
   }
 
@@ -804,7 +804,7 @@ function styleChoiceNoticeLabel(notice: string): string {
 }
 
 function styleChoiceDetail(availability: StyleChoiceAvailability): string {
-  const fallback = `fallback：${styleArtifactLabel(availability.choice.fallbackOutput)}`
+  const fallback = `降级：${styleArtifactLabel(availability.choice.fallbackOutput)}`
   if (availability.usable) {
     const evidence = availability.bestEvidence ? styleEvidenceLabel(availability.bestEvidence) : '无'
     return `当前证据 ${evidence}，${fallback}`

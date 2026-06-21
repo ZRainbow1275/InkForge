@@ -2893,6 +2893,10 @@ Contracts:
   `selectable`, `usable`, release-gate reports, execution runbooks, or manifest proof state.
 - Unknown future catalog notice strings may fall back to their original text so new upstream
   blockers remain visible instead of being silently hidden.
+- Fallback output labels inside style cards must use the Chinese operator prefix `降级：`, not a
+  raw English `fallback:` label.
+- The style-catalog preflight blocked row must localize the selected action `reason` through the
+  same notice mapper used by style cards before rendering.
 - Chinese notice rendering must keep market/H5/SVG fallback boundaries explicit:
   mobile-preview proof missing, Dark Mode proof missing, cover-thumbnail proof missing,
   public-host/upload gaps, credentialed sync gaps, plugin-transfer observations, and H5/design
@@ -2903,5 +2907,7 @@ Required checks:
   fragments are absent while their Chinese equivalents are present.
 - Narrow-viewport verification must confirm no horizontal overflow or clipped style-card text at
   mobile width.
+- Follow-up verification must also check that `fallback：` no longer appears in the visible style
+  capability UI and that the Chinese `降级：` label remains readable.
 - Documentation must keep the boundary clear: localized copy does not prove phone preview,
   public-host, sync, scheduled-send, platform-preview, upload, or publish success.

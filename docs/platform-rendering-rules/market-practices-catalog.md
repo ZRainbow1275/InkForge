@@ -990,6 +990,9 @@ Rules:
   external proof exists", not "verified".
 - Unknown future catalog strings should remain visible as-is until a reviewed localization is
   added.
+- Style-card fallback labels and style-catalog preflight blocked reasons are part of the same
+  operator surface. Render fallback output as `降级：...` and pass preflight `reason` strings
+  through the same localized notice mapper before display.
 - Narrow UI checks must cover style-card details at mobile width because these cards contain dense
   evidence summaries, blocker chips, and execution-runbook counts.
 

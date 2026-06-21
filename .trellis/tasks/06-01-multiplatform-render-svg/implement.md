@@ -8621,3 +8621,45 @@ Boundary:
 - It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
   preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.
+
+## 2026-06-22 Style Choice Notice Display Consistency Follow-up
+
+Scope:
+- Local ExportModal style-card and style-catalog preflight copy only.
+- No renderer output, catalog availability, proof manifest, release gate, sync, preview, upload,
+  scheduled send, public rendering, or publish behavior was changed.
+
+Implementation:
+- `styleChoiceDetail()` now displays fallback output with the Chinese prefix `降级：`.
+- `styleCatalogPreflightRow` now routes a blocked selected style action reason through
+  `styleChoiceNoticeLabel()` before rendering the row detail.
+- This extends the prior style-choice notice localization to the remaining dense style capability
+  surfaces in ExportModal.
+
+Verification:
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:styleChoiceDetail -r InkForge --depth 3`:
+  LOW risk, one direct dependent, zero affected processes.
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:styleCatalogPreflightRow -r InkForge --depth 3`:
+  LOW risk, zero affected processes.
+- `pnpm --dir inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm --dir inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style choice|release claims" --reporter=default`:
+  passed 1 file / 4 selected tests.
+- `pnpm --dir inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm --dir inkforge build`: passed, 4653 modules
+  transformed and built in 37.62s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- CloakBrowser narrow viewport smoke used a real local article and the real `发布` button. At
+  `390x844`, ExportModal readback reported `fallbackOld=false`, `fallbackNewCount=17`,
+  no known English reason fragments, `scrollWidth=390`, `bodyScrollWidth=390`, and
+  `overflowCount=0`.
+- The current selected style was available, so the preflight blocked branch was not visible in the
+  default modal state; the branch now reuses `styleChoiceNoticeLabel()` and remained covered by
+  lint/type/build checks.
+- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 39 dirty files across the
+  whole working tree, 10 changed symbols, 0 affected processes. The dirty-file count includes
+  unrelated pre-existing files.
+
+Boundary:
+- This is UI display-copy consistency only. It does not prove WeChat PC editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
+  host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
+  upload, or publish success.

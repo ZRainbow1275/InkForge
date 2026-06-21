@@ -3954,6 +3954,8 @@ Boundary:
 
 - ExportModal style cards now translate known catalog blocker/reason strings into compact Chinese
   display copy before rendering the operator UI.
+- Follow-up display consistency replaces the remaining raw `fallback：` label with `降级：` and
+  localizes the style-catalog preflight blocked action reason through the same notice mapper.
 - This is a display-layer mapping only: the runtime catalog, style availability, selectable state,
   release-gate reports, execution runbooks, and committed proof manifests are unchanged.
 - Added evidence file:
@@ -3965,6 +3967,14 @@ Boundary:
   at `390x844` through a real local article and the real `发布` button found known English blocker
   fragments absent, Chinese notices present, the Amber card still blocked, and `scrollWidth=390`,
   `bodyScrollWidth=390`, `overflowCount=0`.
+- Follow-up verification passed: GitNexus impact for `styleChoiceDetail` and exact
+  `styleCatalogPreflightRow` reported LOW risk with 0 affected processes; targeted ExportModal
+  ESLint; focused style/release Vitest with 1 file / 4 selected tests; `vue-tsc`; production build
+  with 4653 modules in 37.62s; and GitNexus detect with low risk, 39 dirty files across the whole
+  working tree, 10 changed symbols, and 0 affected processes. CloakBrowser narrow readback at
+  `390x844` reported `fallbackOld=false`, `fallbackNewCount=17`, no known English reason
+  fragments, `scrollWidth=390`, `bodyScrollWidth=390`, and `overflowCount=0`. Runtime screenshots
+  were used only for local visual inspection and are not committed artifacts.
 - Boundary: this is UI copy localization and narrow viewport validation only. It does not prove
   WeChat PC paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
