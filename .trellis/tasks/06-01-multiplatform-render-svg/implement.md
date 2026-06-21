@@ -7615,3 +7615,58 @@ Boundary:
 - This is local XHS clean-text export and exact-artifact accounting only.
 - It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
   scheduled send, public article rendering, or publish success.
+
+## 2026-06-21 Zhihu Clean Column Local Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `zhihu-clean-column`.
+- No Zhihu account login, account upload, public-host publication, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish action was executed or
+  claimed.
+
+Implementation:
+- Added `prompts/0601/evidence/zhihu-clean-column-local-artifact-20260621.md`, generated through
+  the real `markdownToZhihuClean(...)` clean Markdown export path with source-owned content.
+- Added `prompts/0601/evidence/zhihu-clean-column-local-evidence-20260621.txt`.
+- Added `createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest()` so clean Markdown proof
+  does not reuse the Zhihu image/table helper and does not claim `local-browser-rendering`,
+  `public-image-host`, or `zhihu-artifact-manifest`.
+- Added one committed local `zhihu-clean-column` manifest.
+- The manifest satisfies only local `unit-test-coverage`, `exact-artifact`, and
+  `no-sensitive-artifact` rows for the exact persisted Markdown artifact.
+- `scheduled-send-readback` and `published-url-or-platform-preview` remain missing and
+  unsafe-to-automate.
+
+Evidence:
+- Export result: 248 Markdown chars before the final persisted newline.
+- Pipeline counters: `tablesConverted=0`, `latexBlocksConverted=0`, `latexInlinesConverted=0`,
+  `codeLangsFixed=0`, and `issues=[]`.
+- Persisted artifact bytes: 563.
+- Persisted artifact hash:
+  `sha256:eccc28007327ade6c6b05fd37567dd31632b9daada68b28aa7146afe8b64b329`.
+- Local hygiene check found no HTML tags, inline SVG, `data-ink-svg`, or `foreignObject`.
+- Current release-gate readout after this slice: `localManifestCount=8`,
+  `combinedManifestCount=10`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+
+Verification:
+- GitNexus impact:
+  - `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 4 direct dependents, 0 affected
+    processes.
+- TDD first run exposed stale committed-manifest and release-gate counts.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform-export regression passed 1 file / 153 tests.
+- 4-file cross-platform export regression passed 4 files / 192 tests.
+- Full export service serial regression passed 35 files / 1126 tests.
+- Targeted ESLint passed for `style-catalog.ts` and `platform-export-rendering.test.ts`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 27.68s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This is local Zhihu clean Markdown export and exact-artifact accounting only.
+- It does not prove Zhihu public image-host acceptance, account upload, editor preview, sync,
+  scheduled send, platform preview, public article rendering, or publish success.

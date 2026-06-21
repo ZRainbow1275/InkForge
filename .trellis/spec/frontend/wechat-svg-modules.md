@@ -2038,8 +2038,9 @@ Contracts:
 
 Required tests:
 - The committed local pack returns three WeChat flagship manifests, XHS clean-text,
-  cover-carousel, and cover-hook local manifests, and the Zhihu data-table local manifest, all as
-  safe committed artifacts, with no duplicate artifact ids and no sensitive/unsafe commit issues.
+  cover-carousel, and cover-hook local manifests, and Zhihu clean-column plus data-table local
+  manifests, all as safe committed artifacts, with no duplicate artifact ids and no
+  sensitive/unsafe commit issues.
 - The pack report has `validManifestCount:0` because external proof is intentionally absent; this
   is expected and must not be relaxed.
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
@@ -2064,6 +2065,11 @@ Required tests:
   `zhihu-artifact-manifest`, `public-image-host`, credentialed sync, scheduled-send,
   platform-preview, public article rendering, or publish proof without separate validator,
   public-host, and platform evidence.
+- The Zhihu clean-column committed local manifest may satisfy only `unit-test-coverage`,
+  `exact-artifact`, and `no-sensitive-artifact` for the exact source-owned clean Markdown
+  artifact. It must not claim `local-browser-rendering`, `public-image-host`,
+  `zhihu-artifact-manifest`, credentialed sync, scheduled-send, platform-preview, public article
+  rendering, or publish proof.
 - The committed WeChat PC pack returns cloned Amber and Tempera manifests. Amber artifacts point
   to the redacted Amber PC evidence file with fingerprint
   `sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d`; Tempera artifacts
@@ -2072,13 +2078,13 @@ Required tests:
 - The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
-- The combined committed-evidence audit must return 9 cloned manifests, keep artifact ids unique,
+- The combined committed-evidence audit must return 10 cloned manifests, keep artifact ids unique,
   expose exact-artifact fingerprint conflicts only for still-divergent choice rows, and keep phone
   preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
   unclaimable. As of the 2026-06-21 Tempera reconciliation, the committed pack has no current
   exact-artifact fingerprint conflicts.
 - The combined committed-evidence runbook report must return local / WeChat PC / combined runbook
-  views for the same 7-local plus 2-WeChat-PC manifest combined pack, keep exact-artifact
+  views for the same 8-local plus 2-WeChat-PC manifest combined pack, keep exact-artifact
   conflicts visible at summary and issue-list level only when they exist, and keep WeChat phone
   preview blocked-by-external, WeChat scheduled-send and XHS publish unsafe-to-automate, and Zhihu
   public-host blocked-by-external.
@@ -2463,7 +2469,7 @@ Current audited state:
   `status:"blocked-by-local-conflict"` and `canClaimComplete:false`.
 - The current report exposes five blocker buckets: local conflict, phone preview, external
   dependency, unsafe-to-automate, and mutating platform.
-- The combined committed-evidence summary currently exposes 9 manifests, 13 issues, no
+- The combined committed-evidence summary currently exposes 10 manifests, 13 issues, no
   exact-artifact fingerprint conflicts, 34 cannot-claim steps, 4 phone-open steps,
   14 external-dependency-open steps, 13 unsafe-to-automate steps, and 13 mutating-open steps.
 - The combined execution runbook currently keeps 34 proof steps open and cannot-claim. This is

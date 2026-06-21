@@ -2222,6 +2222,14 @@ interface CommittedStyleProofZhihuLocalEvidenceManifestOptions {
   reportRef: string
 }
 
+interface CommittedStyleProofZhihuCleanMarkdownEvidenceManifestOptions {
+  choiceId: 'zhihu-clean-column'
+  label: string
+  artifactFingerprint: string
+  artifactRef: string
+  reportRef: string
+}
+
 interface CommittedStyleProofWechatPcEvidenceManifestOptions {
   choiceId: 'wechat-flagship-amber' | 'wechat-flagship-tempera'
   idPrefix: string
@@ -2258,6 +2266,12 @@ const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_REPORT_REF =
   'prompts/0601/evidence/zhihu-data-table-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_ARTIFACT_REF =
+  'prompts/0601/evidence/zhihu-clean-column-local-artifact-20260621.md'
+
+const COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_REPORT_REF =
+  'prompts/0601/evidence/zhihu-clean-column-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-amber-ordinary-ctrlv-disposable-draft-20260618.txt'
@@ -2580,6 +2594,68 @@ function createCommittedStyleProofZhihuLocalEvidenceManifest(
   }
 }
 
+function createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest(
+  options: CommittedStyleProofZhihuCleanMarkdownEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId
+
+  return {
+    platform: 'zhihu',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact clean Markdown artifact binding`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.artifactRef,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'zhihu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
 function createCommittedStyleProofWechatPcEvidenceManifest(
   options: CommittedStyleProofWechatPcEvidenceManifestOptions,
 ): StyleProofManifest {
@@ -2751,6 +2827,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF,
+  }),
+  createCommittedStyleProofZhihuCleanMarkdownEvidenceManifest({
+    choiceId: 'zhihu-clean-column',
+    label: 'Zhihu clean column',
+    artifactFingerprint: 'sha256:eccc28007327ade6c6b05fd37567dd31632b9daada68b28aa7146afe8b64b329',
+    artifactRef: COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_ZHIHU_CLEAN_COLUMN_REPORT_REF,
   }),
   createCommittedStyleProofZhihuLocalEvidenceManifest({
     choiceId: 'zhihu-data-table',

@@ -2917,3 +2917,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local XHS clean-text export and exact-artifact accounting only. It does not
   prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
+
+## 2026-06-21 Zhihu Clean Column Local Evidence
+
+- [x] zhihu-clean-column-local-artifact-20260621.md
+- [x] zhihu-clean-column-local-evidence-20260621.txt
+- Generated a source-owned clean Zhihu Markdown artifact through the real local
+  `markdownToZhihuClean(..., { tableHandling:'preserve', codeLangCoerce:true })` path.
+- The persisted artifact hash is
+  `sha256:eccc28007327ade6c6b05fd37567dd31632b9daada68b28aa7146afe8b64b329`; persisted bytes are
+  563, exporter Markdown char count before the final file newline is 248, and pipeline
+  `issues=[]`.
+- Local hygiene check found no HTML tags, inline SVG, `data-ink-svg`, or `foreignObject`.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `zhihu-clean-column`
+  manifest. It satisfies local `unit-test-coverage`, `exact-artifact`, and
+  `no-sensitive-artifact` rows only.
+- The clean-column manifest intentionally does not claim `local-browser-rendering`,
+  `public-image-host`, or `zhihu-artifact-manifest`.
+- Current release-gate readout after this slice is `localManifestCount=8`,
+  `combinedManifestCount=10`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 27.68s.
+- Boundary: this is local Zhihu clean Markdown export and exact-artifact accounting only. It does
+  not prove Zhihu public image-host acceptance, account upload, editor preview, sync, scheduled
+  send, platform preview, public article rendering, or publish success.
