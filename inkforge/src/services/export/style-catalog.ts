@@ -2212,6 +2212,7 @@ interface CommittedStyleProofWechatLocalHtmlEvidenceManifestOptions {
     | 'wechat-toolbar-parameter-map'
     | 'wechat-cover-seal-divider'
     | 'wechat-card-rich'
+    | 'wechat-flagship-kiln-paste-safe'
   label: string
   artifactFingerprint: string
   artifactRef: string
@@ -2304,6 +2305,12 @@ const COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_REPORT_REF =
   'prompts/0601/evidence/wechat-card-rich-local-evidence-20260622.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_ARTIFACT_REF =
+  'prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html'
+
+const COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_REPORT_REF =
+  'prompts/0601/evidence/wechat-kiln-paste-safe-committed-local-evidence-20260622.txt'
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
@@ -3044,6 +3051,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     label: 'Kiln creative flagship',
     artifactFingerprint: 'prompts/0601/evidence/e2e/flagship-kiln.png@tauri-webview-e2e',
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-kiln.png',
+  }),
+  createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
+    choiceId: 'wechat-flagship-kiln-paste-safe',
+    label: 'Kiln ordinary-paste compatibility candidate',
+    artifactFingerprint: 'sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491',
+    artifactRef: COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_KILN_PASTE_SAFE_REPORT_REF,
   }),
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-tempera',

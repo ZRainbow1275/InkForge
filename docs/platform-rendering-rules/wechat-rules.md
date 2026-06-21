@@ -521,3 +521,23 @@ Step 8: 输出 WeChat-Compatible HTML
 - 本地 browser/exact artifact 证据最多满足 `unit-test-coverage`、`local-browser-rendering`、
   `exact-artifact`、`no-sensitive-artifact`。PC 粘贴、手机预览、Dark Mode、同步、定时发送、
   平台预览、公网渲染和发布成功仍是外部门禁。
+
+## 十一、Kiln Paste-Safe 本地 committed 证据规则
+
+2026-06-22 `wechat-flagship-kiln-paste-safe` 本地证据确认：已跟踪的
+`wechat-paste/flagship-kiln-paste-safe.html` 可以纳入 committed local manifest，作为赤陶普通
+粘贴兼容候选的本地 exact artifact。
+
+本地规则：
+
+- 该 artifact 必须保持 `cover-title`、`i-stretch`、`divider-forge` 三个 `data-ink-svg`
+  哨兵，以及旗舰阅读条、目录、引语、导语、横幅、数据、对比、时间线、相册、footer 等
+  `data-ink-block` 哨兵。
+- 该 artifact 的 SHA-256 固定为
+  `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`，变更时必须
+  重新生成证据和 manifest。
+- 历史 WeChat PC 普通 Ctrl+V 尝试仍是负向证据：wrong-tab cleanup 与 single-tab no-paste 都不能
+  满足 `pc-editor-paste-event` 或 `safe-disposable-draft`。
+- 本地 artifact 可满足 `unit-test-coverage`、`local-browser-rendering`、`exact-artifact`、
+  `no-sensitive-artifact`；PC 粘贴、手机预览、Dark Mode、封面缩略图、同步、定时发送、平台预览、
+  公网渲染和发布成功仍需另证。

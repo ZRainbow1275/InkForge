@@ -1,0 +1,112 @@
+WeChat Kiln Paste-Safe Committed Local Evidence - 2026-06-22
+
+Scope:
+- Repository-committed local browser and exact-artifact evidence for
+  `wechat-flagship-kiln-paste-safe`.
+- This slice reuses the already tracked exact artifact
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- No WeChat account login, official editor paste, phone preview, mobile Dark Mode check, cover
+  thumbnail check, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish action was executed or claimed in this slice.
+
+Existing source evidence:
+- `prompts/0601/evidence/wechat-kiln-paste-safe-candidate-local-probe-20260618.txt` recorded
+  the original candidate generation and local probe.
+- `prompts/0601/evidence/wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt`
+  recorded a negative wrong-tab PC paste attempt and cleanup.
+- `prompts/0601/evidence/wechat-kiln-paste-safe-wechat-ctrlv-single-tab-nopaste-20260618.txt`
+  recorded a negative single-tab PC paste attempt.
+- Those PC attempts remain negative proof. They do not satisfy ordinary paste, disposable draft,
+  phone preview, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public
+  rendering, or publish requirements.
+
+Artifact:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- HTML hash:
+  `sha256:338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- HTML bytes: 41618.
+- Historical metadata from the original probe:
+  `cfHtmlBytes=41787`, `svgCount=35`, `dataInkSvgCount=3`, `dataInkBlockCount=23`,
+  first module `cover-title`.
+
+Independent file verification:
+- Re-read the tracked HTML artifact from disk.
+- Recomputed SHA-256 and byte length.
+- Verified required sentinels:
+  `id="nice"`, `data-ink-svg="cover-title"`, `data-ink-svg="i-stretch"`,
+  `data-ink-svg="divider-forge"`, `data-ink-block="flagship-readbar"`,
+  `data-ink-block="flagship-timeline"`, and `data-ink-block="flagship-footer"`.
+- Verified no publishable residue markers:
+  no `<style>`, no `<foreignObject>`, no active script protocol, no `_135editor` / `135brush` /
+  `data-tools="135编辑器"`, no structured `tn-*` or `ng-*` authoring attributes/classes, no
+  `statics.xiumi.us`, no `app-content-canvas`, no `contenteditable`, and no local runtime path.
+- Independent counts:
+  `svg=35`, `dataInkSvg=3`, `dataInkBlock=23`, `coverTitle=1`, `iStretch=1`,
+  `dividerForge=1`.
+
+CloakBrowser local artifact readback:
+- Loaded the tracked artifact through a read-only local preview in CloakBrowser.
+- Desktop viewport readback:
+  `viewportWidth=1400`, `viewportHeight=900`, `documentScrollWidth=1385`,
+  `documentClientWidth=1385`, `bodyScrollWidth=701`, `bodyClientWidth=701`,
+  `bodyOverflowX=false`.
+- Export shell readback:
+  `nice.width=677`, `nice.scrollWidth=677`, `nice.clientWidth=677`, `clamp.width=669`,
+  `clamp.left=358`, `clamp.right=1027`, `clamp.scrollWidth=669`, `clamp.clientWidth=669`,
+  `clamp.style=max-width:677px;margin:0 auto;`.
+- Page overflow readback:
+  `bodyOverflowX=false`; one internal SVG `<text>` node reported a small scroll-width delta
+  (`clientWidth=25`, `scrollWidth=29`) without causing page-level overflow.
+- DOM safety readback:
+  `svgElementCount=35`, `styleElementCount=0`, `foreignObjectCount=0`, `imageInSvgCount=0`,
+  `scriptCount=0`, `textLength=1370`.
+- SVG sentinel readback:
+  `dataInkSvgCount=3`, `svgValues=cover-title,i-stretch,divider-forge`.
+- Block sentinel readback:
+  `dataInkBlockCount=23`, with `flagship-readbar=1`, `flagship-toc=1`, `flagship-quote=2`,
+  `flagship-lede=1`, `flagship-banner=1`, `flagship-stat=1`, `flagship-compare=1`,
+  `flagship-timeline=1`, `flagship-gallery=1`, and `flagship-footer=1`.
+
+Runtime manifest behavior:
+- Added one committed local `wechat-flagship-kiln-paste-safe` manifest.
+- It claims only `unit-tested` and `local-browser` evidence.
+- It satisfies only `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` accounting for the exact HTML artifact.
+- It keeps `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`,
+  `cover-thumbnail-check`, and `published-url-or-platform-preview` missing.
+
+Verification:
+- Independent Node file verification passed.
+- CloakBrowser local artifact readback passed for desktop DOM, clamp width, page overflow,
+  SVG/block sentinels, and safety counts.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed 1 file / 155 tests.
+- Cross-platform export regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  passed 4 files / 194 tests.
+- Full export serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed 36 files / 1132 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Typecheck passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; Vite transformed 4653 modules
+  and built in 35.83s. The generated `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --check` passed for the Kiln paste-safe committed local slice files with only Windows
+  line-ending conversion warnings.
+- GitNexus detect reported the whole working tree at 39 files / 18 changed symbols /
+  0 affected processes / low risk; the count includes unrelated pre-existing dirty files outside
+  this slice.
+
+Boundary:
+- This is local WeChat Kiln paste-safe browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.
