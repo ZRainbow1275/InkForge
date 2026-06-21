@@ -797,14 +797,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `phone-preview platformStepCounts=[wechat:4]`,
   `external-dependency platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:5]`,
   `unsafe-to-automate platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:4]`.
+- ExportModal now surfaces the same count fields in the existing committed proof preflight row,
+  while keeping the row blocked and preserving the cannot-claim boundary.
 - Verification passed: GitNexus impact checks for the release-gate report, release blocker helper,
   and blocker interface; focused `release claims` regression with 1 selected test; direct `tsx`
   live report readout; full `platform-export-rendering.test.ts` regression with 1 file /
   155 tests; four-file cross-platform export regression with 4 files / 194 tests; full export
   serial regression with 36 files / 1132 tests; targeted ESLint; `vue-tsc`; production build with
-  4653 transformed modules in 37.94s; and `git diff --check` for slice files. GitNexus detect
-  reported 40 dirty files across the whole working tree, 22 changed symbols, 0 affected
+  4653 transformed modules in 37.94s; ExportModal UI production build with 4653 transformed
+  modules in 33.96s; and `git diff --check` for slice files. GitNexus detect
+  reported 39 dirty files across the whole working tree, 24 changed symbols, 0 affected
   processes, and low risk; the dirty-file count includes unrelated pre-existing files.
+- Additional UI smoke passed through CloakBrowser: a real local article was created through the UI,
+  the real `发布` button opened ExportModal, the committed proof preflight row displayed
+  `本地冲突 16`, `缺项 13`, `目录阻断 3`, `手机预览 4`, `外部依赖 14`, `小红书 2`,
+  `知乎 5`, `requirementCounts`, and the cannot-claim sentence; desktop readback reported
+  `scrollWidth=1400`, `bodyScrollWidth=1400`, and `overflowCount=0`.
 - Boundary: this is release-gate accounting only. It does not prove WeChat PC paste, phone
   preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
   preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.

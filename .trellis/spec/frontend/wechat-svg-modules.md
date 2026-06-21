@@ -2861,6 +2861,10 @@ Contracts:
 - Snapshot counts are not proof. Consumers must read the live report and keep phone preview,
   Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform preview,
   public rendering, and publish rows unclaimable until exact redacted external evidence exists.
+- ExportModal's committed proof preflight row must surface these counts read-only. The summary may
+  show `issueCount`, `stepCount`, platform step counts, and leading requirement step counts, but
+  it must not change the row's `blocked` state while `canClaimComplete:false`, and it must not
+  enable publish/sync actions.
 
 Required checks:
 - Regression tests must prove `issueIds` is de-duplicated while `issueCounts` preserves the
@@ -2869,3 +2873,6 @@ Required checks:
   mutating-platform blockers expose platform and requirement step counts.
 - Evidence docs must include the current report status, manifest counts, blocker counts, and the
   cannot-claim boundary.
+- ExportModal verification must use the real UI surface and prove the preflight row displays the
+  counted blocker details without claiming phone, sync, public host, scheduled send, or publish
+  completion.

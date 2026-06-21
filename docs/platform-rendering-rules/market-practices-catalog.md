@@ -943,6 +943,9 @@ Rules:
   see whether the remaining work is WeChat phone preview, credentialed editor/channel work, public
   host validation, scheduled send, or platform publish readback.
 - The local-conflict blocker summarizes manifest issues and may have empty step-count arrays.
+- ExportModal may display these counts in the committed proof preflight row, but the row stays
+  blocked while `canClaimComplete=false` and must not enable sync, upload, scheduled-send, preview,
+  or publish actions.
 - Snapshot counts are diagnostic only. They must never be used to infer phone preview, Dark Mode,
   cover thumbnail, sync, upload, public-host, scheduled-send, platform-preview, public rendering,
   or publish success.

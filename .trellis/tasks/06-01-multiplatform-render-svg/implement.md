@@ -8486,6 +8486,8 @@ Implementation:
 - Step-backed blockers now expose current open-step counts by platform and proof requirement.
 - The local-conflict blocker remains a manifest-issue summary and may expose empty step-count
   breakdown arrays.
+- ExportModal committed proof preflight now surfaces those count fields in the existing read-only
+  blocked row without changing action availability.
 
 Current live report snapshot:
 - `status=blocked-by-local-conflict`
@@ -8512,10 +8514,24 @@ Verification:
   LOW risk, one direct dependent, Export module only, zero affected processes.
 - `npx gitnexus impact CommittedStyleProofReleaseGateBlocker -r InkForge --depth 3`:
   LOW risk, one direct dependent, zero affected processes.
+- `npx gitnexus impact styleProofReleaseBlockerLabel -r InkForge --depth 3`:
+  LOW risk, zero affected processes.
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:committedStyleProofReleasePreflightRow -r InkForge --depth 3`:
+  LOW risk, zero affected processes.
+- `npx gitnexus impact Function:inkforge/src/components/export/ExportModal.vue:styleProofReleaseGateSummary -r InkForge --depth 3`:
+  LOW risk, zero affected processes.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`:
   passed 1 file / 1 selected test.
 - Direct `tsx` readout of `getCommittedStyleProofEvidenceReleaseGateReport()` produced the
   snapshot above.
+- CloakBrowser UI smoke:
+  - Created a real local article through the UI and opened Workstation.
+  - Opened ExportModal through the real `发布` button.
+  - Verified the committed proof preflight row displayed `本地冲突 16`, `缺项 13`,
+    `目录阻断 3`, `手机预览 4`, `微信公众号 4`, `外部依赖 14`, `小红书 2`, `知乎 5`,
+    `requirementCounts`, and the cannot-claim sentence.
+  - Desktop readback reported `width=1400`, `height=900`, `scrollWidth=1400`,
+    `bodyScrollWidth=1400`, and `overflowCount=0`.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
   passed 1 file / 155 tests.
 - `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
@@ -8527,10 +8543,12 @@ Verification:
 - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
 - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
   transformed and built in 37.94s.
+- ExportModal UI production build after the UI surface update passed, 4653 modules transformed and
+  built in 33.96s.
 - `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build.
 - `git diff --check` for the slice files passed with Windows line-ending conversion warnings only.
-- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 40 dirty files across the
-  whole working tree, 22 changed symbols, 0 affected processes. The dirty-file count includes
+- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 39 dirty files across the
+  whole working tree, 24 changed symbols, 0 affected processes. The dirty-file count includes
   unrelated pre-existing files.
 
 Boundary:

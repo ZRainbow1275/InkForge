@@ -10,6 +10,8 @@ Implemented:
 - `CommittedStyleProofReleaseGateBlocker.platformStepCounts`
 - `CommittedStyleProofReleaseGateBlocker.requirementStepCounts`
 - `CommittedStyleProofReleaseGateBlocker.issueCounts`
+- ExportModal committed proof preflight now displays those count fields in the existing
+  read-only blocked row.
 
 Behavior:
 - `issueIds` is now de-duplicated for quick scanning.
@@ -101,14 +103,31 @@ Verification:
 - `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
   - PASS.
 - `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
-  - PASS: 4653 modules transformed, built in 37.94s.
+  - PASS after release-gate service update: 4653 modules transformed, built in 37.94s.
+  - PASS after ExportModal UI update: 4653 modules transformed, built in 33.96s.
 - `git diff --check` for the slice files
   - PASS with Windows line-ending conversion warnings only.
 - `npx gitnexus detect-changes -r InkForge --scope all`
-  - low risk, 40 dirty files across the whole working tree, 22 changed symbols,
+  - low risk, 39 dirty files across the whole working tree, 24 changed symbols,
     zero affected processes. The dirty-file count includes unrelated pre-existing files.
 - `inkforge/tsconfig.tsbuildinfo`
   - restored after typecheck/build; generated cache is intentionally not part of this slice.
+- ExportModal UI verification:
+  - A real local article was created through the InkForge UI and opened in Workstation.
+  - The real `发布` button opened the export modal.
+  - CloakBrowser readback found the committed proof preflight row with:
+    - `本地冲突 16`
+    - `缺项 13`
+    - `目录阻断 3`
+    - `手机预览 4`
+    - `微信公众号 4`
+    - `外部依赖 14`
+    - `小红书 2`
+    - `知乎 5`
+    - `requirementCounts`
+    - `不得声明手机预览、同步、发布或 public host 已完成`
+  - Desktop viewport readback: `width=1400`, `height=900`, `scrollWidth=1400`,
+    `bodyScrollWidth=1400`, `overflowCount=0`.
 
 Boundary:
 - This proves release-gate accounting fields and regression coverage only.

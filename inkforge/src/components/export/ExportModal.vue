@@ -319,21 +319,75 @@ const styleAcceptancePreflightRow = computed<PreflightRow>(() => {
   }
 })
 
+function platformLabel(platform: Platform): string {
+  return PLATFORMS.find(item => item.id === platform)?.name ?? platform
+}
+
+function styleProofReleaseIssueIdLabel(issueId: CommittedStyleProofReleaseGateBlocker['issueCounts'][number]['issueId']): string {
+  const labels: Partial<Record<CommittedStyleProofReleaseGateBlocker['issueCounts'][number]['issueId'], string>> = {
+    'style-proof-manifest-requirement-missing': '缺项',
+    'style-proof-manifest-choice-blocked': '目录阻断',
+    'style-proof-manifest-pack-fingerprint-mismatch': '指纹冲突',
+  }
+  return labels[issueId] ?? issueId
+}
+
+function styleProofReleaseIssueCountsLabel(blocker: CommittedStyleProofReleaseGateBlocker): string {
+  if (blocker.issueCounts.length === 0) return ''
+
+  return blocker.issueCounts
+    .slice(0, 3)
+    .map(item => `${styleProofReleaseIssueIdLabel(item.issueId)} ${item.count}`)
+    .join('，')
+}
+
+function styleProofReleasePlatformCountsLabel(blocker: CommittedStyleProofReleaseGateBlocker): string {
+  if (blocker.platformStepCounts.length === 0) return ''
+
+  return blocker.platformStepCounts
+    .map(item => `${platformLabel(item.platform)} ${item.stepCount}`)
+    .join('，')
+}
+
+function styleProofReleaseRequirementCountsLabel(blocker: CommittedStyleProofReleaseGateBlocker): string {
+  if (blocker.requirementStepCounts.length === 0) return ''
+
+  return blocker.requirementStepCounts
+    .slice(0, 3)
+    .map(item => `${styleProofRequirementLabel(item.requirementId)} ${item.stepCount}`)
+    .join('，')
+}
+
 function styleProofReleaseBlockerLabel(blocker: CommittedStyleProofReleaseGateBlocker): string {
+  const issueCounts = styleProofReleaseIssueCountsLabel(blocker)
+  const platformCounts = styleProofReleasePlatformCountsLabel(blocker)
+  const suffix = [issueCounts, platformCounts].filter(Boolean).join('；')
+  const withSuffix = (label: string) => suffix ? `${label}（${suffix}）` : label
+
   switch (blocker.kind) {
     case 'local-conflict':
-      return `本地冲突 ${blocker.issueIds.length}`
+      return withSuffix(`本地冲突 ${blocker.issueCount}`)
     case 'phone-preview':
-      return `手机预览 ${blocker.requirementIds.length}`
+      return withSuffix(`手机预览 ${blocker.stepCount}`)
     case 'external-dependency':
-      return `外部依赖 ${blocker.requirementIds.length}`
+      return withSuffix(`外部依赖 ${blocker.stepCount}`)
     case 'unsafe-to-automate':
-      return `需人工 ${blocker.requirementIds.length}`
+      return withSuffix(`需人工 ${blocker.stepCount}`)
     case 'mutating-platform':
-      return `平台变更 ${blocker.requirementIds.length}`
+      return withSuffix(`平台变更 ${blocker.stepCount}`)
     default:
       return blocker.kind
   }
+}
+
+function styleProofReleaseRequirementCounts(
+  blockers: readonly CommittedStyleProofReleaseGateBlocker[],
+): string {
+  const labels = blockers
+    .map(styleProofReleaseRequirementCountsLabel)
+    .filter(Boolean)
+
+  return labels.length ? labels.slice(0, 3).join('；') : '无'
 }
 
 function styleProofReleaseNextOperatorActionLabel(
@@ -368,6 +422,7 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
   const blockerSummary = gate.blockers.map(styleProofReleaseBlockerLabel).join('；') || '无阻塞'
   const conflictCount = committedStyleProofReleaseConflictCount.value
   const nextOperatorActions = styleProofReleaseNextOperatorActions(gate.blockers)
+  const requirementCounts = styleProofReleaseRequirementCounts(gate.blockers)
 
   if (gate.canClaimComplete) {
     return {
@@ -382,7 +437,7 @@ const committedStyleProofReleasePreflightRow = computed<PreflightRow>(() => {
     key: 'committed-proof-release',
     label: '提交证据宣称门禁',
     state: 'blocked',
-    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
+    detail: `canClaimComplete=false；status ${gate.status}；blockers ${gate.blockers.length}；fingerprintConflicts ${conflictCount}；${blockerSummary}；requirementCounts ${requirementCounts}；operatorNext ${nextOperatorActions}；不得声明手机预览、同步、发布或 public host 已完成。`,
   }
 })
 
