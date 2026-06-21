@@ -1,0 +1,117 @@
+Style Proof Release Blocker Count Readout - 2026-06-22
+
+Scope:
+- Add read-only count fields to the committed evidence release-gate report.
+- No platform action, browser profile artifact, phone preview, upload, sync, scheduled send,
+  platform preview, public rendering, or publish action was executed or claimed by this slice.
+
+Implemented:
+- `CommittedStyleProofReleaseGateBlocker.issueCount`
+- `CommittedStyleProofReleaseGateBlocker.platformStepCounts`
+- `CommittedStyleProofReleaseGateBlocker.requirementStepCounts`
+- `CommittedStyleProofReleaseGateBlocker.issueCounts`
+
+Behavior:
+- `issueIds` is now de-duplicated for quick scanning.
+- `issueCounts` preserves issue occurrence counts.
+- Step-backed blockers expose per-platform and per-requirement open-step counts.
+- The local-conflict blocker may expose empty step-count arrays because it summarizes manifest
+  issues, not execution-runbook steps.
+- The report remains read-only local accounting and does not alter style availability, selectable
+  state, proof status, release status, or platform behavior.
+
+Current live report snapshot:
+- status: blocked-by-local-conflict
+- canClaimComplete: false
+- localManifestCount: 20
+- wechatPcManifestCount: 2
+- combinedManifestCount: 22
+- combinedIssueCount: 16
+- hasExactArtifactFingerprintConflicts: false
+- cannotClaimSteps: 32
+- phoneOpenSteps: 4
+- externalDependencyOpenSteps: 14
+- unsafeToAutomateOpenSteps: 13
+- mutatingOpenSteps: 13
+- blockerCount: 5
+
+Current blocker count readout:
+- local-conflict:
+  - stepCount: 16
+  - issueCount: 16
+  - issueCounts:
+    - style-proof-manifest-requirement-missing: 13
+    - style-proof-manifest-choice-blocked: 3
+- phone-preview:
+  - stepCount: 4
+  - issueCount: 4
+  - platformStepCounts:
+    - wechat: 4
+  - requirementStepCounts:
+    - cover-thumbnail-check: 1
+    - dark-mode-check: 1
+    - phone-preview-readback: 1
+    - phone-screenshot: 1
+- external-dependency:
+  - stepCount: 14
+  - issueCount: 14
+  - platformStepCounts:
+    - wechat: 7
+    - xiaohongshu: 2
+    - zhihu: 5
+  - leading requirementStepCounts:
+    - published-url-or-platform-preview: 3
+    - scheduled-send-readback: 3
+    - credentialed-channel-response: 2
+    - sync-readback: 2
+    - pc-editor-dom-readback: 1
+- unsafe-to-automate:
+  - stepCount: 13
+  - issueCount: 13
+  - platformStepCounts:
+    - wechat: 7
+    - xiaohongshu: 2
+    - zhihu: 4
+- mutating-platform:
+  - stepCount: 13
+  - issueCount: 13
+  - requirementStepCounts include:
+    - published-url-or-platform-preview: 3
+    - scheduled-send-readback: 3
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`
+  - LOW risk, one direct dependent, zero affected processes.
+- `npx gitnexus impact buildCommittedStyleProofReleaseStepBlocker -r InkForge --depth 3`
+  - LOW risk, one direct dependent, Export module only, zero affected processes.
+- `npx gitnexus impact CommittedStyleProofReleaseGateBlocker -r InkForge --depth 3`
+  - LOW risk, one direct dependent, zero affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`
+  - PASS: 1 file / 1 selected test.
+- A direct `getCommittedStyleProofEvidenceReleaseGateReport()` readout was run through `tsx` and
+  produced the snapshot above.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`
+  - PASS: 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS: 4653 modules transformed, built in 37.94s.
+- `git diff --check` for the slice files
+  - PASS with Windows line-ending conversion warnings only.
+- `npx gitnexus detect-changes -r InkForge --scope all`
+  - low risk, 40 dirty files across the whole working tree, 22 changed symbols,
+    zero affected processes. The dirty-file count includes unrelated pre-existing files.
+- `inkforge/tsconfig.tsbuildinfo`
+  - restored after typecheck/build; generated cache is intentionally not part of this slice.
+
+Boundary:
+- This proves release-gate accounting fields and regression coverage only.
+- It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

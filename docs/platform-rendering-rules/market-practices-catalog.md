@@ -926,3 +926,46 @@ Rules:
 Evidence:
 - `prompts/0601/evidence/style-proof-runbook-freshness-guidance-20260621.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 20.
+
+## 11. 2026-06-22 Committed Release Blocker Count Readout
+
+The committed-evidence release gate is the operator-facing stoplight for whether local evidence,
+PC evidence, phone proof, public-host proof, credentialed channel proof, scheduled-send proof,
+platform-preview proof, and publish proof can be described as complete. It is a read-only accounting
+surface, not a renderer, uploader, synchronizer, or publisher.
+
+Rules:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` remains the only committed-evidence release
+  gate for the current redacted manifest pack.
+- `issueIds` is a de-duplicated scanner list. Use `issueCounts` when a report needs exact issue
+  occurrence totals.
+- Step-backed blockers expose `platformStepCounts` and `requirementStepCounts` so operators can
+  see whether the remaining work is WeChat phone preview, credentialed editor/channel work, public
+  host validation, scheduled send, or platform publish readback.
+- The local-conflict blocker summarizes manifest issues and may have empty step-count arrays.
+- Snapshot counts are diagnostic only. They must never be used to infer phone preview, Dark Mode,
+  cover thumbnail, sync, upload, public-host, scheduled-send, platform-preview, public rendering,
+  or publish success.
+
+Current 2026-06-22 snapshot after the WeChat Kiln paste-safe committed local proof:
+- `status=blocked-by-local-conflict`
+- `canClaimComplete=false`
+- `localManifestCount=20`
+- `wechatPcManifestCount=2`
+- `combinedManifestCount=22`
+- `combinedIssueCount=16`
+- `cannotClaimSteps=32`
+- `phoneOpenSteps=4`
+- `externalDependencyOpenSteps=14`
+- `unsafeToAutomateOpenSteps=13`
+- `mutatingOpenSteps=13`
+- `blockerCount=5`
+- local conflict issue counts: `style-proof-manifest-requirement-missing=13`,
+  `style-proof-manifest-choice-blocked=3`
+- phone preview platform counts: `wechat=4`
+- external dependency platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=5`
+- unsafe-to-automate platform counts: `wechat=7`, `xiaohongshu=2`, `zhihu=4`
+
+Evidence:
+- `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 33.

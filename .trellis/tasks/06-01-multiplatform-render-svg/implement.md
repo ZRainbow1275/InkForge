@@ -8467,3 +8467,74 @@ Boundary:
 - It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, sync, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-22 Style Proof Release Blocker Count Readout Slice
+
+Scope:
+- Strengthen the committed-evidence release-gate readout without changing renderer output,
+  availability decisions, manifest proof status, browser behavior, or platform state.
+- No platform action, phone preview, upload, sync, scheduled send, platform preview, public
+  rendering, or publish action was executed or claimed.
+
+Implementation:
+- Added `issueCount`, `platformStepCounts`, `requirementStepCounts`, and `issueCounts` to
+  `CommittedStyleProofReleaseGateBlocker`.
+- Kept existing `platforms`, `requirementIds`, `issueIds`, `stepCount`, and
+  `nextOperatorActions` fields.
+- Changed blocker `issueIds` to a de-duplicated scanner list, while `issueCounts` preserves
+  occurrence totals.
+- Step-backed blockers now expose current open-step counts by platform and proof requirement.
+- The local-conflict blocker remains a manifest-issue summary and may expose empty step-count
+  breakdown arrays.
+
+Current live report snapshot:
+- `status=blocked-by-local-conflict`
+- `canClaimComplete=false`
+- `localManifestCount=20`
+- `wechatPcManifestCount=2`
+- `combinedManifestCount=22`
+- `combinedIssueCount=16`
+- `cannotClaimSteps=32`
+- `phoneOpenSteps=4`
+- `externalDependencyOpenSteps=14`
+- `unsafeToAutomateOpenSteps=13`
+- `mutatingOpenSteps=13`
+- `blockerCount=5`
+- `local-conflict issueCounts=[requirement-missing:13, choice-blocked:3]`
+- `phone-preview platformStepCounts=[wechat:4]`
+- `external-dependency platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:5]`
+- `unsafe-to-automate platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:4]`
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofEvidenceReleaseGateReport -r InkForge --depth 3`:
+  LOW risk, one direct dependent, zero affected processes.
+- `npx gitnexus impact buildCommittedStyleProofReleaseStepBlocker -r InkForge --depth 3`:
+  LOW risk, one direct dependent, Export module only, zero affected processes.
+- `npx gitnexus impact CommittedStyleProofReleaseGateBlocker -r InkForge --depth 3`:
+  LOW risk, one direct dependent, zero affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims" --reporter=default`:
+  passed 1 file / 1 selected test.
+- Direct `tsx` readout of `getCommittedStyleProofEvidenceReleaseGateReport()` produced the
+  snapshot above.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- Targeted ESLint for `style-catalog.ts`, `index.ts`, and `platform-export-rendering.test.ts`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 37.94s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after typecheck/build.
+- `git diff --check` for the slice files passed with Windows line-ending conversion warnings only.
+- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 40 dirty files across the
+  whole working tree, 22 changed symbols, 0 affected processes. The dirty-file count includes
+  unrelated pre-existing files.
+
+Boundary:
+- This is release-gate accounting only.
+- It does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

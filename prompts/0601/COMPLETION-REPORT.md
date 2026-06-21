@@ -3896,3 +3896,36 @@ Boundary:
   accounting only. It does not prove official editor paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
   rendering, or publish success.
+
+---
+
+## 2026-06-22 Style Proof Release Blocker Count Addendum
+
+- Added read-only blocker count fields to `getCommittedStyleProofEvidenceReleaseGateReport()`:
+  `issueCount`, `platformStepCounts`, `requirementStepCounts`, and `issueCounts`.
+- `issueIds` is now a de-duplicated scanner list, while `issueCounts` preserves current issue
+  occurrence totals.
+- Current live committed-evidence release report remains blocked:
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, `localManifestCount=20`,
+  `wechatPcManifestCount=2`, `combinedManifestCount=22`, `combinedIssueCount=16`,
+  `cannotClaimSteps=32`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `blockerCount=5`.
+- Current blocker counts:
+  `local-conflict issueCounts=[requirement-missing:13, choice-blocked:3]`,
+  `phone-preview platformStepCounts=[wechat:4]`,
+  `external-dependency platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:5]`,
+  `unsafe-to-automate platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:4]`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-release-blocker-counts-20260622.txt`.
+- Verification passed: GitNexus impact checks for the release-gate report, release blocker helper,
+  and blocker interface; focused `release claims` regression with 1 selected test; direct `tsx`
+  live report readout; full `platform-export-rendering.test.ts` regression with 1 file /
+  155 tests; four-file cross-platform export regression with 4 files / 194 tests; full export
+  serial regression with 36 files / 1132 tests; targeted ESLint; `vue-tsc`; production build with
+  4653 transformed modules in 37.94s; `git diff --check` for slice files; and GitNexus detect
+  with low risk, 40 dirty files across the whole working tree, 22 changed symbols, and 0 affected
+  processes. The dirty-file count includes unrelated pre-existing files.
+- Boundary: this is release-gate accounting only. It does not prove WeChat PC paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
+  host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu
+  upload, or publish success.

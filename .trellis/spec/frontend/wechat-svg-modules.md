@@ -439,7 +439,23 @@ export interface CommittedStyleProofReleaseNextOperatorAction {
   boundary?: StyleProofExecutionBoundary
   action: string
 }
+export interface CommittedStyleProofReleasePlatformStepCount {
+  platform: Platform
+  stepCount: number
+}
+export interface CommittedStyleProofReleaseRequirementStepCount {
+  requirementId: StyleProofRequirementId
+  stepCount: number
+}
+export interface CommittedStyleProofReleaseIssueCount {
+  issueId: StyleProofManifestIssueId
+  count: number
+}
 export interface CommittedStyleProofReleaseGateBlocker {
+  issueCount: number
+  platformStepCounts: readonly CommittedStyleProofReleasePlatformStepCount[]
+  requirementStepCounts: readonly CommittedStyleProofReleaseRequirementStepCount[]
+  issueCounts: readonly CommittedStyleProofReleaseIssueCount[]
   nextOperatorActions: readonly CommittedStyleProofReleaseNextOperatorAction[]
 }
 export interface CommittedStyleProofReleaseGateReport {
@@ -2040,6 +2056,12 @@ Contracts:
   mutating-platform buckets. The local-conflict blocker must expose `fingerprintConflicts` for
   same-platform same-choice exact-artifact conflicts so operators can see which choices and
   fingerprints need separate proof collection. Every blocker must also expose
+  `issueCount`, `platformStepCounts`, `requirementStepCounts`, and `issueCounts`. `issueIds`
+  must be a de-duplicated list for scanning, while `issueCounts` preserves occurrence counts so
+  completion reports can say exactly how many missing/blocked rows remain. Step blockers must
+  count steps by platform and proof requirement; the local-conflict blocker may leave step-count
+  breakdowns empty when it is summarizing manifest issues rather than execution steps. Every
+  blocker must also expose
   `nextOperatorActions`, derived from the execution runbook rather than new proof, so the UI can
   show the next real operator action without changing release status. Phone blockers must
   prioritize phone-preview readback; external blockers must prioritize public-host or credentialed
@@ -2110,7 +2132,11 @@ Required tests:
   external-dependency, unsafe-to-automate, and mutating-platform blockers. It must include
   `phone-preview-readback`, `public-image-host`, `sync-readback`, `scheduled-send-readback`, and
   `published-url-or-platform-preview` in the appropriate blocker rows. Its local-conflict blocker
-  must include `fingerprintConflicts` only for current unresolved local-vs-PC artifact splits. As
+  must include de-duplicated `issueIds`, occurrence-preserving `issueCounts`, and
+  `fingerprintConflicts` only for current unresolved local-vs-PC artifact splits. Phone and
+  external blockers must expose `platformStepCounts` and `requirementStepCounts` so the UI and
+  completion reports can identify whether remaining work is WeChat phone, credentialed account,
+  public-host, scheduled-send, or publish readback. As
   of the 2026-06-21 Amber and Tempera reconciliations, the committed pack currently has
   `hasExactArtifactFingerprintConflicts:false`; the report remains unclaimable because missing
   proof, phone, external dependency, unsafe-to-automate, and mutating-platform rows remain open.
@@ -2809,3 +2835,37 @@ Required checks:
   `canClaimComplete:false`.
 - Evidence docs must cite the original tracked artifact, negative PC attempts, current local
   browser DOM readback, and cannot-claim boundary.
+
+## 33. Committed Release Blocker Count Readout - 2026-06-22
+
+Contracts:
+- `getCommittedStyleProofEvidenceReleaseGateReport()` is still a read-only local accounting API.
+  It must not create manifests, mutate platform state, open browsers, sync drafts, upload images,
+  schedule sends, publish articles, or change style availability.
+- Each `CommittedStyleProofReleaseGateBlocker` must expose both compact identity lists and counted
+  rows:
+  - `issueIds` is de-duplicated for quick scanning.
+  - `issueCounts` preserves occurrence counts for manifest issue ids.
+  - `issueCount` is the total blocker issue-row count.
+  - `platformStepCounts` counts open execution steps by platform for step-backed blockers.
+  - `requirementStepCounts` counts open execution steps by proof requirement for step-backed
+    blockers.
+- The local-conflict blocker summarizes manifest issues, so it may expose empty
+  `platformStepCounts` and `requirementStepCounts`; step-backed blockers must expose both count
+  arrays when they contain open steps.
+- Current committed evidence may be documented as a snapshot only. As of the 2026-06-22
+  Kiln paste-safe local proof, the live report remains `canClaimComplete:false` with
+  `localManifestCount=20`, `wechatPcManifestCount=2`, `combinedManifestCount=22`,
+  `combinedIssueCount=16`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, and five blocker buckets.
+- Snapshot counts are not proof. Consumers must read the live report and keep phone preview,
+  Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform preview,
+  public rendering, and publish rows unclaimable until exact redacted external evidence exists.
+
+Required checks:
+- Regression tests must prove `issueIds` is de-duplicated while `issueCounts` preserves the
+  current local conflict counts.
+- Regression tests must prove phone, external-dependency, unsafe-to-automate, and
+  mutating-platform blockers expose platform and requirement step counts.
+- Evidence docs must include the current report status, manifest counts, blocker counts, and the
+  cannot-claim boundary.

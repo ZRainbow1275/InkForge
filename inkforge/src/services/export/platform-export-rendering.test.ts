@@ -2561,7 +2561,19 @@ describe('platform native export rendering rules', () => {
       'unsafe-to-automate',
       'mutating-platform',
     ]))
+    expect(report.summary.blockerCount).toBe(5)
     expect(localConflictBlocker?.issueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
+    expect(localConflictBlocker?.issueIds).toEqual([
+      'style-proof-manifest-requirement-missing',
+      'style-proof-manifest-choice-blocked',
+    ])
+    expect(localConflictBlocker?.issueCount).toBe(report.summary.combinedIssueCount)
+    expect(localConflictBlocker?.issueCounts).toEqual([
+      { issueId: 'style-proof-manifest-requirement-missing', count: 13 },
+      { issueId: 'style-proof-manifest-choice-blocked', count: 3 },
+    ])
+    expect(localConflictBlocker?.platformStepCounts).toEqual([])
+    expect(localConflictBlocker?.requirementStepCounts).toEqual([])
     expect(localConflictBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platforms: ['wechat', 'xiaohongshu', 'zhihu'],
@@ -2571,6 +2583,15 @@ describe('platform native export rendering rules', () => {
     expect(localConflictBlocker?.fingerprintConflicts).toBeUndefined()
     expect(phoneBlocker?.requirementIds).toContain('phone-preview-readback')
     expect(phoneBlocker?.stepCount).toBeGreaterThan(0)
+    expect(phoneBlocker?.issueIds).toEqual(['style-proof-manifest-requirement-missing'])
+    expect(phoneBlocker?.issueCount).toBe(4)
+    expect(phoneBlocker?.platformStepCounts).toEqual([{ platform: 'wechat', stepCount: 4 }])
+    expect(phoneBlocker?.requirementStepCounts).toEqual([
+      { requirementId: 'cover-thumbnail-check', stepCount: 1 },
+      { requirementId: 'dark-mode-check', stepCount: 1 },
+      { requirementId: 'phone-preview-readback', stepCount: 1 },
+      { requirementId: 'phone-screenshot', stepCount: 1 },
+    ])
     expect(phoneBlocker?.nextOperatorActions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         platforms: ['wechat'],
@@ -2584,6 +2605,16 @@ describe('platform native export rendering rules', () => {
       'public-image-host',
       'sync-readback',
     ]))
+    expect(externalBlocker?.platformStepCounts).toEqual([
+      { platform: 'wechat', stepCount: 7 },
+      { platform: 'xiaohongshu', stepCount: 2 },
+      { platform: 'zhihu', stepCount: 5 },
+    ])
+    expect(externalBlocker?.requirementStepCounts).toEqual(expect.arrayContaining([
+      { requirementId: 'public-image-host', stepCount: 1 },
+      { requirementId: 'published-url-or-platform-preview', stepCount: 3 },
+      { requirementId: 'scheduled-send-readback', stepCount: 3 },
+    ]))
     expect(externalBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'public-host' || action.action.includes('public host')
     )).toBe(true)
@@ -2591,6 +2622,11 @@ describe('platform native export rendering rules', () => {
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
+    expect(unsafeBlocker?.platformStepCounts).toEqual([
+      { platform: 'wechat', stepCount: 7 },
+      { platform: 'xiaohongshu', stepCount: 2 },
+      { platform: 'zhihu', stepCount: 4 },
+    ])
     expect(unsafeBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'platform-publish' &&
       action.requirementId === 'published-url-or-platform-preview'
@@ -2598,6 +2634,10 @@ describe('platform native export rendering rules', () => {
     expect(mutatingBlocker?.requirementIds).toEqual(expect.arrayContaining([
       'scheduled-send-readback',
       'published-url-or-platform-preview',
+    ]))
+    expect(mutatingBlocker?.requirementStepCounts).toEqual(expect.arrayContaining([
+      { requirementId: 'published-url-or-platform-preview', stepCount: 3 },
+      { requirementId: 'scheduled-send-readback', stepCount: 3 },
     ]))
     expect(mutatingBlocker?.nextOperatorActions.some(action =>
       action.boundary === 'platform-publish'

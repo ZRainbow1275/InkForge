@@ -778,6 +778,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
   rendering, or publish success.
 
+## 2026-06-22 Style Proof Release Blocker Counts
+
+- [x] style-proof-release-blocker-counts-20260622.txt
+- Added read-only blocker count fields to `getCommittedStyleProofEvidenceReleaseGateReport()`:
+  `issueCount`, `platformStepCounts`, `requirementStepCounts`, and `issueCounts`.
+- `issueIds` is now a de-duplicated scanner list, while `issueCounts` preserves current issue
+  occurrence totals.
+- Current live report remains `status=blocked-by-local-conflict` and
+  `canClaimComplete=false`.
+- Current snapshot:
+  `localManifestCount=20`, `wechatPcManifestCount=2`, `combinedManifestCount=22`,
+  `combinedIssueCount=16`, `cannotClaimSteps=32`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `blockerCount=5`.
+- Current blocker count readout:
+  `local-conflict issueCounts=[requirement-missing:13, choice-blocked:3]`,
+  `phone-preview platformStepCounts=[wechat:4]`,
+  `external-dependency platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:5]`,
+  `unsafe-to-automate platformStepCounts=[wechat:7,xiaohongshu:2,zhihu:4]`.
+- Verification passed: GitNexus impact checks for the release-gate report, release blocker helper,
+  and blocker interface; focused `release claims` regression with 1 selected test; direct `tsx`
+  live report readout; full `platform-export-rendering.test.ts` regression with 1 file /
+  155 tests; four-file cross-platform export regression with 4 files / 194 tests; full export
+  serial regression with 36 files / 1132 tests; targeted ESLint; `vue-tsc`; production build with
+  4653 transformed modules in 37.94s; and `git diff --check` for slice files. GitNexus detect
+  reported 40 dirty files across the whole working tree, 22 changed symbols, 0 affected
+  processes, and low risk; the dirty-file count includes unrelated pre-existing files.
+- Boundary: this is release-gate accounting only. It does not prove WeChat PC paste, phone
+  preview, Dark Mode, cover thumbnail, credentialed sync, public host, scheduled send, platform
+  preview, Xiaohongshu upload, Zhihu upload, public rendering, or publish success.
+
 ## 2026-06-18 WeChat Kiln Paste-Safe Ctrl+V Tab-Mismatch Cleanup
 
 - [x] wechat-kiln-paste-safe-wechat-ctrlv-tab-mismatch-cleanup-20260618.txt

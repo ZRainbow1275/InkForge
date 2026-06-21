@@ -918,13 +918,32 @@ export interface CommittedStyleProofReleaseNextOperatorAction {
   action: string
 }
 
+export interface CommittedStyleProofReleasePlatformStepCount {
+  platform: Platform
+  stepCount: number
+}
+
+export interface CommittedStyleProofReleaseRequirementStepCount {
+  requirementId: StyleProofRequirementId
+  stepCount: number
+}
+
+export interface CommittedStyleProofReleaseIssueCount {
+  issueId: StyleProofManifestIssueId
+  count: number
+}
+
 export interface CommittedStyleProofReleaseGateBlocker {
   kind: CommittedStyleProofReleaseGateBlockerKind
   status: StyleProofAcceptanceAuditStatus | 'issue'
   platforms: readonly Platform[]
   requirementIds: readonly StyleProofRequirementId[]
   issueIds: readonly StyleProofManifestIssueId[]
+  issueCount: number
   stepCount: number
+  platformStepCounts: readonly CommittedStyleProofReleasePlatformStepCount[]
+  requirementStepCounts: readonly CommittedStyleProofReleaseRequirementStepCount[]
+  issueCounts: readonly CommittedStyleProofReleaseIssueCount[]
   message: string
   nextOperatorActions: readonly CommittedStyleProofReleaseNextOperatorAction[]
   fingerprintConflicts?: readonly CommittedStyleProofReleaseFingerprintConflict[]
@@ -6367,6 +6386,51 @@ function getUniqueCommittedStyleProofReleaseValues<T extends string>(values: rea
   return Array.from(new Set(values))
 }
 
+function getCommittedStyleProofReleasePlatformStepCounts(
+  steps: readonly StyleProofExecutionRunbookStep[],
+): CommittedStyleProofReleasePlatformStepCount[] {
+  const counts = new Map<Platform, number>()
+  for (const step of steps) {
+    counts.set(step.platform, (counts.get(step.platform) ?? 0) + 1)
+  }
+
+  return Array.from(counts.entries())
+    .map(([platform, stepCount]) => ({ platform, stepCount }))
+    .sort((left, right) => left.platform.localeCompare(right.platform))
+}
+
+function getCommittedStyleProofReleaseRequirementStepCounts(
+  steps: readonly StyleProofExecutionRunbookStep[],
+): CommittedStyleProofReleaseRequirementStepCount[] {
+  const counts = new Map<StyleProofRequirementId, number>()
+  for (const step of steps) {
+    counts.set(step.requirement.id, (counts.get(step.requirement.id) ?? 0) + 1)
+  }
+
+  return Array.from(counts.entries())
+    .map(([requirementId, stepCount]) => ({ requirementId, stepCount }))
+    .sort((left, right) => {
+      if (right.stepCount !== left.stepCount) return right.stepCount - left.stepCount
+      return left.requirementId.localeCompare(right.requirementId)
+    })
+}
+
+function getCommittedStyleProofReleaseIssueCounts(
+  issueIds: readonly StyleProofManifestIssueId[],
+): CommittedStyleProofReleaseIssueCount[] {
+  const counts = new Map<StyleProofManifestIssueId, number>()
+  for (const issueId of issueIds) {
+    counts.set(issueId, (counts.get(issueId) ?? 0) + 1)
+  }
+
+  return Array.from(counts.entries())
+    .map(([issueId, count]) => ({ issueId, count }))
+    .sort((left, right) => {
+      if (right.count !== left.count) return right.count - left.count
+      return left.issueId.localeCompare(right.issueId)
+    })
+}
+
 function getCommittedStyleProofRunbookOpenSteps(
   report: CommittedStyleProofExecutionRunbookReport,
 ): StyleProofExecutionRunbookStep[] {
@@ -6535,7 +6599,13 @@ function buildCommittedStyleProofReleaseStepBlocker(
     issueIds: getUniqueCommittedStyleProofReleaseValues(
       steps.flatMap(step => step.issueIds)
     ),
+    issueCount: steps.reduce((total, step) => total + step.issueIds.length, 0),
     stepCount: steps.length,
+    platformStepCounts: getCommittedStyleProofReleasePlatformStepCounts(steps),
+    requirementStepCounts: getCommittedStyleProofReleaseRequirementStepCounts(steps),
+    issueCounts: getCommittedStyleProofReleaseIssueCounts(
+      steps.flatMap(step => step.issueIds)
+    ),
     message,
     nextOperatorActions: getCommittedStyleProofReleaseNextOperatorActions(kind, steps),
   }
@@ -6572,8 +6642,12 @@ export function getCommittedStyleProofEvidenceReleaseGateReport(): CommittedStyl
       status: 'issue',
       platforms: ['wechat', 'xiaohongshu', 'zhihu'],
       requirementIds: [],
-      issueIds,
+      issueIds: getUniqueCommittedStyleProofReleaseValues(issueIds),
+      issueCount: issueIds.length,
       stepCount: source.summary.combinedIssueCount,
+      platformStepCounts: [],
+      requirementStepCounts: [],
+      issueCounts: getCommittedStyleProofReleaseIssueCounts(issueIds),
       message: 'Committed local and PC evidence still contain local manifest conflicts; do not claim complete style proof.',
       nextOperatorActions: getCommittedStyleProofReleaseLocalConflictAction(issueIds),
       ...(fingerprintConflicts.length > 0 ? { fingerprintConflicts } : {}),
