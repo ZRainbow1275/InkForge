@@ -2206,6 +2206,14 @@ interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
   manifestArtifactRef: string
 }
 
+interface CommittedStyleProofXhsTextEvidenceManifestOptions {
+  choiceId: 'xhs-clean-text'
+  label: string
+  artifactFingerprint: string
+  artifactRef: string
+  reportRef: string
+}
+
 interface CommittedStyleProofZhihuLocalEvidenceManifestOptions {
   choiceId: 'zhihu-data-table'
   label: string
@@ -2238,6 +2246,12 @@ const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-cover-hook-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_ARTIFACT_REF =
+  'prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_REPORT_REF =
+  'prompts/0601/evidence/xhs-clean-text-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_ARTIFACT_REF =
   'prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md'
@@ -2420,6 +2434,68 @@ function createCommittedStyleProofXhsLocalEvidenceManifest(
         readback: 'hygiene-log',
         artifactFingerprint: options.artifactFingerprint,
         artifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
+function createCommittedStyleProofXhsTextEvidenceManifest(
+  options: CommittedStyleProofXhsTextEvidenceManifestOptions,
+): StyleProofManifest {
+  const artifactIdPrefix = options.choiceId
+
+  return {
+    platform: 'xiaohongshu',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['unit-tested'],
+    artifacts: [
+      {
+        id: `${artifactIdPrefix}-committed-unit-proof`,
+        requirementId: 'unit-test-coverage',
+        kind: 'test-log',
+        label: `${options.label} committed export regression log`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'unit-test',
+        action: 'test-run',
+        readback: 'test-assertion',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-exact-artifact-proof`,
+        requirementId: 'exact-artifact',
+        kind: 'doc-reference',
+        label: `${options.label} committed exact clean text artifact binding`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'source-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.artifactRef,
+        exactArtifact: true,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${artifactIdPrefix}-committed-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed evidence hygiene review`,
+        platform: 'xiaohongshu',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
         committed: true,
         safeForCommit: true,
       },
@@ -2650,6 +2726,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     label: 'Amber business flagship',
     artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT,
     localRenderArtifactRef: 'prompts/0601/evidence/e2e/flagship-amber.png',
+  }),
+  createCommittedStyleProofXhsTextEvidenceManifest({
+    choiceId: 'xhs-clean-text',
+    label: 'XHS clean text',
+    artifactFingerprint: 'sha256:e590d621cb09f988c76f76c7b4db87295bce7765bdd8300479dac2d80c4d4e68',
+    artifactRef: COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_XHS_CLEAN_TEXT_REPORT_REF,
   }),
   createCommittedStyleProofXhsLocalEvidenceManifest({
     choiceId: 'xhs-cover-carousel',

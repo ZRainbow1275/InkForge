@@ -3315,3 +3315,32 @@ Boundary:
 - Boundary: this is local XHS raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
+
+---
+
+## 2026-06-21 XHS Clean Text Local Evidence Addendum
+
+- Added `prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt` and
+  `prompts/0601/evidence/xhs-clean-text-local-evidence-20260621.txt`.
+- Generated the text artifact through the real local
+  `markdownToXiaohongshuText(...)` path with source-owned Markdown content, `emojiStyle:'fresh'`,
+  `titleSplit:true`, and `hashtagInBody:true`.
+- Persisted artifact hash is
+  `sha256:e590d621cb09f988c76f76c7b4db87295bce7765bdd8300479dac2d80c4d4e68`; persisted bytes are
+  531, exporter char count is 203, paragraph count is 7, and `overLimit=false`.
+- Local hygiene check found no HTML tags and no Markdown control syntax after expected XHS hashtag
+  markers were removed.
+- Added one committed local `xhs-clean-text` manifest through a dedicated plain-text helper. It
+  satisfies only `unit-test-coverage`, `exact-artifact`, and `no-sensitive-artifact`.
+- Kept `scheduled-send-readback`, platform preview, public URL, and publish rows missing or
+  unclaimable. The manifest does not claim `local-browser-rendering` or `xhs-artifact-manifest`.
+- Current committed release-gate readout is now `localManifestCount=7`,
+  `combinedManifestCount=9`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 27.21s.
+- Boundary: this is local XHS clean-text export and exact-artifact accounting only. It does not
+  prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.

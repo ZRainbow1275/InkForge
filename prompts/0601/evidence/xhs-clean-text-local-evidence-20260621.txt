@@ -1,0 +1,59 @@
+XHS Clean Text Local Evidence - 2026-06-21
+
+Scope:
+- Repository-committed local StyleProofManifest evidence for `xhs-clean-text`.
+- No Xiaohongshu account login, account upload, mobile/platform preview, sync, scheduled send,
+  public URL acceptance, or publish action was executed or claimed.
+- No external platform page or account/session/runtime artifact is recorded.
+
+Generated text artifact:
+- Rendering path:
+  `markdownToXiaohongshuText(markdown, { emojiStyle:'fresh', addSignature:false, injectEmojis:false, generateTags:true, titleSplit:true, hashtagInBody:true, ... })`.
+- Source Markdown used a source-owned local content-growth review note with headings, bullet
+  observations, one quote, an ordered next-step list, and explicit hashtag candidates.
+- Generated artifact:
+  `prompts/0601/evidence/xhs-clean-text-local-artifact-20260621.txt`.
+- Persisted artifact dimensions:
+  - UTF-8 bytes: 531
+  - text char count from the exporter: 203
+  - paragraph count from the exporter: 7
+  - decoration count from the exporter: 7
+  - overLimit: false
+- Persisted artifact hash:
+  `sha256:e590d621cb09f988c76f76c7b4db87295bce7765bdd8300479dac2d80c4d4e68`.
+
+Local hygiene checks:
+- The generated body contained no HTML tags.
+- The generated body contained no Markdown control syntax after removing expected Xiaohongshu
+  hashtag markers.
+- The generated hashtags were `#内容运营` and `#小红书运营`.
+
+Committed manifest behavior:
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-clean-text` manifest.
+- The manifest satisfies only local rows for the exact clean text artifact:
+  - `unit-test-coverage`
+  - `exact-artifact`
+  - `no-sensitive-artifact`
+- `scheduled-send-readback` and `published-url-or-platform-preview` remain missing and
+  unsafe-to-automate.
+
+Verification:
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform-export regression passed 1 file / 153 tests.
+- 4-file cross-platform export regression passed 4 files / 192 tests.
+- Full export service serial regression passed 35 files / 1126 tests.
+- Targeted ESLint passed for `style-catalog.ts` and `platform-export-rendering.test.ts`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 27.21s.
+- Release-gate readout after this slice:
+  `status=blocked-by-local-conflict`, `canClaimComplete=false`, `localManifestCount=7`,
+  `combinedManifestCount=9`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`.
+
+Boundary:
+- This proves local XHS clean-text export and exact-artifact accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

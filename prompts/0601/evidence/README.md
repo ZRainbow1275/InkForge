@@ -2891,3 +2891,29 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local XHS raster/image-manifest accounting only. It does not prove
   Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
   public article rendering, or publish success.
+
+## 2026-06-21 XHS Clean Text Local Evidence
+
+- [x] xhs-clean-text-local-artifact-20260621.txt
+- [x] xhs-clean-text-local-evidence-20260621.txt
+- Generated a source-owned clean Xiaohongshu text artifact through the real local
+  `markdownToXiaohongshuText(...)` path.
+- The persisted artifact hash is
+  `sha256:e590d621cb09f988c76f76c7b4db87295bce7765bdd8300479dac2d80c4d4e68`; persisted bytes are
+  531, exporter char count is 203, paragraph count is 7, and `overLimit=false`.
+- Local hygiene check found no HTML tags and no Markdown control syntax after expected XHS hashtag
+  markers were removed.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-clean-text` manifest. It
+  satisfies local `unit-test-coverage`, `exact-artifact`, and `no-sensitive-artifact` rows only.
+- The clean-text manifest intentionally does not claim `local-browser-rendering` or
+  `xhs-artifact-manifest`.
+- Current release-gate readout after this slice is `localManifestCount=7`,
+  `combinedManifestCount=9`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 27.21s.
+- Boundary: this is local XHS clean-text export and exact-artifact accounting only. It does not
+  prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.
