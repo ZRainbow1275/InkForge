@@ -7507,3 +7507,57 @@ Boundary:
 - This is local clean Markdown/table artifact accounting only.
 - It does not prove Zhihu public image-host acceptance, account upload, editor preview, sync,
   scheduled send, platform preview, public article rendering, or publish success.
+
+## 2026-06-21 XHS Cover Hook Local Evidence Slice
+
+Scope:
+- Repository-committed local evidence for `xhs-cover-hook`.
+- No Xiaohongshu account login, account upload, mobile/platform preview, sync, scheduled send,
+  public URL acceptance, or publish action was executed or claimed.
+
+Implementation:
+- Generated `prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png`
+  through CloakBrowser against the local Vite app, using the source-owned `cover-title` SVG module
+  and `renderXhsPosterCard(..., '3:4', '#fff7ed')`.
+- Added metadata file
+  `prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.json`.
+- Added `prompts/0601/evidence/xhs-cover-hook-local-evidence-20260621.txt`.
+- Extended `createCommittedStyleProofXhsLocalEvidenceManifest()` to support `xhs-cover-hook` and
+  added one committed local `xhs-cover-hook` manifest.
+- The manifest satisfies only local `unit-test-coverage`, `local-browser-rendering`,
+  `exact-artifact`, `xhs-artifact-manifest`, and `no-sensitive-artifact` rows for the exact PNG.
+- `published-url-or-platform-preview` remains missing and unsafe-to-automate.
+
+Evidence:
+- Visual QA caught subtitle truncation in the first two variants; the final committed PNG uses the
+  shorter subtitle `InkForge 本地验证` and was visually checked.
+- Final PNG dimensions are 1080 x 1440, bytes 92316, hash
+  `sha256:c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32`.
+- `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact one-page image manifest.
+- Current release-gate readout after this slice: `localManifestCount=6`,
+  `combinedManifestCount=8`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+
+Verification:
+- GitNexus impact:
+  - `COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS`: LOW, 0 affected processes.
+  - `getCommittedStyleProofLocalEvidenceManifests`: LOW, 4 direct dependents, 0 affected
+    processes.
+- TDD first run exposed one stale cross-platform isolation assertion:
+  `zhihuProgress.ignoredManifestCount` changed from 4 to 5 because the new XHS local manifest is
+  ignored by Zhihu.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|release claims|execution runbooks" --reporter=default`
+  passed 1 file / 4 selected tests.
+- Full platform-export regression passed 1 file / 153 tests.
+- 4-file cross-platform export regression passed 4 files / 192 tests.
+- Full export service serial regression passed 35 files / 1126 tests.
+- Targeted ESLint passed for `style-catalog.ts` and `platform-export-rendering.test.ts`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed 4652
+  modules and built in 30.25s. The build-generated `inkforge/tsconfig.tsbuildinfo` was restored.
+
+Boundary:
+- This is local XHS raster/image-manifest accounting only.
+- It does not prove Xiaohongshu account upload, mobile/platform preview, public URL acceptance,
+  scheduled send, public article rendering, or publish success.

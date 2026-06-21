@@ -3285,3 +3285,33 @@ Boundary:
 - Boundary: this is local clean Markdown/table artifact accounting only. It does not prove Zhihu
   public image-host acceptance, account upload, editor preview, sync, scheduled send, platform
   preview, public article rendering, or publish success.
+
+---
+
+## 2026-06-21 XHS Cover Hook Local Evidence Addendum
+
+- Added `prompts/0601/evidence/xhs-cover-hook-local-evidence-20260621.txt`.
+- Added the exact local raster artifact
+  `prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png` and metadata
+  `prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.json`.
+- Generated the PNG through CloakBrowser against the local Vite app using the source-owned
+  `cover-title` SVG module and `renderXhsPosterCard(..., '3:4', '#fff7ed')`; no Playwright or
+  external platform action was used.
+- Visual QA caught subtitle truncation in the first two variants; the committed PNG uses
+  `InkForge 本地验证` and has no ellipsis/truncation.
+- Final PNG dimensions are 1080 x 1440, bytes 92316, hash
+  `sha256:c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32`.
+- `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact one-page image manifest.
+- Added one committed local `xhs-cover-hook` manifest. It satisfies only local
+  `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, `xhs-artifact-manifest`, and
+  `no-sensitive-artifact` rows.
+- Current committed release-gate readout is now `localManifestCount=6`,
+  `combinedManifestCount=8`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 30.25s.
+- Boundary: this is local XHS raster/image-manifest accounting only. It does not prove
+  Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.

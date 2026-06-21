@@ -2199,7 +2199,7 @@ interface CommittedStyleProofLocalEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofXhsLocalEvidenceManifestOptions {
-  choiceId: 'xhs-cover-carousel'
+  choiceId: 'xhs-cover-carousel' | 'xhs-cover-hook'
   label: string
   artifactFingerprint: string
   localRenderArtifactRef: string
@@ -2235,6 +2235,9 @@ const COMMITTED_STYLE_PROOF_XHS_RASTER_REPORT_REF =
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
+
+const COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF =
+  'prompts/0601/evidence/xhs-cover-hook-local-evidence-20260621.txt'
 
 const COMMITTED_STYLE_PROOF_ZHIHU_LOCAL_ARTIFACT_REF =
   'prompts/0601/evidence/zhihu-data-table-local-artifact-20260621.md'
@@ -2656,6 +2659,15 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     localRenderArtifactRef:
       'prompts/0601/evidence/xhs-raster/xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png',
     manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF,
+  }),
+  createCommittedStyleProofXhsLocalEvidenceManifest({
+    choiceId: 'xhs-cover-hook',
+    label: 'XHS cover hook',
+    artifactFingerprint:
+      'prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png@sha256:c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32',
+    localRenderArtifactRef:
+      'prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png',
+    manifestArtifactRef: COMMITTED_STYLE_PROOF_XHS_COVER_HOOK_MANIFEST_REPORT_REF,
   }),
   createCommittedStyleProofZhihuLocalEvidenceManifest({
     choiceId: 'zhihu-data-table',

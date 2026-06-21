@@ -2037,9 +2037,9 @@ Contracts:
   platform actions, or imply phone, sync, public-host, scheduled-send, or publish completion.
 
 Required tests:
-- The committed local pack returns three WeChat flagship manifests, the XHS cover-carousel local
-  manifest, and the Zhihu data-table local manifest, all as safe committed artifacts, with no
-  duplicate artifact ids and no sensitive/unsafe commit issues.
+- The committed local pack returns three WeChat flagship manifests, XHS cover-carousel and
+  cover-hook local manifests, and the Zhihu data-table local manifest, all as safe committed
+  artifacts, with no duplicate artifact ids and no sensitive/unsafe commit issues.
 - The pack report has `validManifestCount:0` because external proof is intentionally absent; this
   is expected and must not be relaxed.
 - Kiln and Tempera local/sensitive gates are satisfied, while PC editor paste, phone preview, Dark
@@ -2050,7 +2050,7 @@ Required tests:
   fingerprint from `wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt`, while keeping the
   local Tauri/WebView screenshot as `artifactRef`. This must not be generalized into raw UTF-8
   ordinary paste proof.
-- The XHS cover-carousel manifest satisfies local evidence, sensitive hygiene, and
+- The XHS cover-carousel and cover-hook manifests satisfy local evidence, sensitive hygiene, and
   `xhs-artifact-manifest` with same-row `artifactRef`, `artifactManifestValidated:true`, and
   `safeForCommit:true`, while
   `published-url-or-platform-preview` remains missing and unsafe-to-automate.
@@ -2068,7 +2068,7 @@ Required tests:
 - The committed WeChat PC pack must satisfy Amber and Tempera authenticated editor, PC DOM, exact
   artifact, safe disposable draft, ordinary PC paste, and hygiene rows while leaving phone preview,
   Dark Mode, cover thumbnail, scheduled-send, and publish rows missing/cannot-claim.
-- The combined committed-evidence audit must return 7 cloned manifests, keep artifact ids unique,
+- The combined committed-evidence audit must return 8 cloned manifests, keep artifact ids unique,
   expose exact-artifact fingerprint conflicts only for still-divergent choice rows, and keep phone
   preview, Dark Mode, cover thumbnail, sync, scheduled-send, and publish/platform-preview rows
   unclaimable. As of the 2026-06-21 Tempera reconciliation, the committed pack has no current

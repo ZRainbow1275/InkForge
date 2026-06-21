@@ -1,0 +1,18 @@
+{
+  "source": "cloakbrowser-local-vite-canvas",
+  "choiceId": "xhs-cover-hook",
+  "moduleId": "cover-title",
+  "sourceModule": "cover-title",
+  "target": "xhs",
+  "allowMotion": false,
+  "hasInkSvg": true,
+  "ratio": "3:4",
+  "background": "#fff7ed",
+  "title": "3 个指标看懂本周内容增长",
+  "subtitle": "InkForge 本地验证",
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "byteLength": 92316,
+  "sha256": "c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32",
+  "artifactRef": "prompts/0601/evidence/xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png"
+}

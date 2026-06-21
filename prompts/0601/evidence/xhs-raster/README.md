@@ -34,6 +34,44 @@ Evidence file:
 
 - `xhs-raster-cover-grid-browser-2026-06-08-2026-06-07T23-38-29-127Z.png`
 
+## Cover Hook Raster Evidence - 2026-06-21
+
+Purpose: local `xhs-cover-hook` proof that InkForge can turn a source-owned cover SVG module into
+a real XHS 3:4 PNG through the local browser canvas path before any platform upload or publish
+claim.
+
+Browser route:
+
+- CloakBrowser opened the local Vite app.
+- Imported module: `/src/services/export/svg-modules/index.ts`.
+- Source module: `cover-title`.
+- Render path: `cover.render(...)` -> `renderXhsPosterCard(svgHtml, '3:4', '#fff7ed')`.
+- Target: `xhs`; `allowMotion=false`.
+
+Probe result:
+
+```json
+{
+  "sourceModule": "cover-title",
+  "ratio": "3:4",
+  "naturalWidth": 1080,
+  "naturalHeight": 1440,
+  "byteLength": 92316,
+  "sha256": "c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32",
+  "sourceSvgContainsInkSvg": true
+}
+```
+
+Evidence files:
+
+- `xhs-raster-cover-hook-browser-2026-06-21.png`
+- `xhs-raster-cover-hook-browser-2026-06-21.json`
+
+Visual QA:
+
+- The first two generated variants had a subtitle ellipsis. The committed PNG uses the shorter
+  subtitle `InkForge 本地验证` and was visually checked to avoid truncation.
+
 Finding fixed during this probe:
 
 - `buildSvgDataUri()` previously passed a full `<section>...<svg>...</svg></section>` HTML

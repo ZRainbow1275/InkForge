@@ -107,9 +107,10 @@ expired-session / generic DOM 证据会显示 authenticated-session 与 editor-D
 ExportModal 消费 `getPlatformStyleProofAcceptanceAuditReport()`，在样式能力摘要、单个样式卡和
 导出预检里显示 cannotClaim / 验收宣称审计；该文件只证明本地 UI 防呆层，不证明平台粘贴、
 手机预览、同步、上传、public host acceptance 或发布成功）。
-`style-proof-committed-xhs-local-evidence-20260619.txt`（当前规则实现：
-committed local manifest pack 已包含 `xhs-cover-carousel`，引用 tracked browser-canvas raster PNG
-和 XHS image-manifest gate report，只满足本地 raster / manifest / exact-artifact / sensitive-hygiene
+`style-proof-committed-xhs-local-evidence-20260619.txt` 和
+`xhs-cover-hook-local-evidence-20260621.txt`（当前规则实现：committed local manifest pack 已包含
+`xhs-cover-carousel` 与 `xhs-cover-hook`，引用 tracked browser-canvas raster PNG 和 XHS
+image-manifest gate report，只满足本地 raster / manifest / exact-artifact / sensitive-hygiene
 rows；不证明 XHS account upload、platform preview、public URL acceptance 或 publish 成功）。
 `style-proof-committed-wechat-pc-evidence-20260619.txt`（当前规则实现：
 committed WeChat PC evidence pack 已包含 exact Amber ordinary OS Ctrl+V + disposable-draft cleanup
@@ -2865,3 +2866,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local clean Markdown/table artifact accounting only. It does not prove Zhihu
   public image-host acceptance, account upload, editor preview, sync, scheduled send, platform
   preview, public article rendering, or publish success.
+
+## 2026-06-21 XHS Cover Hook Local Evidence
+
+- [x] xhs-cover-hook-local-evidence-20260621.txt
+- [x] xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.png
+- [x] xhs-raster/xhs-raster-cover-hook-browser-2026-06-21.json
+- CloakBrowser opened the local Vite app and generated the exact PNG through the source-owned
+  browser canvas path: `cover-title` SVG module -> `renderXhsPosterCard(..., '3:4', '#fff7ed')`.
+- Visual QA adjusted the subtitle until the committed PNG had no ellipsis/truncation.
+- Final PNG dimensions are 1080 x 1440, bytes 92316, hash
+  `sha256:c7200947079cda16ccafc51b5c56bfd840355da199da48b790b6725233af2d32`.
+- `validateXhsImageArtifactManifest()` returned `issues=[]` for the exact one-page image manifest.
+- `getCommittedStyleProofLocalEvidenceManifests()` now includes one `xhs-cover-hook` manifest. It
+  satisfies local `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`,
+  `xhs-artifact-manifest`, and `no-sensitive-artifact` rows only.
+- Current release-gate readout after this slice is `localManifestCount=6`,
+  `combinedManifestCount=8`, `combinedIssueCount=13`,
+  `hasExactArtifactFingerprintConflicts=false`, and `canClaimComplete=false`.
+- Verification passed: focused committed/local/release runbook regression with 4 selected tests,
+  full `platform-export-rendering.test.ts` with 153 tests, 4-file cross-platform export regression
+  with 192 tests, full export serial suite with 35 files / 1126 tests, targeted ESLint,
+  `vue-tsc`, and production build with 4652 transformed modules in 30.25s.
+- Boundary: this is local XHS raster/image-manifest accounting only. It does not prove
+  Xiaohongshu account upload, mobile/platform preview, public URL acceptance, scheduled send,
+  public article rendering, or publish success.
