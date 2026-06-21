@@ -8178,3 +8178,87 @@ Boundary:
 - It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
   publish success.
+
+## 2026-06-22 WeChat Card Rich Local Browser Evidence Slice
+
+Scope:
+- Repository-committed local browser/exact-artifact evidence for `wechat-card-rich`.
+- No WeChat account login, official editor paste, phone preview, Dark Mode check, cover thumbnail
+  check, credentialed sync, scheduled send, platform preview, public rendering, or publish action
+  was executed or claimed.
+
+Implementation:
+- Generated the committed HTML artifact through the real source-owned path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- The source Markdown covers rich card blocks: data stat, comparison card, timeline, gallery
+  track, citation card, list markers, reading bar, lede, H2/H3, footer, and cover SVG.
+- The source and artifact avoid 135/Xiumi template source, vendor class names, hosted media,
+  account artifacts, local browser runtime material, and local capture file references.
+- Added `prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html`.
+- Added `prompts/0601/evidence/wechat-card-rich-local-evidence-20260622.txt`.
+- Added one committed local `wechat-card-rich` manifest. It claims only `unit-tested` and
+  `local-browser` evidence and satisfies unit, local-browser, exact-artifact, and
+  sensitive-hygiene accounting for the exact HTML artifact.
+- The gallery block is recorded as intentional internal horizontal track scroll, not page-level
+  overflow, because the clamp remains 677px and `bodyOverflowX=false`.
+
+Evidence:
+- HTML artifact:
+  `prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html`.
+- HTML hash:
+  `sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990`.
+- HTML bytes: 24797.
+- Source Markdown hash:
+  `sha256:8448b9c82bd1175c115dba40e815601ab744fc1dfec0a1b5e5b6d8f378e0b3dd`.
+- Independent Node evidence verification re-read the committed HTML, recomputed the hash, checked
+  required card-rich sentinels, SVG sentinel, and sensitive / market-editor residue scan.
+- CloakBrowser local artifact readback:
+  `viewportWidth=1400`, `clamp.width=677`, `clamp.scrollWidth=677`, `bodyOverflowX=false`,
+  `pageOverflowing=[]`, `gallery.width=677`, `gallery.scrollWidth=1786`,
+  `galleryOverflowX=true`, `svgElementCount=23`, `styleElementCount=0`,
+  `foreignObjectCount=0`, `imageInSvgCount=0`, `scriptCount=0`.
+- DOM sentinel readback:
+  `flagship-stat=1`, `flagship-compare=1`, `flagship-timeline=1`, `flagship-gallery=1`,
+  `flagship-citation=1`, `flagship-readbar=1`, `flagship-h2=1`, `flagship-h3=1`,
+  `flagship-lede=1`, `flagship-ul=4`, `flagship-footer=1`, and
+  `data-ink-svg="cover-title"=1`.
+- Browser-side `detectQuality(html, 'wechat')` still reported `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`; these are documented blockers, not external-platform success
+  proof.
+
+Initial verification:
+- Temporary artifact generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-card-rich-artifact.tmp.test.ts --reporter=default`
+  passed, then the temporary generator file was deleted.
+- Independent HTML evidence verification passed.
+- CloakBrowser artifact readback passed.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules and built in 36.58s.
+- `git diff --check` for this slice:
+  passed.
+- `npx gitnexus detect-changes -r InkForge --scope all`:
+  completed with 39 dirty files observed in the whole worktree, 20 changed symbols, 0 affected
+  processes, and low risk. The dirty-file count includes unrelated pre-existing local changes;
+  commit staging for this slice must remain exact-file only.
+
+Boundary:
+- This is local WeChat card-rich browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, sync, scheduled send, platform preview, public rendering, or publish
+  success.

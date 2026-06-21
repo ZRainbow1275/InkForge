@@ -2207,7 +2207,7 @@ interface CommittedStyleProofWechatUnitEvidenceManifestOptions {
 }
 
 interface CommittedStyleProofWechatLocalHtmlEvidenceManifestOptions {
-  choiceId: 'wechat-quiet-editorial'
+  choiceId: 'wechat-quiet-editorial' | 'wechat-card-rich'
   label: string
   artifactFingerprint: string
   artifactRef: string
@@ -2282,6 +2282,12 @@ const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF =
 
 const COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF =
   'prompts/0601/evidence/wechat-quiet-editorial-local-evidence-20260621.txt'
+
+const COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_ARTIFACT_REF =
+  'prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html'
+
+const COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_REPORT_REF =
+  'prompts/0601/evidence/wechat-card-rich-local-evidence-20260622.txt'
 
 const COMMITTED_STYLE_PROOF_XHS_MANIFEST_REPORT_REF =
   'prompts/0601/evidence/xhs-image-manifest-gate-20260609.txt'
@@ -2995,6 +3001,13 @@ const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
     artifactFingerprint: 'sha256:1962d5ef8cd5a76c9b8b5ffe33b87f80bd59cf1cd284b05d529608e1fbd2255e',
     artifactRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_ARTIFACT_REF,
     reportRef: COMMITTED_STYLE_PROOF_WECHAT_QUIET_EDITORIAL_REPORT_REF,
+  }),
+  createCommittedStyleProofWechatLocalHtmlEvidenceManifest({
+    choiceId: 'wechat-card-rich',
+    label: 'Rich cards and timeline blocks',
+    artifactFingerprint: 'sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990',
+    artifactRef: COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_ARTIFACT_REF,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_CARD_RICH_REPORT_REF,
   }),
   createCommittedStyleProofLocalEvidenceManifest({
     choiceId: 'wechat-flagship-kiln',

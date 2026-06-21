@@ -3690,3 +3690,58 @@ Boundary:
   accounting only. It does not prove official editor paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform preview, public article
   rendering, or publish success.
+
+---
+
+## 2026-06-22 WeChat Card Rich Local Browser Evidence Addendum
+
+- Added `prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html`.
+- Added `prompts/0601/evidence/wechat-card-rich-local-evidence-20260622.txt`.
+- Generated the exact HTML artifact through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- The source Markdown is InkForge-owned and exercises rich card blocks: data stat, comparison
+  card, timeline, gallery track, citation card, list markers, reading bar, lede, H2/H3, footer,
+  and cover SVG. It does not copy 135/Xiumi template source, vendor class names, remote media,
+  account artifacts, local browser runtime material, or local capture file references.
+- HTML artifact hash:
+  `sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990`.
+- HTML bytes: 24797.
+- Source Markdown hash:
+  `sha256:8448b9c82bd1175c115dba40e815601ab744fc1dfec0a1b5e5b6d8f378e0b3dd`.
+- Independent Node verification re-read the committed HTML, checked the hash, byte length,
+  card-rich block sentinels, SVG sentinel, and structured sensitive / market-editor residue scan.
+- CloakBrowser loaded a local read-only artifact preview and measured `clamp.width=677`,
+  `clamp.scrollWidth=677`, `bodyOverflowX=false`, `pageOverflowing=[]`, `svgElementCount=23`,
+  `styleElementCount=0`, `foreignObjectCount=0`, `imageInSvgCount=0`, and `scriptCount=0`.
+- The gallery block is intentionally an internal horizontal track:
+  `gallery.width=677`, `gallery.scrollWidth=1786`, `gallery.clientWidth=677`,
+  `galleryOverflowX=true`; this is not page-level overflow.
+- DOM readback found `flagship-stat=1`, `flagship-compare=1`, `flagship-timeline=1`,
+  `flagship-gallery=1`, `flagship-citation=1`, `flagship-readbar=1`, `flagship-h2=1`,
+  `flagship-h3=1`, `flagship-lede=1`, `flagship-ul=4`, `flagship-footer=1`, and
+  `data-ink-svg="cover-title"=1`.
+- Browser-side `detectQuality(html, 'wechat')` still reports `wechat-line-height-zero`,
+  `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`. These are recorded blockers; this evidence is not PC editor
+  paste proof, phone preview proof, Dark Mode proof, cover-thumbnail proof, sync proof, or publish
+  proof.
+- Added one committed local `wechat-card-rich` manifest. It claims only `unit-tested` and
+  `local-browser` evidence and satisfies unit, local-browser, exact-artifact, and
+  sensitive-hygiene accounting for this exact HTML artifact.
+- Current committed release-gate accounting remains blocked with `canClaimComplete=false`,
+  `status=blocked-by-local-conflict`, `localManifestCount=17`, `wechatPcManifestCount=2`,
+  `combinedManifestCount=19`, `combinedIssueCount=16`,
+  `hasExactArtifactFingerprintConflicts=false`, and blocker kinds `local-conflict`,
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Verification passed: temporary artifact generator; independent HTML evidence verification;
+  CloakBrowser artifact readback; focused committed/local/release regression with 1 file / 4
+  selected tests; `platform-export-rendering.test.ts` with 1 file / 155 tests; 4-file
+  cross-platform export regression with 4 files / 194 tests; full `src/services/export` serial
+  regression with 36 files / 1132 tests; targeted ESLint; `vue-tsc`; and production build with
+  4653 transformed modules in 36.58s. GitNexus detect reported 39 dirty files across the whole
+  worktree, 20 changed symbols, 0 affected processes, and low risk; unrelated pre-existing local
+  changes remain outside this slice's commit boundary.
+- Boundary: this is local WeChat card-rich browser/exact-artifact/sensitive-hygiene accounting
+  only. It does not prove official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, sync, scheduled send, platform preview, public article rendering, or
+  publish success.

@@ -451,3 +451,26 @@ Step 8: 输出 WeChat-Compatible HTML
 - 旗舰预设必须同时验证 `preview` 和 `wechat` target。
 - 修改 SVG 或 HTML block 后，需要运行 `svg-modules`、`platform-rules`、`preview-fidelity` focused tests。
 - 有真实微信公众号粘贴权限时做 paste recheck；没有权限时标记为 `blocked: needs real WeChat editor paste`，不可写成通过。
+
+## 八、富卡片与相册轨道本地证据规则
+
+2026-06-22 `wechat-card-rich` 本地证据确认：InkForge 自有 marker 规则可以通过
+`markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)` 生成
+数据卡、对比卡、时间线、相册轨道、出处卡、列表、阅读条、首字下沉、H2/H3、footer 和 cover SVG。
+
+本地规则：
+
+- marker 只作为 InkForge 自有语义输入，禁止复制 135/秀米模板源码、私有 class/id、`tn-*`/`ng-*`
+  作者属性、第三方素材 URL、账号材料、本地采集路径或 credential/runtime capture 残留。
+- 富卡片正文仍必须保留可读 DOM 顺序；不要为了视觉层叠把正文藏进纯 SVG、透明图片、`line-height:0`
+  包裹或绝对定位自由画布。
+- 相册/卡片轨道可以在自身容器内横向滚动，但必须满足：
+  - 外层 WeChat 内容列 clamp 到 677px 或当前导出配置宽度；
+  - `bodyOverflowX=false`，页面级无横向滚动；
+  - evidence 明确区分 `galleryOverflowX=true` 的内部轨道滚动和页面 overflow。
+- 本地 browser/exact artifact 证据最多满足 `unit-test-coverage`、`local-browser-rendering`、
+  `exact-artifact`、`no-sensitive-artifact`。它不得冒充官方编辑器粘贴、手机预览、Dark Mode、
+  封面缩略图、同步、定时发送、平台预览、公网渲染或发布成功。
+- 若 `detectQuality(html, 'wechat')` 仍报告 `wechat-line-height-zero`、
+  `wechat-fixed-container-size`、`wechat-class-id-dependency`、`wechat-layout-report-required`，
+  这些 issue 必须继续作为 cannot-claim 边界记录，不能被本地证据覆盖。

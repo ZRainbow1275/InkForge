@@ -1,0 +1,115 @@
+WeChat Card Rich Local Browser Evidence - 2026-06-22
+
+Scope:
+- Repository-committed local browser and exact-artifact evidence for `wechat-card-rich`.
+- No WeChat account login, official editor paste, phone preview, mobile Dark Mode check, cover
+  thumbnail check, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish action was executed or claimed.
+
+Generation:
+- Artifact:
+  `prompts/0601/evidence/wechat-card-rich-local-artifact-20260622.html`.
+- Generated through the real local WeChat export path:
+  `markdownToWechatWithStats(sourceMarkdown, getPresetById('flagship-tempera'), options)`.
+- Options:
+  `enableReadingTime=true`, `enableCiteStatus=true`, `enableCodeHighlight=false`,
+  `enableEnhancedTable=false`, `enableCjkSpacing=true`, `maxContentWidth=677`.
+- Source Markdown is InkForge-owned and exercises rich card blocks: data stat, comparison card,
+  timeline, gallery track, citation card, list markers, reading bar, lede, H2/H3, footer, and
+  cover SVG. It does not copy 135/Xiumi template source, vendor class names, remote media,
+  account artifacts, or local browser runtime material.
+
+Hashes:
+- HTML hash:
+  `sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990`.
+- HTML bytes: 24797.
+- Source Markdown hash:
+  `sha256:8448b9c82bd1175c115dba40e815601ab744fc1dfec0a1b5e5b6d8f378e0b3dd`.
+
+Independent file verification:
+- Re-read the committed HTML artifact from disk.
+- Recomputed SHA-256 and byte length.
+- Verified required sentinels:
+  `id="nice"`, `flagship-stat`, `flagship-compare`, `flagship-timeline`, `flagship-gallery`,
+  `flagship-citation`, `flagship-readbar`, and `data-ink-svg`.
+- Verified no credential/runtime residue markers and no structured 135/Xiumi residue:
+  no account/session/credential capture strings, no `_135editor` / `135brush` / `data-tools="135编辑器"`,
+  no `tn-*` or `ng-*` authoring attributes/classes, and no market editor CDN references.
+
+CloakBrowser local artifact readback:
+- Loaded the read-only local artifact preview through CloakBrowser.
+- Desktop viewport readback:
+  `viewportWidth=1400`, `viewportHeight=900`, `documentScrollWidth=1385`,
+  `documentClientWidth=1385`, `bodyScrollWidth=1385`, `bodyClientWidth=1385`,
+  `bodyOverflowX=false`.
+- Export shell readback:
+  `nice.width=1369`, `clamp.width=677`, `clamp.left=354`, `clamp.right=1031`,
+  `clamp.scrollWidth=677`, `clamp.clientWidth=677`.
+- Gallery track readback:
+  `gallery.width=677`, `gallery.scrollWidth=1786`, `gallery.clientWidth=677`,
+  `galleryOverflowX=true`. This is an intentional internal carousel/track scroll, not page-level
+  horizontal overflow.
+- Page overflow readback:
+  `pageOverflowing=[]`.
+- DOM safety readback:
+  `svgElementCount=23`, `styleElementCount=0`, `foreignObjectCount=0`, `imageInSvgCount=0`,
+  `scriptCount=0`.
+- DOM sentinel readback:
+  `flagship-stat=1`, `flagship-compare=1`, `flagship-timeline=1`, `flagship-gallery=1`,
+  `flagship-citation=1`, `flagship-readbar=1`, `flagship-h2=1`, `flagship-h3=1`,
+  `flagship-lede=1`, `flagship-ul=4`, `flagship-footer=1`, and
+  `data-ink-svg="cover-title"=1`.
+
+Quality detector boundary:
+- `detectQuality(html, 'wechat')` still reports:
+  `wechat-line-height-zero`, `wechat-fixed-container-size`, `wechat-class-id-dependency`, and
+  `wechat-layout-report-required`.
+- These are current flagship-pipeline blockers and must remain cannot-claim boundaries. They do
+  not invalidate this local evidence row, but they prevent claiming PC paste, phone preview,
+  mobile Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public rendering, or
+  publish success from this local artifact.
+
+Runtime manifest behavior:
+- Added one committed local `wechat-card-rich` manifest.
+- It claims only `unit-tested` and `local-browser` evidence.
+- It satisfies only `unit-test-coverage`, `local-browser-rendering`, `exact-artifact`, and
+  `no-sensitive-artifact` accounting for the exact HTML artifact.
+- It keeps `pc-editor-paste-event`, `phone-preview-readback`, `dark-mode-check`, and
+  `published-url-or-platform-preview` missing.
+
+Initial verification:
+- Temporary generator:
+  `pnpm -C inkforge exec vitest run src/services/export/__tests__/generate-card-rich-artifact.tmp.test.ts --reporter=default`
+  passed before the temporary generator file was deleted.
+- Independent Node file verification passed.
+- CloakBrowser local artifact readback passed for desktop DOM, clamp width, page overflow,
+  sentinel counts, and SVG safety counts.
+- Focused committed/local/release regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed local evidence|committed local and WeChat PC evidence|committed evidence execution runbook|release claims" --reporter=default`
+  passed 1 file / 4 selected tests.
+
+Final verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed 1 file / 155 tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts src/services/export/__tests__/pipeline-cross-platform.test.ts src/services/export/xhs.test.ts src/services/export/zhihu.test.ts --reporter=default`:
+  passed 4 files / 194 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed 36 files / 1132 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`:
+  passed with 4653 transformed modules and built in 36.58s.
+- `git diff --check` for this slice:
+  passed.
+- `npx gitnexus detect-changes -r InkForge --scope all`:
+  completed with 39 dirty files observed in the whole worktree, 20 changed symbols, 0 affected
+  processes, and low risk. The dirty-file count includes unrelated pre-existing local changes;
+  commit staging for this slice must remain exact-file only.
+
+Boundary:
+- This is local WeChat card-rich browser/exact-artifact/sensitive-hygiene accounting only.
+- It does not prove official editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, or publish success.

@@ -1586,6 +1586,7 @@ describe('platform native export rendering rules', () => {
     const choiceIds = manifests.map(manifest => manifest.choiceId)
     const classicManifest = manifests.find(manifest => manifest.choiceId === 'wechat-classic-inline')
     const quietManifest = manifests.find(manifest => manifest.choiceId === 'wechat-quiet-editorial')
+    const cardRichManifest = manifests.find(manifest => manifest.choiceId === 'wechat-card-rich')
     const temperaManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-tempera')
     const nonLocalBrowserChoiceIds = new Set([
       'wechat-classic-inline',
@@ -1603,12 +1604,13 @@ describe('platform native export rendering rules', () => {
       manifest.artifacts.map(artifact => artifact.artifactRef).filter((ref): ref is string => Boolean(ref)),
     )
 
-    expect(manifests).toHaveLength(16)
+    expect(manifests).toHaveLength(17)
     expect(secondRead[0]).not.toBe(manifests[0])
     expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
     expect(choiceIds).toEqual([
       'wechat-classic-inline',
       'wechat-quiet-editorial',
+      'wechat-card-rich',
       'wechat-flagship-kiln',
       'wechat-flagship-tempera',
       'wechat-flagship-amber',
@@ -1634,6 +1636,7 @@ describe('platform native export rendering rules', () => {
       .every(manifest => manifest.claimedEvidence.includes('local-browser'))).toBe(true)
     expect(classicManifest?.claimedEvidence).toEqual(['unit-tested'])
     expect(quietManifest?.claimedEvidence).toEqual(['unit-tested', 'local-browser'])
+    expect(cardRichManifest?.claimedEvidence).toEqual(['unit-tested', 'local-browser'])
     expect(xhsCleanManifest?.claimedEvidence).toEqual(['unit-tested'])
     expect(zhihuCleanManifest?.claimedEvidence).toEqual(['unit-tested'])
     expect(zhihuAcademicManifest?.claimedEvidence).toEqual(['unit-tested'])
@@ -1654,6 +1657,7 @@ describe('platform native export rendering rules', () => {
     const wechatProgress = packReport.platformReports.wechat
     const classicProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-classic-inline')
     const quietProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-quiet-editorial')
+    const cardRichProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-card-rich')
     const kilnProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-kiln')
     const temperaProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')
     const amberProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
@@ -1666,20 +1670,23 @@ describe('platform native export rendering rules', () => {
     const quietRequirementStatus = new Map(
       quietProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
     )
+    const cardRichRequirementStatus = new Map(
+      cardRichProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
+    )
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 16,
+      manifestCount: 17,
       validManifestCount: 0,
-      invalidManifestCount: 16,
-      usableManifestCount: 16,
-      artifactCount: 65,
+      invalidManifestCount: 17,
+      usableManifestCount: 17,
+      artifactCount: 69,
       duplicateArtifactIdCount: 0,
     })
     expect(issueIds).not.toContain('style-proof-manifest-sensitive-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
     expect(issueIds).not.toContain('style-proof-manifest-pack-artifact-id-duplicate')
     expect(wechatProgress.ignoredManifestCount).toBe(11)
-    expect(wechatProgress.summary.choicesWithManifest).toBe(5)
+    expect(wechatProgress.summary.choicesWithManifest).toBe(6)
     expect(wechatProgress.summary.proofSatisfiedChoices).toBe(0)
     expect(wechatProgress.summary.proofInvalidChoices).toBeGreaterThan(0)
 
@@ -1714,6 +1721,23 @@ describe('platform native export rendering rules', () => {
     expect(quietRequirementStatus.get('phone-preview-readback')).toBe('missing')
     expect(quietRequirementStatus.get('dark-mode-check')).toBe('missing')
     expect(quietRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+
+    expect(cardRichProgress?.manifestCount).toBe(1)
+    expect(cardRichProgress?.status).toBe('missing')
+    expect(cardRichProgress?.blockedByCatalog).toBe(false)
+    expect(cardRichProgress?.manifest.artifactFingerprint).toBe(
+      'sha256:91a8c7ac75fc9a9359cc5cd6a6f9a407a7317bb300cf827403bc72e67e4d2990',
+    )
+    expect(cardRichProgress?.gates.find(gate => gate.gate === 'local-evidence')?.status).toBe('satisfied')
+    expect(cardRichProgress?.gates.find(gate => gate.gate === 'sensitive-hygiene')?.status).toBe('satisfied')
+    expect(cardRichRequirementStatus.get('unit-test-coverage')).toBe('satisfied')
+    expect(cardRichRequirementStatus.get('local-browser-rendering')).toBe('satisfied')
+    expect(cardRichRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(cardRichRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(cardRichRequirementStatus.get('pc-editor-paste-event')).toBe('missing')
+    expect(cardRichRequirementStatus.get('phone-preview-readback')).toBe('missing')
+    expect(cardRichRequirementStatus.get('dark-mode-check')).toBe('missing')
+    expect(cardRichRequirementStatus.get('published-url-or-platform-preview')).toBe('missing')
 
     expect(kilnProgress?.manifestCount).toBe(1)
     expect(kilnProgress?.status).toBe('missing')
@@ -1790,7 +1814,7 @@ describe('platform native export rendering rules', () => {
       ]) ?? [],
     )
 
-    expect(xhsProgress.ignoredManifestCount).toBe(9)
+    expect(xhsProgress.ignoredManifestCount).toBe(10)
     expect(xhsProgress.summary.choicesWithManifest).toBe(7)
     expect(xhsCleanProgress?.manifestCount).toBe(1)
     expect(xhsCleanProgress?.status).toBe('missing')
@@ -1940,7 +1964,7 @@ describe('platform native export rendering rules', () => {
       zhihuDataProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
     )
 
-    expect(zhihuProgress.ignoredManifestCount).toBe(12)
+    expect(zhihuProgress.ignoredManifestCount).toBe(13)
     expect(zhihuProgress.summary.choicesWithManifest).toBe(4)
     expect(zhihuCleanProgress?.manifestCount).toBe(1)
     expect(zhihuCleanProgress?.status).toBe('missing')
@@ -2013,8 +2037,8 @@ describe('platform native export rendering rules', () => {
     const xhsCannotClaimIds = xhsAudit.cannotClaim.map(requirement => requirement.requirement.id)
     const zhihuCannotClaimIds = zhihuAudit.cannotClaim.map(requirement => requirement.requirement.id)
 
-    expect(audit.summary.manifestCount).toBe(16)
-    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(5)
+    expect(audit.summary.manifestCount).toBe(17)
+    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(6)
     expect(xhsAudit.progress.summary.choicesWithManifest).toBe(7)
     expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(4)
     expect(wechatAudit.summary.cannotClaimRequirements).toBeGreaterThan(0)
@@ -2271,12 +2295,13 @@ describe('platform native export rendering rules', () => {
     const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
     const choiceIds = manifests.map(manifest => manifest.choiceId)
 
-    expect(manifests).toHaveLength(18)
+    expect(manifests).toHaveLength(19)
     expect(secondRead[0]).not.toBe(manifests[0])
     expect(secondRead[0]?.artifacts[0]).not.toBe(manifests[0]?.artifacts[0])
     expect(choiceIds).toEqual([
       'wechat-classic-inline',
       'wechat-quiet-editorial',
+      'wechat-card-rich',
       'wechat-flagship-kiln',
       'wechat-flagship-tempera',
       'wechat-flagship-amber',
@@ -2312,7 +2337,7 @@ describe('platform native export rendering rules', () => {
     const temperaIssueIds = temperaProgress?.report.issues.map(issue => issue.id) ?? []
 
     expect(packReport.summary).toMatchObject({
-      manifestCount: 18,
+      manifestCount: 19,
       duplicateArtifactIdCount: 0,
     })
     expect(packIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
@@ -2321,18 +2346,18 @@ describe('platform native export rendering rules', () => {
     expect(packIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
 
     expect(audit.summary).toMatchObject({
-      localManifestCount: 16,
+      localManifestCount: 17,
       wechatPcManifestCount: 2,
-      combinedManifestCount: 18,
+      combinedManifestCount: 19,
       hasExactArtifactFingerprintConflicts: false,
     })
     expect(audit.summary.combinedIssueCount).toBeGreaterThan(0)
     expect(audit.summary.cannotClaimRequirements).toBeGreaterThan(0)
     expect(combinedIssueIds).not.toContain('style-proof-manifest-pack-fingerprint-mismatch')
     expect(wechatAudit.progress.ignoredManifestCount).toBe(11)
-    expect(xhsAudit.progress.ignoredManifestCount).toBe(11)
-    expect(zhihuAudit.progress.ignoredManifestCount).toBe(14)
-    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(5)
+    expect(xhsAudit.progress.ignoredManifestCount).toBe(12)
+    expect(zhihuAudit.progress.ignoredManifestCount).toBe(15)
+    expect(wechatAudit.progress.summary.choicesWithManifest).toBe(6)
     expect(xhsAudit.progress.summary.choicesWithManifest).toBe(7)
     expect(zhihuAudit.progress.summary.choicesWithManifest).toBe(4)
     expect(kilnProgress?.manifestCount).toBe(1)
@@ -2376,13 +2401,13 @@ describe('platform native export rendering rules', () => {
       step.requirement.id === 'public-image-host'
     )
 
-    expect(report.local.summary.manifestCount).toBe(16)
+    expect(report.local.summary.manifestCount).toBe(17)
     expect(report.wechatPc.summary.manifestCount).toBe(2)
-    expect(report.combined.summary.manifestCount).toBe(18)
+    expect(report.combined.summary.manifestCount).toBe(19)
     expect(report.summary).toMatchObject({
-      localManifestCount: 16,
+      localManifestCount: 17,
       wechatPcManifestCount: 2,
-      combinedManifestCount: 18,
+      combinedManifestCount: 19,
       hasExactArtifactFingerprintConflicts: false,
     })
     expect(report.summary.combinedIssueCount).toBeGreaterThan(0)
@@ -2417,8 +2442,8 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
     expect(report.status).toBe('blocked-by-local-conflict')
     expect(report.summary).toMatchObject({
-      localManifestCount: 16,
-      combinedManifestCount: 18,
+      localManifestCount: 17,
+      combinedManifestCount: 19,
       hasExactArtifactFingerprintConflicts: false,
       combinedIssueCount: 16,
       cannotClaimSteps: expect.any(Number),
