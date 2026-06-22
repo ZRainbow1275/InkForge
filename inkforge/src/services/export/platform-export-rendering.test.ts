@@ -14,9 +14,11 @@ import {
   detectQuality,
   evaluateStyleChoiceApplication,
   evaluateStyleChoiceAvailability,
+  formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
   getCommittedStyleProofExternalHandoffReport,
+  getCommittedStyleProofExternalHandoffPacket,
   getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
@@ -3282,6 +3284,84 @@ describe('platform native export rendering rules', () => {
     expect(report.recommendedNextAction).toBe(report.nextPhoneRow?.nextOperatorAction)
     expect(report.cannotAutoCompleteReason).toContain('No safe external proof rows')
     expect(report.cannotAutoCompleteReason).toContain('no direct local proof rows')
+  })
+
+  it('formats committed external handoff as a redacted operator packet', () => {
+    const packet = getCommittedStyleProofExternalHandoffPacket()
+    const markdown = formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)
+    const forbiddenFragments = [
+      'C:/Users',
+      'C:\\Users',
+      ['.codex/tools', 'cloakbrowser'].join('/'),
+      ['profiles', ''].join('/'),
+      ['profile', 'Dir'].join(''),
+      ['session', 'id'].join(''),
+      ['access', 'Token'].join(''),
+      ['refresh', 'Token'].join(''),
+      ['authorization', ':'].join(''),
+      ['cookie', ':'].join(''),
+      ['set', 'cookie'].join('-'),
+      ['.', 'har'].join(''),
+      ['qr', 'code'].join(''),
+      ['scan', 'qr'].join('-'),
+      ['mp.weixin.qq.com', 's/'].join('/'),
+      ['xhs', 'link.com'].join(''),
+      ['zhihu.com', 'p/'].join('/'),
+    ]
+
+    expect(packet.canClaimComplete).toBe(false)
+    expect(packet.canContinueLocally).toBe(false)
+    expect(packet.requiresOperator).toBe(true)
+    expect(packet.requiresPhone).toBe(true)
+    expect(packet.requiresExternalAccount).toBe(true)
+    expect(packet.requiresPublicHost).toBe(true)
+    expect(packet.summary).toMatchObject({
+      externalHandoffRows: 18,
+      safeExternalRows: 0,
+      phoneRows: 4,
+      externalAccountRows: 13,
+      publicHostRows: 1,
+      unsafeToAutomateRows: 13,
+      mutatingRows: 13,
+    })
+    expect(packet.nextRows).toHaveLength(5)
+    expect(packet.nextRows.every(row => row.cannotClaim)).toBe(true)
+    expect(packet.nextRows.every(row => row.safeToAutomate === false)).toBe(true)
+    expect(packet.nextRows.some(row => row.requiresPhone)).toBe(true)
+    expect(packet.nextRows.some(row => row.requiresExternalAccount)).toBe(true)
+    expect(packet.nextRows.some(row => row.boundary === 'public-host')).toBe(true)
+    expect(packet.nextRows.some(row => row.status === 'unsafe-to-automate')).toBe(true)
+    expect(packet.nextRows.some(row => row.mutatesPlatform)).toBe(true)
+    expect(packet.rows.every(row => row.cannotClaim)).toBe(true)
+    expect(packet.rows.every(row => row.safeToAutomate === false)).toBe(true)
+    expect(packet.rows.some(row =>
+      row.platform === 'wechat' &&
+      row.requirementId === 'phone-preview-readback' &&
+      row.artifactTemplate.requiredFields.includes('phonePreviewContentVerified')
+    )).toBe(true)
+    expect(packet.rows.some(row =>
+      row.platform === 'xiaohongshu' &&
+      row.requirementId === 'published-url-or-platform-preview' &&
+      row.mutatesPlatform
+    )).toBe(true)
+    expect(packet.rows.some(row =>
+      row.platform === 'zhihu' &&
+      row.requirementId === 'public-image-host' &&
+      row.artifactTemplate.acceptedHostStatuses.includes('public-https')
+    )).toBe(true)
+
+    expect(markdown).toContain('# Committed Style Proof External Handoff')
+    expect(markdown).toContain('Can claim complete: no')
+    expect(markdown).toContain('Safe external rows: 0')
+    expect(markdown).toContain('wechat / phone-preview-readback / phone-preview')
+    expect(markdown).toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
+    expect(markdown).toContain('zhihu / public-image-host / public-host')
+    expect(markdown).toContain('Do not claim completion from local-only checks')
+    expect(markdown).toContain('Forbidden evidence fields')
+    expect(formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)).toBe(markdown)
+    for (const fragment of forbiddenFragments) {
+      expect(markdown.toLowerCase()).not.toContain(fragment.toLowerCase())
+    }
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

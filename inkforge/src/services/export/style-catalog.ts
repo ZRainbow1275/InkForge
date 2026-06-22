@@ -1279,6 +1279,24 @@ export interface CommittedStyleProofExternalHandoffReport {
   }
 }
 
+export interface CommittedStyleProofExternalHandoffPacket {
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  canContinueLocally: boolean
+  requiresOperator: boolean
+  requiresPhone: boolean
+  requiresExternalAccount: boolean
+  requiresPublicHost: boolean
+  containsUnsafeToAutomateRows: boolean
+  containsMutatingPlatformRows: boolean
+  recommendedNextAction: string | null
+  cannotAutoCompleteReason: string | null
+  summary: CommittedStyleProofExternalHandoffReport['summary']
+  groups: readonly CommittedStyleProofExternalProofChecklistGroup[]
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+  nextRows: readonly CommittedStyleProofExternalProofChecklistRow[]
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -8390,4 +8408,134 @@ export function getCommittedStyleProofExternalHandoffReport(): CommittedStylePro
     ...report,
     cannotAutoCompleteReason: getCommittedStyleProofExternalHandoffCannotAutoCompleteReason(report),
   }
+}
+
+function getCommittedStyleProofExternalHandoffNextRows(
+  report: CommittedStyleProofExternalHandoffReport,
+): CommittedStyleProofExternalProofChecklistRow[] {
+  return [
+    report.nextPhoneRow,
+    report.nextExternalAccountRow,
+    report.nextPublicHostRow,
+    report.nextUnsafeToAutomateRow,
+    report.nextMutatingPlatformRow,
+  ].filter((row): row is CommittedStyleProofExternalProofChecklistRow => Boolean(row))
+}
+
+export function getCommittedStyleProofExternalHandoffPacket(
+  report = getCommittedStyleProofExternalHandoffReport(),
+): CommittedStyleProofExternalHandoffPacket {
+  return {
+    canClaimComplete: report.canClaimComplete,
+    status: report.status,
+    canContinueLocally: report.canContinueLocally,
+    requiresOperator: report.requiresOperator,
+    requiresPhone: report.requiresPhone,
+    requiresExternalAccount: report.requiresExternalAccount,
+    requiresPublicHost: report.requiresPublicHost,
+    containsUnsafeToAutomateRows: report.containsUnsafeToAutomateRows,
+    containsMutatingPlatformRows: report.containsMutatingPlatformRows,
+    recommendedNextAction: report.recommendedNextAction,
+    cannotAutoCompleteReason: report.cannotAutoCompleteReason,
+    summary: report.summary,
+    groups: report.externalChecklist.groups,
+    rows: report.externalChecklist.rows,
+    nextRows: getCommittedStyleProofExternalHandoffNextRows(report),
+  }
+}
+
+function formatCommittedStyleProofExternalHandoffBoolean(value: boolean): 'yes' | 'no' {
+  return value ? 'yes' : 'no'
+}
+
+function formatCommittedStyleProofExternalHandoffText(value: string | null): string {
+  if (!value) return 'none'
+  return value.replace(/\s+/g, ' ').trim()
+}
+
+function formatCommittedStyleProofExternalHandoffList(
+  values: readonly string[],
+): string {
+  return values.length > 0
+    ? values.map(formatCommittedStyleProofExternalHandoffText).join(', ')
+    : 'none'
+}
+
+function formatCommittedStyleProofExternalHandoffRowHeader(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): string {
+  return `${row.platform} / ${row.requirementId} / ${row.boundary}`
+}
+
+function formatCommittedStyleProofExternalHandoffRow(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): readonly string[] {
+  const template = row.artifactTemplate
+
+  return [
+    `- ${formatCommittedStyleProofExternalHandoffRowHeader(row)}`,
+    `  - Gate: ${row.gate}`,
+    `  - Status: ${row.status}`,
+    `  - Blockers: ${formatCommittedStyleProofExternalHandoffList(row.blockerKinds)}`,
+    `  - Choices: ${formatCommittedStyleProofExternalHandoffList(row.choiceIds)}`,
+    `  - Required channels: ${formatCommittedStyleProofExternalHandoffList(template.requiredChannels)}`,
+    `  - Required actions: ${formatCommittedStyleProofExternalHandoffList(template.requiredActions)}`,
+    `  - Required readbacks: ${formatCommittedStyleProofExternalHandoffList(template.requiredReadbacks)}`,
+    `  - Required evidence fields: ${formatCommittedStyleProofExternalHandoffList(template.requiredFields)}`,
+    `  - Forbidden evidence fields: ${formatCommittedStyleProofExternalHandoffList(template.forbiddenFields)}`,
+    `  - Accepted host statuses: ${formatCommittedStyleProofExternalHandoffList(template.acceptedHostStatuses)}`,
+    `  - Freshness max days: ${template.maxFreshnessDays ?? 'none'}`,
+    `  - Mutates platform: ${formatCommittedStyleProofExternalHandoffBoolean(row.mutatesPlatform)}`,
+    `  - Requires external account: ${formatCommittedStyleProofExternalHandoffBoolean(row.requiresExternalAccount)}`,
+    `  - Requires phone: ${formatCommittedStyleProofExternalHandoffBoolean(row.requiresPhone)}`,
+    `  - Safe to automate: ${formatCommittedStyleProofExternalHandoffBoolean(row.safeToAutomate)}`,
+    `  - Cannot claim: ${formatCommittedStyleProofExternalHandoffBoolean(row.cannotClaim)}`,
+    `  - Cannot claim reason: ${formatCommittedStyleProofExternalHandoffText(row.cannotClaimReason)}`,
+    `  - Next operator action: ${formatCommittedStyleProofExternalHandoffText(row.nextOperatorAction)}`,
+    `  - Redaction boundary: ${formatCommittedStyleProofExternalHandoffText(template.redactionBoundary)}`,
+    `  - Success criteria: ${formatCommittedStyleProofExternalHandoffList(template.successCriteria)}`,
+    `  - Failure signals: ${formatCommittedStyleProofExternalHandoffList(template.failureSignals)}`,
+  ]
+}
+
+export function formatCommittedStyleProofExternalHandoffPacketMarkdown(
+  packet = getCommittedStyleProofExternalHandoffPacket(),
+): string {
+  const lines = [
+    '# Committed Style Proof External Handoff',
+    '',
+    '## Summary',
+    `- Status: ${packet.status}`,
+    `- Can claim complete: ${formatCommittedStyleProofExternalHandoffBoolean(packet.canClaimComplete)}`,
+    `- Can continue locally: ${formatCommittedStyleProofExternalHandoffBoolean(packet.canContinueLocally)}`,
+    `- Requires operator: ${formatCommittedStyleProofExternalHandoffBoolean(packet.requiresOperator)}`,
+    `- Requires phone: ${formatCommittedStyleProofExternalHandoffBoolean(packet.requiresPhone)}`,
+    `- Requires external account: ${formatCommittedStyleProofExternalHandoffBoolean(packet.requiresExternalAccount)}`,
+    `- Requires public host: ${formatCommittedStyleProofExternalHandoffBoolean(packet.requiresPublicHost)}`,
+    `- Unsafe-to-automate rows: ${packet.summary.unsafeToAutomateRows}`,
+    `- Mutating platform rows: ${packet.summary.mutatingRows}`,
+    `- Phone rows: ${packet.summary.phoneRows}`,
+    `- External account rows: ${packet.summary.externalAccountRows}`,
+    `- Public host rows: ${packet.summary.publicHostRows}`,
+    `- Safe external rows: ${packet.summary.safeExternalRows}`,
+    `- External handoff rows: ${packet.summary.externalHandoffRows}`,
+    `- Cannot auto-complete reason: ${formatCommittedStyleProofExternalHandoffText(packet.cannotAutoCompleteReason)}`,
+    '',
+    '## Cannot-Claim Boundary',
+    '- Do not claim completion from local-only checks, unit tests, local browser rendering, or catalog availability.',
+    '- Do not claim phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, platform preview, public rendering, upload, or publish success until the exact artifact has the required external readback.',
+    '- Do not automate rows that require credentialed account mutation; collect them through an operator-run, redacted proof manifest.',
+    '',
+    '## Next Operator Rows',
+    ...(packet.nextRows.length > 0
+      ? packet.nextRows.map(row =>
+          `- ${formatCommittedStyleProofExternalHandoffRowHeader(row)}: ${formatCommittedStyleProofExternalHandoffText(row.nextOperatorAction)}`
+        )
+      : ['- none']),
+    '',
+    '## Proof Rows',
+    ...packet.rows.flatMap(formatCommittedStyleProofExternalHandoffRow),
+  ]
+
+  return `${lines.join('\n')}\n`
 }

@@ -4100,3 +4100,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is local UI visibility and layout smoke only. It does not prove WeChat editor
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled
   send, platform preview, public rendering, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Style Proof External Handoff Packet
+
+- [x] style-proof-external-handoff-packet-20260623.txt
+- Added a deterministic committed-proof operator packet and Markdown formatter:
+  `getCommittedStyleProofExternalHandoffPacket()` and
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown()`.
+- Packet snapshot remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `canContinueLocally=false`, `safeExternalRows=0`, `externalHandoffRows=18`,
+  `phoneRows=4`, `externalAccountRows=13`, `publicHostRows=1`,
+  `unsafeToAutomateRows=13`, and `mutatingRows=13`.
+- Markdown rows include required channels/actions/readbacks, required and forbidden evidence
+  fields, accepted host statuses, freshness, redaction boundary, success criteria, failure signals,
+  cannot-claim reason, and next operator action.
+- Verification passed: TDD red run for the missing packet API; focused packet regression passed 1
+  selected test; adjacent checklist/actionability/handoff/release selected run passed 5 tests; full
+  `platform-export-rendering.test.ts` passed 172 tests; full serial `src/services/export` passed
+  36 files / 1149 tests; targeted ESLint, `vue-tsc`, production build, staged diff check,
+  sensitive-fragment scan, and GitNexus staged detect passed.
+- Boundary: this is local operator handoff formatting only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

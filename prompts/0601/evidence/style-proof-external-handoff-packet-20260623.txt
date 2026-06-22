@@ -1,0 +1,66 @@
+Style Proof External Handoff Packet - 2026-06-23
+
+Scope:
+- Local service/reporting API for committed style-proof external handoff only.
+- No platform action, phone preview, sync, upload, scheduled send, public rendering, or publish step was executed.
+- No browser profile, account label, draft title, public article URL, QR image, HAR, cookie, token, or runtime capture path is recorded.
+
+Implemented:
+- getCommittedStyleProofExternalHandoffPacket(report?)
+- formatCommittedStyleProofExternalHandoffPacketMarkdown(packet?)
+
+Behavior:
+- Reuses getCommittedStyleProofExternalHandoffReport() as the source of truth.
+- Exposes a deterministic structured packet with release status, cannot-claim state, summary counts, next external rows, checklist groups, and checklist rows.
+- Formats the same packet as deterministic Markdown for an operator handoff.
+- Keeps canClaimComplete=false and canContinueLocally=false while the committed proof set still has phone, external account, public host, unsafe-to-automate, and mutating-platform rows.
+- Preserves the artifact contract details that operators need to collect real proof: required channels, actions, readbacks, required fields, forbidden fields, accepted host statuses, freshness, redaction boundary, success criteria, failure signals, cannot-claim reason, and next operator action.
+
+Runtime snapshot:
+- status=blocked-by-external
+- canClaimComplete=false
+- canContinueLocally=false
+- requiresOperator=true
+- requiresPhone=true
+- requiresExternalAccount=true
+- requiresPublicHost=true
+- safeExternalRows=0
+- externalHandoffRows=18
+- phoneRows=4
+- externalAccountRows=13
+- publicHostRows=1
+- unsafeToAutomateRows=13
+- mutatingRows=13
+
+Regression coverage:
+- Packet and Markdown stay deterministic.
+- Packet rows remain cannot-claim and non-automatable.
+- The handoff includes WeChat phone-preview proof rows, Xiaohongshu platform-publish rows, and Zhihu public-host rows.
+- The Markdown explicitly says not to claim completion from local-only checks.
+- The Markdown redaction scan rejects local profile paths, token/cookie/header strings, HAR references, QR strings, and public platform URL fragments.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "redacted operator packet" --reporter=default
+  PASS: 1 file / 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external proof checklist|local actionability|external handoff|redacted operator packet|release claims" --reporter=default
+  PASS: 1 file / 5 selected tests
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 172 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1149 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 43.52s
+- git diff --cached --check
+  PASS
+- staged sensitive-fragment scan for profile paths, token/header/cookie markers, HAR, QR, and public platform URL fragments
+  PASS
+- npx gitnexus detect-changes -r InkForge --scope staged
+  PASS: low risk, 8 staged files, 3 changed symbols, 0 affected processes
+
+Boundary:
+- This is a local operator handoff formatter only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, Xiaohongshu upload, Zhihu upload, public host acceptance, or publish success.

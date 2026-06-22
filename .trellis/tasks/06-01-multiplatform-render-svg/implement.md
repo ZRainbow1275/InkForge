@@ -8727,6 +8727,54 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Style Proof External Handoff Packet Slice
+
+Scope:
+- Local external-proof operator handoff formatting only.
+- No renderer output, catalog availability, proof manifest artifact, account upload, sync, phone
+  preview, scheduled send, platform preview, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `CommittedStyleProofExternalHandoffPacket` as a deterministic structured projection of
+  `getCommittedStyleProofExternalHandoffReport()`.
+- Added `getCommittedStyleProofExternalHandoffPacket(report?)` for service/UI callers that need a
+  redacted operator packet without recalculating release-gate logic.
+- Added `formatCommittedStyleProofExternalHandoffPacketMarkdown(packet?)` so an operator can review
+  the exact remaining proof rows, artifact template fields, redaction boundaries, success criteria,
+  failure signals, cannot-claim reason, and next operator actions.
+- Exported the new packet type and functions through `src/services/export/index.ts`.
+- Added regression coverage for packet determinism, cannot-claim enforcement, WeChat phone-preview
+  rows, XHS platform-publish rows, Zhihu public-host rows, and Markdown sensitive-fragment hygiene.
+
+Runtime snapshot:
+- `status=blocked-by-external`, `canClaimComplete=false`, `canContinueLocally=false`.
+- Handoff summary remains `externalHandoffRows=18`, `phoneRows=4`, `externalAccountRows=13`,
+  `publicHostRows=1`, `unsafeToAutomateRows=13`, `mutatingRows=13`, and `safeExternalRows=0`.
+
+Verification:
+- TDD red run failed with `getCommittedStyleProofExternalHandoffPacket is not a function`.
+- Focused packet regression passed 1 selected test.
+- Adjacent external proof checklist / local actionability / external handoff / release-claims run
+  passed 5 selected tests.
+- Full `platform-export-rendering.test.ts` passed 1 file / 172 tests.
+- Full serial `src/services/export` regression passed 36 files / 1149 tests.
+- Targeted ESLint for `style-catalog.ts`, `index.ts`, and `platform-export-rendering.test.ts`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 43.52s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --cached --check`: passed.
+- Staged sensitive-fragment scan for profile paths, token/header/cookie markers, HAR, QR, and
+  public platform URL fragments: passed.
+- `npx gitnexus detect-changes -r InkForge --scope staged`: low risk, 8 staged files, 3 changed
+  symbols, and 0 affected processes.
+
+Boundary:
+- This is local handoff/reporting only. It does not prove WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
+  success.
+
 ## 2026-06-23 Runtime Market SVG/H5 Fallback Matrix Reconciliation Slice
 
 Scope:

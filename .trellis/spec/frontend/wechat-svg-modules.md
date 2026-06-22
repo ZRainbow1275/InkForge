@@ -3900,3 +3900,74 @@ Required checks:
   paste, exact-artifact proof, safe-disposable-draft proof, phone preview, mobile interaction, Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   rendering, upload, and publish success.
+
+## 56. Style Proof External Handoff Packet - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: committed style-proof accounting may identify external gates correctly, but operators
+  still need a deterministic handoff artifact that lists what proof is required without implying the
+  gates are complete.
+- The contract applies to the local report API above
+  `getCommittedStyleProofExternalHandoffReport()`.
+- The packet and Markdown formatter are reporting-only helpers. They must not create browser
+  artifacts, read browser profiles, open platform pages, mutate accounts, upload content, schedule
+  sends, or publish.
+
+### 2. Signatures
+
+```typescript
+interface CommittedStyleProofExternalHandoffPacket {
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  canContinueLocally: boolean
+  requiresOperator: boolean
+  requiresPhone: boolean
+  requiresExternalAccount: boolean
+  requiresPublicHost: boolean
+  containsUnsafeToAutomateRows: boolean
+  containsMutatingPlatformRows: boolean
+  recommendedNextAction: string | null
+  cannotAutoCompleteReason: string | null
+  summary: CommittedStyleProofExternalHandoffReport['summary']
+  groups: readonly CommittedStyleProofExternalProofChecklistGroup[]
+  rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+  nextRows: readonly CommittedStyleProofExternalProofChecklistRow[]
+}
+
+getCommittedStyleProofExternalHandoffPacket(report?)
+formatCommittedStyleProofExternalHandoffPacketMarkdown(packet?)
+```
+
+### 3. Contracts
+
+- `getCommittedStyleProofExternalHandoffPacket()` must reuse
+  `getCommittedStyleProofExternalHandoffReport()` as the source of truth.
+- The packet must expose deterministic summary counts, external checklist groups, external rows,
+  and the currently recommended next rows without changing release-gate status, catalog
+  availability, selector mappings, manifest validation, or acceptance-audit classification.
+- The packet must preserve `canClaimComplete=false` and `canContinueLocally=false` when the source
+  report still has phone, external-account, public-host, unsafe-to-automate, or mutating-platform
+  blockers.
+- `formatCommittedStyleProofExternalHandoffPacketMarkdown()` must be deterministic for the same
+  packet input and must not add timestamps, runtime paths, profile names, URLs from authenticated
+  pages, account labels, draft titles, QR data, request archives, cookies, tokens, or authorization
+  headers.
+- Markdown rows must include the operator contract fields from the checklist row: required
+  channels/actions/readbacks, required fields, forbidden fields, accepted host statuses, freshness,
+  redaction boundary, success criteria, failure signals, cannot-claim reason, and next operator
+  action.
+- The Markdown must explicitly state that local-only checks, unit tests, local browser rendering,
+  and catalog availability cannot satisfy phone preview, Dark Mode, cover thumbnail, credentialed
+  sync, scheduled send, platform preview, public rendering, upload, or publish proof.
+
+### 4. Required Checks
+
+- Regression tests must prove packet rows stay non-automatable and cannot-claim.
+- Regression tests must prove WeChat phone-preview rows, Xiaohongshu platform-publish rows, and
+  Zhihu public-host rows are represented.
+- Regression tests must prove Markdown determinism and include the cannot-claim boundary.
+- Regression tests must scan the Markdown for sensitive fragments such as local profile paths,
+  credential/header strings, HAR markers, QR markers, and public platform URL fragments.
+- Full export regressions, targeted ESLint, strict type-check, production build, GitNexus
+  detect-changes, and staged redaction scan must pass before committing the slice.
