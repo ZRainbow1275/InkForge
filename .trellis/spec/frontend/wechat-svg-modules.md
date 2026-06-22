@@ -3572,3 +3572,124 @@ Required checks:
 - Evidence docs must explicitly keep `safe-disposable-draft`, editor reachability, PC DOM readback,
   paste, phone preview, credentialed sync, scheduled-send, platform-preview, public rendering, and
   publish success unclaimed when the preflight is blocked.
+
+## 51. Safe Disposable Draft Preflight Blocker Fields - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: WeChat draft-box and new-creation-menu readbacks can prove route-discovery blockers, but
+  they must not be counted as `safe-disposable-draft` proof.
+- The code-spec contract applies to redacted `StyleProofManifest` packs, manifest intake, semantic
+  validation, acceptance audit, and committed evidence review.
+- The fields below are blocker evidence fields only. They record why a proof run stopped before
+  creating or mutating a real WeChat article draft.
+
+### 2. Signatures
+
+```typescript
+interface StyleProofArtifact {
+  createRouteActionMetadataMissing?: boolean
+  cleanupTargetAmbiguous?: boolean
+}
+```
+
+Issue ids:
+
+```typescript
+type StyleProofManifestIssueId =
+  | 'style-proof-manifest-create-route-action-missing'
+  | 'style-proof-manifest-cleanup-target-ambiguous'
+```
+
+Affected report entry points:
+
+```typescript
+validateStyleProofManifest(manifest)
+getStyleProofManifestReport(manifest)
+getStyleProofManifestIntakeReport(input)
+getStyleProofAcceptanceAuditReport(manifests)
+```
+
+### 3. Contracts
+
+- `createRouteActionMetadataMissing:true` means the observed article/create control did not expose a
+  sanitized concrete route/action that can be tied to the proof target editor. It invalidates the
+  `safe-disposable-draft` row for that manifest.
+- `cleanupTargetAmbiguous:true` means the run cannot uniquely identify the draft that would be
+  cleaned up. It invalidates the `safe-disposable-draft` row for that manifest.
+- Both fields are accepted artifact fields for intake and must not generate schema warnings when
+  present as booleans.
+- Both fields are semantic blocker indicators. They must appear in semantic issue counts and in the
+  acceptance audit `cannotClaim` path when attached to a `safe-disposable-draft` artifact.
+- These fields do not satisfy `disposableDraft`, `cleanupPathVerified`, editor reachability, PC DOM,
+  paste, phone preview, Dark Mode, cover-thumbnail, sync, scheduled-send, public rendering, or
+  publish proof.
+- A manifest may include the blocker artifact as `safeForCommit:true` only when the artifact content
+  is redacted and contains no account captures, credential material, request archive, runtime
+  capture path, local browser-state details, or platform query parameters.
+
+### 4. Validation & Error Matrix
+
+- `createRouteActionMetadataMissing:true` on a `safe-disposable-draft` artifact ->
+  `style-proof-manifest-create-route-action-missing`, artifact row invalid, requirement invalid.
+- `cleanupTargetAmbiguous:true` on a `safe-disposable-draft` artifact ->
+  `style-proof-manifest-cleanup-target-ambiguous`, artifact row invalid, requirement invalid.
+- Missing `disposableDraft:true` still emits `style-proof-manifest-disposable-draft-missing`.
+- Missing `cleanupPathVerified:true` still emits `style-proof-manifest-cleanup-path-missing`.
+- Intake with boolean blocker fields and no unknown fields -> `schemaWarningCount=0`.
+- Acceptance audit for the same manifest -> `cannotClaim` includes `safe-disposable-draft`.
+
+### 5. Good/Base/Bad Cases
+
+- Good: a later real disposable-draft run records a unique draft marker, concrete editor route/action,
+  `disposableDraft:true`, `cleanupPathVerified:true`, and a post-cleanup readback for the exact
+  marker.
+- Base: a read-only preflight artifact records `createRouteActionMetadataMissing:true` and
+  `cleanupTargetAmbiguous:true`; it is safe blocker evidence but cannot claim completion.
+- Bad: route-discovery or dropdown readback is marked as `safe-disposable-draft` without a unique
+  draft marker and cleanup readback. The validator must reject it.
+
+### 6. Tests Required
+
+- Regression tests must prove route-discovery preflight blockers are accepted by intake without
+  schema warnings.
+- Regression tests must prove the same manifest is semantically invalid for
+  `safe-disposable-draft`.
+- Regression tests must assert both issue ids:
+  `style-proof-manifest-create-route-action-missing` and
+  `style-proof-manifest-cleanup-target-ambiguous`.
+- Regression tests must assert acceptance audit `cannotClaim` still includes
+  `safe-disposable-draft`.
+- Existing full export regressions, type-check, and production build must pass after adding the
+  fields.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```json
+{
+  "requirementId": "safe-disposable-draft",
+  "action": "safe-disposable-draft",
+  "readback": "dom",
+  "safeForCommit": true
+}
+```
+
+This omits the blocker reason and can make a menu/readback artifact look like real draft proof.
+
+#### Correct
+
+```json
+{
+  "requirementId": "safe-disposable-draft",
+  "action": "safe-disposable-draft",
+  "readback": "dom",
+  "createRouteActionMetadataMissing": true,
+  "cleanupTargetAmbiguous": true,
+  "safeForCommit": true
+}
+```
+
+This records the preflight stop condition and keeps the proof row unclaimable until a separate
+safe disposable draft run proves a concrete editor target and cleanup path.

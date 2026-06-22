@@ -4540,3 +4540,26 @@ Boundary:
   reachability, PC editor DOM readback, paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
+
+---
+
+## 2026-06-23 Style Proof Safe Disposable Draft Preflight Blocker Fields Addendum
+
+- Added executable manifest blocker fields for the WeChat safe disposable draft preflight boundary:
+  `createRouteActionMetadataMissing` and `cleanupTargetAmbiguous`.
+- Added semantic issue ids `style-proof-manifest-create-route-action-missing` and
+  `style-proof-manifest-cleanup-target-ambiguous`.
+- The intake allowlist accepts both boolean fields without schema warnings, while semantic
+  validation keeps the artifact invalid and keeps `safe-disposable-draft` in acceptance-audit
+  `cannotClaim`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-safe-disposable-draft-preflight-blockers-20260623.txt`.
+- Verification passed: TDD red run for the new route-discovery preflight regression; post-fix
+  focused route-discovery regression; 23 selected proof/acceptance/runbook tests; full
+  `platform-export-rendering.test.ts` with 170 tests; full serial `src/services/export` with 36
+  files / 1147 tests; targeted ESLint; `vue-tsc`; and production build with 4653 modules
+  transformed in 31.46s.
+- Boundary: this is local cannot-claim enforcement only. It does not prove WeChat official editor
+  reachability, PC editor DOM readback, paste, safe disposable draft creation/cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, or publish success.

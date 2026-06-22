@@ -1,0 +1,56 @@
+Style Proof Safe Disposable Draft Preflight Blocker Fields - 2026-06-23
+
+Scope:
+- Local manifest validation and acceptance accounting for WeChat safe disposable draft preflight
+  blockers.
+- No platform action, editor paste, phone preview, sync, scheduled send, upload, public rendering,
+  or publish operation was performed.
+
+Implemented:
+- Added StyleProofArtifact.createRouteActionMetadataMissing.
+- Added StyleProofArtifact.cleanupTargetAmbiguous.
+- Added issue id style-proof-manifest-create-route-action-missing.
+- Added issue id style-proof-manifest-cleanup-target-ambiguous.
+
+Behavior:
+- A safe-disposable-draft artifact with createRouteActionMetadataMissing=true is invalid because
+  the observed create control did not expose a concrete sanitized editor route or same-session
+  target action.
+- A safe-disposable-draft artifact with cleanupTargetAmbiguous=true is invalid because the run
+  cannot uniquely identify the draft that would be cleaned up.
+- Both fields are accepted by manifest intake without schema warnings when they are booleans.
+- Both fields are semantic blockers and contribute to the cannot-claim path.
+- The fields do not satisfy disposableDraft, cleanupPathVerified, authenticated editor reachability,
+  PC editor DOM readback, paste, phone preview, Dark Mode, cover acceptance, sync, scheduled send,
+  public rendering, or publish success.
+
+Regression coverage:
+- Route-discovery/menu-preflight blocker artifacts cannot satisfy safe disposable draft proof.
+- The manifest report includes style-proof-manifest-create-route-action-missing.
+- The manifest report includes style-proof-manifest-cleanup-target-ambiguous.
+- The artifact row and safe-disposable-draft requirement remain invalid.
+- Intake schemaWarningCount remains 0 for the new boolean fields.
+- Acceptance audit cannotClaim includes safe-disposable-draft.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "route-discovery preflight" --reporter=default
+  PASS after implementation: 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "proof manifest|safe disposable|route-discovery|acceptance audit|execution runbook" --reporter=default
+  PASS: 23 selected tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 170 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1147 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 31.46s
+
+Boundary:
+- This proves local cannot-claim enforcement only.
+- It does not prove WeChat official editor reachability, PC editor DOM readback, paste, exact
+  artifact proof, safe disposable draft creation, cleanup, phone preview, mobile interaction, Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, or publish success.

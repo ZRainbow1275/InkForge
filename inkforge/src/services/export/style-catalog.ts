@@ -325,6 +325,8 @@ export interface StyleProofArtifact {
   scheduledSendVerified?: boolean
   disposableDraft?: boolean
   cleanupPathVerified?: boolean
+  createRouteActionMetadataMissing?: boolean
+  cleanupTargetAmbiguous?: boolean
   artifactManifestValidated?: boolean
   collectedAt?: string
   safeForCommit?: boolean
@@ -372,6 +374,8 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-scheduled-send-not-verified'
   | 'style-proof-manifest-disposable-draft-missing'
   | 'style-proof-manifest-cleanup-path-missing'
+  | 'style-proof-manifest-create-route-action-missing'
+  | 'style-proof-manifest-cleanup-target-ambiguous'
   | 'style-proof-manifest-platform-action-missing'
   | 'style-proof-manifest-readback-missing'
   | 'style-proof-manifest-public-image-host-missing'
@@ -422,6 +426,8 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-scheduled-send-not-verified',
   'style-proof-manifest-disposable-draft-missing',
   'style-proof-manifest-cleanup-path-missing',
+  'style-proof-manifest-create-route-action-missing',
+  'style-proof-manifest-cleanup-target-ambiguous',
   'style-proof-manifest-platform-action-missing',
   'style-proof-manifest-readback-missing',
   'style-proof-manifest-public-image-host-missing',
@@ -4234,6 +4240,24 @@ function validateStyleProofRequirementCoverage(
           location: requirementId,
         })
       }
+      for (const artifact of artifacts.filter(isSafeDraftProofArtifact)) {
+        if (artifact.createRouteActionMetadataMissing === true) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-create-route-action-missing',
+            message: 'Safe disposable draft preflight did not expose a concrete create-route action for the article editor target.',
+            suggestion: 'Keep route-discovery and create-menu readbacks as blocker evidence until a sanitized create route or same-session editor target action is proven.',
+            location: artifact.id,
+          })
+        }
+        if (artifact.cleanupTargetAmbiguous === true) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-cleanup-target-ambiguous',
+            message: 'Safe disposable draft preflight cannot uniquely identify the draft that would be cleaned up.',
+            suggestion: 'Do not create or mutate a real draft until the proof run defines a unique disposable draft marker and a post-cleanup readback for that exact draft.',
+            location: artifact.id,
+          })
+        }
+      }
       break
     }
     case 'pc-editor-paste-event': {
@@ -6747,6 +6771,8 @@ const STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS = new Set<string>([
   'scheduledSendVerified',
   'disposableDraft',
   'cleanupPathVerified',
+  'createRouteActionMetadataMissing',
+  'cleanupTargetAmbiguous',
   'artifactManifestValidated',
   'collectedAt',
   'safeForCommit',
@@ -6777,6 +6803,8 @@ type StyleProofArtifactBooleanField =
   | 'scheduledSendVerified'
   | 'disposableDraft'
   | 'cleanupPathVerified'
+  | 'createRouteActionMetadataMissing'
+  | 'cleanupTargetAmbiguous'
   | 'artifactManifestValidated'
   | 'safeForCommit'
   | 'committed'
@@ -6804,6 +6832,8 @@ const STYLE_PROOF_ARTIFACT_BOOLEAN_FIELDS = [
   'scheduledSendVerified',
   'disposableDraft',
   'cleanupPathVerified',
+  'createRouteActionMetadataMissing',
+  'cleanupTargetAmbiguous',
   'artifactManifestValidated',
   'safeForCommit',
   'committed',

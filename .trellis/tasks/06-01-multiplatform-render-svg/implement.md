@@ -8727,6 +8727,54 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Style Proof Safe Disposable Draft Preflight Blocker Fields Slice
+
+Scope:
+- Local manifest validation and acceptance accounting for WeChat `safe-disposable-draft` preflight
+  blockers only.
+- No renderer output, account draft creation, editor paste, phone preview, sync, scheduled send,
+  public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `createRouteActionMetadataMissing?: boolean` and `cleanupTargetAmbiguous?: boolean` to
+  `StyleProofArtifact`.
+- Added semantic issue ids:
+  - `style-proof-manifest-create-route-action-missing`
+  - `style-proof-manifest-cleanup-target-ambiguous`
+- The manifest intake field allowlist now accepts both booleans, so redacted blocker artifacts do
+  not become schema-warning noise.
+- `validateStyleProofManifest()` now invalidates `safe-disposable-draft` artifacts when either
+  blocker field is true and keeps the requirement in acceptance-audit `cannotClaim`.
+- Added regression coverage proving that a WeChat route-discovery/menu-preflight artifact cannot
+  satisfy safe disposable draft proof.
+
+Verification:
+- TDD red run first failed for the new route-discovery preflight regression before the validator
+  recognized the new issue ids.
+- `npx gitnexus impact validateStyleProofManifest -r InkForge --depth 3`: LOW risk, one Export
+  module, one affected progress process.
+- `npx gitnexus impact getStyleProofManifestReport -r InkForge --depth 3`: LOW risk, one Export
+  module, one affected progress process.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "route-discovery preflight" --reporter=default`:
+  passed after implementation, 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "proof manifest|safe disposable|route-discovery|acceptance audit|execution runbook" --reporter=default`:
+  passed, 23 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 170 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1147 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 31.46s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Boundary:
+- This is local cannot-claim enforcement only. It does not prove WeChat safe disposable draft
+  creation, cleanup, official editor reachability, PC editor DOM readback, paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled-send,
+  platform preview, public rendering, or publish success.
+
 ## 2026-06-23 WeChat Draft Box Authenticated CloakBrowser Readback Slice
 
 Scope:

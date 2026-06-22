@@ -5394,6 +5394,59 @@ describe('platform native export rendering rules', () => {
     expect(progress.summary.proofSatisfiedChoices).toBe(0)
   })
 
+  it('keeps WeChat route-discovery preflight blockers out of safe disposable draft proof', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-click-reveal',
+      scope: 'style-choice',
+      claimedEvidence: ['pc-editor-paste'],
+      artifactFingerprint: 'sha256:redacted-click-reveal',
+      artifacts: [
+        {
+          id: 'wechat-create-menu-preflight-blocker',
+          requirementId: 'safe-disposable-draft',
+          kind: 'browser-readback',
+          label: 'draftbox create menu preflight cannot prove safe draft',
+          evidenceLabel: 'authenticated-editor-reachable',
+          platform: 'wechat',
+          choiceId: 'wechat-click-reveal',
+          channel: 'platform-editor',
+          action: 'safe-disposable-draft',
+          readback: 'dom',
+          artifactFingerprint: 'sha256:redacted-click-reveal',
+          createRouteActionMetadataMissing: true,
+          cleanupTargetAmbiguous: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestReport(manifest)
+    const issueIds = report.issues.map(issue => issue.id)
+    const requirementStatus = new Map(
+      report.requirements.map(requirement => [requirement.requirement.id, requirement.status]),
+    )
+    const preflightArtifact = report.artifacts.find(artifact =>
+      artifact.artifact.id === 'wechat-create-menu-preflight-blocker'
+    )
+    const intake = getStyleProofManifestIntakeReport(manifest)
+
+    expect(report.valid).toBe(false)
+    expect(issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-create-route-action-missing',
+      'style-proof-manifest-cleanup-target-ambiguous',
+      'style-proof-manifest-disposable-draft-missing',
+      'style-proof-manifest-cleanup-path-missing',
+    ]))
+    expect(requirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(preflightArtifact?.status).toBe('invalid')
+    expect(intake.summary.schemaWarningCount).toBe(0)
+    expect(intake.summary.semanticIssueCount).toBeGreaterThan(0)
+    expect(intake.acceptanceAudit.platformReports.wechat.cannotClaim.map(requirement =>
+      requirement.requirement.id
+    )).toContain('safe-disposable-draft')
+  })
+
   it('rejects sensitive or non-committable proof artifact references', () => {
     const manifest: StyleProofManifest = {
       platform: 'wechat',

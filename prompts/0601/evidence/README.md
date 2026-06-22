@@ -4009,3 +4009,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform
   preview, public rendering, or publish success.
+
+## 2026-06-23 Style Proof Safe Disposable Draft Preflight Blocker Fields
+
+- [x] style-proof-safe-disposable-draft-preflight-blockers-20260623.txt
+- Added executable manifest blocker fields for read-only WeChat safe-draft preflight evidence:
+  `createRouteActionMetadataMissing` and `cleanupTargetAmbiguous`.
+- Added semantic issue ids `style-proof-manifest-create-route-action-missing` and
+  `style-proof-manifest-cleanup-target-ambiguous`.
+- Intake accepts both boolean fields without schema warnings, but semantic validation invalidates
+  the artifact and keeps `safe-disposable-draft` in acceptance-audit `cannotClaim`.
+- Verification passed: TDD red run for the new route-discovery preflight regression; post-fix
+  focused route-discovery regression; 23 selected proof/acceptance/runbook tests; full
+  `platform-export-rendering.test.ts` with 170 tests; full serial `src/services/export` with 36
+  files / 1147 tests; targeted ESLint; `vue-tsc`; and production build with 4653 modules
+  transformed in 31.46s.
+- Boundary: this is local cannot-claim enforcement only. It does not prove WeChat editor
+  reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft creation
+  or cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
+  scheduled send, platform preview, public rendering, or publish success.
