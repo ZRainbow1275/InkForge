@@ -1,0 +1,83 @@
+Style Proof External Handoff Report - 2026-06-23
+
+Scope:
+- Read-only local handoff report for the current committed style-proof release gate.
+- No browser action, phone preview, account upload, platform sync, scheduled send, public preview,
+  public rendering, or publish action was performed.
+- The report composes existing release gate, external proof checklist, and local actionability
+  reports. It does not create artifacts or change style availability, selectability, renderer
+  output, proof manifests, platform accounts, or browser state.
+
+Implemented:
+- `getCommittedStyleProofExternalHandoffReport()`
+- `CommittedStyleProofExternalHandoffReport`
+
+Runtime readback:
+- `status=blocked-by-external`
+- `canClaimComplete=false`
+- `canContinueLocally=false`
+- `requiresOperator=true`
+- `requiresPhone=true`
+- `requiresExternalAccount=true`
+- `requiresPublicHost=true`
+- `containsUnsafeToAutomateRows=true`
+- `containsMutatingPlatformRows=true`
+
+Summary counts:
+- `localManifestCount=20`
+- `wechatPcManifestCount=2`
+- `combinedManifestCount=22`
+- `combinedIssueCount=11`
+- `cannotClaimSteps=29`
+- `phoneOpenSteps=4`
+- `externalDependencyOpenSteps=14`
+- `unsafeToAutomateOpenSteps=13`
+- `mutatingOpenSteps=13`
+- `blockerCount=4`
+- `safeLocalOpenRows=11`
+- `actionableLocalRows=0`
+- `catalogBlockedLocalRows=11`
+- `externalChecklistRows=18`
+- `externalChecklistGroupRows=44`
+- `externalHandoffRows=18`
+- `externalHandoffGroups=4`
+- `phoneRows=4`
+- `externalAccountRows=13`
+- `publicHostRows=1`
+- `unsafeToAutomateRows=13`
+- `mutatingRows=13`
+- `safeExternalRows=0`
+
+Next rows:
+- `nextPhoneRow`: `wechat / cover-thumbnail-check / phone-preview`
+- `nextExternalAccountRow`: `wechat / pc-editor-dom-readback / authenticated-pc-editor`
+- `nextPublicHostRow`: `zhihu / public-image-host / public-host`
+- `nextUnsafeToAutomateRow`: `wechat / pc-editor-dom-readback / authenticated-pc-editor`
+- `nextMutatingPlatformRow`: `wechat / pc-editor-dom-readback / authenticated-pc-editor`
+
+Recommended next action:
+- Use the target phone preview for readback, screenshots, Dark Mode, cover thumbnail, and
+  interaction checks; PC DOM proof is not enough.
+
+Cannot-auto-complete reason:
+- No direct local proof rows are actionable.
+- No safe external proof rows can be automated locally.
+- Phone preview, screenshot, Dark Mode, or cover proof requires phone-side readback.
+- Credentialed account upload, sync, preview, scheduled-send, or publish proof requires operator
+  account access.
+- Public-host proof requires a real public HTTPS or platform-hosted image readback.
+- Some rows mutate platform state and must not run silently.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external handoff" --reporter=default`
+  - PASS: 1 file / 1 selected test
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 160 tests
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS
+
+Boundary:
+- This is an operator handoff and cannot-claim guard only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public-host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

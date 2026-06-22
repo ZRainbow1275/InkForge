@@ -16,6 +16,7 @@ import {
   evaluateStyleChoiceAvailability,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
+  getCommittedStyleProofExternalHandoffReport,
   getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
@@ -2847,6 +2848,77 @@ describe('platform native export rendering rules', () => {
       cannotClaim: true,
     })
     expect(zhihuArtifactRow?.nextOperatorAction).toContain('validateZhihuImageArtifactManifest()')
+  })
+
+  it('builds committed external handoff without turning blocked proof into local automation', () => {
+    const report = getCommittedStyleProofExternalHandoffReport()
+
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.status).toBe('blocked-by-external')
+    expect(report.canContinueLocally).toBe(false)
+    expect(report.requiresOperator).toBe(true)
+    expect(report.requiresPhone).toBe(true)
+    expect(report.requiresExternalAccount).toBe(true)
+    expect(report.requiresPublicHost).toBe(true)
+    expect(report.containsUnsafeToAutomateRows).toBe(true)
+    expect(report.containsMutatingPlatformRows).toBe(true)
+    expect(report.externalChecklist.summary.safeToAutomateRows).toBe(0)
+    expect(report.localActionability.summary.actionableLocalRows).toBe(0)
+    expect(report.summary).toMatchObject({
+      blockerCount: 4,
+      externalHandoffRows: 18,
+      externalHandoffGroups: 4,
+      actionableLocalRows: 0,
+      catalogBlockedLocalRows: 11,
+      safeLocalOpenRows: 11,
+      phoneRows: 4,
+      externalAccountRows: 13,
+      publicHostRows: 1,
+      unsafeToAutomateRows: 13,
+      mutatingRows: 13,
+      safeExternalRows: 0,
+    })
+    expect(report.nextLocalActionableRow).toBeNull()
+    expect(report.nextPhoneRow).toMatchObject({
+      platform: 'wechat',
+      boundary: 'phone-preview',
+      requiresPhone: true,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(report.externalChecklist.rows.some(row =>
+      row.platform === 'wechat' &&
+      row.requirementId === 'phone-preview-readback' &&
+      row.boundary === 'phone-preview' &&
+      row.requiresPhone &&
+      row.cannotClaim
+    )).toBe(true)
+    expect(report.nextExternalAccountRow).toMatchObject({
+      requiresExternalAccount: true,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(report.nextPublicHostRow).toMatchObject({
+      platform: 'zhihu',
+      requirementId: 'public-image-host',
+      boundary: 'public-host',
+      requiresExternalAccount: false,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(report.nextUnsafeToAutomateRow).toMatchObject({
+      status: 'unsafe-to-automate',
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(report.nextMutatingPlatformRow).toMatchObject({
+      mutatesPlatform: true,
+      safeToAutomate: false,
+      cannotClaim: true,
+    })
+    expect(report.recommendedNextAction).toBe(report.nextPhoneRow?.nextOperatorAction)
+    expect(report.cannotAutoCompleteReason).toContain('No safe external proof rows')
+    expect(report.cannotAutoCompleteReason).toContain('no direct local proof rows')
   })
 
   it('keeps style proof execution runbooks isolated by platform and host gate', () => {

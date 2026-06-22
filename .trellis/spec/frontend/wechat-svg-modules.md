@@ -3275,3 +3275,42 @@ Required checks:
 - Evidence docs must list the public URLs, source strength, weak-source exclusions, and the
   cannot-claim boundary without asserting any external phone/account/public-host/publish gate is
   complete.
+
+## 43. External Proof Handoff Report - 2026-06-23
+
+Contracts:
+- `getCommittedStyleProofExternalHandoffReport()` is a read-only composition above the committed
+  release gate, external proof checklist, and local actionability report. It must not create proof
+  artifacts, mutate platform state, open browsers, sync drafts, upload images, schedule sends,
+  publish articles, change style availability, or change style selection.
+- The handoff report must preserve the source `releaseGate`, `externalChecklist`, and
+  `localActionability` objects so UI or CLI consumers can inspect authoritative rows instead of
+  parsing summary strings.
+- `canClaimComplete` must mirror the release gate. The report must keep `canClaimComplete:false`
+  while any phone-preview, external-account, public-host, unsafe-to-automate, mutating-platform,
+  catalog-blocked, or local-conflict row remains open.
+- `canContinueLocally` is true only when the local actionability report has at least one
+  `actionable-local` row. Catalog-blocked rows must not be presented as direct local proof chores.
+- `requiresOperator`, `requiresPhone`, `requiresExternalAccount`, `requiresPublicHost`,
+  `containsUnsafeToAutomateRows`, and `containsMutatingPlatformRows` must derive from structured
+  external checklist counts, not duplicated constants or UI text.
+- The `next*Row` fields must point to the first structured row for each handoff class:
+  local actionable, catalog-blocked, phone, external account, public host, unsafe-to-automate, and
+  mutating platform.
+- `recommendedNextAction` may surface the next operator action, but it must never imply that Codex
+  or a local script may silently perform credentialed, phone, public-host, scheduled-send, or
+  publish actions.
+- `cannotAutoCompleteReason` must stay explicit when no safe local or safe external row exists,
+  and must include why phone/account/public-host/mutating rows remain external proof gates.
+
+Required checks:
+- Regression tests must assert the current committed snapshot remains `blocked-by-external` with
+  `canClaimComplete:false`, `canContinueLocally:false`, `safeExternalRows=0`,
+  `externalHandoffRows=18`, `externalHandoffGroups=4`, `phoneRows=4`,
+  `externalAccountRows=13`, `publicHostRows=1`, `unsafeToAutomateRows=13`, and
+  `mutatingRows=13`.
+- Tests must prove the handoff exposes next phone, external-account, public-host,
+  unsafe-to-automate, and mutating-platform rows without changing any row to safe automation.
+- Evidence docs must record the live readback and explicitly state that the handoff report does
+  not prove WeChat paste, phone preview, Dark Mode, cover thumbnail, sync, upload, scheduled send,
+  public-host acceptance, platform preview, public rendering, or publish success.

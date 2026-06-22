@@ -1101,6 +1101,39 @@ export interface CommittedStyleProofLocalActionabilityReport {
   }
 }
 
+export interface CommittedStyleProofExternalHandoffReport {
+  releaseGate: CommittedStyleProofReleaseGateReport
+  externalChecklist: CommittedStyleProofExternalProofChecklistReport
+  localActionability: CommittedStyleProofLocalActionabilityReport
+  canClaimComplete: boolean
+  status: CommittedStyleProofReleaseGateStatus
+  canContinueLocally: boolean
+  requiresOperator: boolean
+  requiresPhone: boolean
+  requiresExternalAccount: boolean
+  requiresPublicHost: boolean
+  containsUnsafeToAutomateRows: boolean
+  containsMutatingPlatformRows: boolean
+  nextLocalActionableRow: CommittedStyleProofLocalActionabilityRow | null
+  nextCatalogBlockedRow: CommittedStyleProofLocalActionabilityRow | null
+  nextPhoneRow: CommittedStyleProofExternalProofChecklistRow | null
+  nextExternalAccountRow: CommittedStyleProofExternalProofChecklistRow | null
+  nextPublicHostRow: CommittedStyleProofExternalProofChecklistRow | null
+  nextUnsafeToAutomateRow: CommittedStyleProofExternalProofChecklistRow | null
+  nextMutatingPlatformRow: CommittedStyleProofExternalProofChecklistRow | null
+  recommendedNextAction: string | null
+  cannotAutoCompleteReason: string | null
+  summary: CommittedStyleProofLocalActionabilityReport['summary'] & {
+    externalHandoffRows: number
+    externalHandoffGroups: number
+    phoneRows: number
+    externalAccountRows: number
+    publicHostRows: number
+    unsafeToAutomateRows: number
+    mutatingRows: number
+  }
+}
+
 const EVIDENCE_RANK: Record<StyleEvidenceLabel, number> = {
   'doc-only': 0,
   'applied-editor-element': 1,
@@ -7244,5 +7277,98 @@ export function getCommittedStyleProofLocalActionabilityReport(): CommittedStyle
       mutatingExternalRows: externalChecklist.summary.mutatingRows,
       safeExternalRows: externalChecklist.summary.safeToAutomateRows,
     },
+  }
+}
+
+function getCommittedStyleProofExternalHandoffCannotAutoCompleteReason(
+  report: CommittedStyleProofExternalHandoffReport,
+): string | null {
+  if (report.canClaimComplete) return null
+
+  const reasons: string[] = []
+  if (!report.canContinueLocally) {
+    reasons.push('no direct local proof rows are actionable')
+  }
+  if (report.externalChecklist.summary.safeToAutomateRows === 0) {
+    reasons.push('No safe external proof rows can be automated locally')
+  }
+  if (report.requiresPhone) {
+    reasons.push('phone preview, screenshot, Dark Mode, or cover proof requires phone-side readback')
+  }
+  if (report.requiresExternalAccount) {
+    reasons.push('credentialed account upload, sync, preview, scheduled-send, or publish proof requires operator account access')
+  }
+  if (report.requiresPublicHost) {
+    reasons.push('public-host proof requires a real public HTTPS or platform-hosted image readback')
+  }
+  if (report.containsMutatingPlatformRows) {
+    reasons.push('some rows mutate platform state and must not run silently')
+  }
+
+  return reasons.join('; ')
+}
+
+export function getCommittedStyleProofExternalHandoffReport(): CommittedStyleProofExternalHandoffReport {
+  const localActionability = getCommittedStyleProofLocalActionabilityReport()
+  const externalChecklist = localActionability.externalChecklist
+  const releaseGate = localActionability.releaseGate
+  const nextPhoneRow = externalChecklist.rows.find(row => row.requiresPhone) ?? null
+  const nextExternalAccountRow = externalChecklist.rows.find(row => row.requiresExternalAccount) ?? null
+  const nextPublicHostRow = externalChecklist.rows.find(row => row.boundary === 'public-host') ?? null
+  const nextUnsafeToAutomateRow = externalChecklist.rows.find(row =>
+    row.status === 'unsafe-to-automate'
+  ) ?? null
+  const nextMutatingPlatformRow = externalChecklist.rows.find(row => row.mutatesPlatform) ?? null
+  const canContinueLocally = localActionability.summary.actionableLocalRows > 0
+  const reportWithoutReason: Omit<
+    CommittedStyleProofExternalHandoffReport,
+    'cannotAutoCompleteReason'
+  > = {
+    releaseGate,
+    externalChecklist,
+    localActionability,
+    canClaimComplete: releaseGate.canClaimComplete,
+    status: releaseGate.status,
+    canContinueLocally,
+    requiresOperator: externalChecklist.summary.uniqueChecklistRowCount > 0,
+    requiresPhone: externalChecklist.summary.phoneRows > 0,
+    requiresExternalAccount: externalChecklist.summary.externalAccountRows > 0,
+    requiresPublicHost: externalChecklist.summary.publicHostRows > 0,
+    containsUnsafeToAutomateRows: externalChecklist.summary.unsafeToAutomateRows > 0,
+    containsMutatingPlatformRows: externalChecklist.summary.mutatingRows > 0,
+    nextLocalActionableRow: localActionability.nextLocalActionableRow,
+    nextCatalogBlockedRow: localActionability.nextCatalogBlockedRow,
+    nextPhoneRow,
+    nextExternalAccountRow,
+    nextPublicHostRow,
+    nextUnsafeToAutomateRow,
+    nextMutatingPlatformRow,
+    recommendedNextAction: localActionability.nextLocalActionableRow?.nextOperatorAction ??
+      nextPhoneRow?.nextOperatorAction ??
+      nextExternalAccountRow?.nextOperatorAction ??
+      nextPublicHostRow?.nextOperatorAction ??
+      nextUnsafeToAutomateRow?.nextOperatorAction ??
+      nextMutatingPlatformRow?.nextOperatorAction ??
+      null,
+    summary: {
+      ...localActionability.summary,
+      externalHandoffRows: externalChecklist.summary.uniqueChecklistRowCount,
+      externalHandoffGroups: externalChecklist.summary.groupCount,
+      phoneRows: externalChecklist.summary.phoneRows,
+      externalAccountRows: externalChecklist.summary.externalAccountRows,
+      publicHostRows: externalChecklist.summary.publicHostRows,
+      unsafeToAutomateRows: externalChecklist.summary.unsafeToAutomateRows,
+      mutatingRows: externalChecklist.summary.mutatingRows,
+    },
+  }
+
+  const report: CommittedStyleProofExternalHandoffReport = {
+    ...reportWithoutReason,
+    cannotAutoCompleteReason: null,
+  }
+
+  return {
+    ...report,
+    cannotAutoCompleteReason: getCommittedStyleProofExternalHandoffCannotAutoCompleteReason(report),
   }
 }

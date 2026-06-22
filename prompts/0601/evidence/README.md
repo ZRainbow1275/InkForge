@@ -3763,3 +3763,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host
   acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering,
   or publish success.
+
+## 2026-06-23 Style Proof External Handoff Report
+
+- [x] style-proof-external-handoff-20260623.txt
+- Added `getCommittedStyleProofExternalHandoffReport()` as a read-only composition above the
+  committed release gate, external proof checklist, and local actionability reports.
+- Current readback remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `canContinueLocally=false`, `requiresOperator=true`, `requiresPhone=true`,
+  `requiresExternalAccount=true`, `requiresPublicHost=true`,
+  `containsUnsafeToAutomateRows=true`, and `containsMutatingPlatformRows=true`.
+- Current counts are `externalHandoffRows=18`, `externalHandoffGroups=4`, `phoneRows=4`,
+  `externalAccountRows=13`, `publicHostRows=1`, `unsafeToAutomateRows=13`, `mutatingRows=13`,
+  `safeExternalRows=0`, `safeLocalOpenRows=11`, `actionableLocalRows=0`, and
+  `catalogBlockedLocalRows=11`.
+- Verification passed: focused external-handoff Vitest with 1 selected test, full
+  `platform-export-rendering.test.ts` with 160 tests, and targeted ESLint for the changed export
+  service files.
+- Boundary: this handoff report does not prove WeChat official editor paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host
+  acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering,
+  or publish success.

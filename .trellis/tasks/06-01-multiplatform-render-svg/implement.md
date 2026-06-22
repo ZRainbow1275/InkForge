@@ -8775,6 +8775,55 @@ Boundary:
   sync, public-host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
   upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Style Proof External Handoff Report Slice
+
+Scope:
+- Read-only committed style-proof handoff reporting only.
+- No renderer output, style availability, style selection, proof manifest, browser state, account
+  state, phone preview, upload, sync, scheduled send, public preview, public rendering, or publish
+  behavior was changed.
+
+Implementation:
+- Added `CommittedStyleProofExternalHandoffReport`.
+- Added `getCommittedStyleProofExternalHandoffReport()` above the committed release gate,
+  external proof checklist, and local actionability report.
+- Exported the type and API through `inkforge/src/services/export/index.ts`.
+- Added regression coverage in `platform-export-rendering.test.ts`.
+- Added `prompts/0601/evidence/style-proof-external-handoff-20260623.txt`.
+
+Runtime readback:
+- `status=blocked-by-external`
+- `canClaimComplete=false`
+- `canContinueLocally=false`
+- `requiresOperator=true`
+- `requiresPhone=true`
+- `requiresExternalAccount=true`
+- `requiresPublicHost=true`
+- `containsUnsafeToAutomateRows=true`
+- `containsMutatingPlatformRows=true`
+- `externalHandoffRows=18`
+- `externalHandoffGroups=4`
+- `safeExternalRows=0`
+- `actionableLocalRows=0`
+
+Verification:
+- `npx gitnexus impact getCommittedStyleProofExternalProofChecklistReport -r InkForge --depth 3`:
+  LOW risk, one direct `ExportModal.vue` dependent, 0 affected processes.
+- `npx gitnexus impact getCommittedStyleProofLocalActionabilityReport -r InkForge --depth 3`:
+  LOW risk, one direct `ExportModal.vue` dependent, 0 affected processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external handoff" --reporter=default`:
+  passed, 1 file / 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 160 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+
+Boundary:
+- This is an operator handoff and cannot-claim guard only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, scheduled send, platform preview, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 Market Material Panel Residue Gate Slice
 
 Scope:
