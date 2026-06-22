@@ -1,0 +1,41 @@
+WeChat New Creation Menu CloakBrowser Readback - 2026-06-23
+
+Scope:
+- CloakBrowser-only read-only observation of the WeChat Official Account draft-box page.
+- The existing new-creation button was opened only to inspect its dropdown menu.
+- No dropdown child option was activated.
+- No editor creation, existing-draft opening, paste, save, preview, sync, upload, scheduled send,
+  public rendering, or publish action was performed.
+
+Observed menu state:
+- Sanitized URL category stayed `https://mp.weixin.qq.com/cgi-bin/appmsg`.
+- The visible new-creation dropdown exposed article/media transfer options:
+  `文章`, `选择已有内容`, `贴图`, `视频`, `播客`, and `转载`.
+- The menu also showed draft-box explanatory text; this is workflow guidance only.
+- Visible publish links remained list-card controls and were not clicked.
+
+Observed DOM boundary:
+- After opening the menu, editor-surface counts stayed iframe=0, contenteditable=0,
+  ProseMirror=0, textarea=0, input=1.
+- No editor route, editor iframe, `.ProseMirror`, or editor link was proven by this menu readback.
+
+Redaction:
+- Account labels, draft titles, published titles, credential query parameters, account images,
+  runtime capture locations, and local browser-state details are not recorded.
+- No account page image, QR material, request archive, or captured account artifact is committed.
+
+Acceptance boundary:
+- This is route-discovery evidence for the draft-box new-creation menu only.
+- The `文章` menu item is the likely path toward a disposable draft/editor flow, but it was not
+  activated in this slice because that can create or alter real account state.
+- This evidence does not satisfy authenticated editor reachability, PC editor DOM readback,
+  PC editor paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
+  mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, or publish success.
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.

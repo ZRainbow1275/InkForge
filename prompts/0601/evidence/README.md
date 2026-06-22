@@ -3976,3 +3976,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof,
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send,
   platform preview, public rendering, or publish success.
+
+## 2026-06-23 WeChat New Creation Menu CloakBrowser Readback
+
+- [x] wechat-new-creation-menu-cloakbrowser-readback-20260623.txt
+- CloakBrowser-only read-only check opened the draft-box new-creation dropdown without activating
+  any child option.
+- The menu exposed `文章`, `选择已有内容`, `贴图`, `视频`, `播客`, and `转载`.
+- Editor-surface counts stayed `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`,
+  `input=1`; no editor route or editor link was proven by this menu readback.
+- Verification passed: docs/evidence `git diff --check`, staged redaction scan, and GitNexus
+  staged detect with `No changes detected`.
+- Boundary: this is route-discovery evidence only. It does not prove WeChat editor reachability,
+  PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform
+  preview, public rendering, or publish success.

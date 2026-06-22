@@ -8762,6 +8762,39 @@ Boundary:
   acceptance, credentialed sync, scheduled send, platform preview, public rendering, or publish
   success.
 
+## 2026-06-23 WeChat New Creation Menu CloakBrowser Readback Slice
+
+Scope:
+- CloakBrowser-only read-only new-creation dropdown observation from the authenticated WeChat
+  draft-box page.
+- No renderer output, style availability, proof manifest, editor creation, existing-draft opening,
+  paste, save, preview, sync, upload, scheduled send, public rendering, or publish behavior was
+  changed.
+
+Observed:
+- The draft-box URL category stayed `https://mp.weixin.qq.com/cgi-bin/appmsg`.
+- The visible new-creation menu exposed `文章`, `选择已有内容`, `贴图`, `视频`, `播客`, and `转载`.
+- No child option was activated.
+- Editor-surface counts stayed `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`,
+  `input=1`; no editor route or editor link was proven by this menu readback.
+
+Artifacts:
+- `prompts/0601/evidence/wechat-new-creation-menu-cloakbrowser-readback-20260623.txt`
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.
+
+Boundary:
+- This is route-discovery evidence for future safe disposable draft work only. It does not prove
+  WeChat official editor reachability, PC editor DOM readback, PC editor paste, exact-artifact
+  proof, safe-disposable-draft proof, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, or publish
+  success.
+
 ## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Runtime Refresh
 
 Scope:

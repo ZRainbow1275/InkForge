@@ -3526,3 +3526,27 @@ Required checks:
   platform-preview, public rendering, and publish success.
 - Commit-boundary review must scan staged diffs for credential material, account captures, local
   browser-state details, request archives, and runtime capture locations before commit.
+
+## 49. WeChat New Creation Menu Readback Boundary - 2026-06-23
+
+Contracts:
+- A CloakBrowser read-only new-creation dropdown readback may be recorded as route-discovery
+  evidence only.
+- Opening the dropdown does not satisfy `authenticated-editor-reachable`, `pc-editor-dom-readable`,
+  `pc-editor-paste`, `exact-artifact`, `safe-disposable-draft`, `phone-preview`,
+  `dark-mode-check`, `cover-thumbnail-check`, `credentialed-sync`, `scheduled-send`,
+  `platform-preview`, `public-rendering`, or `published`.
+- The menu option labels may be recorded when they are generic workflow labels such as article,
+  existing-content selection, sticker/image, video, podcast, or reprint. Account labels, draft
+  titles, published titles, credential query parameters, account images, runtime capture locations,
+  and local browser-state details must remain redacted.
+- A menu option that can create or alter real account state must not be activated by a
+  route-discovery slice. It requires a separate safe-disposable-draft run with cleanup evidence.
+
+Required checks:
+- Evidence docs must state that no dropdown child option was activated.
+- Evidence docs must record aggregate editor-surface counts after the menu opens.
+- Evidence docs must preserve the cannot-claim boundary for editor reachability, PC DOM readback,
+  paste, exact-artifact proof, safe-disposable-draft proof, phone preview, mobile interaction,
+  Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled-send, platform-preview,
+  public rendering, and publish success.

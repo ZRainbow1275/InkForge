@@ -4501,3 +4501,21 @@ Boundary:
   editor reachability, PC editor DOM readback, paste, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   rendering, or publish success.
+
+---
+
+## 2026-06-23 WeChat New Creation Menu CloakBrowser Readback Addendum
+
+- Used CloakBrowser only to open the WeChat draft-box new-creation dropdown.
+- No child option was activated.
+- The dropdown exposed `文章`, `选择已有内容`, `贴图`, `视频`, `播客`, and `转载`.
+- Editor-surface counts stayed `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`,
+  `input=1`; no editor route or editor link was proven by this menu readback.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-new-creation-menu-cloakbrowser-readback-20260623.txt`.
+- Verification passed: docs/evidence `git diff --check`; staged redaction scan; and GitNexus
+  staged detect with `No changes detected`, matching the docs-only scope.
+- Boundary: this is route-discovery evidence only. It does not prove WeChat official editor
+  reachability, PC editor DOM readback, paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
