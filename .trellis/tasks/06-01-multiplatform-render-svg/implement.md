@@ -8727,6 +8727,41 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Public Market Taxonomy and Platform Boundary Review Slice
+
+Scope:
+- Docs-only public-source research for WeChat/SVG/H5 market capability taxonomy and XHS/Zhihu
+  conservative publishing boundaries.
+- No renderer output, catalog availability, style selectability, proof manifests, account upload,
+  sync, phone preview, scheduled send, public rendering, or publish behavior was changed.
+
+Sources reviewed:
+- Grok search session `50ecebc6b723`: WeChat Official Account SVG/H5 interaction sources and
+  public tutorials.
+- Grok search session `31150d11bddd`: 135 Editor, Xiumi, and related market editor public pages.
+- Grok search session `df08e1ab933d`: Xiaohongshu public/community/tool references for long-form
+  text and image-card workflows.
+- Grok search session `347737359f24`: Zhihu public/community/tool references for Markdown,
+  editor adaptation, and image handling.
+
+Resulting rule:
+- WeChat market editor research enriches InkForge's source-owned taxonomy for background SVG,
+  click reveal/switch, carousel, slide trigger, area trigger, path/parallax, quiz/game, card, title,
+  divider, cover, and image-slot manifests.
+- XHS remains text plus image/card artifact publishing. Rich Markdown or SVG authoring tools are
+  conversion workflows, not native body proof.
+- Zhihu remains clean Markdown plus platform/public image fallback. Arbitrary HTML/SVG and local
+  image references remain blocked until accepted host proof exists.
+
+Artifacts:
+- `prompts/0601/evidence/market-public-taxonomy-platform-boundary-20260623.txt`
+
+Boundary:
+- This is public-source taxonomy and conservative boundary documentation only. It does not prove
+  WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public-host acceptance, XHS/Zhihu account upload, scheduled-send,
+  platform preview, public rendering, or publish success.
+
 ## 2026-06-23 Style Proof Safe Disposable Draft Preflight Blocker Fields Slice
 
 Scope:

@@ -1,0 +1,62 @@
+Market Public Taxonomy and Platform Boundary Review - 2026-06-23
+
+Scope:
+- Public-source research for SVG/H5 market-editor capability taxonomy and conservative
+  WeChat/XHS/Zhihu publishing boundaries.
+- No platform action, editor paste, phone preview, account upload, sync, scheduled send, public
+  rendering, or publish operation was performed.
+
+Search sessions:
+- Grok session 50ecebc6b723: WeChat Official Account SVG/H5 interaction sources.
+- Grok session 31150d11bddd: 135 Editor, Xiumi, and market editor public pages.
+- Grok session df08e1ab933d: Xiaohongshu long-form text and image-card workflow sources.
+- Grok session 347737359f24: Zhihu Markdown/editor/image workflow sources.
+
+Source classification:
+- market-first-party:
+  - https://www.135editor.com/
+  - https://www.135editor.com/svgeditor/
+  - https://www.135editor.com/geo/svgeditor/1987/
+  - https://xiumi.us/
+- market-community or tool-doc:
+  - https://yiban.io/blog/30092
+  - https://zhuanlan.zhihu.com/p/75023148
+  - https://github.com/NowhereMan-in-Galaxy/xiaohongshu-text-layout
+  - https://rednote.limboy.me/
+  - https://www.zhishijingsai.com/2023/09/Markdown%E6%96%87%E7%AB%A0%E5%8F%91%E5%B8%83%E5%88%B0%E7%9F%A5%E4%B9%8E/
+- platform-community:
+  - https://www.zhihu.com/question/15048034686
+  - https://www.zhihu.com/question/19890335
+
+Extracted WeChat market taxonomy:
+- background SVG and static/raster fallback layers.
+- click reveal, click switch, click hide/show, and multi-step reveal.
+- carousel, fade, slide, long-image, and auto/gesture transition families.
+- trigger zones stored as normalized regions rather than copied vendor overlays.
+- card, title, divider, cover, image-slot, and text-slot structures.
+- path animation, parallax, quiz/game, marquee, and lightweight interactive poster families.
+
+InkForge rule mapping:
+- Market taxonomy can create or enrich InkForge-owned module families only.
+- Vendor DOM, builder classes, data attributes, hosted material URLs, and account/editor residue
+  must not be copied into production output or committed proof.
+- WeChat SVG/H5-inspired choices stay blocked until exact InkForge-owned artifacts pass the
+  required local, phone, Dark Mode, cover, public, sync, and publish gates.
+- H5 is treated as an external/landing-page capability, not a claim that an Official Account article
+  body can run arbitrary script or full web-app logic.
+
+Xiaohongshu boundary:
+- Rich authoring can be converted into image/card artifacts.
+- Publishable body remains platform-native text plus image/card outputs.
+- HTML, arbitrary CSS, raw SVG, and WeChat decorations must not be treated as XHS body proof.
+
+Zhihu boundary:
+- Publishable body remains clean semantic Markdown plus platform/public hosted image fallback.
+- Arbitrary HTML, raw SVG, unhosted local image references, and WeChat interactive wrappers remain
+  blocked until the required public-host or platform-host proof exists.
+
+Boundary:
+- This is public-source taxonomy and conservative boundary documentation only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public-host acceptance, Xiaohongshu/Zhihu account
+  upload, scheduled send, platform preview, public rendering, or publish success.

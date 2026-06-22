@@ -3808,3 +3808,39 @@ This claims commit safety while admitting that platform-visible text still needs
 ```
 
 This separates repository commit hygiene from explicit platform visible-text redaction review.
+
+## 53. Public Market Taxonomy and Platform Boundary Review - 2026-06-23
+
+Contracts:
+- Public market-editor pages, tutorials, and product descriptions may expand InkForge's style
+  capability taxonomy, but they are not platform proof artifacts.
+- 135/Xiumi/Yiban/Micro-layout style sources may define capability families such as background SVG,
+  click reveal, click switch, carousel, slide trigger, long image, area trigger, text marquee, path
+  animation, parallax, quiz/game, card, title, divider, cover, and image-slot manifests.
+- InkForge output must reimplement these families with source-owned modules, sanitized style
+  fields, normalized trigger zones, explicit fallback copy/images, and existing WeChat safety
+  detectors. Vendor DOM, hosted asset URLs, builder class names, data attributes, account state, and
+  material ids must not be copied into production output or committed proof.
+- Public WeChat-market research can justify richer blocked catalog families, but it must not satisfy
+  `market-applied-dom-readback`, `pc-editor-paste`, `phone-preview`, `dark-mode-check`,
+  `cover-thumbnail-check`, `credentialed-sync`, `scheduled-send`, `public-rendering`, or
+  `published`.
+- XHS public research must keep the publishable body conservative: platform-native plain text plus
+  image/card artifacts. Markdown-like authoring and rich card tools are input workflows only; HTML,
+  arbitrary CSS, raw SVG, and WeChat decorations must remain non-publishable for the XHS body.
+- Zhihu public research must keep the publishable body as clean semantic Markdown or platform/public
+  image fallbacks. Arbitrary HTML, raw SVG, WeChat interactive wrappers, and unhosted local image
+  references remain blocked until public-host or platform-host proof exists.
+- Evidence docs must classify each public source as `market-first-party`, `market-community`,
+  `platform-community`, or `tool-doc`. Only first-party platform docs or real platform readbacks can
+  close platform gates.
+
+Required checks:
+- Evidence docs must list source URLs and classify whether each source is first-party market
+  material, community material, tool documentation, or platform evidence.
+- Evidence docs must explicitly state that public-source taxonomy does not prove live WeChat paste,
+  phone preview, XHS/Zhihu upload, public-host acceptance, scheduled send, public rendering, or
+  publish success.
+- Future code changes that open or map style choices from this taxonomy must keep existing detector
+  blockers and add exact artifact, phone, public-host, or platform proof before changing
+  availability/selectability.

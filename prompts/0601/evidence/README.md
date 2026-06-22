@@ -4046,3 +4046,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft creation
   or cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
   scheduled send, platform preview, public rendering, upload, or publish success.
+
+## 2026-06-23 Public Market Taxonomy and Platform Boundary Review
+
+- [x] market-public-taxonomy-platform-boundary-20260623.txt
+- Used Grok search sessions `50ecebc6b723`, `31150d11bddd`, `df08e1ab933d`, and `347737359f24`.
+- Recorded public-source taxonomy for WeChat SVG/H5 market editor families: background SVG, click
+  reveal/switch, carousel, slide trigger, area trigger, path/parallax, quiz/game, card, title,
+  divider, cover, and image-slot manifests.
+- Preserved conservative XHS and Zhihu boundaries: XHS rich content remains text plus image/card
+  artifacts; Zhihu rich content remains clean Markdown plus platform/public hosted images.
+- Boundary: this is public-source research and docs-only evidence. It does not prove WeChat editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
+  public-host acceptance, XHS/Zhihu account upload, scheduled send, platform preview, public
+  rendering, or publish success.

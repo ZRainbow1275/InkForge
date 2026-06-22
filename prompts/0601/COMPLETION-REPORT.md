@@ -4584,3 +4584,22 @@ Boundary:
   editor reachability, PC editor DOM readback, paste, safe disposable draft creation/cleanup, phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public rendering, upload, or publish success.
+
+---
+
+## 2026-06-23 Public Market Taxonomy and Platform Boundary Review Addendum
+
+- Used Grok search to review public WeChat SVG/H5, 135 Editor, Xiumi, Xiaohongshu, and Zhihu
+  references.
+- Recorded market capability families that can guide InkForge-owned modules: background SVG, click
+  reveal/switch, carousel, slide trigger, area trigger, path/parallax, quiz/game, card, title,
+  divider, cover, and image-slot manifests.
+- Preserved conservative platform boundaries: XHS rich layout must become text plus image/card
+  artifacts; Zhihu rich diagrams/tables/formulas must become clean Markdown or hosted image
+  fallbacks; WeChat market taxonomy does not close phone/publish gates.
+- Added evidence file:
+  `prompts/0601/evidence/market-public-taxonomy-platform-boundary-20260623.txt`.
+- Boundary: this is public-source taxonomy and docs-only boundary review. It does not prove WeChat
+  official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, XHS/Zhihu account upload, scheduled send, platform
+  preview, public rendering, or publish success.
