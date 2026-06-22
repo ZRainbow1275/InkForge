@@ -808,6 +808,13 @@ Zhihu.
   `pointer-events:none`, `svg:135`, `user-select:none`, `vertical-align:top`, and `width:100%`.
   This is reproducible market-rule evidence for gap sealing and trigger-zone schema design, not
   reusable source or platform proof.
+- 2026-06-22 same-day material-confirmation detail: the `免费试用` path displayed a blocking
+  confirmation asking whether to include default design material. Choosing the material-included
+  branch exposed right-panel fields for cover image slots, `DIY设计图片 1080 x 1920`, cover exit
+  direction, cover animation duration, expand animation duration, expanded-content editing,
+  gap/spacing controls, and expanded background guidance. InkForge should model this as
+  source-owned image-slot manifest + trigger/motion parameter schema + expanded-content fallback,
+  never as copied 135 material or an implicit public image-host proof.
 - A selected 135 SVG effect proves only applied authoring structure and parameter taxonomy. It does
   not prove final visual fidelity, PC paste, phone preview, tap/swipe/long-press behavior, Dark
   Mode, cover thumbnail acceptance, sync, scheduled send, public preview, or publish.
@@ -864,6 +871,16 @@ Xiumi SVG/H5 rules:
   login-state blocker evidence only; do not record it as applied center-paper DOM evidence.
   Existing Xiumi residue rules continue to rely on prior applied-editor runs and public-source
   cross-checks.
+- 2026-06-22 same-day direct paper-editor recheck: navigating directly to the v5 paper editor
+  opened a new untitled article. The visible authoring surface exposed top actions `打开`, `预览`,
+  `保存`, `导出`, `更多`, base formatting fields for font size, line height, letter spacing, and
+  default image state, plus left categories `图文模板`, `图片素材`, `图文收藏`, `剪贴板`, `我的图库`,
+  `团队素材`, `音视频`, `样刊模板`, and filter tabs `标题`, `卡片`, `图片`, `布局`, `SVG`, `组件`.
+  The visible template cards were not literal center SVG. They were nested
+  `tn-tpl-item` / `tn-from-house-paper-cp` / `section.tn-comp-pin.tn-comp-style-pin` trees with
+  inline `display:flex`, `flex-flow`, `line-height:0`, `margin`, `transform`, `opacity`, and small
+  image motifs. Use this as Xiumi section-rhythm and component-tree learning; all `tn-*`, `ng-*`,
+  template renderer, and hosted material markers remain publish-blocking residue.
 - 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
   injection/preview pipeline in the visible template list and hidden controls. Markers included
   `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,

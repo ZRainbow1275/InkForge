@@ -21,9 +21,10 @@ Scope:
   width:100%.
 - The computed SVG box at the sampled viewport was 336px by about 597px, matching the 1080x1920
   ratio.
-- The same active block exposed an edit-trigger overlay with percentage inset geometry, z-index 9,
-  resize handles, and a visible trigger-area switch. These are authoring controls, not publishable
-  output.
+- The same active block exposed right-panel controls for "DIY设计图片 1080 x 1920", cover exit
+  direction, cover animation duration, expand animation duration, expanded-content editing, gap and
+  spacing controls, expanded background guidance, and an edit-trigger path. These are authoring
+  controls and schema inputs, not publishable output.
 
 135 rule extracted:
 - The 100.1% background sizing and -1px vertical compensation are a gap-sealing tactic for
@@ -37,17 +38,24 @@ Scope:
 Xiumi Studio live observation:
 - The same CloakBrowser profile opened Xiumi Studio v5 and reached the editor-selection page.
 - The visible page still showed "登录" and did not enter the paper editor after clicking 图文排版.
-- Because the center paper editor was not reached, this run is not applied-editor-element evidence
-  for Xiumi.
+- Direct navigation to the v5 paper editor then opened a new untitled article.
+- The editor exposed top actions "打开", "预览", "保存", "导出", and "更多"; base formatting fields
+  for font size 16, line height 1.6, letter spacing 0, and default image state; and left categories
+  "图文模板", "图片素材", "图文收藏", "剪贴板", "我的图库", "团队素材", "音视频", "样刊模板".
+- The template filter exposed "标题", "卡片", "图片", "布局", "SVG", and "组件".
+- The visible cards were not literal center SVG. They were nested `tn-tpl-item`,
+  `tn-from-house-paper-cp`, and `section.tn-comp-pin.tn-comp-style-pin` trees with inline
+  `display:flex`, `flex-flow`, `line-height:0`, `margin`, `transform`, `opacity`, small image motifs,
+  and text cells.
 
 Xiumi rule boundary:
 - Existing Xiumi rules remain valid from prior applied-editor runs and public-source cross-checks:
   opera-tn-* / tn-* / ng-* / tn-bind-comp-tpl-id attributes are authoring/runtime bindings, while
   core section layout and visual inline styles must be translated into InkForge-owned structures
   rather than bluntly deleted.
-- This 2026-06-22 run only proves the current external login-state blocker. It does not satisfy
-  Xiumi applied DOM, WeChat paste, phone preview, mobile interaction, sync, public preview, or
-  publish proof.
+- This 2026-06-22 run proves reachable Xiumi paper-editor taxonomy and visible template-card DOM
+  structure. It does not satisfy Xiumi applied DOM for a specific SVG item, WeChat paste, phone
+  preview, mobile interaction, sync, public preview, or publish proof.
 
 Existing executable coverage:
 - platform-export-rendering.test.ts already includes the 135 background-style residue fixture with

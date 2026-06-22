@@ -8727,6 +8727,43 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 Post-Reboot CloakBrowser Market Rule Recheck
+
+Scope:
+- CloakBrowser-only live rule extraction from 135 SVG editor and Xiumi v5 paper editor.
+- No Playwright, no platform upload, no sync, no phone preview, no public preview, no scheduled
+  send, and no publish action.
+- No screenshot, local profile path, account image, browser credential material, request archive,
+  QR, or private template source is recorded in committed files.
+
+Observed:
+- 135 SVG editor `免费试用` showed a material-inclusion confirmation before the central canvas was
+  populated. The material-included path exposed a zero-font / zero-line-height section containing a
+  background-only `viewBox="0 0 1080 1920"` SVG and the same gap-sealing style family:
+  `background-size:100.1% 100.1%`, `display:inline-block`, `margin-top:-1px`,
+  `pointer-events:none`, `svg:135`, `user-select:none`, `vertical-align:top`, `width:100%`.
+- The 135 right panel exposed cover image slots, `DIY设计图片 1080 x 1920`, cover exit direction,
+  cover and expand animation durations, expanded-content editing, gap/spacing controls, and
+  expanded background guidance. These are schema inputs only.
+- Xiumi direct v5 paper-editor entry opened a new untitled article and exposed top actions
+  `打开` / `预览` / `保存` / `导出` / `更多`, base formatting fields, and left categories
+  `标题` / `卡片` / `图片` / `布局` / `SVG` / `组件`.
+- Visible Xiumi cards were nested `tn-tpl-item` / `tn-from-house-paper-cp` /
+  `section.tn-comp-pin.tn-comp-style-pin` trees using inline flex, margin, transform, opacity,
+  line-height-zero image motifs, and text cells, not reusable center inline SVG.
+
+Documentation updates:
+- `docs/platform-rendering-rules/market-practices-catalog.md`
+- `.trellis/spec/frontend/wechat-svg-modules.md`
+- `prompts/0601/evidence/market-live-recheck-135-xiumi-20260622.txt`
+
+Boundary:
+- This refresh strengthens market-rule extraction and residue/fallback contracts only.
+- It does not prove InkForge final WeChat editor paste, WeChat phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance,
+  Xiaohongshu/Zhihu account upload, scheduled send, platform preview, public rendering, or publish
+  success.
+
 ## 2026-06-22 Committed Local Actionability Report Slice
 
 Scope:

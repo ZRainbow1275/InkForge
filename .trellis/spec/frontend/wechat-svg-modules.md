@@ -199,6 +199,20 @@ construct breaks.
   and `tn-content-overlap` classes. Treat these as publish-blocking authoring state wrappers,
   even when a copied fragment lacks broad `tn-comp` / `tn-cell` wrappers or hosted media URLs.
   They map to image-slot, editor-state, layout-report, and raster/static fallback contracts only.
+- 2026-06-22 post-reboot CloakBrowser SVG material-path refresh: 135 `svgeditor` `免费试用`
+  produced a material-inclusion confirmation before the central canvas was populated. The selected
+  effect exposed `DIY设计图片 1080 x 1920`, cover-image slots, cover exit direction, animation
+  duration fields, expanded-content editing, gap/spacing controls, and expanded-background
+  guidance. Map these fields to InkForge-owned image-slot manifests, trigger-zone manifests,
+  motion parameter schema, and layout reports. Do not copy the material URL, `svg:135`, effect id,
+  Vue/Ant controls, or editor panel DOM into runtime output.
+- 2026-06-22 post-reboot Xiumi paper-editor refresh: direct v5 paper-editor entry opened a new
+  article and exposed real left categories `标题`, `卡片`, `图片`, `布局`, `SVG`, `组件`. The visible
+  cards were nested `tn-tpl-item` / `tn-from-house-paper-cp` /
+  `section.tn-comp-pin.tn-comp-style-pin` trees using inline flex, margin, transform, opacity,
+  line-height-zero image motifs, and text cells, with no literal center inline SVG in the sampled
+  cards. Treat this as section-rhythm/component-tree evidence only; `tn-*`, `ng-*`, template
+  renderer state, hosted material references, and authoring bindings remain residue blockers.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must
