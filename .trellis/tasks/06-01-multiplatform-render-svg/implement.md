@@ -8727,6 +8727,53 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-22 Market Material Panel Residue Gate Slice
+
+Scope:
+- Runtime no-copy gate for the same-day 135 SVG material/parameter panel observation and visible
+  Xiumi template-card authoring tree.
+- No renderer output, style availability, proof manifest, browser profile, account action, phone
+  preview, upload, sync, scheduled send, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `135 SVG material panel residue` to `MARKET_EDITOR_RESIDUE_RULES`, covering copied
+  `editor-bar`, `editor-bar-inner`, `editor-bar-title`, `editor-img__block`,
+  `editor-spread__edit`, and `editor-background` fragments observed around the 135 SVG material
+  path.
+- Added a three-platform regression fixture for visible Xiumi card-template authoring trees using
+  `tn-tpl-item`, `tn-from-house-paper-cp`, and `section.tn-comp-pin.tn-comp-style-pin`.
+- Updated the market rules catalog, WeChat SVG spec, and live-recheck evidence so the executable
+  gate is recorded as local residue enforcement only.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG material|Xiumi visible|market editor" --reporter=default`:
+  passed, 1 file / 6 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 159 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1136 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 35.72s.
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3`: LOW risk, 0 impacted
+  symbols, 0 affected processes.
+- `npx gitnexus impact detectMarketEditorResidues -r InkForge --depth 3`: LOW risk, 5 impacted
+  symbols, one direct caller (`detectQuality`), one affected module (`Export`), and 0 affected
+  processes.
+- `npx gitnexus detect-changes -r InkForge --scope all`: low risk, 39 dirty files across the whole
+  working tree, 15 changed symbols, and 0 affected processes. The dirty-file count includes
+  unrelated pre-existing local changes and does not define the staged boundary.
+- `npx gitnexus detect-changes -r InkForge --scope staged`: low risk, 7 staged files, 11 changed
+  symbols, and 0 affected processes.
+
+Boundary:
+- This is local market-editor residue blocking only. It does not prove WeChat official editor
+  paste, mobile trigger behavior, phone preview, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, account upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-22 Post-Reboot CloakBrowser Market Rule Recheck
 
 Scope:

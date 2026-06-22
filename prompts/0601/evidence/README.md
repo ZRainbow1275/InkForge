@@ -3700,3 +3700,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public host acceptance,
   Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-22 Market Material Panel Residue Gate
+
+- [x] market-live-recheck-135-xiumi-20260622.txt
+- The same-day 135/Xiumi CloakBrowser recheck now has executable detector coverage for the newly
+  observed material/parameter panel and visible Xiumi card-tree residue.
+- `135 SVG material panel residue` blocks copied 135 panel fragments such as `editor-bar`,
+  `editor-img__block`, `editor-spread__edit`, and `editor-background` on WeChat, Xiaohongshu, and
+  Zhihu publishable outputs.
+- The visible Xiumi card-tree fixture blocks `tn-tpl-item`, `tn-from-house-paper-cp`, and
+  `section.tn-comp-pin.tn-comp-style-pin` authoring trees as `Xiumi tn-* authoring tree` on all
+  three publishable output targets.
+- Verification passed: focused market-editor Vitest with 6 selected tests, targeted ESLint, full
+  `platform-export-rendering.test.ts` with 159 tests, and full serial `src/services/export`
+  regression with 36 files / 1136 tests. `vue-tsc`, production build, and GitNexus impact/diff
+  checks also passed with 0 affected processes; the staged commit boundary is 7 files.
+- Boundary: this is local market-editor residue blocking only. It does not prove WeChat official
+  editor paste, mobile trigger behavior, phone preview, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, account upload, scheduled send, platform preview,
+  public rendering, or publish success.

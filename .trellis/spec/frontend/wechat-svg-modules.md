@@ -234,6 +234,13 @@ construct breaks.
   market style ids, `tn-*`/`ng-*` authoring attributes, and third-party market image sources.
   Plain prose that merely mentions 135/Xiumi is allowed. This gate is unit-tested and must stay
   separate from WeChat paste/mobile/sync/publish proof labels.
+- 2026-06-22 runtime gate follow-up: newly observed 135 SVG material/parameter panel classes
+  (`editor-bar`, `editor-img__block`, `editor-spread__edit`, `editor-background`) and visible
+  Xiumi template-card authoring trees (`tn-tpl-item`, `tn-from-house-paper-cp`,
+  `section.tn-comp-pin.tn-comp-style-pin`) must trigger market-editor residue in WeChat/XHS/Zhihu
+  publishable output. These rows enforce source ownership only and must not be counted as WeChat
+  paste, mobile preview, Dark Mode, cover thumbnail, sync, upload, public rendering,
+  scheduled-send, or publish proof.
 - 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
   rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
   text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
@@ -3194,3 +3201,31 @@ Required checks:
   WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover-thumbnail
   acceptance, credentialed sync, public-host acceptance, scheduled-send, platform-preview, public
   rendering, Xiaohongshu upload, Zhihu upload, or publish proof.
+
+## 41. Market Material Panel Residue Gate - 2026-06-22
+
+Contracts:
+- `MARKET_EDITOR_RESIDUE_RULES` must block copied 135 SVG material/parameter panel fragments from
+  publishable WeChat/XHS/Zhihu output. The covered live-observed class family includes
+  `editor-bar`, `editor-bar-inner`, `editor-bar-title`, `editor-img__block`,
+  `editor-spread__edit`, and `editor-background`.
+- Visible Xiumi template-card authoring trees must remain residue when copied directly. Covered
+  fixture markers include `tn-tpl-item`, `tn-from-house-paper-cp`, and
+  `section.tn-comp-pin.tn-comp-style-pin` plus hosted material/image state.
+- These rules are local source-ownership guards. They may inform InkForge-owned image slots,
+  trigger-zone schema, motion parameters, layout reports, raster/static fallback, and readable DOM
+  order. They must not copy third-party template DOM, private material URLs, account artifacts, or
+  authoring controls into runtime output.
+- Passing these detector tests does not satisfy WeChat official editor paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host
+  acceptance, Xiaohongshu/Zhihu upload, scheduled-send, platform-preview, public rendering, or
+  publish proof.
+
+Required checks:
+- Focused regression must assert `wechat-market-editor-residue`, `xhs-market-editor-residue`, and
+  `zhihu-market-editor-residue` include `135 SVG material panel residue` for the 135 material panel
+  fixture.
+- Focused regression must assert the same three platform issue ids include `Xiumi tn-* authoring
+  tree` for the Xiumi visible card-tree fixture.
+- Full `platform-export-rendering.test.ts` and serial `src/services/export` tests should be run
+  because the detector is shared by all platform quality checks.

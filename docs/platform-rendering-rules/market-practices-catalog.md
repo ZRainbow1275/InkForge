@@ -881,6 +881,14 @@ Xiumi SVG/H5 rules:
   inline `display:flex`, `flex-flow`, `line-height:0`, `margin`, `transform`, `opacity`, and small
   image motifs. Use this as Xiumi section-rhythm and component-tree learning; all `tn-*`, `ng-*`,
   template renderer, and hosted material markers remain publish-blocking residue.
+- 2026-06-22 executable residue-gate follow-up: the live 135 SVG material-path observation now has
+  a runtime detector row for copied material/parameter panel classes such as `editor-bar`,
+  `editor-img__block`, `editor-spread__edit`, and `editor-background`. The visible Xiumi
+  template-card tree is covered by a dedicated fixture using `tn-tpl-item`,
+  `tn-from-house-paper-cp`, and `section.tn-comp-pin.tn-comp-style-pin`. These fixtures prove only
+  InkForge's local no-copy gate on WeChat/XHS/Zhihu publishable output; they do not prove WeChat
+  paste, mobile trigger behavior, Dark Mode, cover thumbnail acceptance, sync, upload, public
+  preview, scheduled send, or publish success.
 - 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
   injection/preview pipeline in the visible template list and hidden controls. Markers included
   `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,

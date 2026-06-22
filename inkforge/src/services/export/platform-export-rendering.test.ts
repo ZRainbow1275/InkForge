@@ -238,6 +238,19 @@ const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML = [
+  '<aside class="editor-bar open">',
+  '<div class="editor-bar-inner">',
+  '<div class="editor-bar-title">ID:1054 封面图点击移除并展开</div>',
+  '<div class="editor-img editor">',
+  '<div class="editor-img__block">封面图 图片 DIY设计图片 1080 x 1920</div>',
+  '<button class="editor-spread__edit">编辑展开内容</button>',
+  '<div class="editor-background editor">展开内容背景</div>',
+  '</div>',
+  '</div>',
+  '</aside>',
+].join('')
+
 const MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML = [
   '<section style="font-size:0;line-height:0;background-size:100.1% 100.1%;margin-top:-1px;vertical-align:top;pointer-events:none">',
   '<svg viewBox="0 0 1080 1920" width="100%"></svg>',
@@ -313,6 +326,21 @@ const MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML = [
   '<div class="tn-tpl-comp-box lighting-hover with-ra ng-scope" ng-class="::tpl | tpl2BoxClasses">',
   '<div class="wrapper" tn-tpl-pose-fit-box="::tpl">',
   '<div class="tn-tpl-comp-item tn-tpl-ra-bind-box ng-binding" ng-bind-html="::tpl.renderer_accelerate | validateImageTypeInHtml | unsafe">点击蓝字 关注我们</div>',
+  '</div>',
+  '</div>',
+  '</li>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML = [
+  '<li class="tn-tpl-item tn-lighting-box ng-scope comp-feature-matched tn-tpl-comp tn-scene-paper tn-tpl-categ-paper-cp">',
+  '<div class="tn-tpl-comp-box lighting-hover with-ra ng-scope">',
+  '<div class="tn-tpl-comp-item tn-tpl-ra-bind-box ng-binding">',
+  '<div class="tn-from-house-paper-cp tn-comp-anim-pin tn-comp" style="position:static;z-index:1">',
+  '<section class="tn-comp-pin tn-comp-style-pin" style="display:flex;flex-flow:row;margin:10px 0;line-height:0">',
+  '<section style="transform:rotateZ(12deg)">#1</section>',
+  '<section style="opacity:0.79"><img src="//statics.xiumi.us/mat/i/demo-card.png" alt=""></section>',
+  '</section>',
+  '</div>',
   '</div>',
   '</div>',
   '</li>',
@@ -7554,6 +7582,22 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
+  it('blocks 135 SVG material and expanded-content parameter panels from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG material panel residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG material panel residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG material panel residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
   it('blocks 135 background-only SVG compatibility risks without vendor residue markers', () => {
     const wechat = detectQuality(MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_135_BACKGROUND_ONLY_SVG_RISK_HTML, 'xiaohongshu')
@@ -7691,6 +7735,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi template renderer pipeline residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi template renderer pipeline residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi visible template card section trees from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

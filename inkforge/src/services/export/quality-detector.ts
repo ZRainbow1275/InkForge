@@ -77,6 +77,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor layout control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:editor-bar(?:-inner|-body|-title|-pop-close|-pop-trigger)?|editor-img(?:__block|__title)?|editor-spread(?:__edit)?|editor-background|editor-course(?:__detail|__opt|___tag)?)\b[^"']*["']/i,
+    label: '135 SVG material panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\bstyle\s*=\s*["'][^"']*\bsvg\s*:\s*135\b[^"']*["']/i,
     label: '135 SVG background style marker',
   },
