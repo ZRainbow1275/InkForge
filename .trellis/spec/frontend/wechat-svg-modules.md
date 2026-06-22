@@ -3357,3 +3357,51 @@ Required checks:
   WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover-thumbnail
   acceptance, credentialed sync, public-host acceptance, scheduled-send, platform-preview, public
   rendering, Xiaohongshu upload, Zhihu upload, or publish proof.
+
+## 45. Style Proof Manifest Intake Report - 2026-06-23
+
+Contracts:
+- `getStyleProofManifestIntakeReport(input)` is the runtime-safe entry point for operator-supplied
+  external proof manifest packs. Its input type is `unknown` because real evidence handoff may come
+  from JSON files, clipboard text, or local operator tooling before TypeScript has checked shape.
+- The intake layer must accept only an array of manifest-like objects, a `{ manifests: [...] }`
+  object, or one manifest-like object. All other roots are schema-invalid and must not be passed to
+  `validateStyleProofManifest()`, `getStyleProofManifestPackReport()`,
+  `getStyleProofAcceptanceAuditReport()`, or `getStyleProofExecutionRunbook()`.
+- Every accepted manifest must be sanitized into the existing `StyleProofManifest` shape. Unknown
+  fields are dropped and reported as warning-level schema issues; they must not be forwarded to
+  semantic validation, release-gate accounting, UI state, or committed evidence packs.
+- Required runtime fields are strict: manifest `platform`, `claimedEvidence`, and `artifacts`; and
+  artifact `id`, `requirementId`, `kind`, `label`, `channel`, `action`, and `readback`. Enum fields
+  must match the existing platform, evidence-label, requirement, artifact-kind, channel, action,
+  readback, scope, and host-status contracts.
+- A manifest with any schema error must be returned in `rejected` and must contribute no artifacts,
+  progress, acceptance status, or runbook steps. This prevents malformed external JSON from
+  crashing the existing validator or becoming partial proof.
+- Accepted manifests still go through the existing semantic proof validator and pack/audit/runbook
+  reports. Intake warnings do not suppress `style-proof-manifest-sensitive-artifact`,
+  `style-proof-manifest-unsafe-commit-artifact`, exact-artifact gaps, phone-preview gaps, public-host
+  gaps, account gates, or publish gates.
+- The report must expose `status`, sanitized `manifests`, `rejected`, `schemaIssues`, `packReport`,
+  `acceptanceAudit`, `executionRunbook`, `canClaimComplete`, and summary counts for accepted,
+  rejected, schema errors/warnings, semantic issues, artifacts, cannot-claim requirements/steps,
+  phone, external dependency, unsafe, mutating, and safe-to-automate open steps.
+- `canClaimComplete` may only be true when at least one sanitized manifest exists, there are no
+  rejected entries, there are no schema errors, the pack has no semantic issues, and the acceptance
+  audit/runbook has zero cannot-claim rows. The current committed project state is expected to keep
+  this false because external phone/account/public-host/publish gates remain open.
+- The intake report must not read browser profiles, capture screenshots, parse HAR files, open
+  CloakBrowser, mutate platform state, create evidence artifacts, sync drafts, upload images,
+  schedule sends, publish articles, change style availability, or change style selection.
+
+Required checks:
+- Regression tests must prove a valid unknown JSON-style manifest pack is sanitized and reaches the
+  normal pack/audit/runbook reports without schema issues.
+- Regression tests must prove malformed packs do not throw and do not pass partial artifacts to the
+  existing semantic validator.
+- Regression tests must prove unknown fields are dropped while sensitive or unsafe accepted
+  artifacts still surface through the existing semantic issue ids.
+- Evidence docs must record this as a local intake/preflight boundary only and explicitly state that
+  it does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover-thumbnail acceptance, credentialed sync, public-host acceptance, Xiaohongshu/Zhihu upload,
+  scheduled-send, platform-preview, public rendering, or publish success.

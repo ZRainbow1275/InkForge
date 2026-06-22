@@ -4288,3 +4288,28 @@ Boundary:
   editor paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail
   acceptance, credentialed sync, public host acceptance, scheduled send, platform preview, public
   rendering, Xiaohongshu upload, Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 Style Proof Manifest Intake Addendum
+
+- Added `getStyleProofManifestIntakeReport(input)` as a runtime-safe local preflight layer for
+  redacted `StyleProofManifest` packs before they enter the existing style proof semantic
+  validator, pack report, acceptance audit, and execution runbook.
+- Invalid roots and schema-invalid manifest rows are returned as `rejected` and are not passed into
+  semantic validation. Unknown accepted fields are warning-level schema issues and are dropped from
+  sanitized manifests.
+- Unsafe or sensitive accepted artifacts still surface through the existing semantic issue ids, so
+  intake cannot bypass `style-proof-manifest-sensitive-artifact`,
+  `style-proof-manifest-unsafe-commit-artifact`, phone/account/public-host, scheduled-send, or
+  publish gates.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-manifest-intake-20260623.txt`.
+- Verification passed: targeted ESLint; focused `platform-export-rendering.test.ts` run with 5
+  selected manifest/intake tests; full `platform-export-rendering.test.ts` with 163 tests; full
+  serial `src/services/export` regression with 36 files / 1140 tests; `vue-tsc`; production build
+  with 4653 modules transformed; and GitNexus detect-changes with 0 affected processes.
+- Boundary: this is local intake accounting only. It does not prove WeChat official editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
+  public rendering, or publish success.

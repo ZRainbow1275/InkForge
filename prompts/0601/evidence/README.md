@@ -3805,3 +3805,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host acceptance,
   Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
   success.
+
+## 2026-06-23 Style Proof Manifest Intake Report
+
+- [x] style-proof-manifest-intake-20260623.txt
+- Added `getStyleProofManifestIntakeReport(input)` as the runtime-safe local intake/preflight entry
+  for redacted `StyleProofManifest` packs supplied by an operator or external proof collection
+  workflow.
+- Accepted inputs are an array of manifest-like objects, a `{ manifests: [...] }` object, or one
+  manifest-like object. Invalid roots and schema-invalid manifests are rejected before reaching the
+  existing semantic validator.
+- Unknown manifest/artifact fields are warning-level schema issues and are dropped from sanitized
+  accepted manifests. Unsafe or sensitive accepted artifacts still flow into the existing semantic
+  issue ids.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 5 selected
+  manifest/intake tests; full `platform-export-rendering.test.ts` with 163 tests; full serial
+  `src/services/export` regression with 36 files / 1140 tests; targeted ESLint; `vue-tsc`;
+  production build with 4653 modules transformed; and GitNexus detect-changes with 0 affected
+  processes.
+- Boundary: this is local intake accounting only. It does not prove WeChat official editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
+  public rendering, or publish success.

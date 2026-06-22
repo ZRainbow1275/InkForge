@@ -197,6 +197,100 @@ export type StyleProofHostStatus =
   | 'blocked'
   | 'missing'
 
+const STYLE_PROOF_PLATFORMS = ['wechat', 'xiaohongshu', 'zhihu'] as const satisfies readonly Platform[]
+
+const STYLE_EVIDENCE_LABELS = [
+  'doc-only',
+  'applied-editor-element',
+  'authenticated-editor-reachable',
+  'pc-editor-dom-readable',
+  'unit-tested',
+  'local-browser',
+  'pc-editor-paste',
+  'mobile-preview',
+  'credentialed-sync',
+  'published',
+] as const satisfies readonly StyleEvidenceLabel[]
+
+const STYLE_PROOF_MANIFEST_SCOPES = [
+  'evidence-label',
+  'style-choice',
+] as const satisfies readonly StyleProofManifestScope[]
+
+const STYLE_PROOF_ARTIFACT_KINDS = [
+  'doc-reference',
+  'test-log',
+  'browser-readback',
+  'editor-readback',
+  'phone-readback',
+  'screenshot',
+  'channel-response',
+  'published-preview',
+  'image-host-check',
+  'artifact-manifest',
+  'hygiene-review',
+] as const satisfies readonly StyleProofArtifactKind[]
+
+const STYLE_PROOF_CHANNELS = [
+  'docs',
+  'unit-test',
+  'local-browser',
+  'tauri-webview',
+  'market-editor',
+  'platform-editor',
+  'phone-preview',
+  'credentialed-channel',
+  'public-web',
+  'local-artifact',
+] as const satisfies readonly StyleProofChannel[]
+
+const STYLE_PROOF_ACTIONS = [
+  'catalog-source',
+  'applied-market-element',
+  'authenticated-editor-opened',
+  'pc-editor-dom-readback',
+  'safe-disposable-draft',
+  'test-run',
+  'local-render',
+  'pc-paste',
+  'phone-preview',
+  'phone-preview-entry-readback',
+  'dark-mode-check',
+  'cover-thumbnail-check',
+  'external-account-login-readback',
+  'credentialed-sync',
+  'sync-readback',
+  'scheduled-send',
+  'published-preview',
+  'public-image-host-check',
+  'artifact-manifest-validation',
+  'source-hygiene-review',
+  'sensitive-hygiene-review',
+] as const satisfies readonly StyleProofAction[]
+
+const STYLE_PROOF_READBACKS = [
+  'none',
+  'dom',
+  'visual',
+  'visual-and-dom',
+  'phone',
+  'screenshot',
+  'api-response',
+  'scheduled-send-state',
+  'published-url',
+  'manifest',
+  'test-assertion',
+  'hygiene-log',
+] as const satisfies readonly StyleProofReadback[]
+
+const STYLE_PROOF_HOST_STATUSES = [
+  'public-https',
+  'platform-hosted',
+  'local-only',
+  'blocked',
+  'missing',
+] as const satisfies readonly StyleProofHostStatus[]
+
 export interface StyleProofArtifact {
   id: string
   requirementId: StyleProofRequirementId
@@ -610,6 +704,46 @@ export interface StyleProofManifestPackReport {
     artifactCount: number
     duplicateArtifactIdCount: number
     issueCount: number
+  }
+}
+
+export type StyleProofManifestIntakeStatus =
+  | 'empty'
+  | 'schema-invalid'
+  | 'accepted-with-warnings'
+  | 'ready-for-review'
+
+export interface StyleProofManifestIntakeRejectedItem {
+  index: number | null
+  rawKind: string
+  issues: readonly QualityIssue[]
+}
+
+export interface StyleProofManifestIntakeReport {
+  status: StyleProofManifestIntakeStatus
+  manifests: readonly StyleProofManifest[]
+  rejected: readonly StyleProofManifestIntakeRejectedItem[]
+  schemaIssues: readonly QualityIssue[]
+  packReport: StyleProofManifestPackReport
+  acceptanceAudit: StyleProofAcceptanceAuditReport
+  executionRunbook: StyleProofExecutionRunbook
+  canClaimComplete: boolean
+  summary: {
+    inputManifestCount: number
+    acceptedManifestCount: number
+    rejectedManifestCount: number
+    schemaIssueCount: number
+    schemaErrorCount: number
+    schemaWarningCount: number
+    semanticIssueCount: number
+    artifactCount: number
+    cannotClaimRequirements: number
+    cannotClaimSteps: number
+    safeToAutomateOpenSteps: number
+    externalDependencyOpenSteps: number
+    phoneOpenSteps: number
+    mutatingOpenSteps: number
+    unsafeToAutomateOpenSteps: number
   }
 }
 
@@ -6542,6 +6676,670 @@ export function getStyleProofExecutionRunbook(
       mutatingOpenSteps: platformReportValues.reduce((total, report) => total + report.summary.mutatingOpenSteps, 0),
       unsafeToAutomateOpenSteps: platformReportValues.reduce((total, report) =>
         total + report.summary.unsafeToAutomateOpenSteps, 0),
+    },
+  }
+}
+
+const STYLE_PROOF_MANIFEST_INTAKE_MANIFEST_FIELDS = new Set<string>([
+  'platform',
+  'claimedEvidence',
+  'scope',
+  'choiceId',
+  'artifactFingerprint',
+  'artifacts',
+])
+
+const STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS = new Set<string>([
+  'id',
+  'requirementId',
+  'kind',
+  'label',
+  'evidenceLabel',
+  'platform',
+  'choiceId',
+  'channel',
+  'action',
+  'readback',
+  'artifactFingerprint',
+  'artifactRef',
+  'exactArtifact',
+  'authenticatedSessionVerified',
+  'externalAccountAuthenticated',
+  'externalAccountLoginBlocked',
+  'platformEditorTargetVerified',
+  'platformEditorSurfaceVerified',
+  'platformEditorDomVerified',
+  'centralEditorChanged',
+  'marketAppliedContentVerified',
+  'ordinaryClipboardPasteVerified',
+  'sameEditorTabVerified',
+  'pasteInputEventVerified',
+  'editorBodyMutationVerified',
+  'mojibakeFreeVerified',
+  'phonePreviewContentVerified',
+  'phonePreviewBlocked',
+  'darkModeEnabledVerified',
+  'coverThumbnailAccepted',
+  'scheduledSendVerified',
+  'disposableDraft',
+  'cleanupPathVerified',
+  'artifactManifestValidated',
+  'collectedAt',
+  'safeForCommit',
+  'committed',
+  'sensitive',
+  'hostStatus',
+])
+
+type StyleProofArtifactBooleanField =
+  | 'exactArtifact'
+  | 'authenticatedSessionVerified'
+  | 'externalAccountAuthenticated'
+  | 'externalAccountLoginBlocked'
+  | 'platformEditorTargetVerified'
+  | 'platformEditorSurfaceVerified'
+  | 'platformEditorDomVerified'
+  | 'centralEditorChanged'
+  | 'marketAppliedContentVerified'
+  | 'ordinaryClipboardPasteVerified'
+  | 'sameEditorTabVerified'
+  | 'pasteInputEventVerified'
+  | 'editorBodyMutationVerified'
+  | 'mojibakeFreeVerified'
+  | 'phonePreviewContentVerified'
+  | 'phonePreviewBlocked'
+  | 'darkModeEnabledVerified'
+  | 'coverThumbnailAccepted'
+  | 'scheduledSendVerified'
+  | 'disposableDraft'
+  | 'cleanupPathVerified'
+  | 'artifactManifestValidated'
+  | 'safeForCommit'
+  | 'committed'
+  | 'sensitive'
+
+const STYLE_PROOF_ARTIFACT_BOOLEAN_FIELDS = [
+  'exactArtifact',
+  'authenticatedSessionVerified',
+  'externalAccountAuthenticated',
+  'externalAccountLoginBlocked',
+  'platformEditorTargetVerified',
+  'platformEditorSurfaceVerified',
+  'platformEditorDomVerified',
+  'centralEditorChanged',
+  'marketAppliedContentVerified',
+  'ordinaryClipboardPasteVerified',
+  'sameEditorTabVerified',
+  'pasteInputEventVerified',
+  'editorBodyMutationVerified',
+  'mojibakeFreeVerified',
+  'phonePreviewContentVerified',
+  'phonePreviewBlocked',
+  'darkModeEnabledVerified',
+  'coverThumbnailAccepted',
+  'scheduledSendVerified',
+  'disposableDraft',
+  'cleanupPathVerified',
+  'artifactManifestValidated',
+  'safeForCommit',
+  'committed',
+  'sensitive',
+] as const satisfies readonly StyleProofArtifactBooleanField[]
+
+interface StyleProofManifestIntakeInputs {
+  inputs: readonly unknown[]
+  rootIssues: readonly QualityIssue[]
+}
+
+interface ParsedStyleProofManifestIntakeCandidate {
+  manifest: StyleProofManifest | null
+  issues: readonly QualityIssue[]
+}
+
+interface ParsedStyleProofArtifactIntakeCandidate {
+  artifact: StyleProofArtifact | null
+  issues: readonly QualityIssue[]
+}
+
+function hasStyleProofIntakeField(record: Record<string, unknown>, field: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, field)
+}
+
+function getStyleProofIntakeRawKind(value: unknown): string {
+  if (value === null) return 'null'
+  if (Array.isArray(value)) return 'array'
+  return typeof value
+}
+
+function isStyleProofIntakeRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isKnownStyleProofString<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+): value is T {
+  return typeof value === 'string' && (allowed as readonly string[]).includes(value)
+}
+
+function isStyleProofRequirementIdValue(value: unknown): value is StyleProofRequirementId {
+  return typeof value === 'string' && STYLE_PROOF_REQUIREMENT_BY_ID.has(value as StyleProofRequirementId)
+}
+
+function addStyleProofManifestIntakeIssue(
+  issues: QualityIssue[],
+  issue: QualityIssue,
+): void {
+  issues.push(issue)
+}
+
+function addStyleProofManifestIntakeTypeIssue(
+  issues: QualityIssue[],
+  location: string,
+  expected: string,
+  actual: unknown,
+): void {
+  addStyleProofManifestIntakeIssue(issues, {
+    id: 'style-proof-manifest-intake-field-invalid',
+    severity: 'error',
+    message: `Style proof manifest intake expected ${location} to be ${expected}.`,
+    suggestion: 'Submit a redacted JSON proof manifest pack that matches the StyleProofManifest contract before running acceptance audit.',
+    location: `${location}:${getStyleProofIntakeRawKind(actual)}`,
+  })
+}
+
+function addStyleProofManifestIntakeUnknownFieldWarnings(
+  record: Record<string, unknown>,
+  allowedFields: ReadonlySet<string>,
+  issues: QualityIssue[],
+  location: string,
+): void {
+  const unknownFields = Object.keys(record)
+    .filter(field => !allowedFields.has(field))
+    .sort()
+  if (unknownFields.length === 0) return
+
+  addStyleProofManifestIntakeIssue(issues, {
+    id: 'style-proof-manifest-intake-unknown-field',
+    severity: 'warning',
+    message: `Style proof manifest intake dropped ${unknownFields.length} unsupported field(s) from ${location}.`,
+    suggestion: 'Keep external evidence packs schema-minimal and submit sensitive runtime context through redacted artifact summaries only.',
+    location: `${location}:${unknownFields.join(',')}`,
+  })
+}
+
+function readRequiredStyleProofStringField(
+  record: Record<string, unknown>,
+  field: string,
+  issues: QualityIssue[],
+  location: string,
+): string | null {
+  if (!hasStyleProofIntakeField(record, field)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, 'a non-empty string', undefined)
+    return null
+  }
+
+  const value = record[field]
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, 'a non-empty string', value)
+    return null
+  }
+
+  return value
+}
+
+function readOptionalStyleProofStringField(
+  record: Record<string, unknown>,
+  field: string,
+  issues: QualityIssue[],
+  location: string,
+): string | undefined {
+  if (!hasStyleProofIntakeField(record, field)) return undefined
+
+  const value = record[field]
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, 'a non-empty string', value)
+    return undefined
+  }
+
+  return value
+}
+
+function readOptionalStyleProofBooleanField(
+  record: Record<string, unknown>,
+  field: StyleProofArtifactBooleanField,
+  issues: QualityIssue[],
+  location: string,
+): boolean | undefined {
+  if (!hasStyleProofIntakeField(record, field)) return undefined
+
+  const value = record[field]
+  if (typeof value !== 'boolean') {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, 'a boolean', value)
+    return undefined
+  }
+
+  return value
+}
+
+function readRequiredKnownStyleProofField<T extends string>(
+  record: Record<string, unknown>,
+  field: string,
+  allowed: readonly T[],
+  expected: string,
+  issues: QualityIssue[],
+  location: string,
+): T | null {
+  if (!hasStyleProofIntakeField(record, field)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, expected, undefined)
+    return null
+  }
+
+  const value = record[field]
+  if (!isKnownStyleProofString(value, allowed)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, expected, value)
+    return null
+  }
+
+  return value
+}
+
+function readOptionalKnownStyleProofField<T extends string>(
+  record: Record<string, unknown>,
+  field: string,
+  allowed: readonly T[],
+  expected: string,
+  issues: QualityIssue[],
+  location: string,
+): T | undefined {
+  if (!hasStyleProofIntakeField(record, field)) return undefined
+
+  const value = record[field]
+  if (!isKnownStyleProofString(value, allowed)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, expected, value)
+    return undefined
+  }
+
+  return value
+}
+
+function readRequiredStyleProofRequirementIdField(
+  record: Record<string, unknown>,
+  issues: QualityIssue[],
+  location: string,
+): StyleProofRequirementId | null {
+  if (!hasStyleProofIntakeField(record, 'requirementId')) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.requirementId`, 'a known style proof requirement id', undefined)
+    return null
+  }
+
+  const value = record.requirementId
+  if (!isStyleProofRequirementIdValue(value)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.requirementId`, 'a known style proof requirement id', value)
+    return null
+  }
+
+  return value
+}
+
+function readStyleProofClaimedEvidenceField(
+  record: Record<string, unknown>,
+  issues: QualityIssue[],
+  location: string,
+): StyleEvidenceLabel[] | null {
+  if (!hasStyleProofIntakeField(record, 'claimedEvidence')) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.claimedEvidence`, 'an array of style evidence labels', undefined)
+    return null
+  }
+
+  const value = record.claimedEvidence
+  if (!Array.isArray(value)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.claimedEvidence`, 'an array of style evidence labels', value)
+    return null
+  }
+
+  const labels: StyleEvidenceLabel[] = []
+  for (let index = 0; index < value.length; index += 1) {
+    const label = value[index]
+    if (!isKnownStyleProofString(label, STYLE_EVIDENCE_LABELS)) {
+      addStyleProofManifestIntakeTypeIssue(
+        issues,
+        `${location}.claimedEvidence[${index}]`,
+        'a known style evidence label',
+        label,
+      )
+      continue
+    }
+    labels.push(label)
+  }
+
+  return labels
+}
+
+function parseStyleProofArtifactIntakeCandidate(
+  input: unknown,
+  location: string,
+): ParsedStyleProofArtifactIntakeCandidate {
+  const issues: QualityIssue[] = []
+  if (!isStyleProofIntakeRecord(input)) {
+    addStyleProofManifestIntakeIssue(issues, {
+      id: 'style-proof-manifest-intake-artifact-not-object',
+      severity: 'error',
+      message: `Style proof manifest intake expected ${location} to be an object.`,
+      suggestion: 'Each artifact must be a redacted object with id, requirementId, kind, channel, action, readback, and label fields.',
+      location: `${location}:${getStyleProofIntakeRawKind(input)}`,
+    })
+    return { artifact: null, issues }
+  }
+
+  addStyleProofManifestIntakeUnknownFieldWarnings(
+    input,
+    STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS,
+    issues,
+    location,
+  )
+
+  const id = readRequiredStyleProofStringField(input, 'id', issues, location)
+  const requirementId = readRequiredStyleProofRequirementIdField(input, issues, location)
+  const kind = readRequiredKnownStyleProofField(
+    input,
+    'kind',
+    STYLE_PROOF_ARTIFACT_KINDS,
+    'a known style proof artifact kind',
+    issues,
+    location,
+  )
+  const label = readRequiredStyleProofStringField(input, 'label', issues, location)
+  const channel = readRequiredKnownStyleProofField(
+    input,
+    'channel',
+    STYLE_PROOF_CHANNELS,
+    'a known style proof channel',
+    issues,
+    location,
+  )
+  const action = readRequiredKnownStyleProofField(
+    input,
+    'action',
+    STYLE_PROOF_ACTIONS,
+    'a known style proof action',
+    issues,
+    location,
+  )
+  const readback = readRequiredKnownStyleProofField(
+    input,
+    'readback',
+    STYLE_PROOF_READBACKS,
+    'a known style proof readback',
+    issues,
+    location,
+  )
+  const evidenceLabel = readOptionalKnownStyleProofField(
+    input,
+    'evidenceLabel',
+    STYLE_EVIDENCE_LABELS,
+    'a known style evidence label',
+    issues,
+    location,
+  )
+  const platform = readOptionalKnownStyleProofField(
+    input,
+    'platform',
+    STYLE_PROOF_PLATFORMS,
+    'a known platform',
+    issues,
+    location,
+  )
+  const choiceId = readOptionalStyleProofStringField(input, 'choiceId', issues, location)
+  const artifactFingerprint = readOptionalStyleProofStringField(input, 'artifactFingerprint', issues, location)
+  const artifactRef = readOptionalStyleProofStringField(input, 'artifactRef', issues, location)
+  const collectedAt = readOptionalStyleProofStringField(input, 'collectedAt', issues, location)
+  const hostStatus = readOptionalKnownStyleProofField(
+    input,
+    'hostStatus',
+    STYLE_PROOF_HOST_STATUSES,
+    'a known style proof host status',
+    issues,
+    location,
+  )
+  const booleanFields: Partial<Record<StyleProofArtifactBooleanField, boolean>> = {}
+  for (const field of STYLE_PROOF_ARTIFACT_BOOLEAN_FIELDS) {
+    const value = readOptionalStyleProofBooleanField(input, field, issues, location)
+    if (value !== undefined) booleanFields[field] = value
+  }
+
+  const hasErrors = issues.some(issue => issue.severity === 'error')
+  if (
+    hasErrors ||
+    !id ||
+    !requirementId ||
+    !kind ||
+    !label ||
+    !channel ||
+    !action ||
+    !readback
+  ) {
+    return { artifact: null, issues }
+  }
+
+  return {
+    artifact: {
+      id,
+      requirementId,
+      kind,
+      label,
+      channel,
+      action,
+      readback,
+      ...booleanFields,
+      ...(evidenceLabel ? { evidenceLabel } : {}),
+      ...(platform ? { platform } : {}),
+      ...(choiceId ? { choiceId } : {}),
+      ...(artifactFingerprint ? { artifactFingerprint } : {}),
+      ...(artifactRef ? { artifactRef } : {}),
+      ...(collectedAt ? { collectedAt } : {}),
+      ...(hostStatus ? { hostStatus } : {}),
+    },
+    issues,
+  }
+}
+
+function readStyleProofArtifactsField(
+  record: Record<string, unknown>,
+  issues: QualityIssue[],
+  location: string,
+): StyleProofArtifact[] | null {
+  if (!hasStyleProofIntakeField(record, 'artifacts')) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.artifacts`, 'an array of style proof artifacts', undefined)
+    return null
+  }
+
+  const value = record.artifacts
+  if (!Array.isArray(value)) {
+    addStyleProofManifestIntakeTypeIssue(issues, `${location}.artifacts`, 'an array of style proof artifacts', value)
+    return null
+  }
+
+  const artifacts: StyleProofArtifact[] = []
+  for (let index = 0; index < value.length; index += 1) {
+    const parsed = parseStyleProofArtifactIntakeCandidate(value[index], `${location}.artifacts[${index}]`)
+    issues.push(...parsed.issues)
+    if (parsed.artifact) artifacts.push(parsed.artifact)
+  }
+
+  return artifacts
+}
+
+function parseStyleProofManifestIntakeCandidate(
+  input: unknown,
+  index: number,
+): ParsedStyleProofManifestIntakeCandidate {
+  const issues: QualityIssue[] = []
+  const location = `manifests[${index}]`
+  if (!isStyleProofIntakeRecord(input)) {
+    addStyleProofManifestIntakeIssue(issues, {
+      id: 'style-proof-manifest-intake-manifest-not-object',
+      severity: 'error',
+      message: `Style proof manifest intake expected ${location} to be an object.`,
+      suggestion: 'Submit each external proof manifest as a redacted object, not a raw screenshot, DOM dump, browser profile, or primitive value.',
+      location: `${location}:${getStyleProofIntakeRawKind(input)}`,
+    })
+    return { manifest: null, issues }
+  }
+
+  addStyleProofManifestIntakeUnknownFieldWarnings(
+    input,
+    STYLE_PROOF_MANIFEST_INTAKE_MANIFEST_FIELDS,
+    issues,
+    location,
+  )
+
+  const platform = readRequiredKnownStyleProofField(
+    input,
+    'platform',
+    STYLE_PROOF_PLATFORMS,
+    'a known platform',
+    issues,
+    location,
+  )
+  const claimedEvidence = readStyleProofClaimedEvidenceField(input, issues, location)
+  const scope = readOptionalKnownStyleProofField(
+    input,
+    'scope',
+    STYLE_PROOF_MANIFEST_SCOPES,
+    'a known manifest scope',
+    issues,
+    location,
+  )
+  const choiceId = readOptionalStyleProofStringField(input, 'choiceId', issues, location)
+  const artifactFingerprint = readOptionalStyleProofStringField(input, 'artifactFingerprint', issues, location)
+  const artifacts = readStyleProofArtifactsField(input, issues, location)
+  const hasErrors = issues.some(issue => issue.severity === 'error')
+
+  if (hasErrors || !platform || !claimedEvidence || !artifacts) {
+    return { manifest: null, issues }
+  }
+
+  return {
+    manifest: {
+      platform,
+      claimedEvidence,
+      artifacts,
+      ...(scope ? { scope } : {}),
+      ...(choiceId ? { choiceId } : {}),
+      ...(artifactFingerprint ? { artifactFingerprint } : {}),
+    },
+    issues,
+  }
+}
+
+function getStyleProofManifestIntakeInputs(input: unknown): StyleProofManifestIntakeInputs {
+  const rootIssues: QualityIssue[] = []
+  if (Array.isArray(input)) {
+    return { inputs: input, rootIssues }
+  }
+
+  if (isStyleProofIntakeRecord(input)) {
+    if (hasStyleProofIntakeField(input, 'manifests')) {
+      const manifests = input.manifests
+      if (Array.isArray(manifests)) {
+        return { inputs: manifests, rootIssues }
+      }
+
+      addStyleProofManifestIntakeTypeIssue(rootIssues, 'root.manifests', 'an array of style proof manifests', manifests)
+      return { inputs: [], rootIssues }
+    }
+
+    if (hasStyleProofIntakeField(input, 'platform') || hasStyleProofIntakeField(input, 'artifacts')) {
+      return { inputs: [input], rootIssues }
+    }
+  }
+
+  addStyleProofManifestIntakeIssue(rootIssues, {
+    id: 'style-proof-manifest-intake-root-invalid',
+    severity: 'error',
+    message: 'Style proof manifest intake expected an array, a { manifests: [...] } object, or one manifest object.',
+    suggestion: 'Load only redacted proof manifests into this local audit entry point; keep raw browser state, cookies, screenshots, and account artifacts outside repo commits.',
+    location: `root:${getStyleProofIntakeRawKind(input)}`,
+  })
+  return { inputs: [], rootIssues }
+}
+
+function getStyleProofManifestIntakeStatus(
+  acceptedManifestCount: number,
+  schemaErrorCount: number,
+  schemaWarningCount: number,
+): StyleProofManifestIntakeStatus {
+  if (acceptedManifestCount === 0 && schemaErrorCount === 0) return 'empty'
+  if (schemaErrorCount > 0) return 'schema-invalid'
+  if (schemaWarningCount > 0) return 'accepted-with-warnings'
+  return 'ready-for-review'
+}
+
+export function getStyleProofManifestIntakeReport(input: unknown): StyleProofManifestIntakeReport {
+  const { inputs, rootIssues } = getStyleProofManifestIntakeInputs(input)
+  const manifests: StyleProofManifest[] = []
+  const rejected: StyleProofManifestIntakeRejectedItem[] = rootIssues.length > 0
+    ? [{
+        index: null,
+        rawKind: getStyleProofIntakeRawKind(input),
+        issues: rootIssues,
+      }]
+    : []
+  const schemaIssues: QualityIssue[] = [...rootIssues]
+
+  inputs.forEach((candidate, index) => {
+    const parsed = parseStyleProofManifestIntakeCandidate(candidate, index)
+    schemaIssues.push(...parsed.issues)
+    if (parsed.manifest) {
+      manifests.push(parsed.manifest)
+      return
+    }
+
+    rejected.push({
+      index,
+      rawKind: getStyleProofIntakeRawKind(candidate),
+      issues: parsed.issues,
+    })
+  })
+
+  const packReport = getStyleProofManifestPackReport(manifests)
+  const acceptanceAudit = getStyleProofAcceptanceAuditReport(manifests)
+  const executionRunbook = getStyleProofExecutionRunbook(manifests)
+  const schemaErrorCount = schemaIssues.filter(issue => issue.severity === 'error').length
+  const schemaWarningCount = schemaIssues.filter(issue => issue.severity === 'warning').length
+  const canClaimComplete = manifests.length > 0 &&
+    rejected.length === 0 &&
+    schemaErrorCount === 0 &&
+    packReport.summary.issueCount === 0 &&
+    acceptanceAudit.summary.cannotClaimRequirements === 0 &&
+    executionRunbook.summary.cannotClaimSteps === 0
+
+  return {
+    status: getStyleProofManifestIntakeStatus(manifests.length, schemaErrorCount, schemaWarningCount),
+    manifests,
+    rejected,
+    schemaIssues,
+    packReport,
+    acceptanceAudit,
+    executionRunbook,
+    canClaimComplete,
+    summary: {
+      inputManifestCount: inputs.length,
+      acceptedManifestCount: manifests.length,
+      rejectedManifestCount: rejected.length,
+      schemaIssueCount: schemaIssues.length,
+      schemaErrorCount,
+      schemaWarningCount,
+      semanticIssueCount: packReport.summary.issueCount,
+      artifactCount: packReport.summary.artifactCount,
+      cannotClaimRequirements: acceptanceAudit.summary.cannotClaimRequirements,
+      cannotClaimSteps: executionRunbook.summary.cannotClaimSteps,
+      safeToAutomateOpenSteps: executionRunbook.summary.safeToAutomateOpenSteps,
+      externalDependencyOpenSteps: executionRunbook.summary.externalDependencyOpenSteps,
+      phoneOpenSteps: executionRunbook.summary.phoneOpenSteps,
+      mutatingOpenSteps: executionRunbook.summary.mutatingOpenSteps,
+      unsafeToAutomateOpenSteps: executionRunbook.summary.unsafeToAutomateOpenSteps,
     },
   }
 }

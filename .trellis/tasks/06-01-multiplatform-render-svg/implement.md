@@ -8727,6 +8727,52 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Style Proof Manifest Intake Report Slice
+
+Scope:
+- Local runtime-safe intake/preflight for operator-supplied, redacted `StyleProofManifest` packs.
+- No browser profile access, account action, phone preview, sync, upload, scheduled send, platform
+  preview, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `getStyleProofManifestIntakeReport(input: unknown)` above the existing style proof
+  pack/audit/runbook chain.
+- Accepted roots are an array of manifest-like objects, a `{ manifests: [...] }` object, or one
+  manifest-like object. Invalid roots or schema-invalid manifests are returned as `rejected` and are
+  not passed into semantic validation.
+- Sanitized manifests keep only the known `StyleProofManifest` and `StyleProofArtifact` fields.
+  Unknown fields are warning-level schema issues and are dropped before semantic validation.
+- Accepted manifests still flow through `getStyleProofManifestPackReport()`,
+  `getStyleProofAcceptanceAuditReport()`, and `getStyleProofExecutionRunbook()`, so unsafe,
+  sensitive, stale, unbound, phone, public-host, account, scheduled-send, and publish gaps remain
+  unclaimable.
+- Exported the intake report types and function from `inkforge/src/services/export/index.ts`.
+- Added focused regression coverage in `platform-export-rendering.test.ts` for valid intake,
+  malformed intake rejection, and unknown-field sanitization with semantic safety blockers.
+
+Initial verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|style proof manifest" --reporter=default`:
+  passed, 1 file / 5 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 163 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1140 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and Vite built in 30.60s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --check` for the touched code/docs/evidence paths passed with only normal Windows
+  `autocrlf` warnings.
+- GitNexus `detect_changes(scope=all)`: low risk, 0 affected processes. The dirty-file count
+  includes unrelated pre-existing local changes and does not define the staged boundary.
+
+Boundary:
+- This is local proof-pack intake and cannot-claim accounting only. It does not prove WeChat
+  official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send,
+  platform preview, public rendering, or publish success.
+
 ## 2026-06-23 ExportModal External Handoff Surface Slice
 
 Scope:

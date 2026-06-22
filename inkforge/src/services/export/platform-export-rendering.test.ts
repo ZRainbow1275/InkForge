@@ -44,6 +44,7 @@ import {
   getStyleChoiceProofRequirements,
   getStyleProofAcceptanceAuditReport,
   getStyleProofExecutionRunbook,
+  getStyleProofManifestIntakeReport,
   getStyleProofManifestPackReport,
   getStyleProofManifestReport,
   markdownToWechatWithStats,
@@ -611,6 +612,144 @@ describe('platform native export rendering rules', () => {
     expect(report.requirements[0]?.artifactIds).toEqual(['style-proof-unit-log'])
     expect(report.artifacts[0]?.status).toBe('accepted')
     expect(evaluateStyleChoiceAvailability(classicInline, ['unit-tested']).usable).toBe(true)
+  })
+
+  it('preflights unknown style proof manifest packs before semantic validation', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'style-proof-intake-unit-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'platform-export-rendering.test.ts intake assertion log',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactRef: 'prompts/0601/evidence/style-proof-manifest-intake-20260623.txt',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestIntakeReport({ manifests: [manifest] })
+
+    expect(report.status).toBe('ready-for-review')
+    expect(report.summary).toMatchObject({
+      inputManifestCount: 1,
+      acceptedManifestCount: 1,
+      rejectedManifestCount: 0,
+      schemaIssueCount: 0,
+      schemaErrorCount: 0,
+      schemaWarningCount: 0,
+      semanticIssueCount: 0,
+      artifactCount: 1,
+    })
+    expect(report.rejected).toEqual([])
+    expect(report.manifests).toEqual([manifest])
+    expect(report.packReport.summary).toMatchObject({
+      manifestCount: 1,
+      validManifestCount: 1,
+      artifactCount: 1,
+    })
+    expect(report.acceptanceAudit.summary.manifestCount).toBe(1)
+    expect(report.executionRunbook.summary.manifestCount).toBe(1)
+    expect(report.canClaimComplete).toBe(false)
+    expect(report.summary.cannotClaimRequirements).toBeGreaterThan(0)
+  })
+
+  it('rejects malformed external manifest packs without throwing or accepting partial proof', () => {
+    const report = getStyleProofManifestIntakeReport({
+      manifests: [
+        {
+          platform: 'wechat',
+          claimedEvidence: 'unit-tested',
+          artifacts: 'not-an-artifact-array',
+        },
+        {
+          platform: 'wechat',
+          claimedEvidence: ['unit-tested'],
+          artifacts: [
+            {
+              id: 'style-proof-intake-incomplete-log',
+              requirementId: 'unit-test-coverage',
+              kind: 'test-log',
+              label: 'incomplete artifact row',
+              channel: 'unit-test',
+            },
+          ],
+        },
+      ],
+    })
+
+    expect(report.status).toBe('schema-invalid')
+    expect(report.summary.inputManifestCount).toBe(2)
+    expect(report.summary.acceptedManifestCount).toBe(0)
+    expect(report.summary.rejectedManifestCount).toBe(2)
+    expect(report.summary.schemaErrorCount).toBeGreaterThanOrEqual(4)
+    expect(report.manifests).toEqual([])
+    expect(report.rejected.map(item => item.index)).toEqual([0, 1])
+    expect(report.schemaIssues.map(issue => issue.id)).toContain('style-proof-manifest-intake-field-invalid')
+    expect(report.packReport.summary.manifestCount).toBe(0)
+    expect(report.acceptanceAudit.summary.manifestCount).toBe(0)
+    expect(report.executionRunbook.summary.manifestCount).toBe(0)
+    expect(report.canClaimComplete).toBe(false)
+  })
+
+  it('sanitizes unknown intake fields while preserving semantic safety blockers', () => {
+    const report = getStyleProofManifestIntakeReport({
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      operatorNote: 'redacted operator-only note',
+      artifacts: [
+        {
+          id: 'style-proof-intake-unsafe-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'unsafe proof row',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactRef: 'prompts/0601/evidence/style-proof-manifest-intake-20260623.txt',
+          committed: false,
+          safeForCommit: false,
+          sensitive: true,
+          extraField: 'discard me before semantic validation',
+        },
+      ],
+    })
+
+    expect(report.status).toBe('accepted-with-warnings')
+    expect(report.summary.acceptedManifestCount).toBe(1)
+    expect(report.summary.rejectedManifestCount).toBe(0)
+    expect(report.summary.schemaErrorCount).toBe(0)
+    expect(report.summary.schemaWarningCount).toBe(2)
+    expect(report.schemaIssues.map(issue => issue.id)).toEqual([
+      'style-proof-manifest-intake-unknown-field',
+      'style-proof-manifest-intake-unknown-field',
+    ])
+
+    const acceptedManifest = report.manifests[0] as StyleProofManifest & Record<string, unknown>
+    const acceptedArtifact = acceptedManifest.artifacts[0] as unknown as Record<string, unknown>
+    expect(acceptedManifest.operatorNote).toBeUndefined()
+    expect(acceptedArtifact.extraField).toBeUndefined()
+    expect(acceptedArtifact.safeForCommit).toBe(false)
+    expect(acceptedArtifact.sensitive).toBe(true)
+    expect(report.packReport.issues.map(issue => issue.id)).toEqual(expect.arrayContaining([
+      'style-proof-manifest-sensitive-artifact',
+      'style-proof-manifest-safe-commit-not-verified',
+    ]))
+    expect(report.canClaimComplete).toBe(false)
   })
 
   it('creates empty style proof manifest drafts that enumerate real proof gaps without fake artifacts', () => {

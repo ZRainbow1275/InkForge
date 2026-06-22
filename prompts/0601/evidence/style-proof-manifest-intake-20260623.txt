@@ -1,0 +1,56 @@
+Style Proof Manifest Intake Report - 2026-06-23
+
+Scope:
+- Local runtime-safe intake/preflight for redacted StyleProofManifest packs.
+- No browser action, no phone preview, no sync, no upload, no scheduled send, no platform preview,
+  no public rendering, and no publish action.
+
+Implemented:
+- getStyleProofManifestIntakeReport(input)
+- StyleProofManifestIntakeStatus
+- StyleProofManifestIntakeRejectedItem
+- StyleProofManifestIntakeReport
+
+Behavior:
+- Accepts an array of manifest-like objects, a { manifests: [...] } object, or one manifest-like
+  object.
+- Rejects invalid roots and schema-invalid manifest entries before they can reach the existing
+  semantic validator.
+- Sanitizes accepted entries into the known StyleProofManifest and StyleProofArtifact field set.
+- Reports unknown fields as warning-level schema issues and drops them before semantic validation.
+- Reuses getStyleProofManifestPackReport(), getStyleProofAcceptanceAuditReport(), and
+  getStyleProofExecutionRunbook() for accepted manifests.
+- Keeps semantic blockers such as sensitive artifacts, unsafe commit artifacts, exact-artifact gaps,
+  phone preview gaps, public-host gaps, account gates, scheduled-send gates, and publish gates
+  unclaimable.
+- Does not create artifacts and does not change style availability, style selection, selectable,
+  usable, blocked, or unavailable decisions.
+
+Regression coverage:
+- Valid unknown JSON-style manifest packs enter the normal pack/audit/runbook reports.
+- Malformed external manifest packs do not throw and do not accept partial artifacts.
+- Unknown fields are dropped while semantic safety blockers still surface through existing
+  style-proof manifest issue ids.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|style proof manifest" --reporter=default
+  PASS: 1 file / 5 selected tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 163 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1140 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 30.60s
+- GitNexus detect_changes(scope=all)
+  PASS: low risk / 0 affected processes
+
+Boundary:
+- This proves local intake accounting only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, public-host acceptance,
+  Xiaohongshu account upload, Zhihu account upload, scheduled send, platform preview, public
+  rendering, or publish success.
