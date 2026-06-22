@@ -4403,6 +4403,28 @@ Boundary:
 
 ---
 
+## 2026-06-23 ExportModal WeChat Market Fallback CloakBrowser Smoke Addendum
+
+- Started local Vite on `http://127.0.0.1:3016/` because port `3005` was already occupied.
+- Used CloakBrowser only at 390 x 844 against the local app.
+- Created one local InkForge draft through the real UI, opened Workstation, and clicked local
+  `发布` to inspect ExportModal.
+- Final readback: `hasModal=true`, `documentElement.scrollWidth=390`, `body.scrollWidth=390`,
+  `overflowCount=0`.
+- WeChat style capability stayed `当前可用 8/17`; committed proof stayed
+  `canClaimComplete=false` with `blockers 4`; external handoff stayed `外部交接 18 行`,
+  `安全外部 0`, and `本地可行动 0`.
+- `Market SVG/H5 fallback matrix` rendered as a disabled blocked choice rather than a selectable
+  action.
+- Added evidence file:
+  `prompts/0601/evidence/exportmodal-wechat-market-fallback-cloakbrowser-20260623.txt`.
+- Boundary: this is local UI layout and blocked-choice display evidence only. It does not prove
+  WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public preview, scheduled send, public rendering, XHS/Zhihu upload,
+  or publish success.
+
+---
+
 ## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback Addendum
 
 - Used CloakBrowser only for a read-only WeChat Official Account backend home/dashboard readback.

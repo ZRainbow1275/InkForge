@@ -8773,6 +8773,42 @@ Boundary:
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
   preview, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
 
+## 2026-06-23 ExportModal WeChat Market Fallback CloakBrowser Smoke
+
+Scope:
+- Local UI smoke for the already committed market fallback matrix slice.
+- No external platform account action, WeChat editor paste, phone preview, sync, upload, scheduled
+  send, public rendering, or publish behavior.
+
+Readback:
+- Started local Vite on `http://127.0.0.1:3016/` after port `3005` was already occupied.
+- Reopened CloakBrowser at 390 x 844 in the InkForge browser context.
+- Home page readback: `documentElement.scrollWidth=390`, `body.scrollWidth=390`.
+- Created one local InkForge draft through the real UI so the Workstation/Publish flow was
+  reachable.
+- Workstation readback: `documentElement.scrollWidth=390`, `body.scrollWidth=390`, no error
+  boundary in the final state.
+- ExportModal readback: `hasModal=true`, `documentElement.scrollWidth=390`,
+  `body.scrollWidth=390`, `overflowCount=0`.
+- WeChat style capability remained `当前可用 8/17`.
+- Committed proof remained `canClaimComplete=false`, `blockers 4`.
+- External handoff remained `外部交接 18 行`, `分组 4`, `安全外部 0`, and `本地可行动 0`.
+- `Market SVG/H5 fallback matrix` rendered as
+  `style-choice-card style-choice-blocked style-choice-disabled`, with the new layout-report,
+  image-slot, trigger-zone, static/raster fallback, and Xiumi authoring-wrapper blocker text.
+
+Observed transient:
+- The first Workstation entry during dev-server startup showed a Vite dynamic-import error for
+  `WorkstationView.vue`.
+- A direct same-origin fetch for the module returned HTTP 200 JavaScript, and refresh restored the
+  Workstation. Final Workstation and ExportModal readbacks were clean.
+
+Boundary:
+- This is local UI layout and blocked-choice display evidence only. It does not prove WeChat
+  official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public preview, scheduled send, public rendering, XHS/Zhihu upload, or publish
+  success.
+
 ## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback
 
 Scope:

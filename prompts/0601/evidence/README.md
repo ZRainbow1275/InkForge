@@ -3930,6 +3930,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, public preview,
   scheduled send, public rendering, XHS/Zhihu upload, or publish success.
 
+## 2026-06-23 ExportModal WeChat Market Fallback CloakBrowser Smoke
+
+- [x] exportmodal-wechat-market-fallback-cloakbrowser-20260623.txt
+- CloakBrowser-only local UI smoke at 390 x 844 using the real local Workstation and Publish flow.
+- ExportModal readback: `documentElement.scrollWidth=390`, `body.scrollWidth=390`,
+  `overflowCount=0`, `hasModal=true`.
+- WeChat style capability stayed `当前可用 8/17`; committed proof stayed `canClaimComplete=false`
+  with `blockers 4`; external handoff stayed `外部交接 18 行`, `安全外部 0`, and `本地可行动 0`.
+- `Market SVG/H5 fallback matrix` rendered as a disabled blocked choice, not a selectable action.
+- Boundary: this is local UI layout and blocked-choice display evidence only. It does not prove
+  WeChat editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  sync, public preview, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof Manifest String Field Guard
 
 - [x] style-proof-manifest-string-field-guard-20260623.txt

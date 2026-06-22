@@ -1,0 +1,42 @@
+ExportModal WeChat Market Fallback CloakBrowser Smoke - 2026-06-23
+
+Scope:
+- Local InkForge UI smoke using CloakBrowser only.
+- Local Vite dev server at `http://127.0.0.1:3016/`.
+- No external platform account action, no WeChat editor paste, no phone preview, no sync, no
+  upload, no scheduled send, no public rendering, and no publish operation.
+
+Flow:
+- Opened the local app at a 390 x 844 viewport.
+- Created one local InkForge draft through the real local UI so the Workstation and Publish flow
+  were reachable.
+- Opened the Workstation and clicked the local `发布` button.
+- Read the ExportModal DOM and layout metrics from the active page.
+- No runtime screenshot was saved or committed.
+
+Readback:
+- Home at 390 px: `documentElement.scrollWidth=390`, `body.scrollWidth=390`.
+- Workstation at 390 px: `documentElement.scrollWidth=390`, `body.scrollWidth=390`, no error
+  boundary after refresh.
+- ExportModal at 390 px: `documentElement.scrollWidth=390`, `body.scrollWidth=390`,
+  `overflowCount=0`, `hasModal=true`.
+- WeChat style capability summary remained: `当前可用 8/17`.
+- Committed proof summary remained `canClaimComplete=false`, `blockers 4`.
+- External handoff remained: `外部交接 18 行`, `分组 4`, `安全外部 0`, `本地可行动 0`.
+- `Market SVG/H5 fallback matrix` rendered as
+  `style-choice-card style-choice-blocked style-choice-disabled`.
+- The market fallback card exposed the new runtime blocker text for source-owned layout reports,
+  typed image slots, normalized trigger zones, static/raster fallback, and Xiumi authoring-wrapper
+  boundaries.
+
+Observed transient:
+- The first attempt to enter Workstation during dev-server startup showed a Vite dynamic-import
+  error for `WorkstationView.vue`.
+- A direct same-origin fetch for that module returned HTTP 200 JavaScript, and the page refresh
+  restored the Workstation. The final Workstation and ExportModal readbacks were clean.
+
+Boundary:
+- This proves local UI layout and blocked-choice display only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, public preview, scheduled send, public
+  rendering, Xiaohongshu upload, Zhihu upload, or publish success.
