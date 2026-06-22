@@ -3915,17 +3915,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 
 - [x] wechat-market-svg-h5-fallback-matrix-20260623.txt
 - Expanded the executable `wechat-market-svg-h5-fallback-matrix` content family map with the
-  observed 135/Xiumi live-DOM categories: click show/hide, click switch, slide trigger, text
-  marquee, quiz/game, typed image-slot manifest, and trigger-zone manifest.
+  observed 135/Xiumi/public-source categories: background SVG shell, click show/hide, click
+  switch, slide trigger, card/title/divider/cover structures, text marquee, quiz/game, typed
+  image-slot manifest, trigger-zone manifest, and external H5 handoff boundary.
 - Kept the choice blocked, mobile-only, unmapped from style applications, and gated by
   phone-preview plus publish proof.
 - Added catalog blockers for 135 background-SVG shells, source-owned layout reports, image-slot
   manifests, trigger-zone manifests, static/raster fallback, and Xiumi wrapper/image-layer trees
   that do not prove center inline SVG.
-- Verification passed: focused `platform-export-rendering.test.ts` run with 3 selected
-  availability/application/market tests; full `platform-export-rendering.test.ts` run with 169
-  tests; serial `src/services/export` run with 36 files / 1146 tests; target ESLint; `vue-tsc`;
-  and production build with 4653 modules transformed in 44.63s.
+- Added a blocker that keeps external H5 pages, vendor H5 packages, and plugin/sync handoffs as
+  publish-checklist states until the exact InkForge artifact has platform preview or publish proof.
+- Verification passed: TDD red run for the missing runtime taxonomy fields; post-fix focused
+  `unproven market-inspired` rerun; focused `platform-export-rendering.test.ts` run with 3
+  selected availability/application/market tests; full `platform-export-rendering.test.ts` run with
+  171 tests; serial `src/services/export` run with 36 files / 1148 tests; targeted ESLint;
+  `vue-tsc`; production build with 4653 modules transformed in 33.05s; path-scoped
+  `git diff --check`; and GitNexus low-risk impact/detect.
 - Boundary: this is local runtime-catalog accounting only. It does not prove WeChat editor paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, public preview,
   scheduled send, public rendering, XHS/Zhihu upload, or publish success.

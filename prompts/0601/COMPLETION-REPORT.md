@@ -4603,3 +4603,27 @@ Boundary:
   official editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public-host acceptance, XHS/Zhihu account upload, scheduled send, platform
   preview, public rendering, or publish success.
+
+---
+
+## 2026-06-23 Runtime Market SVG/H5 Fallback Matrix Reconciliation Addendum
+
+- Expanded the executable `wechat-market-svg-h5-fallback-matrix` row with the public taxonomy terms
+  that were still only documented: `background SVG shell`,
+  `card/title/divider/cover structures`, and `external H5 handoff boundary`.
+- Added a runtime blocker stating that external H5 pages, vendor H5 packages, and plugin/sync
+  handoffs stay publish-checklist states until exact InkForge artifact platform preview or publish
+  proof exists.
+- Preserved the safety posture: the WeChat market fallback matrix remains `blocked`,
+  `mobile-only`, `mobile-preview` gated, and unmapped from style applications.
+- Added/updated evidence file:
+  `prompts/0601/evidence/wechat-market-svg-h5-fallback-matrix-20260623.txt`.
+- Verification passed: TDD red run failed before the fields existed; post-fix focused rerun passed
+  1 selected `platform-export-rendering.test.ts` regression; focused availability/application/market
+  run passed 3 selected tests; full `platform-export-rendering.test.ts` passed 171 tests; full
+  serial `src/services/export` passed 36 files / 1148 tests; targeted ESLint, `vue-tsc`, production
+  build, path-scoped `git diff --check`, and GitNexus low-risk impact/detect passed.
+- Boundary: this is local runtime catalog reconciliation only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu upload, or
+  publish success.

@@ -3844,3 +3844,33 @@ Required checks:
 - Future code changes that open or map style choices from this taxonomy must keep existing detector
   blockers and add exact artifact, phone, public-host, or platform proof before changing
   availability/selectability.
+
+## 54. Runtime Market SVG/H5 Fallback Matrix Reconciliation - 2026-06-23
+
+Contracts:
+- `wechat-market-svg-h5-fallback-matrix` is the executable WeChat catalog row for market-derived
+  SVG/H5 capability families.
+- The row may list public/observed market families such as background SVG shell, click expand,
+  click show/hide, click switch, image carousel, slide trigger, path animation, parallax, long
+  press, region trigger, card/title/divider/cover structures, text marquee, quiz/game, typed
+  image-slot manifest, normalized trigger-zone manifest, external H5 handoff boundary, and H5
+  handoff.
+- The row must remain `status:'blocked'`, `motion:'mobile-only'`, and
+  `evidenceFloor:'mobile-preview'` until the exact InkForge artifact has phone WeChat readback and
+  publish/platform proof.
+- The row must not have a `STYLE_CHOICE_APPLICATIONS` mapping while blocked; it is a visible
+  fallback checklist, not a selectable WeChat export style.
+- External H5 pages, vendor H5 packages, plugin transfer, and sync handoffs are separate
+  publish-checklist states. They do not prove Official Account article body rendering.
+- Detector blockers must continue to include market residue, unsafe SVG constructs, touch-only
+  trigger risk, fixed container risk, transparent image/SVG overlay risk, zero line-height, class/id
+  dependency, and layout-report-required gates.
+
+Required checks:
+- Regression tests must assert the explicit family names in `contentBlocks`.
+- Regression tests must assert the external-H5/plugin/sync blocker text.
+- Regression tests must prove availability stays blocked, application mapping stays null, and
+  proof requirements still include phone preview and platform/public rendering rows.
+- Evidence docs must state that this is local catalog accounting only and does not prove editor
+  paste, phone preview, mobile interaction, Dark Mode, cover acceptance, sync, public rendering, or
+  publish success.

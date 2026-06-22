@@ -8727,6 +8727,45 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Runtime Market SVG/H5 Fallback Matrix Reconciliation Slice
+
+Scope:
+- Runtime catalog/test/spec reconciliation for the public 135/Xiumi/WeChat-market SVG/H5 taxonomy.
+- No renderer output, browser profile, platform paste, account upload, sync, scheduled send,
+  platform preview, public rendering, or publish behavior was changed.
+
+Implementation:
+- Expanded `wechat-market-svg-h5-fallback-matrix` content blocks with explicit public taxonomy
+  names: `background SVG shell`, `card/title/divider/cover structures`, and
+  `external H5 handoff boundary`.
+- Added an explicit blocker keeping external H5 pages, vendor H5 packages, and plugin/sync handoffs
+  as publish-checklist states until exact InkForge artifact preview or publish proof exists.
+- Kept the row `blocked`, `mobile-only`, `mobile-preview` gated, and unmapped from
+  `STYLE_CHOICE_APPLICATIONS`.
+
+Verification:
+- `npx gitnexus impact PLATFORM_STYLE_CHOICES -r InkForge --depth 3`: LOW risk, 0 affected
+  processes.
+- `npx gitnexus impact evaluateStyleChoiceAvailability -r InkForge --depth 3`: LOW risk, 2 direct
+  dependents, 1 Export module affected, 0 affected processes.
+- TDD red run: focused market-inspired regression failed before the new taxonomy fields were added.
+- Post-fix focused rerun passed: 1 file / 1 selected test.
+- Focused availability/application/market test run passed: 1 file / 3 selected tests.
+- Full `platform-export-rendering.test.ts` passed: 1 file / 171 tests.
+- Targeted ESLint passed for `style-catalog.ts` and `platform-export-rendering.test.ts`.
+- Full serial `src/services/export` regression passed: 36 files / 1148 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 33.05s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Path-scoped `git diff --check`: passed.
+- `npx gitnexus detect-changes -r InkForge --scope all`: LOW risk, 40 dirty files including
+  unrelated pre-existing files, 7 changed symbols, 0 affected processes.
+
+Boundary:
+- This is local catalog accounting only. It does not prove WeChat editor paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-06-23 Public Market Taxonomy and Platform Boundary Review Slice
 
 Scope:

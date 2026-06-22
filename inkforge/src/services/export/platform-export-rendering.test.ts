@@ -7502,17 +7502,21 @@ describe('platform native export rendering rules', () => {
         expect(choice.evidenceFloor).toBe('mobile-preview')
         expect(choice.motion).toBe('mobile-only')
         expect(choice.contentBlocks).toEqual(expect.arrayContaining([
+          'background SVG shell',
           'click show/hide',
           'click switch',
           'slide trigger',
+          'card/title/divider/cover structures',
           'text marquee',
           'quiz/game',
           'image-slot manifest',
           'trigger-zone manifest',
+          'external H5 handoff boundary',
         ]))
         expect(choice.blockers).toEqual(expect.arrayContaining([
           '135 background SVG shells require layout reports, typed image slots, normalized trigger zones, and static/raster fallback before any export claim',
           'Xiumi SVG/title/card samples are authoring wrappers or image/layer/action trees; center inline-SVG absence cannot become WeChat SVG proof',
+          'external H5 pages, vendor H5 packages, and plugin/sync handoffs stay publish-checklist states until the exact InkForge artifact has platform preview or publish proof',
         ]))
         expect(choice.detectorBlockers).toEqual(expect.arrayContaining([
           'wechat-line-height-zero',

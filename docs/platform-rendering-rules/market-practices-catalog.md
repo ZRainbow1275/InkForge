@@ -1144,13 +1144,16 @@ changing platform proof status.
 Rules:
 - `wechat-market-svg-h5-fallback-matrix` stays blocked and unmapped from style applications.
   It is a visible capability family and fallback checklist, not a selectable WeChat export style.
-- The runtime catalog may list the observed family map: click expand, click show/hide, click switch,
-  slide trigger, image carousel, path animation, parallax, long press, region trigger, text marquee,
-  quiz/game, typed image-slot manifests, normalized trigger-zone manifests, and H5 handoff.
+- The runtime catalog may list the observed family map: background SVG shell, click expand, click
+  show/hide, click switch, slide trigger, image carousel, path animation, parallax, long press,
+  region trigger, card/title/divider/cover structures, text marquee, quiz/game, typed image-slot
+  manifests, normalized trigger-zone manifests, external H5 handoff boundary, and H5 handoff.
 - 135 background-SVG shells are translated only into source-owned layout reports, image-slot
   manifests, trigger-zone manifests, motion schema, static fallback, or raster fallback.
 - Xiumi SVG/title/card samples that expose wrapper trees or image/layer/action structures cannot
   become WeChat inline-SVG proof when the center readback has no visible inline SVG.
+- External H5 pages, vendor H5 packages, and plugin/sync handoffs remain publish-checklist states
+  until the exact InkForge artifact has platform preview or publish proof.
 - Detector blockers must keep zero-line-height, fixed-size containers, class/id dependency,
   transparent image under SVG/background layers, unsafe SVG constructs, touchstart-only triggers,
   and layout-report-required gates visible to reports.
@@ -1161,4 +1164,4 @@ Rules:
 Evidence:
 - `prompts/0601/evidence/market-live-dom-135-xiumi-20260623.txt`
 - `prompts/0601/evidence/wechat-market-svg-h5-fallback-matrix-20260623.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` section 47.
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 54.
