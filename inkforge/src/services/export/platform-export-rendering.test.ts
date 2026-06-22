@@ -845,6 +845,41 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
   })
 
+  it('rejects oversized style proof manifest string fields before semantic validation', () => {
+    const report = getStyleProofManifestIntakeReport({
+      platform: 'wechat',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'style-proof-oversized-label',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'x'.repeat(4_097),
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+        },
+      ],
+    })
+
+    expect(report.status).toBe('schema-invalid')
+    expect(report.summary).toMatchObject({
+      inputManifestCount: 1,
+      acceptedManifestCount: 0,
+      rejectedManifestCount: 1,
+      schemaIssueCount: 1,
+      schemaErrorCount: 1,
+      semanticIssueCount: 0,
+      artifactCount: 0,
+    })
+    expect(report.schemaIssues.map(issue => issue.id)).toEqual([
+      'style-proof-manifest-intake-field-too-large',
+    ])
+    expect(report.schemaIssues[0]?.location).toBe('manifests[0].artifacts[0].label:length:4097')
+    expect(report.packReport.summary.manifestCount).toBe(0)
+    expect(report.canClaimComplete).toBe(false)
+  })
+
   it('sanitizes unknown intake fields while preserving semantic safety blockers', () => {
     const report = getStyleProofManifestIntakeReport({
       platform: 'wechat',

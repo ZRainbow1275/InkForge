@@ -3405,6 +3405,9 @@ Contracts:
   Packs above 128 manifests must return `style-proof-manifest-intake-manifest-count-too-large`
   with zero accepted manifests. A manifest above 512 artifacts must be rejected with
   `style-proof-manifest-intake-artifact-count-too-large`; do not truncate and accept partial proof.
+- Manifest intake string fields must be concise. Required and optional string fields above 4,096
+  characters must return `style-proof-manifest-intake-field-too-large` before semantic validation;
+  do not truncate and accept partial proof.
 
 Required checks:
 - Regression tests must prove a valid unknown JSON-style manifest pack is sanitized and reaches the
@@ -3416,6 +3419,8 @@ Required checks:
 - Regression tests must prove oversized JSON strings return schema-invalid reports before parsing.
 - Regression tests must prove oversized manifest packs and oversized artifact arrays return
   schema-invalid reports before detailed entry parsing.
+- Regression tests must prove oversized intake string fields return schema-invalid reports before
+  semantic validation.
 - Regression tests must prove unknown fields are dropped while sensitive or unsafe accepted
   artifacts still surface through the existing semantic issue ids.
 - Evidence docs must record this as a local intake/preflight boundary only and explicitly state that

@@ -1505,6 +1505,7 @@ const STYLE_PROOF_COLLECTION_GATE_SEQUENCE: readonly StyleProofCollectionGate[] 
 const STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS = 14
 const STYLE_PROOF_MANIFEST_INTAKE_MAX_ARTIFACTS = 512
 const STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS = 128
+const STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH = 4_096
 const STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH = 2_000_000
 const STYLE_PROOF_MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
@@ -6888,6 +6889,17 @@ function readRequiredStyleProofStringField(
     return null
   }
 
+  if (value.length > STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH) {
+    addStyleProofManifestIntakeIssue(issues, {
+      id: 'style-proof-manifest-intake-field-too-large',
+      severity: 'error',
+      message: `Style proof manifest intake field ${location}.${field} is limited to ${STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH} characters.`,
+      suggestion: 'Keep proof manifests concise and redacted; store bulky screenshots, DOM dumps, media blobs, or logs as external artifacts with safe references instead of inline fields.',
+      location: `${location}.${field}:length:${value.length}`,
+    })
+    return null
+  }
+
   return value
 }
 
@@ -6902,6 +6914,17 @@ function readOptionalStyleProofStringField(
   const value = record[field]
   if (typeof value !== 'string' || value.trim().length === 0) {
     addStyleProofManifestIntakeTypeIssue(issues, `${location}.${field}`, 'a non-empty string', value)
+    return undefined
+  }
+
+  if (value.length > STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH) {
+    addStyleProofManifestIntakeIssue(issues, {
+      id: 'style-proof-manifest-intake-field-too-large',
+      severity: 'error',
+      message: `Style proof manifest intake field ${location}.${field} is limited to ${STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH} characters.`,
+      suggestion: 'Keep proof manifests concise and redacted; store bulky screenshots, DOM dumps, media blobs, or logs as external artifacts with safe references instead of inline fields.',
+      location: `${location}.${field}:length:${value.length}`,
+    })
     return undefined
   }
 

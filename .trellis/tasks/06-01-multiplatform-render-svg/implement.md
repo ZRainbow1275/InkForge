@@ -8765,6 +8765,41 @@ Boundary:
   sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
   public rendering, or publish success.
 
+## 2026-06-23 Style Proof Manifest Intake String Field Guard Slice
+
+Scope:
+- Local manifest intake string-field guard for redacted style proof manifest packs.
+- No renderer output, browser action, phone preview, sync, upload, scheduled send, platform
+  preview, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `STYLE_PROOF_MANIFEST_INTAKE_MAX_STRING_LENGTH = 4_096`.
+- Required and optional style proof manifest intake string fields now reject oversized values before
+  semantic validation.
+- Oversized string fields return `style-proof-manifest-intake-field-too-large`.
+- Oversized string inputs fail closed and do not truncate partial proof into accepted manifests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|JSON intake|style proof manifest" --reporter=default`:
+  passed, 1 file / 11 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 169 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1146 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed, Vite built in 46.34s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- GitNexus `detect_changes(scope=staged)`: low risk, 7 staged files, 7 changed symbols, 0 affected
+  processes.
+
+Boundary:
+- This is local proof-handoff resource protection only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-23 Style Proof Manifest Intake Report Slice
 
 Scope:

@@ -4376,3 +4376,24 @@ Boundary:
   editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send,
   platform preview, public rendering, or publish success.
+
+---
+
+## 2026-06-23 Style Proof Manifest String Field Guard Addendum
+
+- Added a 4,096 character guard for required and optional local intake string fields in
+  `getStyleProofManifestIntakeReport(input)`.
+- Oversized string fields return `style-proof-manifest-intake-field-too-large`.
+- Oversized string inputs fail closed as `status:'schema-invalid'` and do not truncate partial
+  proof into accepted manifests.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-manifest-string-field-guard-20260623.txt`.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 11 selected
+  manifest/intake/JSON-intake tests; full `platform-export-rendering.test.ts` run with 169 tests;
+  serial `src/services/export` run with 36 files / 1146 tests; target ESLint; `vue-tsc`; and
+  production build with 4653 modules transformed in 46.34s. GitNexus staged detect reported low
+  risk, 7 staged files, 7 changed symbols, and 0 affected processes.
+- Boundary: this is local proof-handoff resource protection only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send,
+  platform preview, public rendering, or publish success.
