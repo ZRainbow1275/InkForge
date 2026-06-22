@@ -1503,6 +1503,8 @@ const STYLE_PROOF_COLLECTION_GATE_SEQUENCE: readonly StyleProofCollectionGate[] 
 ]
 
 const STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS = 14
+const STYLE_PROOF_MANIFEST_INTAKE_MAX_ARTIFACTS = 512
+const STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS = 128
 const STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH = 2_000_000
 const STYLE_PROOF_MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
@@ -7161,6 +7163,17 @@ function readStyleProofArtifactsField(
     return null
   }
 
+  if (value.length > STYLE_PROOF_MANIFEST_INTAKE_MAX_ARTIFACTS) {
+    addStyleProofManifestIntakeIssue(issues, {
+      id: 'style-proof-manifest-intake-artifact-count-too-large',
+      severity: 'error',
+      message: `Style proof manifest intake accepts at most ${STYLE_PROOF_MANIFEST_INTAKE_MAX_ARTIFACTS} artifacts per manifest.`,
+      suggestion: 'Split oversized proof packs into smaller redacted manifests; do not submit raw browser dumps, media blobs, or bulk runtime exports as artifact arrays.',
+      location: `${location}.artifacts:length:${value.length}`,
+    })
+    return null
+  }
+
   const artifacts: StyleProofArtifact[] = []
   for (let index = 0; index < value.length; index += 1) {
     const parsed = parseStyleProofArtifactIntakeCandidate(value[index], `${location}.artifacts[${index}]`)
@@ -7237,6 +7250,17 @@ function parseStyleProofManifestIntakeCandidate(
 function getStyleProofManifestIntakeInputs(input: unknown): StyleProofManifestIntakeInputs {
   const rootIssues: QualityIssue[] = []
   if (Array.isArray(input)) {
+    if (input.length > STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS) {
+      addStyleProofManifestIntakeIssue(rootIssues, {
+        id: 'style-proof-manifest-intake-manifest-count-too-large',
+        severity: 'error',
+        message: `Style proof manifest intake accepts at most ${STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS} manifests per pack.`,
+        suggestion: 'Split oversized proof packs into smaller redacted batches; do not submit raw browser state, media blobs, or bulk runtime exports.',
+        location: `root.manifests:length:${input.length}`,
+      })
+      return { inputs: [], rootIssues }
+    }
+
     return { inputs: input, rootIssues }
   }
 
@@ -7244,6 +7268,17 @@ function getStyleProofManifestIntakeInputs(input: unknown): StyleProofManifestIn
     if (hasStyleProofIntakeField(input, 'manifests')) {
       const manifests = input.manifests
       if (Array.isArray(manifests)) {
+        if (manifests.length > STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS) {
+          addStyleProofManifestIntakeIssue(rootIssues, {
+            id: 'style-proof-manifest-intake-manifest-count-too-large',
+            severity: 'error',
+            message: `Style proof manifest intake accepts at most ${STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS} manifests per pack.`,
+            suggestion: 'Split oversized proof packs into smaller redacted batches; do not submit raw browser state, media blobs, or bulk runtime exports.',
+            location: `root.manifests:length:${manifests.length}`,
+          })
+          return { inputs: [], rootIssues }
+        }
+
         return { inputs: manifests, rootIssues }
       }
 

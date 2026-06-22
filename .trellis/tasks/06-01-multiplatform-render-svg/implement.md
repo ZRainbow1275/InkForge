@@ -8727,6 +8727,44 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Style Proof Manifest Intake Cardinality Guard Slice
+
+Scope:
+- Local manifest intake cardinality guard for redacted style proof manifest packs.
+- No renderer output, browser action, phone preview, sync, upload, scheduled send, platform
+  preview, public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `STYLE_PROOF_MANIFEST_INTAKE_MAX_MANIFESTS = 128`.
+- Added `STYLE_PROOF_MANIFEST_INTAKE_MAX_ARTIFACTS = 512`.
+- `getStyleProofManifestIntakeReport(input)` now rejects root packs above 128 manifests before
+  parsing individual manifest entries.
+- `readStyleProofArtifactsField()` now rejects manifest artifact arrays above 512 entries before
+  parsing individual artifacts.
+- Oversized inputs return schema-invalid intake reports and do not truncate partial proof into
+  accepted manifests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|JSON intake|style proof manifest" --reporter=default`:
+  passed, 1 file / 10 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 168 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1145 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed, Vite built in 36.09s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- GitNexus `detect_changes(scope=staged)`: low risk, 7 staged files, 9 changed symbols, 0 affected
+  processes.
+
+Boundary:
+- This is local proof-handoff resource protection only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-23 Style Proof Manifest Intake Report Slice
 
 Scope:

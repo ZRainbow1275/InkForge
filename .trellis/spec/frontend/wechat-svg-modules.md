@@ -3401,6 +3401,10 @@ Contracts:
 - The JSON-string companion must guard oversized payloads before `trim()` and `JSON.parse`.
   Payloads above 2,000,000 characters must return `status:'schema-invalid'` with
   `style-proof-manifest-intake-json-too-large`, zero accepted manifests, and no artifact creation.
+- Manifest intake must guard root pack and per-manifest cardinality before detailed parsing.
+  Packs above 128 manifests must return `style-proof-manifest-intake-manifest-count-too-large`
+  with zero accepted manifests. A manifest above 512 artifacts must be rejected with
+  `style-proof-manifest-intake-artifact-count-too-large`; do not truncate and accept partial proof.
 
 Required checks:
 - Regression tests must prove a valid unknown JSON-style manifest pack is sanitized and reaches the
@@ -3410,6 +3414,8 @@ Required checks:
 - Regression tests must prove malformed JSON strings return schema-invalid reports instead of
   throwing parse errors.
 - Regression tests must prove oversized JSON strings return schema-invalid reports before parsing.
+- Regression tests must prove oversized manifest packs and oversized artifact arrays return
+  schema-invalid reports before detailed entry parsing.
 - Regression tests must prove unknown fields are dropped while sensitive or unsafe accepted
   artifacts still surface through the existing semantic issue ids.
 - Evidence docs must record this as a local intake/preflight boundary only and explicitly state that
