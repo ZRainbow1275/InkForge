@@ -1503,6 +1503,7 @@ const STYLE_PROOF_COLLECTION_GATE_SEQUENCE: readonly StyleProofCollectionGate[] 
 ]
 
 const STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS = 14
+const STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH = 2_000_000
 const STYLE_PROOF_MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 const STYLE_PROOF_COLLECTION_NOTES = {
@@ -7386,7 +7387,27 @@ export function getStyleProofManifestIntakeReport(input: unknown): StyleProofMan
 }
 
 export function getStyleProofManifestJsonIntakeReport(jsonText: string): StyleProofManifestIntakeReport {
-  if (typeof jsonText !== 'string' || jsonText.trim().length === 0) {
+  if (typeof jsonText !== 'string') {
+    return buildRejectedStyleProofManifestIntakeReport('json', {
+      id: 'style-proof-manifest-intake-json-invalid',
+      severity: 'error',
+      message: 'Style proof manifest JSON intake expected a non-empty JSON string.',
+      suggestion: 'Paste or load a redacted JSON object or array before running local proof manifest intake.',
+      location: 'json:empty',
+    })
+  }
+
+  if (jsonText.length > STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH) {
+    return buildRejectedStyleProofManifestIntakeReport('json', {
+      id: 'style-proof-manifest-intake-json-too-large',
+      severity: 'error',
+      message: `Style proof manifest JSON intake is limited to ${STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH} characters.`,
+      suggestion: 'Reduce the payload to a redacted manifest pack; keep raw browser dumps, screenshots, media blobs, and account artifacts outside this intake boundary.',
+      location: `json:length:${jsonText.length}`,
+    })
+  }
+
+  if (jsonText.trim().length === 0) {
     return buildRejectedStyleProofManifestIntakeReport('json', {
       id: 'style-proof-manifest-intake-json-invalid',
       severity: 'error',

@@ -4334,3 +4334,23 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
   public rendering, or publish success.
+
+---
+
+## 2026-06-23 Style Proof Manifest JSON Size Guard Addendum
+
+- Added a 2,000,000 character pre-parse guard to `getStyleProofManifestJsonIntakeReport(jsonText)`.
+- Oversized JSON-string input returns the same report shape with `status:'schema-invalid'`, one
+  root rejected row, and `style-proof-manifest-intake-json-too-large`; callers do not need to catch
+  parse or allocation-path failures from oversized proof handoff text.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-manifest-json-size-guard-20260623.txt`.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 8 selected
+  manifest/intake/JSON-intake tests; full `platform-export-rendering.test.ts` run with 166 tests;
+  serial `src/services/export` run with 36 files / 1143 tests; target ESLint; `vue-tsc`; and
+  production build with 4653 modules transformed in 37.62s. GitNexus staged detect reported low
+  risk, 7 staged files, 5 changed symbols, and 0 affected processes.
+- Boundary: this is local JSON intake resource protection only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send,
+  platform preview, public rendering, or publish success.

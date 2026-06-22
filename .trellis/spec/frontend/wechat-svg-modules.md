@@ -3398,6 +3398,9 @@ Contracts:
   or malformed JSON must return the same `StyleProofManifestIntakeReport` shape with
   `status:'schema-invalid'`, one root `rejected` row, and `style-proof-manifest-intake-json-invalid`
   in `schemaIssues`; it must not throw to callers or attempt to read files.
+- The JSON-string companion must guard oversized payloads before `trim()` and `JSON.parse`.
+  Payloads above 2,000,000 characters must return `status:'schema-invalid'` with
+  `style-proof-manifest-intake-json-too-large`, zero accepted manifests, and no artifact creation.
 
 Required checks:
 - Regression tests must prove a valid unknown JSON-style manifest pack is sanitized and reaches the
@@ -3406,6 +3409,7 @@ Required checks:
   existing semantic validator.
 - Regression tests must prove malformed JSON strings return schema-invalid reports instead of
   throwing parse errors.
+- Regression tests must prove oversized JSON strings return schema-invalid reports before parsing.
 - Regression tests must prove unknown fields are dropped while sensitive or unsafe accepted
   artifacts still surface through the existing semantic issue ids.
 - Evidence docs must record this as a local intake/preflight boundary only and explicitly state that

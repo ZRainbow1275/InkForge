@@ -724,6 +724,27 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
   })
 
+  it('rejects oversized JSON style proof manifest intake before parsing', () => {
+    const report = getStyleProofManifestJsonIntakeReport('x'.repeat(2_000_001))
+
+    expect(report.status).toBe('schema-invalid')
+    expect(report.summary).toMatchObject({
+      inputManifestCount: 0,
+      acceptedManifestCount: 0,
+      rejectedManifestCount: 1,
+      schemaIssueCount: 1,
+      schemaErrorCount: 1,
+      semanticIssueCount: 0,
+      artifactCount: 0,
+    })
+    expect(report.schemaIssues.map(issue => issue.id)).toEqual([
+      'style-proof-manifest-intake-json-too-large',
+    ])
+    expect(report.schemaIssues[0]?.location).toBe('json:length:2000001')
+    expect(report.packReport.summary.manifestCount).toBe(0)
+    expect(report.canClaimComplete).toBe(false)
+  })
+
   it('rejects malformed external manifest packs without throwing or accepting partial proof', () => {
     const report = getStyleProofManifestIntakeReport({
       manifests: [

@@ -1,0 +1,47 @@
+Style Proof Manifest JSON Size Guard Report - 2026-06-23
+
+Scope:
+- Local JSON-string intake resource protection for redacted StyleProofManifest packs.
+- No file reading, no browser action, no phone preview, no sync, no upload, no scheduled send, no
+  platform preview, no public rendering, and no publish action.
+
+Implemented:
+- STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH = 2,000,000
+- getStyleProofManifestJsonIntakeReport(jsonText) oversized-input guard
+
+Behavior:
+- Rejects JSON-string payloads above 2,000,000 characters before trim() and before JSON.parse().
+- Returns a normal StyleProofManifestIntakeReport for oversized input instead of throwing.
+- Oversized input reports status=schema-invalid, one rejected root row, and
+  style-proof-manifest-intake-json-too-large in schemaIssues.
+- Does not read files, create artifacts, or accept partial proof.
+- Does not change style availability, style selection, selectable, usable, blocked, or unavailable
+  decisions.
+
+Regression coverage:
+- Oversized JSON strings do not create accepted manifests.
+- Oversized JSON strings keep pack and runbook reports at zero manifests.
+- Oversized JSON strings keep canClaimComplete=false.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "JSON intake|manifest intake|style proof manifest" --reporter=default
+  PASS: 1 file / 8 selected tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 166 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1143 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 37.62s
+- GitNexus detect_changes(scope=staged)
+  PASS: low risk, 7 staged files, 5 changed symbols, 0 affected processes
+
+Boundary:
+- This proves local JSON intake resource protection only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, public-host acceptance,
+  Xiaohongshu account upload, Zhihu account upload, scheduled send, platform preview, public
+  rendering, or publish success.

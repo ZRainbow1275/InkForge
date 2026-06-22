@@ -8810,6 +8810,44 @@ Boundary:
   public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
   public rendering, or publish success.
 
+## 2026-06-23 Style Proof JSON Manifest Size Guard Slice
+
+Scope:
+- Local JSON-string intake size guard for already-redacted style proof manifest packs.
+- No file reading, browser action, phone preview, sync, upload, scheduled send, platform preview,
+  public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `STYLE_PROOF_MANIFEST_JSON_MAX_LENGTH = 2_000_000`.
+- `getStyleProofManifestJsonIntakeReport(jsonText)` now rejects strings above that character limit
+  before `trim()` and before `JSON.parse`.
+- Oversized input returns the normal `StyleProofManifestIntakeReport` shape with
+  `status:'schema-invalid'`, one root rejected row, and
+  `style-proof-manifest-intake-json-too-large`.
+- Added regression coverage proving the oversized branch keeps zero accepted manifests and does not
+  parse partial proof.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "JSON intake|manifest intake|style proof manifest" --reporter=default`:
+  passed, 1 file / 8 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 166 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1143 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed, Vite built in 37.62s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- GitNexus `detect_changes(scope=staged)`: low risk, 7 staged files, 5 changed symbols, 0 affected
+  processes.
+
+Boundary:
+- This is local JSON intake resource protection only. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-23 ExportModal External Handoff Surface Slice
 
 Scope:
