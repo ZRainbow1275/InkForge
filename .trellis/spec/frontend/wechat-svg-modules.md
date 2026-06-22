@@ -3427,3 +3427,28 @@ Required checks:
   it does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
   cover-thumbnail acceptance, credentialed sync, public-host acceptance, Xiaohongshu/Zhihu upload,
   scheduled-send, platform-preview, public rendering, or publish success.
+
+## 46. WeChat Authenticated Home Readback Boundary - 2026-06-23
+
+Contracts:
+- A CloakBrowser read-only WeChat Official Account home/dashboard readback may be recorded as
+  authenticated-home session evidence only.
+- Home/dashboard reachability must not satisfy `authenticated-editor-reachable`,
+  `pc-editor-dom-readable`, `pc-editor-paste`, `phone-preview`, `dark-mode-check`,
+  `cover-thumbnail-check`, `credentialed-sync`, `scheduled-send`, `platform-preview`,
+  `public-rendering`, or `published`.
+- A home/dashboard readback must redact account labels, draft titles, published titles, credential
+  material, and local browser details. It must not record account captures, local browser-state
+  directories, HAR material, or runtime capture locations.
+- The evidence must state whether editor-surface signals were present. If `contenteditableCount=0`
+  and `iframeCount=0`, the row is explicitly not a PC editor DOM row.
+- The evidence must remain read-only: no draft creation, paste, sync, preview, upload, scheduled
+  send, or publish action may be performed as part of home/dashboard readback.
+
+Required checks:
+- Evidence docs must state that the check used CloakBrowser only and was read-only.
+- Evidence docs must explicitly preserve the cannot-claim boundary for WeChat official editor paste,
+  PC editor DOM readback, phone preview, mobile interaction, Dark Mode, cover-thumbnail acceptance,
+  credentialed sync, public preview, scheduled send, public rendering, and publish success.
+- Commit-boundary review must scan staged diffs for credential material, local browser-state
+  details, account captures, HAR material, and runtime capture locations before commit.

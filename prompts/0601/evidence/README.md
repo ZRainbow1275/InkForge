@@ -3880,6 +3880,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   credentialed sync, public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send,
   platform preview, public rendering, or publish success.
 
+## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback
+
+- [x] wechat-home-authenticated-cloakbrowser-readback-20260623.txt
+- CloakBrowser-only read-only check confirmed the live WeChat Official Account backend home page was
+  readable in the existing InkForge browser context.
+- Observed home/dashboard navigation signals included 首页, 草稿箱, 素材库, 发表记录, 内容管理, and
+  设置与开发. Account label, draft titles, published titles, credential material, and local browser
+  details are redacted and not recorded.
+- The page was not an editor surface: `contenteditableCount=0` and `iframeCount=0`.
+- Boundary: this is authenticated-home session evidence only. It does not prove WeChat official
+  editor paste, PC editor DOM readback, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public preview, scheduled send, public rendering, or
+  publish success.
+
 ## 2026-06-23 Style Proof Manifest String Field Guard
 
 - [x] style-proof-manifest-string-field-guard-20260623.txt

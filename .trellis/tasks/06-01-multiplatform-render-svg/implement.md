@@ -8727,6 +8727,39 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback
+
+Scope:
+- CloakBrowser-only, read-only authenticated WeChat Official Account backend home/dashboard
+  readback.
+- No renderer output, proof manifest, draft mutation, paste, sync, preview, upload, scheduled send,
+  public rendering, or publish behavior was changed.
+
+Observed:
+- The live browser reached the WeChat backend home route and the page title read `公众号`.
+- Login-page text and password input were absent.
+- Home/dashboard navigation signals were visible, including 首页, 草稿箱, 素材库, 发表记录, 内容管理, and
+  设置与开发.
+- Account label, draft titles, published titles, credential material, and local browser details were
+  redacted and not recorded.
+- `contenteditableCount=0` and `iframeCount=0`, so the observed page was not a PC editor surface.
+
+Artifacts:
+- `prompts/0601/evidence/wechat-home-authenticated-cloakbrowser-readback-20260623.txt`
+
+Verification:
+- The browser action was read-only and used CloakBrowser only.
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged sensitive scan passed before commit.
+- GitNexus staged detect reported docs/evidence-only change scope with zero affected runtime
+  processes.
+
+Boundary:
+- This proves current authenticated-home readability only. It does not prove WeChat official editor
+  paste, PC editor DOM readback, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public preview, scheduled send, public rendering, or publish
+  success.
+
 ## 2026-06-23 Style Proof Manifest Intake Cardinality Guard Slice
 
 Scope:

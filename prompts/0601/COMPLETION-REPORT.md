@@ -4379,6 +4379,24 @@ Boundary:
 
 ---
 
+## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback Addendum
+
+- Used CloakBrowser only for a read-only WeChat Official Account backend home/dashboard readback.
+- The live page title read `公众号`; login-page text and password input were absent; home/dashboard
+  navigation signals were visible.
+- Account label, draft titles, published titles, credential material, and local browser details were
+  redacted and not recorded.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-home-authenticated-cloakbrowser-readback-20260623.txt`.
+- Verification passed: docs/evidence `git diff --check`; staged sensitive scan; and GitNexus staged
+  detect with zero affected runtime processes.
+- Boundary: this is authenticated-home session evidence only. It does not prove WeChat official
+  editor paste, PC editor DOM readback, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, public preview, scheduled send, public rendering, or
+  publish success.
+
+---
+
 ## 2026-06-23 Style Proof Manifest String Field Guard Addendum
 
 - Added a 4,096 character guard for required and optional local intake string fields in

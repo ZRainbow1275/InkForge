@@ -1,0 +1,29 @@
+WeChat Home Authenticated CloakBrowser Readback - 2026-06-23
+
+Scope:
+- CloakBrowser-only, read-only WeChat Official Account backend home/dashboard readback.
+- The existing InkForge persistent browser context was reused.
+- No image capture was saved, and no password, two-factor entry, draft creation, paste, sync,
+  preview, upload, scheduled send, or publish action was performed.
+
+Observed:
+- Current page title: 公众号.
+- Redacted route shape: /cgi-bin/home?t=home/index&lang=zh_CN&credential query parameter redacted.
+- Login-page text was absent.
+- Password input was absent.
+- Home/dashboard navigation signals were present.
+- Sidebar/action links included 首页, 草稿箱, 素材库, 发表记录, 内容管理, 设置与开发.
+- Recent draft/published sections were visible, but account label, draft titles, published titles,
+  credential material, and local browser details are redacted and not recorded.
+- contenteditableCount=0 and iframeCount=0 on the home page; this was not an editor surface.
+
+Classification:
+- Counts as current authenticated-home/read-only session evidence only.
+- Does not satisfy pc-editor-dom-readback, ordinary paste, phone-preview, Dark Mode, cover
+  thumbnail, credentialed sync, public preview, scheduled send, or publish proof.
+
+Boundary:
+- This readback proves the account home page could be read in the live browser at this time.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, or publish success.
