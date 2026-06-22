@@ -1,0 +1,86 @@
+Market Live DOM Study - 135 SVG Editor and Xiumi Studio - 2026-06-23
+
+Scope:
+- CloakBrowser-only live DOM study of 135 SVG editor and Xiumi Studio v5.
+- No image capture was saved, and no account export, WeChat sync, platform preview, upload,
+  scheduled send, or publish action was performed.
+- The study records reusable rendering rules only. Vendor runtime attributes, hosted material
+  references, account state, and local browser details are not committed as InkForge proof data.
+
+135 SVG editor:
+- Page: https://www.135editor.com/svgeditor/
+- Page title: 在线SVG编辑器_微信公众号SVG互动效果制作-135编辑器.
+- A visible free-trial SVG item was clicked. The material-included confirmation was explicitly
+  accepted through the primary button.
+- The editor canvas reported 16 blocks after the insertion pass. Data-name categories included
+  multiselectpopup, carouselslide, slidesectorclickredpacket, clickelementscaleimagesspread, and
+  coverclickmovewithspread.
+- The active inserted block was data-name=multiselectpopup with a 336 x 575 visible canvas.
+- The active block used:
+  - block wrapper: margin 0, padding 0, transparent background, position relative.
+  - content image layer: background image hosted by the vendor CDN, background-size 100%.
+  - zero-flow section: font-size 0, line-height 0, margin 0, padding 0, text-align center.
+  - background SVG: viewBox 0 0 1080 1850, display inline-block, width 100%, margin-top -1px,
+    overflow hidden, background-repeat no-repeat, background-position center,
+    background-size 100.1% 100.1%, pointer-events none, user-select none, vertical-align top.
+  - trigger wrapper: absolute full-block edit-trigger overlay.
+  - trigger zones: trigger__ajuster overlays with percentage inset values and translucent
+    background color. The visual SVG layer stays non-interactive; interaction is modeled by
+    normalized overlay zones.
+- Existing coverclickmovewithspread blocks also used the same zero-flow section plus background SVG
+  pattern with viewBox 0 0 1080 1920 and 100.1% background sizing.
+
+135 reusable rules for InkForge:
+- Treat 1080-wide vendor SVG canvases as design-coordinate source material that must be normalized
+  into InkForge-owned module geometry.
+- Keep image/background visual layers pointer-events:none when interaction is handled by overlay
+  trigger zones.
+- Preserve the no-gap strategy through zero font/line-height wrappers and the -1px SVG top offset,
+  but express it through InkForge module CSS rather than copying vendor wrappers.
+- Store trigger zones as normalized percentages. Do not commit vendor data-name strings,
+  framework data attributes, account state, or hosted material URLs as proof artifacts.
+
+Xiumi Studio v5:
+- Page: https://xiumi.us/studio/v5#/paper/for/new/cube/0
+- Page title after entry: 图文: (无标题) | 秀米XIUMI.
+- The editor showed an available template library, but the top navigation still exposed a login
+  action. Therefore this is library/editor-surface readback, not authenticated account proof.
+- The SVG library was opened from the left taxonomy. Visible SVG categories included 基础SVG,
+  图片轮播, 点击展开, 路径动画, 抽签效果, 趣味滑动, 轮换转场, 分支转场, 滑动触发, 视差移动, 点击切换,
+  翻页/翻转, 缩放, 点击答题, 文字弹幕, 点击显示, 点击换图, 点击打开, 点击消失, 点击弹出,
+  点击放大, 点击打印, 点击跳转, 点击播放, 长按切换, 区域触发, 点击掉落, and 点击+自动.
+- Visible library card copy classified patterns by component and behavior, for example SVG图集,
+  自由滑动布局, 图集滚动, 图集切换, 背景图, 滑动序列, 轮换转场, and 页面里支持使用模板/组件.
+- Library-card DOM used tn-tpl-item, tn-comp-pin, tn-comp-style-pin, tn-cell, tn-from-house-paper-cp,
+  tn-comp-anim-pin, and tn-comp wrappers.
+- SVG-card preview structures used:
+  - section wrappers with margin 10px 0.
+  - cell wrappers with display inline-block, width 100%, vertical-align top, overflow hidden,
+    line-height 0, and background images from the vendor static asset host.
+  - SVG nodes with display block and pointer-events none.
+  - SVG nodes with width 100%, transparent background, background-position 0% 0%,
+    background-repeat no-repeat, and background-size 100%.
+- After clicking the first SVG card, the center editor changed under tn-page-container / tn-page /
+  tn-comp / tn-cell wrappers. It inserted visible metadata/description cells and component/image
+  layers, including contenteditable text cells.
+- The center editor readback found no visible inline SVG node after that click. This must not be
+  claimed as Xiumi applied interactive SVG proof.
+
+Xiumi reusable rules for InkForge:
+- Use Xiumi taxonomy as a capability map for style choices: carousel/image set, click expand,
+  path animation, slide trigger, parallax, click switch, flip, zoom, quiz, marquee, reveal, replace
+  image, open/disappear/popup/enlarge/print/jump/play, long-press, area trigger, drop, and
+  click+auto.
+- Model Xiumi-style SVG cards as wrapper-heavy modules: outer section, cell/group wrapper,
+  visual background/SVG layer, and optional description/contenteditable text layer.
+- Do not treat library preview SVG counts, card taxonomy, or a center insertion that lacks visible
+  inline SVG as final applied interactive SVG proof.
+- Vendor tn-* classes, static asset references, and editor state remain market-rule input only;
+  InkForge must emit its own sanitized WeChat-compatible structure.
+
+Boundary:
+- This proves live market-rule extraction only.
+- It does not prove WeChat official editor paste, WeChat phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, public preview, scheduled send,
+  public rendering, Xiumi account save, 135 account export, Xiaohongshu upload, Zhihu upload, or
+  publish success.

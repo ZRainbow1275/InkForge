@@ -3452,3 +3452,38 @@ Required checks:
   credentialed sync, public preview, scheduled send, public rendering, and publish success.
 - Commit-boundary review must scan staged diffs for credential material, local browser-state
   details, account captures, HAR material, and runtime capture locations before commit.
+
+## 47. 135/Xiumi Live DOM Rule Extraction - 2026-06-23
+
+Contracts:
+- 135 SVG editor and Xiumi Studio live DOM can inform InkForge-owned rendering modules, but vendor
+  wrappers, framework attributes, hosted material references, account state, and editor-only classes
+  must not become committed proof data or copied output.
+- 135-style background SVG modules should be normalized as:
+  - an InkForge module wrapper with explicit aspect ratio and zero-gap behavior.
+  - a non-interactive visual layer using SVG or raster fallback, `pointer-events:none`,
+    no-repeat background, and 100% or 100.1% sizing where a one-pixel seam guard is required.
+  - trigger zones stored as normalized percentages, rendered as InkForge-owned overlays or
+    WeChat-safe interactive regions.
+  - fallback copy and image alternatives that do not depend on vendor data-name strings.
+- Xiumi-style SVG cards should be treated as capability-taxonomy and wrapper-pattern input:
+  outer section, cell/group wrapper, visual layer, optional metadata/text layer, and behavior labels
+  such as carousel, click expand, path animation, slide trigger, parallax, click switch, flip, zoom,
+  quiz, marquee, reveal, replace image, open/disappear/popup/enlarge/print/jump/play, long-press,
+  area trigger, drop, and click+auto.
+- Xiumi library preview SVG counts or a center editor insertion without visible inline SVG must not
+  satisfy `market-applied-dom-readback`, `pc-editor-paste`, `phone-preview`, `dark-mode-check`,
+  `cover-thumbnail-check`, `credentialed-sync`, `scheduled-send`, `public-rendering`, or
+  `published`.
+- Vendor class families such as `tn-*`, 135 `data-name`, and Vue/Angular runtime attributes may be
+  cited in evidence docs as market residue, but production InkForge output must use existing
+  InkForge module names, sanitizers, and compatibility gates.
+
+Required checks:
+- Evidence docs must state whether the market sample was library-only, center-editor applied,
+  material-included, or blocked.
+- Evidence docs must record whether visible inline SVG was found in the center editor after a
+  market style click. If not, the sample remains taxonomy/wrapper evidence only.
+- The cannot-claim boundary must explicitly exclude WeChat editor paste, phone preview, mobile
+  interaction, Dark Mode, cover-thumbnail acceptance, sync, public preview, scheduled send, public
+  rendering, account save/export, XHS/Zhihu upload, and publish success.

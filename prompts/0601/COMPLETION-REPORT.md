@@ -4397,6 +4397,24 @@ Boundary:
 
 ---
 
+## 2026-06-23 Market Live DOM Study Addendum
+
+- Used CloakBrowser only to study 135 SVG editor and Xiumi Studio v5 live DOM behavior.
+- 135 free-trial SVG insertion with material-included confirmation produced a center-editor block
+  with a zero-flow wrapper, 1080-wide background SVG, `background-size:100.1% 100.1%`,
+  `margin-top:-1px`, `pointer-events:none`, and absolute percentage trigger overlays.
+- Xiumi SVG taxonomy exposed rich category and behavior labels, plus wrapper-heavy `tn-*` preview
+  structures. A first-card click changed the center editor but did not yield a visible inline SVG
+  node in the center readback, so it is not treated as applied interactive SVG proof.
+- Added evidence file:
+  `prompts/0601/evidence/market-live-dom-135-xiumi-20260623.txt`.
+- Boundary: this is market-rule extraction only. It does not prove WeChat official editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public preview, scheduled send, public rendering, Xiumi account save, 135 export, XHS/Zhihu
+  upload, or publish success.
+
+---
+
 ## 2026-06-23 Style Proof Manifest String Field Guard Addendum
 
 - Added a 4,096 character guard for required and optional local intake string fields in

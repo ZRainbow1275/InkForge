@@ -8760,6 +8760,43 @@ Boundary:
   acceptance, credentialed sync, public preview, scheduled send, public rendering, or publish
   success.
 
+## 2026-06-23 Market Live DOM Study - 135 SVG Editor and Xiumi Studio
+
+Scope:
+- CloakBrowser-only market-rule extraction from 135 SVG editor and Xiumi Studio v5.
+- No renderer output, proof manifest, account export, WeChat sync, platform preview, upload,
+  scheduled send, public rendering, or publish behavior was changed.
+
+Observed:
+- 135 SVG editor accepted a visible free-trial click and the material-included confirmation.
+- The 135 center editor reported 16 blocks. Active `multiselectpopup` used a relative block wrapper,
+  zero-flow section, 1080-wide background SVG, `background-size:100.1% 100.1%`,
+  `margin-top:-1px`, `pointer-events:none`, and absolute percentage trigger overlays.
+- Existing `coverclickmovewithspread` blocks used the same zero-flow/background-SVG pattern with
+  `viewBox="0 0 1080 1920"`.
+- Xiumi Studio v5 opened the graph-text editor and the SVG taxonomy. Visible categories included
+  基础SVG, 图片轮播, 点击展开, 路径动画, 趣味滑动, 轮换转场, 滑动触发, 视差移动, 点击切换,
+  翻页/翻转, 缩放, 点击答题, 文字弹幕, 点击显示, 点击换图, 长按切换, 区域触发, and 点击+自动.
+- Xiumi library-card DOM used wrapper-heavy `tn-*` structures with 100%-width visual cells,
+  no-repeat background images, line-height 0, and SVG preview layers with `pointer-events:none`.
+- After clicking the first Xiumi SVG card, the center editor changed under `tn-page-container` /
+  `tn-page` / `tn-comp` / `tn-cell` wrappers, but no visible inline SVG node was read from the
+  center editor. This remains taxonomy/wrapper evidence only.
+
+Artifacts:
+- `prompts/0601/evidence/market-live-dom-135-xiumi-20260623.txt`
+
+Verification:
+- The browser actions used CloakBrowser only.
+- No image capture, account export, save, sync, preview, upload, scheduled send, or publish action
+  was performed.
+
+Boundary:
+- This is market-rule extraction only. It does not prove WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
+  preview, scheduled send, public rendering, Xiumi account save, 135 account export, Xiaohongshu
+  upload, Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof Manifest Intake Cardinality Guard Slice
 
 Scope:

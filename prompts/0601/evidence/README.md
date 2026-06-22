@@ -3894,6 +3894,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   thumbnail acceptance, credentialed sync, public preview, scheduled send, public rendering, or
   publish success.
 
+## 2026-06-23 Market Live DOM Study - 135 SVG Editor and Xiumi Studio
+
+- [x] market-live-dom-135-xiumi-20260623.txt
+- CloakBrowser-only live DOM study of 135 SVG editor and Xiumi Studio v5.
+- 135: clicked a visible free-trial SVG item, accepted the material-included confirmation, and read
+  the center editor DOM. Active `multiselectpopup` used a zero-flow wrapper, 1080-wide background
+  SVG, `background-size:100.1% 100.1%`, `margin-top:-1px`, `pointer-events:none`, and absolute
+  percentage trigger zones.
+- Xiumi: opened the SVG taxonomy and clicked the first SVG card. The library exposed rich SVG
+  categories and wrapper-heavy `tn-*` preview structures, but the center editor readback contained
+  no visible inline SVG after that click, so it remains taxonomy/wrapper evidence rather than
+  applied interactive SVG proof.
+- Boundary: this is market-rule extraction only. It does not prove WeChat editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, public preview,
+  scheduled send, public rendering, Xiumi account save, 135 export, XHS/Zhihu upload, or publish
+  success.
+
 ## 2026-06-23 Style Proof Manifest String Field Guard
 
 - [x] style-proof-manifest-string-field-guard-20260623.txt
