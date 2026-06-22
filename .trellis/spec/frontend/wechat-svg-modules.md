@@ -3239,3 +3239,39 @@ Required checks:
   tree` for the Xiumi visible card-tree fixture.
 - Full `platform-export-rendering.test.ts` and serial `src/services/export` tests should be run
   because the detector is shared by all platform quality checks.
+
+## 42. Public Source Refresh Boundary - 2026-06-23
+
+Contracts:
+- Public-source refreshes must not mutate renderer output, local proof manifests, style catalog
+  availability, style selection, browser state, account state, or any upload/sync/publish path.
+- WeChat official editor plugin specification and Dark Mode documentation remain the hard public
+  source for article HTML/SVG blockers: opacity-hidden images below SVG backgrounds,
+  `line-height:0`, fixed width/height containers, `text-align:start/end`, `touchstart`-only SVG
+  triggers, ordinary prose inside `<pre>`, invalid/deep article structure, font-family drift,
+  SVG text Dark Mode risk, `data-no-dark` current-node scope, and unsafe `!important`.
+- WeChat MP editor JSAPI documentation is credentialed-channel runbook input only. API existence
+  must not satisfy PC paste, phone preview, Dark Mode, cover thumbnail, sync, scheduled-send,
+  platform preview, public rendering, or publish proof rows.
+- WeChat H5 DarkMode guidance may inform H5 artifacts, but article exports still need the stricter
+  Official Account article sanitizer and inline-style contract. Do not infer article support for
+  scripts, media queries, external CSS, or unsupported CSS variables from H5 docs.
+- doocs/md architecture documentation may be cited as an OSS reference for parse -> inline CSS ->
+  sanitize -> themed HTML output. It must not introduce a second renderer or be treated as platform
+  paste/publish proof.
+- Xiaohongshu public creator docs were login-gated in the 2026-06-23 refresh. Third-party image
+  size guides are weak references only; XHS upload, platform preview, scheduled send, public
+  rendering, and publish proof remain external gates.
+- Zhihu public search returned community/open-source references rather than official hard specs.
+  Keep clean Markdown and image/public-host gates conservative, and keep account upload, platform
+  preview, public rendering, and publish success unclaimable until exact platform proof exists.
+
+Required checks:
+- Docs-only source refreshes must at least run `git diff --check` on touched docs/evidence files.
+- Commit-boundary review must scan staged diffs for browser state directories, credential material,
+  HAR files, QR artifacts, account capture images, and local capture paths before commit.
+- GitNexus `detect-changes` must run before commit. For docs-only changes, expected affected
+  runtime process count is zero.
+- Evidence docs must list the public URLs, source strength, weak-source exclusions, and the
+  cannot-claim boundary without asserting any external phone/account/public-host/publish gate is
+  complete.

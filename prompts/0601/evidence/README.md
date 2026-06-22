@@ -3739,3 +3739,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, mobile rendering, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   public-host acceptance, Xiaohongshu upload, Zhihu upload, platform preview, public rendering, or
   publish success.
+
+## 2026-06-23 Public Source Refresh
+
+- [x] public-source-refresh-20260623.txt
+- Grok Search direct fetch confirmed the WeChat official editor plugin specification, MP editor
+  JSAPI, H5 DarkMode guide, and doocs/md architecture reference are still the relevant public
+  sources for this slice.
+- WeChat official docs reinforce the existing hard-blocker families: opacity-hidden images below
+  SVG backgrounds, `line-height:0`, fixed width/height containers, `text-align:start/end`,
+  `touchstart`-only SVG triggers, ordinary prose inside `<pre>`, invalid/deep article structure,
+  font-family drift, SVG text Dark Mode risk, `data-no-dark` current-node scope, and unsafe
+  `!important`.
+- WeChat MP editor JSAPI remains credentialed-channel runbook material only; API existence does not
+  prove InkForge paste, phone preview, sync, cover acceptance, scheduled send, or publish success.
+- doocs/md remains an OSS architecture benchmark for Markdown parsing, CSS inlining, sanitization,
+  and themed HTML output, not a second renderer or platform proof.
+- Xiaohongshu's public creator entry stayed login-gated; Zhihu public search produced community or
+  open-source references rather than official hard specs. Both platforms keep upload, platform
+  preview, public rendering, public-host, and publish gates open until exact platform evidence
+  exists.
+- Boundary: this docs-only refresh does not prove WeChat official editor paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host
+  acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering,
+  or publish success.

@@ -1,0 +1,81 @@
+Public Source Refresh - 2026-06-23
+
+Scope:
+- Public/latest-source refresh for WeChat Official Account, Xiaohongshu, Zhihu, and doocs/md.
+- No platform mutation, phone preview, upload, sync, scheduled send, public preview, public
+  rendering, or publish action was performed.
+- Grok Search was used for live public retrieval. Weak third-party sources are recorded only as
+  weak references and are not promoted into hard platform rules.
+
+Verified public sources:
+- WeChat official editor plugin specification:
+  https://developers.weixin.qq.com/doc/service/guide/product/plugin_spec.html
+- WeChat official MP editor JS extension API:
+  https://developers.weixin.qq.com/doc/service/guide/product/mp_editor_jsapi.html
+- WeChat H5 DarkMode adaptation guide:
+  https://developers.weixin.qq.com/doc/subscription/en/guide/h5/darkmode.html
+- doocs/md architecture reference:
+  https://raw.githubusercontent.com/doocs/md/main/docs/architecture.md
+- Xiaohongshu creator platform public entry:
+  https://creator.xiaohongshu.com/
+
+Search sessions:
+- WeChat official-source search returned weak general-web SVG dark-mode sources first:
+  grok session c1db43e4b73f. The hard WeChat conclusions below come from direct official
+  documentation fetches, not from that weak search result.
+- Xiaohongshu public-spec search: grok session fb4ea845f7d2. The only official source in the
+  returned source list was the login-gated creator platform entry. Canva and Huasheng/third-party
+  pages were not promoted into hard runtime rules.
+- Zhihu public-spec search: grok session 867e1e282c22. Returned sources were Zhihu community
+  pages and an open-source Markdown helper, not an official creator-spec page. They remain weak
+  references only.
+
+Findings:
+- WeChat's official editor plugin specification remains the strongest public rule source for
+  WeChat article compatibility. It continues to document hard failure cases for opacity-hidden
+  images below SVG backgrounds, `line-height:0`, fixed width/height containers, `text-align:start`
+  or `text-align:end`, SVG animations that only begin on `touchstart`, ordinary prose inside
+  `<pre>`, deep or invalid article structures, and font-family drift.
+- WeChat's official Dark Mode guidance says SVG is mostly not transformed by the article Dark Mode
+  algorithm. Text-bearing SVG must not be the default carrier for readable prose; if unavoidable it
+  needs explicit contrast strategy such as `currentColor` with a verified wrapper color or an
+  opaque background. `data-no-dark` applies only to the current node and does not protect styled
+  descendants. `!important` remains unsafe because it can defeat platform and Dark Mode overrides.
+- WeChat's MP editor JSAPI confirms editor-plugin channels such as cover change, editor readiness,
+  get/set content, insert HTML, selection, and content/selection events. These APIs are useful for
+  a future credentialed-channel runbook, but documentation alone does not prove InkForge paste,
+  phone preview, sync, scheduled-send, cover acceptance, or publish success.
+- The WeChat H5 DarkMode guide confirms the web standards side of `color-scheme`,
+  `prefers-color-scheme`, `picture/source`, and `matchMedia`. Official Account article output must
+  still respect the stricter article-editor sanitizer and inline-style contract; H5 guidance is not
+  a license to use unsupported article CSS, scripts, or media queries in publishable article HTML.
+- doocs/md documents the same broad architecture family InkForge already follows: Markdown source,
+  marked/custom extensions, CSS inlining through juice for WeChat compatibility, DOMPurify
+  sanitization, theme variables, then HTML preview/copy output. This is an OSS architecture
+  reference only; it is not platform proof.
+- Xiaohongshu's public creator entry is login-gated. This refresh did not find a public official
+  image-card specification that can supersede InkForge's existing conservative local manifest
+  rules. XHS upload, platform preview, scheduled send, public rendering, and publish success
+  remain external gates.
+- Zhihu public search did not produce an official creator Markdown/image-upload specification.
+  Community and open-source references are consistent with a conservative clean-Markdown plus
+  image-upload/public-host proof model, but they cannot close public-host, account upload,
+  platform preview, public rendering, or publish proof gates.
+
+Rules reinforced for InkForge:
+- Keep WeChat official plugin-spec bad cases as hard blockers or detector expectations.
+- Keep WeChat text in readable HTML blocks by default. Use inline SVG for source-owned structural
+  motifs, safe visual frames, and verified non-prose marks; avoid SVG-only readable prose unless
+  exact mobile Dark Mode proof exists.
+- Treat WeChat JSAPI and plugin channels as `credentialed-channel` or `unsafe-to-automate`
+  runbook material, not local availability.
+- Treat XHS and Zhihu public-source gaps as proof gaps. Keep local artifacts honest and require
+  real account/platform evidence before claiming upload, preview, public-host, or publish success.
+- Treat doocs/md as an architecture benchmark for parse -> inline CSS -> sanitize -> themed HTML,
+  not as a runtime dependency or a publish-success proof.
+
+Boundary:
+- This refresh does not close any existing external release gate.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public-host acceptance, scheduled send, platform
+  preview, public rendering, Xiaohongshu upload, Zhihu upload, or publish success.

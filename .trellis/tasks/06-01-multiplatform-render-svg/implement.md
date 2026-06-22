@@ -8727,6 +8727,54 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Public Source Refresh Slice
+
+Scope:
+- Public-source refresh and documentation/spec evidence only.
+- No renderer code, proof manifest, style availability, style selection, account state, browser
+  profile, platform upload, sync, phone preview, scheduled send, public rendering, or publish
+  behavior was changed.
+
+Research:
+- Grok Search direct fetch confirmed the WeChat official editor plugin specification still
+  documents the hard bad cases already represented in InkForge rules: opacity-hidden image below
+  SVG background, `line-height:0`, fixed width/height, `text-align:start/end`, `touchstart`-only
+  SVG triggers, `<pre>` around ordinary prose, invalid/deep structure, font-family drift, SVG Dark
+  Mode risk, `data-no-dark` current-node scope, and unsafe `!important`.
+- Grok Search direct fetch confirmed WeChat MP editor JSAPI exposes plugin/editor operations for
+  cover, readiness, content get/set, HTML insert, selection, and editor events. This is future
+  credentialed-channel runbook material only.
+- Grok Search direct fetch confirmed WeChat H5 DarkMode guidance for `color-scheme`,
+  `prefers-color-scheme`, `picture/source`, and `matchMedia`. It does not loosen the Official
+  Account article sanitizer or publishable article CSS subset.
+- Grok Search direct fetch confirmed doocs/md documents a Markdown -> marked/custom extensions ->
+  juice inline CSS -> DOMPurify sanitize -> themed HTML output pipeline. It remains an OSS
+  architecture reference, not platform proof.
+- Xiaohongshu public creator entry is login-gated; public search returned third-party size guides
+  only. Zhihu public search returned community/open-source references, not an official hard
+  Markdown/image-upload specification.
+
+Implementation:
+- Added `prompts/0601/evidence/public-source-refresh-20260623.txt`.
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md` with a 2026-06-23 refresh
+  row, rule bullets, and a new public-source boundary section.
+- Updated `.trellis/spec/frontend/wechat-svg-modules.md` section 42 with executable docs-only
+  contracts and required checks.
+- Updated `prompts/0601/evidence/README.md` with the new evidence entry and cannot-claim
+  boundary.
+
+Validation plan:
+- `git diff --check` over the touched docs/evidence files.
+- `npx gitnexus detect-changes -r InkForge --scope staged` after precise staging.
+- Staged sensitive scan for browser profiles, credential material, HAR files, QR artifacts,
+  account capture images, local capture paths, and local browser artifacts.
+
+Boundary:
+- This refresh does not close any external release gate. It does not prove WeChat official editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, public-host acceptance, scheduled send, platform preview, public rendering, Xiaohongshu
+  upload, Zhihu upload, or publish success.
+
 ## 2026-06-22 Market Material Panel Residue Gate Slice
 
 Scope:

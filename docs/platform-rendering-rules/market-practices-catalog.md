@@ -35,6 +35,7 @@
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
 | 2026-06-19 CloakBrowser applied-rule refresh | 135 普通编辑器点击免费样式后若只插入空白 `_135editor` 占位，不足以学习 applied style；135 SVG 编辑器免费试用可暴露 trigger canvas、trigger-hot-area、`app-content-canvas`、`block-img__content`、`ant-tooltip-open`；秀米 SVG 样本可把中心纸张变成 `tn-svg-animation-carousel`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*` 和 `ng-*` 作者态树，且中心可没有 literal SVG | 强化 runtime gate：这些强特征只转译为 InkForge 自有 trigger-zone/image-slot/motion/action/schema/fallback/layout-report；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error。该证据不证明手机预览、暗黑模式、同步、上传、公开预览或发布 |
 | 2026-06-20 public-source rule refresh | Exa/Grok 公开来源复核了微信官方编辑器插件规范、微信编辑器 JSAPI、doocs/md、mdnice、wx-art-formatter 和 md2red。官方规范确认结构校验接口、opacity-hidden image + SVG background、`line-height:0`、固定宽高、`text-align:start/end`、`pre` 普通段落、仅 `touchstart`、Dark Mode SVG 不被常规重着色等 bad case；OSS 工具继续收敛到 CSS inlining + `text/html` clipboard、长图/PDF fallback、XHS 图片卡片 manifest | 官方规范升级为 hard-blocker/source-of-truth；OSS/市场工具只作为架构和 artifact-family 参考。不得采纳未核验的营销排名、互动率、账号发布成功、自动发布或 `<style>`/media-query-in-SVG 建议；JSAPI/插件接口存在性不等于当前 InkForge credentialed sync、preview、scheduled-send 或 publish proof |
+| 2026-06-23 public-source rule refresh | Grok Search 重新抓取微信官方编辑器插件规范、微信 MP 编辑器 JSAPI、微信 H5 DarkMode 文档、doocs/md 架构文档，并复核小红书/知乎公开入口；小红书公开入口仍是登录态创作者平台，知乎公开检索未发现可作为硬规则的官方 Markdown/图片上传规格 | 继续把微信官方规范作为 hard-blocker/source-of-truth；doocs/md 只作为 parse -> inline CSS -> sanitize -> themed HTML 的架构参考；小红书/知乎保持保守本地 artifact manifest + 外部账号/platform proof gate，不采纳第三方尺寸指南或社区脚本作为发布成功证明 |
 
 ### 1.2 不进入实现的内容
 
@@ -135,6 +136,35 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
 - Search-result summaries that recommend publishable `<style>` blocks, media queries inside SVG,
   one-click account publishing, or universal SVG survival conflict with InkForge's stricter
   evidence policy unless later proven by exact artifact readback.
+
+2026-06-23 public-source refresh:
+
+- The WeChat official plugin specification still carries the highest weight for article HTML/SVG
+  hard blockers. Keep the documented bad cases as detector expectations or explicit cannot-claim
+  notes: opacity-hidden images below SVG backgrounds, `line-height:0`, fixed width/height
+  containers, `text-align:start/end`, `touchstart`-only SVG triggers, `<pre>` around ordinary
+  prose, invalid/deep article structure, and font-family drift.
+- The WeChat official Dark Mode section reinforces that SVG is not recolored like normal HTML
+  text. SVG should not be the default carrier for readable prose; if a text-bearing SVG is used,
+  it needs an explicit contrast strategy and exact mobile Dark Mode evidence. `data-no-dark`
+  protects only the current node, and `!important` remains unsafe.
+- WeChat MP editor JSAPI docs describe plugin/editor channels for cover, readiness, content,
+  insert HTML, selection, and editor events. Treat this as future credentialed-channel runbook
+  material only; it is not evidence of InkForge paste, cover acceptance, sync, scheduled send, or
+  publish success.
+- The WeChat H5 DarkMode guide is useful for H5 artifacts, but Official Account article output
+  still follows the stricter article-editor sanitizer. Do not use the H5 guide to justify scripts,
+  media queries, external CSS, or unsupported article CSS in publishable article HTML.
+- The doocs/md architecture reference confirms the same broad pipeline family already used by
+  InkForge: Markdown source -> marked/custom extensions -> juice inline CSS -> DOMPurify sanitize
+  -> themed HTML preview/copy. It is an architecture benchmark, not a runtime dependency or
+  platform proof.
+- Xiaohongshu public refresh found the official creator entry, but public detailed image-card
+  specs remain login-gated in this pass. Keep XHS dimensions/manifest rules as conservative local
+  guidance and require real platform upload/preview/publish evidence before claiming success.
+- Zhihu public refresh found community/open-source references rather than an official hard spec.
+  Keep the clean Markdown plus image/public-host proof model; do not close upload, platform
+  preview, public rendering, or publish gates from community guidance.
 
 2026-06-09 layout report runtime gate:
 
@@ -1080,3 +1110,28 @@ Rules:
 Evidence:
 - `prompts/0601/evidence/xhs-style-choice-application-mapping-20260622.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 35.
+
+## 14. 2026-06-23 Public Source Refresh Boundary
+
+This refresh updates the public-source layer without changing renderer behavior, local evidence
+manifests, style availability, account workflows, browser state, or platform proof status.
+
+Rules:
+- WeChat official editor-plugin and Dark Mode documents remain the primary public authority for
+  article HTML/SVG blockers.
+- WeChat MP editor JSAPI documentation may inform future credentialed-channel checklists, but it
+  must not be treated as successful paste, sync, cover, scheduled-send, preview, or publish proof.
+- WeChat H5 DarkMode guidance applies to H5/web artifacts. Article exports still need the stricter
+  Official Account editor sanitizer, inline-style, no-script, and no-external-CSS contract.
+- doocs/md remains an OSS architecture reference for Markdown parsing, CSS inlining, sanitization,
+  and themed HTML output. It must not be imported as a second renderer or cited as platform proof.
+- Xiaohongshu's public creator entry being login-gated means public third-party size guides remain
+  weak evidence. Keep real XHS account upload, platform preview, scheduled send, public rendering,
+  and publish proof as external gates.
+- Zhihu community/open-source Markdown guidance may support conservative local cleanup decisions,
+  but official public-host, account upload, platform preview, public rendering, and publish gates
+  stay open until exact platform evidence exists.
+
+Evidence:
+- `prompts/0601/evidence/public-source-refresh-20260623.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 42.
