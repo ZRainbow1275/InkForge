@@ -1135,3 +1135,30 @@ Rules:
 Evidence:
 - `prompts/0601/evidence/public-source-refresh-20260623.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 42.
+
+## 15. 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Refresh
+
+The 135/Xiumi live DOM study is now reflected in the executable WeChat fallback catalog without
+changing platform proof status.
+
+Rules:
+- `wechat-market-svg-h5-fallback-matrix` stays blocked and unmapped from style applications.
+  It is a visible capability family and fallback checklist, not a selectable WeChat export style.
+- The runtime catalog may list the observed family map: click expand, click show/hide, click switch,
+  slide trigger, image carousel, path animation, parallax, long press, region trigger, text marquee,
+  quiz/game, typed image-slot manifests, normalized trigger-zone manifests, and H5 handoff.
+- 135 background-SVG shells are translated only into source-owned layout reports, image-slot
+  manifests, trigger-zone manifests, motion schema, static fallback, or raster fallback.
+- Xiumi SVG/title/card samples that expose wrapper trees or image/layer/action structures cannot
+  become WeChat inline-SVG proof when the center readback has no visible inline SVG.
+- Detector blockers must keep zero-line-height, fixed-size containers, class/id dependency,
+  transparent image under SVG/background layers, unsafe SVG constructs, touchstart-only triggers,
+  and layout-report-required gates visible to reports.
+- This refresh does not prove WeChat PC editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public preview, scheduled send, public rendering,
+  XHS/Zhihu upload, or publish success.
+
+Evidence:
+- `prompts/0601/evidence/market-live-dom-135-xiumi-20260623.txt`
+- `prompts/0601/evidence/wechat-market-svg-h5-fallback-matrix-20260623.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` section 47.

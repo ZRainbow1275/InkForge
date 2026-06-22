@@ -4379,6 +4379,30 @@ Boundary:
 
 ---
 
+## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Addendum
+
+- Expanded the executable `wechat-market-svg-h5-fallback-matrix` runtime catalog entry using the
+  CloakBrowser-only 135/Xiumi live DOM study.
+- Added observed family labels for click show/hide, click switch, slide trigger, text marquee,
+  quiz/game, typed image-slot manifests, and normalized trigger-zone manifests.
+- Added explicit blockers for 135 background-SVG shells requiring source-owned layout reports,
+  image slots, trigger zones, and static/raster fallback; Xiumi wrapper/image-layer/action trees
+  without center inline SVG remain authoring evidence only.
+- Kept the choice blocked, mobile-only, unmapped from style applications, and gated by
+  phone-preview plus publish proof.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-market-svg-h5-fallback-matrix-20260623.txt`.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 3 selected
+  availability/application/market tests; full `platform-export-rendering.test.ts` run with 169
+  tests; serial `src/services/export` run with 36 files / 1146 tests; target ESLint; `vue-tsc`;
+  and production build with 4653 modules transformed in 44.63s.
+- Boundary: this is local runtime-catalog accounting only. It does not prove WeChat official
+  editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public preview, scheduled send, public rendering, XHS/Zhihu upload, or publish
+  success.
+
+---
+
 ## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback Addendum
 
 - Used CloakBrowser only for a read-only WeChat Official Account backend home/dashboard readback.

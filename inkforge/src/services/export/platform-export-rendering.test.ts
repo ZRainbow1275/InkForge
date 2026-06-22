@@ -7402,6 +7402,24 @@ describe('platform native export rendering rules', () => {
       if (choice.platform === 'wechat') {
         expect(choice.evidenceFloor).toBe('mobile-preview')
         expect(choice.motion).toBe('mobile-only')
+        expect(choice.contentBlocks).toEqual(expect.arrayContaining([
+          'click show/hide',
+          'click switch',
+          'slide trigger',
+          'text marquee',
+          'quiz/game',
+          'image-slot manifest',
+          'trigger-zone manifest',
+        ]))
+        expect(choice.blockers).toEqual(expect.arrayContaining([
+          '135 background SVG shells require layout reports, typed image slots, normalized trigger zones, and static/raster fallback before any export claim',
+          'Xiumi SVG/title/card samples are authoring wrappers or image/layer/action trees; center inline-SVG absence cannot become WeChat SVG proof',
+        ]))
+        expect(choice.detectorBlockers).toEqual(expect.arrayContaining([
+          'wechat-line-height-zero',
+          'wechat-class-id-dependency',
+          'wechat-layout-report-required',
+        ]))
         expect(requirementIds).toEqual(expect.arrayContaining([
           'phone-preview-readback',
           'phone-screenshot',

@@ -1,0 +1,49 @@
+WeChat Market SVG/H5 Fallback Matrix Runtime Refresh - 2026-06-23
+
+Scope:
+- Local executable catalog refresh for the already recorded 135/Xiumi CloakBrowser live DOM study.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no public rendering,
+  and no publish operation.
+
+Implemented:
+- Expanded `wechat-market-svg-h5-fallback-matrix` in
+  `inkforge/src/services/export/style-catalog.ts`.
+- The choice now lists the observed market family map: image carousel, click expand, click
+  show/hide, click switch, path animation, parallax, slide trigger, long press, region trigger,
+  text marquee, quiz/game, typed image-slot manifests, normalized trigger-zone manifests, and H5
+  handoff.
+- Added blockers that keep 135 background-SVG shells behind source-owned layout reports, typed
+  image slots, normalized trigger zones, and static/raster fallback.
+- Added blockers that keep Xiumi SVG/title/card wrapper trees or image/layer/action structures
+  from becoming WeChat inline-SVG proof when the center readback has no visible inline SVG.
+- Added detector blockers for zero-line-height, class/id dependency, and layout-report-required.
+
+Preserved:
+- `status: blocked`.
+- `motion: mobile-only`.
+- `evidenceFloor: mobile-preview`.
+- No `STYLE_CHOICE_APPLICATIONS` mapping.
+- Market-residue detector gate.
+
+Boundary:
+- This is local catalog accounting and rule extraction only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, public preview, scheduled send, public
+  rendering, 135 export, Xiumi save/export, Xiaohongshu upload, Zhihu upload, or publish success.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-inspired|selectable style actions|platform style availability" --reporter=default`:
+  PASS, 1 file / 3 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  PASS, 1 file / 169 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  PASS.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  PASS, 36 files / 1146 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: PASS, 4653 modules transformed
+  and built in 44.63s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Staged `git diff --check`: PASS.
+- Staged sensitive scan: PASS, no browser-state directory, credential material, HAR, QR, account
+  capture, runtime capture location, or secret markers found.
+- GitNexus staged detect: LOW risk, 8 changed files, 6 changed symbols, 0 affected processes.

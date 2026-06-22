@@ -3911,6 +3911,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, public rendering, Xiumi account save, 135 export, XHS/Zhihu upload, or publish
   success.
 
+## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Runtime Refresh
+
+- [x] wechat-market-svg-h5-fallback-matrix-20260623.txt
+- Expanded the executable `wechat-market-svg-h5-fallback-matrix` content family map with the
+  observed 135/Xiumi live-DOM categories: click show/hide, click switch, slide trigger, text
+  marquee, quiz/game, typed image-slot manifest, and trigger-zone manifest.
+- Kept the choice blocked, mobile-only, unmapped from style applications, and gated by
+  phone-preview plus publish proof.
+- Added catalog blockers for 135 background-SVG shells, source-owned layout reports, image-slot
+  manifests, trigger-zone manifests, static/raster fallback, and Xiumi wrapper/image-layer trees
+  that do not prove center inline SVG.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 3 selected
+  availability/application/market tests; full `platform-export-rendering.test.ts` run with 169
+  tests; serial `src/services/export` run with 36 files / 1146 tests; target ESLint; `vue-tsc`;
+  and production build with 4653 modules transformed in 44.63s.
+- Boundary: this is local runtime-catalog accounting only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, public preview,
+  scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof Manifest String Field Guard
 
 - [x] style-proof-manifest-string-field-guard-20260623.txt

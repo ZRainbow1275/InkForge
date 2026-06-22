@@ -3478,6 +3478,15 @@ Contracts:
 - Vendor class families such as `tn-*`, 135 `data-name`, and Vue/Angular runtime attributes may be
   cited in evidence docs as market residue, but production InkForge output must use existing
   InkForge module names, sanitizers, and compatibility gates.
+- The runtime `wechat-market-svg-h5-fallback-matrix` choice may expose the richer 135/Xiumi family
+  map, including click show/hide, click switch, slide trigger, text marquee, quiz/game, typed image
+  slots, and normalized trigger zones. It must remain `status:'blocked'`, `motion:'mobile-only'`,
+  unmapped from `STYLE_CHOICE_APPLICATIONS`, and gated by `mobile-preview` plus publish proof until
+  exact InkForge-owned artifacts pass phone, Dark Mode, cover, and public/publish readback.
+- The same runtime choice must retain detector blockers for zero-line-height, fixed containers,
+  class/id dependency, transparent image under SVG/background layers, unsafe SVG constructs,
+  touchstart-only triggers, and `wechat-layout-report-required`. These blockers are compatibility
+  accounting for source-owned fallback work, not permission to copy 135/Xiumi DOM.
 
 Required checks:
 - Evidence docs must state whether the market sample was library-only, center-editor applied,

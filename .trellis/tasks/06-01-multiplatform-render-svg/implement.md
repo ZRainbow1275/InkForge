@@ -8727,6 +8727,52 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Runtime Refresh
+
+Scope:
+- Executable catalog expression for the already recorded 135/Xiumi CloakBrowser live DOM study.
+- No renderer output, proof manifest artifact, account action, phone preview, sync, upload,
+  scheduled send, public rendering, or publish behavior was changed.
+
+Implementation:
+- Expanded `wechat-market-svg-h5-fallback-matrix` content blocks to include the observed market
+  family map: click show/hide, click switch, slide trigger, text marquee, quiz/game, typed
+  image-slot manifests, and normalized trigger-zone manifests.
+- Added explicit blockers stating that 135 background-SVG shells require source-owned layout
+  reports/image slots/trigger zones/static or raster fallback, and that Xiumi wrapper/image-layer
+  structures without center inline SVG are not WeChat inline-SVG proof.
+- Kept the choice `blocked`, `mobile-only`, unmapped from `STYLE_CHOICE_APPLICATIONS`, and gated by
+  phone-preview plus publish proof.
+- Added detector blockers for zero-line-height, class/id dependency, and layout-report-required in
+  addition to the existing unsafe SVG, touchstart-only, fixed container, and transparent-image
+  blockers.
+- Updated regression coverage, frontend spec, market-practices docs, evidence index, and completion
+  report.
+
+Verification:
+- `npx gitnexus impact PLATFORM_STYLE_CHOICES_BASE -r InkForge --depth 3`: LOW risk, 0 affected
+  processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "market-inspired|selectable style actions|platform style availability" --reporter=default`:
+  passed, 1 file / 3 selected tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 169 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1146 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 44.63s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- `git diff --cached --check`: passed.
+- Staged sensitive scan: passed, no browser-state directory, credential material, HAR, QR, account
+  capture, runtime capture location, or secret markers found.
+- GitNexus staged detect: LOW risk, 8 changed files, 6 changed symbols, 0 affected processes.
+
+Boundary:
+- This is runtime catalog accounting only. It does not prove WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public
+  preview, scheduled send, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-06-23 WeChat Home Authenticated CloakBrowser Readback
 
 Scope:
