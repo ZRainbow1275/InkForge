@@ -8773,6 +8773,43 @@ Boundary:
   credentialed sync, public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send,
   platform preview, public rendering, or publish success.
 
+## 2026-06-23 Style Proof JSON Manifest Intake Slice
+
+Scope:
+- Local JSON-string intake companion for already-redacted style proof manifest packs.
+- No file reading, browser action, phone preview, sync, upload, scheduled send, platform preview,
+  public rendering, or publish behavior was changed.
+
+Implementation:
+- Added `getStyleProofManifestJsonIntakeReport(jsonText: string)`.
+- Valid JSON delegates to `getStyleProofManifestIntakeReport()`.
+- Empty or malformed JSON returns the normal `StyleProofManifestIntakeReport` shape with
+  `status:'schema-invalid'`, one root rejected row, and
+  `style-proof-manifest-intake-json-invalid`; callers do not need to catch `JSON.parse` errors.
+- Exported the JSON intake function from `inkforge/src/services/export/index.ts`.
+- Added regression coverage for valid JSON intake and malformed JSON intake.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "JSON intake|manifest intake|style proof manifest" --reporter=default`:
+  passed, 1 file / 7 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 165 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1142 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed, Vite built in 36.64s.
+- GitNexus `detect_changes(scope=staged)`: low risk, 8 staged files, 14 touched symbols, 0
+  affected processes.
+
+Boundary:
+- This is local JSON parse safety only. It does not prove WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public-host acceptance, Xiaohongshu/Zhihu account upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-23 ExportModal External Handoff Surface Slice
 
 Scope:

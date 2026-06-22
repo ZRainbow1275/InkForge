@@ -319,6 +319,7 @@ export {
   getPlatformStyleProofReadinessReport,
   getStyleProofAcceptanceAuditReport,
   getStyleProofExecutionRunbook,
+  getStyleProofManifestJsonIntakeReport,
   getStyleProofManifestIntakeReport,
   getStyleProofManifestReport,
   getStyleProofManifestPackReport,

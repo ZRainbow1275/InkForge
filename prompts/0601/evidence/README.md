@@ -3827,3 +3827,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
   public rendering, or publish success.
+
+## 2026-06-23 Style Proof Manifest JSON Intake Report
+
+- [x] style-proof-manifest-json-intake-20260623.txt
+- Added `getStyleProofManifestJsonIntakeReport(jsonText)` as the safe JSON-string companion for
+  redacted external proof manifest packs.
+- Valid JSON delegates into `getStyleProofManifestIntakeReport()`. Empty or malformed JSON returns
+  a normal schema-invalid intake report with one root rejected row and
+  `style-proof-manifest-intake-json-invalid` instead of throwing parse errors.
+- Verification passed: focused `platform-export-rendering.test.ts` run with 7 selected
+  manifest/intake/JSON-intake tests; full `platform-export-rendering.test.ts` run with 165 tests;
+  serial `src/services/export` run with 36 files / 1142 tests; target ESLint; `vue-tsc`; and
+  production build with 4653 modules transformed in 36.64s. GitNexus staged detect reported low
+  risk, 8 staged files, 14 touched symbols, and 0 affected processes.
+- Boundary: this is local JSON parse safety only. It does not prove WeChat official editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
+  public rendering, or publish success.

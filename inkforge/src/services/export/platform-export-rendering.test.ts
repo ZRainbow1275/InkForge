@@ -44,6 +44,7 @@ import {
   getStyleChoiceProofRequirements,
   getStyleProofAcceptanceAuditReport,
   getStyleProofExecutionRunbook,
+  getStyleProofManifestJsonIntakeReport,
   getStyleProofManifestIntakeReport,
   getStyleProofManifestPackReport,
   getStyleProofManifestReport,
@@ -662,6 +663,65 @@ describe('platform native export rendering rules', () => {
     expect(report.executionRunbook.summary.manifestCount).toBe(1)
     expect(report.canClaimComplete).toBe(false)
     expect(report.summary.cannotClaimRequirements).toBeGreaterThan(0)
+  })
+
+  it('parses JSON style proof manifest intake without requiring callers to throw on parse boundaries', () => {
+    const manifest: StyleProofManifest = {
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['unit-tested'],
+      artifacts: [
+        {
+          id: 'style-proof-json-intake-unit-log',
+          requirementId: 'unit-test-coverage',
+          kind: 'test-log',
+          label: 'platform-export-rendering.test.ts JSON intake assertion log',
+          evidenceLabel: 'unit-tested',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'unit-test',
+          action: 'test-run',
+          readback: 'test-assertion',
+          artifactRef: 'prompts/0601/evidence/style-proof-manifest-json-intake-20260623.txt',
+          committed: true,
+          safeForCommit: true,
+        },
+      ],
+    }
+
+    const report = getStyleProofManifestJsonIntakeReport(JSON.stringify({ manifests: [manifest] }))
+
+    expect(report.status).toBe('ready-for-review')
+    expect(report.summary.acceptedManifestCount).toBe(1)
+    expect(report.summary.rejectedManifestCount).toBe(0)
+    expect(report.summary.schemaErrorCount).toBe(0)
+    expect(report.manifests).toEqual([manifest])
+    expect(report.packReport.summary.validManifestCount).toBe(1)
+    expect(report.canClaimComplete).toBe(false)
+  })
+
+  it('returns a schema-invalid report for malformed JSON style proof manifest intake', () => {
+    const report = getStyleProofManifestJsonIntakeReport('{ "manifests": [')
+
+    expect(report.status).toBe('schema-invalid')
+    expect(report.summary).toMatchObject({
+      inputManifestCount: 0,
+      acceptedManifestCount: 0,
+      rejectedManifestCount: 1,
+      schemaIssueCount: 1,
+      schemaErrorCount: 1,
+      semanticIssueCount: 0,
+      artifactCount: 0,
+    })
+    expect(report.rejected[0]?.index).toBeNull()
+    expect(report.rejected[0]?.rawKind).toBe('json')
+    expect(report.schemaIssues.map(issue => issue.id)).toEqual([
+      'style-proof-manifest-intake-json-invalid',
+    ])
+    expect(report.packReport.summary.manifestCount).toBe(0)
+    expect(report.acceptanceAudit.summary.manifestCount).toBe(0)
+    expect(report.executionRunbook.summary.manifestCount).toBe(0)
+    expect(report.canClaimComplete).toBe(false)
   })
 
   it('rejects malformed external manifest packs without throwing or accepting partial proof', () => {

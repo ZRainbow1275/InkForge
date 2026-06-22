@@ -3393,12 +3393,19 @@ Contracts:
 - The intake report must not read browser profiles, capture screenshots, parse HAR files, open
   CloakBrowser, mutate platform state, create evidence artifacts, sync drafts, upload images,
   schedule sends, publish articles, change style availability, or change style selection.
+- `getStyleProofManifestJsonIntakeReport(jsonText)` is the safe JSON-string companion. It must
+  parse a non-empty JSON string and then delegate to `getStyleProofManifestIntakeReport()`. Empty
+  or malformed JSON must return the same `StyleProofManifestIntakeReport` shape with
+  `status:'schema-invalid'`, one root `rejected` row, and `style-proof-manifest-intake-json-invalid`
+  in `schemaIssues`; it must not throw to callers or attempt to read files.
 
 Required checks:
 - Regression tests must prove a valid unknown JSON-style manifest pack is sanitized and reaches the
   normal pack/audit/runbook reports without schema issues.
 - Regression tests must prove malformed packs do not throw and do not pass partial artifacts to the
   existing semantic validator.
+- Regression tests must prove malformed JSON strings return schema-invalid reports instead of
+  throwing parse errors.
 - Regression tests must prove unknown fields are dropped while sensitive or unsafe accepted
   artifacts still surface through the existing semantic issue ids.
 - Evidence docs must record this as a local intake/preflight boundary only and explicitly state that

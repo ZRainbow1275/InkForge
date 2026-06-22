@@ -7276,6 +7276,47 @@ function getStyleProofManifestIntakeStatus(
   return 'ready-for-review'
 }
 
+function buildRejectedStyleProofManifestIntakeReport(
+  rawKind: string,
+  rootIssue: QualityIssue,
+): StyleProofManifestIntakeReport {
+  const packReport = getStyleProofManifestPackReport([])
+  const acceptanceAudit = getStyleProofAcceptanceAuditReport([])
+  const executionRunbook = getStyleProofExecutionRunbook([])
+
+  return {
+    status: 'schema-invalid',
+    manifests: [],
+    rejected: [{
+      index: null,
+      rawKind,
+      issues: [rootIssue],
+    }],
+    schemaIssues: [rootIssue],
+    packReport,
+    acceptanceAudit,
+    executionRunbook,
+    canClaimComplete: false,
+    summary: {
+      inputManifestCount: 0,
+      acceptedManifestCount: 0,
+      rejectedManifestCount: 1,
+      schemaIssueCount: 1,
+      schemaErrorCount: 1,
+      schemaWarningCount: 0,
+      semanticIssueCount: packReport.summary.issueCount,
+      artifactCount: packReport.summary.artifactCount,
+      cannotClaimRequirements: acceptanceAudit.summary.cannotClaimRequirements,
+      cannotClaimSteps: executionRunbook.summary.cannotClaimSteps,
+      safeToAutomateOpenSteps: executionRunbook.summary.safeToAutomateOpenSteps,
+      externalDependencyOpenSteps: executionRunbook.summary.externalDependencyOpenSteps,
+      phoneOpenSteps: executionRunbook.summary.phoneOpenSteps,
+      mutatingOpenSteps: executionRunbook.summary.mutatingOpenSteps,
+      unsafeToAutomateOpenSteps: executionRunbook.summary.unsafeToAutomateOpenSteps,
+    },
+  }
+}
+
 export function getStyleProofManifestIntakeReport(input: unknown): StyleProofManifestIntakeReport {
   const { inputs, rootIssues } = getStyleProofManifestIntakeInputs(input)
   const manifests: StyleProofManifest[] = []
@@ -7341,6 +7382,30 @@ export function getStyleProofManifestIntakeReport(input: unknown): StyleProofMan
       mutatingOpenSteps: executionRunbook.summary.mutatingOpenSteps,
       unsafeToAutomateOpenSteps: executionRunbook.summary.unsafeToAutomateOpenSteps,
     },
+  }
+}
+
+export function getStyleProofManifestJsonIntakeReport(jsonText: string): StyleProofManifestIntakeReport {
+  if (typeof jsonText !== 'string' || jsonText.trim().length === 0) {
+    return buildRejectedStyleProofManifestIntakeReport('json', {
+      id: 'style-proof-manifest-intake-json-invalid',
+      severity: 'error',
+      message: 'Style proof manifest JSON intake expected a non-empty JSON string.',
+      suggestion: 'Paste or load a redacted JSON object or array before running local proof manifest intake.',
+      location: 'json:empty',
+    })
+  }
+
+  try {
+    return getStyleProofManifestIntakeReport(JSON.parse(jsonText) as unknown)
+  } catch (error) {
+    return buildRejectedStyleProofManifestIntakeReport('json', {
+      id: 'style-proof-manifest-intake-json-invalid',
+      severity: 'error',
+      message: 'Style proof manifest JSON intake could not parse the supplied JSON string.',
+      suggestion: 'Fix the JSON syntax first; do not paste raw browser state, network archives, screenshots, or account artifacts into this intake boundary.',
+      location: error instanceof Error ? `json:${error.name}` : 'json:parse-error',
+    })
   }
 }
 
