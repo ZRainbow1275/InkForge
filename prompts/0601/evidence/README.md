@@ -4082,3 +4082,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WeChat editor reachability, PC editor DOM readback, paste, exact-artifact proof,
   safe-disposable-draft proof, phone preview, mobile interaction, Dark Mode, cover thumbnail
   acceptance, sync, scheduled send, platform preview, public rendering, upload, or publish success.
+
+## 2026-06-23 ExportModal Market Fallback Local CloakBrowser Smoke
+
+- [x] exportmodal-market-fallback-local-cloakbrowser-smoke-20260623.txt
+- Reused the existing local Vite server on `http://127.0.0.1:3005/` and opened a real local
+  Workstation draft through the UI.
+- At `390x844`, Home and Workstation both measured `document.scrollWidth=390`,
+  `document.clientWidth=390`, `body.scrollWidth=390`, and `body.clientWidth=390`.
+- The Workstation editor was real and non-empty at the DOM boundary:
+  `contenteditable/textarea=1`, `ProseMirror=1`, `buttons=32`, `svg=35`.
+- The local Publish panel opened from the real button and returned `dialogs=7`, `buttons=88`,
+  `disabledButtons=11`, and `styleChoiceRows=262`.
+- WeChat/XHS/Zhihu style/proof/blocker terms were visible, and the WeChat
+  `Market SVG/H5 fallback matrix` row remained blocked/non-applicable with the external-H5/plugin
+  sync blocker visible.
+- Boundary: this is local UI visibility and layout smoke only. It does not prove WeChat editor
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled
+  send, platform preview, public rendering, XHS/Zhihu upload, or publish success.

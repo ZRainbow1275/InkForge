@@ -8790,6 +8790,30 @@ Boundary:
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   upload, or publish success.
 
+## 2026-06-23 ExportModal Market Fallback Local CloakBrowser Smoke
+
+Scope:
+- Local visual/DOM smoke through CloakBrowser against the existing Vite server on
+  `http://127.0.0.1:3005/`.
+- Existing local draft only; no external account, upload, sync, preview, scheduled send, public
+  rendering, or publish action.
+
+Readback:
+- Home and Workstation both measured `document.scrollWidth=390`, `document.clientWidth=390`,
+  `body.scrollWidth=390`, and `body.clientWidth=390` at a `390x844` viewport.
+- Workstation contained one real editor surface: `contenteditable/textarea=1` and `ProseMirror=1`.
+- Publish panel opened from the real Workstation button and returned `dialogs=7`, `buttons=88`,
+  `disabledButtons=11`, and `styleChoiceRows=262`.
+- Visible local UI contained WeChat, Xiaohongshu, Zhihu, style, proof, blocker, available,
+  unavailable, publish, sync, preview, copy, and phone terms.
+- The WeChat `Market SVG/H5 fallback matrix` row remained blocked/non-applicable and displayed the
+  external-H5/plugin/sync handoff blocker text added by this slice.
+
+Boundary:
+- This is local UI visibility and layout smoke only. It does not prove WeChat editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, XHS/Zhihu upload, or publish success.
+
 ## 2026-06-23 Public Market Taxonomy and Platform Boundary Review Slice
 
 Scope:

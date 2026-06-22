@@ -1,0 +1,34 @@
+ExportModal Market Fallback Local CloakBrowser Smoke - 2026-06-23
+
+Scope:
+- Local InkForge UI smoke through CloakBrowser against the existing Vite server on
+  `http://127.0.0.1:3005/`.
+- Existing local draft only; no mock storage injection, no external account action, no platform
+  upload, no sync, no preview, no scheduled send, no public rendering, and no publish operation.
+- No screenshot was saved or committed.
+
+Local surface:
+- Home page loaded with title category `InkForge - home`.
+- Mobile viewport: `390x844`.
+- Home layout: `document.scrollWidth=390`, `document.clientWidth=390`,
+  `body.scrollWidth=390`, `body.clientWidth=390`.
+- Workstation route loaded with one real local editor surface:
+  `contenteditable/textarea=1`, `ProseMirror=1`, `buttons=32`, `svg=35`.
+- Workstation layout: `document.scrollWidth=390`, `document.clientWidth=390`,
+  `body.scrollWidth=390`, `body.clientWidth=390`.
+
+Publish / ExportModal readback:
+- The local Publish panel opened from the real Workstation button.
+- Panel readback was non-empty: `dialogs=7`, `buttons=88`, `disabledButtons=11`,
+  `styleChoiceRows=262`.
+- Platform and proof terms were present in the visible local UI: WeChat, Xiaohongshu, Zhihu,
+  style, proof, blocker, available, unavailable, publish, sync, preview, copy, and phone.
+- The WeChat `Market SVG/H5 fallback matrix` row was visible as blocked/non-applicable and showed
+  the new external-H5/plugin/sync handoff blocker text.
+- No copy, download, sync, upload, preview, scheduled send, or publish button was clicked.
+
+Boundary:
+- This is local UI visibility and layout smoke only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public preview, scheduled send, public rendering,
+  Xiaohongshu upload, Zhihu upload, or publish success.
