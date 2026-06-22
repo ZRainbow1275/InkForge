@@ -3496,3 +3496,33 @@ Required checks:
 - The cannot-claim boundary must explicitly exclude WeChat editor paste, phone preview, mobile
   interaction, Dark Mode, cover-thumbnail acceptance, sync, public preview, scheduled send, public
   rendering, account save/export, XHS/Zhihu upload, and publish success.
+
+## 48. WeChat Draft Box Readback Boundary - 2026-06-23
+
+Contracts:
+- A CloakBrowser read-only WeChat Official Account draft-box readback may be recorded as
+  authenticated backend list reachability only.
+- Draft-box reachability must not satisfy `authenticated-editor-reachable`,
+  `pc-editor-dom-readable`, `pc-editor-paste`, `exact-artifact`, `safe-disposable-draft`,
+  `phone-preview`, `dark-mode-check`, `cover-thumbnail-check`, `credentialed-sync`,
+  `scheduled-send`, `platform-preview`, `public-rendering`, or `published`.
+- A draft-box readback must record only sanitized endpoint category, visible workflow signals, and
+  aggregate DOM counts. It must redact account labels, draft titles, published titles, credential
+  query parameters, account images, runtime capture locations, and local browser-state details.
+- If `contenteditable=0`, `ProseMirror=0`, and editor links are empty, the readback is explicitly
+  not an editor DOM proof row.
+- Observing a new-creation control is route-discovery evidence only. It remains non-mutating until
+  a separate run explicitly activates a safe disposable draft flow and records the required cleanup
+  boundary.
+- Existing draft cards must not be treated as disposable proof targets unless a separate run first
+  creates or isolates an explicitly safe disposable draft.
+
+Required checks:
+- Evidence docs must state that the check used CloakBrowser only and remained read-only.
+- Evidence docs must record aggregate DOM counts for the draft-box page.
+- Evidence docs must explicitly preserve the cannot-claim boundary for WeChat editor reachability,
+  PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
+  mobile interaction, Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled-send,
+  platform-preview, public rendering, and publish success.
+- Commit-boundary review must scan staged diffs for credential material, account captures, local
+  browser-state details, request archives, and runtime capture locations before commit.

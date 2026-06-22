@@ -3958,3 +3958,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send,
   platform preview, public rendering, or publish success.
+
+## 2026-06-23 WeChat Draft Box Authenticated CloakBrowser Readback
+
+- [x] wechat-draftbox-authenticated-cloakbrowser-readback-20260623.txt
+- CloakBrowser-only read-only check confirmed the live WeChat Official Account backend draft-box
+  list was reachable after the authenticated home/dashboard shell.
+- Draft-box readback used sanitized backend URL category `https://mp.weixin.qq.com/cgi-bin/appmsg`
+  and reported `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`, `input=1`, and
+  `appmsgItems=118`.
+- The observed new-creation control was not activated; existing draft cards were not opened.
+- Account labels, draft titles, published titles, credential query parameters, account images,
+  runtime capture locations, and local browser-state details are redacted and not recorded.
+- Verification passed: docs/evidence `git diff --check`, staged redaction scan, and GitNexus
+  staged detect with `No changes detected`.
+- Boundary: this is authenticated draft-box list evidence only. It does not prove WeChat editor
+  reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send,
+  platform preview, public rendering, or publish success.

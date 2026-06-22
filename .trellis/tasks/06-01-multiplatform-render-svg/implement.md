@@ -8727,6 +8727,41 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 WeChat Draft Box Authenticated CloakBrowser Readback Slice
+
+Scope:
+- CloakBrowser-only read-only WeChat Official Account backend home and draft-box list readback.
+- No renderer output, style availability, proof manifest, editor creation, existing-draft opening,
+  paste, save, preview, sync, upload, scheduled send, public rendering, or publish behavior was
+  changed.
+
+Observed:
+- The authenticated backend home/dashboard shell was reachable.
+- The draft-box list was reachable at sanitized backend URL category
+  `https://mp.weixin.qq.com/cgi-bin/appmsg`.
+- Draft-box readback reported `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`,
+  `input=1`, `appmsgItems=118`, and no editor links in the sanitized readback.
+- The observed new-creation control was not activated, and existing draft cards were not opened.
+- Account labels, draft titles, published titles, credential query parameters, account images,
+  runtime capture locations, and local browser-state details were redacted and not recorded.
+
+Artifacts:
+- `prompts/0601/evidence/wechat-draftbox-authenticated-cloakbrowser-readback-20260623.txt`
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.
+
+Boundary:
+- This is authenticated draft-box list reachability only. It does not prove WeChat official editor
+  reachability, PC editor DOM readback, PC editor paste, exact-artifact proof,
+  safe-disposable-draft proof, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, or publish
+  success.
+
 ## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Runtime Refresh
 
 Scope:

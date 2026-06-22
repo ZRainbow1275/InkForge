@@ -1,0 +1,44 @@
+WeChat Draft Box Authenticated CloakBrowser Readback - 2026-06-23
+
+Scope:
+- CloakBrowser-only read-only observation of the WeChat Official Account backend.
+- The check stopped at backend home/dashboard and draft-box list readback.
+- No editor creation, existing-draft opening, paste, save, preview, sync, upload, scheduled send,
+  public rendering, or publish action was performed.
+
+Observed home/dashboard state:
+- The backend home/dashboard shell was reachable in the existing authenticated browser context.
+- Sanitized URL category: WeChat Official Account backend home.
+- Visible navigation signals included home, new creation, published-record/content-management, and
+  settings/developer areas.
+- Editor-surface counts: iframe=0, contenteditable=0, ProseMirror=0, textarea=0, input=0.
+
+Observed draft-box state:
+- Sanitized URL category: `https://mp.weixin.qq.com/cgi-bin/appmsg`.
+- The page did not look like the login shell during the draft-box readback.
+- Visible list signals included draft box and new creation controls.
+- DOM counts: iframe=0, contenteditable=0, ProseMirror=0, textarea=0, input=1,
+  appmsgItems=118.
+- Editor links were empty in the sanitized readback.
+- The new-creation control was observed but not activated.
+
+Redaction:
+- Account labels, draft titles, published titles, credential query parameters, account images,
+  runtime capture locations, and local browser-state details are not recorded.
+- No account page image, QR material, request archive, or captured account artifact is committed.
+
+Acceptance boundary:
+- This is authenticated draft-box list reachability only.
+- It does not satisfy authenticated editor reachability, PC editor DOM readback, PC editor paste,
+  exact-artifact proof, safe-disposable-draft proof, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, or publish success.
+- Existing draft cards must not be treated as disposable proof targets unless a separate run first
+  creates or isolates an explicitly safe disposable draft.
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.
