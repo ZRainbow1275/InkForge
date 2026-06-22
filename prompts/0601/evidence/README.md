@@ -3784,3 +3784,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host
   acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering,
   or publish success.
+
+## 2026-06-23 ExportModal External Handoff Surface
+
+- [x] exportmodal-external-handoff-surface-20260623.txt
+- ExportModal now displays `getCommittedStyleProofExternalHandoffReport()` as a read-only operator
+  handoff block inside the style capability area.
+- Current UI readback shows `外部交接 18 行；分组 4；安全外部 0；本地可行动 0`.
+- The five visible handoff categories are `手机 4`, `账号 13`, `公网 1`, `人工 13`, and
+  `平台变更 13`.
+- The visible reason says `没有可本地自动化的安全外部证明行` and keeps credentialed, phone,
+  public-host, sync, and publish work outside local automation.
+- Verification passed: GitNexus analyze/impact, `node --check` for the WDIO spec, targeted
+  ExportModal ESLint, `vue-tsc`, focused handoff/checklist/actionability Vitest, production build,
+  real Tauri/WebView2 `svg-render.spec.cjs` with 1 spec / 6 tests, full serial
+  `src/services/export` regression with 36 files / 1,137 tests, and CloakBrowser narrow viewport
+  readback at `390x844` with document/body `390/390`, panel `374/374`, handoff `331/331`, and
+  `overflowingCount=0`.
+- Boundary: this UI surface does not prove WeChat official editor paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, public-host acceptance,
+  Xiaohongshu upload, Zhihu upload, scheduled send, platform preview, public rendering, or publish
+  success.

@@ -13,6 +13,7 @@ import {
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
+  getCommittedStyleProofExternalHandoffReport,
   getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
@@ -23,6 +24,7 @@ import { resolveExportIcon } from '@/utils/iconography'
 import type {
   Platform, ExportOptions, ExportStats,
   CommittedStyleProofReleaseGateBlocker,
+  CommittedStyleProofExternalHandoffReport,
   CommittedStyleProofExternalProofChecklistGroup,
   CommittedStyleProofLocalActionabilityReport,
   NativeExportResult, QualityReport, QualityIssueSeverity, CodeTheme,
@@ -132,6 +134,13 @@ interface LocalActionabilityDisplay {
   detail: string
 }
 
+interface ExternalHandoffFlagDisplay {
+  kind: 'phone' | 'account' | 'public-host' | 'unsafe' | 'mutating'
+  label: string
+  rowCount: number
+  detail: string
+}
+
 interface StyleChoiceDisplay {
   availability: StyleChoiceAvailability
   application: StyleChoiceApplication | null
@@ -208,6 +217,7 @@ const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionP
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
+const committedStyleProofExternalHandoff = computed(() => getCommittedStyleProofExternalHandoffReport())
 const committedStyleProofExternalChecklist = computed(() => getCommittedStyleProofExternalProofChecklistReport())
 const committedStyleProofLocalActionability = computed(() => getCommittedStyleProofLocalActionabilityReport())
 const committedStyleProofReleaseGate = computed(() => getCommittedStyleProofEvidenceReleaseGateReport())
@@ -278,6 +288,10 @@ const styleProofLocalActionabilitySummary = computed(() => {
   const report = committedStyleProofLocalActionability.value
   return `本地可行动 ${report.summary.actionableLocalRows}；目录阻断 ${report.summary.catalogBlockedLocalRows}；安全本地 ${report.summary.safeLocalOpenRows}；外部清单 ${report.summary.externalChecklistRows}`
 })
+const styleProofExternalHandoffSummary = computed(() => {
+  const report = committedStyleProofExternalHandoff.value
+  return `外部交接 ${report.summary.externalHandoffRows} 行；分组 ${report.summary.externalHandoffGroups}；安全外部 ${report.summary.safeExternalRows}；本地可行动 ${report.summary.actionableLocalRows}`
+})
 const styleProofLocalActionabilityRows = computed<LocalActionabilityDisplay[]>(() => {
   const report = committedStyleProofLocalActionability.value
   return [
@@ -292,6 +306,41 @@ const styleProofLocalActionabilityRows = computed<LocalActionabilityDisplay[]>((
       label: '目录阻断',
       rowCount: report.summary.catalogBlockedLocalRows,
       detail: styleProofLocalActionabilityDetail(report, 'catalog-blocked'),
+    },
+  ]
+})
+const styleProofExternalHandoffFlags = computed<ExternalHandoffFlagDisplay[]>(() => {
+  const report = committedStyleProofExternalHandoff.value
+  return [
+    {
+      kind: 'phone',
+      label: '手机',
+      rowCount: report.summary.phoneRows,
+      detail: report.requiresPhone ? '需要手机预览读回' : '无手机阻断',
+    },
+    {
+      kind: 'account',
+      label: '账号',
+      rowCount: report.summary.externalAccountRows,
+      detail: report.requiresExternalAccount ? '需要真实账号环境' : '无账号阻断',
+    },
+    {
+      kind: 'public-host',
+      label: '公网',
+      rowCount: report.summary.publicHostRows,
+      detail: report.requiresPublicHost ? '需要公开 host 读回' : '无公网阻断',
+    },
+    {
+      kind: 'unsafe',
+      label: '人工',
+      rowCount: report.summary.unsafeToAutomateRows,
+      detail: report.containsUnsafeToAutomateRows ? '不得本地自动执行' : '无人工阻断',
+    },
+    {
+      kind: 'mutating',
+      label: '平台变更',
+      rowCount: report.summary.mutatingRows,
+      detail: report.containsMutatingPlatformRows ? '涉及同步或发布' : '无平台变更',
     },
   ]
 })
@@ -426,6 +475,35 @@ function styleProofLocalActionabilityDetail(
   return row
     ? `${platformLabel(row.platform)} ${styleProofRequirementLabel(row.requirementId)}；缺项 ${row.missing}/${row.blockedChoiceCount}；${row.choiceIds.slice(0, 2).join('、')}`
     : '当前没有目录阻断的本地安全行'
+}
+
+function styleProofExternalHandoffReason(report: CommittedStyleProofExternalHandoffReport): string {
+  if (report.canClaimComplete) return '提交证明已满足，仍以平台证据文件为准'
+
+  const blockers = [
+    report.canContinueLocally ? '' : '本地可行动为 0',
+    report.summary.safeExternalRows === 0 ? '安全外部自动化为 0' : '',
+    report.requiresPhone ? '手机预览未证明' : '',
+    report.requiresExternalAccount ? '账号平台未证明' : '',
+    report.requiresPublicHost ? 'public host 未证明' : '',
+    report.containsMutatingPlatformRows ? '同步或发布需人工' : '',
+  ].filter(Boolean)
+
+  return `没有可本地自动化的安全外部证明行；${blockers.join('；')}`
+}
+
+function styleProofExternalHandoffNextRowLabel(report: CommittedStyleProofExternalHandoffReport): string {
+  const row = report.nextPhoneRow
+    ?? report.nextExternalAccountRow
+    ?? report.nextPublicHostRow
+    ?? report.nextUnsafeToAutomateRow
+    ?? report.nextMutatingPlatformRow
+    ?? report.nextCatalogBlockedRow
+    ?? report.nextLocalActionableRow
+
+  return row
+    ? `${platformLabel(row.platform)} ${styleProofRequirementLabel(row.requirementId)}；${styleProofExecutionBoundaryLabel(row.boundary)}`
+    : '无外部交接行'
 }
 
 function styleProofReleaseIssueIdLabel(issueId: CommittedStyleProofReleaseGateBlocker['issueCounts'][number]['issueId']): string {
@@ -1591,6 +1669,7 @@ onUnmounted(() => {
                   <span>下一步 {{ styleProofNextGateLabel }}，共 {{ styleProofCollectionQueue.summary.totalGates }} 类门禁</span>
                   <span>验收审计 {{ styleProofAcceptanceSummary }}</span>
                   <span>提交证据宣称 {{ styleProofReleaseGateSummary }}</span>
+                  <span>外部交接 {{ styleProofExternalHandoffSummary }}</span>
                   <span>执行手册 开放 {{ styleProofExecutionRunbook.summary.openSteps }}；不可宣称 {{ styleProofExecutionRunbook.summary.cannotClaimSteps }}；下一手册 {{ styleProofNextRunbookLabel }}</span>
                 </div>
                 <div
@@ -1612,6 +1691,27 @@ onUnmounted(() => {
                         <strong>{{ row.rowCount }}</strong>
                       </div>
                       <p>{{ row.detail }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="style-proof-external-handoff"
+                  aria-label="外部证明交接"
+                >
+                  <div class="style-proof-external-handoff__summary">
+                    <span>{{ styleProofExternalHandoffSummary }}</span>
+                    <span>不能自动完成：{{ styleProofExternalHandoffReason(committedStyleProofExternalHandoff) }}</span>
+                    <span>下一步：{{ styleProofExternalHandoffNextRowLabel(committedStyleProofExternalHandoff) }}</span>
+                  </div>
+                  <div class="style-proof-external-handoff__flags">
+                    <div
+                      v-for="flag in styleProofExternalHandoffFlags"
+                      :key="flag.kind"
+                      class="style-proof-external-handoff__flag"
+                    >
+                      <span>{{ flag.label }}</span>
+                      <strong>{{ flag.rowCount }}</strong>
+                      <small>{{ flag.detail }}</small>
                     </div>
                   </div>
                 </div>
@@ -2492,6 +2592,7 @@ onUnmounted(() => {
 }
 
 .style-proof-local-actionability,
+.style-proof-external-handoff,
 .style-proof-external-checklist {
   display: grid;
   min-width: 0;
@@ -2508,7 +2609,13 @@ onUnmounted(() => {
   background: color-mix(in srgb, var(--accent-secondary-light) 24%, var(--bg-surface));
 }
 
+.style-proof-external-handoff {
+  border-color: color-mix(in srgb, var(--error) 20%, var(--hairline));
+  background: color-mix(in srgb, var(--error-light) 18%, var(--bg-surface));
+}
+
 .style-proof-local-actionability__summary,
+.style-proof-external-handoff__summary,
 .style-proof-external-checklist__summary {
   display: grid;
   min-width: 0;
@@ -2520,9 +2627,54 @@ onUnmounted(() => {
 }
 
 .style-proof-local-actionability__summary span,
+.style-proof-external-handoff__summary span,
 .style-proof-external-checklist__summary span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.style-proof-external-handoff__flags {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  min-width: 0;
+  gap: 6px;
+}
+
+.style-proof-external-handoff__flag {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  padding: 6px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  background: var(--bg-rice-paper);
+}
+
+.style-proof-external-handoff__flag span,
+.style-proof-external-handoff__flag small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.style-proof-external-handoff__flag span {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.style-proof-external-handoff__flag strong {
+  color: var(--error);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.style-proof-external-handoff__flag small {
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .style-proof-local-actionability__groups,

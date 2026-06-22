@@ -3314,3 +3314,46 @@ Required checks:
 - Evidence docs must record the live readback and explicitly state that the handoff report does
   not prove WeChat paste, phone preview, Dark Mode, cover thumbnail, sync, upload, scheduled send,
   public-host acceptance, platform preview, public rendering, or publish success.
+
+## 44. ExportModal External Proof Handoff Surface - 2026-06-23
+
+Contracts:
+- ExportModal may surface `getCommittedStyleProofExternalHandoffReport()` as a read-only operator
+  handoff inside the existing style capability area. It must consume the service report directly
+  and must not duplicate release-gate, checklist, or local-actionability accounting constants in
+  UI code.
+- The surface must not mutate renderer output, style catalog availability, style selection, proof
+  manifests, account state, browser state, clipboard output, sync, upload, scheduled-send, public
+  rendering, platform preview, or publish behavior.
+- The visible summary must expose the current structured handoff counts:
+  `externalHandoffRows`, `externalHandoffGroups`, `safeExternalRows`, and `actionableLocalRows`.
+- The visible flag grid must preserve the operator categories that block local automation:
+  phone rows, external-account rows, public-host rows, unsafe-to-automate rows, and
+  mutating-platform rows.
+- The surface must explicitly explain that there is no safe local/external automation path when
+  `safeExternalRows=0` and `actionableLocalRows=0`. It must not imply that Codex, a local script,
+  or a background task can silently collect credentialed, phone, public-host, sync, or publish
+  proof.
+- The next-row label may point to the first structured phone/account/public-host/unsafe/mutating
+  row, but it must remain a handoff label only. Do not render it as a button, direct action, or
+  platform automation trigger.
+- Labels and details must be localized for the operator UI. Service-layer identifiers may remain
+  in type names and tests, but not as the primary visible handoff text.
+- The surface must use existing design tokens and installed icon systems only. Do not introduce
+  emoji icons, missing CSS variables, nested cards, account capture artifacts, QR artifacts, local
+  browser-state details, or runtime capture locations.
+- The layout must fit narrow WebView and browser viewports without page-level horizontal overflow,
+  clipped counts, or text pushing outside its container.
+
+Required checks:
+- E2E coverage must open the real ExportModal and assert the handoff summary, `safeExternalRows=0`,
+  `actionableLocalRows=0`, the cannot-auto-complete text, and all five category counts.
+- Tauri/WebView2 E2E must keep the existing SVG flagship and 20-22 CJK chars/line assertions
+  passing after the handoff surface is added.
+- CloakBrowser verification should use a real local article and the real `发布` modal at a narrow
+  viewport, confirming `document.scrollWidth === document.clientWidth`, `overflowCount=0`, and the
+  handoff text is visible. Runtime screenshots are local inspection only and must not be committed.
+- Evidence docs must record the readback values and explicitly state that this UI surface is not
+  WeChat official editor paste, phone preview, mobile interaction, Dark Mode, cover-thumbnail
+  acceptance, credentialed sync, public-host acceptance, scheduled-send, platform-preview, public
+  rendering, Xiaohongshu upload, Zhihu upload, or publish proof.

@@ -1,0 +1,88 @@
+ExportModal External Handoff Surface - 2026-06-23
+
+Scope:
+- Read-only ExportModal operator surface for getCommittedStyleProofExternalHandoffReport().
+- No renderer output, style availability, style selection, proof manifests, browser profile,
+  platform account state, sync, upload, scheduled-send, public rendering, platform preview, or
+  publish behavior was changed.
+
+Implemented:
+- ExportModal consumes getCommittedStyleProofExternalHandoffReport() directly.
+- The style capability area now shows:
+  - externalHandoffRows=18
+  - externalHandoffGroups=4
+  - safeExternalRows=0
+  - actionableLocalRows=0
+- The handoff block shows five operator categories:
+  - phoneRows=4
+  - externalAccountRows=13
+  - publicHostRows=1
+  - unsafeToAutomateRows=13
+  - mutatingRows=13
+- The visible reason text says there is no safe local/external automation path and lists the
+  remaining phone, account, public-host, and mutating-platform blockers.
+- The next-row label is read-only and is not an action button.
+
+Real DOM verification:
+- WebdriverIO/Tauri/WebView2 opened the real ExportModal from a real local article.
+- The style capability probe read the new .style-proof-external-handoff DOM block.
+- Assertions passed for:
+  - "外部交接 18 行"
+  - "分组 4"
+  - "安全外部 0"
+  - "本地可行动 0"
+  - "没有可本地自动化的安全外部证明行"
+  - five handoff flags: 手机 4, 账号 13, 公网 1, 人工 13, 平台变更 13
+
+CloakBrowser narrow viewport readback:
+- Viewport: 390x844.
+- Real local article was created through the app store and loaded in Workstation.
+- The real "发布" / "全屏导出" UI button was clicked to open ExportModal.
+- document scrollWidth/clientWidth: 390/390.
+- body scrollWidth/clientWidth: 390/390.
+- Export panel scrollWidth/clientWidth: 374/374.
+- Handoff block scrollWidth/clientWidth: 331/331.
+- Overflowing elements in ExportModal: 0.
+- Handoff text included:
+  - 外部交接 18 行
+  - 分组 4
+  - 安全外部 0
+  - 本地可行动 0
+  - 手机 4
+  - 账号 13
+  - 公网 1
+  - 人工 13
+  - 平台变更 13
+
+Verification:
+- npx gitnexus analyze
+  PASS: repository indexed successfully, 27,731 nodes / 43,275 edges / 842 clusters / 300 flows.
+- npx gitnexus impact getCommittedStyleProofExternalHandoffReport -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes.
+- npx gitnexus impact ExportModal -r InkForge --depth 3
+  NOTE: target not found for the SFC component name; compensated with exact SFC impact, lint,
+  type-check, build, real DOM E2E, CloakBrowser readback, and final detect-changes.
+- npx gitnexus impact "Function:inkforge/src/components/export/ExportModal.vue:committedStyleProofExternalChecklist" -r InkForge --depth 3
+  PASS: LOW risk, 0 affected processes.
+- node --check inkforge/tests/e2e/specs/svg-render.spec.cjs
+  PASS.
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external handoff|external proof handoff|local actionability|external proof checklist" --reporter=default
+  PASS: 1 file / 3 selected tests.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4,653 modules transformed, built in 38.03s.
+- pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs
+  PASS: 1 spec / 6 tests in real Tauri/WebView2.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1,137 tests.
+
+Boundary:
+- This is a local operator UI handoff surface only.
+- It does not prove WeChat official editor paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, public-host acceptance, Xiaohongshu upload,
+  Zhihu upload, scheduled send, platform preview, public rendering, or publish success.
+- No credential material, local browser-state details, QR artifacts, account capture artifacts,
+  runtime capture locations, or platform account artifacts are part of this evidence.

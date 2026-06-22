@@ -373,6 +373,11 @@ function collectStyleCapabilityProbe() {
         .replace(/\s+/g, ' '),
       externalChecklistGroups: Array.from(document.querySelectorAll('.export-panel .style-proof-external-checklist__group'))
         .map((group) => (group.textContent || '').trim().replace(/\s+/g, ' ')),
+      externalHandoffText: (document.querySelector('.export-panel .style-proof-external-handoff')?.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' '),
+      externalHandoffFlags: Array.from(document.querySelectorAll('.export-panel .style-proof-external-handoff__flag'))
+        .map((flag) => (flag.textContent || '').trim().replace(/\s+/g, ' ')),
       localActionabilityText: (document.querySelector('.export-panel .style-proof-local-actionability')?.textContent || '')
         .trim()
         .replace(/\s+/g, ' '),
@@ -523,6 +528,57 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
       .to.include('不得把目录阻断或外部平台行当作本地补证完成');
     expect(wechat.localActionabilityGroups, 'local actionability exposes local/catalog groups')
       .to.have.length(2);
+    expect(wechat.externalHandoffText, 'WeChat external proof handoff is visible')
+      .to.include('外部交接 18 行');
+    expect(wechat.externalHandoffText, 'external handoff exposes group count')
+      .to.include('分组 4');
+    expect(wechat.externalHandoffText, 'external handoff keeps safe external automation closed')
+      .to.include('安全外部 0');
+    expect(wechat.externalHandoffText, 'external handoff mirrors no local actionable rows')
+      .to.include('本地可行动 0');
+    expect(wechat.externalHandoffText, 'external handoff explains why it cannot be automated')
+      .to.include('没有可本地自动化的安全外部证明行');
+    expect(wechat.externalHandoffText, 'external handoff points to the next operator row')
+      .to.include('下一步：');
+    expect(wechat.externalHandoffText, 'external handoff prioritizes phone-side proof first')
+      .to.include('；手机');
+    expect(wechat.externalHandoffFlags, 'external handoff exposes five handoff flags')
+      .to.have.length(5);
+    expect(
+      wechat.externalHandoffFlags.some((flag) =>
+        flag.includes('手机') &&
+        flag.includes('4') &&
+        flag.includes('需要手机预览读回')),
+      'external handoff exposes phone rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalHandoffFlags.some((flag) =>
+        flag.includes('账号') &&
+        flag.includes('13') &&
+        flag.includes('需要真实账号环境')),
+      'external handoff exposes account rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalHandoffFlags.some((flag) =>
+        flag.includes('公网') &&
+        flag.includes('1') &&
+        flag.includes('需要公开 host 读回')),
+      'external handoff exposes public host rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalHandoffFlags.some((flag) =>
+        flag.includes('人工') &&
+        flag.includes('13') &&
+        flag.includes('不得本地自动执行')),
+      'external handoff exposes unsafe rows',
+    ).to.equal(true);
+    expect(
+      wechat.externalHandoffFlags.some((flag) =>
+        flag.includes('平台变更') &&
+        flag.includes('13') &&
+        flag.includes('涉及同步或发布')),
+      'external handoff exposes mutating platform rows',
+    ).to.equal(true);
     expect(
       wechat.localActionabilityGroups.some((group) =>
         group.includes('本地可做') &&

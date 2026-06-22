@@ -8727,6 +8727,61 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 ExportModal External Handoff Surface Slice
+
+Scope:
+- Read-only ExportModal operator surface for the committed external handoff report.
+- No renderer output, style catalog availability, style selection, proof manifests, account state,
+  browser profile, sync, upload, scheduled send, public rendering, platform preview, or publish
+  behavior was changed.
+
+Implementation:
+- ExportModal now consumes `getCommittedStyleProofExternalHandoffReport()` directly.
+- The style capability area shows a handoff summary with `externalHandoffRows`,
+  `externalHandoffGroups`, `safeExternalRows`, and `actionableLocalRows`.
+- A compact flag grid exposes phone, account, public-host, unsafe-to-automate, and mutating-platform
+  counts without rendering any action button or platform automation trigger.
+- The visible reason text says there is no safe local/external automation path when
+  `safeExternalRows=0` and `actionableLocalRows=0`.
+- The WDIO ExportModal probe now reads the handoff block and category flags from the real DOM.
+
+Verification so far:
+- `npx gitnexus analyze`: refreshed the InkForge index before impact analysis.
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffReport -r InkForge --depth 3`: LOW
+  risk, 0 affected processes.
+- `npx gitnexus impact ExportModal -r InkForge --depth 3`: target not found; the SFC component
+  name is not directly resolvable in GitNexus, so file-level tests, type-check, build, DOM E2E, and
+  final `detect-changes` are required compensation.
+- `npx gitnexus impact "Function:inkforge/src/components/export/ExportModal.vue:committedStyleProofExternalChecklist" -r InkForge --depth 3`:
+  LOW risk, 0 affected processes.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`: passed.
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "external handoff|external proof handoff|local actionability|external proof checklist" --reporter=default`:
+  passed, 1 file / 3 selected tests.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 38.03s.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`:
+  passed, 1 spec / 6 tests in the real Tauri/WebView2 runner.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1137 tests.
+- CloakBrowser narrow viewport readback at `390x844` used a real local article and the real
+  `发布` / `全屏导出` UI button. ExportModal readback reported `外部交接 18 行`, `分组 4`,
+  `安全外部 0`, `本地可行动 0`, `手机 4`, `账号 13`, `公网 1`, `人工 13`, `平台变更 13`,
+  `document.scrollWidth=390`, `document.clientWidth=390`, panel `374/374`, handoff `331/331`,
+  and `overflowingCount=0`. Runtime screenshots were used only for local visual inspection and are
+  not committed artifacts.
+
+Pending verification:
+- Final `git diff --check`, GitNexus `detect-changes`, staged sensitive scan, and exact-file
+  commit.
+
+Boundary:
+- This is a local UI handoff surface only. It does not prove WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, scheduled send, platform preview,
+  public rendering, or publish success.
+
 ## 2026-06-23 Public Source Refresh Slice
 
 Scope:
