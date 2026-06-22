@@ -3720,3 +3720,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor paste, mobile trigger behavior, phone preview, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public-host acceptance, account upload, scheduled send, platform preview,
   public rendering, or publish success.
+
+## 2026-06-22 Xiumi Applied SVG Sample CloakBrowser Probe
+
+- [x] xiumi-applied-svg-sample-cloakbrowser-20260622.txt
+- In the already-open Xiumi v5 paper editor, clicking the `SVG` category expanded the library from
+  23 to 43 template items and exposed SVG interaction subcategories such as image carousel, click
+  expand, path animation, transition, click switch, flip, zoom, quiz, click show, popup, click play,
+  long-press switch, and region trigger.
+- Clicking the first visible SVG image-gallery sample changed the center `.tn-editing-panel` from
+  21 to 51 `tn-comp` nodes, 9 to 27 `tn-cell` nodes, 78 to 81 images, and 1 to 2 contenteditable
+  cells, while center literal SVG stayed 0.
+- The applied center exposed `tn-animate`, `tn-link`, `tn-uuid`, `opera-tn-ra-*`,
+  `tn-image-presenter raw-image`, `tn-content-overlap`, `ui-sortable`, `ui-slider`, Angular
+  runtime attributes, and hosted `statics.xiumi.us` references. Existing detector families already
+  block these as Xiumi authoring residue if copied into publishable output.
+- Boundary: this is applied-editor DOM learning only. It does not prove WeChat official editor
+  paste, mobile rendering, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, platform preview, public rendering, or
+  publish success.

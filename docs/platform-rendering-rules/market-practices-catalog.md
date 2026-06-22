@@ -889,6 +889,15 @@ Xiumi SVG/H5 rules:
   InkForge's local no-copy gate on WeChat/XHS/Zhihu publishable output; they do not prove WeChat
   paste, mobile trigger behavior, Dark Mode, cover thumbnail acceptance, sync, upload, public
   preview, scheduled send, or publish success.
+- 2026-06-22 applied Xiumi SVG sample follow-up: clicking the live `SVG` category expanded the
+  library from 23 to 43 template items and exposed the same mobile-interaction taxonomy in the
+  current editor. Clicking the first visible SVG image-gallery sample changed the center
+  `.tn-editing-panel` from 21 to 51 `tn-comp` nodes, 9 to 27 `tn-cell` nodes, 78 to 81 images, and
+  1 to 2 contenteditable cells while center literal SVG stayed `0`. The applied center carried
+  `tn-animate`, `tn-link`, `tn-uuid`, `opera-tn-ra-*`, `tn-image-presenter raw-image`,
+  `tn-content-overlap`, `ui-sortable`, `ui-slider`, Angular runtime attributes, and hosted
+  `statics.xiumi.us` references. This is strong applied-editor DOM evidence for InkForge-owned
+  schema/fallback design, and still residue if copied into publishable output.
 - 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
   injection/preview pipeline in the visible template list and hidden controls. Markers included
   `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,
@@ -909,6 +918,7 @@ Evidence:
 - `prompts/0601/evidence/135-svg-free-trial-cloakbrowser-recheck-20260621.txt`
 - `prompts/0601/evidence/135-background-only-svg-compatibility-fixture-20260620.txt`
 - `prompts/0601/evidence/market-live-recheck-135-xiumi-20260622.txt`
+- `prompts/0601/evidence/xiumi-applied-svg-sample-cloakbrowser-20260622.txt`
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`

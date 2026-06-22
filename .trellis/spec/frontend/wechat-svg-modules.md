@@ -213,6 +213,16 @@ construct breaks.
   line-height-zero image motifs, and text cells, with no literal center inline SVG in the sampled
   cards. Treat this as section-rhythm/component-tree evidence only; `tn-*`, `ng-*`, template
   renderer state, hosted material references, and authoring bindings remain residue blockers.
+- 2026-06-22 applied Xiumi SVG sample refresh: clicking the `SVG` category in the live v5 paper
+  editor expanded the library from 23 to 43 template items. Clicking the first visible SVG
+  image-gallery sample changed the center `.tn-editing-panel` by roughly 31.9k HTML chars,
+  `tn-comp` 21 to 51, `tn-cell` 9 to 27, images 78 to 81, contenteditable cells 1 to 2, while
+  center literal SVG remained 0. The applied state exposed `tn-animate`, `tn-link`, `tn-uuid`,
+  `opera-tn-ra-*`, `tn-image-presenter raw-image`, `tn-content-overlap`, `ui-sortable`,
+  `ui-slider`, Angular runtime attributes, and hosted `statics.xiumi.us` references. Treat this as
+  applied-editor-element evidence for source-owned image slots, motion/action schema, layout
+  reports, and raster/static fallback only; copied Xiumi authoring DOM remains publish-blocking
+  residue.
 - 2026-06-17 executable manifest contract: `StyleProofArtifact.centralEditorChanged === true`
   is now required for `market-applied-dom-readback`. A library/category/item selection,
   preview-library SVG count change, or settings-panel readback may inform taxonomy, but it must

@@ -1,0 +1,99 @@
+Xiumi Applied SVG Sample CloakBrowser Probe - 2026-06-22
+
+Scope:
+- CloakBrowser-only live probe inside the already-open Xiumi v5 paper editor.
+- No screenshot, account artifact, browser profile artifact, cookie, HAR, save, export, sync,
+  upload, scheduled send, public preview, phone preview, or publish action is recorded here.
+- The probe clicked only the Xiumi SVG category and one visible SVG sample in an unsaved editor
+  surface, then read redacted DOM counts from the active page.
+
+Baseline before clicking the SVG category:
+- Active page title showed the Xiumi paper editor for an untitled article.
+- Visible top actions included Open, Preview, Save, Export, and More.
+- Left template filters included Title, Card, Image, Layout, SVG, and Component.
+- Body-level counts:
+  - `tn-tpl-item`: 23
+  - `tn-comp-pin`: 219
+  - `tn-from-house-paper-cp`: 213
+  - `tn-editing-panel`: 1
+  - `tn-comp`: 219
+  - `tn-cell`: 257
+  - `ng-*` attributes: 5769
+  - contenteditable cells: 1
+  - images: 140
+  - literal SVG elements: 0
+
+After clicking the SVG category:
+- The left SVG category expanded and exposed subcategories including basic SVG, image carousel,
+  click expand, path animation, lottery/draw, fun slide, transition, parallax movement,
+  click switch, flip, zoom, quiz, bullet text, click show, click image change, click open,
+  click disappear, popup, click zoom, click print, click jump, click play, long-press switch,
+  region trigger, click drop, and click plus auto.
+- The visible library text included SVG interaction descriptions such as image-gallery scrolling,
+  draggable circular window, tab/page-turning diary, light/dark switch, and coloring-game patterns.
+- Body-level counts changed to:
+  - `tn-tpl-item`: 43
+  - visible `tn-tpl-item`: 20
+  - `tn-comp-pin`: 339
+  - `tn-from-house-paper-cp`: 329
+  - `tn-comp`: 335
+  - `tn-cell`: 386
+  - `ng-*` attributes: 5912
+  - contenteditable cells: 1
+  - images: 184
+  - literal SVG elements: 241
+
+Applied SVG sample:
+- Clicked the first visible SVG sample, described by the editor as an SVG interaction effect where
+  a game-screen/gallery smoothly scrolls multiple images left; component family was SVG image
+  gallery; image ratio was 1080 x 720.
+- Center `.tn-editing-panel` before the sample click:
+  - html length: 566067
+  - `tn-comp`: 21
+  - `tn-cell`: 9
+  - contenteditable cells: 1
+  - images: 78
+  - literal SVG elements: 0
+- Center `.tn-editing-panel` after the sample click:
+  - html length: 597987
+  - text included the SVG interaction description and editor operation labels
+  - `tn-comp`: 51
+  - `tn-cell`: 27
+  - contenteditable cells: 2
+  - images: 81
+  - literal SVG elements: 0
+  - panel `ng-*` attributes: 4602
+  - `tn-uuid`: 22
+  - `opera-tn-ra-*`: 49
+  - `statics.xiumi.us` references: 19
+  - `tn-animate*` attributes: 49
+
+Notable applied-center authoring markers:
+- Attribute families included `ng-click`, `ng-repeat`, `ng-bind`, `ng-class`, `ng-show`,
+  `ng-model`, `ng-style`, `ng-include`, `ng-controller`, `tn-attach-to`, `tn-dropdown`,
+  `tn-animate`, `tn-link`, `tn-cell-type`, `tn-cell`, `tn-comp`, `tn-comp-pose`, `tn-uuid`,
+  `tn-child-position`, `tn-animate-on-self`, `opera-tn-ra-cell`, and `opera-tn-ra-comp`.
+- Class families included `ng-scope`, `ng-binding`, `ng-hide`, `ng-pristine`, `ng-untouched`,
+  `ng-valid`, `tn-cell`, `tn-cell-inst`, `tn-comp-anim-pin`, `tn-comp-inst`, `tn-comp-pin`,
+  `tn-comp-style-pin`, `tn-group-sortable-box`, `tn-sortable-pin`, `tn-comp-slot`,
+  `tn-child-position-absolute`, `tn-state-frozen`, `tn-content-overlap`, `ui-sortable`,
+  `ui-slider`, `tn-child-orientation-fixed`, `tn-from-house-edit_paper-cp`,
+  `tn-overflow-hidden`, and `tn-image-inst-wrapper`.
+- Image markers included `tn-image-presenter raw-image` backed by `statics.xiumi.us` assets.
+
+Rule conclusion:
+- This run meets the applied-editor-element bar because a visible SVG sample click changed the
+  center paper/editor surface and the after-state DOM was read.
+- The applied sample still produced a Xiumi authoring component tree with zero literal center SVG.
+  It should inform InkForge-owned image-slot manifests, motion/action schema, layout reports,
+  static/raster fallback, and mobile-proof gates.
+- The copied Xiumi authoring tree must remain publish-blocking residue. Existing detector families
+  cover the observed markers through Xiumi component binding attributes, SVG gallery state wrappers,
+  layer/raw-image residue, Angular/Vue authoring attributes/classes, and broad `tn-*` authoring
+  tree rules.
+
+Boundary:
+- This evidence does not prove WeChat official editor paste, WeChat mobile rendering, mobile
+  SMIL/click behavior, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, platform preview, public rendering, or
+  publish success.

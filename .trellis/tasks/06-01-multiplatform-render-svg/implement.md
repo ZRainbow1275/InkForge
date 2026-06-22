@@ -8774,6 +8774,43 @@ Boundary:
   credentialed sync, public-host acceptance, account upload, scheduled send, platform preview,
   public rendering, or publish success.
 
+## 2026-06-22 Xiumi Applied SVG Sample CloakBrowser Probe Slice
+
+Scope:
+- CloakBrowser-only applied-center learning from the already-open Xiumi v5 paper editor.
+- No screenshot, account artifact, browser profile artifact, cookie, HAR, save, export, sync,
+  upload, phone preview, scheduled send, public rendering, or publish action was recorded.
+
+Observation:
+- Baseline editor body showed 23 `tn-tpl-item`, 219 `tn-comp-pin`, 213
+  `tn-from-house-paper-cp`, 5769 `ng-*` attributes, 140 images, and 0 literal SVG elements.
+- Clicking the `SVG` category expanded the visible taxonomy to 43 template items and exposed
+  mobile interaction families such as image carousel, click expand, path animation, click switch,
+  flip, zoom, quiz, popup, long-press switch, region trigger, and click plus auto.
+- Clicking the first visible SVG image-gallery sample changed center `.tn-editing-panel` from
+  21 to 51 `tn-comp` nodes, 9 to 27 `tn-cell` nodes, 78 to 81 images, 1 to 2 contenteditable
+  cells, and about +31.9k HTML chars, while center literal SVG stayed 0.
+- The applied center exposed `tn-animate`, `tn-link`, `tn-uuid`, `opera-tn-ra-*`,
+  `tn-image-presenter raw-image`, `tn-content-overlap`, `ui-sortable`, `ui-slider`, Angular
+  runtime attributes, hosted `statics.xiumi.us` references, and no portable center inline SVG.
+
+Rule decision:
+- This meets the applied-editor-element bar for Xiumi SVG learning.
+- No new runtime detector was required in this slice: existing Xiumi component-binding,
+  state-wrapper, layer/raw-image, Angular/Vue authoring, and broad `tn-*` residue families already
+  cover the observed markers.
+- The result informs only InkForge-owned image slots, motion/action schema, layout reports,
+  static/raster fallback, and mobile-proof gates.
+
+Evidence:
+- `prompts/0601/evidence/xiumi-applied-svg-sample-cloakbrowser-20260622.txt`
+
+Boundary:
+- This does not prove WeChat official editor paste, mobile rendering, mobile SMIL/click behavior,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public-host
+  acceptance, Xiaohongshu upload, Zhihu upload, platform preview, public rendering, or publish
+  success.
+
 ## 2026-06-22 Post-Reboot CloakBrowser Market Rule Recheck
 
 Scope:
