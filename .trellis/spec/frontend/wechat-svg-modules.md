@@ -3550,3 +3550,25 @@ Required checks:
   paste, exact-artifact proof, safe-disposable-draft proof, phone preview, mobile interaction,
   Dark Mode, cover-thumbnail acceptance, credentialed sync, scheduled-send, platform-preview,
   public rendering, and publish success.
+
+## 50. WeChat Safe Disposable Draft Preflight - 2026-06-23
+
+Contracts:
+- A safe disposable draft run requires an unambiguous draft identity before it can satisfy
+  `safe-disposable-draft`.
+- Generic untitled drafts are not safe cleanup anchors when the draft list already contains
+  existing generic untitled labels.
+- A read-only route scan that finds no sanitized `href`, `data-url`, or `data-action` for the
+  article/create menu option is blocker evidence only. It must not be upgraded into
+  `authenticated-editor-reachable` or `pc-editor-dom-readable`.
+- A separate article-template route is not the proof target editor route unless it later produces
+  the exact article editor DOM for the disposable draft.
+- Before activating a menu option that may create or alter real account state, the run must define
+  the unique draft marker, expected cleanup selector/path, and post-cleanup readback fields.
+
+Required checks:
+- Evidence docs must state whether the create route exposed sanitized action metadata.
+- Evidence docs must state whether existing generic untitled draft labels make cleanup ambiguous.
+- Evidence docs must explicitly keep `safe-disposable-draft`, editor reachability, PC DOM readback,
+  paste, phone preview, credentialed sync, scheduled-send, platform-preview, public rendering, and
+  publish success unclaimed when the preflight is blocked.

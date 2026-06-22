@@ -4519,3 +4519,24 @@ Boundary:
   reachability, PC editor DOM readback, paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
   publish success.
+
+---
+
+## 2026-06-23 WeChat Safe Disposable Draft Preflight Blocker Addendum
+
+- Used CloakBrowser only for a read-only metadata scan of the draft-box new-creation menu.
+- The visible article/create menu option did not expose a sanitized `href`, `data-url`, or
+  `data-action` route in the DOM metadata scan.
+- A separate article-template link exposed only `https://mp.weixin.qq.com/cgi-bin/appmsgtemplate`;
+  this is not the proof target editor route.
+- Existing generic untitled draft labels were present, making blank/untitled cleanup ambiguous.
+- The article/create menu option was not activated. This keeps `safe-disposable-draft`, editor
+  reachability, PC editor DOM readback, and paste unclaimed for this route.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-safe-disposable-draft-preflight-blocker-20260623.txt`.
+- Verification passed: docs/evidence `git diff --check`; staged redaction scan; and GitNexus
+  staged detect with `No changes detected`, matching the docs-only scope.
+- Boundary: this is preflight blocker evidence only. It does not prove WeChat official editor
+  reachability, PC editor DOM readback, paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.

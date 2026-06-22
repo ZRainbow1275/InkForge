@@ -3991,3 +3991,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform
   preview, public rendering, or publish success.
+
+## 2026-06-23 WeChat Safe Disposable Draft Preflight Blocker
+
+- [x] wechat-safe-disposable-draft-preflight-blocker-20260623.txt
+- CloakBrowser-only read-only metadata scan found that the visible article/create menu option did
+  not expose a sanitized `href`, `data-url`, or `data-action` route.
+- A separate article-template link exposed only `https://mp.weixin.qq.com/cgi-bin/appmsgtemplate`;
+  this is not the proof target editor route.
+- Existing generic untitled draft labels were present, so creating another blank/untitled draft
+  would make cleanup ambiguous.
+- The slice therefore did not activate the article/create menu option and keeps
+  `safe-disposable-draft`, editor reachability, PC editor DOM readback, and paste unclaimed.
+- Verification passed: docs/evidence `git diff --check`, staged redaction scan, and GitNexus
+  staged detect with `No changes detected`.
+- Boundary: this is preflight blocker evidence only. It does not prove WeChat editor reachability,
+  PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft proof, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, sync, scheduled send, platform
+  preview, public rendering, or publish success.

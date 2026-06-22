@@ -1,0 +1,48 @@
+WeChat Safe Disposable Draft Preflight Blocker - 2026-06-23
+
+Scope:
+- CloakBrowser-only read-only preflight from the WeChat Official Account draft-box new-creation
+  menu.
+- No menu child option was activated.
+- No editor creation, existing-draft opening, paste, save, preview, sync, upload, scheduled send,
+  public rendering, or publish action was performed.
+
+Observed route metadata:
+- Sanitized URL category stayed `https://mp.weixin.qq.com/cgi-bin/appmsg`.
+- Generic menu options were visible: `文章`, `选择已有内容`, `贴图`, `视频`, `播客`, and `转载`.
+- The article/create menu option did not expose a sanitized `href`, `data-url`, or `data-action`
+  route in the read-only DOM metadata scan.
+- A separate article-template link exposed only the sanitized path
+  `https://mp.weixin.qq.com/cgi-bin/appmsgtemplate`; this is not the proof target editor route.
+
+Observed cleanup ambiguity:
+- The draft-box list contained existing generic untitled draft labels.
+- Because existing generic untitled draft labels are not unique, creating another blank or untitled
+  draft would make cleanup ambiguous.
+- A safe disposable draft run must create or isolate a uniquely identifiable draft first, then
+  prove cleanup against that exact draft identity. This preflight did not meet that condition.
+
+Decision:
+- Do not activate the article/create menu option in this slice.
+- Keep `safe-disposable-draft`, `authenticated-editor-reachable`, `pc-editor-dom-readable`, and
+  `pc-editor-paste` unclaimed for this route.
+
+Redaction:
+- Account labels, draft titles beyond generic untitled-state labels, published titles, credential
+  query parameters, account images, runtime capture locations, and local browser-state details are
+  not recorded.
+- No account page image, QR material, request archive, or captured account artifact is committed.
+
+Acceptance boundary:
+- This is a blocker/preflight record only.
+- It does not satisfy authenticated editor reachability, PC editor DOM readback, PC editor paste,
+  exact-artifact proof, safe-disposable-draft proof, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, or publish success.
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.

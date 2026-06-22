@@ -8795,6 +8795,43 @@ Boundary:
   acceptance, credentialed sync, scheduled send, platform preview, public rendering, or publish
   success.
 
+## 2026-06-23 WeChat Safe Disposable Draft Preflight Blocker Slice
+
+Scope:
+- CloakBrowser-only read-only metadata scan of the WeChat draft-box new-creation route.
+- No renderer output, style availability, proof manifest, editor creation, existing-draft opening,
+  paste, save, preview, sync, upload, scheduled send, public rendering, or publish behavior was
+  changed.
+
+Observed:
+- The visible article/create menu option did not expose a sanitized `href`, `data-url`, or
+  `data-action` route in the DOM metadata scan.
+- A separate article-template link exposed only `https://mp.weixin.qq.com/cgi-bin/appmsgtemplate`;
+  this is not the proof target editor route.
+- Existing generic untitled draft labels were present. Creating another blank or untitled draft
+  would make cleanup ambiguous.
+
+Decision:
+- The article/create menu option was not activated in this slice.
+- Keep `safe-disposable-draft`, editor reachability, PC editor DOM readback, and paste unclaimed
+  for this route until a uniquely identifiable disposable draft and cleanup path are proven.
+
+Artifacts:
+- `prompts/0601/evidence/wechat-safe-disposable-draft-preflight-blocker-20260623.txt`
+
+Verification:
+- `git diff --check` passed for the touched docs/evidence files.
+- Staged redaction scan returned no matches for local paths, browser-state paths, account captures,
+  request archives, QR material, or credential-bearing strings.
+- `npx gitnexus detect-changes -r InkForge --scope staged` returned `No changes detected`,
+  matching the docs-only scope.
+
+Boundary:
+- This is preflight blocker evidence only. It does not prove WeChat official editor reachability,
+  PC editor DOM readback, PC editor paste, exact-artifact proof, safe-disposable-draft proof,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, or publish success.
+
 ## 2026-06-23 WeChat Market SVG/H5 Fallback Matrix Runtime Refresh
 
 Scope:
