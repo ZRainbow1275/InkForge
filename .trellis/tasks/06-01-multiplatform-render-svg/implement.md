@@ -8775,6 +8775,45 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled-send,
   platform preview, public rendering, or publish success.
 
+## 2026-06-23 Style Proof Redaction Review Gate Slice
+
+Scope:
+- Local manifest validation and evidence hygiene for platform visible-text readbacks only.
+- No renderer output, platform draft creation, editor paste, phone preview, sync, scheduled send,
+  public rendering, upload, or publish behavior was changed.
+
+Implementation:
+- Added `redactionReviewRequired?: boolean` and `redactionVerified?: boolean` to
+  `StyleProofArtifact`.
+- Added semantic issue id `style-proof-manifest-redaction-review-missing`.
+- Manifest intake now accepts both boolean fields without schema warnings.
+- `validateStyleProofArtifactHygiene()` now invalidates an artifact when
+  `redactionReviewRequired:true` is present without `redactionVerified:true`.
+- The artifact-level issue location keeps the artifact invalid and keeps the matching requirement
+  in acceptance-audit `cannotClaim`.
+
+Verification:
+- TDD red run first failed because the new redaction fields were treated as unknown intake fields.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "visible-text readbacks" --reporter=default`:
+  passed, 1 selected test.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|visible-text|sensitive|safeForCommit|proof manifest|acceptance audit" --reporter=default`:
+  passed, 21 selected tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 171 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1148 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 34.94s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+
+Boundary:
+- This is local evidence-hygiene accounting only. It does not prove WeChat official editor
+  reachability, PC editor DOM readback, paste, safe disposable draft creation/cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled-send, platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-23 WeChat Draft Box Authenticated CloakBrowser Readback Slice
 
 Scope:

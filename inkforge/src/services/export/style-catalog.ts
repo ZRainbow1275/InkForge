@@ -328,6 +328,8 @@ export interface StyleProofArtifact {
   createRouteActionMetadataMissing?: boolean
   cleanupTargetAmbiguous?: boolean
   artifactManifestValidated?: boolean
+  redactionReviewRequired?: boolean
+  redactionVerified?: boolean
   collectedAt?: string
   safeForCommit?: boolean
   committed?: boolean
@@ -376,6 +378,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-create-route-action-missing'
   | 'style-proof-manifest-cleanup-target-ambiguous'
+  | 'style-proof-manifest-redaction-review-missing'
   | 'style-proof-manifest-platform-action-missing'
   | 'style-proof-manifest-readback-missing'
   | 'style-proof-manifest-public-image-host-missing'
@@ -428,6 +431,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-cleanup-path-missing',
   'style-proof-manifest-create-route-action-missing',
   'style-proof-manifest-cleanup-target-ambiguous',
+  'style-proof-manifest-redaction-review-missing',
   'style-proof-manifest-platform-action-missing',
   'style-proof-manifest-readback-missing',
   'style-proof-manifest-public-image-host-missing',
@@ -909,6 +913,7 @@ export type StyleProofArtifactVerificationField =
   | 'disposableDraft'
   | 'cleanupPathVerified'
   | 'artifactManifestValidated'
+  | 'redactionVerified'
   | 'collectedAt'
   | 'safeForCommit'
   | 'committed'
@@ -3869,6 +3874,15 @@ function validateStyleProofArtifactHygiene(artifact: StyleProofArtifact, issues:
     })
   }
 
+  if (artifact.redactionReviewRequired === true && artifact.redactionVerified !== true) {
+    addStyleProofIssue(issues, {
+      id: 'style-proof-manifest-redaction-review-missing',
+      message: `Proof artifact ${artifact.id} contains platform-visible text that has not passed redaction review.`,
+      suggestion: 'Record redactionVerified:true only after account labels, draft titles, published titles, credential query material, account images, runtime capture locations, and local browser-state details are excluded from committed evidence.',
+      location: artifact.id,
+    })
+  }
+
   if (isUnsafeStyleProofCommitArtifact(artifact)) {
     addStyleProofIssue(issues, {
       id: 'style-proof-manifest-unsafe-commit-artifact',
@@ -5199,6 +5213,8 @@ function isStyleProofRequiredFieldSatisfied(
       return artifact.cleanupPathVerified === true
     case 'artifactManifestValidated':
       return artifact.artifactManifestValidated === true
+    case 'redactionVerified':
+      return artifact.redactionVerified === true
     case 'collectedAt':
       return isStyleProofCollectedAtFresh(
         artifact,
@@ -6474,6 +6490,7 @@ const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerification
   disposableDraft: 'disposableDraft:true for a draft that can be safely mutated and removed',
   cleanupPathVerified: 'cleanupPathVerified:true after the cleanup path is proven',
   artifactManifestValidated: 'artifactManifestValidated:true after the platform artifact manifest validator passes',
+  redactionVerified: 'redactionVerified:true after platform-visible account and draft text is excluded from committed evidence',
   collectedAt: `collectedAt: parseable timestamp within ${STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS} days for external proof rows`,
   safeForCommit: 'safeForCommit:true after redaction and repository hygiene review',
   committed: 'committed:true only for tracked proof artifacts',
@@ -6774,6 +6791,8 @@ const STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS = new Set<string>([
   'createRouteActionMetadataMissing',
   'cleanupTargetAmbiguous',
   'artifactManifestValidated',
+  'redactionReviewRequired',
+  'redactionVerified',
   'collectedAt',
   'safeForCommit',
   'committed',
@@ -6806,6 +6825,8 @@ type StyleProofArtifactBooleanField =
   | 'createRouteActionMetadataMissing'
   | 'cleanupTargetAmbiguous'
   | 'artifactManifestValidated'
+  | 'redactionReviewRequired'
+  | 'redactionVerified'
   | 'safeForCommit'
   | 'committed'
   | 'sensitive'
@@ -6835,6 +6856,8 @@ const STYLE_PROOF_ARTIFACT_BOOLEAN_FIELDS = [
   'createRouteActionMetadataMissing',
   'cleanupTargetAmbiguous',
   'artifactManifestValidated',
+  'redactionReviewRequired',
+  'redactionVerified',
   'safeForCommit',
   'committed',
   'sensitive',

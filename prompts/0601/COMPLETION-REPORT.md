@@ -4563,3 +4563,24 @@ Boundary:
   reachability, PC editor DOM readback, paste, safe disposable draft creation/cleanup, phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public rendering, or publish success.
+
+---
+
+## 2026-06-23 Style Proof Redaction Review Gate Addendum
+
+- Added `redactionReviewRequired` and `redactionVerified` to proof artifacts so platform visible
+  text readbacks can require explicit redaction review before becoming claimable evidence.
+- Added semantic issue id `style-proof-manifest-redaction-review-missing`.
+- Intake accepts both boolean fields without schema warnings. Semantic validation keeps a
+  `redactionReviewRequired:true` artifact invalid until `redactionVerified:true` is recorded.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-redaction-review-gate-20260623.txt`.
+- Verification passed: TDD red run for the unknown redaction fields; focused visible-text
+  regression; 21 selected manifest/intake/sensitive/proof/acceptance tests; full
+  `platform-export-rendering.test.ts` with 171 tests; full serial `src/services/export` with 36
+  files / 1148 tests; targeted ESLint; `vue-tsc`; and production build with 4653 modules
+  transformed in 34.94s.
+- Boundary: this is local evidence-hygiene accounting only. It does not prove WeChat official
+  editor reachability, PC editor DOM readback, paste, safe disposable draft creation/cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, upload, or publish success.

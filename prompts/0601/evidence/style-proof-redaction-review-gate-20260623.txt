@@ -1,0 +1,51 @@
+Style Proof Redaction Review Gate - 2026-06-23
+
+Scope:
+- Local manifest validation and evidence-hygiene accounting for platform visible-text readbacks.
+- No platform draft creation, editor paste, phone preview, sync, scheduled send, upload, public
+  rendering, or publish operation was performed.
+
+Implemented:
+- Added StyleProofArtifact.redactionReviewRequired.
+- Added StyleProofArtifact.redactionVerified.
+- Added issue id style-proof-manifest-redaction-review-missing.
+
+Behavior:
+- redactionReviewRequired=true means the proof artifact came from a platform surface where account
+  labels, draft titles, published titles, account images, temporary platform context, runtime
+  capture locations, or local browser-state details may have been present before summarization.
+- redactionVerified=true may be recorded only after committed evidence excludes those details and
+  keeps only sanitized counts, generic workflow labels, hashes, or redacted references.
+- A redactionReviewRequired=true artifact without redactionVerified=true is invalid.
+- The invalid artifact keeps the matching requirement in acceptance-audit cannotClaim.
+- safeForCommit=true does not override this redaction-review blocker.
+
+Regression coverage:
+- The new boolean fields are accepted by manifest intake without schema warnings.
+- A platform visible-text readback requiring review emits
+  style-proof-manifest-redaction-review-missing until redactionVerified=true is present.
+- The artifact report remains invalid.
+- Acceptance audit cannotClaim includes the affected requirement.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "visible-text readbacks" --reporter=default
+  PASS: 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "manifest intake|visible-text|sensitive|safeForCommit|proof manifest|acceptance audit" --reporter=default
+  PASS: 21 selected tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 171 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1148 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 34.94s
+
+Boundary:
+- This proves local evidence-hygiene accounting only.
+- It does not prove WeChat official editor reachability, PC editor DOM readback, paste, exact
+  artifact proof, safe disposable draft creation, cleanup, phone preview, mobile interaction, Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, upload, or publish success.

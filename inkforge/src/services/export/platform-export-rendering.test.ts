@@ -930,6 +930,52 @@ describe('platform native export rendering rules', () => {
     expect(report.canClaimComplete).toBe(false)
   })
 
+  it('keeps platform visible-text readbacks unclaimable until redaction review is verified', () => {
+    const report = getStyleProofManifestIntakeReport({
+      platform: 'wechat',
+      choiceId: 'wechat-classic-inline',
+      claimedEvidence: ['authenticated-editor-reachable'],
+      artifacts: [
+        {
+          id: 'wechat-visible-text-redaction-blocker',
+          requirementId: 'authenticated-editor-url',
+          kind: 'browser-readback',
+          label: 'redacted platform visible text readback',
+          evidenceLabel: 'authenticated-editor-reachable',
+          platform: 'wechat',
+          choiceId: 'wechat-classic-inline',
+          channel: 'platform-editor',
+          action: 'authenticated-editor-opened',
+          readback: 'dom',
+          authenticatedSessionVerified: true,
+          platformEditorTargetVerified: true,
+          redactionReviewRequired: true,
+          collectedAt: new Date().toISOString(),
+          safeForCommit: true,
+        },
+      ],
+    })
+    const issueIds = report.packReport.issues.map(issue => issue.id)
+    const acceptedManifest = report.manifests[0]
+    const acceptedArtifact = acceptedManifest?.artifacts[0] as unknown as Record<string, unknown> | undefined
+    const manifestReport = acceptedManifest ? getStyleProofManifestReport(acceptedManifest) : null
+    const redactionArtifact = manifestReport?.artifacts.find(artifact =>
+      artifact.artifact.id === 'wechat-visible-text-redaction-blocker'
+    )
+
+    expect(report.status).toBe('ready-for-review')
+    expect(report.summary.schemaWarningCount).toBe(0)
+    expect(acceptedArtifact?.redactionReviewRequired).toBe(true)
+    expect(acceptedArtifact?.redactionVerified).toBeUndefined()
+    expect(issueIds).toContain('style-proof-manifest-redaction-review-missing')
+    expect(report.summary.semanticIssueCount).toBeGreaterThan(0)
+    expect(redactionArtifact?.status).toBe('invalid')
+    expect(report.acceptanceAudit.platformReports.wechat.cannotClaim.map(requirement =>
+      requirement.requirement.id
+    )).toContain('authenticated-editor-url')
+    expect(report.canClaimComplete).toBe(false)
+  })
+
   it('creates empty style proof manifest drafts that enumerate real proof gaps without fake artifacts', () => {
     const draft = createStyleProofManifestDraft({
       platform: 'wechat',

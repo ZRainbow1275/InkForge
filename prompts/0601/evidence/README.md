@@ -4028,3 +4028,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft creation
   or cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
   scheduled send, platform preview, public rendering, or publish success.
+
+## 2026-06-23 Style Proof Redaction Review Gate
+
+- [x] style-proof-redaction-review-gate-20260623.txt
+- Added manifest fields `redactionReviewRequired` and `redactionVerified` for platform visible-text
+  evidence hygiene.
+- Added semantic issue id `style-proof-manifest-redaction-review-missing`.
+- Intake accepts both boolean fields without schema warnings, while semantic validation keeps a
+  `redactionReviewRequired:true` artifact invalid until `redactionVerified:true` is recorded.
+- Verification passed: TDD red run for the unknown redaction fields; focused visible-text
+  regression; 21 selected manifest/intake/sensitive/proof/acceptance tests; full
+  `platform-export-rendering.test.ts` with 171 tests; full serial `src/services/export` with 36
+  files / 1148 tests; targeted ESLint; `vue-tsc`; and production build with 4653 modules
+  transformed in 34.94s.
+- Boundary: this is local evidence-hygiene accounting only. It does not prove WeChat editor
+  reachability, PC editor DOM readback, paste, exact-artifact proof, safe-disposable-draft creation
+  or cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
+  scheduled send, platform preview, public rendering, upload, or publish success.

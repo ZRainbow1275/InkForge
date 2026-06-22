@@ -3693,3 +3693,118 @@ This omits the blocker reason and can make a menu/readback artifact look like re
 
 This records the preflight stop condition and keeps the proof row unclaimable until a separate
 safe disposable draft run proves a concrete editor target and cleanup path.
+
+## 52. Platform Visible Text Redaction Review Gate - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: authenticated platform pages can expose account labels, existing draft titles, published
+  titles, account images, and temporary platform context in ordinary visible text readbacks.
+- The code-spec contract applies to `StyleProofManifest` artifacts collected from platform editor,
+  phone preview, credentialed channel, public-host, and platform-publish workflows when the artifact
+  may contain platform-visible text.
+- This is a local evidence hygiene gate. It does not inspect or store the raw visible text; it
+  records whether the proof collector has explicitly performed the redaction review.
+
+### 2. Signatures
+
+```typescript
+interface StyleProofArtifact {
+  redactionReviewRequired?: boolean
+  redactionVerified?: boolean
+}
+```
+
+Issue id:
+
+```typescript
+type StyleProofManifestIssueId =
+  | 'style-proof-manifest-redaction-review-missing'
+```
+
+Affected report entry points:
+
+```typescript
+validateStyleProofManifest(manifest)
+getStyleProofManifestReport(manifest)
+getStyleProofManifestIntakeReport(input)
+getStyleProofAcceptanceAuditReport(manifests)
+```
+
+### 3. Contracts
+
+- `redactionReviewRequired:true` means the proof artifact came from a surface where account labels,
+  draft titles, published titles, account images, temporary platform route context, runtime capture
+  locations, or local browser-state details may have been present before summarization.
+- `redactionVerified:true` may only be set after committed evidence excludes those platform-visible
+  account/draft details and records only sanitized counts, generic workflow labels, hashes, or
+  redacted references.
+- Intake must accept both boolean fields without schema warnings.
+- A proof artifact with `redactionReviewRequired:true` and without `redactionVerified:true` must
+  emit `style-proof-manifest-redaction-review-missing`, keep the artifact invalid, and keep the
+  corresponding requirement in acceptance-audit `cannotClaim`.
+- `safeForCommit:true` is not a substitute for `redactionVerified:true` when the artifact declares
+  `redactionReviewRequired:true`.
+- The rule must not scan for specific user/account text in committed source. It is a structured
+  manifest contract so tests can stay redacted and stable.
+
+### 4. Validation & Error Matrix
+
+- `redactionReviewRequired:true` and `redactionVerified !== true` ->
+  `style-proof-manifest-redaction-review-missing`, artifact invalid, requirement invalid.
+- `redactionReviewRequired:true` and `redactionVerified:true` -> no redaction-review issue from this
+  rule; other semantic proof requirements still apply.
+- Unknown or non-boolean redaction fields in intake -> normal intake schema error/warning behavior.
+- Missing `redactionReviewRequired` -> no behavior change for existing committed local evidence.
+
+### 5. Good/Base/Bad Cases
+
+- Good: a redacted platform DOM summary records aggregate counts and generic workflow labels, marks
+  `redactionReviewRequired:true`, `redactionVerified:true`, and keeps raw account/draft text out of
+  committed files.
+- Base: a CloakBrowser readback may have seen platform-visible text, so the manifest marks
+  `redactionReviewRequired:true` and remains invalid until the redaction review is performed.
+- Bad: a platform visible-text readback sets `safeForCommit:true` but omits `redactionVerified:true`;
+  the validator must keep it unclaimable.
+
+### 6. Tests Required
+
+- Regression tests must prove the two fields pass intake without schema warnings.
+- Regression tests must prove a `redactionReviewRequired:true` artifact without
+  `redactionVerified:true` emits `style-proof-manifest-redaction-review-missing`.
+- Regression tests must prove the artifact report is invalid and acceptance audit `cannotClaim`
+  includes the affected requirement.
+- Full export regression, strict type-check, ESLint, and production build must pass.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```json
+{
+  "requirementId": "authenticated-editor-url",
+  "channel": "platform-editor",
+  "action": "authenticated-editor-opened",
+  "readback": "dom",
+  "safeForCommit": true,
+  "redactionReviewRequired": true
+}
+```
+
+This claims commit safety while admitting that platform-visible text still needs review.
+
+#### Correct
+
+```json
+{
+  "requirementId": "authenticated-editor-url",
+  "channel": "platform-editor",
+  "action": "authenticated-editor-opened",
+  "readback": "dom",
+  "safeForCommit": true,
+  "redactionReviewRequired": true,
+  "redactionVerified": true
+}
+```
+
+This separates repository commit hygiene from explicit platform visible-text redaction review.
