@@ -3874,3 +3874,29 @@ Required checks:
 - Evidence docs must state that this is local catalog accounting only and does not prove editor
   paste, phone preview, mobile interaction, Dark Mode, cover acceptance, sync, public rendering, or
   publish success.
+
+## 55. WeChat Home New-Creation Route Blocker - 2026-06-23
+
+Contracts:
+- A CloakBrowser read-only check on the authenticated WeChat Official Account backend home surface
+  may be recorded as backend-home reachability and route-blocker evidence only.
+- Home-surface reachability does not satisfy `authenticated-editor-reachable`,
+  `pc-editor-dom-readable`, `pc-editor-paste`, `exact-artifact`, `safe-disposable-draft`,
+  `phone-preview`, `dark-mode-check`, `cover-thumbnail-check`, `credentialed-sync`,
+  `scheduled-send`, `platform-preview`, `public-rendering`, or `published`.
+- Generic new-creation menu labels such as article, existing content selection, sticker/image,
+  video, reprint, and podcast may be recorded only as generic workflow labels.
+- Existing draft titles, published titles, account labels, public article URLs, credential query
+  parameters, account images, runtime capture locations, local browser-state details, and browser
+  profile paths must remain redacted and uncommitted.
+- If the generic new-creation entries expose no sanitized `href`, `data-url`, or `data-action`, the
+  run is route-blocker evidence only and must not activate an item that can create or alter account
+  state.
+
+Required checks:
+- Evidence docs must record aggregate DOM counts and sanitized URL category only.
+- Evidence docs must explicitly state that no menu item was activated and no draft was created.
+- Evidence docs must preserve the cannot-claim boundary for editor reachability, PC DOM readback,
+  paste, exact-artifact proof, safe-disposable-draft proof, phone preview, mobile interaction, Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, upload, and publish success.

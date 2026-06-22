@@ -4627,3 +4627,24 @@ Boundary:
   editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, XHS/Zhihu upload, or
   publish success.
+
+---
+
+## 2026-06-23 WeChat Home New-Creation Route Blocker Addendum
+
+- Used CloakBrowser only for a read-only authenticated WeChat backend home check.
+- Sanitized URL category: `https://mp.weixin.qq.com/cgi-bin/home`.
+- Aggregate counts: `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`, `input=0`,
+  `svg=63`, `editorLike=0`, `appmsgLinks=19`.
+- Generic new-creation entries were visible for article, existing-content selection, sticker/image,
+  video, reprint, and podcast, but no sanitized `href`, `data-url`, or `data-action` metadata was
+  exposed for those entries.
+- Existing draft and published labels were visible in the live browser surface but are redacted and
+  not committed.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-home-new-creation-route-blocker-20260623.txt`.
+- Boundary: this is backend-home reachability and route-blocker evidence only. It does not prove
+  WeChat official editor reachability, PC editor DOM readback, paste, safe disposable draft
+  creation/cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, upload, or publish
+  success.

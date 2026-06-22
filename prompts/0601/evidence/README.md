@@ -4065,3 +4065,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, sync,
   public-host acceptance, XHS/Zhihu account upload, scheduled send, platform preview, public
   rendering, or publish success.
+
+## 2026-06-23 WeChat Home New-Creation Route Blocker
+
+- [x] wechat-home-new-creation-route-blocker-20260623.txt
+- CloakBrowser-only read-only check reached the authenticated backend home surface at sanitized URL
+  category `https://mp.weixin.qq.com/cgi-bin/home`.
+- Aggregate counts: `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`, `input=0`,
+  `svg=63`, `editorLike=0`, `appmsgLinks=19`.
+- Generic new-creation entries were visible for article, existing-content selection, sticker/image,
+  video, reprint, and podcast, but the entries did not expose sanitized `href`, `data-url`, or
+  `data-action` metadata in the read-only scan.
+- Existing draft and published labels were visible in the browser surface but remain redacted and
+  are not committed.
+- Boundary: this is backend-home reachability and route-blocker evidence only. It does not prove
+  WeChat editor reachability, PC editor DOM readback, paste, exact-artifact proof,
+  safe-disposable-draft proof, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, sync, scheduled send, platform preview, public rendering, upload, or publish success.

@@ -8766,6 +8766,30 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, XHS/Zhihu upload, or publish success.
 
+## 2026-06-23 WeChat Home New-Creation Route Blocker Slice
+
+Scope:
+- CloakBrowser-only read-only authenticated WeChat backend home check.
+- No menu item was activated; no editor route, paste, draft creation, sync, preview, scheduled send,
+  public rendering, or publish action was performed.
+
+Observed:
+- Sanitized URL category: `https://mp.weixin.qq.com/cgi-bin/home`.
+- Aggregate counts: `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`, `input=0`,
+  `svg=63`, `editorLike=0`, `appmsgLinks=19`.
+- Generic new-creation entries were visible for article, existing-content selection, sticker/image,
+  video, reprint, and podcast.
+- The generic entries did not expose sanitized `href`, `data-url`, or `data-action` metadata in the
+  read-only DOM scan.
+- Existing draft/published labels were visible to the browser but are redacted and not committed.
+
+Boundary:
+- This is backend-home reachability and route-blocker evidence only. It does not prove
+  authenticated article editor reachability, PC editor DOM readback, ordinary paste, exact-artifact
+  proof, safe-disposable-draft creation or cleanup, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  upload, or publish success.
+
 ## 2026-06-23 Public Market Taxonomy and Platform Boundary Review Slice
 
 Scope:

@@ -1,0 +1,42 @@
+WeChat Home New-Creation Route Blocker - 2026-06-23
+
+Scope:
+- CloakBrowser-only read-only check on the authenticated WeChat Official Account backend home
+  surface.
+- No menu item was activated, no editor route was opened, no draft was created, no content was
+  pasted, no sync/preview/publish action was performed, and no screenshot was committed.
+
+Sanitized surface:
+- URL category: `https://mp.weixin.qq.com/cgi-bin/home`.
+- Page title category: Official Account backend shell.
+- `readyState=complete`.
+- Aggregate counts: `iframe=0`, `contenteditable=0`, `ProseMirror=0`, `textarea=0`, `input=0`,
+  `svg=63`, `editorLike=0`, `appmsgLinks=19`.
+- Generic signals: new-creation controls present, draft/content-management controls present,
+  editor words present, login words absent.
+
+Generic new-creation menu entries observed:
+- Article.
+- Existing content selection.
+- Sticker/image.
+- Video.
+- Reprint.
+- Podcast.
+
+Route/action metadata:
+- The generic new-creation entries did not expose a sanitized `href`, `data-url`, or `data-action`
+  in the read-only DOM scan.
+- Existing draft and published article labels were visible in the page, but they are not recorded
+  here and must not be committed as evidence content.
+
+Boundary:
+- This is authenticated backend-home and route-blocker evidence only.
+- It does not prove authenticated article editor reachability, PC editor DOM readback, ordinary
+  paste, exact-artifact proof, safe-disposable-draft creation or cleanup, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public rendering, upload, or publish success.
+
+Follow-up required:
+- A safe disposable draft run still needs a unique draft marker, unambiguous create route/action,
+  exact editor body surface, cleanup path, and post-cleanup readback before any draft/paste proof
+  can be claimed.
