@@ -33,6 +33,7 @@ import {
   getPlatformStyleApplicationReport,
   getPlatformStyleChoices,
   getPlatformStyleAvailabilityReport,
+  getPlatformStyleMarketCapabilityReport,
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan,
   getPlatformStyleProofCollectionQueue,
@@ -43,6 +44,7 @@ import {
   getStyleChoiceApplication,
   getStyleChoiceById,
   getStyleChoiceCatalog,
+  getStyleChoiceMarketCapabilities,
   getStyleChoiceProofRequirements,
   getStyleProofAcceptanceAuditReport,
   getStyleProofExecutionRunbook,
@@ -7727,6 +7729,84 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
     ]))
     expect(xhsMarketRequirementIds).not.toContain('phone-preview-readback')
+  })
+
+  it('exposes market-derived capability metadata without promoting platform proof', () => {
+    const wechatReport = getPlatformStyleMarketCapabilityReport('wechat')
+    const wechatMatrix = wechatReport.choices.find(entry =>
+      entry.choice.id === 'wechat-market-svg-h5-fallback-matrix'
+    )
+
+    expect(wechatMatrix).toBeDefined()
+    if (!wechatMatrix) return
+
+    const capabilityFamilies = wechatMatrix.capabilities.map(capability => capability.family)
+    expect(capabilityFamilies).toEqual(expect.arrayContaining([
+      'background-svg-shell',
+      'image-carousel',
+      'click-expand',
+      'click-switch',
+      'path-animation',
+      'parallax-motion',
+      'long-press-switch',
+      'region-trigger',
+      'ratio-image-layer',
+      'h5-handoff',
+      'static-raster-fallback',
+    ]))
+    expect(wechatReport.stats.choicesWithCapabilities).toBeGreaterThanOrEqual(1)
+    expect(wechatReport.stats.blockedUntilProof).toBeGreaterThanOrEqual(1)
+
+    const carousel = wechatMatrix.capabilities.find(capability => capability.family === 'image-carousel')
+    expect(carousel).toBeDefined()
+    expect(carousel?.sources).toEqual(expect.arrayContaining(['135-svg-editor', 'xiumi-v5-paper']))
+    expect(carousel?.triggerMode).toBe('slide')
+    expect(carousel?.imageRatio).toBe('1080x720')
+    expect(carousel?.status).toBe('blocked-until-proof')
+    expect(carousel?.requiredProof).toEqual(expect.arrayContaining([
+      'market-applied-dom-readback',
+      'phone-preview-readback',
+      'phone-screenshot',
+      'published-url-or-platform-preview',
+    ]))
+
+    const ratioLayer = wechatMatrix.capabilities.find(capability => capability.family === 'ratio-image-layer')
+    expect(ratioLayer).toBeDefined()
+    expect(ratioLayer?.sources).toContain('xiumi-v5-paper')
+    expect(ratioLayer?.renderPattern).toBe('component-tree')
+    expect(ratioLayer?.status).toBe('fallback-only')
+    expect(ratioLayer?.degradable).toBe(true)
+
+    const choice = getStyleChoiceById('wechat-market-svg-h5-fallback-matrix')
+    expect(choice).toBeDefined()
+    if (!choice) return
+
+    const availability = evaluateStyleChoiceAvailability(choice, getDefaultStyleEvidence('wechat'))
+    expect(availability.usable).toBe(false)
+    expect(getStyleChoiceApplication(choice.id)).toBeNull()
+    expect(getStyleChoiceMarketCapabilities(choice.id).length).toBe(wechatMatrix.capabilities.length)
+    expect(getStyleChoiceMarketCapabilities('wechat-classic-inline')).toEqual([])
+
+    const xhsMarket = getPlatformStyleMarketCapabilityReport('xiaohongshu')
+      .choices.find(entry => entry.choice.id === 'xhs-market-rich-card-fallback')
+    expect(xhsMarket?.capabilities.map(capability => capability.family)).toEqual(expect.arrayContaining([
+      'image-carousel',
+      'title-card-layout',
+      'static-raster-fallback',
+    ]))
+    expect(xhsMarket?.capabilities.every(capability => capability.status !== 'blocked-until-proof')).toBe(true)
+
+    const zhihuMarket = getPlatformStyleMarketCapabilityReport('zhihu')
+      .choices.find(entry => entry.choice.id === 'zhihu-market-rich-layout-fallback')
+    const publicImageFallback = zhihuMarket?.capabilities.find(capability =>
+      capability.family === 'public-image-fallback'
+    )
+    expect(publicImageFallback).toBeDefined()
+    expect(publicImageFallback?.requiredProof).toEqual(expect.arrayContaining([
+      'public-image-host',
+      'zhihu-artifact-manifest',
+      'published-url-or-platform-preview',
+    ]))
   })
 
   it('requires exact evidence floor before enabling available style choices', () => {

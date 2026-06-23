@@ -4314,6 +4314,63 @@ const ruleFamilies = [
 - Commit-boundary review must scan staged diffs for credential material, local browser paths, raw
   third-party template source, raw URLs, screenshots, QR codes, and account artifacts.
 
+## 66. Market Capability Metadata Catalog - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: 135/Xiumi/public WeChat editor learning must become executable InkForge-owned catalog
+  metadata without changing renderer output or platform proof state.
+- `PlatformStyleChoice.marketCapabilities` is optional. Regular choices may omit it; market-derived
+  choices use it to expose reusable family/source/trigger/render/proof metadata.
+- The metadata is a catalog/reporting surface only. It must not change `status`, `evidenceFloor`,
+  `publishEvidence`, `usable`, `selectable`, proof-manifest validation, release-gate accounting, or
+  preset mapping.
+
+### 2. Required Fields
+
+- Each `StyleMarketCapability` row records `family`, `label`, `sources`, `triggerMode`,
+  `renderPattern`, `output`, `status`, `degradable`, `requiredProof`, and `notes`.
+- `imageRatio` is optional and may be used for known market ratios such as 1080x1920, 1080x720, or
+  1080x1440.
+- Valid statuses are `source-owned`, `fallback-only`, `blocked-until-proof`, and
+  `external-handoff`.
+- Source values must name broad evidence classes such as `135-svg-editor`, `xiumi-v5-paper`,
+  `public-wechat-svg-practice`, `doocs-md`, or `inkforge-owned`; do not store raw vendor URLs,
+  private material ids, account data, or proprietary class trees.
+
+### 3. Platform Rules
+
+- WeChat market SVG/H5 families such as background SVG shell, carousel, click expand, click switch,
+  path animation, parallax, slide trigger, long press, and region trigger must remain
+  `blocked-until-proof` until exact same-artifact mobile/platform proof exists.
+- WeChat ratio/image wrappers and title/card layouts may be `fallback-only` metadata when they are
+  rewritten as InkForge-owned static/readable wrappers.
+- WeChat H5/plugin handoff rows must stay `external-handoff` and require credentialed channel and
+  sync/publish proof before any platform claim.
+- XHS market richness may map only to source-owned image-page or long-image fallback metadata with
+  `xhs-artifact-manifest` proof requirements.
+- Zhihu market richness may map only to clean Markdown or public image fallback metadata, and image
+  fallback must require public host plus `zhihu-artifact-manifest` proof.
+
+### 4. API Contract
+
+- `getStyleChoiceMarketCapabilities(choiceId)` returns the choice capabilities or an empty readonly
+  list for choices without market metadata.
+- `getPlatformStyleMarketCapabilityReport(platform)` returns only choices with capabilities, their
+  existing application mapping, existing proof requirements, sorted family ids, and status counts.
+- These APIs must reuse existing `getPlatformStyleChoices()`, `getStyleChoiceApplication()`, and
+  `getStyleChoiceProofRequirements()` instead of forking availability/proof logic.
+
+### 5. Tests / Evidence Required
+
+- Regression tests must prove WeChat market capabilities exist while the WeChat market matrix
+  remains unusable and unmapped to a preset application under default local evidence.
+- Tests must prove normal non-market choices return an empty capability list.
+- Tests must prove XHS and Zhihu fallback metadata still carries platform-specific proof
+  requirements and does not bypass upload/public-host/publish gates.
+- Evidence docs must state that this is local executable metadata only and does not prove paste,
+  phone preview, sync, upload, public rendering, or publish success.
+
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23
 
 ### 1. Scope / Trigger

@@ -1,0 +1,57 @@
+Style Market Capability Metadata - 2026-06-23
+
+Scope:
+- Local executable style-catalog metadata for market-derived WeChat/XHS/Zhihu style families.
+- No platform action, browser action, renderer output, artifact generation, save, preview, sync,
+  scheduled send, upload, phone preview, delete, public rendering, or publish behavior was changed.
+
+Implemented:
+- Added StyleMarketCapability metadata to PlatformStyleChoice.
+- Added getStyleChoiceMarketCapabilities(choiceId).
+- Added getPlatformStyleMarketCapabilityReport(platform).
+- Exported the new market capability types and query APIs from the export service barrel.
+
+Captured capability families:
+- WeChat market matrix: background-svg-shell, image-carousel, click-expand, click-show-hide,
+  click-switch, path-animation, parallax-motion, slide-trigger, long-press-switch, region-trigger,
+  ratio-image-layer, title-card-layout, h5-handoff, and static-raster-fallback.
+- Xiaohongshu market fallback: title-card-layout, image-carousel, and static-raster-fallback.
+- Zhihu market fallback: title-card-layout, public-image-fallback, and static-raster-fallback.
+
+Behavior:
+- Capability rows record source family, trigger mode, render pattern, output type, degradable state,
+  image ratio when known, and required proof requirement ids.
+- WeChat interactive and H5-derived rows remain blocked-until-proof or external-handoff.
+- XHS market richness is mapped only to source-owned image-page / long-image fallback metadata.
+- Zhihu market richness is mapped only to clean Markdown or public image fallback metadata.
+- The new metadata does not change existing status, evidenceFloor, publishEvidence,
+  availability, selectability, proof-manifest validation, or release-gate accounting.
+
+Regression coverage:
+- The focused TDD test failed before implementation because
+  getPlatformStyleMarketCapabilityReport was not exported.
+- The green test proves market-derived capability metadata exists without promoting WeChat proof.
+- The test also proves WeChat market matrix remains unusable and unmapped to any preset application,
+  regular choices return an empty capability list, XHS fallback rows are not blocked-until-proof,
+  and Zhihu public image fallback still requires public host, artifact manifest, and platform proof.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'market-derived capability metadata' --reporter=default
+  PASS: 1 selected test
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 176 tests
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1153 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves local executable metadata only.
+- It does not prove 135/Xiumi proprietary template reuse, WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

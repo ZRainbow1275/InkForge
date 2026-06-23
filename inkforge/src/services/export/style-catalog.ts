@@ -70,6 +70,69 @@ export type StyleRuleGroup =
   | 'editor-workflow-system'
   | 'layout-and-layer-system'
 
+export type StyleMarketCapabilitySource =
+  | '135-svg-editor'
+  | 'xiumi-v5-paper'
+  | 'public-wechat-svg-practice'
+  | 'doocs-md'
+  | 'inkforge-owned'
+
+export type StyleMarketCapabilityFamily =
+  | 'background-svg-shell'
+  | 'image-carousel'
+  | 'click-expand'
+  | 'click-show-hide'
+  | 'click-switch'
+  | 'path-animation'
+  | 'parallax-motion'
+  | 'slide-trigger'
+  | 'long-press-switch'
+  | 'region-trigger'
+  | 'title-card-layout'
+  | 'ratio-image-layer'
+  | 'h5-handoff'
+  | 'static-raster-fallback'
+  | 'public-image-fallback'
+
+export type StyleMarketTriggerMode =
+  | 'none'
+  | 'auto'
+  | 'click'
+  | 'slide'
+  | 'long-press'
+  | 'region'
+  | 'mobile-touch'
+  | 'plugin-sync'
+  | 'public-host'
+
+export type StyleMarketRenderPattern =
+  | 'gap-safe-inline-svg'
+  | 'component-tree'
+  | 'ratio-image-layer'
+  | 'static-raster'
+  | 'clean-markdown'
+  | 'publish-checklist'
+
+export type StyleMarketCapabilityStatus =
+  | 'source-owned'
+  | 'fallback-only'
+  | 'blocked-until-proof'
+  | 'external-handoff'
+
+export interface StyleMarketCapability {
+  family: StyleMarketCapabilityFamily
+  label: string
+  sources: readonly StyleMarketCapabilitySource[]
+  triggerMode: StyleMarketTriggerMode
+  renderPattern: StyleMarketRenderPattern
+  output: StyleArtifactType
+  status: StyleMarketCapabilityStatus
+  degradable: boolean
+  requiredProof: readonly StyleProofRequirementId[]
+  imageRatio?: string
+  notes: readonly string[]
+}
+
 export interface PlatformStyleChoice {
   id: string
   platform: Platform
@@ -85,6 +148,7 @@ export interface PlatformStyleChoice {
   publishEvidence: readonly StyleEvidenceLabel[]
   blockers: readonly string[]
   detectorBlockers: readonly string[]
+  marketCapabilities?: readonly StyleMarketCapability[]
 }
 
 export interface StyleChoiceAvailability {
@@ -124,6 +188,28 @@ export interface StyleChoiceApplicationAvailability {
   application: StyleChoiceApplication | null
   selectable: boolean
   reason: string
+}
+
+export interface PlatformStyleMarketCapabilityChoice {
+  choice: PlatformStyleChoice
+  capabilities: readonly StyleMarketCapability[]
+  application: StyleChoiceApplication | null
+  proofRequirements: readonly StyleProofRequirement[]
+}
+
+export interface PlatformStyleMarketCapabilityReport {
+  platform: Platform
+  choices: readonly PlatformStyleMarketCapabilityChoice[]
+  families: readonly StyleMarketCapabilityFamily[]
+  stats: {
+    totalChoices: number
+    choicesWithCapabilities: number
+    capabilities: number
+    sourceOwned: number
+    fallbackOnly: number
+    blockedUntilProof: number
+    externalHandoff: number
+  }
 }
 
 export type StyleProofManifestScope = 'evidence-label' | 'style-choice'
@@ -2147,6 +2233,277 @@ const PLATFORM_STYLE_CHOICES_BASE = [
     status: 'blocked',
     evidenceFloor: 'mobile-preview',
     publishEvidence: ['mobile-preview', 'published'],
+    marketCapabilities: [
+      {
+        family: 'background-svg-shell',
+        label: 'Gap-safe background SVG shell',
+        sources: ['135-svg-editor', 'public-wechat-svg-practice'],
+        triggerMode: 'none',
+        renderPattern: 'gap-safe-inline-svg',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        imageRatio: '1080x1920',
+        requiredProof: [
+          'market-applied-dom-readback',
+          'no-proprietary-template-source',
+          'local-browser-rendering',
+          'phone-preview-readback',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Reimplement 135-style background SVG shells as InkForge-owned zero-gap media wrappers.',
+          'Do not commit vendor template source, material URLs, or paid assets.',
+        ],
+      },
+      {
+        family: 'image-carousel',
+        label: 'Image carousel and smooth scroll family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'slide',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        imageRatio: '1080x720',
+        requiredProof: [
+          'market-applied-dom-readback',
+          'no-proprietary-template-source',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Xiumi cards expose ratio and component metadata; phone readback is still required for motion.',
+          'A static first frame or raster pack is required before user-facing export selection.',
+        ],
+      },
+      {
+        family: 'click-expand',
+        label: 'Click expand and click open family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Click-driven SVG/H5 affordances must keep readable expanded/collapsed fallback content.',
+        ],
+      },
+      {
+        family: 'click-show-hide',
+        label: 'Click show hide and disappear family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Treat Xiumi click-show, popup, disappear, zoom, print, jump, and play branches as proof-gated variants.',
+        ],
+      },
+      {
+        family: 'click-switch',
+        label: 'Click switch and step transition family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'click',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Single-step gallery changes must not be marked usable from library preview counts alone.',
+        ],
+      },
+      {
+        family: 'path-animation',
+        label: 'Path animation and automatic motion family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'auto',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Auto motion needs a static readable fallback and mobile timing proof before any claim.',
+        ],
+      },
+      {
+        family: 'parallax-motion',
+        label: 'Parallax and slide-trigger motion family',
+        sources: ['xiumi-v5-paper'],
+        triggerMode: 'slide',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Slide-trigger and parallax effects are mobile-behavior candidates, not desktop proof.',
+        ],
+      },
+      {
+        family: 'slide-trigger',
+        label: 'Slide trigger and branch transition family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'slide',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Branch transitions require same-artifact phone before and after readback.',
+        ],
+      },
+      {
+        family: 'long-press-switch',
+        label: 'Long press switch family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'long-press',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Long-press behavior must be proven on phone WeChat; desktop DOM readback is not enough.',
+        ],
+      },
+      {
+        family: 'region-trigger',
+        label: 'Region trigger and trigger-zone family',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'region',
+        renderPattern: 'component-tree',
+        output: 'wechat-safe-svg',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'market-applied-dom-readback',
+          'phone-preview-readback',
+          'phone-screenshot',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Trigger zones require normalized geometry reports and mobile readback before export success.',
+        ],
+      },
+      {
+        family: 'ratio-image-layer',
+        label: 'Ratio-preserving image layer wrapper',
+        sources: ['xiumi-v5-paper', 'inkforge-owned'],
+        triggerMode: 'none',
+        renderPattern: 'component-tree',
+        output: 'static-fallback',
+        status: 'fallback-only',
+        degradable: true,
+        imageRatio: '1080x720',
+        requiredProof: [
+          'local-browser-rendering',
+          'no-proprietary-template-source',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Use ratio boxes, max-width images, overflow clipping, and line-height zero as wrapper rules.',
+        ],
+      },
+      {
+        family: 'title-card-layout',
+        label: 'Title card and rich layout component tree',
+        sources: ['135-svg-editor', 'xiumi-v5-paper', 'inkforge-owned'],
+        triggerMode: 'none',
+        renderPattern: 'component-tree',
+        output: 'inline-html',
+        status: 'fallback-only',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'no-proprietary-template-source',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Market title/card structures may inform InkForge-owned cards, not copied authoring markup.',
+        ],
+      },
+      {
+        family: 'h5-handoff',
+        label: 'External H5 and plugin handoff boundary',
+        sources: ['135-svg-editor', 'xiumi-v5-paper'],
+        triggerMode: 'plugin-sync',
+        renderPattern: 'publish-checklist',
+        output: 'publish-checklist',
+        status: 'external-handoff',
+        degradable: false,
+        requiredProof: [
+          'credentialed-channel-response',
+          'sync-readback',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'External H5/plugin workflows stay checklist-only until exact credentialed channel proof exists.',
+        ],
+      },
+      {
+        family: 'static-raster-fallback',
+        label: 'Static raster fallback pack',
+        sources: ['inkforge-owned', 'doocs-md'],
+        triggerMode: 'none',
+        renderPattern: 'static-raster',
+        output: 'image-fallback',
+        status: 'fallback-only',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'exact-artifact',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Raster/static fallback is the safe local bridge when WeChat interaction proof is absent.',
+        ],
+      },
+    ],
     blockers: [
       '135/Xiumi SVG and H5 taxonomy must be rewritten as InkForge-owned modules, image manifests, or static/raster fallback',
       '135 background SVG shells require layout reports, typed image slots, normalized trigger zones, and static/raster fallback before any export claim',
@@ -2354,6 +2711,63 @@ const PLATFORM_STYLE_CHOICES_BASE = [
     status: 'available',
     evidenceFloor: 'local-browser',
     publishEvidence: ['published'],
+    marketCapabilities: [
+      {
+        family: 'title-card-layout',
+        label: 'Market rich card rewritten as XHS image page',
+        sources: ['135-svg-editor', 'xiumi-v5-paper', 'inkforge-owned'],
+        triggerMode: 'none',
+        renderPattern: 'static-raster',
+        output: 'image-page',
+        status: 'source-owned',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'xhs-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Use source-owned XHS image-page components instead of market editor HTML/SVG trees.',
+        ],
+      },
+      {
+        family: 'image-carousel',
+        label: 'Carousel page pack fallback',
+        sources: ['xiumi-v5-paper', 'inkforge-owned'],
+        triggerMode: 'none',
+        renderPattern: 'static-raster',
+        output: 'image-page',
+        status: 'fallback-only',
+        degradable: true,
+        imageRatio: '1080x1440',
+        requiredProof: [
+          'local-browser-rendering',
+          'xhs-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'XHS receives page images or long images, not copied SVG/H5 interaction markup.',
+        ],
+      },
+      {
+        family: 'static-raster-fallback',
+        label: 'Long-image and poster fallback',
+        sources: ['inkforge-owned', 'doocs-md'],
+        triggerMode: 'none',
+        renderPattern: 'static-raster',
+        output: 'long-image',
+        status: 'fallback-only',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'xhs-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Regenerate crop, format, page order, and body reference proof for every exported pack.',
+        ],
+      },
+    ],
     blockers: [
       '135/Xiumi SVG/H5 richness must materialize as real InkForge-owned XHS image pages or a long-image artifact manifest',
       'page crop, file format, page order, and body reference proof must be regenerated for each exported fallback pack',
@@ -2500,6 +2914,63 @@ const PLATFORM_STYLE_CHOICES_BASE = [
     status: 'blocked',
     evidenceFloor: 'local-browser',
     publishEvidence: ['published'],
+    marketCapabilities: [
+      {
+        family: 'title-card-layout',
+        label: 'Market rich layout rewritten as clean Zhihu structure',
+        sources: ['135-svg-editor', 'xiumi-v5-paper', 'inkforge-owned'],
+        triggerMode: 'none',
+        renderPattern: 'clean-markdown',
+        output: 'clean-markdown',
+        status: 'fallback-only',
+        degradable: true,
+        requiredProof: [
+          'unit-test-coverage',
+          'zhihu-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Preserve semantic headings, captions, and list structure instead of WeChat-specific wrappers.',
+        ],
+      },
+      {
+        family: 'public-image-fallback',
+        label: 'Public image fallback for diagram or poster layouts',
+        sources: ['inkforge-owned'],
+        triggerMode: 'public-host',
+        renderPattern: 'static-raster',
+        output: 'image-fallback',
+        status: 'blocked-until-proof',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'public-image-host',
+          'zhihu-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Zhihu image fallback requires public HTTPS or platform-host proof plus alt and caption metadata.',
+        ],
+      },
+      {
+        family: 'static-raster-fallback',
+        label: 'Static article image fallback',
+        sources: ['inkforge-owned', 'doocs-md'],
+        triggerMode: 'none',
+        renderPattern: 'static-raster',
+        output: 'image-fallback',
+        status: 'fallback-only',
+        degradable: true,
+        requiredProof: [
+          'local-browser-rendering',
+          'zhihu-artifact-manifest',
+          'published-url-or-platform-preview',
+        ],
+        notes: [
+          'Use only after host, alt text, caption, and manifest checks are satisfied.',
+        ],
+      },
+    ],
     blockers: [
       '135/Xiumi rich layout must be rewritten as clean Markdown or public-host image fallback with alt and caption',
       'public HTTPS host proof and Zhihu artifact manifest validation are missing',
@@ -2537,6 +3008,44 @@ export function getStyleChoiceById(choiceId: string): PlatformStyleChoice | unde
 
 export function getStyleChoiceApplication(choiceId: string): StyleChoiceApplication | null {
   return STYLE_CHOICE_APPLICATIONS.find(application => application.choiceId === choiceId) ?? null
+}
+
+const EMPTY_STYLE_MARKET_CAPABILITIES = [] as const satisfies readonly StyleMarketCapability[]
+
+export function getStyleChoiceMarketCapabilities(choiceId: string): readonly StyleMarketCapability[] {
+  return getStyleChoiceById(choiceId)?.marketCapabilities ?? EMPTY_STYLE_MARKET_CAPABILITIES
+}
+
+export function getPlatformStyleMarketCapabilityReport(
+  platform: Platform,
+): PlatformStyleMarketCapabilityReport {
+  const platformChoices = getPlatformStyleChoices(platform)
+  const choices = platformChoices
+    .map(choice => ({
+      choice,
+      capabilities: choice.marketCapabilities ?? EMPTY_STYLE_MARKET_CAPABILITIES,
+      application: getStyleChoiceApplication(choice.id),
+      proofRequirements: getStyleChoiceProofRequirements(choice),
+    }))
+    .filter(entry => entry.capabilities.length > 0)
+
+  const capabilities = choices.flatMap(entry => entry.capabilities)
+  const families = Array.from(new Set(capabilities.map(capability => capability.family))).sort()
+
+  return {
+    platform,
+    choices,
+    families,
+    stats: {
+      totalChoices: platformChoices.length,
+      choicesWithCapabilities: choices.length,
+      capabilities: capabilities.length,
+      sourceOwned: capabilities.filter(capability => capability.status === 'source-owned').length,
+      fallbackOnly: capabilities.filter(capability => capability.status === 'fallback-only').length,
+      blockedUntilProof: capabilities.filter(capability => capability.status === 'blocked-until-proof').length,
+      externalHandoff: capabilities.filter(capability => capability.status === 'external-handoff').length,
+    },
+  }
 }
 
 export function getDefaultStyleEvidence(platform: Platform): readonly StyleEvidenceLabel[] {

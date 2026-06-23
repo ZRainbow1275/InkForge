@@ -4348,3 +4348,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   and Doocs WeChat Markdown editor docs/GitHub.
 - Boundary: this is taxonomy/rendering-rule learning only. It does not prove 135/Xiumi template
   reuse, WeChat paste, phone, sync, schedule, public rendering, upload, or publish success.
+
+## 2026-06-23 Style Market Capability Metadata
+
+- [x] style-market-capability-metadata-20260623.txt
+- Added executable market capability metadata to the style catalog without changing renderer output,
+  proof manifests, release gates, availability, or selectability.
+- Added `getStyleChoiceMarketCapabilities(choiceId)` and
+  `getPlatformStyleMarketCapabilityReport(platform)`.
+- WeChat market matrix now records source-owned capability metadata for background SVG shell,
+  image carousel, click/slide/long-press/region trigger families, ratio-image wrappers, title/card
+  layouts, H5 handoff, and static raster fallback.
+- XHS market fallback records source-owned image-page / long-image fallback metadata with
+  `xhs-artifact-manifest` proof requirements.
+- Zhihu market fallback records clean Markdown and public-image fallback metadata with public host,
+  `zhihu-artifact-manifest`, and platform proof requirements.
+- Regression coverage proves the metadata does not promote WeChat proof, does not create a preset
+  application for the blocked WeChat market matrix, and returns empty capabilities for normal
+  non-market choices.
+- Boundary: this is local executable metadata only. It does not prove paste, phone preview, sync,
+  upload, public rendering, or publish success.

@@ -10678,3 +10678,64 @@ Boundary:
   reuse, WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Style Market Capability Metadata Slice
+
+Scope:
+- Local executable style-catalog metadata that applies the 135/Xiumi/public-source learning to
+  InkForge-owned market capability rows.
+- No renderer output, platform action, browser action, artifact generation, save, preview, publish,
+  sync, scheduled send, upload, phone preview, delete, public rendering, or proof-manifest behavior
+  was changed.
+
+Implementation:
+- Added `StyleMarketCapability` metadata and related source/family/trigger/render/status types.
+- Added optional `PlatformStyleChoice.marketCapabilities`.
+- Added `getStyleChoiceMarketCapabilities(choiceId)`.
+- Added `getPlatformStyleMarketCapabilityReport(platform)`.
+- Exported the new types and functions through `inkforge/src/services/export/index.ts`.
+- Populated market capability rows for:
+  - `wechat-market-svg-h5-fallback-matrix`
+  - `xhs-market-rich-card-fallback`
+  - `zhihu-market-rich-layout-fallback`
+
+Behavior:
+- WeChat interactive SVG/H5 families remain `blocked-until-proof` or `external-handoff`.
+- WeChat ratio/title/card fallback rows remain metadata only.
+- XHS market richness maps only to source-owned `image-page` / `long-image` fallback metadata.
+- Zhihu market richness maps only to clean Markdown or public-image fallback metadata.
+- Existing catalog availability, selectability, proof manifests, and release gates are not promoted.
+
+Verification:
+- TDD red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'market-derived capability metadata' --reporter=default`
+  failed before implementation because `getPlatformStyleMarketCapabilityReport` was not exported.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'market-derived capability metadata' --reporter=default`
+  passed with 1 selected test.
+- Full file:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 176 tests.
+- Targeted lint:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Broader export validation:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1153 tests.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/style-market-capability-metadata-20260623.txt`
+
+Boundary:
+- This is local executable metadata only. It does not prove 135/Xiumi proprietary template reuse,
+  WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

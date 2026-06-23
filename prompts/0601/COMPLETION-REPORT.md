@@ -4984,3 +4984,35 @@ Boundary:
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
   success.
+
+---
+
+## 2026-06-23 Style Market Capability Metadata Addendum
+
+- Applied the 135/Xiumi/public-source learning to the executable style catalog as local metadata,
+  not as a platform proof claim.
+- Added `StyleMarketCapability` plus source/family/trigger/render/status metadata types.
+- Added optional `PlatformStyleChoice.marketCapabilities`.
+- Added and exported:
+  `getStyleChoiceMarketCapabilities(choiceId)` and
+  `getPlatformStyleMarketCapabilityReport(platform)`.
+- Populated capability metadata for `wechat-market-svg-h5-fallback-matrix`,
+  `xhs-market-rich-card-fallback`, and `zhihu-market-rich-layout-fallback`.
+- WeChat market capabilities cover background SVG shell, carousel, click expand/show/switch, path
+  animation, parallax, slide trigger, long press, region trigger, ratio image layer, title/card
+  layout, H5 handoff, and static raster fallback; interactive/H5 rows remain
+  `blocked-until-proof` or `external-handoff`.
+- XHS capabilities remain source-owned image-page / long-image fallback metadata with artifact
+  manifest proof. Zhihu capabilities remain clean Markdown or public-image fallback metadata with
+  public-host and artifact-manifest proof.
+- Added regression test:
+  `exposes market-derived capability metadata without promoting platform proof`.
+- Verification: focused TDD red/green, full `platform-export-rendering.test.ts` 176 tests, targeted
+  ESLint, full serial `src/services/export` 36 files / 1153 tests, `vue-tsc --noEmit`, and
+  production build passed.
+- Added evidence file:
+  `prompts/0601/evidence/style-market-capability-metadata-20260623.txt`.
+- Boundary: this is local executable metadata only. It does not prove 135/Xiumi proprietary template
+  reuse, WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
