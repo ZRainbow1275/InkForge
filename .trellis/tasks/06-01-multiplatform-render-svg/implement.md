@@ -10871,3 +10871,34 @@ Boundary:
   artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Full Tauri/WebView2 E2E Refresh
+
+Scope:
+- Full local WDIO e2e refresh after the ExportModal market capability e2e and WDIO CJS lint slices.
+- No product code, proof manifest, platform action, browser profile artifact, account action, save,
+  preview, publish, sync, scheduled send, upload, phone preview, public rendering, or release gate
+  behavior was changed in this evidence-only slice.
+
+Verification:
+- `pnpm -C inkforge test:e2e`
+  passed with 2 spec files / 17 tests.
+- `svg-render.spec.cjs` passed with 6 tests:
+  real Pinia draft seeding, real ExportModal style capability gates for WeChat/XHS/Zhihu, three
+  flagship SVG export-preview probes, and mobile-comfortable CJK line-width probe.
+- `visual.spec.cjs` passed with 11 tests:
+  TitleBar controls, IPC click round trips, brand mark, Settings About hero mark, motion tokens,
+  typography rhythm, easing, focus ring, and light/dark theme cascade.
+- The WDIO harness compiled the real Tauri debug binary through Cargo and launched the real
+  WebView2/Tauri surface.
+- Docs/evidence diff checks, staged redaction scan, and GitNexus staged detect are required before
+  commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/full-tauri-webview2-e2e-refresh-20260623.txt`
+
+Boundary:
+- This is local Tauri/WebView2 e2e evidence only. It does not prove WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

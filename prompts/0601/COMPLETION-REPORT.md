@@ -5093,3 +5093,22 @@ Boundary:
   exact artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 Full Tauri/WebView2 E2E Refresh Addendum
+
+- Ran `pnpm -C inkforge test:e2e` after the market capability e2e and WDIO CJS lint slices.
+- Result: 2 spec files / 17 tests passed against the real Tauri/WebView2 harness.
+- `svg-render.spec.cjs` passed with 6 tests covering real Pinia draft seeding, real ExportModal
+  WeChat/XHS/Zhihu style capability gates, three flagship SVG export-preview probes, and the mobile
+  line-width probe.
+- `visual.spec.cjs` passed with 11 tests covering titlebar controls, IPC click round trips, brand
+  mark rendering, Settings About hero mark, motion tokens, typography rhythm, easing, focus ring,
+  and light/dark theme cascade.
+- Added evidence file:
+  `prompts/0601/evidence/full-tauri-webview2-e2e-refresh-20260623.txt`.
+- Boundary: this is local Tauri/WebView2 e2e evidence only. It does not prove WeChat PC paste, exact
+  artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

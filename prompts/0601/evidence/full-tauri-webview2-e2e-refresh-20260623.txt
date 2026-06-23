@@ -1,0 +1,37 @@
+Full Tauri/WebView2 E2E Refresh - 2026-06-23
+
+Scope:
+- Full local WDIO e2e refresh after ExportModal market capability e2e coverage and WDIO CJS lint
+  coverage.
+- No platform account action, phone preview, sync, upload, schedule, publish, public host readback,
+  or external editor mutation was performed.
+
+Command:
+- `pnpm -C inkforge test:e2e`
+
+Result:
+- PASS: 2 spec files / 17 tests.
+
+Runtime:
+- The WDIO harness compiled the real Tauri debug binary through Cargo.
+- The run launched the real WebView2/Tauri surface.
+
+Passed specs:
+- `tests/e2e/specs/svg-render.spec.cjs`
+  - PASS: 6 tests.
+  - Covered real Pinia draft seeding.
+  - Covered real ExportModal style capability gates for WeChat/XHS/Zhihu.
+  - Covered the three flagship SVG export-preview probes.
+  - Covered the mobile-comfortable CJK line-width probe.
+- `tests/e2e/specs/visual.spec.cjs`
+  - PASS: 11 tests.
+  - Covered TitleBar controls and IPC click round trips.
+  - Covered brand mark rendering and Settings About hero mark.
+  - Covered motion tokens, typography rhythm, easing, focus ring, and light/dark theme cascade.
+
+Boundary:
+- This proves local Tauri/WebView2 e2e behavior only.
+- It does not prove 135/Xiumi proprietary template reuse, WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

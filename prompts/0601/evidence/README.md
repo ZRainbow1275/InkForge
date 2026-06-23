@@ -4414,3 +4414,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   WDIO run with 1 spec / 6 tests.
 - Boundary: this is local lint/test-harness maintainability only. It does not prove paste, phone
   preview, sync, upload, public rendering, public-host acceptance, or publish success.
+
+## 2026-06-23 Full Tauri/WebView2 E2E Refresh
+
+- [x] full-tauri-webview2-e2e-refresh-20260623.txt
+- Ran `pnpm -C inkforge test:e2e` after the market capability e2e and WDIO CJS lint slices.
+- Result: 2 spec files / 17 tests passed against the real Tauri/WebView2 harness.
+- `svg-render.spec.cjs`: 6 tests passed, including real Pinia draft seeding, ExportModal
+  WeChat/XHS/Zhihu style capability gates, three flagship SVG probes, and mobile line-width probe.
+- `visual.spec.cjs`: 11 tests passed, including titlebar controls, IPC round trips, brand mark,
+  tokens, focus ring, and theme cascade.
+- Boundary: this is local Tauri/WebView2 e2e evidence only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, or publish success.
