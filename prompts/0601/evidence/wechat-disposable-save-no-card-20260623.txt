@@ -1,0 +1,47 @@
+WeChat Disposable Save No-Card Evidence - 2026-06-23
+
+Scope:
+- Live authenticated WeChat article editor cleanup preflight.
+- Browser surface: CloakBrowser active editor route from the same-session `createMsg(0)` article
+  entry.
+- Goal: prove whether a deterministic disposable draft can be created and then cleaned up.
+- No preview, publish, sync, scheduled send, upload, phone preview, or public rendering action was
+  clicked.
+- Account identifiers, raw URLs, credential query parameters, account names, private draft titles,
+  screenshots, and local browser runtime directories are intentionally not recorded.
+
+Attempt 1:
+- Editor title marker: `InkForge disposable cleanup 20260623-1010`.
+- Title marker matched in the editor.
+- `保存为草稿` was identified as the visible save-draft button.
+- CloakBrowser physical click was blocked by stable-position checking.
+- DOM pointer/mouse/click dispatch and DOM `click()` were attempted against the verified
+  save-draft button.
+- The editor stayed on the article editor route, no visible save confirmation appeared, and the
+  draftbox list later returned `markerCount=0`.
+- No delete action was executed because no unique disposable draft card was present.
+
+Attempt 2:
+- Editor title marker: `InkForge disposable cleanup 20260623-1025`.
+- Editor body sentinel: `InkForge cleanup body sentinel 20260623-1025`.
+- Title marker matched in the editor.
+- Body sentinel changed the body editor from the zero-content state.
+- `保存为草稿` was identified as the visible save-draft button.
+- A real Windows mouse click was sent to the save-draft button center after foregrounding the
+  WeChat Chromium window.
+- The helper reported `windowMatched=true` and action `save-draft-click-only`.
+- The editor stayed on the article editor route, no visible save confirmation appeared, and the
+  draftbox list later returned:
+  - `markerCount=0`
+  - `bodyMarkerCount=0`
+  - `cardWrapperCount=14`
+- No delete action was executed because no unique disposable draft card was present.
+
+Conclusion:
+- The editor-entry proof does not yet provide a safe disposable draft lifecycle.
+- This run must not set `safe-disposable-draft`.
+- This run must not set `disposableDraft:true`.
+- This run must not set `cleanupPathVerified:true`.
+- This run does not prove ordinary paste, exact artifact retention, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

@@ -4217,6 +4217,44 @@ const ruleFamilies = [
   runtime directories, and account images must not be committed.
 - Commit-boundary review must scan staged diffs for credential material and account artifacts.
 
+## 62. WeChat Disposable Save No-Card Boundary - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: a live WeChat editor run writes deterministic disposable markers and attempts
+  save-draft, but the draftbox list does not expose a unique matching card afterward.
+- This evidence is negative safe-disposable-draft lifecycle evidence. It must prevent editor-entry
+  or title/body marker observations from being promoted into cleanup proof.
+
+### 2. Required Fields
+
+- Editor route category and same-session editor-entry path.
+- Disposable title marker and optional body sentinel.
+- Save-draft target verification: visible text `保存为草稿`, target type, and whether the click was
+  CloakBrowser selector click, DOM event/click, or real OS mouse click.
+- Post-save route/readback and draftbox marker counts.
+- Delete behavior: explicitly record `no delete action executed` when no unique marker card exists.
+
+### 3. Cannot-Claim Boundary
+
+- `markerCount=0` or multiple/ambiguous marker cards must keep `safe-disposable-draft`,
+  `disposableDraft:true`, and `cleanupPathVerified:true` unset.
+- A title/body marker that exists only in the editor DOM is not enough. The proof target must appear
+  as a unique draftbox card and then be deleted with post-cleanup absence readback.
+- If the save-draft button does not produce a visible confirmation or draftbox card, do not infer
+  success from editor route persistence, auto-save text, or body word count.
+- Negative save/no-card evidence must not prove ordinary paste, exact artifact retention, phone
+  preview, Dark Mode, mobile interaction, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, upload, or publish success.
+
+### 4. Tests / Evidence Required
+
+- Evidence docs must state that no preview, publish, sync, scheduled send, upload, phone preview,
+  public rendering, or delete action was clicked unless that action is the explicit scope.
+- Evidence docs must redact raw URLs, credential query parameters, account names, private draft
+  titles, account images, runtime screenshots, and local browser runtime directories.
+- Commit-boundary review must scan staged diffs for credential material and account artifacts.
+
 ## 61. WeChat Live OS Ctrl+V No-Input Evidence - 2026-06-23
 
 ### 1. Scope / Trigger

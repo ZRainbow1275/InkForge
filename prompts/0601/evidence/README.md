@@ -4281,3 +4281,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
   upload, or publish success.
+
+## 2026-06-23 WeChat Disposable Save No-Card
+
+- [x] wechat-disposable-save-no-card-20260623.txt
+- Live authenticated WeChat article editor cleanup preflight used the same-session CloakBrowser
+  `createMsg(0)` editor route.
+- Attempt 1 wrote title marker `InkForge disposable cleanup 20260623-1010`, verified
+  `保存为草稿`, and tried DOM pointer/mouse/click plus DOM `click()` after CloakBrowser physical
+  click was blocked by stable-position checking.
+- Attempt 1 draftbox readback returned `markerCount=0`; no delete action was executed.
+- Attempt 2 wrote title marker `InkForge disposable cleanup 20260623-1025` plus body sentinel
+  `InkForge cleanup body sentinel 20260623-1025`, verified `保存为草稿`, and sent a real Windows
+  mouse click to the save-draft button center.
+- Attempt 2 draftbox readback returned `markerCount=0`, `bodyMarkerCount=0`, and
+  `cardWrapperCount=14`; no delete action was executed because no unique disposable draft card was
+  present.
+- Boundary: this is negative safe-disposable-draft lifecycle evidence. It must not set
+  `safe-disposable-draft`, `disposableDraft:true`, or `cleanupPathVerified:true`; it does not prove
+  ordinary paste, exact artifact retention, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

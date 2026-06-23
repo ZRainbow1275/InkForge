@@ -10519,3 +10519,40 @@ Boundary:
 - It does not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
   XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 WeChat Disposable Save No-Card Slice
+
+Scope:
+- Live authenticated WeChat article editor cleanup preflight through CloakBrowser.
+- No source code, renderer output, proof manifest, preview, publish, sync, scheduled send, upload,
+  phone preview, public rendering, or deletion behavior was changed.
+- No account identifiers, raw URLs, credential query parameters, account names, private draft
+  titles, screenshots, browser runtime directories, or local runtime artifacts are recorded.
+
+Attempts:
+- Attempt 1 wrote title marker `InkForge disposable cleanup 20260623-1010`, verified the visible
+  `保存为草稿` button, and tried DOM pointer/mouse/click plus DOM `click()` after CloakBrowser
+  physical click was blocked by stable-position checking.
+- Attempt 1 draftbox readback returned `markerCount=0`; no delete action was executed.
+- Attempt 2 wrote title marker `InkForge disposable cleanup 20260623-1025` and body sentinel
+  `InkForge cleanup body sentinel 20260623-1025`, verified the visible `保存为草稿` button, and sent
+  a real Windows mouse click to the save-draft button center.
+- Attempt 2 draftbox readback returned `markerCount=0`, `bodyMarkerCount=0`, and
+  `cardWrapperCount=14`; no delete action was executed because no unique disposable draft card was
+  present.
+
+Evidence artifact:
+- `prompts/0601/evidence/wechat-disposable-save-no-card-20260623.txt`
+
+Verification:
+- CloakBrowser editor DOM readback completed before each save attempt.
+- Draftbox readback completed after each attempted save.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Boundary:
+- This is negative safe-disposable-draft lifecycle evidence. It must not set
+  `safe-disposable-draft`, `disposableDraft:true`, or `cleanupPathVerified:true`.
+- It does not prove ordinary paste, exact artifact retention, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

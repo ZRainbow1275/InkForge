@@ -4892,3 +4892,27 @@ Boundary:
   not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
   upload, or publish success.
+
+---
+
+## 2026-06-23 WeChat Disposable Save No-Card Addendum
+
+- Used the live authenticated WeChat article editor reached through same-session CloakBrowser
+  `createMsg(0)`.
+- Attempt 1 wrote title marker `InkForge disposable cleanup 20260623-1010`, verified the visible
+  `保存为草稿` button, and tried DOM pointer/mouse/click plus DOM `click()` after physical
+  CloakBrowser click was blocked by stable-position checking.
+- Attempt 1 returned to draftbox with `markerCount=0`; no delete action was executed.
+- Attempt 2 wrote title marker `InkForge disposable cleanup 20260623-1025` and body sentinel
+  `InkForge cleanup body sentinel 20260623-1025`, verified the visible `保存为草稿` button, and sent
+  a real Windows mouse click to the save-draft button center.
+- Attempt 2 returned to draftbox with `markerCount=0`, `bodyMarkerCount=0`, and
+  `cardWrapperCount=14`; no delete action was executed because no unique disposable draft card was
+  present.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-disposable-save-no-card-20260623.txt`.
+- Boundary: this is negative safe-disposable-draft lifecycle evidence. It must not set
+  `safe-disposable-draft`, `disposableDraft:true`, or `cleanupPathVerified:true`; it does not prove
+  ordinary paste, exact artifact retention, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
