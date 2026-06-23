@@ -4197,3 +4197,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+## 2026-06-23 WeChat Home Article Create Click Blocker
+
+- [x] wechat-home-article-create-click-blocker-20260623.txt
+- CloakBrowser-only readback confirmed authenticated WeChat home visibility and a visible
+  `新的创作` / `文章` creation card.
+- Three CloakBrowser click attempts against the visible card/container/content did not enter the
+  article editor.
+- Final readback remained on the sanitized home route with `contenteditableCount=0`,
+  `iframeCount=0`, no `#js_appmsg_editor`, and no `#ueditor_0`.
+- Boundary: this is authenticated home visibility and route blocker evidence only. It does not
+  prove WeChat editor creation, PC paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

@@ -8898,6 +8898,32 @@ Boundary:
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 WeChat Home Article Create Click Blocker Refresh
+
+Scope:
+- CloakBrowser-only readback of the authenticated WeChat home creation entry after returning from
+  market-editor work.
+- No editor paste, phone preview, sync, scheduled send, publish, or account/public mutation.
+
+Readback:
+- WeChat home loaded as an authenticated dashboard.
+- The `新的创作` section exposed visible creation cards including `文章`, `选择已有内容`, `贴图`,
+  `视频`, `转载`, `播客`, and `直播`.
+- The `文章` card was visible and hit-testable as `.new-creation__menu-item`.
+- Three CloakBrowser clicks were attempted against the `文章` card/container/content after scrolling
+  it into view.
+- The page stayed on the sanitized home route, with `contenteditableCount=0`, `iframeCount=0`, and
+  no `#js_appmsg_editor`, `#ueditor_0`, iframe, or contenteditable editor signal.
+
+Evidence:
+- `prompts/0601/evidence/wechat-home-article-create-click-blocker-20260623.txt`.
+
+Boundary:
+- This refresh proves only authenticated home visibility plus the current create-click blocker.
+- It does not prove WeChat editor creation, PC paste, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof External Handoff Packet Slice
 
 Scope:

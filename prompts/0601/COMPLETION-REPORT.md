@@ -4791,3 +4791,21 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+---
+
+## 2026-06-23 WeChat Home Article Create Click Blocker Addendum
+
+- Used CloakBrowser only on the authenticated WeChat home dashboard.
+- The `新的创作` area exposed visible creation cards including `文章`, `选择已有内容`, `贴图`,
+  `视频`, `转载`, `播客`, and `直播`.
+- The `文章` card was visible and hit-testable as `.new-creation__menu-item`.
+- Three CloakBrowser click attempts against the card/container/content did not enter the article
+  editor; the page stayed on the sanitized home route and editor signals remained absent
+  (`contenteditableCount=0`, `iframeCount=0`, no `#js_appmsg_editor`, no `#ueditor_0`).
+- Added evidence file:
+  `prompts/0601/evidence/wechat-home-article-create-click-blocker-20260623.txt`.
+- Boundary: this is authenticated home visibility and route blocker evidence only. It does not
+  prove WeChat editor creation, PC paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

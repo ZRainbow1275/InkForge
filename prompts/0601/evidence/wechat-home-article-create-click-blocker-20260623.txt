@@ -1,0 +1,45 @@
+WeChat Home Article Create Click Blocker - 2026-06-23
+
+Scope:
+- CloakBrowser-only authenticated WeChat home readback.
+- No editor paste, no phone preview, no sync, no scheduled send, no upload, and no publish action.
+- Browser/account paths, tokens, account names, article titles, and screenshots are intentionally
+  not recorded.
+
+Readback:
+- Page title category: WeChat Official Account dashboard.
+- Sanitized route category: WeChat home dashboard with token redacted.
+- Authenticated dashboard content was visible.
+- The `新的创作` section exposed creation cards:
+  - `文章`
+  - `选择已有内容`
+  - `贴图`
+  - `视频`
+  - `转载`
+  - `播客`
+  - `直播`
+
+Article card:
+- Selector family: `.new-creation__menu-item`.
+- Visible text: `文章`.
+- Hit-test center resolved to `.new-creation__menu-content` inside `.new-creation__menu-item`.
+- Final visible rect after scroll: `x=78`, `y=329`, `w=79`, `h=180`.
+
+Actions:
+- CloakBrowser click on the tagged article card.
+- CloakBrowser scroll-into-view followed by click on the tagged article card.
+- CloakBrowser click on the article card content child.
+
+Result:
+- The page stayed on the sanitized home dashboard route.
+- Editor signals remained absent:
+  - `contenteditableCount=0`
+  - `iframeCount=0`
+  - `#js_appmsg_editor=false`
+  - `#ueditor_0=false`
+
+Conclusion:
+- The authenticated home route and visible article creation card are proven.
+- The article editor creation route is still blocked by the observed click behavior.
+- No PC editor DOM readback, ordinary paste, phone preview, Dark Mode, cover thumbnail, sync,
+  scheduled send, public rendering, or publish proof can be claimed from this run.
