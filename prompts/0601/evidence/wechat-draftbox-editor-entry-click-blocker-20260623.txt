@@ -1,0 +1,43 @@
+WeChat Draftbox Editor Entry Click Blocker - 2026-06-23
+
+Scope:
+- CloakBrowser-only authenticated WeChat draftbox/editor-entry preflight.
+- No editor paste, content insertion, save, delete, sync, scheduled send, phone preview, or publish
+  action was performed.
+- Browser/account paths, credential strings, account names, draft titles, article content, public
+  URLs, screenshots, and local browser runtime directories are intentionally not recorded.
+
+Readback:
+- Draftbox route category: WeChat draftbox list (`action=list_card`, `type=77`, credential query
+  parameter redacted).
+- Page title category: WeChat official-account backend.
+- Safe visible labels included `草稿箱`, `文章模板`, and `新的创作`.
+- Draft card/container wrappers observed: 12.
+- Publish/send controls were present as route-risk markers only and were not clicked.
+
+Attempts:
+- `新的创作` physical CloakBrowser click failed stable-position checking.
+- `新的创作` DOM click returned clicked=true but no creation menu or editor appeared.
+- `新的创作` native pointer/mouse/click dispatch returned clicked=true; the route remained
+  draftbox and no creation menu/editor appeared.
+- Existing draft title CloakBrowser click returned ok but stayed on draftbox.
+- Existing draft edit-pencil CloakBrowser click returned ok but stayed on draftbox.
+- Existing draft edit-pencil DOM click returned clicked=true but stayed on draftbox.
+- Existing draft card-inner DOM click returned clicked=true but stayed on draftbox.
+
+Final editor signals:
+- `iframeCount=0`
+- `contenteditableCount=0`
+- `#js_appmsg_editor=0`
+- `#ueditor_0=0`
+- `.ProseMirror=0`
+- `.rich_media_content=0`
+- modal visible: false
+
+Conclusion:
+- Authenticated draftbox list reachability is proven.
+- Article-editor entry through draftbox/new-creation/draft-title/edit-icon paths is still blocked
+  or no-op in this CloakBrowser run.
+- This does not prove editor reachability, PC editor DOM readback, ordinary paste, safe disposable
+  draft creation, phone preview, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, or publish success.

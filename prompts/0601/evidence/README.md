@@ -4211,3 +4211,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove WeChat editor creation, PC paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 WeChat Draftbox Editor Entry Click Blocker
+
+- [x] wechat-draftbox-editor-entry-click-blocker-20260623.txt
+- CloakBrowser-only readback confirmed authenticated WeChat draftbox list reachability at the
+  sanitized route category `action=list_card` / `type=77`.
+- Safe visible labels included `草稿箱`, `文章模板`, and `新的创作`; draft card/container wrappers
+  were present.
+- Publish/send controls were observed only as route-risk markers and were not clicked.
+- `新的创作`, existing draft-title, edit-pencil, and draft-card-inner click paths did not expose the
+  article editor.
+- A native pointer/mouse/click dispatch against `新的创作` also remained on draftbox and exposed no
+  creation menu/editor.
+- Final editor signals remained absent: `iframeCount=0`, `contenteditableCount=0`, no
+  `#js_appmsg_editor`, no `#ueditor_0`, no `.ProseMirror`, no `.rich_media_content`, and no visible
+  modal.
+- Boundary: this is authenticated draftbox list reachability and editor-entry blocker evidence
+  only. It does not prove WeChat editor reachability, PC paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

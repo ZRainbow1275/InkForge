@@ -10368,3 +10368,45 @@ Boundary:
   PC editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
+
+## 2026-06-23 WeChat Draftbox Editor Entry Click Blocker Slice
+
+Scope:
+- CloakBrowser-only authenticated WeChat draftbox/editor-entry preflight.
+- No source code, renderer output, proof manifests, paste behavior, safe draft creation, sync,
+  scheduled send, phone preview, or publish behavior was changed.
+- No browser runtime directories, account names, credential strings, draft titles, public URLs,
+  screenshots, or local runtime artifacts are recorded.
+
+Readback:
+- The authenticated WeChat draftbox list was reachable through the sanitized route category
+  `action=list_card` / `type=77`.
+- Safe visible labels included `草稿箱`, `文章模板`, and `新的创作`.
+- Draft card/container wrappers were present; publish/send controls were observed only as route-risk
+  markers and were not clicked.
+- Final editor signals stayed absent: `iframeCount=0`, `contenteditableCount=0`, no
+  `#js_appmsg_editor`, no `#ueditor_0`, no `.ProseMirror`, no `.rich_media_content`, and no visible
+  modal.
+
+Attempts:
+- `新的创作` physical CloakBrowser click failed stable-position checking.
+- `新的创作` DOM click returned clicked=true but did not open a creation menu/editor.
+- `新的创作` native pointer/mouse/click dispatch returned clicked=true; the route remained draftbox
+  and no creation menu/editor appeared.
+- Existing draft-title, edit-pencil, and draft-card-inner click paths returned ok/clicked=true but
+  stayed on draftbox and did not expose editor DOM.
+
+Artifact:
+- `prompts/0601/evidence/wechat-draftbox-editor-entry-click-blocker-20260623.txt`
+
+Verification:
+- CloakBrowser read-only DOM readback completed on the authenticated draftbox route.
+- Docs/evidence diff checks, staged redaction scan, and GitNexus staged detect are required before
+  commit.
+
+Boundary:
+- This proves draftbox list reachability and an editor-entry blocker only. It does not prove WeChat
+  editor reachability, PC editor DOM readback, ordinary paste, safe-disposable-draft creation, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
+  success.
