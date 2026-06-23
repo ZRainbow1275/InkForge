@@ -4725,3 +4725,26 @@ Boundary:
   prove operating-system clipboard contents, WeChat editor paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 135/Xiumi Applied SVG DOM Learning Addendum
+
+- Used CloakBrowser only for 135 SVG editor and Xiumi paper editor applied DOM learning.
+- 135: clicked a visible `免费试用` SVG effect, selected `不需要` in the material prompt, and read
+  the center canvas after it rendered five `section + svg` blocks.
+- 135 learned rules: zeroed wrapper typography/spacing, centered safe wrapper, portrait SVG view
+  boxes, background image SVG frames, seam compensation, non-overlapping trigger zones, minimum
+  trigger-area guidance, image-slot equality, animation delay, and fade duration.
+- Xiumi: cancelled old draft recovery, opened the SVG category, closed the overlaying category
+  menu, clicked a visible SVG style card, and read the center document after it changed.
+- Xiumi readback showed the SVG taxonomy list and a center article component tree with
+  `section=14`, `svg=12`, `foreignObject=4`, `animate=2`, `rect=2`, and text paragraph nodes.
+- Updated docs/spec and evidence:
+  `docs/platform-rendering-rules/market-practices-catalog.md`,
+  `.trellis/spec/frontend/wechat-svg-modules.md`, and
+  `prompts/0601/evidence/market-editor-applied-dom-135-xiumi-20260623.txt`.
+- Boundary: this is market-editor applied DOM learning only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

@@ -4144,3 +4144,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   prove operating-system clipboard contents, WeChat editor paste, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 135/Xiumi Applied SVG DOM Learning
+
+- [x] market-editor-applied-dom-135-xiumi-20260623.txt
+- Used CloakBrowser only.
+- 135 SVG editor applied readback: visible `免费试用` effect -> material prompt `不需要` -> center
+  canvas rendered five `section + svg` blocks with safe wrapper spacing, portrait view boxes,
+  background image SVG frames, seam compensation, and explicit trigger/image/timing guidance in the
+  right panel.
+- Xiumi paper editor applied readback: cancelled old draft recovery -> SVG category -> visible SVG
+  style card -> center document changed to a nested article component tree with `section=14`,
+  `svg=12`, `foreignObject=4`, `animate=2`, `rect=2`, and text paragraph nodes.
+- Updated docs/spec mappings for source-owned wrapper rules, image-slot manifests, trigger-zone
+  manifests, layout reports, fallback rules, and market-editor residue blocking.
+- Boundary: this is market-editor applied DOM learning only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

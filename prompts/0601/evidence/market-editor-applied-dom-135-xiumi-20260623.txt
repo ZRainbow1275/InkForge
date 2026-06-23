@@ -1,0 +1,89 @@
+Market Editor Applied DOM Rules - 135 + Xiumi - 2026-06-23
+
+Scope:
+- CloakBrowser-only applied DOM learning from 135 SVG editor and Xiumi paper editor.
+- No WeChat publish, no phone preview, no platform sync, no upload, no scheduled send, and no
+  public rendering action.
+
+135 SVG editor:
+- Sanitized route category: `https://www.135editor.com/svgeditor/`.
+- Action: clicked a visible `免费试用` effect, then chose not to include default material images.
+- Center canvas result:
+  - `sectionCount=5`
+  - each visible wrapper used `section + svg`
+  - wrapper style cleared `font-size`, `line-height`, `margin`, and `padding`, and centered content
+  - observed SVG view boxes included portrait frames around `1080x1920` and `1080x1850`
+  - observed SVG styles used background image layers, centered no-repeat backgrounds, `background-size`
+    slightly above 100%, `display:inline-block`, negative top seam compensation, `pointer-events:none`,
+    `user-select:none`, `vertical-align:top`, and `width:100%`
+- Right parameter panel exposed image-slot and motion controls:
+  - all images should keep the same width and height
+  - trigger areas should not overlap
+  - trigger areas should not be too small
+  - animation delay and fade duration are explicit timing parameters
+
+135 InkForge mapping:
+- `safe-zero-wrapper`
+- `background-svg-frame`
+- `image-slot-manifest`
+- `trigger-zone-manifest`
+- `motion-timing`
+- `static-expanded` / `raster` fallback
+- market-editor residue blocking for third-party authoring classes, ids, data attributes, and asset
+  dependencies
+
+Xiumi paper editor:
+- Sanitized route category: `https://xiumi.us/studio/v5#/paper/redacted`.
+- Action: opened the paper editor, cancelled old draft recovery, opened SVG category, closed the
+  overlaying category menu, clicked a visible SVG style card, and confirmed the center document
+  changed.
+- SVG taxonomy visible in the left panel:
+  - basic SVG
+  - image carousel
+  - click expand
+  - path animation
+  - draw / lottery
+  - playful slide
+  - transition switch
+  - branch transition
+  - slide trigger
+  - parallax movement
+  - click switch
+  - page flip / flip
+  - zoom
+  - quiz
+  - barrage text
+  - click show / change / open / disappear / pop / enlarge / print / jump / play
+  - long-press switch
+  - region trigger
+  - click falling
+  - click plus auto
+- Center document after the visible style-card click:
+  - document root was a Xiumi article component tree
+  - aggregate readback included `section=14`, `svg=12`, `foreignObject=4`, `animate=2`, `rect=2`,
+    and text paragraph nodes
+  - observed SVG layout used nested SVG, `rect`, `foreignObject`, text nodes, and SMIL `animate`
+  - observed image layers were represented as SVG background images from Xiumi static assets
+  - observed text labels were carried inside `foreignObject`
+
+Xiumi InkForge mapping:
+- interaction taxonomy for source-owned style choices
+- nested section layout inspiration only
+- `foreignObject` text must get readable HTML or raster fallback before WeChat availability
+- SMIL/click fade effects require phone preview and interaction readback before availability
+- free-position and action trees require a layout report and static/raster fallback
+- `tn-*`, `ng-*`, Xiumi authoring classes, editor state, and third-party asset dependencies must be
+  treated as market-editor residue in final platform exports
+
+Verification:
+- CloakBrowser reached both market editors through the existing persistent browser session.
+- 135 center canvas and right parameter panel were read after the effect was applied.
+- Xiumi center document was read after a visible SVG style card was applied.
+- No screenshots, local browser-state locations, account labels, draft titles, cookies, request
+  captures, or platform account artifacts are committed in this evidence.
+
+Boundary:
+- This evidence proves market-editor applied DOM learning only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.

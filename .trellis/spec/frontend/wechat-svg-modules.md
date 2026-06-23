@@ -4066,3 +4066,99 @@ const markdown = formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)
 const copied = await copyTextToClipboard(markdown)
 // Only local copy feedback changes; external proof gates remain blocked until real evidence exists.
 ```
+
+## 58. Market Editor Applied SVG/H5 DOM Refresh - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: 135 and Xiumi applied-editor DOM must be converted into InkForge-owned rendering rules
+  without copying third-party templates, member assets, authoring metadata, or account state.
+- The rule applies when market-editor observations are used to add WeChat/XHS/Zhihu style choices,
+  fallback strategies, quality detectors, or documentation.
+- Only applied DOM after a visible click in the market editor counts. Listing text, library counts,
+  or public marketing pages are taxonomy evidence, not applied rendering evidence.
+
+### 2. Signatures
+
+```typescript
+interface MarketAppliedDomRuleEvidence {
+  source: '135-svgeditor' | 'xiumi-paper-editor'
+  urlCategory: string
+  action: 'click-free-trial' | 'click-visible-style-card'
+  centerRendered: boolean
+  aggregateCounts: Record<string, number>
+  observedRuleFamilies: readonly string[]
+  unsafeToCopy: readonly string[]
+  inkforgeMappings: readonly string[]
+  cannotClaim: readonly string[]
+}
+```
+
+### 3. Contracts
+
+- 135 applied SVG evidence may map only to source-owned wrappers, background-SVG frames,
+  image-slot manifests, trigger-zone manifests, motion timing, and fallback policies.
+- 135 observed wrappers that clear font size, line height, margins, and padding may inspire
+  `safe-zero-wrapper` rules, but third-party class names, ids, data attributes, CDN asset URLs, and
+  editor-control markup must remain blocked from final exports.
+- Xiumi applied SVG evidence may map only to source-owned taxonomy, nested section layout, action
+  schema, readable fallback, image/raster fallback, layout report, and residue detection.
+- Xiumi `foreignObject` text is high risk for WeChat article output. Do not mark it generally
+  available without exact artifact paste evidence, phone preview evidence, and Dark Mode evidence.
+- Xiumi SMIL `animate` rows are high risk for mobile-only behavior. Do not mark click/fade effects
+  complete without mobile before/after evidence from the target platform.
+- No market-editor applied evidence can satisfy credentialed sync, scheduled send, platform
+  preview, public rendering, public-host acceptance, upload, or publish proof.
+
+### 4. Validation & Error Matrix
+
+- `centerRendered=false` -> record taxonomy only; do not create a runtime style rule.
+- Market DOM contains `_135editor`, `135brush`, `135bg`, `data-tools`, `tn-*`, `ng-*`, Xiumi static
+  asset markup, or third-party authoring classes in final output -> emit market-editor residue.
+- Applied SVG relies on `foreignObject` text -> require readable HTML fallback and Dark Mode proof.
+- Applied SVG relies on SMIL `animate` / click or touch behavior -> require phone preview and
+  interaction readback before availability.
+- Applied layout uses absolute/free positioning, invisible hit areas, cropped backgrounds, or
+  custom trigger zones -> require a layout report plus static/raster fallback.
+
+### 5. Good/Base/Bad Cases
+
+- Good: click the 135 free-trial effect, resolve the material prompt, inspect the center canvas,
+  record five wrapper/SVG blocks, and map them to source-owned wrapper, image-slot, trigger-zone,
+  and timing contracts.
+- Good: click Xiumi SVG -> visible SVG card -> inspect the center document, record nested
+  `section`/SVG/`foreignObject`/`animate` counts, and map them to fallback plus detector rules.
+- Base: the editor shows a taxonomy but no center DOM change. Record categories only.
+- Bad: paste 135 or Xiumi template HTML into InkForge output, preserve market authoring metadata, or
+  claim WeChat phone/publish success from market-editor DOM.
+
+### 6. Tests Required
+
+- Docs/evidence updates must record aggregate counts and sanitized route categories only.
+- Quality detectors must continue blocking 135/Xiumi authoring residues from WeChat, Xiaohongshu,
+  and Zhihu outputs.
+- New style choices inspired by these observations need unit coverage for availability, fallback,
+  cannot-claim gates, and redaction boundaries.
+- Browser evidence must use CloakBrowser for market-editor UI exploration and must not commit
+  screenshots, account details, draft titles, browser-state locations, or local runtime paths.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```html
+<!-- Copies market-editor authoring DOM directly into final WeChat output. -->
+<section class="_135editor" data-tools="135编辑器">...</section>
+```
+
+#### Correct
+
+```typescript
+const ruleFamilies = [
+  'safe-zero-wrapper',
+  'background-svg-frame',
+  'trigger-zone-manifest',
+  'static-or-raster-fallback',
+] as const
+// Market DOM informs the source-owned rule family only; it is never copied as output.
+```

@@ -8775,6 +8775,53 @@ Boundary:
   send, platform preview, public rendering, public-host acceptance, Xiaohongshu upload, Zhihu
   upload, or publish success.
 
+## 2026-06-23 135/Xiumi Applied SVG DOM Learning Slice
+
+Scope:
+- CloakBrowser-only market-editor DOM learning.
+- No platform sync, phone preview, upload, scheduled send, public rendering, or publish action.
+- Docs/spec/evidence only; no source-code behavior changed in this slice.
+
+135 applied readback:
+- Opened `https://www.135editor.com/svgeditor/`.
+- Clicked a visible `免费试用` SVG effect and selected `不需要` in the material prompt so default
+  material images were not imported as learning content.
+- Center canvas rendered five `section + svg` blocks.
+- Wrappers used zeroed `font-size`, `line-height`, `margin`, and `padding`, centered content, and
+  portrait SVG view boxes around `1080x1920` / `1080x1850`.
+- Applied SVG styles used background-image layers, no-repeat center positioning, `background-size`
+  slightly above 100%, `display:inline-block`, negative top seam compensation,
+  `pointer-events:none`, `user-select:none`, `vertical-align:top`, and `width:100%`.
+- Right panel exposed equal image-size requirements, non-overlapping trigger-area guidance, minimum
+  trigger-area guidance, animation delay, and fade duration.
+
+Xiumi applied readback:
+- Opened the Xiumi paper editor, cancelled old draft recovery, opened the SVG category, closed the
+  overlaying category menu, clicked a visible SVG style card, and verified the center document
+  changed.
+- Left SVG taxonomy included basic SVG, image carousel, click expand, path animation, lottery,
+  slide, transition, branch transition, slide trigger, parallax, click switch, flip, zoom, quiz,
+  barrage text, click show/change/open/disappear/pop/enlarge/print/jump/play, long-press switch,
+  region trigger, falling click, and click plus auto.
+- Center document readback contained a nested Xiumi article tree with aggregate `section=14`,
+  `svg=12`, `foreignObject=4`, `animate=2`, `rect=2`, and text paragraph nodes.
+- The sampled Xiumi component carried image layers as SVG backgrounds and text labels through
+  `foreignObject`, with SMIL `animate` rows for the click/fade behavior.
+
+Rule updates:
+- Updated `docs/platform-rendering-rules/market-practices-catalog.md`.
+- Added `.trellis/spec/frontend/wechat-svg-modules.md` section 58.
+- Added evidence file:
+  `prompts/0601/evidence/market-editor-applied-dom-135-xiumi-20260623.txt`.
+
+Boundary:
+- This is applied market-editor DOM learning only.
+- It maps observations into InkForge-owned wrappers, image-slot manifests, trigger-zone manifests,
+  layout reports, fallback rules, and residue blockers.
+- It does not prove WeChat editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof External Handoff Packet Slice
 
 Scope:

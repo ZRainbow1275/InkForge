@@ -36,6 +36,7 @@
 | 2026-06-19 CloakBrowser applied-rule refresh | 135 普通编辑器点击免费样式后若只插入空白 `_135editor` 占位，不足以学习 applied style；135 SVG 编辑器免费试用可暴露 trigger canvas、trigger-hot-area、`app-content-canvas`、`block-img__content`、`ant-tooltip-open`；秀米 SVG 样本可把中心纸张变成 `tn-svg-animation-carousel`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*` 和 `ng-*` 作者态树，且中心可没有 literal SVG | 强化 runtime gate：这些强特征只转译为 InkForge 自有 trigger-zone/image-slot/motion/action/schema/fallback/layout-report；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error。该证据不证明手机预览、暗黑模式、同步、上传、公开预览或发布 |
 | 2026-06-20 public-source rule refresh | Exa/Grok 公开来源复核了微信官方编辑器插件规范、微信编辑器 JSAPI、doocs/md、mdnice、wx-art-formatter 和 md2red。官方规范确认结构校验接口、opacity-hidden image + SVG background、`line-height:0`、固定宽高、`text-align:start/end`、`pre` 普通段落、仅 `touchstart`、Dark Mode SVG 不被常规重着色等 bad case；OSS 工具继续收敛到 CSS inlining + `text/html` clipboard、长图/PDF fallback、XHS 图片卡片 manifest | 官方规范升级为 hard-blocker/source-of-truth；OSS/市场工具只作为架构和 artifact-family 参考。不得采纳未核验的营销排名、互动率、账号发布成功、自动发布或 `<style>`/media-query-in-SVG 建议；JSAPI/插件接口存在性不等于当前 InkForge credentialed sync、preview、scheduled-send 或 publish proof |
 | 2026-06-23 public-source rule refresh | Grok Search 重新抓取微信官方编辑器插件规范、微信 MP 编辑器 JSAPI、微信 H5 DarkMode 文档、doocs/md 架构文档，并复核小红书/知乎公开入口；小红书公开入口仍是登录态创作者平台，知乎公开检索未发现可作为硬规则的官方 Markdown/图片上传规格 | 继续把微信官方规范作为 hard-blocker/source-of-truth；doocs/md 只作为 parse -> inline CSS -> sanitize -> themed HTML 的架构参考；小红书/知乎保持保守本地 artifact manifest + 外部账号/platform proof gate，不采纳第三方尺寸指南或社区脚本作为发布成功证明 |
+| 2026-06-23 135/Xiumi CloakBrowser applied DOM refresh | 使用既有 CloakBrowser profile 在 135 SVG 编辑器点击真实“免费试用”并选择不引入素材图，在秀米图文编辑器取消草稿恢复、打开 SVG 分类并点击可见 SVG 卡片；两者均在中间编辑/正文区出现内容后读取 DOM、样式、参数面板和分类 | 135 规则进入 safe wrapper、background-SVG、image-slot、trigger-zone、motion-param schema；秀米规则进入 SVG taxonomy、nested section tree、foreignObject/text-risk、SMIL animate-risk、layout-report 和 residue-blocker。该证据不证明微信粘贴、手机预览、暗黑模式、同步、公开预览或发布 |
 
 ### 1.2 不进入实现的内容
 
@@ -195,6 +196,33 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   contained three image cells and zero literal SVG/SMIL nodes. Do not infer inline-SVG availability
   from library preview counts; translate Xiumi `tn-*`/`ng-*`/flow-canvas/action/layer state into
   readable DOM order, layout reports, image manifests, and fallback artifacts.
+
+2026-06-23 CloakBrowser applied SVG/H5 DOM refresh:
+
+- 135 SVG editor trial effects can be inserted into the center canvas after the material prompt is
+  resolved. The observed applied canvas used five `section + svg` blocks. Each wrapper cleared
+  `font-size`, `line-height`, `margin`, and `padding`, centered the block, and used SVG `viewBox`
+  geometry with image backgrounds sized slightly above 100% to close seams. The right parameter
+  panel exposed image-slot requirements, trigger-zone overlap warnings, minimum trigger-area
+  guidance, animation delay, and fade duration.
+- InkForge should translate the 135 pattern into source-owned `safe-zero-wrapper`,
+  `background-svg-frame`, `image-slot-manifest`, `trigger-zone-manifest`, `motion-timing`, and
+  `static/raster fallback` rules. It must not copy 135 template HTML, CDN assets, editor classes,
+  ids, or authoring metadata.
+- Xiumi's SVG category exposed a broad interaction taxonomy: basic SVG, image carousel,
+  click-expand, path animation, draw/lottery, playful slide, switch transition, branch transition,
+  slide trigger, parallax move, click switch, flip, zoom, quiz, barrage text, click show/change/open/
+  disappear/pop/enlarge/print/jump/play, long-press switch, region trigger, falling click, and
+  click-plus-auto.
+- After a visible Xiumi SVG card was clicked, the center document used a nested
+  `article -> section -> top-level component -> SVG layout` tree. The sampled component had
+  multiple inline SVG nodes, nested SVG layout nodes, `rect`, `foreignObject`, text paragraphs, and
+  SMIL `animate` rows. Image layers were represented as SVG backgrounds from Xiumi static assets,
+  while text labels were embedded through `foreignObject`.
+- InkForge should treat Xiumi `foreignObject` text and SMIL animation as high-risk WeChat features:
+  they can inspire source-owned click-reveal/fade rules, but production output needs readable HTML
+  fallback, image fallback, exact PC paste evidence, phone preview evidence, and Dark Mode evidence
+  before any availability claim.
 
 ## 2. 平台输出合同
 
