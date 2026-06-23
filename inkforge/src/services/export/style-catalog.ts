@@ -1369,6 +1369,18 @@ export interface CommittedStyleProofExternalHandoffReport {
   }
 }
 
+export type CommittedStyleProofExternalHandoffNextRowKind =
+  | 'phone-preview'
+  | 'external-account'
+  | 'public-host'
+  | 'unsafe-to-automate'
+  | 'mutating-platform'
+
+export interface CommittedStyleProofExternalHandoffNextRowRef {
+  kind: CommittedStyleProofExternalHandoffNextRowKind
+  row: CommittedStyleProofExternalProofChecklistRow
+}
+
 export interface CommittedStyleProofExternalHandoffPacket {
   canClaimComplete: boolean
   status: CommittedStyleProofReleaseGateStatus
@@ -1384,6 +1396,7 @@ export interface CommittedStyleProofExternalHandoffPacket {
   summary: CommittedStyleProofExternalHandoffReport['summary']
   groups: readonly CommittedStyleProofExternalProofChecklistGroup[]
   rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+  nextRowRefs: readonly CommittedStyleProofExternalHandoffNextRowRef[]
   nextRows: readonly CommittedStyleProofExternalProofChecklistRow[]
 }
 
@@ -8938,21 +8951,34 @@ export function getCommittedStyleProofExternalHandoffReport(): CommittedStylePro
   }
 }
 
-function getCommittedStyleProofExternalHandoffNextRows(
+function getCommittedStyleProofExternalHandoffNextRowRefs(
   report: CommittedStyleProofExternalHandoffReport,
-): CommittedStyleProofExternalProofChecklistRow[] {
+): CommittedStyleProofExternalHandoffNextRowRef[] {
   return [
-    report.nextPhoneRow,
-    report.nextExternalAccountRow,
-    report.nextPublicHostRow,
-    report.nextUnsafeToAutomateRow,
-    report.nextMutatingPlatformRow,
-  ].filter((row): row is CommittedStyleProofExternalProofChecklistRow => Boolean(row))
+    { kind: 'phone-preview', row: report.nextPhoneRow },
+    { kind: 'external-account', row: report.nextExternalAccountRow },
+    { kind: 'public-host', row: report.nextPublicHostRow },
+    { kind: 'unsafe-to-automate', row: report.nextUnsafeToAutomateRow },
+    { kind: 'mutating-platform', row: report.nextMutatingPlatformRow },
+  ].filter((ref): ref is CommittedStyleProofExternalHandoffNextRowRef => Boolean(ref.row))
+}
+
+function getCommittedStyleProofExternalHandoffNextRows(
+  refs: readonly CommittedStyleProofExternalHandoffNextRowRef[],
+): CommittedStyleProofExternalProofChecklistRow[] {
+  return Array.from(
+    refs.reduce((rowsById, ref) => {
+      rowsById.set(ref.row.id, ref.row)
+      return rowsById
+    }, new Map<string, CommittedStyleProofExternalProofChecklistRow>()).values()
+  )
 }
 
 export function getCommittedStyleProofExternalHandoffPacket(
   report = getCommittedStyleProofExternalHandoffReport(),
 ): CommittedStyleProofExternalHandoffPacket {
+  const nextRowRefs = getCommittedStyleProofExternalHandoffNextRowRefs(report)
+
   return {
     canClaimComplete: report.canClaimComplete,
     status: report.status,
@@ -8968,7 +8994,8 @@ export function getCommittedStyleProofExternalHandoffPacket(
     summary: report.summary,
     groups: report.externalChecklist.groups,
     rows: report.externalChecklist.rows,
-    nextRows: getCommittedStyleProofExternalHandoffNextRows(report),
+    nextRowRefs,
+    nextRows: getCommittedStyleProofExternalHandoffNextRows(nextRowRefs),
   }
 }
 
@@ -9055,9 +9082,9 @@ export function formatCommittedStyleProofExternalHandoffPacketMarkdown(
     '- Do not automate rows that require credentialed account mutation; collect them through an operator-run, redacted proof manifest.',
     '',
     '## Next Operator Rows',
-    ...(packet.nextRows.length > 0
-      ? packet.nextRows.map(row =>
-          `- ${formatCommittedStyleProofExternalHandoffRowHeader(row)}: ${formatCommittedStyleProofExternalHandoffText(row.nextOperatorAction)}`
+    ...(packet.nextRowRefs.length > 0
+      ? packet.nextRowRefs.map(ref =>
+          `- ${ref.kind}: ${formatCommittedStyleProofExternalHandoffRowHeader(ref.row)}: ${formatCommittedStyleProofExternalHandoffText(ref.row.nextOperatorAction)}`
         )
       : ['- none']),
     '',

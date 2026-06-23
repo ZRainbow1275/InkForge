@@ -1,0 +1,65 @@
+Style Proof External Handoff Next-Row Dedupe - 2026-06-23
+
+Scope:
+- Local committed external handoff packet reporting shape only.
+- No platform action, browser action, clipboard write, phone preview, upload, sync, scheduled send,
+  publish, proof artifact creation, proof manifest mutation, renderer output, or style availability
+  behavior was changed.
+
+Implemented:
+- Added CommittedStyleProofExternalHandoffNextRowKind.
+- Added CommittedStyleProofExternalHandoffNextRowRef.
+- Added CommittedStyleProofExternalHandoffPacket.nextRowRefs as the category-level next-action
+  projection.
+- Changed CommittedStyleProofExternalHandoffPacket.nextRows to contain unique proof rows deduped by
+  row id while preserving first-seen order.
+- Updated formatCommittedStyleProofExternalHandoffPacketMarkdown() so "Next Operator Rows" keeps
+  category labels such as phone-preview, external-account, public-host, unsafe-to-automate, and
+  mutating-platform.
+
+Runtime readback:
+- release.status=blocked-by-external
+- release.canClaimComplete=false
+- release.blockerCount=4
+- release.combinedIssueCount=11
+- release.cannotClaimSteps=29
+- release.phoneOpenSteps=4
+- release.externalDependencyOpenSteps=14
+- release.unsafeToAutomateOpenSteps=13
+- release.mutatingOpenSteps=13
+- packet.externalHandoffRows=18
+- packet.safeExternalRows=0
+- packet.nextRowRefs=5
+- packet.nextRows=3 unique rows
+- packet.canClaimComplete=false
+
+Next-row references:
+- phone-preview -> wechat / cover-thumbnail-check / phone-preview
+- external-account -> wechat / pc-editor-dom-readback / authenticated-pc-editor
+- public-host -> zhihu / public-image-host / public-host
+- unsafe-to-automate -> wechat / pc-editor-dom-readback / authenticated-pc-editor
+- mutating-platform -> wechat / pc-editor-dom-readback / authenticated-pc-editor
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "redacted operator packet" --reporter=default
+  PASS: 1 selected test / 175 skipped
+- Runtime tsx readback from src/services/export/style-catalog.ts confirmed nextRowRefs=5,
+  nextRows=3 unique rows, externalHandoffRows=18, safeExternalRows=0, and canClaimComplete=false.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 176 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1153 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; built in 34.29s
+- inkforge/tsconfig.tsbuildinfo was restored after the build.
+
+Boundary:
+- This is a local operator-packet clarity fix only.
+- It does not prove WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, Xiaohongshu upload,
+  Xiaohongshu publish, Zhihu upload, Zhihu public rendering, or publish success.

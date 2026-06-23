@@ -3357,7 +3357,17 @@ describe('platform native export rendering rules', () => {
       unsafeToAutomateRows: 13,
       mutatingRows: 13,
     })
-    expect(packet.nextRows).toHaveLength(5)
+    expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
+      'phone-preview',
+      'external-account',
+      'public-host',
+      'unsafe-to-automate',
+      'mutating-platform',
+    ])
+    expect(packet.nextRowRefs.every(ref => ref.row.cannotClaim)).toBe(true)
+    expect(packet.nextRowRefs.every(ref => ref.row.safeToAutomate === false)).toBe(true)
+    expect(packet.nextRows).toHaveLength(3)
+    expect(new Set(packet.nextRows.map(row => row.id)).size).toBe(packet.nextRows.length)
     expect(packet.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(packet.nextRows.every(row => row.safeToAutomate === false)).toBe(true)
     expect(packet.nextRows.some(row => row.requiresPhone)).toBe(true)
@@ -3389,6 +3399,10 @@ describe('platform native export rendering rules', () => {
     expect(markdown).toContain('wechat / phone-preview-readback / phone-preview')
     expect(markdown).toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
     expect(markdown).toContain('zhihu / public-image-host / public-host')
+    expect(markdown).toContain('phone-preview: wechat / cover-thumbnail-check / phone-preview')
+    expect(markdown).toContain('external-account: wechat / pc-editor-dom-readback / authenticated-pc-editor')
+    expect(markdown).toContain('unsafe-to-automate: wechat / pc-editor-dom-readback / authenticated-pc-editor')
+    expect(markdown).toContain('mutating-platform: wechat / pc-editor-dom-readback / authenticated-pc-editor')
     expect(markdown).toContain('Do not claim completion from local-only checks')
     expect(markdown).toContain('Forbidden evidence fields')
     expect(formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)).toBe(markdown)

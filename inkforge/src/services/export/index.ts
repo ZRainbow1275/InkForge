@@ -103,6 +103,8 @@ export type {
   CommittedStyleProofExecutionRunbookReport,
   CommittedStyleProofExternalHandoffPacket,
   CommittedStyleProofExternalHandoffReport,
+  CommittedStyleProofExternalHandoffNextRowKind,
+  CommittedStyleProofExternalHandoffNextRowRef,
   CommittedStyleProofExternalProofArtifactTemplate,
   CommittedStyleProofExternalProofChecklistBlockerKind,
   CommittedStyleProofExternalProofChecklistGroup,

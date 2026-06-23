@@ -4439,3 +4439,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Restored `inkforge/tsconfig.tsbuildinfo` after the build.
 - Boundary: this is local test/type/build evidence only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, or publish success.
+
+## 2026-06-23 Style Proof External Handoff Next-Row Dedupe
+
+- [x] style-proof-external-handoff-nextrow-dedupe-20260623.txt
+- Added `nextRowRefs` to the committed external handoff packet so the five logical next-action
+  categories remain visible even when several categories point at the same underlying proof row.
+- `nextRows` is now the unique row projection deduped by checklist row id; current runtime readback
+  is `nextRowRefs=5`, `nextRows=3`, `externalHandoffRows=18`, `safeExternalRows=0`, and
+  `canClaimComplete=false`.
+- The Markdown formatter now labels next operator rows by category while preserving the full
+  canonical proof-row list.
+- Boundary: this is local operator-packet clarity only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

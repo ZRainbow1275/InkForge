@@ -3917,6 +3917,18 @@ Required checks:
 ### 2. Signatures
 
 ```typescript
+type CommittedStyleProofExternalHandoffNextRowKind =
+  | 'phone-preview'
+  | 'external-account'
+  | 'public-host'
+  | 'unsafe-to-automate'
+  | 'mutating-platform'
+
+interface CommittedStyleProofExternalHandoffNextRowRef {
+  kind: CommittedStyleProofExternalHandoffNextRowKind
+  row: CommittedStyleProofExternalProofChecklistRow
+}
+
 interface CommittedStyleProofExternalHandoffPacket {
   canClaimComplete: boolean
   status: CommittedStyleProofReleaseGateStatus
@@ -3932,6 +3944,7 @@ interface CommittedStyleProofExternalHandoffPacket {
   summary: CommittedStyleProofExternalHandoffReport['summary']
   groups: readonly CommittedStyleProofExternalProofChecklistGroup[]
   rows: readonly CommittedStyleProofExternalProofChecklistRow[]
+  nextRowRefs: readonly CommittedStyleProofExternalHandoffNextRowRef[]
   nextRows: readonly CommittedStyleProofExternalProofChecklistRow[]
 }
 
@@ -4550,3 +4563,38 @@ const ruleFamilies = [
 - Evidence docs must redact raw URLs, credential query parameters, account names, private draft
   titles, account images, runtime screenshots, and local browser runtime directories.
 - Commit-boundary review must scan staged diffs for credential material and account artifacts.
+
+## 64. External Handoff Packet Next-Row Dedupe - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: the committed external handoff packet has five logical next-action categories
+  (`phone-preview`, `external-account`, `public-host`, `unsafe-to-automate`, and
+  `mutating-platform`), but several categories can point at the same underlying proof row.
+- The packet must keep category meaning for operators while avoiding duplicate proof rows in
+  machine consumers.
+
+### 2. Contract
+
+- `CommittedStyleProofExternalHandoffPacket.nextRowRefs` is the category-level projection. It must
+  contain one ref per available next-action category, preserving the category `kind` and the
+  referenced checklist row.
+- `CommittedStyleProofExternalHandoffPacket.nextRows` is the unique row projection. It must dedupe
+  `nextRowRefs` by checklist row id while preserving first-seen order.
+- `formatCommittedStyleProofExternalHandoffPacketMarkdown()` must render `nextRowRefs` in the
+  "Next Operator Rows" section with the category label included. The full "Proof Rows" section
+  remains sourced from the canonical checklist rows.
+- This is a reporting shape change only. It must not change release-gate status, blocker counts,
+  proof manifests, artifact templates, style availability, style selectability, renderer output,
+  platform account state, browser state, clipboard state, upload, sync, schedule, or publish
+  behavior.
+
+### 3. Required Checks
+
+- Regression tests must keep `canClaimComplete:false`, `safeExternalRows=0`, and the current
+  external handoff count snapshot while proving `nextRowRefs` has all five categories.
+- Regression tests must prove `nextRows` is unique by row id and that every next ref/row remains
+  `cannotClaim` and `safeToAutomate:false`.
+- Evidence docs must record the runtime readback and explicitly state that the change does not
+  prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu upload, or publish success.

@@ -10930,3 +10930,70 @@ Boundary:
   retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Style Proof External Handoff Next-Row Dedupe
+
+Scope:
+- Local committed external handoff packet reporting shape only.
+- No renderer output, proof manifest, platform action, browser profile artifact, account action,
+  clipboard write, save, preview, publish, sync, scheduled send, upload, phone preview, public
+  rendering, or release gate behavior was changed.
+
+Implementation:
+- Added `CommittedStyleProofExternalHandoffNextRowKind`.
+- Added `CommittedStyleProofExternalHandoffNextRowRef`.
+- Added `CommittedStyleProofExternalHandoffPacket.nextRowRefs` for the category-level next-action
+  projection.
+- Changed `CommittedStyleProofExternalHandoffPacket.nextRows` to return unique checklist rows
+  deduped by row id while preserving first-seen order.
+- Updated `formatCommittedStyleProofExternalHandoffPacketMarkdown()` so the next operator row list
+  keeps category labels instead of repeating unlabeled duplicate rows.
+- Exported the new next-row types from `inkforge/src/services/export/index.ts`.
+
+Runtime readback:
+- Current committed release gate remains `status=blocked-by-external`,
+  `canClaimComplete=false`, `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, and `mutatingOpenSteps=13`.
+- Current packet readback is `externalHandoffRows=18`, `safeExternalRows=0`,
+  `nextRowRefs=5`, and `nextRows=3` unique rows.
+- The repeated external-account / unsafe-to-automate / mutating-platform categories correctly point
+  at the same WeChat authenticated PC editor row in `nextRowRefs`, while `nextRows` exposes that row
+  only once.
+
+Verification:
+- Focused packet regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "redacted operator packet" --reporter=default`
+  passed with 1 selected test / 175 skipped.
+- Direct `tsx` runtime readback from `src/services/export/style-catalog.ts` confirmed
+  `nextRowRefs=5`, `nextRows=3`, `externalHandoffRows=18`, `safeExternalRows=0`, and
+  `canClaimComplete=false`.
+- Targeted lint:
+  `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Full file regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 176 tests.
+- Full export regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1153 tests.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; Vite transformed 4653 modules and built successfully in 34.29s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `git diff --check` and `git diff --cached --check` passed for this slice.
+- Staged sensitive-fragment scan over the committed diff returned no matches for local browser
+  runtime paths, credential markers, cookies, HAR, QR, or account-capture terms.
+- GitNexus staged detect reported low risk, 7 changed files, and 0 affected processes.
+
+Evidence artifact:
+- `prompts/0601/evidence/style-proof-external-handoff-nextrow-dedupe-20260623.txt`
+
+Boundary:
+- This is local operator-packet clarity only. It does not prove WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
