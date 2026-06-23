@@ -327,6 +327,7 @@ export interface StyleProofArtifact {
   cleanupPathVerified?: boolean
   createRouteActionMetadataMissing?: boolean
   cleanupTargetAmbiguous?: boolean
+  saveDraftNoCard?: boolean
   artifactManifestValidated?: boolean
   redactionReviewRequired?: boolean
   redactionVerified?: boolean
@@ -378,6 +379,7 @@ export type StyleProofManifestIssueId =
   | 'style-proof-manifest-cleanup-path-missing'
   | 'style-proof-manifest-create-route-action-missing'
   | 'style-proof-manifest-cleanup-target-ambiguous'
+  | 'style-proof-manifest-save-draft-no-card'
   | 'style-proof-manifest-redaction-review-missing'
   | 'style-proof-manifest-platform-action-missing'
   | 'style-proof-manifest-readback-missing'
@@ -431,6 +433,7 @@ const STYLE_PROOF_MANIFEST_ISSUE_IDS = [
   'style-proof-manifest-cleanup-path-missing',
   'style-proof-manifest-create-route-action-missing',
   'style-proof-manifest-cleanup-target-ambiguous',
+  'style-proof-manifest-save-draft-no-card',
   'style-proof-manifest-redaction-review-missing',
   'style-proof-manifest-platform-action-missing',
   'style-proof-manifest-readback-missing',
@@ -912,6 +915,7 @@ export type StyleProofArtifactVerificationField =
   | 'scheduledSendVerified'
   | 'disposableDraft'
   | 'cleanupPathVerified'
+  | 'saveDraftNoCard'
   | 'artifactManifestValidated'
   | 'redactionVerified'
   | 'collectedAt'
@@ -4293,6 +4297,14 @@ function validateStyleProofRequirementCoverage(
             location: artifact.id,
           })
         }
+        if (artifact.saveDraftNoCard === true) {
+          addStyleProofIssue(issues, {
+            id: 'style-proof-manifest-save-draft-no-card',
+            message: 'Safe disposable draft preflight did not produce a unique draftbox card after save-draft.',
+            suggestion: 'Keep the run as blocker evidence until the same disposable marker appears as a unique draftbox card and can be deleted with post-cleanup absence readback.',
+            location: artifact.id,
+          })
+        }
       }
       break
     }
@@ -5233,6 +5245,8 @@ function isStyleProofRequiredFieldSatisfied(
       return artifact.disposableDraft === true
     case 'cleanupPathVerified':
       return artifact.cleanupPathVerified === true
+    case 'saveDraftNoCard':
+      return artifact.saveDraftNoCard === true
     case 'artifactManifestValidated':
       return artifact.artifactManifestValidated === true
     case 'redactionVerified':
@@ -6059,6 +6073,7 @@ const STYLE_PROOF_ACCEPTANCE_INVALID_ISSUE_IDS = new Set<StyleProofManifestIssue
   'style-proof-manifest-scheduled-send-not-verified',
   'style-proof-manifest-disposable-draft-missing',
   'style-proof-manifest-cleanup-path-missing',
+  'style-proof-manifest-save-draft-no-card',
   'style-proof-manifest-ordinary-paste-not-verified',
   'style-proof-manifest-paste-editor-tab-not-verified',
   'style-proof-manifest-paste-input-not-verified',
@@ -6511,6 +6526,7 @@ const STYLE_PROOF_ARTIFACT_FIELD_CRITERIA: Record<StyleProofArtifactVerification
   scheduledSendVerified: 'scheduledSendVerified:true after real scheduled-send state readback',
   disposableDraft: 'disposableDraft:true for a draft that can be safely mutated and removed',
   cleanupPathVerified: 'cleanupPathVerified:true after the cleanup path is proven',
+  saveDraftNoCard: 'saveDraftNoCard:true only for blocker evidence where save-draft produced no unique draftbox card',
   artifactManifestValidated: 'artifactManifestValidated:true after the platform artifact manifest validator passes',
   redactionVerified: 'redactionVerified:true after platform-visible account and draft text is excluded from committed evidence',
   collectedAt: `collectedAt: parseable timestamp within ${STYLE_PROOF_DEFAULT_MAX_FRESHNESS_DAYS} days for external proof rows`,
@@ -6812,6 +6828,7 @@ const STYLE_PROOF_MANIFEST_INTAKE_ARTIFACT_FIELDS = new Set<string>([
   'cleanupPathVerified',
   'createRouteActionMetadataMissing',
   'cleanupTargetAmbiguous',
+  'saveDraftNoCard',
   'artifactManifestValidated',
   'redactionReviewRequired',
   'redactionVerified',
@@ -6846,6 +6863,7 @@ type StyleProofArtifactBooleanField =
   | 'cleanupPathVerified'
   | 'createRouteActionMetadataMissing'
   | 'cleanupTargetAmbiguous'
+  | 'saveDraftNoCard'
   | 'artifactManifestValidated'
   | 'redactionReviewRequired'
   | 'redactionVerified'
@@ -6877,6 +6895,7 @@ const STYLE_PROOF_ARTIFACT_BOOLEAN_FIELDS = [
   'cleanupPathVerified',
   'createRouteActionMetadataMissing',
   'cleanupTargetAmbiguous',
+  'saveDraftNoCard',
   'artifactManifestValidated',
   'redactionReviewRequired',
   'redactionVerified',

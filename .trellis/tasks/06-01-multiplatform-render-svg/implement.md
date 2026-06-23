@@ -10590,3 +10590,36 @@ Boundary:
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
   upload, or publish success.
+
+## 2026-06-23 Style Proof Save-Draft No-Card Validator Slice
+
+Scope:
+- Local proof-manifest validator and acceptance-audit hardening.
+- No platform action, browser action, save, preview, publish, sync, scheduled send, upload, phone
+  preview, delete, renderer output, or proof collection behavior was changed.
+
+Implementation:
+- Added `StyleProofArtifact.saveDraftNoCard?: boolean`.
+- Added issue id `style-proof-manifest-save-draft-no-card`.
+- Safe-disposable-draft artifacts with `saveDraftNoCard:true` are invalid blocker evidence.
+- Intake accepts `saveDraftNoCard` as a known boolean artifact field without schema warnings.
+- Acceptance audit treats `style-proof-manifest-save-draft-no-card` as invalid proof rather than a
+  missing manual gate.
+
+Verification:
+- TDD red: focused `save-draft no-card` regression failed before implementation because
+  `style-proof-manifest-save-draft-no-card` was absent.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'save-draft no-card' --reporter=default`
+  passed with 1 selected test.
+- Broader export validation, targeted lint/type checks, docs/spec/evidence diff checks, staged
+  redaction scan, and GitNexus staged detect are required before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/style-proof-save-draft-no-card-validator-20260623.txt`
+
+Boundary:
+- This is local validation/accounting only. It does not prove WeChat save-draft success, cleanup,
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
+  upload, or publish success.

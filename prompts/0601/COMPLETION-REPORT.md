@@ -4934,3 +4934,24 @@ Boundary:
   cleanup, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
   XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 Style Proof Save-Draft No-Card Validator Addendum
+
+- Added `StyleProofArtifact.saveDraftNoCard?: boolean`.
+- Added issue id `style-proof-manifest-save-draft-no-card`.
+- Safe-disposable-draft artifacts with `saveDraftNoCard:true` are invalid blocker evidence and
+  cannot satisfy `disposableDraft:true`, `cleanupPathVerified:true`, or `safe-disposable-draft`.
+- Intake accepts `saveDraftNoCard` as a known boolean field without schema warnings.
+- Acceptance audit treats `style-proof-manifest-save-draft-no-card` as invalid proof rather than a
+  missing manual gate.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-save-draft-no-card-validator-20260623.txt`.
+- Verification: TDD red failed before implementation because the issue id was absent; focused green
+  passed with
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'save-draft no-card' --reporter=default`.
+- Boundary: this is local validation/accounting only. It does not prove WeChat save-draft success,
+  cleanup, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
+  XHS/Zhihu upload, or publish success.

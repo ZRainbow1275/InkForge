@@ -4217,6 +4217,40 @@ const ruleFamilies = [
   runtime directories, and account images must not be committed.
 - Commit-boundary review must scan staged diffs for credential material and account artifacts.
 
+## 64. Save-Draft No-Card Manifest Field - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: a live WeChat safe-disposable-draft run attempts save-draft but draftbox readback does
+  not expose a unique disposable marker card.
+- The validator field is `StyleProofArtifact.saveDraftNoCard?: boolean`.
+
+### 2. Contract
+
+- `saveDraftNoCard:true` is valid only on a redacted artifact whose `requirementId` is
+  `safe-disposable-draft`.
+- The field means save-draft was attempted but no unique draftbox card existed for cleanup.
+- The semantic issue id is `style-proof-manifest-save-draft-no-card`.
+- The field is a known boolean artifact field and must not create intake schema warnings.
+- Acceptance audit must classify the proof row as invalid, not as an automatable/missing success.
+
+### 3. Cannot-Claim Boundary
+
+- `saveDraftNoCard:true` must keep `safe-disposable-draft`, `disposableDraft:true`, and
+  `cleanupPathVerified:true` unclaimed.
+- It does not prove ordinary paste, exact artifact retention, phone preview, Dark Mode, mobile
+  interaction, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, upload, or publish success.
+
+### 4. Tests / Evidence Required
+
+- Add or maintain a regression where a safe-disposable-draft artifact with `saveDraftNoCard:true`
+  produces `style-proof-manifest-save-draft-no-card`, zero intake schema warnings, invalid
+  `safe-disposable-draft`, and an acceptance cannot-claim row.
+- Evidence docs must preserve the platform boundary and must not commit raw URLs, credential query
+  parameters, account names, private draft titles, screenshots, or local browser runtime
+  directories.
+
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23
 
 ### 1. Scope / Trigger

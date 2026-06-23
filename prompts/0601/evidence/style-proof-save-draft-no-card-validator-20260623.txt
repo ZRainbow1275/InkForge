@@ -1,0 +1,34 @@
+Style Proof Save-Draft No-Card Validator - 2026-06-23
+
+Scope:
+- Local proof-manifest validator and acceptance-audit hardening.
+- No platform action, browser action, save, preview, publish, sync, scheduled send, upload, phone
+  preview, or delete action was performed in this validator slice.
+
+Implemented:
+- Added `StyleProofArtifact.saveDraftNoCard?: boolean`.
+- Added issue id `style-proof-manifest-save-draft-no-card`.
+- Safe-disposable-draft artifacts with `saveDraftNoCard:true` are invalid blocker evidence.
+- Intake accepts `saveDraftNoCard` as a known boolean artifact field without schema warnings.
+- Acceptance audit treats `style-proof-manifest-save-draft-no-card` as invalid proof rather than a
+  missing manual gate.
+
+Behavior:
+- The flag represents a run where save-draft was attempted, but the draftbox did not expose a
+  unique disposable marker card afterward.
+- It does not satisfy `disposableDraft:true`.
+- It does not satisfy `cleanupPathVerified:true`.
+- It prevents the `safe-disposable-draft` row from being claimed.
+
+Verification:
+- TDD red: the focused `save-draft no-card` regression failed before implementation because
+  `style-proof-manifest-save-draft-no-card` was absent.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t 'save-draft no-card' --reporter=default`
+  passed with 1 selected test.
+
+Boundary:
+- This is local validation/accounting only.
+- It does not prove WeChat save-draft success, cleanup, paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
