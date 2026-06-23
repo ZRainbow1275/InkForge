@@ -4216,3 +4216,46 @@ const ruleFamilies = [
   credential query parameters, account names, draft titles, public URLs, screenshots, local browser
   runtime directories, and account images must not be committed.
 - Commit-boundary review must scan staged diffs for credential material and account artifacts.
+
+## 61. WeChat Live OS Ctrl+V No-Input Evidence - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: a live WeChat editor run prepares an exact CF_HTML artifact and sends foreground
+  Windows Ctrl+V, but the editor body does not receive paste/input events and does not mutate.
+- This evidence is a negative `pc-editor-paste-event` row. It must be recorded because it prevents
+  stale or partial PC-paste claims from being upgraded.
+- The evidence may reuse a current editor-entry proof, but it must still bind the artifact
+  fingerprint, foreground input method, body readback, and cleanup/safe-draft outcome.
+
+### 2. Required Fields
+
+- Exact artifact path and SHA-256.
+- Clipboard format and source counts: HTML bytes, CF_HTML bytes, source SVG count,
+  `data-ink-svg` count, and `data-ink-block` count.
+- Foreground input attempt summary: method (`keybd_event` or `SendInput`), foreground window
+  matched, click/no-click mode, and whether clipboard was preserved.
+- Editor body readback after each attempt or final failed attempt: text length, HTML length, SVG
+  count, `data-ink-svg` count, `data-ink-block` count, `sectionNice`, active editor class, and
+  event-probe counts when a probe is installed.
+- Disposable marker and cleanup readback. If no unique marker appears in draftbox, do not delete
+  any generic untitled/private draft and keep cleanup unclaimed.
+
+### 3. Cannot-Claim Boundary
+
+- `eventCount=0`, no trusted `paste`, no `beforeinput/input`, or unchanged body HTML must keep
+  `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`, and
+  `editorBodyMutationVerified:true` unset.
+- A marker that matched in the editor but did not appear as a unique draftbox card must keep
+  `safe-disposable-draft` and `cleanupPathVerified:true` unset.
+- Negative OS Ctrl+V evidence must not prove phone preview, Dark Mode, mobile interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, upload, or publish success.
+
+### 4. Tests / Evidence Required
+
+- Evidence docs must state that no save, preview, publish, delete, sync, scheduled send, phone,
+  upload, or cleanup action was clicked unless that action is the explicit scope.
+- Evidence docs must redact raw URLs, credential query parameters, account names, private draft
+  titles, account images, runtime screenshots, and local browser runtime directories.
+- Commit-boundary review must scan staged diffs for credential material and account artifacts.

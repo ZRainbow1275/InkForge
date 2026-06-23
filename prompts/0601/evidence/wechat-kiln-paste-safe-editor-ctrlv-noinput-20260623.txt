@@ -1,0 +1,60 @@
+WeChat Kiln Paste-Safe Editor Ctrl+V No-Input Evidence - 2026-06-23
+
+Scope:
+- Live authenticated WeChat article editor run.
+- Browser surface: CloakBrowser active editor route from the same-session `createMsg(0)` article
+  entry.
+- Clipboard/keyboard path: Windows CF_HTML clipboard plus Win32 foreground-input helper.
+- No manual save, preview, sync, scheduled send, publish, delete, phone preview, or upload action
+  was clicked.
+- Account identifiers, raw URLs, credential query parameters, account names, private draft titles,
+  screenshots, and local browser runtime directories are intentionally not recorded.
+
+Disposable marker:
+- Attempted editor title marker: `InkForge disposable proof 20260623-0925`.
+- Title marker matched in the editor after insertion.
+- The platform did not show a saved marker in the draftbox after returning to the list:
+  `markerCount=0`.
+- No cleanup delete action was executed because no unique disposable draft card was present.
+
+Clipboard artifact:
+- Source artifact: `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`.
+- SHA-256: `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`.
+- HTML bytes: 41618.
+- CF_HTML bytes: 41787.
+- Source SVG count: 35.
+- Source `data-ink-svg` count: 3.
+- Source `data-ink-block` count: 23.
+- Clipboard formats: `HTML Format`, `UnicodeText`.
+
+Input attempts:
+- Attempt 1: Win32 `keybd_event` Ctrl+V after foregrounding the WeChat window and clicking inside
+  the editor body. The helper reported `windowMatched=true`, `keybdEventCount=4`, and
+  `preserveClipboard=true`.
+- Attempt 2: Win32 `keybd_event` Ctrl+V with the same foreground window, `NoMove`, and `NoClick`.
+  The helper again reported `windowMatched=true`, `keybdEventCount=4`, and
+  `preserveClipboard=true`.
+- Attempt 3: Win32 `SendInput` Ctrl+V with a temporary body event probe installed. The helper
+  reported `windowMatched=true`, `sentInputCount=4`, and `preserveClipboard=true`.
+
+Editor readback:
+- Active route category remained `appmsg-edit-like` during the paste attempts.
+- Body editor was present and focused as `.ProseMirror-focused`.
+- Body text length stayed 8.
+- Body HTML length stayed 298.
+- `svgCount=0`.
+- `dataInkSvgCount=0`.
+- `dataInkBlockCount=0`.
+- `sectionNice=false`.
+- The temporary body event probe recorded `eventCount=0` for the `SendInput` attempt.
+
+Conclusion:
+- The exact Kiln paste-safe CF_HTML artifact was prepared, but this live WeChat editor session did
+  not receive an ordinary OS paste/input event and the body DOM did not mutate.
+- Do not set `ordinaryClipboardPasteVerified:true`.
+- Do not set `pasteInputEventVerified:true`.
+- Do not set `editorBodyMutationVerified:true`.
+- Do not set `safe-disposable-draft` or `cleanupPathVerified:true` from this run.
+- This does not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
+  XHS/Zhihu upload, or publish success.

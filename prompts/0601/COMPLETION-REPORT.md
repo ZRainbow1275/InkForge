@@ -4863,3 +4863,32 @@ Boundary:
   disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 WeChat Kiln Paste-Safe Ctrl+V No-Input Addendum
+
+- Used the live authenticated WeChat article editor reached through the same-session CloakBrowser
+  route.
+- Prepared exact artifact
+  `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html` as Windows `HTML Format` plus
+  `UnicodeText`.
+- Clipboard metadata: SHA-256
+  `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`, 41618 HTML bytes,
+  41787 CF_HTML bytes, 35 source SVGs, 3 `data-ink-svg`, and 23 `data-ink-block`.
+- Attempted disposable marker `InkForge disposable proof 20260623-0925` matched in the editor, but
+  the draftbox list later returned `markerCount=0`; no cleanup delete was executed because no
+  unique disposable draft card was present.
+- Tried Win32 `keybd_event` Ctrl+V with foreground click, Win32 `keybd_event` Ctrl+V with `NoMove`
+  / `NoClick`, and Win32 `SendInput` Ctrl+V with a temporary body event probe.
+- Final editor body readback stayed unchanged: body text length 8, body HTML length 298,
+  `svgCount=0`, `dataInkSvgCount=0`, `dataInkBlockCount=0`, `sectionNice=false`, and
+  `eventCount=0` for the probed `SendInput` attempt.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-kiln-paste-safe-editor-ctrlv-noinput-20260623.txt`.
+- Boundary: this is negative live WeChat PC paste evidence. It must not set
+  `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `safe-disposable-draft`, or `cleanupPathVerified:true`; it does
+  not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
+  upload, or publish success.

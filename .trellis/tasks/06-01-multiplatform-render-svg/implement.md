@@ -10462,3 +10462,60 @@ Boundary:
   cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
   upload, or publish success.
+
+## 2026-06-23 WeChat Kiln Paste-Safe Ctrl+V No-Input Slice
+
+Scope:
+- Live authenticated WeChat article editor run through CloakBrowser plus Windows CF_HTML and Win32
+  foreground input.
+- No source code, renderer output, proof manifest, manual save, preview, sync, scheduled send,
+  publish, delete, phone preview, upload, or cleanup behavior was changed.
+- No account identifiers, raw URLs, credential query parameters, account names, private draft
+  titles, screenshots, browser runtime directories, or local runtime artifacts are recorded.
+
+Artifact:
+- `prompts/0601/evidence/wechat-paste/flagship-kiln-paste-safe.html`
+- SHA-256: `338f47e5237131b8e51cf8637d0430b91a8a5e7de0d2f8ccf0625880c062b491`
+- Clipboard format: Windows `HTML Format` plus `UnicodeText`
+- HTML bytes: 41618
+- CF_HTML bytes: 41787
+- Source SVG count: 35
+- Source `data-ink-svg` count: 3
+- Source `data-ink-block` count: 23
+
+Run:
+- Attempted disposable marker `InkForge disposable proof 20260623-0925` matched in the editor.
+- OS input attempt 1 used Win32 `keybd_event` Ctrl+V after foregrounding and clicking the editor
+  body.
+- OS input attempt 2 used Win32 `keybd_event` Ctrl+V with `NoMove` / `NoClick`.
+- OS input attempt 3 used Win32 `SendInput` Ctrl+V with a temporary body event probe.
+- The draftbox list later returned `markerCount=0`; no delete action was executed because no unique
+  disposable draft card was present.
+
+Readback:
+- Active route category remained `appmsg-edit-like` during paste attempts.
+- Body editor remained `.ProseMirror-focused`.
+- Body text length stayed 8.
+- Body HTML length stayed 298.
+- `svgCount=0`
+- `dataInkSvgCount=0`
+- `dataInkBlockCount=0`
+- `sectionNice=false`
+- Temporary body event probe recorded `eventCount=0` for the `SendInput` attempt.
+
+Evidence artifact:
+- `prompts/0601/evidence/wechat-kiln-paste-safe-editor-ctrlv-noinput-20260623.txt`
+
+Verification:
+- CloakBrowser editor DOM readback completed before and after the OS input attempts.
+- Windows clipboard writer and foreground-input helper both completed without shell errors.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Boundary:
+- This is negative live WeChat PC paste evidence. It must not set
+  `ordinaryClipboardPasteVerified:true`, `pasteInputEventVerified:true`,
+  `editorBodyMutationVerified:true`, `safe-disposable-draft`, or `cleanupPathVerified:true`.
+- It does not prove phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
+  XHS/Zhihu upload, or publish success.
