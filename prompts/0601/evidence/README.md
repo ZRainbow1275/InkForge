@@ -4426,3 +4426,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   tokens, focus ring, and theme cascade.
 - Boundary: this is local Tauri/WebView2 e2e evidence only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, or publish success.
+
+## 2026-06-23 Local Release Validation Refresh
+
+- [x] local-release-validation-refresh-20260623.txt
+- Ran the export service regression serially:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`.
+- Result: 36 files / 1153 tests passed.
+- Ran `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`; passed.
+- Ran `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; passed with 4653 modules
+  transformed and Vite build completed in 37.39s.
+- Restored `inkforge/tsconfig.tsbuildinfo` after the build.
+- Boundary: this is local test/type/build evidence only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, or publish success.

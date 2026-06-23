@@ -10902,3 +10902,31 @@ Boundary:
   retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Local Release Validation Refresh
+
+Scope:
+- Local release validation refresh after the market capability and e2e harness slices.
+- No product code, proof manifest, platform action, browser profile artifact, account action, save,
+  preview, publish, sync, scheduled send, upload, phone preview, public rendering, or release gate
+  behavior was changed in this evidence-only slice.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1153 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; Vite transformed 4653 modules and built successfully in 37.39s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- Docs/evidence diff checks, staged redaction scan, and GitNexus staged detect are required before
+  commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/local-release-validation-refresh-20260623.txt`
+
+Boundary:
+- This is local test/type/build evidence only. It does not prove WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

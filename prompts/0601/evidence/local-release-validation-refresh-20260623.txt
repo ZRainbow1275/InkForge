@@ -1,0 +1,27 @@
+Local Release Validation Refresh - 2026-06-23
+
+Scope:
+- Local release validation refresh after the market capability, ExportModal e2e, WDIO CJS lint, and
+  full WebView2 e2e slices.
+- No platform account action, phone preview, sync, upload, schedule, publish, public host readback,
+  or external editor mutation was performed.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1153 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS.
+
+Build notes:
+- Vite transformed 4653 modules.
+- Production build completed successfully in 37.39s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+
+Boundary:
+- This proves local export service regression, TypeScript checking, and production build only.
+- It does not prove 135/Xiumi proprietary template reuse, WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -5112,3 +5112,21 @@ Boundary:
   artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 Local Release Validation Refresh Addendum
+
+- Ran the full export service regression serially:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`.
+- Result: 36 files / 1153 tests passed.
+- Ran `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`; passed.
+- Ran `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`; passed with 4653 modules
+  transformed and Vite build completed in 37.39s.
+- Restored `inkforge/tsconfig.tsbuildinfo` after the build.
+- Added evidence file:
+  `prompts/0601/evidence/local-release-validation-refresh-20260623.txt`.
+- Boundary: this is local test/type/build evidence only. It does not prove WeChat PC paste, exact
+  artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
