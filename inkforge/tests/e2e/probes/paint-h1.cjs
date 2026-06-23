@@ -13,7 +13,7 @@
  */
 const os = require('os');
 const path = require('path');
-const { spawn, spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 const { remote } = require('webdriverio');
 
 const TAURI_DRIVER = process.env.TAURI_DRIVER_PATH ||

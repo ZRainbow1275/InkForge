@@ -95,6 +95,34 @@ export default tseslint.config(
     },
   },
   {
+    files: ['tests/e2e/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: {
+        __dirname: 'readonly',
+        before: 'readonly',
+        browser: 'readonly',
+        clearTimeout: 'readonly',
+        console: 'readonly',
+        document: 'readonly',
+        describe: 'readonly',
+        getComputedStyle: 'readonly',
+        it: 'readonly',
+        location: 'readonly',
+        PopStateEvent: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
+        setTimeout: 'readonly',
+        window: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+    },
+  },
+  {
     ignores: ['node_modules/**', 'dist/**', '*.config.js'],
   }
 )

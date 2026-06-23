@@ -261,7 +261,7 @@ async function reachWorkstationExport(articleId) {
     );
     ready = true;
   } catch {
-    ready = false;
+    // Keep the default false state; the branch below reads the final button status.
   }
 
   if (!ready) {

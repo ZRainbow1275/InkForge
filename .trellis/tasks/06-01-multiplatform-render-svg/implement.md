@@ -10829,3 +10829,45 @@ Boundary:
   artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 WDIO E2E CJS Lint Slice
+
+Scope:
+- Local lint coverage for the CommonJS WDIO/Mocha e2e harness under `inkforge/tests/e2e/**/*.cjs`.
+- No product UI, renderer output, proof manifest, platform action, browser profile artifact, account
+  action, save, preview, publish, sync, scheduled send, upload, phone preview, public rendering, or
+  release gate behavior was changed.
+
+Implementation:
+- Added a file-scoped `tests/e2e/**/*.cjs` override in `inkforge/eslint.config.js`.
+- The override declares the WDIO/Mocha/Node/browser globals used by the e2e harness as readonly and
+  sets `sourceType: 'commonjs'`.
+- The override disables `@typescript-eslint/no-require-imports` for the `.cjs` harness and disables
+  `@typescript-eslint/no-unused-expressions` for Chai fluent assertions.
+- It intentionally does not declare `expect` as a global because specs import `expect` from `chai`.
+- Removed an unused `spawnSync` import from `tests/e2e/probes/paint-h1.cjs`.
+- Removed a repeated `ready = false` assignment in `tests/e2e/specs/svg-render.spec.cjs`.
+
+Verification:
+- `pnpm -C inkforge exec eslint 'tests/e2e/**/*.cjs' --quiet`
+  passed.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  passed.
+- `node --check inkforge/tests/e2e/probes/paint-h1.cjs`
+  passed.
+- `node --check inkforge/eslint.config.js`
+  passed.
+- Real Tauri/WebView2 e2e:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with 1 spec / 6 tests after the lint cleanup.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/wdio-e2e-cjs-lint-20260623.txt`
+
+Boundary:
+- This is local lint/test-harness maintainability only. It does not prove WeChat PC paste, exact
+  artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

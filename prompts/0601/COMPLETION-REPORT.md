@@ -5064,3 +5064,32 @@ Boundary:
   paste, exact artifact retention, safe disposable draft cleanup, phone preview, mobile
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 WDIO E2E CJS Lint Addendum
+
+- Added a file-scoped `tests/e2e/**/*.cjs` override in `inkforge/eslint.config.js` so the real
+  WDIO/Mocha/CommonJS e2e harness can be statically checked.
+- The override declares only the WDIO/Mocha/Node/browser globals used by the `.cjs` harness as
+  readonly globals, sets `sourceType: 'commonjs'`, and leaves product `src` lint rules unchanged.
+- The override disables `@typescript-eslint/no-require-imports` for CommonJS harness files and
+  `@typescript-eslint/no-unused-expressions` for Chai fluent assertions. It intentionally does not
+  declare `expect` as a global because specs import `expect` from `chai`.
+- Removed an unused `spawnSync` import from `tests/e2e/probes/paint-h1.cjs`.
+- Removed a repeated `ready = false` assignment from `tests/e2e/specs/svg-render.spec.cjs`.
+- Verification:
+  `pnpm -C inkforge exec eslint 'tests/e2e/**/*.cjs' --quiet` passed.
+- Verification:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`,
+  `node --check inkforge/tests/e2e/probes/paint-h1.cjs`, and
+  `node --check inkforge/eslint.config.js` passed.
+- Verification:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with 1 spec / 6 tests after the lint cleanup.
+- Added evidence file:
+  `prompts/0601/evidence/wdio-e2e-cjs-lint-20260623.txt`.
+- Boundary: this is local lint/test-harness maintainability only. It does not prove WeChat PC paste,
+  exact artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

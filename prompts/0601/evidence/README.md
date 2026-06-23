@@ -4398,3 +4398,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   remaining blocked until public-host proof exists.
 - Boundary: this is local Tauri/WebView2 ExportModal evidence only. It does not prove paste, phone
   preview, sync, upload, public rendering, public-host acceptance, or publish success.
+
+## 2026-06-23 WDIO E2E CJS Lint
+
+- [x] wdio-e2e-cjs-lint-20260623.txt
+- Added a file-scoped `tests/e2e/**/*.cjs` ESLint override in `inkforge/eslint.config.js` for the
+  WDIO/Mocha/CommonJS/browser globals used by the real e2e harness.
+- The override keeps product `src` lint rules unchanged and does not declare `expect` as a global
+  because specs import it from `chai`.
+- Removed an unused `spawnSync` import from `tests/e2e/probes/paint-h1.cjs`.
+- Removed a repeated `ready = false` assignment from `tests/e2e/specs/svg-render.spec.cjs`.
+- Verification passed:
+  `pnpm -C inkforge exec eslint 'tests/e2e/**/*.cjs' --quiet`;
+  `node --check` for changed CJS/config files; targeted real Tauri/WebView2 `svg-render.spec.cjs`
+  WDIO run with 1 spec / 6 tests.
+- Boundary: this is local lint/test-harness maintainability only. It does not prove paste, phone
+  preview, sync, upload, public rendering, public-host acceptance, or publish success.

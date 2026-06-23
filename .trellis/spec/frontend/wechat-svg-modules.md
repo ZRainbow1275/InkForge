@@ -4411,6 +4411,34 @@ const ruleFamilies = [
   overflow.
 - Build before commit when the template changed.
 
+## 68. WDIO E2E CJS Lint Contract - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: `tests/e2e/**/*.cjs` uses WDIO, Mocha, Node/CommonJS, and browser globals that are not
+  part of the normal `src/**/*.{ts,tsx,vue}` lint surface.
+- `inkforge/eslint.config.js` may define a file-scoped override for `tests/e2e/**/*.cjs`.
+- The override must not weaken `src` lint rules, Vue lint rules, TypeScript strict rules, or product
+  code no-console behavior.
+
+### 2. Contract
+
+- The e2e override should set `sourceType: 'commonjs'` and declare only the WDIO/Mocha/Node/browser
+  globals used by the `.cjs` harness as readonly globals.
+- It may disable `@typescript-eslint/no-require-imports` for `.cjs` files because the current WDIO
+  harness is CommonJS.
+- It may disable `@typescript-eslint/no-unused-expressions` for `.cjs` e2e files because Chai's
+  fluent assertion style intentionally uses expressions such as `.to.exist`.
+- Do not add `expect` as a global when a spec imports `expect` from `chai`; that creates
+  `no-redeclare` noise and hides real local bindings.
+
+### 3. Tests / Evidence Required
+
+- Run `pnpm -C inkforge exec eslint 'tests/e2e/**/*.cjs' --quiet`.
+- Run `node --check` for changed `.cjs` e2e/config files.
+- When the changed e2e spec affects runtime assertions, re-run the targeted real Tauri/WebView2 WDIO
+  spec.
+
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23
 
 ### 1. Scope / Trigger

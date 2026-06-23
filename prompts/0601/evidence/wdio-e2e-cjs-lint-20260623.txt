@@ -1,0 +1,42 @@
+WDIO E2E CJS Lint - 2026-06-23
+
+Scope:
+- Local static-check coverage for the real WDIO/Mocha/CommonJS e2e harness.
+- No product renderer output, UI behavior, proof manifest, platform account action, phone preview,
+  sync, upload, schedule, publish, public host readback, or external editor mutation was changed.
+
+Changed:
+- Added a file-scoped `tests/e2e/**/*.cjs` override in `inkforge/eslint.config.js`.
+- The override sets `sourceType: 'commonjs'`.
+- The override declares the WDIO/Mocha/Node/browser globals used by the `.cjs` harness as readonly.
+- The override disables `@typescript-eslint/no-require-imports` for CommonJS harness files.
+- The override disables `@typescript-eslint/no-unused-expressions` for Chai fluent assertions.
+- The override intentionally does not declare `expect` as a global because specs import `expect`
+  from `chai`.
+- Removed an unused `spawnSync` import from `tests/e2e/probes/paint-h1.cjs`.
+- Removed a repeated `ready = false` assignment from `tests/e2e/specs/svg-render.spec.cjs`.
+
+Verification:
+- `pnpm -C inkforge exec eslint 'tests/e2e/**/*.cjs' --quiet`
+  PASS.
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  PASS.
+- `node --check inkforge/tests/e2e/probes/paint-h1.cjs`
+  PASS.
+- `node --check inkforge/eslint.config.js`
+  PASS.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  PASS: 1 spec / 6 tests.
+
+Runtime boundary:
+- The WDIO rerun compiled the real Tauri debug binary through Cargo and launched the real
+  WebView2/Tauri surface.
+- The run seeded a real local Pinia draft, opened the real ExportModal, checked WeChat/XHS/Zhihu
+  market capability rows, and re-ran the flagship SVG/mobile line-width probes.
+
+Boundary:
+- This proves local lintability and that the targeted real e2e still runs after lint cleanup.
+- It does not prove 135/Xiumi proprietary template reuse, WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
