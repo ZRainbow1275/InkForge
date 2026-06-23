@@ -4591,6 +4591,9 @@ Boundary:
 
 - Used Grok search to review public WeChat SVG/H5, 135 Editor, Xiumi, Xiaohongshu, and Zhihu
   references.
+- Same-day public-source recheck used Grok session `10428e903db8` plus Exa cross-search and
+  reconfirmed the official WeChat plugin-spec / H5 DarkMode / MP Editor JSAPI boundary without
+  requiring code or catalog availability changes.
 - Recorded market capability families that can guide InkForge-owned modules: background SVG, click
   reveal/switch, carousel, slide trigger, area trigger, path/parallax, quiz/game, card, title,
   divider, cover, and image-slot manifests.

@@ -3746,6 +3746,9 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Grok Search direct fetch confirmed the WeChat official editor plugin specification, MP editor
   JSAPI, H5 DarkMode guide, and doocs/md architecture reference are still the relevant public
   sources for this slice.
+- Same-day recheck: Grok session `10428e903db8` and Exa cross-search reconfirmed the same official
+  WeChat plugin-spec / H5 DarkMode / MP Editor JSAPI boundaries; no code or catalog availability
+  change was required.
 - WeChat official docs reinforce the existing hard-blocker families: opacity-hidden images below
   SVG backgrounds, `line-height:0`, fixed width/height containers, `text-align:start/end`,
   `touchstart`-only SVG triggers, ordinary prose inside `<pre>`, invalid/deep article structure,

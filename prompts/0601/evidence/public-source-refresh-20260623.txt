@@ -30,6 +30,20 @@ Search sessions:
   pages and an open-source Markdown helper, not an official creator-spec page. They remain weak
   references only.
 
+Same-day recheck:
+- Grok Search session 10428e903db8 returned the WeChat official editor plugin specification as the
+  only relevant hard source for article-editor compatibility. Unrelated or marketing pages were not
+  promoted into InkForge rules.
+- Grok direct fetch of the WeChat official editor plugin specification reconfirmed the existing
+  hard blockers: opacity-hidden images below SVG backgrounds, `line-height:0`, fixed dimensions,
+  `text-align:start/end`, `touchstart`-only SVG triggers, ordinary prose in `<pre>`, invalid/deep
+  article structure, font-family drift, SVG Dark Mode risk, current-node-only `data-no-dark`, and
+  unsafe `!important`.
+- Exa cross-search reconfirmed the subscription/service plugin specification, WeChat H5 DarkMode
+  guide, and MP Editor JSAPI as the relevant public WeChat sources. These results did not add a
+  new local availability claim.
+- Result: no code or catalog availability change was required by this public-source recheck.
+
 Findings:
 - WeChat's official editor plugin specification remains the strongest public rule source for
   WeChat article compatibility. It continues to document hard failure cases for opacity-hidden

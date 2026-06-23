@@ -9687,6 +9687,9 @@ Research:
 - Xiaohongshu public creator entry is login-gated; public search returned third-party size guides
   only. Zhihu public search returned community/open-source references, not an official hard
   Markdown/image-upload specification.
+- 2026-06-23 same-day recheck: Grok session `10428e903db8` and Exa cross-search reconfirmed the
+  WeChat official plugin-spec / H5 DarkMode / MP Editor JSAPI boundary. No code or catalog
+  availability change was required.
 
 Implementation:
 - Added `prompts/0601/evidence/public-source-refresh-20260623.txt`.
