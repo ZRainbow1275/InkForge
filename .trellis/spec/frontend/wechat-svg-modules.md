@@ -4217,6 +4217,37 @@ const ruleFamilies = [
   runtime directories, and account images must not be committed.
 - Commit-boundary review must scan staged diffs for credential material and account artifacts.
 
+## 63. Foreground Input ClickOnly Helper - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: a live platform proof step needs a real foreground Windows mouse click without sending
+  keyboard input.
+- `inkforge/scripts/probe-windows-foreground-input.ps1 -Action ClickOnly` is the reusable helper
+  path for this case. It replaces one-off PowerShell click snippets in future evidence runs.
+
+### 2. Contract
+
+- `ClickOnly` must keep the existing window matching, restore, optional move, coordinate
+  derivation, and optional mouse click behavior.
+- `ClickOnly` must not send `Ctrl+V`, `KeyA`, or any other keyboard input.
+- `ClickOnly` must report `requestedInputCount=0`, `sentInputCount=0`, and `keybdEventCount=0`.
+- Empty input batches must be represented in a PowerShell StrictMode-safe way.
+
+### 3. Cannot-Claim Boundary
+
+- A successful `ClickOnly` helper run proves only local tooling behavior.
+- It does not prove platform save, cleanup, paste, phone preview, Dark Mode, mobile interaction,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, upload, or publish success.
+
+### 4. Tests / Evidence Required
+
+- At minimum, verify `ClickOnly -NoClick` against a safe foreground window and require
+  `requestedInputCount=0`, `sentInputCount=0`, and `keybdEventCount=0`.
+- Evidence docs must not commit raw window titles containing account/private content, browser
+  runtime directories, screenshots, credential material, or raw platform URLs.
+
 ## 62. WeChat Disposable Save No-Card Boundary - 2026-06-23
 
 ### 1. Scope / Trigger

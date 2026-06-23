@@ -4302,3 +4302,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   ordinary paste, exact artifact retention, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Foreground Input ClickOnly Helper
+
+- [x] foreground-input-clickonly-helper-20260623.txt
+- Added `-Action ClickOnly` to `inkforge/scripts/probe-windows-foreground-input.ps1`.
+- `ClickOnly` preserves the existing foreground-window restore, optional move, and optional mouse
+  click behavior while skipping all keyboard input paths.
+- Fixed empty-input reporting with `@($inputs).Count` so `requestedInputCount=0` works under
+  PowerShell StrictMode.
+- Verification command used `-NoMove -NoClick`, matched the current WeChat Chromium window, and
+  returned `requestedInputCount=0`, `sentInputCount=0`, and `keybdEventCount=0`.
+- Boundary: this is local proof-tooling support only. It does not prove WeChat save-draft success,
+  cleanup, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
+  XHS/Zhihu upload, or publish success.

@@ -1,0 +1,32 @@
+Foreground Input ClickOnly Helper - 2026-06-23
+
+Scope:
+- Local helper hardening for real Windows foreground mouse-click proof steps.
+- No platform save, preview, publish, sync, scheduled send, upload, phone preview, paste, or delete
+  action was performed by the verification run.
+
+Implemented:
+- `inkforge/scripts/probe-windows-foreground-input.ps1` now accepts `-Action ClickOnly`.
+- `ClickOnly` keeps the existing foreground-window restore, optional move, and optional mouse-click
+  behavior.
+- `ClickOnly` skips all keyboard input paths.
+- `requestedInputCount` is reported through `@($inputs).Count` so empty input batches are valid
+  under PowerShell StrictMode.
+
+Verification:
+- Command:
+  `powershell.exe -NoProfile -ExecutionPolicy Bypass -File inkforge/scripts/probe-windows-foreground-input.ps1 -Action ClickOnly -InputMethod KeybdEvent -WindowTitlePattern '公众号' -NoMove -NoClick`
+- Result:
+  - `action=ClickOnly`
+  - `windowMatched=true`
+  - `matchedWindowCount=1`
+  - `click.skipped=true`
+  - `requestedInputCount=0`
+  - `sentInputCount=0`
+  - `keybdEventCount=0`
+
+Boundary:
+- This helper capability is local tooling only.
+- It does not prove WeChat save-draft success, cleanup, paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

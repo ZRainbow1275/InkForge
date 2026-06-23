@@ -10556,3 +10556,37 @@ Boundary:
 - It does not prove ordinary paste, exact artifact retention, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
   public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Foreground Input ClickOnly Helper Slice
+
+Scope:
+- Local foreground-input helper hardening for future proof steps that require real Windows mouse
+  clicks but no keyboard input.
+- No platform save, preview, publish, sync, scheduled send, upload, phone preview, paste, delete,
+  source renderer output, or proof manifest behavior was changed.
+
+Implementation:
+- `inkforge/scripts/probe-windows-foreground-input.ps1` now accepts `-Action ClickOnly`.
+- `ClickOnly` preserves the existing foreground-window restore, optional move, and optional mouse
+  click behavior.
+- `ClickOnly` skips all keyboard input paths.
+- Empty input batches are reported through `@($inputs).Count`, so PowerShell StrictMode accepts
+  `requestedInputCount=0`.
+
+Verification:
+- `npx gitnexus impact probe-windows-foreground-input.ps1 -r InkForge --depth 3`: LOW risk,
+  0 impacted symbols/processes/modules.
+- `powershell.exe -NoProfile -ExecutionPolicy Bypass -File inkforge/scripts/probe-windows-foreground-input.ps1 -Action ClickOnly -InputMethod KeybdEvent -WindowTitlePattern '公众号' -NoMove -NoClick`:
+  passed with `windowMatched=true`, `requestedInputCount=0`, `sentInputCount=0`, and
+  `keybdEventCount=0`.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/foreground-input-clickonly-helper-20260623.txt`
+
+Boundary:
+- This is local proof-tooling support only. It does not prove WeChat save-draft success, cleanup,
+  paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
+  upload, or publish success.

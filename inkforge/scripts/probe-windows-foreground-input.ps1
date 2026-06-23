@@ -10,7 +10,7 @@ param(
   [int]$ClickViewportY = 126,
   [int]$ClickScreenX = -1,
   [int]$ClickScreenY = -1,
-  [ValidateSet('KeyA', 'CtrlV')]
+  [ValidateSet('KeyA', 'CtrlV', 'ClickOnly')]
   [string]$Action = 'CtrlV',
   [ValidateSet('KeybdEvent', 'SendInput')]
   [string]$InputMethod = 'KeybdEvent',
@@ -240,7 +240,9 @@ if ($Action -eq 'CtrlV' -and -not $PreserveClipboard) {
 }
 
 $keyUp = [UInt32]0x0002
-$inputs = if ($Action -eq 'CtrlV') {
+$inputs = if ($Action -eq 'ClickOnly') {
+  @()
+} elseif ($Action -eq 'CtrlV') {
   @(
     (New-KeyInput ([UInt16]0x11) 0),
     (New-KeyInput ([UInt16]0x56) 0),
@@ -258,7 +260,10 @@ $inputSize = [Runtime.InteropServices.Marshal]::SizeOf([type][InkForgeForeground
 $sentInputCount = 0
 $keybdEventCount = 0
 
-if ($InputMethod -eq 'SendInput') {
+if ($Action -eq 'ClickOnly') {
+  $sentInputCount = 0
+  $keybdEventCount = 0
+} elseif ($InputMethod -eq 'SendInput') {
   $sentInputCount = [InkForgeForegroundInputProbe]::SendInput([uint32]$inputs.Length, $inputs, $inputSize)
 } else {
   if ($Action -eq 'CtrlV') {
@@ -301,7 +306,7 @@ Start-Sleep -Milliseconds 650
     skipped = [bool]$NoClick
   }
   inputSize = $inputSize
-  requestedInputCount = $inputs.Length
+  requestedInputCount = @($inputs).Count
   sentInputCount = $sentInputCount
   keybdEventCount = $keybdEventCount
   lastWin32Error = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
