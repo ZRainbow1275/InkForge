@@ -1,0 +1,50 @@
+ExportModal Market Capability UI - 2026-06-23
+
+Scope:
+- Local UI surfacing for market capability metadata inside the existing ExportModal style catalog.
+- No renderer output, proof manifest, platform action, account action, save, preview, sync,
+  scheduled send, upload, phone preview, public rendering, or publish behavior was changed.
+
+Implemented:
+- ExportModal now consumes getPlatformStyleMarketCapabilityReport(selectedPlatform).
+- Style choice rows derive a market capability summary and up to five compact capability chips.
+- Chips show capability family, trigger mode, and local metadata status.
+- Normal choices without market metadata render no market capability row.
+- Existing selectable/application/proof/cannot-claim UI remains unchanged.
+
+Visual verification with CloakBrowser:
+- Opened the local app through CloakBrowser, created a local blank draft through the app UI, and
+  opened the Publish / ExportModal panel.
+- WeChat tab:
+  - style cards: 17
+  - cards with market metadata: 1
+  - Market SVG/H5 fallback matrix summary: market capability count 14, fallback 3,
+    blocked-until-proof 10, external handoff 1
+  - Visible chips included background SVG, image carousel, click expand, click show/hide, and click
+    switch.
+  - Horizontal overflow cards: 0
+- Xiaohongshu tab:
+  - style cards: 8
+  - cards with market metadata: 1
+  - Market rich card image fallback summary: capability count 3, source-owned 1, fallback 2
+  - Horizontal overflow cards: 0
+- Zhihu tab:
+  - style cards: 8
+  - cards with market metadata: 1
+  - Market rich layout image fallback summary: capability count 3, fallback 2, blocked-until-proof 1
+  - Horizontal overflow cards: 0
+
+Verification completed so far:
+- pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS
+
+Boundary:
+- This proves only local ExportModal rendering of existing catalog metadata.
+- It does not prove WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
+  success.

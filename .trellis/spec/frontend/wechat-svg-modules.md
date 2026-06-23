@@ -4371,6 +4371,42 @@ const ruleFamilies = [
 - Evidence docs must state that this is local executable metadata only and does not prove paste,
   phone preview, sync, upload, public rendering, or publish success.
 
+## 67. ExportModal Market Capability UI Surface - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: `PlatformStyleChoice.marketCapabilities` exists and the user-facing ExportModal style
+  catalog needs to expose market-derived richness without changing selection or proof state.
+- The UI must consume `getPlatformStyleMarketCapabilityReport(selectedPlatform)` directly.
+- The UI must not recompute market capability counts from strings, mutate proof reports, or change
+  `selectable` / `application` behavior.
+
+### 2. Display Contract
+
+- A style choice with market metadata may show one summary row:
+  `市场能力：<count>；自有 <n>；降级 <n>；待证明 <n>；外部交接 <n>`.
+- It may show up to five compact capability chips. Each chip names the capability family, trigger
+  mode, and metadata status.
+- Non-market choices must not show empty capability text.
+- The summary and chips must wrap inside the existing style card width. Horizontal card overflow is
+  a UI regression.
+
+### 3. Boundary
+
+- The UI is informational. It must not open unavailable choices, attach a preset application to
+  blocked choices, mark phone/external/publish rows complete, or claim market editor proof.
+- It must use existing icon/text conventions and no emoji.
+- Visual verification should use CloakBrowser, not Playwright, and should record only sanitized DOM
+  counts and overflow checks.
+
+### 4. Tests / Evidence Required
+
+- Run `eslint` for `ExportModal.vue`.
+- Run `vue-tsc --noEmit`.
+- Visually verify WeChat/XHS/Zhihu tabs in CloakBrowser and record style-card counts, market-card
+  counts, visible chip labels, and overflow count.
+- Build before commit when the template changed.
+
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23
 
 ### 1. Scope / Trigger

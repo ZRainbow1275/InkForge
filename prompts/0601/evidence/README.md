@@ -4368,3 +4368,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   non-market choices.
 - Boundary: this is local executable metadata only. It does not prove paste, phone preview, sync,
   upload, public rendering, or publish success.
+
+## 2026-06-23 ExportModal Market Capability UI
+
+- [x] export-modal-market-capability-ui-20260623.txt
+- ExportModal now surfaces market capability summaries and compact capability chips in the existing
+  style catalog cards.
+- The UI consumes `getPlatformStyleMarketCapabilityReport(selectedPlatform)` and does not mutate
+  availability, selectability, proof manifests, or release-gate accounting.
+- CloakBrowser visual checks:
+  - WeChat: 17 style cards, 1 market card, 0 horizontal overflow cards.
+  - Xiaohongshu: 8 style cards, 1 market card, 0 horizontal overflow cards.
+  - Zhihu: 8 style cards, 1 market card, 0 horizontal overflow cards.
+- Boundary: this is local UI rendering only. It does not prove paste, phone preview, sync, upload,
+  public rendering, or publish success.

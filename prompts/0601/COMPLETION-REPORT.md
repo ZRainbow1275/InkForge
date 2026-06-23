@@ -5016,3 +5016,27 @@ Boundary:
   reuse, WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 ExportModal Market Capability UI Addendum
+
+- Added local ExportModal surfacing for style market capability metadata.
+- ExportModal now consumes `getPlatformStyleMarketCapabilityReport(selectedPlatform)`.
+- Style choice cards with market metadata show a compact `市场能力` summary and up to five chips
+  naming family, trigger mode, and metadata status.
+- Ordinary non-market style choices do not show empty capability rows.
+- Existing `selectable`, preset application, proof gate, acceptance audit, execution runbook, and
+  release gate behavior remains unchanged.
+- CloakBrowser visual verification:
+  - WeChat tab: 17 style cards, 1 market card, 0 horizontal overflow cards.
+  - Xiaohongshu tab: 8 style cards, 1 market card, 0 horizontal overflow cards.
+  - Zhihu tab: 8 style cards, 1 market card, 0 horizontal overflow cards.
+- Verification: `eslint src/components/export/ExportModal.vue --quiet`,
+  `vue-tsc --noEmit --pretty false`, and production build passed.
+- Added evidence file:
+  `prompts/0601/evidence/export-modal-market-capability-ui-20260623.txt`.
+- Boundary: this is local UI rendering only. It does not prove WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

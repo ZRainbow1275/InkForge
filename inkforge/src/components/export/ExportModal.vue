@@ -10,6 +10,7 @@ import {
   copyToClipboard, copyWechatHtmlToClipboard, getDefaultPreset, isClipboardWriteAvailable,
   detectQuality, themePresets, describeWechatPublishStatus, getWechatPublishStatus,
   getPlatformStyleApplicationReport, getPlatformStyleAvailabilityReport,
+  getPlatformStyleMarketCapabilityReport,
   getPlatformStyleProofAcceptanceAuditReport,
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
@@ -34,7 +35,8 @@ import type {
   ExportFontFamily, ExportFontSize,
   StyleArtifactType, StyleChoiceApplication, StyleChoiceApplicationAvailability,
   StyleChoiceAvailability, StyleChoiceStatus, StyleEvidenceLabel,
-  StyleMotionLevel, StyleProofAcceptanceAuditStatus,
+  StyleMarketCapability, StyleMarketCapabilityFamily, StyleMarketCapabilityStatus,
+  StyleMarketTriggerMode, StyleMotionLevel, StyleProofAcceptanceAuditStatus,
   StyleProofAcceptanceRequirementAudit, StyleProofCollectionGate, StyleProofCollectionStep,
   StyleProofExecutionRunbookStep, StyleProofRequirementId, StyleRuleGroup, StyleVisualStrength
 } from '@/services/export'
@@ -158,6 +160,8 @@ interface StyleChoiceDisplay {
   detail: string
   proofSummary: string
   proofGateLabels: string[]
+  marketCapabilitySummary: string | null
+  marketCapabilityLabels: string[]
   acceptanceSummary: string
   cannotClaimLabels: string[]
   executionSummary: string
@@ -215,6 +219,7 @@ const currentPresets = computed((): PresetDisplay[] => {
 
 const styleAvailabilityReport = computed(() => getPlatformStyleAvailabilityReport(selectedPlatform.value))
 const styleApplicationReport = computed(() => getPlatformStyleApplicationReport(selectedPlatform.value))
+const styleMarketCapabilityReport = computed(() => getPlatformStyleMarketCapabilityReport(selectedPlatform.value))
 const styleProofCollectionPlan = computed(() => getPlatformStyleProofCollectionPlan(selectedPlatform.value))
 const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollectionQueue(selectedPlatform.value))
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
@@ -261,6 +266,13 @@ const styleProofExecutionOpenByChoice = computed(() => {
       steps.push(step)
       grouped.set(choiceId, steps)
     }
+  }
+  return grouped
+})
+const styleMarketCapabilitiesByChoice = computed(() => {
+  const grouped = new Map<string, readonly StyleMarketCapability[]>()
+  for (const entry of styleMarketCapabilityReport.value.choices) {
+    grouped.set(entry.choice.id, entry.capabilities)
   }
   return grouped
 })
@@ -695,6 +707,7 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
     const proofSteps = styleProofStepsByChoice.value.get(item.availability.choice.id) ?? []
     const cannotClaim = styleProofCannotClaimByChoice.value.get(item.availability.choice.id) ?? []
     const executionSteps = styleProofExecutionOpenByChoice.value.get(item.availability.choice.id) ?? []
+    const marketCapabilities = styleMarketCapabilitiesByChoice.value.get(item.availability.choice.id) ?? []
     return {
       availability: item.availability,
       application: item.application,
@@ -710,6 +723,8 @@ const styleChoiceRows = computed<StyleChoiceDisplay[]>(() =>
       detail: styleChoiceDetail(item.availability),
       proofSummary: styleProofSummary(proofSteps),
       proofGateLabels: styleProofGateLabels(proofSteps),
+      marketCapabilitySummary: styleMarketCapabilitySummary(marketCapabilities),
+      marketCapabilityLabels: styleMarketCapabilityLabels(marketCapabilities),
       acceptanceSummary: styleProofAcceptanceSummaryForChoice(cannotClaim),
       cannotClaimLabels: styleProofCannotClaimLabels(cannotClaim),
       executionSummary: styleProofExecutionSummary(executionSteps),
@@ -740,6 +755,75 @@ function styleProofGateLabels(steps: readonly StyleProofCollectionStep[]): strin
     if (labels.length >= 4) break
   }
   return labels
+}
+
+function styleMarketCapabilitySummary(capabilities: readonly StyleMarketCapability[]): string | null {
+  if (capabilities.length === 0) return null
+
+  const sourceOwned = capabilities.filter(capability => capability.status === 'source-owned').length
+  const fallbackOnly = capabilities.filter(capability => capability.status === 'fallback-only').length
+  const blocked = capabilities.filter(capability => capability.status === 'blocked-until-proof').length
+  const handoff = capabilities.filter(capability => capability.status === 'external-handoff').length
+  const parts = [
+    sourceOwned > 0 ? `自有 ${sourceOwned}` : '',
+    fallbackOnly > 0 ? `降级 ${fallbackOnly}` : '',
+    blocked > 0 ? `待证明 ${blocked}` : '',
+    handoff > 0 ? `外部交接 ${handoff}` : '',
+  ].filter(Boolean)
+
+  return `市场能力：${capabilities.length}${parts.length ? `；${parts.join('；')}` : ''}`
+}
+
+function styleMarketCapabilityLabels(capabilities: readonly StyleMarketCapability[]): string[] {
+  return capabilities.slice(0, 5).map(capability =>
+    `${styleMarketCapabilityFamilyLabel(capability.family)} · ${styleMarketTriggerLabel(capability.triggerMode)} · ${styleMarketCapabilityStatusLabel(capability.status)}`,
+  )
+}
+
+function styleMarketCapabilityFamilyLabel(family: StyleMarketCapabilityFamily): string {
+  const labels: Record<StyleMarketCapabilityFamily, string> = {
+    'background-svg-shell': '背景 SVG',
+    'image-carousel': '图集轮播',
+    'click-expand': '点击展开',
+    'click-show-hide': '点击显隐',
+    'click-switch': '点击切换',
+    'path-animation': '路径动画',
+    'parallax-motion': '视差移动',
+    'slide-trigger': '滑动触发',
+    'long-press-switch': '长按切换',
+    'region-trigger': '区域触发',
+    'title-card-layout': '标题卡片',
+    'ratio-image-layer': '比例图层',
+    'h5-handoff': 'H5 交接',
+    'static-raster-fallback': '静态栅格',
+    'public-image-fallback': '公网图片',
+  }
+  return labels[family]
+}
+
+function styleMarketCapabilityStatusLabel(status: StyleMarketCapabilityStatus): string {
+  const labels: Record<StyleMarketCapabilityStatus, string> = {
+    'source-owned': '自有',
+    'fallback-only': '降级',
+    'blocked-until-proof': '待证明',
+    'external-handoff': '外部',
+  }
+  return labels[status]
+}
+
+function styleMarketTriggerLabel(trigger: StyleMarketTriggerMode): string {
+  const labels: Record<StyleMarketTriggerMode, string> = {
+    none: '静态',
+    auto: '自动',
+    click: '点击',
+    slide: '滑动',
+    'long-press': '长按',
+    region: '区域',
+    'mobile-touch': '触屏',
+    'plugin-sync': '插件',
+    'public-host': '公网',
+  }
+  return labels[trigger]
 }
 
 function styleProofGateLabel(gate: StyleProofCollectionGate): string {
@@ -1824,6 +1908,24 @@ onUnmounted(() => {
                         :key="gateLabel"
                       >
                         {{ gateLabel }}
+                      </span>
+                    </div>
+                    <p
+                      v-if="row.marketCapabilitySummary"
+                      class="style-choice-market-summary"
+                    >
+                      {{ row.marketCapabilitySummary }}
+                    </p>
+                    <div
+                      v-if="row.marketCapabilityLabels.length"
+                      class="style-choice-market-capabilities"
+                      aria-label="市场能力"
+                    >
+                      <span
+                        v-for="capabilityLabel in row.marketCapabilityLabels"
+                        :key="capabilityLabel"
+                      >
+                        {{ capabilityLabel }}
                       </span>
                     </div>
                     <p class="style-choice-acceptance-summary">
@@ -2912,6 +3014,15 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
+.style-choice-market-summary {
+  margin: 5px 0 0;
+  color: var(--accent-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .style-choice-acceptance-summary {
   margin: 5px 0 0;
   color: var(--warning);
@@ -2931,6 +3042,14 @@ onUnmounted(() => {
 }
 
 .style-choice-proof-gates {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.style-choice-market-capabilities {
   display: flex;
   flex-wrap: wrap;
   min-width: 0;
@@ -2963,6 +3082,22 @@ onUnmounted(() => {
   font-size: 10px;
   font-weight: 800;
   line-height: 1.35;
+}
+
+.style-choice-market-capabilities span {
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, var(--accent-secondary) 32%, var(--hairline));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-secondary-light) 34%, var(--bg-surface));
+  color: var(--accent-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .style-choice-cannot-claim span {

@@ -10739,3 +10739,50 @@ Boundary:
   WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview, mobile
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
   preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 ExportModal Market Capability UI Slice
+
+Scope:
+- Local UI surfacing for the style market capability metadata inside ExportModal.
+- No renderer output, proof manifest, platform action, browser profile artifact, account action,
+  save, preview, publish, sync, scheduled send, upload, phone preview, public rendering, or release
+  gate behavior was changed.
+
+Implementation:
+- ExportModal now consumes `getPlatformStyleMarketCapabilityReport(selectedPlatform)`.
+- `StyleChoiceDisplay` rows include `marketCapabilitySummary` and `marketCapabilityLabels`.
+- Market-capability chips show family, trigger mode, and metadata status.
+- Only choices with market metadata render market capability rows; ordinary choices remain
+  unchanged.
+- Existing application/selectability/proof/cannot-claim rows remain the source of truth.
+
+Visual verification:
+- Used CloakBrowser against the local Vite app.
+- Created a local blank draft through the app UI, opened Publish / ExportModal, and checked the
+  three platform tabs.
+- WeChat: 17 style cards, 1 market card, 0 horizontal overflow cards. The Market SVG/H5 fallback
+  matrix showed 14 capabilities, fallback 3, blocked-until-proof 10, external handoff 1, and chips
+  for background SVG, image carousel, click expand, click show/hide, and click switch.
+- Xiaohongshu: 8 style cards, 1 market card, 0 horizontal overflow cards. The Market rich card
+  fallback showed 3 capabilities, source-owned 1, fallback 2.
+- Zhihu: 8 style cards, 1 market card, 0 horizontal overflow cards. The Market rich layout fallback
+  showed 3 capabilities, fallback 2, blocked-until-proof 1, including public image fallback.
+
+Verification:
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/export-modal-market-capability-ui-20260623.txt`
+
+Boundary:
+- This is local UI rendering only. It does not prove WeChat PC paste, exact artifact retention,
+  safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, public-host
+  acceptance, XHS/Zhihu upload, or publish success.
