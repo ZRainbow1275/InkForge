@@ -1,0 +1,41 @@
+Xiumi Applied SVG foreignObject Detector Regression - 2026-06-23
+
+Scope:
+- Local quality-detector regression for the Xiumi applied SVG pattern observed through CloakBrowser.
+- No external platform action, no phone preview, no sync, no upload, no scheduled send, and no
+  publish action.
+
+Fixture:
+- `MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML`
+- Shape:
+  - copied Xiumi-like article/component authoring tree
+  - `tn-*` authoring metadata
+  - nested SVG layout
+  - SVG background layer from a Xiumi-style static asset host
+  - `foreignObject` text label
+  - SMIL `animate` row
+
+Assertions:
+- WeChat detects `wechat-market-editor-residue`.
+- Xiaohongshu detects `xhs-market-editor-residue`.
+- Zhihu detects `zhihu-market-editor-residue`.
+- WeChat detects `wechat-unsafe-svg-construct` and the message includes `foreignObject`.
+- All three reports remain non-passing.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks Xiumi applied SVG foreignObject" --reporter=default`
+  - PASS: 1 selected test
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 173 tests
+- `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 36 files / 1150 tests
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS
+
+Boundary:
+- This proves local detector regression coverage only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.

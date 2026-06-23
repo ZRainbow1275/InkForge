@@ -4162,3 +4162,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+## 2026-06-23 Xiumi Applied SVG Detector Regression
+
+- [x] xiumi-applied-svg-foreignobject-detector-20260623.txt
+- Added a regression fixture for a Xiumi-like applied SVG tree with `tn-*` authoring metadata,
+  SVG background layers, `foreignObject` text, and SMIL `animate`.
+- The regression asserts all three platform residue gates stay blocking and WeChat additionally
+  reports `wechat-unsafe-svg-construct` for `foreignObject`.
+- Verification passed: 1 selected regression, full `platform-export-rendering.test.ts` with 173
+  tests, targeted ESLint, full serial `src/services/export` with 36 files / 1150 tests, and
+  `vue-tsc --noEmit`.
+- Boundary: this is local detector regression coverage only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

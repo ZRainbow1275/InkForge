@@ -351,6 +351,25 @@ const MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML = [
   '</li>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML = [
+  '<article class="tn-paper-document-root tn-comp-inst tn-cube-inst tn-comp" tn-uuid="cube-redacted" tn-animate="compAttr.anim">',
+  '<section class="tn-comp-pin tn-comp-style-pin tn-on-child-editing">',
+  '<section class="tn-comp-pin tn-comp-style-pin" style="text-align:center;display:flex;flex-flow:row;margin:10px 0">',
+  '<svg class="svg-layout-content root-svg" viewBox="0 0 375 442.5" style="box-sizing:border-box;transform:rotateZ(0deg)">',
+  '<svg class="rect-content"><rect width="100%" height="100%" style="box-sizing:border-box"></rect></svg>',
+  '<svg class="text-content" style="vertical-align:middle;max-width:100%">',
+  '<foreignObject width="100%" height="100%" style="pointer-events:none;color:rgb(35,135,206);font-size:142.13%;text-align:center">',
+  '<p style="font-size:100.025%">Xiumi applied text label</p>',
+  '</foreignObject>',
+  '</svg>',
+  '<svg style="display:block;width:100%;background-repeat:no-repeat;background-size:cover;background-image:url(//statics.xiumi.us/stc/images/templates-assets/tpl-paper/image/demo.gif)"></svg>',
+  '<animate class="fade-self-animation" attributeName="opacity" begin="click" from="1" to="0" dur="0.4s" restart="never"></animate>',
+  '</svg>',
+  '</section>',
+  '</section>',
+  '</article>',
+].join('')
+
 const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div contenteditable="true">Copied editor text cell</div>',
@@ -8337,6 +8356,26 @@ describe('platform native export rendering rules', () => {
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('Xiumi tn-* authoring tree')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi applied SVG foreignObject and SMIL rows from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* authoring tree')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('market editor hosted background source')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-unsafe-svg-construct')?.message)
+      .toContain('foreignObject')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
       .toContain('Xiumi tn-* authoring tree')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)

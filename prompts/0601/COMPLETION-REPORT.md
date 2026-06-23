@@ -4748,3 +4748,22 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+---
+
+## 2026-06-23 Xiumi Applied SVG Detector Regression Addendum
+
+- Added a regression fixture for the Xiumi applied SVG/foreignObject/SMIL pattern observed through
+  CloakBrowser.
+- The fixture verifies copied Xiumi-like applied SVG output triggers
+  `wechat-market-editor-residue`, `xhs-market-editor-residue`, `zhihu-market-editor-residue`, and
+  WeChat `wechat-unsafe-svg-construct` for `foreignObject`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-applied-svg-foreignobject-detector-20260623.txt`.
+- Verification passed: 1 selected regression, full `platform-export-rendering.test.ts` with 173
+  tests, targeted ESLint, full serial `src/services/export` with 36 files / 1150 tests, and
+  `vue-tsc --noEmit`.
+- Boundary: this is local detector regression coverage only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.
