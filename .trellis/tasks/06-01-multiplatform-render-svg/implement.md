@@ -8727,6 +8727,54 @@ Boundary:
   credentialed sync, public host acceptance, scheduled send, platform preview, public rendering,
   Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 ExportModal External Handoff Packet UI Slice
+
+Scope:
+- Local ExportModal UI entry for the already committed external handoff packet.
+- No external platform action, no phone preview, no sync, no upload, no scheduled send, and no
+  publish behavior was changed.
+
+Implementation:
+- ExportModal now derives a `CommittedStyleProofExternalHandoffPacket` from the service-level
+  handoff report with `getCommittedStyleProofExternalHandoffPacket()`.
+- ExportModal now formats the packet with
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown()` instead of duplicating checklist rows in
+  the component.
+- The external handoff block exposes a real `button type="button"` with `Copy` / `CheckCircle`
+  lucide icons and local copy feedback.
+- Copy success explicitly says the packet is for manual acceptance and does not mean platform proof
+  is complete.
+- Copy failure reports local clipboard permission failure and leaves all proof/release state
+  unchanged.
+
+CloakBrowser local smoke:
+- Reused the existing local Vite server on `http://127.0.0.1:3005/`.
+- Opened a real local Workstation article from Home and opened the real Publish modal.
+- Sanitized route category: `http://127.0.0.1:3005/workstation?redacted`.
+- At `390x844`, ExportModal readback reported `clientWidth=390`, `scrollWidth=390`,
+  `bodyClientWidth=390`, `bodyScrollWidth=390`, `modalCount=1`, `handoffVisible=true`,
+  `actionVisible=true`, `actionText=复制交接包`, `actionButtonCount=1`, `flagCount=5`,
+  `checklistGroupCount=4`, `hasBlockedExternalHandoff=true`, `hasCannotAutoComplete=true`,
+  `hasNextStep=true`, `copyButtonPresent=true`, `overflowing=false`, and `modalWidth=374`.
+- Hit-test readback showed the button was visible, enabled, and not covered.
+- DOM handler smoke on the live page verified `已复制交接包`, success class application, and the
+  feedback text `已复制外部证明交接包；它只用于人工验收，不代表平台证明完成。`
+- Runtime screenshots, local article title/body, account details, browser profile details, and
+  platform account artifacts were not saved as committed evidence.
+
+Verification:
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`: passed, 4653 modules
+  transformed and built in 33.13s. `inkforge/tsconfig.tsbuildinfo` has no staged diff.
+
+Boundary:
+- This is local UI reachability, layout safety, and Vue handler wiring only.
+- It does not prove operating-system clipboard contents, WeChat official editor paste, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, Xiaohongshu upload, Zhihu
+  upload, or publish success.
+
 ## 2026-06-23 Style Proof External Handoff Packet Slice
 
 Scope:

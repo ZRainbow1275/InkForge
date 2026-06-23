@@ -1,0 +1,59 @@
+ExportModal External Handoff Packet UI - 2026-06-23
+
+Scope:
+- Local Publish modal UI entry for the deterministic committed-proof external handoff packet.
+- No external platform action, no phone preview, no sync, no upload, no scheduled send, and no
+  publish action.
+
+Implementation:
+- ExportModal consumes `getCommittedStyleProofExternalHandoffPacket()` and
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown()` from the export service.
+- The external handoff block now exposes a `Copy` / `CheckCircle` icon button using the installed
+  icon library.
+- The button copies the formatted Markdown packet through the existing local clipboard helper.
+- Success feedback says the packet is for manual acceptance and does not mean platform proof is
+  complete.
+- Failure feedback reports local clipboard permission denial and leaves proof gates unchanged.
+
+CloakBrowser local smoke:
+- Reused the existing local Vite server at `http://127.0.0.1:3005/`.
+- Opened a real local Workstation article from the Home screen and opened the real Publish modal.
+- Sanitized route category: `http://127.0.0.1:3005/workstation?redacted`.
+- Narrow viewport modal readback:
+  - `clientWidth=390`
+  - `scrollWidth=390`
+  - `bodyClientWidth=390`
+  - `bodyScrollWidth=390`
+  - `modalCount=1`
+  - `handoffVisible=true`
+  - `actionVisible=true`
+  - `actionText=复制交接包`
+  - `actionButtonCount=1`
+  - `flagCount=5`
+  - `checklistGroupCount=4`
+  - `hasBlockedExternalHandoff=true`
+  - `hasCannotAutoComplete=true`
+  - `hasNextStep=true`
+  - `copyButtonPresent=true`
+  - `overflowing=false`
+  - `modalWidth=374`
+- Hit-test readback showed the button was visible, enabled, and not covered by another element.
+- DOM handler smoke verified the Vue binding and success feedback text through the live page:
+  - action text changed to `已复制交接包`
+  - success class applied
+  - feedback text was `已复制外部证明交接包；它只用于人工验收，不代表平台证明完成。`
+
+Verification:
+- `pnpm -C inkforge exec eslint src/components/export/ExportModal.vue --quiet`
+  - PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  - PASS: 4653 modules transformed, built in 33.13s
+
+Boundary:
+- This proves local UI reachability, layout safety, and Vue handler wiring only.
+- It does not prove operating-system clipboard contents.
+- It does not prove WeChat editor paste, phone preview, mobile SMIL/click interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.

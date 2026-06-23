@@ -3971,3 +3971,98 @@ formatCommittedStyleProofExternalHandoffPacketMarkdown(packet?)
   credential/header strings, HAR markers, QR markers, and public platform URL fragments.
 - Full export regressions, targeted ESLint, strict type-check, production build, GitNexus
   detect-changes, and staged redaction scan must pass before committing the slice.
+
+## 57. ExportModal External Handoff Packet UI - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: the deterministic external handoff packet must be reachable from the real local Publish
+  modal so operators can copy the pending proof checklist without treating local UI success as
+  platform proof.
+- The UI contract applies only to `src/components/export/ExportModal.vue` and the local copy helper.
+- The UI must not open external platform pages, read browser profiles, create artifacts, mutate
+  platform accounts, upload content, schedule sends, or publish.
+
+### 2. Signatures
+
+```typescript
+const committedStyleProofExternalHandoffPacket = computed(() =>
+  getCommittedStyleProofExternalHandoffPacket(committedStyleProofExternalHandoff.value),
+)
+
+const committedStyleProofExternalHandoffMarkdown = computed(() =>
+  formatCommittedStyleProofExternalHandoffPacketMarkdown(
+    committedStyleProofExternalHandoffPacket.value,
+  ),
+)
+
+async function handleCopyExternalHandoff(): Promise<void>
+```
+
+### 3. Contracts
+
+- ExportModal must consume `getCommittedStyleProofExternalHandoffPacket()` and
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown()` instead of re-creating packet rows or
+  Markdown in the component.
+- The copy action may call the existing local clipboard helper only with the formatted Markdown
+  packet. It must not create proof manifests, update release-gate state, or mark external rows as
+  complete.
+- Success feedback must explicitly say the copied packet is for manual acceptance and does not mean
+  platform proof is complete.
+- Failure feedback must stay local and permission-oriented. It must not ask the user to expose
+  credential material, request archives, QR payloads, browser-state details, account labels, draft
+  titles, or public article URLs.
+- The button must use the installed icon library and real `<button type="button">` semantics. Emoji
+  icons are forbidden.
+- The control must remain visible in the 390 px local Publish modal without increasing page
+  `scrollWidth` beyond `clientWidth`.
+
+### 4. Validation & Error Matrix
+
+- Clipboard helper returns `true` -> mark only local copy feedback as successful and show the manual
+  acceptance boundary message.
+- Clipboard helper returns `false` -> show a local permission failure and leave all proof/release
+  statuses unchanged.
+- External handoff report remains `blocked-by-external` -> the UI may display and copy the packet,
+  but must not enable a complete/publish claim.
+- Browser smoke detects modal overflow at 390 px -> fix component layout before accepting the slice.
+
+### 5. Good/Base/Bad Cases
+
+- Good: real local Workstation article -> real Publish button -> ExportModal opens -> external
+  handoff block and copy button are visible -> DOM handler copies deterministic Markdown -> feedback
+  preserves the manual-proof boundary.
+- Base: clipboard write is denied by browser policy -> button remains visible -> feedback reports
+  local clipboard permission failure -> release status remains blocked.
+- Bad: component duplicates checklist rows, silently changes proof status, uses emoji icons, stores
+  browser/account/runtime artifacts, or records local clipboard success as platform proof.
+
+### 6. Tests Required
+
+- Targeted ESLint for `ExportModal.vue` must pass without new unused imports, refs, computed values,
+  or handlers.
+- Strict `vue-tsc --noEmit` must pass.
+- Production build must pass with the generated TypeScript build info restored afterward.
+- CloakBrowser-only local UI smoke must use a real local Workstation article and the real Publish
+  button, then record aggregate DOM/layout counts only.
+- The smoke may record DOM handler success for the Vue binding, but must not claim operating-system
+  clipboard contents or external platform proof without a separate redacted operator artifact.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```typescript
+// Rebuilds proof rows in the component and implies local copy equals completion.
+const copied = await navigator.clipboard.writeText(JSON.stringify(localRows))
+releaseGate.value = 'completed'
+```
+
+#### Correct
+
+```typescript
+const packet = getCommittedStyleProofExternalHandoffPacket(report)
+const markdown = formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)
+const copied = await copyTextToClipboard(markdown)
+// Only local copy feedback changes; external proof gates remain blocked until real evidence exists.
+```

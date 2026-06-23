@@ -4123,3 +4123,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+## 2026-06-23 ExportModal External Handoff Packet UI
+
+- [x] exportmodal-external-handoff-packet-ui-20260623.txt
+- ExportModal now exposes the deterministic external handoff packet in the local Publish modal by
+  consuming `getCommittedStyleProofExternalHandoffPacket()` and
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown()`.
+- The copy action uses the existing local clipboard helper and changes only local feedback state.
+  It does not mark platform proof complete.
+- CloakBrowser local smoke used a real local Workstation article and the real Publish modal. At
+  `390x844`, readback showed `scrollWidth=390`, `bodyScrollWidth=390`, `handoffVisible=true`,
+  `actionVisible=true`, `copyButtonPresent=true`, `flagCount=5`, `checklistGroupCount=4`,
+  `overflowing=false`, and `modalWidth=374`.
+- Hit-test readback showed the button visible, enabled, and not covered; DOM handler smoke verified
+  the Vue binding and success feedback text.
+- Verification passed: targeted ExportModal ESLint, `vue-tsc`, production build, docs/evidence
+  diff check, staged redaction scan, and GitNexus staged detect.
+- Boundary: this is local UI reachability, layout safety, and Vue handler wiring only. It does not
+  prove operating-system clipboard contents, WeChat editor paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

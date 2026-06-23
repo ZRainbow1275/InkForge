@@ -4697,3 +4697,31 @@ Boundary:
   editor paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
   XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 ExportModal External Handoff Packet UI Addendum
+
+- Added a visible local Publish modal entry for the deterministic committed-proof external handoff
+  packet.
+- ExportModal now derives the packet through `getCommittedStyleProofExternalHandoffPacket()` and
+  formats it through `formatCommittedStyleProofExternalHandoffPacketMarkdown()` instead of
+  duplicating checklist rows in the component.
+- The external handoff block exposes a real `Copy` / `CheckCircle` icon button. Copy success states
+  that the packet is for manual acceptance and does not mean platform proof is complete; copy
+  failure stays a local clipboard-permission failure.
+- Added evidence file:
+  `prompts/0601/evidence/exportmodal-external-handoff-packet-ui-20260623.txt`.
+- CloakBrowser local smoke reused the real local app, opened a real Workstation article from Home,
+  and opened the real Publish modal. At `390x844`, the modal reported `scrollWidth=390`,
+  `bodyScrollWidth=390`, `handoffVisible=true`, `actionVisible=true`, `actionText=复制交接包`,
+  `flagCount=5`, `checklistGroupCount=4`, `copyButtonPresent=true`, `overflowing=false`, and
+  `modalWidth=374`.
+- Hit-test readback showed the button visible, enabled, and not covered. DOM handler smoke verified
+  the Vue binding, success class, and feedback text while preserving the manual-proof boundary.
+- Verification passed: targeted ExportModal ESLint, `vue-tsc`, production build, docs/evidence
+  `git diff --check`, staged redaction scan, and GitNexus staged detect.
+- Boundary: this is local UI reachability, layout safety, and Vue handler wiring only. It does not
+  prove operating-system clipboard contents, WeChat editor paste, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

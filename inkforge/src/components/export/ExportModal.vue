@@ -14,6 +14,8 @@ import {
   getPlatformStyleProofCollectionPlan, getPlatformStyleProofCollectionQueue,
   getPlatformStyleProofExecutionRunbook,
   getCommittedStyleProofExternalHandoffReport,
+  getCommittedStyleProofExternalHandoffPacket,
+  formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofExternalProofChecklistReport,
   getCommittedStyleProofLocalActionabilityReport,
   getCommittedStyleProofEvidenceReleaseGateReport,
@@ -218,6 +220,12 @@ const styleProofCollectionQueue = computed(() => getPlatformStyleProofCollection
 const styleProofAcceptanceAudit = computed(() => getPlatformStyleProofAcceptanceAuditReport(selectedPlatform.value))
 const styleProofExecutionRunbook = computed(() => getPlatformStyleProofExecutionRunbook(selectedPlatform.value))
 const committedStyleProofExternalHandoff = computed(() => getCommittedStyleProofExternalHandoffReport())
+const committedStyleProofExternalHandoffPacket = computed(() =>
+  getCommittedStyleProofExternalHandoffPacket(committedStyleProofExternalHandoff.value),
+)
+const committedStyleProofExternalHandoffMarkdown = computed(() =>
+  formatCommittedStyleProofExternalHandoffPacketMarkdown(committedStyleProofExternalHandoffPacket.value),
+)
 const committedStyleProofExternalChecklist = computed(() => getCommittedStyleProofExternalProofChecklistReport())
 const committedStyleProofLocalActionability = computed(() => getCommittedStyleProofLocalActionabilityReport())
 const committedStyleProofReleaseGate = computed(() => getCommittedStyleProofEvidenceReleaseGateReport())
@@ -1399,10 +1407,12 @@ watch(
 // ─── Copy ────────────────────────────────────────────────
 const copySuccess = ref(false)
 const nativeCopySuccess = ref(false)
+const externalHandoffCopySuccess = ref(false)
 const operationFeedback = ref<OperationFeedback | null>(null)
 
 let copyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 let nativeCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
+let externalHandoffCopyFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 let operationFeedbackTimer: ReturnType<typeof setTimeout> | undefined
 
 function showOperationFeedback(kind: FeedbackKind, message: string) {
@@ -1476,6 +1486,20 @@ async function handleCopyNative() {
     nativeCopyFeedbackTimer = setTimeout(() => { nativeCopySuccess.value = false }, FEEDBACK_DURATION)
   } else {
     showOperationFeedback('error', '复制原生产物失败：当前浏览器或权限不允许写入剪贴板。')
+  }
+}
+
+async function handleCopyExternalHandoff() {
+  showOperationFeedback('info', '正在复制外部证明交接包。')
+  const success = await copyTextToClipboard(committedStyleProofExternalHandoffMarkdown.value)
+
+  if (success) {
+    externalHandoffCopySuccess.value = true
+    showOperationFeedback('success', '已复制外部证明交接包；它只用于人工验收，不代表平台证明完成。')
+    clearTimeout(externalHandoffCopyFeedbackTimer)
+    externalHandoffCopyFeedbackTimer = setTimeout(() => { externalHandoffCopySuccess.value = false }, FEEDBACK_DURATION)
+  } else {
+    showOperationFeedback('error', '复制外部证明交接包失败：当前浏览器或权限不允许写入剪贴板。')
   }
 }
 
@@ -1566,6 +1590,7 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
   clearTimeout(copyFeedbackTimer)
   clearTimeout(nativeCopyFeedbackTimer)
+  clearTimeout(externalHandoffCopyFeedbackTimer)
   clearTimeout(operationFeedbackTimer)
 })
 </script>
@@ -1702,6 +1727,24 @@ onUnmounted(() => {
                     <span>{{ styleProofExternalHandoffSummary }}</span>
                     <span>不能自动完成：{{ styleProofExternalHandoffReason(committedStyleProofExternalHandoff) }}</span>
                     <span>下一步：{{ styleProofExternalHandoffNextRowLabel(committedStyleProofExternalHandoff) }}</span>
+                  </div>
+                  <div class="style-proof-external-handoff__actions">
+                    <button
+                      type="button"
+                      class="mini-action"
+                      :class="{ success: externalHandoffCopySuccess }"
+                      @click="handleCopyExternalHandoff"
+                    >
+                      <CheckCircle
+                        v-if="externalHandoffCopySuccess"
+                        :size="13"
+                      />
+                      <Copy
+                        v-else
+                        :size="13"
+                      />
+                      <span>{{ externalHandoffCopySuccess ? '已复制交接包' : '复制交接包' }}</span>
+                    </button>
                   </div>
                   <div class="style-proof-external-handoff__flags">
                     <div
@@ -2631,6 +2674,16 @@ onUnmounted(() => {
 .style-proof-external-checklist__summary span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.style-proof-external-handoff__actions {
+  display: flex;
+  min-width: 0;
+}
+
+.style-proof-external-handoff__actions .mini-action {
+  flex: 0 1 auto;
+  min-width: 128px;
 }
 
 .style-proof-external-handoff__flags {
