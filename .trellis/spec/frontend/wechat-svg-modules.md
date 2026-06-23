@@ -4166,3 +4166,53 @@ const ruleFamilies = [
 ] as const
 // Market DOM informs the source-owned rule family only; it is never copied as output.
 ```
+
+## 60. WeChat Official Editor Entry Surface Readback - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: a CloakBrowser authenticated WeChat editor-entry run reaches the official article editor
+  route and can read the editor DOM without inserting article content.
+- This evidence may satisfy `authenticated-editor-reachable` and `pc-editor-dom-readable` only when
+  the active route category is the official article editor and the editor DOM contains concrete
+  title/body surface selectors.
+- Standard click blockers and `window.open` tab-handling workarounds must be recorded separately
+  from editor proof. Same-tab redirection is acceptable only to keep CloakBrowser attached to the
+  official route; it is not a sync, preview, publish, or paste action.
+
+### 2. Required Redacted Fields
+
+- Captured route category: `action=edit`, `type=10`, and `t=media/appmsg_edit_v2`, with credential
+  query parameters redacted.
+- Final active route category: `appmsg-edit-like`.
+- Editor selector counts: `#js_appmsg_editor`, `#ueditor_0`, `.ProseMirror`,
+  `.rich_media_content`, contenteditable count, iframe count, textarea count, input count, SVG
+  count, and button count.
+- Title/body editor signals: visible title ProseMirror placeholder and visible body ProseMirror
+  surface.
+- Risk controls observed but not clicked: save draft, preview, publish, scheduled send, sync,
+  delete, or cleanup controls when present.
+- Platform auto-save or word-count text may be recorded as platform state only. It must not be
+  promoted to manual save, paste, preview, publish, or cleanup proof.
+
+### 3. Cannot-Claim Boundary
+
+- Editor-entry surface readback does not prove `pc-editor-paste`, `exact-artifact`,
+  `safe-disposable-draft`, `phone-preview`, `dark-mode-check`, `cover-thumbnail-check`,
+  `credentialed-sync`, `scheduled-send`, `platform-preview`, `public-rendering`, `published`, XHS
+  upload, or Zhihu upload.
+- A blank editor route with no unique disposable marker and no cleanup path must not satisfy
+  `safe-disposable-draft`, even if the platform shows auto-save state.
+- A visible publish/preview/save button must be recorded as a route-risk marker only unless that
+  control is explicitly exercised in a separately scoped proof run with redacted before/after
+  readbacks.
+
+### 4. Tests / Evidence Required
+
+- Evidence docs must state that CloakBrowser was used and that Playwright was not used for the
+  platform run.
+- Evidence docs must state whether `window.open` was redirected to same-tab navigation.
+- Evidence docs must record only sanitized route categories and aggregate selector counts. Raw URLs,
+  credential query parameters, account names, draft titles, public URLs, screenshots, local browser
+  runtime directories, and account images must not be committed.
+- Commit-boundary review must scan staged diffs for credential material and account artifacts.

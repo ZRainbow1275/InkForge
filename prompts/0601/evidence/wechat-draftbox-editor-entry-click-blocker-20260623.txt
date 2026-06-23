@@ -38,6 +38,8 @@ Conclusion:
 - Authenticated draftbox list reachability is proven.
 - Article-editor entry through draftbox/new-creation/draft-title/edit-icon paths is still blocked
   or no-op in this CloakBrowser run.
-- This does not prove editor reachability, PC editor DOM readback, ordinary paste, safe disposable
-  draft creation, phone preview, Dark Mode, cover thumbnail acceptance, credentialed sync,
-  scheduled send, public rendering, or publish success.
+- Follow-up evidence later used the page's own article-create action with same-tab navigation to
+  reach the editor surface; see `wechat-editor-entry-surface-readback-20260623.txt`.
+- This blocker evidence by itself does not prove editor reachability, PC editor DOM readback,
+  ordinary paste, safe disposable draft creation, phone preview, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, public rendering, or publish success.

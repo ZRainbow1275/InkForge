@@ -4830,7 +4830,36 @@ Boundary:
   modal.
 - Added evidence file:
   `prompts/0601/evidence/wechat-draftbox-editor-entry-click-blocker-20260623.txt`.
-- Boundary: this is authenticated draftbox list reachability and editor-entry blocker evidence
-  only. It does not prove WeChat editor reachability, PC paste, phone preview, mobile interaction,
-  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
-  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+- Boundary: this is authenticated draftbox list reachability and standard-click blocker evidence
+  only. By itself it does not prove WeChat editor reachability, PC paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 WeChat Editor Entry Surface Readback Addendum
+
+- Used CloakBrowser only on the authenticated WeChat official-account backend.
+- Standard selector-click entry paths stayed blocked by stable-position checks, but the page's own
+  Vue parent `createMsg(0)` article action exposed the official article-editor route.
+- Temporarily redirected `window.open` to same-tab navigation so CloakBrowser could keep the editor
+  active.
+- Captured route category: `action=edit`, `type=10`, `t=media/appmsg_edit_v2`; credential query
+  parameters were redacted.
+- Final active route category was `appmsg-edit-like`.
+- PC editor DOM surface readback returned `#js_appmsg_editor=1`, `#ueditor_0=1`,
+  `.ProseMirror=2`, `.rich_media_content=1`, `contenteditable=3`, `iframe=1`, `textarea=2`,
+  `input=53`, `svg=9`, and `button=18`.
+- A visible title ProseMirror editor with placeholder `请在这里输入标题` and a visible focused body
+  ProseMirror editor were present.
+- Save-draft, preview, and publish controls were visible as route-risk markers and were not
+  clicked.
+- The editor surface showed platform auto-save/zero-body-word-count state; this is not manual save,
+  paste, preview, or publish proof.
+- Added evidence file:
+  `prompts/0601/evidence/wechat-editor-entry-surface-readback-20260623.txt`.
+- Boundary: this proves authenticated WeChat article editor reachability and PC editor DOM surface
+  readback only. It does not prove ordinary paste, exact InkForge artifact retention, safe
+  disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

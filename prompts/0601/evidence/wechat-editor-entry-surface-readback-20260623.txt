@@ -1,0 +1,46 @@
+WeChat Editor Entry Surface Readback - 2026-06-23
+
+Scope:
+- CloakBrowser-only authenticated WeChat official-account editor-entry run.
+- The standard selector-click path stayed blocked by stable-position checks, so the run used the
+  page's own Vue parent `createMsg(0)` article action.
+- `window.open` was temporarily redirected to same-tab navigation so CloakBrowser could keep the
+  editor as the active page.
+- No article content was pasted or typed. No manual save, preview, sync, scheduled send, publish,
+  delete, or cleanup action was clicked.
+- Account identifiers, raw URLs, credential query parameters, account names, draft titles,
+  screenshots, and local browser runtime directories are intentionally not recorded.
+
+Route:
+- Captured route category: WeChat article editor (`action=edit`, `type=10`,
+  `t=media/appmsg_edit_v2`, credential query parameter redacted).
+- Final active route category: `appmsg-edit-like`.
+
+Readback:
+- `#js_appmsg_editor=1`
+- `#ueditor_0=1`
+- `.ProseMirror=2`
+- `.rich_media_content=1`
+- `contenteditable=3`
+- `iframe=1`
+- `textarea=2`
+- `input=53`
+- `svg=9`
+- `button=18`
+
+Editor surface:
+- A visible title `ProseMirror` editor was present with placeholder `请在这里输入标题` and empty
+  text length.
+- A visible body `ProseMirror` editor was focused.
+- The surface exposed title/body/cover/original-link text flags and visible bottom-bar controls for
+  save draft, preview, and publish.
+- These controls were observed only as route-risk markers and were not clicked.
+- The editor surface showed platform auto-save/word-count state including a zero body word count.
+  This is recorded as platform state, not as a manual save proof.
+
+Conclusion:
+- Authenticated WeChat article editor reachability is proven for this CloakBrowser run.
+- PC editor DOM surface readback is proven for the blank editor route.
+- This does not prove ordinary paste, exact InkForge artifact retention, safe disposable draft
+  cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, public rendering, or publish success.

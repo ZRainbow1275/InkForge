@@ -10405,8 +10405,60 @@ Verification:
   commit.
 
 Boundary:
-- This proves draftbox list reachability and an editor-entry blocker only. It does not prove WeChat
-  editor reachability, PC editor DOM readback, ordinary paste, safe-disposable-draft creation, phone
-  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
-  send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
-  success.
+- This proves draftbox list reachability and a standard-click editor-entry blocker only. By itself
+  it does not prove WeChat editor reachability, PC editor DOM readback, ordinary paste,
+  safe-disposable-draft creation, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 WeChat Editor Entry Surface Readback Slice
+
+Scope:
+- CloakBrowser-only authenticated WeChat official-account editor-entry run.
+- No source code, renderer output, proof manifest, paste behavior, manual save, preview, sync,
+  scheduled send, publish, delete, or cleanup behavior was changed.
+- No account identifiers, raw URLs, credential query parameters, account names, draft titles,
+  screenshots, browser runtime directories, or local runtime artifacts are recorded.
+
+Implementation / Observation:
+- Standard selector-click entry paths stayed blocked by CloakBrowser stable-position checks.
+- The page's own Vue parent article-create method `createMsg(0)` captured the official article
+  editor route category.
+- `window.open` was temporarily redirected to same-tab navigation so CloakBrowser could keep the
+  official editor as the active page.
+- Captured route category: `action=edit`, `type=10`, `t=media/appmsg_edit_v2`; credential query
+  parameters redacted.
+- Final active route category: `appmsg-edit-like`.
+
+Readback:
+- `#js_appmsg_editor=1`
+- `#ueditor_0=1`
+- `.ProseMirror=2`
+- `.rich_media_content=1`
+- `contenteditable=3`
+- `iframe=1`
+- `textarea=2`
+- `input=53`
+- `svg=9`
+- `button=18`
+- A visible title ProseMirror editor with placeholder `请在这里输入标题` and a visible focused body
+  ProseMirror editor were present.
+- Save-draft, preview, and publish controls were visible as route-risk markers and were not
+  clicked.
+- The editor surface showed platform auto-save/zero-body-word-count state. This is recorded as
+  platform state, not as a manual save proof.
+
+Artifact:
+- `prompts/0601/evidence/wechat-editor-entry-surface-readback-20260623.txt`
+
+Verification:
+- CloakBrowser read-only DOM readback completed on the official article-editor route.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Boundary:
+- This proves authenticated WeChat article editor reachability and PC editor DOM surface readback
+  only. It does not prove ordinary paste, exact InkForge artifact retention, safe disposable draft
+  cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
+  upload, or publish success.
