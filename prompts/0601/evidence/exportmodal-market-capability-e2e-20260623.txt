@@ -1,0 +1,58 @@
+ExportModal Market Capability E2E - 2026-06-23
+
+Scope:
+- Real local Tauri/WebView2 WDIO regression coverage for the ExportModal market capability UI.
+- No platform account action, phone preview, sync, upload, schedule, publish, public host readback,
+  or external editor mutation was performed.
+
+Changed:
+- Extended `tests/e2e/specs/svg-render.spec.cjs`'s real ExportModal DOM probe.
+- The probe now reads:
+  - visible `.style-choice-market-summary` text,
+  - visible `.style-choice-market-capabilities span` chip labels,
+  - horizontal overflow count for market capability rows.
+
+Assertions added:
+- WeChat:
+  - exactly one market capability summary is visible,
+  - `市场能力：14；降级 3；待证明 10；外部交接 1` is visible,
+  - learned market SVG/H5 chips such as `背景 SVG · 静态 · 待证明`,
+    `图集轮播 · 滑动 · 待证明`, and `点击展开 · 点击 · 待证明` are visible,
+  - the Market SVG/H5 fallback matrix remains blocked and disabled,
+  - market capability rows report zero horizontal overflow.
+- Xiaohongshu:
+  - exactly one market capability summary is visible,
+  - `市场能力：3；自有 1；降级 2` is visible,
+  - source-owned/fallback chips are visible,
+  - the market rich card fallback remains mapped to the real preset-backed action,
+  - market capability rows report zero horizontal overflow.
+- Zhihu:
+  - exactly one market capability summary is visible,
+  - `市场能力：3；降级 2；待证明 1` is visible,
+  - public-host fallback chips are visible,
+  - the market rich layout fallback remains blocked and disabled until public-host proof exists,
+  - market capability rows report zero horizontal overflow.
+
+Verification:
+- `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  PASS.
+- `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  PASS: 1 spec / 6 tests.
+
+Runtime evidence:
+- The WDIO harness compiled the real Tauri debug binary through Cargo.
+- The run launched the real WebView2/Tauri surface.
+- The run seeded a real local Pinia draft, opened the real ExportModal, checked WeChat/XHS/Zhihu
+  market capability rows, and re-ran the existing flagship SVG and mobile line-width probes.
+
+Non-gate note:
+- Direct `eslint` on the `.cjs` WDIO spec is not a canonical gate for this file in the current
+  project configuration. It reports pre-existing WDIO/Mocha/browser globals such as `browser`,
+  `document`, `describe`, `it`, `require`, and `__dirname` as undefined.
+
+Boundary:
+- This proves local Tauri/WebView2 ExportModal visibility, wrapping, and gating behavior only.
+- It does not prove 135/Xiumi proprietary template reuse, WeChat PC paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

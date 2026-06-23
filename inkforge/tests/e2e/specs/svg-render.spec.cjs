@@ -383,6 +383,12 @@ function collectStyleCapabilityProbe() {
         .replace(/\s+/g, ' '),
       localActionabilityGroups: Array.from(document.querySelectorAll('.export-panel .style-proof-local-actionability__group'))
         .map((group) => (group.textContent || '').trim().replace(/\s+/g, ' ')),
+      marketSummaries: Array.from(document.querySelectorAll('.export-panel .style-choice-market-summary'))
+        .map((summary) => (summary.textContent || '').trim().replace(/\s+/g, ' ')),
+      marketChipLabels: Array.from(document.querySelectorAll('.export-panel .style-choice-market-capabilities span'))
+        .map((chip) => (chip.textContent || '').trim().replace(/\s+/g, ' ')),
+      marketOverflowCount: Array.from(document.querySelectorAll('.export-panel .style-choice-market-summary, .export-panel .style-choice-market-capabilities'))
+        .filter((el) => el.scrollWidth > el.clientWidth + 1).length,
       acceptancePreflightText: Array.from(document.querySelectorAll('.export-panel [class*="preflight"]'))
         .map((el) => (el.textContent || '').trim().replace(/\s+/g, ' '))
         .filter((text) => text.includes('验收宣称审计'))
@@ -632,6 +638,20 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(wechat.availableCount, 'WeChat available choice count').to.equal(8);
     expect(wechat.blockedCount, 'WeChat blocked choice count').to.equal(5);
     expect(wechat.unavailableCount, 'WeChat unavailable choice count').to.equal(4);
+    expect(wechat.marketSummaries, 'WeChat shows exactly one market capability summary')
+      .to.have.length(1);
+    expect(wechat.marketSummaries[0], 'WeChat market capability summary mirrors runtime catalog')
+      .to.include('市场能力：14；降级 3；待证明 10；外部交接 1');
+    expect(wechat.marketChipLabels, 'WeChat market matrix exposes five visible market chips')
+      .to.have.length(5);
+    expect(wechat.marketChipLabels, 'WeChat market chips expose learned SVG/H5 families')
+      .to.include.members([
+        '背景 SVG · 静态 · 待证明',
+        '图集轮播 · 滑动 · 待证明',
+        '点击展开 · 点击 · 待证明',
+      ]);
+    expect(wechat.marketOverflowCount, 'WeChat market capability rows wrap inside style cards')
+      .to.equal(0);
     expect(wechat.preflightText, 'WeChat preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 8/17；受限 5；不可用 4');
     expect(wechat.acceptancePreflightText, 'WeChat preflight exposes cannot-claim audit')
@@ -701,6 +721,16 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     ).to.equal(true);
     expect(
       wechat.cards.some((card) =>
+        card.disabled &&
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Market SVG/H5 fallback matrix') &&
+        card.text.includes('市场能力：14；降级 3；待证明 10；外部交接 1') &&
+        card.text.includes('背景 SVG · 静态 · 待证明') &&
+        card.text.includes('点击切换 · 点击 · 待证明')),
+      'WeChat market matrix card surfaces market metadata without becoming selectable',
+    ).to.equal(true);
+    expect(
+      wechat.cards.some((card) =>
         card.className.includes('style-choice-unavailable') &&
         card.text.includes('Plugin transfer channel checklist')),
       'plugin transfer stays unavailable without channel-specific proof',
@@ -750,6 +780,18 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(xhs.availableCount, 'XHS available choice count').to.equal(7);
     expect(xhs.blockedCount, 'XHS blocked choice count').to.equal(0);
     expect(xhs.unavailableCount, 'XHS unavailable choice count').to.equal(1);
+    expect(xhs.marketSummaries, 'XHS shows exactly one market capability summary')
+      .to.have.length(1);
+    expect(xhs.marketSummaries[0], 'XHS market fallback summary mirrors runtime catalog')
+      .to.include('市场能力：3；自有 1；降级 2');
+    expect(xhs.marketChipLabels, 'XHS market fallback exposes all local fallback chips')
+      .to.include.members([
+        '标题卡片 · 静态 · 自有',
+        '图集轮播 · 静态 · 降级',
+        '静态栅格 · 静态 · 降级',
+      ]);
+    expect(xhs.marketOverflowCount, 'XHS market capability rows wrap inside style cards')
+      .to.equal(0);
     expect(xhs.preflightText, 'XHS preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 7/8；受限 0；不可用 1');
     expect(xhs.acceptancePreflightText, 'XHS preflight exposes cannot-claim audit')
@@ -788,6 +830,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         !card.disabled &&
         card.text.includes('Market rich card image fallback')),
       'XHS market rich card fallback is locally available and mapped to a real preset-backed action',
+    ).to.equal(true);
+    expect(
+      xhs.cards.some((card) =>
+        !card.disabled &&
+        card.className.includes('style-choice-available') &&
+        card.text.includes('Market rich card image fallback') &&
+        card.text.includes('市场能力：3；自有 1；降级 2') &&
+        card.text.includes('标题卡片 · 静态 · 自有')),
+      'XHS market fallback surfaces market metadata while staying mapped to the real preset action',
     ).to.equal(true);
 
     const xhsApplicationProbe = await browser.executeAsync((done) => {
@@ -848,6 +899,18 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
     expect(zhihu.availableCount, 'Zhihu available choice count').to.equal(4);
     expect(zhihu.blockedCount, 'Zhihu blocked choice count').to.equal(3);
     expect(zhihu.unavailableCount, 'Zhihu unavailable choice count').to.equal(1);
+    expect(zhihu.marketSummaries, 'Zhihu shows exactly one market capability summary')
+      .to.have.length(1);
+    expect(zhihu.marketSummaries[0], 'Zhihu market fallback summary mirrors runtime catalog')
+      .to.include('市场能力：3；降级 2；待证明 1');
+    expect(zhihu.marketChipLabels, 'Zhihu market fallback exposes public-host fallback chips')
+      .to.include.members([
+        '标题卡片 · 静态 · 降级',
+        '公网图片 · 公网 · 待证明',
+        '静态栅格 · 静态 · 降级',
+      ]);
+    expect(zhihu.marketOverflowCount, 'Zhihu market capability rows wrap inside style cards')
+      .to.equal(0);
     expect(zhihu.preflightText, 'Zhihu preflight row mirrors catalog stats')
       .to.include('样式能力目录可用 4/8；受限 3；不可用 1');
     expect(zhihu.acceptancePreflightText, 'Zhihu preflight exposes cannot-claim audit')
@@ -877,6 +940,15 @@ describe('InkForge — SVG flagship typesetting (PR7, multi-round, real binary)'
         card.className.includes('style-choice-blocked') &&
         card.text.includes('Market rich layout image fallback')),
       'Zhihu market rich layout fallback remains blocked until public-host proof exists',
+    ).to.equal(true);
+    expect(
+      zhihu.cards.some((card) =>
+        card.disabled &&
+        card.className.includes('style-choice-blocked') &&
+        card.text.includes('Market rich layout image fallback') &&
+        card.text.includes('市场能力：3；降级 2；待证明 1') &&
+        card.text.includes('公网图片 · 公网 · 待证明')),
+      'Zhihu market fallback surfaces market metadata without bypassing public-host proof',
     ).to.equal(true);
 
     await closeExportModal();

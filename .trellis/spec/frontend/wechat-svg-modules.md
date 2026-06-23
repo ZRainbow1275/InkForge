@@ -4405,6 +4405,10 @@ const ruleFamilies = [
 - Run `vue-tsc --noEmit`.
 - Visually verify WeChat/XHS/Zhihu tabs in CloakBrowser and record style-card counts, market-card
   counts, visible chip labels, and overflow count.
+- The real Tauri/WebView2 `svg-render.spec.cjs` e2e should assert the same market capability
+  summaries/chips from the actual ExportModal DOM. It must also assert that the WeChat/Zhihu market
+  choices remain blocked/disabled where proof is missing and that market rows have zero horizontal
+  overflow.
 - Build before commit when the template changed.
 
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23

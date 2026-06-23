@@ -10786,3 +10786,46 @@ Boundary:
   safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail
   acceptance, credentialed sync, scheduled send, platform preview, public rendering, public-host
   acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 ExportModal Market Capability E2E Slice
+
+Scope:
+- Real Tauri/WebView2 WDIO regression coverage for the ExportModal market capability UI.
+- No renderer output, proof manifest, platform action, browser profile artifact, account action,
+  save, preview, publish, sync, scheduled send, upload, phone preview, public rendering, or release
+  gate behavior was changed.
+
+Implementation:
+- Extended `tests/e2e/specs/svg-render.spec.cjs`'s real ExportModal DOM probe.
+- The probe now reads visible market capability summaries, market capability chip labels, and
+  horizontal overflow counts.
+- WeChat assertions prove the Market SVG/H5 fallback matrix exposes the 14-capability summary and
+  SVG/H5 chip labels while staying blocked and disabled.
+- Xiaohongshu assertions prove the market rich card fallback exposes the source-owned/fallback
+  capability summary while staying mapped to the real preset-backed action.
+- Zhihu assertions prove the market rich layout fallback exposes public-host fallback metadata while
+  staying blocked and disabled until public-host proof exists.
+
+Verification:
+- Syntax:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs`
+  passed.
+- Real Tauri/WebView2 e2e:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with 1 spec / 6 tests. The WDIO harness compiled the real Tauri debug binary through
+  Cargo, launched WebView2 149, seeded a real Pinia draft, opened the real ExportModal, checked
+  WeChat/XHS/Zhihu market capability rows, and re-ran the flagship SVG/mobile line-width probes.
+- Direct `eslint` on this `.cjs` WDIO spec remains a non-canonical gate because the existing project
+  ESLint config does not declare WDIO/Mocha/browser globals for this file; it reports pre-existing
+  `browser`, `document`, `describe`, `it`, `require`, and `__dirname` errors.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Evidence artifact:
+- `prompts/0601/evidence/exportmodal-market-capability-e2e-20260623.txt`
+
+Boundary:
+- This is local Tauri/WebView2 ExportModal evidence only. It does not prove WeChat PC paste, exact
+  artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

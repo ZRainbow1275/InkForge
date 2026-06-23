@@ -5040,3 +5040,27 @@ Boundary:
   retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 ExportModal Market Capability E2E Addendum
+
+- Extended `tests/e2e/specs/svg-render.spec.cjs` so the real ExportModal DOM probe reads market
+  capability summaries, market chip labels, and market-row horizontal overflow counts.
+- WeChat e2e now asserts the Market SVG/H5 fallback matrix exposes `市场能力：14；降级 3；待证明
+  10；外部交接 1`, visible SVG/H5 chip labels, and remains blocked/disabled.
+- Xiaohongshu e2e now asserts the Market rich card image fallback exposes `市场能力：3；自有 1；降级
+  2` and remains mapped to the real preset-backed action.
+- Zhihu e2e now asserts the Market rich layout image fallback exposes `市场能力：3；降级 2；待证明 1`
+  and remains blocked/disabled until public-host proof exists.
+- Verification:
+  `node --check inkforge/tests/e2e/specs/svg-render.spec.cjs` passed.
+- Verification:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`
+  passed with 1 spec / 6 tests against the real Tauri/WebView2 harness.
+- Added evidence file:
+  `prompts/0601/evidence/exportmodal-market-capability-e2e-20260623.txt`.
+- Boundary: this is local Tauri/WebView2 ExportModal evidence only. It does not prove WeChat PC
+  paste, exact artifact retention, safe disposable draft cleanup, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

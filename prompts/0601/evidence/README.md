@@ -4382,3 +4382,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   - Zhihu: 8 style cards, 1 market card, 0 horizontal overflow cards.
 - Boundary: this is local UI rendering only. It does not prove paste, phone preview, sync, upload,
   public rendering, or publish success.
+
+## 2026-06-23 ExportModal Market Capability E2E
+
+- [x] exportmodal-market-capability-e2e-20260623.txt
+- Extended the real `tests/e2e/specs/svg-render.spec.cjs` ExportModal probe to read visible
+  market capability summaries, chip labels, and market-row overflow counts.
+- Real Tauri/WebView2 WDIO run passed with 1 spec / 6 tests:
+  `pnpm -C inkforge exec wdio run tests/e2e/wdio.conf.cjs --spec tests/e2e/specs/svg-render.spec.cjs`.
+- WeChat assertions prove the Market SVG/H5 fallback matrix shows the 14-capability summary and
+  learned SVG/H5 chip labels while remaining blocked and disabled.
+- Xiaohongshu assertions prove the market rich card fallback shows source-owned/fallback metadata
+  while remaining mapped to the real preset-backed action.
+- Zhihu assertions prove the market rich layout fallback shows public-host fallback metadata while
+  remaining blocked until public-host proof exists.
+- Boundary: this is local Tauri/WebView2 ExportModal evidence only. It does not prove paste, phone
+  preview, sync, upload, public rendering, public-host acceptance, or publish success.
