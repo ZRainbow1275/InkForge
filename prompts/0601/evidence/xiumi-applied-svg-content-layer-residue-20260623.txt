@@ -1,0 +1,57 @@
+Xiumi Applied SVG Content-Layer Residue - 2026-06-23
+
+Scope:
+- Local quality-detector hardening for Xiumi applied SVG content-layer classes observed in the
+  applied DOM refresh.
+- No external platform action, no phone preview, no sync, no upload, no scheduled send, and no
+  publish action.
+
+Problem:
+- The earlier Xiumi applied SVG regression was blocked by `tn-*` wrapper metadata, Xiumi-hosted
+  background references, and WeChat `foreignObject` safety rules.
+- A wrapper-cleaned copy can still retain applied SVG content-layer classes on SVG/SMIL elements.
+- Those classes must remain market-editor residue across WeChat, Xiaohongshu, and Zhihu.
+
+Implemented:
+- Added the detector label `Xiumi applied SVG content layer`.
+- The rule is limited to `<svg>` / `<animate>` elements with observed Xiumi applied SVG content
+  classes:
+  - `svg-layout-content`
+  - `root-svg`
+  - `rect-content`
+  - `fade-self-animation`
+
+Fixture:
+- `MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML`
+- Shape:
+  - reduced SVG tree without `tn-*` wrapper metadata
+  - no Xiumi-hosted background URL
+  - nested `svg` content layers
+  - `foreignObject` text layer
+  - SMIL `animate` row with `fade-self-animation`
+
+TDD:
+- Red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks Xiumi applied SVG content-layer" --reporter=default`
+  - FAIL: `wechat-market-editor-residue` was absent.
+- Green run after detector implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks Xiumi applied SVG content-layer" --reporter=default`
+  - PASS: 1 selected test.
+
+Verification:
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  - PASS
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  - PASS: 1 file / 174 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  - PASS: 36 files / 1151 tests
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  - PASS
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`
+  - PASS: `vue-tsc -b` plus Vite production build, 4653 modules transformed and built in 40.29s
+
+Boundary:
+- This proves local detector hardening only.
+- It does not prove WeChat official editor paste, phone preview, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.

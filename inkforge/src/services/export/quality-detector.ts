@@ -125,6 +125,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi SVG layer slot residue',
   },
   {
+    pattern: /<(?:svg|animate)\b[^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:svg-layout-content|root-svg|rect-content|fade-self-animation)\b[^"']*["']/i,
+    label: 'Xiumi applied SVG content layer',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\btn-yzk-font-[\w-]+(?=[\s"'=/>])|\btn-placeholder(?=[\s"'=/>]))/i,
     label: 'Xiumi text authoring metadata',
   },

@@ -370,6 +370,18 @@ const MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML = [
   '</article>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML = [
+  '<section style="text-align:center">',
+  '<svg class="svg-layout-content root-svg" viewBox="0 0 375 442.5">',
+  '<svg class="rect-content"><rect width="100%" height="100%"></rect></svg>',
+  '<svg class="text-content">',
+  '<foreignObject width="100%" height="100%"><p>Applied SVG text layer</p></foreignObject>',
+  '</svg>',
+  '<animate class="fade-self-animation" attributeName="opacity" begin="click" from="1" to="0" dur="0.4s" restart="never"></animate>',
+  '</svg>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_EDITABLE_SURFACE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div contenteditable="true">Copied editor text cell</div>',
@@ -8380,6 +8392,24 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi tn-* authoring tree')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi tn-* authoring tree')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi applied SVG content-layer classes after wrapper cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi applied SVG content layer')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi applied SVG content layer')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi applied SVG content layer')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-unsafe-svg-construct')?.message)
+      .toContain('foreignObject')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

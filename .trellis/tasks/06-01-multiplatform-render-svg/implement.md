@@ -8857,6 +8857,47 @@ Boundary:
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.
 
+## 2026-06-23 Xiumi Applied SVG Content-Layer Residue Slice
+
+Scope:
+- Production detector coverage for Xiumi applied SVG content-layer class signatures observed in the
+  applied DOM refresh.
+- This targets wrapper-cleaned copies that still retain `svg-layout-content`, `root-svg`,
+  `rect-content`, or `fade-self-animation` on SVG/SMIL elements.
+
+Implementation:
+- Added a market-editor residue rule labelled `Xiumi applied SVG content layer` in
+  `quality-detector.ts`.
+- Added `MARKET_EDITOR_XIUMI_APPLIED_SVG_CONTENT_LAYER_HTML`, a reduced applied SVG fixture without
+  `tn-*` wrappers or Xiumi-hosted backgrounds.
+- Added a TDD regression asserting WeChat, Xiaohongshu, and Zhihu all block the content-layer
+  signature as market-editor residue, while WeChat still reports `foreignObject` as an unsafe SVG
+  construct.
+
+Verification:
+- Red run before detector implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks Xiumi applied SVG content-layer" --reporter=default`
+  failed because `wechat-market-editor-residue` was absent.
+- Green focused run after implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "blocks Xiumi applied SVG content-layer" --reporter=default`
+  passed, 1 selected test.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`:
+  passed.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`:
+  passed, 1 file / 174 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`:
+  passed, 36 files / 1151 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`:
+  passed.
+- `NODE_OPTIONS='--max-old-space-size=4096' pnpm -C inkforge build`:
+  passed, `vue-tsc -b` plus Vite production build, 4653 modules transformed and built in 40.29s.
+
+Boundary:
+- This is local quality-detector hardening only.
+- It does not prove WeChat editor paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, Xiaohongshu upload, Zhihu upload, or publish success.
+
 ## 2026-06-23 Style Proof External Handoff Packet Slice
 
 Scope:

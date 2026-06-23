@@ -4767,3 +4767,24 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
   publish success.
+
+---
+
+## 2026-06-23 Xiumi Applied SVG Content-Layer Residue Addendum
+
+- Added production quality-detector coverage for Xiumi applied SVG content-layer classes observed
+  in applied DOM: `svg-layout-content`, `root-svg`, `rect-content`, and `fade-self-animation`.
+- Added a reduced fixture without `tn-*` wrappers or Xiumi-hosted backgrounds so wrapper-cleaned
+  copied SVG still fails as market-editor residue on WeChat, Xiaohongshu, and Zhihu.
+- TDD red run failed before implementation because `wechat-market-editor-residue` was absent; the
+  focused run passed after adding the detector rule.
+- Updated spec and evidence:
+  `.trellis/spec/frontend/wechat-svg-modules.md` and
+  `prompts/0601/evidence/xiumi-applied-svg-content-layer-residue-20260623.txt`.
+- Verification passed: focused green regression, full `platform-export-rendering.test.ts` with 174
+  tests, targeted ESLint, full serial `src/services/export` with 36 files / 1151 tests,
+  `vue-tsc --noEmit`, and production build.
+- Boundary: this is local quality-detector hardening only. It does not prove WeChat editor paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or
+  publish success.

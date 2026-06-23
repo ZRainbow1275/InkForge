@@ -4114,7 +4114,9 @@ interface MarketAppliedDomRuleEvidence {
 
 - `centerRendered=false` -> record taxonomy only; do not create a runtime style rule.
 - Market DOM contains `_135editor`, `135brush`, `135bg`, `data-tools`, `tn-*`, `ng-*`, Xiumi static
-  asset markup, or third-party authoring classes in final output -> emit market-editor residue.
+  asset markup, Xiumi applied SVG content-layer classes (`svg-layout-content`, `root-svg`,
+  `rect-content`, `fade-self-animation`), or third-party authoring classes in final output -> emit
+  market-editor residue.
 - Applied SVG relies on `foreignObject` text -> require readable HTML fallback and Dark Mode proof.
 - Applied SVG relies on SMIL `animate` / click or touch behavior -> require phone preview and
   interaction readback before availability.
@@ -4137,6 +4139,8 @@ interface MarketAppliedDomRuleEvidence {
 - Docs/evidence updates must record aggregate counts and sanitized route categories only.
 - Quality detectors must continue blocking 135/Xiumi authoring residues from WeChat, Xiaohongshu,
   and Zhihu outputs.
+- Quality detectors must block Xiumi applied SVG content-layer classes even when the surrounding
+  `tn-*` wrapper and Xiumi-hosted background have already been stripped.
 - New style choices inspired by these observations need unit coverage for availability, fallback,
   cannot-claim gates, and redaction boundaries.
 - Browser evidence must use CloakBrowser for market-editor UI exploration and must not commit
