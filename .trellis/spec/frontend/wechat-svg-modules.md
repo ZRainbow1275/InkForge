@@ -4251,6 +4251,69 @@ const ruleFamilies = [
   parameters, account names, private draft titles, screenshots, or local browser runtime
   directories.
 
+## 65. Market Editor DOM Learning Rules - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: learning 135 editor, Xiumi, or similar market editors to improve InkForge's WeChat/XHS/
+  Zhihu style catalog and rendering rules.
+- Market-editor inspection may record taxonomy, aggregate DOM counts, class families, layout
+  patterns, and public documentation links.
+- It must not copy proprietary template source, paid assets, raw image URLs, account data, browser
+  profiles, cookies, tokens, screenshots with account content, or unredacted platform routes.
+
+### 2. 135-Derived Rendering Rules
+
+- Keep a first-class taxonomy for `image`, `click`, `carousel`, `slide`, `auto`, `audio-video`,
+  `expand`, `long-press`, `layout`, `official-account`, `link-miniprogram`, and other effect
+  families.
+- Central WeChat canvas rules should use a stable article width, gap-safe blocks, and media wrappers
+  that can scale 1080-wide/1080x1920 art to the local preview width.
+- Gap-safe wrappers should use `font-size:0`, `line-height:0`, zero margin/padding, and centered
+  media sections when exporting image/SVG panels.
+- When a visible layer is represented by an SVG or image background, use explicit sizing,
+  `display:inline-block`, one-pixel seam protection, and noninteractive `pointer-events:none` for
+  decorative layers.
+
+### 3. Xiumi-Derived Rendering Rules
+
+- Keep style families visible to users as `title`, `card`, `image`, `layout`, `SVG`, `component`,
+  `hot`, `recommended`, `recent`, and template groups rather than hiding them behind one generic
+  preset picker.
+- SVG effect vocabulary must include base SVG, image carousel, click expand, path animation,
+  lottery, slide, transition, branch transition, slide trigger, parallax, click switch,
+  page/flip, zoom, click quiz, text barrage, click show/change/open/disappear/popup/zoom/print/
+  jump/play, long-press switch, region trigger, click drop, and click-plus-auto groups when the
+  corresponding InkForge modules exist.
+- Record reusable capability metadata for each advanced effect: component family, trigger mode,
+  motion mode, image ratio, interactive/degradable status, and platform proof requirement.
+- Xiumi-like inserted effects may compile into a component tree of `article`, `section`, cells,
+  groups, image layers, and text nodes rather than raw `svg`; InkForge must preserve a static
+  readable fallback and avoid assuming raw SVG is always present.
+- Ratio boxes, flow canvases, `overflow:hidden`, `line-height:0`, `max-width:100%`, percentage image
+  sizing, flex rows, and explicit image wrappers are preferred over brittle free-positioned output.
+
+### 4. Cannot-Claim Boundary
+
+- Market-editor DOM learning is taxonomy and rendering-rule evidence only.
+- It does not satisfy `marketAppliedContentVerified`, WeChat PC paste, exact artifact retention,
+  safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail,
+  credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
+  upload, or publish success.
+- Any rule learned from 135/Xiumi must be re-expressed as InkForge-owned implementation or
+  documentation. Do not reuse third-party private classes, template markup, paid assets, or raw CDN
+  dependencies as committed output.
+
+### 5. Tests / Evidence Required
+
+- Evidence must state that CloakBrowser was used and Playwright was not used.
+- Evidence must record sanitized editor routes, aggregate DOM counts, class-family signals, and
+  user-facing category labels only.
+- If the learning changes renderer output, add focused regression tests proving zero-gap media
+  wrappers, static fallbacks, platform-specific degrade behavior, and cannot-claim audit rows.
+- Commit-boundary review must scan staged diffs for credential material, local browser paths, raw
+  third-party template source, raw URLs, screenshots, QR codes, and account artifacts.
+
 ## 63. Foreground Input ClickOnly Helper - 2026-06-23
 
 ### 1. Scope / Trigger

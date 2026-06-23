@@ -10623,3 +10623,58 @@ Boundary:
   paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
   sync, scheduled send, platform preview, public rendering, public-host acceptance, XHS/Zhihu
   upload, or publish success.
+
+## 2026-06-23 Market Editor DOM Learning Slice
+
+Scope:
+- CloakBrowser-only live inspection of 135 editor and Xiumi editor surfaces.
+- Public-source cross-check for WeChat article SVG/CSS/editor practice.
+- Documentation/spec learning only; no renderer source code, platform save, preview, publish, sync,
+  scheduled send, upload, phone preview, deletion, or proof-manifest behavior was changed.
+- No third-party proprietary template source, paid assets, screenshots, account identifiers, raw
+  URLs, credential query parameters, browser runtime directories, cookies, tokens, or account
+  artifacts are recorded.
+
+135 observations:
+- Opened the public SVG editor route and used the left `SVG效果` rail.
+- Sidebar taxonomy exposed recent/all/recommended/basic/image/click/carousel/slide/auto/audio-video/
+  expand/long-press/layout/official-account/link-miniprogram/other, plus component/combination
+  switching.
+- Clicking `免费试用` inserted trial blocks into a central WeChat-width canvas.
+- Center canvas used a 336 px block model at the inspected viewport, with blocks, `section`, and
+  SVG-like media panels.
+- Gap-safe wrappers used `font-size:0`, `line-height:0`, zero margin/padding, and centered media.
+- Visual SVG panels used 1080x1920 viewBox scaling, redacted background-image layers,
+  `background-size:100.1% 100.1%`, `display:inline-block`, `margin-top:-1px`, and
+  `pointer-events:none`.
+
+Xiumi observations:
+- Entered the Xiumi article editor, dismissed the draft-recovery prompt, clicked the left `SVG`
+  category, and inserted the first SVG interaction card.
+- SVG subcategories included base SVG, image carousel, click expand, path animation, lottery,
+  slide/fun slide, rotation/branch transition, slide trigger, parallax, click switch, page/flip,
+  zoom, click quiz, text barrage, click show/change/open/disappear/popup/zoom/print/jump/play,
+  long-press switch, region trigger, click drop, and click-plus-auto.
+- Xiumi cards expose metadata such as `SVG图集`, `SVG布局`, `SVG动画`, `自由滑动布局`, `图集滚动`,
+  `轮换转场`, `淡入`, `背景图`, `滑动序列`, image ratio, and interactivity.
+- Inserted output compiled into an article component tree rather than raw `svg`: aggregate active
+  article counts included 19 `section`, 64 `div`, 3 `img`, 5 `p`, 10 `span`, 5 `a`, 1 `ul`, and
+  4 `li`.
+- Inserted layout relied on component/cell/group/image/text class families, flex rows,
+  `line-height:0`, `overflow:hidden`, `max-width:100%`, percentage image sizing, border radius, and
+  ratio keel behavior.
+
+Evidence artifact:
+- `prompts/0601/evidence/market-editor-dom-learning-20260623.txt`
+
+Verification:
+- CloakBrowser DOM readback completed on 135 and Xiumi.
+- Grok search and Exa search were used only as public-source cross-checks.
+- Docs/spec/evidence diff checks, staged redaction scan, and GitNexus staged detect are required
+  before commit.
+
+Boundary:
+- This is taxonomy/rendering-rule learning only. It does not prove 135/Xiumi proprietary template
+  reuse, WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

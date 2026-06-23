@@ -1,0 +1,80 @@
+Market Editor DOM Learning - 2026-06-23
+
+Scope:
+- CloakBrowser-only live inspection of 135 SVG editor and Xiumi article editor.
+- Public-source cross-check for WeChat article SVG/CSS/editor practice.
+- Documentation/spec learning only; no renderer code, platform publish, account sync, preview,
+  upload, private template source, screenshot, cookie, token, profile, or raw account artifact is
+  committed.
+
+135 editor observations:
+- Opened the public SVG editor route and used the visible `SVG效果` left rail.
+- The left taxonomy exposed: recent/all/recommended/basic/image/click/carousel/slide/auto/audio-video/
+  expand/long-press/layout/official-account/link-miniprogram/other, plus component/combination
+  switching.
+- Clicking a sidebar `免费试用` inserted trial blocks into the central editor.
+- The center canvas used a WeChat-width block model around 336 px at the inspected viewport.
+- Inserted/trial block hierarchy used `content-wrapper` / `block` / `section` / `svg` style
+  containers.
+- Full visual SVG panels used a 1080 x 1920 viewBox scaled to 336 x 597 px.
+- WeChat gap control used `section` wrappers with `font-size:0`, `line-height:0`, zero margin and
+  zero padding, plus `text-align:center`.
+- Some trial visual panels represented the visible layer as an `svg` element with a redacted
+  background image, `background-size:100.1% 100.1%`, `display:inline-block`, `margin-top:-1px`,
+  and `pointer-events:none`.
+- The run found placeholder/trial blocks and visible effect metadata, not reusable proprietary
+  template source.
+
+Xiumi observations:
+- Entered the Xiumi article editor at a new article route, dismissed the draft-recovery prompt, and
+  clicked the left `SVG` category.
+- The left taxonomy exposed title/card/image/layout/SVG/component/hot/recommended/recent/template
+  groups.
+- The SVG category expanded subcategories including base SVG, image carousel, click expand, path
+  animation, lottery, slide/fun slide, rotation transition, branch transition, slide trigger,
+  parallax movement, click switch, page/flip, zoom, click quiz, text barrage, click show/change/open/
+  disappear/popup/zoom/print/jump/play, long-press switch, region trigger, click drop, and
+  click-plus-auto.
+- Xiumi cards describe reusable capability metadata such as component type (`SVG图集`, `SVG布局`,
+  `SVG动画`, `自由滑动布局`), function (`图集滚动`, `轮换转场`, `淡入`, `背景图`, `滑动序列`),
+  image ratio, and whether the effect is interactive.
+- Inserting the first SVG card produced an editor article component tree, not raw `svg` nodes.
+- The inserted center tree had aggregate counts: 19 `section`, 64 `div`, 3 `img`, 5 `p`, 10
+  `span`, 5 `a`, 1 `ul`, and 4 `li` inside the active article root.
+- The active article tree surfaced component classes around `anim`, `pin`, `cell`, `group`, `image`,
+  `text`, `absolute/static`, `slot`, and `page`; image layers used `raw-image`.
+- Layout rules used flex row sections, component cells, `line-height:0`, `overflow:hidden`,
+  `max-width:100%`, percentage image sizing, border radius, and a ratio keel (`height:0` plus
+  `padding-top`).
+- Xiumi editor text exposed that some auto-align behavior requires platform sync or plugin upload,
+  so local editor insertion must not be promoted to WeChat platform proof.
+
+Public-source cross-check:
+- https://zhuanlan.zhihu.com/p/75023148 surfaced SVG export practice that favors presentation
+  attributes and avoids embedded `style` blocks for WeChat compatibility.
+- https://www.cnblogs.com/haqiao/p/13438686 described WeChat article limits around no JavaScript,
+  limited CSS, and inline-style/SVG based interaction workarounds.
+- https://www.135editor.com/geo/svgeditor/3125/ describes 135 SVG workflow language around adding
+  SVG effects from the left interaction/effect categories.
+- https://github.com/Doocs/md and https://md.doocs.org/ show open-source WeChat Markdown editor
+  practice around Markdown-to-WeChat rendering, theme/custom CSS, math/diagram support, local drafts,
+  image hosting, and WeChat-ready output.
+
+InkForge rules to keep:
+- Preserve a first-class style taxonomy for titles, cards, images, layouts, SVG effects, components,
+  and interaction modes instead of a flat template list.
+- Keep WeChat export wrappers gap-safe: zero-line-height media wrappers, stable width constraints,
+  centered sections, and image/SVG scaling that avoids one-pixel seams.
+- Prefer portable inline declarations or SVG presentation attributes in committed proof/output; do
+  not rely on external style blocks, JavaScript, editor-only classes, or private third-party CDN
+  dependencies for WeChat paste proof.
+- Treat market-editor DOM observations as taxonomy and rendering-rule learning only until a
+  separately collected exact artifact proves paste, phone preview, sync, public rendering, or
+  publish behavior.
+- Keep interactive effects degradable: every click/slide/auto/long-press effect needs a static
+  readable fallback, explicit required-field proof, and platform-specific cannot-claim accounting.
+
+Boundary:
+- This evidence does not prove WeChat PC paste, phone preview, Dark Mode, mobile interaction, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

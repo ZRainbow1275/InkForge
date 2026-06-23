@@ -4333,3 +4333,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   cleanup, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
   XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Market Editor DOM Learning
+
+- [x] market-editor-dom-learning-20260623.txt
+- CloakBrowser-only live inspection of 135 SVG editor and Xiumi article editor.
+- 135 observations: left SVG taxonomy, `免费试用` insertion, 336 px central WeChat-width canvas,
+  gap-safe `section` wrappers, 1080x1920 visual panel scaling, redacted background-image SVG layers,
+  `background-size:100.1% 100.1%`, seam protection, and `pointer-events:none` on decorative layers.
+- Xiumi observations: article editor SVG taxonomy, SVG subcategories, capability metadata, inserted
+  article component tree, image/text/cell/group class families, flex/ratio/overflow/line-height-zero
+  layout rules, and editor-only sync/plugin boundary.
+- Public-source cross-check: Zhihu/CNBlogs SVG/CSS WeChat boundary notes, 135 SVG workflow page,
+  and Doocs WeChat Markdown editor docs/GitHub.
+- Boundary: this is taxonomy/rendering-rule learning only. It does not prove 135/Xiumi template
+  reuse, WeChat paste, phone, sync, schedule, public rendering, upload, or publish success.

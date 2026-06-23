@@ -4955,3 +4955,32 @@ Boundary:
   cleanup, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public rendering, public-host acceptance,
   XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-23 Market Editor DOM Learning Addendum
+
+- Used CloakBrowser only for live 135 editor and Xiumi editor inspection.
+- 135 SVG editor learning: left taxonomy covers image/click/carousel/slide/auto/audio-video/
+  expand/long-press/layout/official-account/link-miniprogram/other effect families; `免费试用`
+  insertion produced central WeChat-width trial blocks with gap-safe `section` wrappers and
+  SVG-like media panels.
+- 135 media wrapper learning: zero `font-size`/`line-height`, zero margin/padding, centered media,
+  1080x1920 viewBox scaling, redacted background-image layers, `background-size:100.1% 100.1%`,
+  `display:inline-block`, `margin-top:-1px`, and `pointer-events:none`.
+- Xiumi learning: the article editor exposes title/card/image/layout/SVG/component groups; the SVG
+  branch expands into base SVG, carousel, click, path animation, lottery, slide, transition,
+  parallax, long-press, region-trigger, and click-plus-auto families.
+- Xiumi insertion learning: the first SVG card compiled into an article component tree rather than
+  raw `svg`, using section/cell/group/image/text layers, flex rows, `line-height:0`,
+  `overflow:hidden`, percentage images, ratio boxes, and capability metadata such as `SVG图集`,
+  `SVG布局`, `SVG动画`, and `自由滑动布局`.
+- Public-source cross-checks were recorded from Zhihu/CNBlogs SVG/CSS WeChat boundary notes, 135 SVG
+  workflow documentation, and Doocs WeChat Markdown editor references.
+- Added evidence file:
+  `prompts/0601/evidence/market-editor-dom-learning-20260623.txt`.
+- Boundary: this is taxonomy/rendering-rule learning only. It does not prove 135/Xiumi proprietary
+  template reuse, WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, XHS/Zhihu upload, or publish
+  success.
