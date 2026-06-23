@@ -4452,3 +4452,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   canonical proof-row list.
 - Boundary: this is local operator-packet clarity only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-23 Style Proof Release Preflight CLI
+
+- [x] style-proof-release-preflight-cli-20260623.txt
+- Added `pnpm -C inkforge style-proof:release-preflight` as a local deployment-acceptance guard for
+  committed style-proof release accounting.
+- The command reads the committed release gate and handoff packet from `style-catalog.ts`, prints a
+  compact human or `--json` report, and exits `1` while `canClaimComplete=false`.
+- Current readback is `status=blocked-by-external`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Verification covered CLI lint/help/human/JSON modes, JSON parse assertion, focused release/packet
+  tests, full export tests, type-check, and production build.
+- Boundary: this is a release-blocking local preflight command only. It does not prove paste, phone
+  preview, sync, upload, public rendering, public-host acceptance, scheduled send, or publish
+  success.

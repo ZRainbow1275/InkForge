@@ -1,0 +1,84 @@
+Style Proof Release Preflight CLI - 2026-06-23
+
+Scope:
+- Local deployment-acceptance guard for committed style-proof release accounting.
+- No platform action, browser action, local browser state read, clipboard write, upload, sync,
+  scheduled send, publish, proof artifact creation, proof manifest mutation, renderer output, or
+  style availability behavior was changed.
+
+Implemented:
+- Added npm script:
+  `style-proof:release-preflight`
+- Added script:
+  `inkforge/scripts/style-proof-release-preflight.ts`
+- The script reads:
+  `getCommittedStyleProofEvidenceReleaseGateReport()`
+  and
+  `getCommittedStyleProofExternalHandoffPacket()`
+  directly from `src/services/export/style-catalog.ts`.
+- The script exits `0` only when `canClaimComplete:true`.
+- The script exits `1` while the committed release gate is blocked by local conflict, external
+  proof, unsafe-to-automate rows, or mutating platform rows.
+- `--json` prints a compact machine-readable report.
+- `--help` exits `0`.
+
+Current human-mode readback:
+- status=blocked-by-external
+- canClaimComplete=false
+- blockerKinds=phone-preview, external-dependency, unsafe-to-automate, mutating-platform
+- blockerCount=4
+- combinedIssueCount=11
+- cannotClaimSteps=29
+- phoneOpenSteps=4
+- externalDependencyOpenSteps=14
+- unsafeToAutomateOpenSteps=13
+- mutatingOpenSteps=13
+- externalHandoffRows=18
+- safeExternalRows=0
+- actionableLocalRows=0
+- nextRowRefs=5
+- uniqueNextRows=3
+- exitCode=1
+
+Current next operator rows:
+- phone-preview: wechat / cover-thumbnail-check / phone-preview
+- external-account: wechat / pc-editor-dom-readback / authenticated-pc-editor
+- public-host: zhihu / public-image-host / public-host
+- unsafe-to-automate: wechat / pc-editor-dom-readback / authenticated-pc-editor
+- mutating-platform: wechat / pc-editor-dom-readback / authenticated-pc-editor
+
+Verification:
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts --quiet
+  PASS
+- pnpm -C inkforge exec tsx scripts/style-proof-release-preflight.ts --help
+  PASS: exitCode=0
+- pnpm -C inkforge style-proof:release-preflight
+  EXPECTED BLOCK: exitCode=1, because external proof gates are still open
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exitCode=1, compact JSON report emitted
+- pnpm --silent -C inkforge style-proof:release-preflight -- --json | node JSON assertion
+  PASS after stripping the PowerShell pipeline BOM: status=blocked-by-external,
+  canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, nextRows=5
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "release claims|redacted operator packet" --reporter=default
+  PASS: 2 selected tests / 174 skipped tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1153 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed / built in 35.29s
+- git restore -- inkforge/tsconfig.tsbuildinfo
+  DONE: generated type-check/build cache restored
+- git diff --cached --check
+  PASS
+- staged sensitive-fragment scan
+  PASS: no account/runtime/capture/auth material in staged diff
+- GitNexus staged detect
+  PASS: risk_level=low, changed_files=6, changed_symbols=0, affected_processes=0
+
+Boundary:
+- This is a local deployment guard and cannot-claim enforcement command only.
+- It does not prove WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, Xiaohongshu upload,
+  Xiaohongshu publish, Zhihu upload, Zhihu public rendering, or publish success.

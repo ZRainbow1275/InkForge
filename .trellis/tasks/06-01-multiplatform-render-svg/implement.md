@@ -10997,3 +10997,73 @@ Boundary:
   retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-23 Style Proof Release Preflight CLI
+
+Scope:
+- Local deployment-acceptance guard for committed style-proof release accounting.
+- No renderer output, proof manifest, platform action, local browser state read, browser runtime
+  artifact, account action, clipboard write, save, preview, publish, sync, scheduled send, upload,
+  phone preview, public rendering, or release-gate algorithm behavior was changed.
+
+Implementation:
+- Added package script `style-proof:release-preflight`.
+- Added `inkforge/scripts/style-proof-release-preflight.ts`.
+- The script reads `getCommittedStyleProofEvidenceReleaseGateReport()` and
+  `getCommittedStyleProofExternalHandoffPacket()` directly from
+  `src/services/export/style-catalog.ts`.
+- The script prints a compact human report by default and compact JSON with `--json`.
+- The script exits `0` only when `canClaimComplete:true`; current expected result is exit code `1`
+  because external proof gates are still open.
+- The script does not output artifact refs, raw platform URLs, account labels, local browser state
+  locations, or capture locations.
+
+Runtime readback:
+- Human mode reported `status=blocked-by-external`, `canClaimComplete=false`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Counts: `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Next operator row categories remain phone-preview, external-account, public-host,
+  unsafe-to-automate, and mutating-platform.
+
+Verification:
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec tsx scripts/style-proof-release-preflight.ts --help`
+  passed with exit code 0.
+- `pnpm -C inkforge style-proof:release-preflight`
+  produced the blocked release report and exited 1 as expected.
+- `pnpm -C inkforge style-proof:release-preflight -- --json`
+  produced the blocked release JSON report and exited 1 as expected.
+- `pnpm --silent -C inkforge style-proof:release-preflight -- --json | node ...`
+  parsed the compact JSON after stripping the PowerShell pipeline BOM and verified
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, and five category next rows.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "release claims|redacted operator packet" --reporter=default`
+  passed with 2 selected tests and 174 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism`
+  passed with 36 files and 1153 tests.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed after transforming 4653 modules and building in 35.29s.
+- `git restore -- inkforge/tsconfig.tsbuildinfo`
+  restored the generated type-check/build cache after validation.
+- `git diff --cached --check`
+  passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
+- GitNexus staged detect reported low risk with 6 changed files, 0 changed symbols, and 0 affected
+  processes.
+
+Evidence artifact:
+- `prompts/0601/evidence/style-proof-release-preflight-cli-20260623.txt`
+
+Boundary:
+- This is a release-blocking local preflight command only. It does not prove WeChat PC paste,
+  exact artifact retention, safe disposable draft cleanup, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

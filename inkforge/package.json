@@ -13,6 +13,7 @@
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:e2e": "wdio run tests/e2e/wdio.conf.cjs",
+    "style-proof:release-preflight": "tsx scripts/style-proof-release-preflight.ts",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

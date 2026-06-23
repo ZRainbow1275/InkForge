@@ -4598,3 +4598,42 @@ const ruleFamilies = [
 - Evidence docs must record the runtime readback and explicitly state that the change does not
   prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 65. Style Proof Release Preflight CLI - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: local release validation needs a direct command that reads the committed style-proof
+  release gate and fails the process while external proof gates remain open.
+- The CLI is a deployment-acceptance guard. It is not a proof collector and must not make platform
+  actions easier to automate silently.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:release-preflight` must execute a local, read-only script.
+- The command must import the committed style-proof release gate and handoff packet directly from
+  `src/services/export/style-catalog.ts`, avoiding UI state and application barrel side effects.
+- The command must exit `0` only when `canClaimComplete:true`; it must exit `1` while the release
+  gate is `blocked-by-local-conflict`, `blocked-by-external`, or `unsafe-to-automate`.
+- `--json` must print a compact machine-readable report. Use `pnpm --silent -C inkforge
+  style-proof:release-preflight -- --json` when the output needs to be parsed without pnpm's script
+  banner.
+- The report may include status, blocker kinds, counts, next-row categories, platform ids,
+  requirement ids, gates, and boundaries. It must not output artifact references, local browser
+  state locations, account labels, raw platform URLs, captures, authentication secrets, QR payloads,
+  HAR payloads, or local runtime capture locations.
+- The command must not create proof manifests, write evidence files, open browsers, read local
+  browser state, write the clipboard, sync drafts, upload images, schedule sends, publish articles,
+  or change style availability/selectability.
+
+### 3. Required Checks
+
+- The current command run must return exit code `1` with `status=blocked-by-external`,
+  `canClaimComplete=false`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- The JSON output must parse after stripping a PowerShell pipeline BOM when the shell injects one.
+- `--help` must exit `0`.
+- Evidence docs must record the expected non-zero release-blocking exit code and state that this
+  CLI does not prove WeChat phone preview, PC paste, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu
+  upload, public rendering, or publish success.
