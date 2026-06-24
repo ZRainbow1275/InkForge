@@ -4673,3 +4673,55 @@ const ruleFamilies = [
   `scripts/style-proof-release-preflight.test.ts`.
 - Re-run the local release preflight command and keep the expected `exitCode=1` blocked state in
   evidence.
+
+## 70. 135 SVG Editor Applied DOM Refresh - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: live market-editor learning must be grounded in applied DOM inside the editor canvas,
+  not only catalog thumbnails or marketing descriptions.
+- This rule records a CloakBrowser readback from the 135 SVG editor canvas after trial SVG effects
+  were present in the central editing area.
+- The evidence is market-pattern learning only. It is not WeChat paste proof, phone proof,
+  credentialed sync proof, or publish proof.
+
+### 2. Observed Applied DOM Pattern
+
+- Canvas root contained 17 block wrappers. Five were large poster-like SVG blocks; twelve were
+  editor placeholder/icon blocks.
+- The large poster-like SVG blocks used `viewBox` values in the `0 0 1080 <height>` family and
+  inline style flags equivalent to:
+  `background-image`, `background-size:100.1% 100.1%`, `display:inline-block`, `width:100%`, and
+  vertical alignment.
+- Those large SVGs were wrapped by a `section` with `font-size:0`, `line-height:0`,
+  zero margin/padding, and centered text alignment. This avoids inter-block whitespace and
+  baseline gaps in a narrow WeChat-like column.
+- The observed applied canvas had zero `foreignObject`, zero SMIL-like animation nodes, and zero
+  `defs`/`clipPath`/`mask`/`filter`/`use`/`symbol` nodes.
+- Trigger-hotzone editing was represented by editor-private overlay elements with percentage
+  `inset` geometry. These overlays are authoring UI state, not a safe export payload.
+
+### 3. InkForge Rule Translation
+
+- Keep separating export payload from editor-only controls. Do not copy market-editor overlay
+  controls into WeChat export HTML.
+- For poster-like modules, InkForge may use the same high-level geometry strategy:
+  deterministic viewBox, width-100 responsive layout, zero-line-height wrapper, and explicit
+  no-gap section wrapper.
+- InkForge must not depend on third-party CDN image URLs inside final export proof. If a poster-like
+  module requires raster assets, route them through the existing asset/image pipeline and platform
+  proof gates.
+- Treat the observed no-`foreignObject`, no-`defs`, no-SMIL canvas as a conservative market-safe
+  fallback pattern. Interactive InkForge modules may still use the already documented safe subset,
+  but any interactive proof remains gated by real mobile/platform evidence.
+- When adapting 135-like SVG/H5 ideas, preserve current InkForge stronger vector-first rules:
+  no raw editor UI controls in output, no external image dependency unless proof-gated, no hidden
+  account/runtime artifacts, and no release claim from market-DOM learning alone.
+
+### 4. Required Checks
+
+- Evidence must record sanitized structural counts only: block count, large SVG count, placeholder
+  SVG count, `foreignObject` count, animation-like count, defs-like count, and key wrapper/style
+  flags.
+- Evidence must not include account labels, raw profile locations, raw platform URLs, screenshots,
+  authentication secrets, QR payloads, HAR payloads, or local capture locations.

@@ -11129,3 +11129,43 @@ Boundary:
   retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 2026-06-25 135 SVG Editor Applied DOM Refresh
+
+Scope:
+- CloakBrowser readback of applied SVG/H5 effect blocks in the central 135 SVG editor canvas.
+- Market-pattern learning only. No platform save, preview, sync, scheduled send, upload, phone
+  preview, public rendering, public-host proof, publish action, browser profile artifact, account
+  artifact, raw page capture, or release-gate status was changed.
+
+Observed sanitized readback:
+- Editor canvas contained 17 `.block` wrappers.
+- Export-safety summary: 17 SVG nodes, 5 large `0 0 1080 <height>` poster-like SVG viewBoxes,
+  12 `64 64 896 896` icon/placeholder SVG viewBoxes, 0 `foreignObject`, 0 animation-like nodes,
+  and 0 defs-like paint-server/reuse nodes.
+- Large poster-like blocks used a zero-font/zero-line-height centered `section` wrapper and a
+  responsive SVG shell with background image, `background-size:100.1% 100.1%`,
+  `display:inline-block`, `width:100%`, and vertical alignment style flags.
+- Trigger hotzones appeared as editor-private overlay controls with percentage inset geometry and
+  hidden edit-trigger controls. These are authoring UI state and must not be treated as final
+  export payload.
+
+InkForge rule translation:
+- Keep export payload and editor-only controls separate.
+- For poster-like SVG modules, prefer deterministic viewBox, width-100 layout, zero-line-height
+  no-gap wrapper, and explicit centered section geometry.
+- Do not depend on external market CDN image URLs in final InkForge proof; raster assets must go
+  through InkForge's own asset/image pipeline and platform proof gates.
+- Treat this 135 readback as conservative market-safe fallback learning only. It does not complete
+  any WeChat paste, phone, sync, upload, public rendering, or publish proof row.
+
+Evidence artifact:
+- `prompts/0601/evidence/135-svgeditor-applied-dom-refresh-20260625.txt`
+
+Verification:
+- `git diff --check` for the 135 DOM refresh docs/evidence files passed.
+- `git diff --cached --check`
+  passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
+- GitNexus staged detect reported low risk with 4 changed files, 0 changed symbols, and 0 affected
+  processes.

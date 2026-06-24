@@ -4479,3 +4479,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
 - Boundary: this is local CLI regression coverage only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 135 SVG Editor Applied DOM Refresh
+
+- [x] 135-svgeditor-applied-dom-refresh-20260625.txt
+- CloakBrowser readback from the applied central editor canvas in the 135 SVG editor.
+- Current sanitized readback: 17 block wrappers, 17 SVG nodes, 5 large poster-like SVG viewBoxes,
+  12 icon/placeholder SVG viewBoxes, 0 `foreignObject`, 0 animation-like nodes, and 0 defs-like
+  paint-server/reuse nodes.
+- Rule captured for InkForge: separate editor-only hotzone controls from export payload; for
+  poster-like modules prefer deterministic viewBox, width-100 responsive SVG, zero-line-height
+  centered wrapper, and asset-pipeline-controlled imagery.
+- Boundary: this is market editor DOM learning only. It does not prove paste, phone preview, sync,
+  upload, public rendering, public-host acceptance, scheduled send, or publish success.

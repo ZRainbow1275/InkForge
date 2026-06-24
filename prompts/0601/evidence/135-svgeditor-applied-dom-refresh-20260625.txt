@@ -1,0 +1,54 @@
+135 SVG Editor Applied DOM Refresh - 2026-06-25
+
+Scope:
+- CloakBrowser readback from the applied central canvas in the 135 SVG editor.
+- Market-pattern learning only.
+- No save, preview, sync, scheduled send, upload, phone preview, public rendering, publish,
+  browser profile artifact, account artifact, raw screenshot, HAR capture, or release-gate status
+  was changed.
+
+Sanitized readback:
+- Canvas block wrappers: 17
+- SVG nodes: 17
+- Large poster-like SVG viewBoxes: 5
+- Icon/placeholder SVG viewBoxes: 12
+- foreignObject nodes: 0
+- animation-like nodes: 0
+- defs-like paint-server/reuse nodes: 0
+- Large SVG wrapper: centered section with font-size=0, line-height=0, zero margin/padding
+- Large SVG style flags:
+  background-image=true
+  background-size-100.1=true
+  display-inline-block=true
+  width-100=true
+  vertical-align=true
+- Editor hotzone controls:
+  percentage-inset overlay geometry exists in editor-private controls
+  hidden edit-trigger controls exist
+  these controls are authoring UI state, not final export payload
+
+Rules learned for InkForge:
+- Keep export payload separate from editor-only controls and authoring overlays.
+- For poster-like WeChat-safe modules, use deterministic viewBox geometry, width-100 responsive
+  sizing, zero-line-height wrappers, and centered no-gap section shells.
+- Do not rely on external market CDN image URLs in final proof. Raster assets must flow through
+  InkForge's own asset/image pipeline plus platform proof gates.
+- Treat the observed no-foreignObject/no-animation/no-defs canvas as a conservative fallback
+  pattern. Interactive InkForge SVG modules remain gated by the existing safe subset and require
+  real mobile/platform proof before release claims.
+
+Verification:
+- git diff --check for the 135 DOM refresh docs/evidence files
+  PASS
+- git diff --cached --check
+  PASS
+- staged sensitive-fragment scan
+  PASS: no account/runtime/capture/auth material in staged diff
+- GitNexus staged detect
+  PASS: risk_level=low, changed_files=4, changed_symbols=0, affected_processes=0
+
+Boundary:
+- This evidence does not prove WeChat PC paste, exact artifact retention, safe disposable draft
+  cleanup, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed
+  sync, scheduled send, platform preview, public rendering, public-host acceptance, Xiaohongshu
+  upload, Xiaohongshu publish, Zhihu upload, Zhihu public rendering, or publish success.
