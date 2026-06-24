@@ -155,7 +155,7 @@ function main(): void {
 
   const result = buildPreflightResult()
   if (args.includes('--json')) {
-    console.log(JSON.stringify(result, null, 2))
+    console.log(JSON.stringify(result))
   } else {
     console.log(formatPreflightResult(result))
   }

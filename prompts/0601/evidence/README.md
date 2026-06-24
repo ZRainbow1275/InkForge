@@ -4467,3 +4467,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is a release-blocking local preflight command only. It does not prove paste, phone
   preview, sync, upload, public rendering, public-host acceptance, scheduled send, or publish
   success.
+
+## 2026-06-23 Style Proof Release Preflight CLI Regression
+
+- [x] style-proof-release-preflight-cli-regression-20260623.txt
+- Added automated child-process regression coverage for the release preflight CLI.
+- Fixed `--json` output to compact single-line JSON, matching the release-preflight spec contract.
+- The regression uses current Node plus local `tsx` for stable Windows execution and avoids shell
+  argument-separator ambiguity inside Vitest.
+- Current regression readback remains `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Boundary: this is local CLI regression coverage only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

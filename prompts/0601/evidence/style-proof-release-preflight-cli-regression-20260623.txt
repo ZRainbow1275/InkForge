@@ -1,0 +1,79 @@
+Style Proof Release Preflight CLI Regression - 2026-06-23
+
+Scope:
+- Automated child-process regression coverage for the local release preflight CLI.
+- No platform action, browser action, local browser state read, clipboard write, upload, sync,
+  scheduled send, publish, proof artifact creation, proof manifest mutation, renderer output, or
+  style availability behavior was changed.
+
+Implemented:
+- Added:
+  `inkforge/scripts/style-proof-release-preflight.test.ts`
+- Changed:
+  `inkforge/scripts/style-proof-release-preflight.ts`
+- `--json` now prints compact single-line JSON.
+- The regression executes the real TypeScript CLI through current Node plus local `tsx`.
+- The regression avoids pnpm/Windows command-wrapper argument forwarding inside Vitest because
+  separator handling around `--` differs between shell entry points.
+
+Regression coverage:
+- JSON mode exits 1 while external proof gates remain open.
+- JSON mode emits compact parseable stdout with no trimmed line break.
+- Current readback remains:
+  status=blocked-by-external
+  canClaimComplete=false
+  blockerKinds=phone-preview, external-dependency, unsafe-to-automate, mutating-platform
+  blockerCount=4
+  combinedIssueCount=11
+  cannotClaimSteps=29
+  phoneOpenSteps=4
+  externalDependencyOpenSteps=14
+  unsafeToAutomateOpenSteps=13
+  mutatingOpenSteps=13
+  externalHandoffRows=18
+  safeExternalRows=0
+  actionableLocalRows=0
+  nextRowRefs=5
+  uniqueNextRows=3
+- Next row categories remain:
+  phone-preview
+  external-account
+  public-host
+  unsafe-to-automate
+  mutating-platform
+- Every next row remains cannotClaim=true and safeToAutomate=false.
+- Help exits 0.
+- Unknown arguments exit 2 before printing canClaimComplete.
+- Stdout/stderr are scanned for local browser state, account/runtime/capture, and auth material
+  fragments.
+
+Verification:
+- pnpm --silent -C inkforge run style-proof:release-preflight -- --json
+  EXPECTED BLOCK: compact single-line JSON emitted, exitCode=1,
+  status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18,
+  safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3
+- pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default
+  PASS: 1 file / 3 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1153 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed / built in 42.36s
+- inkforge/tsconfig.tsbuildinfo
+  CLEAN after cache restore/status verification
+- git diff --cached --check
+  PASS
+- staged sensitive-fragment scan
+  PASS: no account/runtime/capture/auth material in staged diff
+- GitNexus staged detect
+  PASS: risk_level=low, changed_files=6, changed_symbols=0, affected_processes=0
+
+Boundary:
+- This proves the local release-preflight CLI regression only.
+- It does not prove WeChat PC paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, public-host acceptance, Xiaohongshu upload,
+  Xiaohongshu publish, Zhihu upload, Zhihu public rendering, or publish success.

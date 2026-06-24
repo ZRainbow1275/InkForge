@@ -4637,3 +4637,39 @@ const ruleFamilies = [
   CLI does not prove WeChat phone preview, PC paste, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public-host acceptance, XHS/Zhihu
   upload, public rendering, or publish success.
+
+## 69. Style Proof Release Preflight CLI Regression - 2026-06-23
+
+### 1. Scope / Trigger
+
+- Trigger: the release preflight command must be covered by automated regression tests, not only
+  by one-off terminal evidence.
+- The test must execute the real TypeScript CLI in a child process and inspect stdout/stderr/exit
+  code. It must not import private helper functions, stub release reports, or fake a completed
+  proof gate.
+
+### 2. Contract
+
+- `scripts/style-proof-release-preflight.test.ts` may invoke the local `tsx` CLI through
+  `process.execPath` and `node_modules/tsx/dist/cli.mjs` for deterministic Windows behavior.
+- Do not use a Windows `.cmd` wrapper inside the Vitest child process for argument-separator
+  behavior. The package script remains the user/operator command, but tests should avoid shell
+  forwarding differences around `--`.
+- `--json` output must be compact single-line JSON. Pretty-printed output is a contract drift when
+  downstream deployment checks parse stdout.
+- The JSON regression must prove the current blocked release state:
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerCount=4`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- The help regression must exit `0`.
+- Unknown argument regression must exit `2` before printing any release success fields.
+- Test output assertions must scan stdout/stderr for local browser state, account/runtime/capture,
+  and auth material fragments.
+
+### 3. Required Checks
+
+- Run `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts
+  --reporter=default`.
+- Run targeted ESLint for `scripts/style-proof-release-preflight.ts` and
+  `scripts/style-proof-release-preflight.test.ts`.
+- Re-run the local release preflight command and keep the expected `exitCode=1` blocked state in
+  evidence.
