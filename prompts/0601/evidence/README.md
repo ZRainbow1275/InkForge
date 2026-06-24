@@ -4623,3 +4623,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Sortable Control Residue
+
+- [x] xiumi-sortable-control-residue-20260625.txt
+- Added a static quality rule for the Xiumi/jQuery-UI sortable control family recorded in the
+  market editor state catalog: `ui-sortable` and `ui-sortable-*`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned drag/sort control residue is blocked without relying on `tn-*`, `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `ui-slider`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

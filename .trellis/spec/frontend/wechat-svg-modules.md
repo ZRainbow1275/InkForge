@@ -5034,3 +5034,40 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 80. Xiumi Sortable Control Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi/jQuery-UI sortable
+  control classes such as `ui-sortable` or `ui-sortable-*`.
+- This class family came from the applied Xiumi SVG/style DOM readback and market editor state
+  catalog. It is an editor drag/sort control surface, not an InkForge-owned publishable article
+  component or layout primitive.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi sortable control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the sortable control class family appears in copied publishable
+  output.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `ui-slider`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- `ui-sortable` must be diagnosed as Xiumi sortable residue instead of the generic Angular
+  authoring class label. Generic `ng-*` runtime classes must remain blocked by the Angular
+  authoring class rule.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced sortable-control-only fixture reports the generic Angular label
+  before the rule split and the precise Xiumi sortable residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep Angular runtime controls blocked by `Angular authoring class` through
+  the remaining `ng-*` class family.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

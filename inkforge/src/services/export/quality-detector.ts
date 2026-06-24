@@ -161,6 +161,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi UI slider control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bui-sortable(?:-[\w-]+)?\b[^"']*["']/i,
+    label: 'Xiumi sortable control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,
     label: 'Xiumi runtime binding attribute',
   },
@@ -169,7 +173,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Angular/Vue authoring attribute',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:ng-scope|ng-binding|ng-hide|ng-pristine|ng-untouched|ng-valid|ng-empty|ng-not-empty|ui-sortable)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:ng-scope|ng-binding|ng-hide|ng-pristine|ng-untouched|ng-valid|ng-empty|ng-not-empty)\b[^"']*["']/i,
     label: 'Angular authoring class',
   },
   {

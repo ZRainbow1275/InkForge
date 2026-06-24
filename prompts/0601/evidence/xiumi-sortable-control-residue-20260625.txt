@@ -1,0 +1,62 @@
+Xiumi Sortable Control Residue - 2026-06-25
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi/jQuery-UI editor
+  sortable control residue.
+- No browser action, platform paste, phone preview, sync, upload, scheduled send, or publish
+  action was performed by this slice.
+
+Implemented:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi sortable control residue`.
+- The rule matches class/id attributes containing `ui-sortable` or `ui-sortable-*`.
+- Removed `ui-sortable` from the generic `Angular authoring class` alternation so sortable
+  controls are diagnosed with a source-specific label while `ng-*` runtime classes remain blocked.
+
+Reduced regression fixture:
+- Contains only a normal section with `<div class="ui-sortable">Xiumi sortable control
+  residue</div>`.
+- Intentionally omits broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media,
+  SVG content-layer, `ui-slider`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "sortable controls" --reporter=default`
+  Failed before implementation because the market residue message reported
+  `Angular authoring class`, not `Xiumi sortable control residue`.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "sortable controls" --reporter=default`
+  PASS: 1 selected test / 183 skipped tests.
+- Platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default`
+  PASS: 1 file / 184 tests.
+- Export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism`
+  PASS: 36 files / 1161 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite built in 25.07s.
+- Build cleanup:
+  `git restore -- inkforge/tsconfig.tsbuildinfo`
+  PASS: no tracked build-info diff remained.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight -- --json`
+  Expected exit 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves static residue detection and label precision only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, Xiaohongshu upload, Zhihu public-host acceptance, or publish success.

@@ -1213,7 +1213,7 @@ Rules:
 - Xiumi interaction-layer styles must fail when the same style attribute contains both
   `touch-action` and `user-select`; these are editor interaction controls, not article styling.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
-  classes or `op-loader` operation-panel loader state.
+  classes, `ui-sortable` drag/sort controls, or `op-loader` operation-panel loader state.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1225,5 +1225,6 @@ Evidence:
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-79.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-80.
