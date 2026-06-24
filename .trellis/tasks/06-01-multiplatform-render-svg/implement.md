@@ -11341,3 +11341,46 @@ Boundary:
 - This is static publishability protection only. It does not prove WeChat paste, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
+
+## 2026-06-25 Xiumi Flow-Canvas Animation Wrapper Residue Slice
+
+Scope:
+- Converts the applied Xiumi SVG/style editor observation
+  `tn-group-flow-canvas-for-svg-animation` into an executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi flow-canvas animation wrapper residue`.
+- Added a reduced regression fixture with only `tn-group-flow-canvas-for-svg-animation` and a
+  plain inline SVG shell, intentionally omitting broader `tn-cell`, `tn-animate`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "flow-canvas animation wrapper" --reporter=default` failed before implementation because
+  `wechat-market-editor-residue` was absent.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "flow-canvas animation wrapper" --reporter=default` passed with 1 selected test and 177 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 178 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1155 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 30.72s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.

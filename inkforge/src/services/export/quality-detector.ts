@@ -125,6 +125,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi SVG carousel flow-canvas residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-group-flow-canvas-for-svg-animation\b[^"']*["']/i,
+    label: 'Xiumi flow-canvas animation wrapper residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-(?:page|layer)-slot|tn-child-position-(?:absolute|static)|tn-child-orientation-(?:fixed|flow-canvas)|raw-image)\b[^"']*["']/i,
     label: 'Xiumi SVG layer slot residue',
   },

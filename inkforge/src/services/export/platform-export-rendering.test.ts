@@ -303,6 +303,14 @@ const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_FLOW_CANVAS_ANIMATION_WRAPPER_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-group-flow-canvas-for-svg-animation">',
+  '<svg viewBox="0 0 1080 1441" style="display:block;width:100%"><rect width="1080" height="1441"></rect></svg>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-page-slot tn-layer-slot">',
@@ -8538,6 +8546,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi SVG carousel flow-canvas residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi text authoring metadata')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi flow-canvas animation wrapper classes after runtime cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_FLOW_CANVAS_ANIMATION_WRAPPER_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_FLOW_CANVAS_ANIMATION_WRAPPER_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_FLOW_CANVAS_ANIMATION_WRAPPER_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi flow-canvas animation wrapper residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi flow-canvas animation wrapper residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi flow-canvas animation wrapper residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

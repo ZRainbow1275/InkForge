@@ -4552,3 +4552,14 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Xiaohongshu, and Zhihu even when vendor class/id/source markers are absent.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Flow-Canvas Animation Wrapper Residue
+
+- [x] xiumi-flow-canvas-animation-wrapper-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor wrapper class observed in the central
+  SVG/style readback: `tn-group-flow-canvas-for-svg-animation`.
+- The reduced regression intentionally keeps only that wrapper class plus a plain inline SVG shell,
+  proving the cleaned wrapper residue is blocked without relying on broad `tn-cell`, `tn-animate`,
+  `ng-*`, `opera-*`, `contenteditable`, or hosted-media markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

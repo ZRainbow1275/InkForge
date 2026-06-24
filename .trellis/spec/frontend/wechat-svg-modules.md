@@ -4861,3 +4861,31 @@ const ruleFamilies = [
 - Regression tests must keep the WeChat layout-report issue for the same fixture.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, or publish success.
+
+## 74. Xiumi Flow-Canvas Animation Wrapper Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML/SVG contains the Xiumi applied-editor
+  wrapper class `tn-group-flow-canvas-for-svg-animation`.
+- This pattern came from the applied Xiumi SVG/style DOM readback. It is authoring/runtime state
+  from the Xiumi flow-canvas animation system, not an InkForge-owned publishable module.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi flow-canvas animation wrapper residue` for
+  WeChat, Xiaohongshu, and Zhihu when that wrapper appears in copied publishable output.
+- The rule must not rely on broader `tn-cell`, `tn-animate`, `ng-*`, `opera-*`, `contenteditable`,
+  hosted-media, or `foreignObject` markers. A reduced fragment that keeps only the wrapper class
+  and an otherwise plain inline SVG shell must still fail the market-editor residue gate.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced wrapper-only fixture fails before the rule and passes after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
