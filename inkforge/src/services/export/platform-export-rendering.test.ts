@@ -379,9 +379,15 @@ const MARKET_EDITOR_XIUMI_STATE_TOGGLE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_EDITING_STATE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-on-child-editing">Xiumi editing state residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
-  '<div class="tn-page-vessel tn-group-sortable-box tn-sortable-pin tn-state-active tn-on-child-editing">',
+  '<div class="tn-page-vessel tn-group-sortable-box tn-sortable-pin tn-state-active tn-on-child-editing tn-group-box-wrapper">',
   '<div class="tn-image-inst-wrapper tn-overflow-hidden">Image slot copied from Xiumi SVG gallery</div>',
   '</div>',
   '<div class="tn-quick-input-block quick-input tn-state-frozen">Quick input placeholder</div>',
@@ -8818,6 +8824,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi state toggle residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi state toggle residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi editing state wrappers after gallery cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_EDITING_STATE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_EDITING_STATE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_EDITING_STATE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi editing state residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi editing state residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi editing state residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

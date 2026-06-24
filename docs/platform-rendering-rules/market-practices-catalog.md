@@ -1226,6 +1226,8 @@ Rules:
   wrappers are removed.
 - Xiumi state-toggle residues such as `tn-state-active` and `tn-state-frozen` must fail after
   broader gallery state wrappers are removed.
+- Xiumi editing-state residues such as `tn-on-child-editing` must fail after broader gallery
+  state wrappers are removed.
 - Xiumi image-presentation residues such as `tn-image-presenter` must fail after broader `tn-*`
   authoring-tree wrappers are removed.
 - Xiumi applied image-gallery state residue such as `tn-content-overlap` must fail after broader
@@ -1251,10 +1253,11 @@ Evidence:
 - `prompts/0601/evidence/xiumi-sortable-pin-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-quick-input-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-state-toggle-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-editing-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-image-presenter-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-content-overlap-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-90.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-91.

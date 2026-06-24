@@ -5451,3 +5451,45 @@ const ruleFamilies = [
   `Xiumi SVG gallery state wrapper residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 91. Xiumi Editing State Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi applied-editor editing
+  state classes `tn-on-editing`, `tn-on-child-editing`, `tn-on-son-editing`, or
+  `tn-on-multi-select`.
+- These classes came from the applied Xiumi SVG sample DOM readback. They are editor focus,
+  child-editing, and selection state controls from the Xiumi gallery/image-slot system, not
+  InkForge-owned publishable article classes.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi editing state residue` for WeChat,
+  Xiaohongshu, and Zhihu when any supported `tn-on-*` editing-state marker appears in a class/id
+  attribute.
+- The rule must match only class/id attributes containing the exact editing-state family markers.
+- The reduced fixture must not rely on other Xiumi markers such as `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`, `tn-state-*`, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- `tn-on-*` editing-state markers must be diagnosed as editing state residue instead of the
+  generic Xiumi gallery state wrapper label. Remaining gallery wrappers such as
+  `tn-group-box-wrapper`, `tn-group-fixed-box`, and `tn-in-cell-state-active` must stay blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced editing-state-only fixture reports the generic gallery state
+  wrapper label before the rule split and the precise editing state residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the remaining gallery state wrapper fixture blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

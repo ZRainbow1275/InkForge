@@ -4780,3 +4780,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Editing State Residue
+
+- [x] xiumi-editing-state-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor editing-state class family observed in
+  the central SVG sample readback: `tn-on-editing`, `tn-on-child-editing`,
+  `tn-on-son-editing`, and `tn-on-multi-select`.
+- The reduced regression intentionally keeps only `tn-on-child-editing` plus readable text,
+  proving the cleaned editing-state residue is blocked without relying on additional `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`,
+  `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`,
+  `tn-state-*`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
