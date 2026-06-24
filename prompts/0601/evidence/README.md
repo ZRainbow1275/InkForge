@@ -4610,3 +4610,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Operation Panel Loader Residue
+
+- [x] xiumi-operation-panel-loader-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied Angular runtime operation-panel class observed
+  around editor partials: `op-loader`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned operation-panel residue is blocked without relying on `tn-*`, `ng-*`, Angular runtime
+  classes, `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `ui-slider`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

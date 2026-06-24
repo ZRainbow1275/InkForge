@@ -1,0 +1,50 @@
+Xiumi Operation Panel Loader Residue - 2026-06-25
+
+Scope:
+- Convert the 2026-06-18/2026-06-25 Xiumi Angular runtime editor readback into one additional
+  static publishability blocker.
+- No runtime browser state, screenshot, platform URL, account label, auth secret, QR payload, HAR
+  payload, raw template source, media URL, save action, preview action, upload action, sync
+  action, or publish action is recorded here.
+
+Observed source:
+- The committed Xiumi Angular runtime evidence recorded `ng-include` references under
+  `/views/app/studio/OutCompEditOp/`, `OpCarouselTplSetController`, and operation-panel runtime
+  controls.
+- The existing reduced fixture retained `op-loader` beside Angular attributes/classes. Existing
+  rules already blocked `ng-*`, `ng-scope`, `ng-hide`, and related Angular authoring state.
+- A cleaned fragment that retained only `op-loader` remained worth blocking independently because
+  it is editor operation-panel state, not InkForge-owned publishable article structure.
+
+Implemented:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi operation panel loader residue`.
+- The rule matches only class/id attributes containing `op-loader`.
+- Added a reduced regression fixture with only `op-loader` and readable text, intentionally
+  without `tn-*`, `ng-*`, Angular runtime classes, `opera-*`, `contenteditable`, hosted-media,
+  SVG content-layer, `ui-slider`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+
+TDD evidence:
+- Red run before implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel loader" --reporter=default`
+  failed because `wechat-market-editor-residue` was absent for the reduced fixture.
+- Green run after implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel loader" --reporter=default`
+  passed with 1 selected test and 182 skipped tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 183 tests.
+- Full export service serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1160 tests.
+- Targeted lint, `vue-tsc --noEmit`, and production build passed.
+- Release preflight remained correctly blocked with `canClaimComplete=false`,
+  `status=blocked-by-external`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static market-editor residue protection only.
+- It does not prove WeChat editor paste, phone preview, mobile SVG/SMIL interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

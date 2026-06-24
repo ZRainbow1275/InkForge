@@ -291,6 +291,12 @@ const MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="op-loader">Xiumi operation panel loader residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -8790,6 +8796,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Angular/Vue authoring attribute')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Angular authoring class')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi operation panel loader classes after Angular cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel loader residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel loader residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel loader residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

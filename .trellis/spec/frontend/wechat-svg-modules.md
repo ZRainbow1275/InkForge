@@ -5003,3 +5003,34 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 79. Xiumi Operation Panel Loader Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi editor operation
+  panel loader class `op-loader`.
+- This class came from the applied Xiumi Angular runtime readback around the
+  `OutCompEditOp/OpCarouselTplSet` editor partial. It is editor operation-panel state, not an
+  InkForge-owned publishable article wrapper.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi operation panel loader residue` for WeChat,
+  Xiaohongshu, and Zhihu when `op-loader` appears in a class/id attribute.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  Angular runtime classes, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `ui-slider`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or
+  `foreignObject` markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operation-loader-only fixture fails before the rule and passes
+  after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

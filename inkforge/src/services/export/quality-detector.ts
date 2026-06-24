@@ -109,6 +109,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi template renderer pipeline residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-loader\b[^"']*["']/i,
+    label: 'Xiumi operation panel loader residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },
