@@ -375,6 +375,12 @@ const MARKET_EDITOR_XIUMI_TEXT_CELL_CLASS_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_INTERACTION_STYLE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div style="touch-action:pan-y;user-select:none;-webkit-user-select:none">Xiumi interaction style residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_APPLIED_SVG_FOREIGN_OBJECT_HTML = [
   '<article class="tn-paper-document-root tn-comp-inst tn-cube-inst tn-comp" tn-uuid="cube-redacted" tn-animate="compAttr.anim">',
   '<section class="tn-comp-pin tn-comp-style-pin tn-on-child-editing">',
@@ -8686,6 +8692,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi text cell class residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi text cell class residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi interaction style residues after class cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_INTERACTION_STYLE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_INTERACTION_STYLE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_INTERACTION_STYLE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi interaction style residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi interaction style residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi interaction style residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

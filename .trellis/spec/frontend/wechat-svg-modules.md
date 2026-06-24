@@ -4945,3 +4945,32 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 77. Xiumi Interaction Style Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a style attribute with both
+  `touch-action` and `user-select`.
+- This style pair came from the applied Xiumi SVG/style DOM readback. It is editor interaction
+  layer state, not an InkForge-owned publishable article style.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi interaction style residue` for WeChat,
+  Xiaohongshu, and Zhihu when that same-style-attribute pair appears in copied publishable output.
+- The rule must require both properties in the same style attribute. It must not rely on broader
+  `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced interaction-style-only fixture fails before the rule and passes
+  after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

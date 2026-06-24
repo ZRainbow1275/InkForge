@@ -4586,3 +4586,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Interaction Style Residue
+
+- [x] xiumi-interaction-style-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor interaction style pair observed in the
+  central SVG/style readback: `touch-action` plus `user-select`.
+- The reduced regression intentionally keeps only that same-style-attribute pair plus readable
+  text, proving the cleaned interaction-layer residue is blocked without relying on `tn-*`,
+  `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
