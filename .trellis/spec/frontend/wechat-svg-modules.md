@@ -4917,3 +4917,31 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 76. Xiumi Text Cell Class Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor
+  text-cell class `tn-text`.
+- This pattern came from the applied Xiumi SVG/style DOM readback. It is authoring/runtime state
+  from the Xiumi editable text-cell system, not an InkForge-owned text span.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi text cell class residue` for WeChat,
+  Xiaohongshu, and Zhihu when that text-cell class appears in copied publishable output.
+- The rule must not rely on broader `tn-cell`, `tn-link`, `tn-animate`, `contenteditable`, `ng-*`,
+  `opera-*`, hosted-media, SVG content-layer, or `foreignObject` markers. A reduced fragment that
+  keeps only the text-cell class and readable text must still fail the market-editor residue gate.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced text-cell-only fixture fails before the rule and passes after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

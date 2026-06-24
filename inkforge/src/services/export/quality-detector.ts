@@ -145,6 +145,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi text authoring metadata',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-text\b[^"']*["']/i,
+    label: 'Xiumi text cell class residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,
     label: 'Xiumi runtime binding attribute',
   },

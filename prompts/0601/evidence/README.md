@@ -4574,3 +4574,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `opera-*`, SVG content-layer, hosted-media, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Text Cell Class Residue
+
+- [x] xiumi-text-cell-class-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor text-cell class observed in the central
+  SVG/style readback: `tn-text`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned text-cell residue is blocked without relying on broad `tn-cell`, `tn-link`,
+  `tn-animate`, `contenteditable`, `ng-*`, `opera-*`, hosted-media, SVG content-layer, or
+  `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
