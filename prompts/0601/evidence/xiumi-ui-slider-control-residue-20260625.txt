@@ -1,0 +1,63 @@
+Xiumi UI Slider Control Residue - 2026-06-25
+
+Scope:
+- Convert the 2026-06-25 Xiumi applied SVG/style DOM readback into one additional static
+  publishability blocker.
+- No runtime browser state, screenshot, platform URL, account label, auth secret, QR payload, HAR
+  payload, raw template source, media URL, save action, preview action, upload action, sync
+  action, or publish action is recorded here.
+
+Observed source:
+- The local spec records applied Xiumi SVG/title/card editor DOM that exposed `ui-sortable`,
+  `ui-slider`, Angular runtime attributes, `tn-*` bindings, and hosted `statics.xiumi.us`
+  references after real central editor changes.
+- Existing rules already blocked `ui-sortable`, `tn-*`, Angular/Vue attributes, hosted media, and
+  Xiumi component bindings.
+- A cleaned fragment that retained only the editor slider control class family remained worth
+  blocking independently because it is an authoring parameter-control surface, not InkForge-owned
+  publishable article styling.
+
+External background reviewed:
+- Grok/Exa public search on 2026-06-25 reinforced that WeChat Official Account article rendering
+  depends on whitelist-compatible HTML/CSS, inline style hygiene, mature editor export/sync flows,
+  and phone preview checks before publication.
+- Public reference URLs reviewed:
+  - https://www.axtonliu.ai/newsletters/ai-2/posts/wechat-article-html-css-support
+  - https://yiban.io/blog/22684
+  - https://www.135editor.com/geo/svgeditor/3125/
+  - https://www.135editor.com/geo/svgeditor/1834/
+  - https://blog.waistu.com/archives/GH6ijd6e
+- These public pages are background only. They do not prove any InkForge artifact was accepted by
+  WeChat, XHS, or Zhihu.
+
+Implemented:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi UI slider control residue`.
+- The rule matches only class/id attributes containing the `ui-slider` control family.
+- Added a reduced regression fixture with only `ui-slider`, `ui-slider-horizontal`, and
+  `ui-slider-handle`, intentionally without `tn-*`, `ng-*`, `opera-*`, `contenteditable`,
+  hosted-media, SVG content-layer, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+
+TDD evidence:
+- Red run before implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI slider controls" --reporter=default`
+  failed because `wechat-market-editor-residue` was absent for the reduced fixture.
+- Green run after implementation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI slider controls" --reporter=default`
+  passed with 1 selected test and 181 skipped tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 182 tests.
+- Full export service serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1159 tests.
+- Targeted lint, `vue-tsc --noEmit`, and production build passed.
+- Release preflight remained correctly blocked with `canClaimComplete=false`,
+  `status=blocked-by-external`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static market-editor residue protection only.
+- It does not prove WeChat editor paste, phone preview, mobile SVG/SMIL interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

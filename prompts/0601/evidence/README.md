@@ -4598,3 +4598,15 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi UI Slider Control Residue
+
+- [x] xiumi-ui-slider-control-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor slider control family observed in the
+  central SVG/style readback: `ui-slider`, `ui-slider-horizontal`, and `ui-slider-handle`.
+- The reduced regression intentionally keeps only those class/id control markers, proving the
+  cleaned editor-control residue is blocked without relying on `tn-*`, `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

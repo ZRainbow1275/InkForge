@@ -153,6 +153,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi interaction style residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bui-slider(?:-[\w-]+)?\b[^"']*["']/i,
+    label: 'Xiumi UI slider control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,
     label: 'Xiumi runtime binding attribute',
   },

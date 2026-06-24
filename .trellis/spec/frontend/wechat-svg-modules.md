@@ -4974,3 +4974,32 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 78. Xiumi UI Slider Control Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi/jQuery-UI editor slider
+  control classes such as `ui-slider`, `ui-slider-horizontal`, or `ui-slider-handle`.
+- This control family came from the applied Xiumi SVG/style DOM readback. It is an editor
+  parameter-control surface, not an InkForge-owned publishable article component.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi UI slider control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the slider control class family appears in copied publishable output.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced slider-control-only fixture fails before the rule and passes after
+  it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

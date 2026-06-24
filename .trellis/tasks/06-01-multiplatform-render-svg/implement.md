@@ -11342,6 +11342,49 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi UI Slider Control Residue Slice
+
+Scope:
+- Converts the applied Xiumi SVG/style editor observation `ui-slider` into an executable static
+  residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi UI slider control residue`.
+- The rule matches only class/id attributes containing the `ui-slider` control family.
+- Added a reduced regression fixture with only `ui-slider`, `ui-slider-horizontal`, and
+  `ui-slider-handle`, intentionally omitting broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`,
+  hosted-media, SVG content-layer, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "UI slider controls" --reporter=default` failed before implementation because
+  `wechat-market-editor-residue` was absent.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "UI slider controls" --reporter=default` passed with 1 selected test and 181 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 182 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1159 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 25.44s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Interaction Style Residue Slice
 
 Scope:
