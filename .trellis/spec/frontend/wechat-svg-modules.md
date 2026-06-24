@@ -4725,3 +4725,70 @@ const ruleFamilies = [
   flags.
 - Evidence must not include account labels, raw profile locations, raw platform URLs, screenshots,
   authentication secrets, QR payloads, HAR payloads, or local capture locations.
+
+## 71. Xiumi Applied SVG/Style DOM Refresh - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: live Xiumi learning must distinguish a real central editor mutation from a category or
+  library-listing click.
+- This rule records a CloakBrowser readback from the Xiumi v5 paper editor after clicking the SVG
+  category, selecting a visible SVG style card preview, and reading the central editor DOM.
+- The evidence is market-pattern learning only. It is not WeChat paste proof, phone proof,
+  credentialed sync proof, public-host proof, or publish proof.
+
+### 2. Observed Applied DOM Pattern
+
+- Before applying the SVG card, the central `.tn-editing-panel` contained `htmlLength=566067`,
+  `tnComp=21`, `tnCell=9`, `img=78`, `svg=0`, one `contenteditable` cell, 4507 `ng-*`
+  attributes, 16 `opera-*` attributes, and 16 Xiumi-hosted media references.
+- Clicking the left SVG category exposed 43 template items. The visible SVG cards included
+  interactive image/gallery/page-turn families, and their library previews could contain inline SVG
+  before insertion.
+- Clicking the visible SVG card preview changed the central editor to `htmlLength=587422`,
+  `tnComp=31`, `tnCell=14`, `img=78`, `svg=18`, `foreignObject=5`, 14 animate-like SVG nodes,
+  zero `defs`/`clipPath`/`mask`/`filter`/`use`/`symbol` nodes, two `contenteditable` cells,
+  4546 `ng-*` attributes, 26 `opera-*` attributes, and 21 Xiumi-hosted media references.
+- The applied component appeared as an `article` / `section` / flow-canvas component tree of roughly
+  32k HTML chars, not as a clean paste-ready fragment. It carried wrapper families such as
+  `tn-paper-document-root`, `tn-comp-inst`, `tn-comp-pin`, `tn-cell-inst`,
+  `tn-child-position-absolute`, `tn-group-sortable-box`, `tn-sortable-pin`, `tn-page-vessel`,
+  `tn-group-flow-canvas-for-svg-animation`, `tn-cell-svg-layout`, `ng-scope`, `ng-binding`, and
+  `ng-hide`.
+- Text was represented through `contenteditable` Xiumi cells with `tn-cell-type`, `tn-link`,
+  `tn-animate`, `tn-text`, `ng-class`, and `opera-tn-ra-cell` binding markers.
+- Inline style flags included `touch-action`, `user-select`, `position`, `display`, `width`,
+  `vertical-align`, `overflow`, `flex-flow`, `justify-content`, `transform`, `background-image`,
+  `background-size`, `visibility`, and `pointer-events`.
+- The sampled SVG shells used large viewBoxes such as `0 0 1080 1441`, nested 100% sizing shells,
+  and a smaller `0 0 539 720` viewBox family. These are geometry inputs only.
+- The Title category exposed visible heading-style cards with nested component/cell structures and
+  no inline SVG in the sampled first cards. A title-card click while the SVG sequence editor was
+  active did not change the center counts, so that observation remains center-unchanged taxonomy
+  evidence only.
+
+### 3. InkForge Rule Translation
+
+- Xiumi SVG/H5 effects can combine inline SVG, `foreignObject`, SMIL-like nodes, flow-canvas
+  wrappers, editable text cells, runtime bindings, and hosted media references. This is an
+  authoring format, not a publishable InkForge source format.
+- Do not copy Xiumi `tn-*`, `ng-*`, `opera-*`, `contenteditable`, flow-canvas, component binding,
+  hosted media, or preview-card source into runtime modules or exported platform HTML.
+- Translate Xiumi-inspired behavior into InkForge-owned contracts:
+  deterministic viewBox shells, image-slot manifests, trigger/action manifests, layout reports,
+  static-expanded fallback, raster fallback, and market-editor residue blockers.
+- The observed `foreignObject` and SMIL-like nodes do not loosen the WeChat-safe subset. They stay
+  blocked or fallback-gated unless exact target-platform proof later demonstrates the interaction,
+  phone preview, Dark Mode, and final rendering path.
+- Keep the existing executable proof boundary: `market-applied-dom-readback` requires central
+  editor mutation plus meaningful applied content. Center-unchanged category/title/card/listing
+  clicks may update taxonomy only.
+
+### 4. Required Checks
+
+- Evidence must record sanitized structural counts only: category/list counts, central editor
+  before/after counts, SVG/`foreignObject`/animation-like counts, wrapper families, and style
+  flags.
+- Evidence must not include account labels, raw profile locations, raw platform URLs, screenshots,
+  authentication secrets, QR payloads, HAR payloads, local capture locations, raw media addresses,
+  or copied template source.

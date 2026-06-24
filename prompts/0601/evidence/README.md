@@ -4492,3 +4492,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   centered wrapper, and asset-pipeline-controlled imagery.
 - Boundary: this is market editor DOM learning only. It does not prove paste, phone preview, sync,
   upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Applied SVG/Style DOM Refresh
+
+- [x] xiumi-applied-svg-style-dom-refresh-20260625.txt
+- CloakBrowser readback from the live Xiumi v5 paper editor after clicking a visible SVG style card
+  and then reading the central editor DOM.
+- Baseline central editor readback before the SVG card: `htmlLength=566067`, `tnComp=21`,
+  `tnCell=9`, `img=78`, `svg=0`, `contenteditable=1`, `ng-* attributes=4507`,
+  `opera-* attributes=16`, and Xiumi-hosted media references `=16`.
+- After clicking the visible SVG card preview, the center changed to `htmlLength=587422`,
+  `tnComp=31`, `tnCell=14`, `svg=18`, `foreignObject=5`, animate-like SVG nodes `=14`,
+  `contenteditable=2`, `ng-* attributes=4546`, `opera-* attributes=26`, and Xiumi-hosted media
+  references `=21`.
+- Rule captured for InkForge: Xiumi SVG/H5 ideas should become source-owned viewBox shells,
+  image-slot manifests, trigger/action manifests, layout reports, static/raster fallback rules, and
+  residue blockers. Xiumi `tn-*`, `ng-*`, `opera-*`, `contenteditable`, flow-canvas wrappers,
+  hosted media references, `foreignObject`, and SMIL-like nodes must not be copied into publishable
+  output.
+- A Title-category click while the SVG sequence editor was active did not change the center counts,
+  so it remains center-unchanged taxonomy evidence only, not applied title proof.
+- Boundary: this is market editor DOM learning only. It does not prove paste, phone preview, sync,
+  upload, public rendering, public-host acceptance, scheduled send, or publish success.

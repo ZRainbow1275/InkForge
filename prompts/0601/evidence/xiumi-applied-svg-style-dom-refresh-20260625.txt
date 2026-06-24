@@ -1,0 +1,94 @@
+Xiumi Applied SVG/Style DOM Refresh - 2026-06-25
+
+Scope:
+- CloakBrowser-only readback from the live Xiumi v5 paper editor after clicking a visible SVG
+  style card and then reading the central editor DOM.
+- Market-pattern learning only.
+- No save, preview, export, sync, upload, scheduled send, phone preview, public rendering,
+  public-host proof, publish action, local runtime capture, or release-gate status changed.
+
+Pre-click editor baseline:
+- Current editor surface was an untitled Xiumi paper editor.
+- The left style categories included Title, Card, Image, Layout, SVG, Component, and Hot.
+- Before applying the SVG card, the central `.tn-editing-panel` readback contained:
+  - htmlLength: 566067
+  - tnComp: 21
+  - tnCell: 9
+  - img: 78
+  - svg: 0
+  - contenteditable: 1
+  - tnUuid-like attributes: 7
+  - ng-* attributes: 4507
+  - opera-* attributes: 16
+  - Xiumi-hosted media references: 16
+
+SVG category and application readback:
+- Clicking the left SVG category exposed 43 template items.
+- Visible SVG cards included interactive image/gallery/page-turn families. The visible card
+  preview itself contained inline SVG preview nodes before insertion.
+- Clicking the card preview area changed the central editor, meeting the applied-editor-element
+  bar for this market-learning run.
+- After the click, the central `.tn-editing-panel` readback contained:
+  - htmlLength: 587422, roughly +21355 from the baseline
+  - tnComp: 31, +10
+  - tnCell: 14, +5
+  - img: 78, unchanged
+  - svg: 18, +18
+  - foreignObject: 5
+  - animate-like SVG nodes: 14
+  - defs/clipPath/mask/filter/use/symbol nodes: 0
+  - contenteditable: 2, +1
+  - tnUuid-like attributes: 12, +5
+  - ng-* attributes: 4546, +39
+  - opera-* attributes: 26, +10
+  - Xiumi-hosted media references: 21, +5
+
+Applied component structure:
+- The applied content appeared under an `article`/`section` component tree rather than as a clean
+  paste-ready article fragment.
+- The applied article subtree was roughly 32k HTML chars and carried wrapper families such as
+  `tn-paper-document-root`, `tn-comp-inst`, `tn-comp-pin`, `tn-cell-inst`, `tn-cell-group`,
+  `tn-child-position-absolute`, `tn-group-sortable-box`, `tn-sortable-pin`, `tn-page-vessel`,
+  `tn-page-container`, `tn-group-flow-canvas-for-svg-animation`, `tn-cell-svg-layout`,
+  `tn-flow-canvas-keel`, `ng-scope`, `ng-binding`, and `ng-hide`.
+- Text content was represented through `contenteditable` Xiumi cells with `tn-cell-type`,
+  `tn-link`, `tn-animate`, `tn-text`, `ng-class`, and `opera-tn-ra-cell` style binding markers.
+- Inline styles included authoring/runtime geometry flags such as `touch-action`, `user-select`,
+  `position`, `display`, `width`, `vertical-align`, `overflow`, `flex-flow`, `justify-content`,
+  `transform`, `background-image`, `background-size`, `visibility`, and `pointer-events`.
+- The SVG shells used large viewBoxes such as `0 0 1080 1441` and nested `100%` sizing shells,
+  plus a smaller `0 0 539 720` viewBox family. This is useful geometry input, not reusable source.
+
+Title/style contrast:
+- The Title category exposed visible heading-style cards with nested component/cell structures and
+  no inline SVG in the sampled first cards.
+- While the SVG component was selected in sequence-editing mode, clicking a visible title card did
+  not change the central editor counts. This remains a center-unchanged contrast sample only and
+  must not be recorded as successful title application proof.
+
+InkForge rule translation:
+- Xiumi SVG/H5 effects can materialize as a mixed authoring component tree with inline SVG,
+  `foreignObject`, SMIL-like animation nodes, flow-canvas wrappers, editable text cells, runtime
+  bindings, and hosted media references.
+- Do not copy Xiumi `tn-*`, `ng-*`, `opera-*`, `contenteditable`, flow-canvas, component binding,
+  hosted media, or preview-card source into InkForge runtime output.
+- Translate the observed idea into InkForge-owned primitives only:
+  - deterministic viewBox and responsive shell geometry
+  - image-slot manifests for gallery/page-turn content
+  - action/trigger manifests for click/page-turn/sequence behavior
+  - static-expanded fallback and raster fallback when the target platform cannot prove the
+    interaction path
+  - layout reports for absolute/free-canvas compositions
+  - residue blockers for copied market-editor authoring DOM
+- The observed `foreignObject` and SMIL-like nodes do not weaken the WeChat-safe subset. They stay
+  blocked or fallback-gated until exact platform proof exists.
+- A market style click is useful proof only when central editor content changes and meaningful
+  applied content is read back. Center-unchanged title/card/listing clicks remain taxonomy evidence
+  only.
+
+Boundary:
+- This evidence does not prove WeChat editor paste, phone preview, mobile SVG interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.
+- No raw platform page address, account label, local browser runtime location, screenshot
+  location, raw media address, credential material, QR material, or capture payload is recorded.

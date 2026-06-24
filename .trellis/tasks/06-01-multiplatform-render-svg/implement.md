@@ -11169,3 +11169,51 @@ Verification:
 - Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
 - GitNexus staged detect reported low risk with 4 changed files, 0 changed symbols, and 0 affected
   processes.
+
+## 2026-06-25 Xiumi Applied SVG/Style DOM Refresh
+
+Scope:
+- CloakBrowser-only readback from the live Xiumi v5 paper editor after clicking a visible SVG style
+  card and reading the central editor DOM.
+- Market-pattern learning only. No save, preview, export, sync, scheduled send, upload, phone
+  preview, public rendering, public-host proof, publish action, local runtime capture, or
+  release-gate status was changed.
+
+Observed sanitized readback:
+- Before applying the SVG card, the central `.tn-editing-panel` read `htmlLength=566067`,
+  `tnComp=21`, `tnCell=9`, `img=78`, `svg=0`, `contenteditable=1`, `tnUuid-like attributes=7`,
+  `ng-* attributes=4507`, `opera-* attributes=16`, and Xiumi-hosted media references `=16`.
+- Clicking the left SVG category exposed 43 template items. Visible cards included interactive
+  image/gallery/page-turn families with SVG preview nodes in the left library.
+- Clicking the card preview area changed the central editor to `htmlLength=587422`, `tnComp=31`,
+  `tnCell=14`, `svg=18`, `foreignObject=5`, animate-like SVG nodes `=14`, `contenteditable=2`,
+  `tnUuid-like attributes=12`, `ng-* attributes=4546`, `opera-* attributes=26`, and Xiumi-hosted
+  media references `=21`.
+- The applied subtree appeared under `article` / `section` / flow-canvas wrappers around roughly
+  32k HTML chars. It carried authoring/runtime families including `tn-paper-document-root`,
+  `tn-comp-inst`, `tn-cell-inst`, `tn-group-sortable-box`, `tn-page-vessel`,
+  `tn-group-flow-canvas-for-svg-animation`, `tn-cell-svg-layout`, `ng-scope`, `ng-binding`,
+  `contenteditable`, and `opera-tn-ra-*` markers.
+- The Title category exposed visible heading-style cards, but clicking a title card while the SVG
+  sequence editor was active did not change the center counts. This remains center-unchanged
+  taxonomy evidence only.
+
+InkForge rule translation:
+- Xiumi SVG/H5 ideas should become source-owned viewBox shells, image-slot manifests,
+  trigger/action manifests, layout reports, static/raster fallback rules, and residue blockers.
+- Do not copy Xiumi `tn-*`, `ng-*`, `opera-*`, `contenteditable`, flow-canvas wrappers, component
+  bindings, hosted media references, `foreignObject`, or SMIL-like authoring nodes into publishable
+  output.
+- This does not loosen the WeChat-safe SVG subset or complete any paste, phone, sync, upload,
+  public rendering, or publish proof row.
+
+Evidence artifact:
+- `prompts/0601/evidence/xiumi-applied-svg-style-dom-refresh-20260625.txt`
+
+Verification:
+- `git diff --check` for the Xiumi DOM refresh docs/evidence files passed.
+- `git diff --cached --check`
+  passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
+- GitNexus staged detect reported low risk with 4 changed files, 0 changed symbols, and 0 affected
+  processes.
