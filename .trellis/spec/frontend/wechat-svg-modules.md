@@ -5493,3 +5493,44 @@ const ruleFamilies = [
   `Xiumi SVG gallery state wrapper residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 92. Xiumi In-Cell Active State Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor
+  in-cell active state class `tn-in-cell-state-active`.
+- This class came from the applied Xiumi SVG sample DOM readback. It is editor cell selection
+  state from the Xiumi gallery/image-slot system, not an InkForge-owned publishable article
+  class.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi in-cell active state residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-in-cell-state-active` appears in a class/id attribute.
+- The rule must match only class/id attributes containing the exact `tn-in-cell-state-active`
+  marker.
+- The reduced fixture must not rely on other Xiumi markers such as `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`, `tn-state-*`, `tn-on-*`,
+  `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- `tn-in-cell-state-active` must be diagnosed as in-cell active state residue instead of the
+  generic Xiumi gallery state wrapper label. Remaining group wrappers such as
+  `tn-group-box-wrapper` and `tn-group-fixed-box` must stay blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced in-cell-active-only fixture reports the generic gallery state
+  wrapper label before the rule split and the precise in-cell active state residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the remaining group wrapper fixture blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

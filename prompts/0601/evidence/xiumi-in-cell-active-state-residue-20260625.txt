@@ -1,0 +1,61 @@
+Xiumi In-Cell Active State Residue - 2026-06-25
+
+Scope:
+- Local static publishability protection for Xiumi applied-editor in-cell active state residue.
+- No platform action, no browser profile artifact, no phone preview, no sync, no upload, no
+  scheduled send, and no publish.
+
+Implemented:
+- Added the quality-detector label `Xiumi in-cell active state residue`.
+- The detector matches class/id attributes containing `tn-in-cell-state-active`.
+- Removed `tn-in-cell-state-active` from the generic
+  `Xiumi SVG gallery state wrapper residue` alternation.
+- Kept remaining generic group wrappers blocked through `tn-group-box-wrapper` and
+  `tn-group-fixed-box`.
+
+Reduced Regression:
+- Fixture contains only `tn-in-cell-state-active` plus readable text.
+- The reduced fixture intentionally omits broader `tn-*`, `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`,
+  `tn-overflow-hidden`, `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `tn-quick-input*`, `tn-state-*`, `tn-on-*`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and
+  `foreignObject` markers.
+
+Verification:
+- TDD red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "in-cell active states" --reporter=default`
+  failed before implementation because the issue message still contained
+  `Xiumi SVG gallery state wrapper residue`.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "in-cell active states" --reporter=default`
+  PASS: 1 selected test / 195 skipped tests.
+- Generic fallback guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "SVG gallery state wrappers" --reporter=default`
+  PASS: 1 selected test / 195 skipped tests.
+- Platform rule suite:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 196 tests.
+- Export suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1173 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite build completed in 25.45s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight -- --json`
+  EXPECTED BLOCKED: exit 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload,
+  public-host acceptance, or publish success.
