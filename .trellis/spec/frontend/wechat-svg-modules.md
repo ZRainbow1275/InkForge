@@ -5146,3 +5146,39 @@ const ruleFamilies = [
   `Xiumi tn-* authoring tree`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 83. Xiumi Raw Image Cell Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor image
+  cell class `raw-image`.
+- This class came from the applied Xiumi SVG sample DOM readback. It is an authoring image-cell
+  state emitted by the Xiumi layer/image pipeline, not an InkForge-owned publishable image
+  component or class.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi raw image cell residue` for WeChat,
+  Xiaohongshu, and Zhihu when `raw-image` appears in a class/id attribute.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `tn-page-slot`, `tn-layer-slot`,
+  `tn-child-position-*`, `tn-child-orientation-*`, `tn-image-presenter`, `tn-content-overlap`,
+  `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- `raw-image` must be diagnosed as raw image cell residue instead of the generic Xiumi SVG layer
+  slot label. `tn-page-slot`, `tn-layer-slot`, `tn-child-position-*`, and
+  `tn-child-orientation-*` must remain blocked by `Xiumi SVG layer slot residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced raw-image-only fixture reports the generic layer-slot label before
+  the rule split and the precise raw image cell residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep layer-slot fixtures blocked by `Xiumi SVG layer slot residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

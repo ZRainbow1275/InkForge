@@ -11342,6 +11342,55 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Raw Image Cell Residue Slice
+
+Scope:
+- Converts the applied Xiumi SVG sample image-cell class `raw-image` into a precise executable
+  static residue blocker.
+- The rule split is behavior-preserving for blocked output: `raw-image` was previously caught by
+  the generic `Xiumi SVG layer slot residue` rule, but now reports the source-specific
+  `Xiumi raw image cell residue` label.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi raw image cell residue`.
+- Moved `raw-image` out of the generic `Xiumi SVG layer slot residue` alternation so the remaining
+  Xiumi layer-slot markers keep their existing blocker label without duplicate diagnostics.
+- Added a reduced regression fixture with only `raw-image` and readable text, intentionally
+  omitting broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `tn-page-slot`, `tn-layer-slot`, `tn-child-position-*`, `tn-child-orientation-*`,
+  `tn-image-presenter`, `tn-content-overlap`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and `foreignObject`
+  markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "raw image cells" --reporter=default` failed before implementation because the residue was
+  reported as `Xiumi SVG layer slot residue`, not `Xiumi raw image cell residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "raw image cells" --reporter=default` passed with 1 selected test and 186 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 187 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1164 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 23.37s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Image Presenter Residue Slice
 
 Scope:

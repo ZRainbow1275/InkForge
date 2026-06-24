@@ -1,0 +1,64 @@
+Xiumi Raw Image Cell Residue - 2026-06-25
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi applied-editor raw image
+  cell residue.
+- No browser action, platform paste, phone preview, sync, upload, scheduled send, or publish
+  action was performed by this slice.
+
+Implemented:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi raw image cell residue`.
+- The rule matches class/id attributes containing `raw-image`.
+- Removed `raw-image` from the generic `Xiumi SVG layer slot residue` alternation so raw image
+  cells are diagnosed with a source-specific label while layer-slot markers remain blocked.
+
+Reduced regression fixture:
+- Contains only a normal section with `<div class="raw-image">Xiumi raw image cell
+  residue</div>`.
+- Intentionally omits broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media,
+  SVG content-layer, `tn-page-slot`, `tn-layer-slot`, `tn-child-position-*`,
+  `tn-child-orientation-*`, `tn-image-presenter`, `tn-content-overlap`, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "raw image cells" --reporter=default`
+  Failed before implementation because the market residue message reported
+  `Xiumi SVG layer slot residue`, not `Xiumi raw image cell residue`.
+- Focused green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "raw image cells" --reporter=default`
+  PASS: 1 selected test / 186 skipped tests.
+- Platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default`
+  PASS: 1 file / 187 tests.
+- Export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism`
+  PASS: 36 files / 1164 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite built in 23.37s.
+- Build cleanup:
+  `git restore -- inkforge/tsconfig.tsbuildinfo`
+  PASS: no tracked build-info diff remained.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight -- --json`
+  Expected exit 1 with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves static residue detection and label precision only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  rendering, Xiaohongshu upload, Zhihu public-host acceptance, or publish success.

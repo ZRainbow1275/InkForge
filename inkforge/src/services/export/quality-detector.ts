@@ -145,7 +145,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi flow-canvas animation wrapper residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-(?:page|layer)-slot|tn-child-position-(?:absolute|static)|tn-child-orientation-(?:fixed|flow-canvas)|raw-image)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\braw-image\b[^"']*["']/i,
+    label: 'Xiumi raw image cell residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-(?:page|layer)-slot|tn-child-position-(?:absolute|static)|tn-child-orientation-(?:fixed|flow-canvas))\b[^"']*["']/i,
     label: 'Xiumi SVG layer slot residue',
   },
   {

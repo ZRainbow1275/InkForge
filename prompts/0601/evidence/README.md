@@ -4663,3 +4663,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Raw Image Cell Residue
+
+- [x] xiumi-raw-image-cell-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor image-cell class observed in the
+  central SVG sample readback: `raw-image`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned raw image-cell residue is blocked without relying on broader `tn-*`, `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `tn-page-slot`, `tn-layer-slot`,
+  `tn-child-position-*`, `tn-child-orientation-*`, `tn-image-presenter`, `tn-content-overlap`,
+  `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
