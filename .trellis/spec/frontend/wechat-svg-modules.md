@@ -5260,3 +5260,40 @@ const ruleFamilies = [
   `Xiumi SVG gallery state wrapper residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 86. Xiumi Page Vessel Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor page
+  vessel class `tn-page-vessel`.
+- This class came from the applied Xiumi SVG sample DOM readback. It is editor page/container state
+  from the Xiumi gallery/image-slot system, not an InkForge-owned publishable article wrapper.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi page vessel residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-page-vessel` appears in a class/id attribute.
+- The rule must match only class/id attributes containing the exact marker `tn-page-vessel`.
+- The reduced fixture must not rely on other Xiumi markers such as `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-group-sortable-box`,
+  `tn-sortable-pin`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- `tn-page-vessel` must be diagnosed as page vessel residue instead of the generic Xiumi gallery
+  state wrapper label. Existing broader `tn-*` authoring-tree fallback diagnostics may still
+  accompany it and must continue blocking publishable output.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced page-vessel-only fixture reports the generic gallery state wrapper
+  label before the rule split and the precise page vessel residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the remaining gallery state wrapper fixture blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
