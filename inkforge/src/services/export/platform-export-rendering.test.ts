@@ -367,6 +367,12 @@ const MARKET_EDITOR_XIUMI_SORTABLE_PIN_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_QUICK_INPUT_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-quick-input-block">Xiumi quick input residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-page-vessel tn-group-sortable-box tn-sortable-pin tn-state-active tn-on-child-editing">',
@@ -8774,6 +8780,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi sortable pin residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi sortable pin residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi quick input wrappers after gallery cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_QUICK_INPUT_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_QUICK_INPUT_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_QUICK_INPUT_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi quick input residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi quick input residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi quick input residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

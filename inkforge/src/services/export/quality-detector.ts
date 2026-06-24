@@ -125,7 +125,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi sortable pin residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-quick-input(?:-block|-comp)?|tn-group-(?:box-wrapper|fixed-box)|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-quick-input(?:-block|-comp)?\b[^"']*["']/i,
+    label: 'Xiumi quick input residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-group-(?:box-wrapper|fixed-box)|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active)\b[^"']*["']/i,
     label: 'Xiumi SVG gallery state wrapper residue',
   },
   {
