@@ -4827,3 +4827,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Page Layer Slot Residue
+
+- [x] xiumi-page-layer-slot-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor page/layer slot classes observed in
+  the central SVG sample readback: `tn-page-slot` and `tn-layer-slot`.
+- The reduced regression intentionally keeps only `tn-page-slot` plus readable text, proving the
+  cleaned page/layer slot residue is blocked without relying on additional `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`, `tn-state-*`, `tn-on-*`,
+  `tn-in-cell-state-active`, `tn-group-box-wrapper`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

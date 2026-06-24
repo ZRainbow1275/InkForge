@@ -5575,3 +5575,45 @@ const ruleFamilies = [
   `Xiumi group box wrapper residue` label.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 94. Xiumi Page Layer Slot Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi applied-editor page/layer
+  slot classes `tn-page-slot` or `tn-layer-slot`.
+- These classes came from the applied Xiumi SVG sample DOM readback. They are editor page/layer
+  slot wrappers from the Xiumi image/layer system, not InkForge-owned publishable article
+  wrappers.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi page layer slot residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-page-slot` or `tn-layer-slot` appears in a class/id attribute.
+- The rule must match only class/id attributes containing the exact supported page/layer slot
+  markers.
+- The reduced fixture must not rely on other Xiumi markers such as `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`, `tn-state-*`, `tn-on-*`,
+  `tn-in-cell-state-active`, `tn-group-box-wrapper`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- `tn-page-slot` and `tn-layer-slot` must be diagnosed as page layer slot residue instead of the
+  generic Xiumi SVG layer slot label. Remaining child position/orientation wrappers such as
+  `tn-child-position-absolute`, `tn-child-position-static`, `tn-child-orientation-fixed`, and
+  `tn-child-orientation-flow-canvas` must stay blocked by `Xiumi SVG layer slot residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced page/layer-slot-only fixture reports the generic layer slot label
+  before the rule split and the precise page layer slot residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the previous aggregate layer-slot fixture blocked by
+  `Xiumi SVG layer slot residue` through child position/orientation markers.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

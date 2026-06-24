@@ -157,6 +157,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi image presenter residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|layer)-slot\b[^"']*["']/i,
+    label: 'Xiumi page layer slot residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|theme-color-mask|tpl|layer)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },
@@ -185,7 +189,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi raw image cell residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-(?:page|layer)-slot|tn-child-position-(?:absolute|static)|tn-child-orientation-(?:fixed|flow-canvas))\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-child-(?:position-(?:absolute|static)|orientation-(?:fixed|flow-canvas))\b[^"']*["']/i,
     label: 'Xiumi SVG layer slot residue',
   },
   {

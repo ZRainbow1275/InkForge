@@ -12351,3 +12351,56 @@ Boundary:
 - This is static publishability protection only. It does not prove WeChat paste, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
+
+## 2026-06-25 Xiumi Page Layer Slot Residue Slice
+
+Scope:
+- Converts the applied Xiumi image/layer editor observation `tn-page-slot` / `tn-layer-slot` into
+  an executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi page layer slot residue`.
+- The rule matches class/id attributes containing `tn-page-slot` or `tn-layer-slot`.
+- Removed `tn-page-slot` and `tn-layer-slot` from the generic `Xiumi SVG layer slot residue`
+  alternation while keeping `tn-child-position-*` and `tn-child-orientation-*` blocked by that
+  generic fallback.
+- Added a reduced regression fixture with only `tn-page-slot` and readable text, intentionally
+  omitting broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `raw-image`, `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`,
+  `tn-overflow-hidden`, `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `tn-quick-input*`, `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`,
+  `tn-group-box-wrapper`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page and layer slots" --reporter=default` failed before implementation because the message
+  still contained `Xiumi SVG layer slot residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page and layer slots" --reporter=default` passed with 1 selected test and 197 skipped tests.
+- Generic fallback guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "SVG layer slot and raw-image" --reporter=default` passed with 1 selected test and 197 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 198 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1175 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 24.89s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
