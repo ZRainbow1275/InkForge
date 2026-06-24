@@ -4542,3 +4542,13 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   access, ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone
   preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, platform preview, public rendering, or publish success.
+
+## 2026-06-25 135 Background-Size SVG Shell Residue
+
+- [x] style-proof-135-background-size-shell-residue-20260625.txt
+- Added a static quality rule for the applied 135-style poster shell:
+  `background-size:100.1% 100.1%` plus a nearby `svg viewBox="0 0 1080 <height>"`.
+- The rule reports `135 SVG background-size shell marker` as market-editor residue for WeChat,
+  Xiaohongshu, and Zhihu even when vendor class/id/source markers are absent.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

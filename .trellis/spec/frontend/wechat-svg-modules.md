@@ -4833,3 +4833,31 @@ const ruleFamilies = [
   blocker-only API.
 - Evidence docs must not include account labels, raw browser state locations, raw platform URLs,
   screenshots, credential material, QR payloads, HAR payloads, or local capture locations.
+
+## 73. 135 Background-Size SVG Shell Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied market-editor HTML/SVG contains a poster-like `section` wrapper with
+  `background-size:100.1% 100.1%` and a nearby `svg viewBox="0 0 1080 <height>"` shell.
+- This pattern came from applied 135 SVG editor DOM readback. It is useful as a source-owned
+  geometry lesson, but it must not be imported into publishable InkForge output as a copied market
+  shell.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report the pattern as market-editor residue for WeChat,
+  Xiaohongshu, and Zhihu, even when `_135editor`, `data-tools`, hosted material URLs, and
+  `svg:135` markers are absent.
+- WeChat must continue to report the same fragment as a layout-report risk when it also uses
+  zero line-height, negative overlap spacing, invisible hit areas, or fixed/free geometry.
+- A normal source-owned inline flow block with readable text, ordinary `background-color`, and no
+  poster-like SVG shell must not be flagged by this residue rule.
+
+### 3. Required Checks
+
+- Regression tests must assert the residue label `135 SVG background-size shell marker` appears in
+  the WeChat, Xiaohongshu, and Zhihu quality reports.
+- Regression tests must keep the WeChat layout-report issue for the same fixture.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, or publish success.

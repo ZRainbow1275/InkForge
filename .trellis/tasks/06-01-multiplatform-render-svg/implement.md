@@ -11288,6 +11288,10 @@ Verification:
   `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
 - `git diff --cached --check` passed.
 - Staged sensitive-fragment scan passed for account/runtime/capture/credential material.
+- `npx gitnexus detect-changes -r InkForge --scope staged` reported low risk with 6 changed
+  files, 2 changed symbols, and 0 affected processes.
+- `git diff --cached --check` passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/credential material.
 - `npx gitnexus detect-changes -r InkForge --scope staged` reported low risk with 7 changed
   files, 37 changed symbols, and 0 affected processes.
 
@@ -11296,3 +11300,44 @@ Boundary:
   ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, or publish success.
+
+## 2026-06-25 135 Background-Size SVG Shell Residue Slice
+
+Scope:
+- Converts the applied 135 SVG editor observation `background-size:100.1% 100.1%` plus
+  `viewBox="0 0 1080 <height>"` into an executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `135 SVG background-size shell marker`.
+- The rule catches a poster-like `section` style with `background-size:100.1% 100.1%` and a nearby
+  1080-wide SVG shell even when vendor class/id/source markers are absent.
+- Extended the existing `135 background-only SVG compatibility risks` regression to assert the
+  residue label for WeChat, Xiaohongshu, and Zhihu while preserving WeChat layout-report blocking.
+
+Verification:
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3` reported low risk with
+  0 impacted processes.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "135 background-only SVG compatibility" --reporter=default` passed with 1 test and 176 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 177 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1154 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 26.42s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.

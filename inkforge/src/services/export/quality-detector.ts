@@ -85,6 +85,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG background style marker',
   },
   {
+    pattern: /<section\b[^>]*\bstyle\s*=\s*["'][^"']*\bbackground-size\s*:\s*100\.1%\s+100\.1%[^"']*["'][\s\S]{0,400}<svg\b[^>]*\bviewBox\s*=\s*["']0 0 1080 \d{3,}["']/i,
+    label: '135 SVG background-size shell marker',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\bdata-id\s*=\s*["']\d{3,}["'][^>]*(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])|(?:_135editor|135brush|135bg|\bdata-tools\s*=\s*["']135编辑器["'])[^>]*\bdata-id\s*=\s*["']\d{3,}["'])/i,
     label: '135 numeric style id on copied market block',
   },

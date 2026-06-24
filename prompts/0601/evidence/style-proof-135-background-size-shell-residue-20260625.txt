@@ -1,0 +1,60 @@
+Style Proof 135 Background-Size SVG Shell Residue - 2026-06-25
+
+Scope:
+- Local static publishability protection derived from applied 135 SVG editor DOM readback.
+- No browser action, clipboard write, platform save, preview, sync, scheduled send, upload, phone
+  preview, public rendering, or publish action is performed by this slice.
+
+Implemented:
+- Added a market-editor residue rule labeled `135 SVG background-size shell marker`.
+- The rule catches a poster-like `section` style using `background-size:100.1% 100.1%` with a
+  nearby `svg viewBox="0 0 1080 <height>"` shell.
+- The rule is intentionally independent from `_135editor`, `data-tools`, hosted material
+  references, and `svg:135`, so copied background-only shells remain blocked after superficial
+  cleanup.
+
+Expected quality behavior:
+- WeChat quality reports include `wechat-market-editor-residue` with
+  `135 SVG background-size shell marker`.
+- Xiaohongshu quality reports include `xhs-market-editor-residue` with
+  `135 SVG background-size shell marker`.
+- Zhihu quality reports include `zhihu-market-editor-residue` with
+  `135 SVG background-size shell marker`.
+- WeChat keeps the layout-report requirement for the same fixture when zero line-height, negative
+  overlap spacing, invisible hit areas, or fixed/free geometry are present.
+
+Verification:
+- npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3
+  PASS: low risk, 0 impacted processes.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "135 background-only SVG compatibility" --reporter=default
+  PASS: 1 file, 1 test, 176 skipped tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default
+  PASS: 1 file, 177 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism
+  PASS: 36 files, 1154 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 26.42s.
+- Generated TypeScript build cache was restored after the build.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exited 1 with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, and uniqueNextRows=3.
+- git diff --cached --check
+  PASS.
+- Staged sensitive-fragment scan
+  PASS for account/runtime/capture/credential material.
+- npx gitnexus detect-changes -r InkForge --scope staged
+  PASS: low risk, 6 changed files, 2 changed symbols, 0 affected processes.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or
+  publish success.
