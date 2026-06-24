@@ -4889,3 +4889,31 @@ const ruleFamilies = [
   quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 75. Xiumi Paper Document Root Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor root
+  wrapper class `tn-paper-document-root`.
+- This pattern came from the applied Xiumi SVG/style DOM readback. It is authoring/runtime state
+  from the Xiumi paper editor root tree, not an InkForge-owned publishable article wrapper.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi paper document root residue` for WeChat,
+  Xiaohongshu, and Zhihu when that root wrapper appears in copied publishable output.
+- The rule must not rely on broader `tn-comp`, `tn-cell`, `ng-*`, `opera-*`, SVG content-layer,
+  hosted-media, or `foreignObject` markers. A reduced fragment that keeps only the root wrapper
+  class and an otherwise plain section must still fail the market-editor residue gate.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced root-only fixture fails before the rule and passes after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
