@@ -343,6 +343,12 @@ const MARKET_EDITOR_XIUMI_IMAGE_INSTANCE_WRAPPER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_OVERFLOW_HIDDEN_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-overflow-hidden">Xiumi overflow hidden residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-page-vessel tn-group-sortable-box tn-sortable-pin tn-state-active tn-on-child-editing">',
@@ -8686,6 +8692,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi image instance wrapper residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi image instance wrapper residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi overflow-hidden state wrappers after gallery cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_OVERFLOW_HIDDEN_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_OVERFLOW_HIDDEN_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_OVERFLOW_HIDDEN_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi overflow-hidden state residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi overflow-hidden state residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi overflow-hidden state residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

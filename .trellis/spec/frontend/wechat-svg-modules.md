@@ -5221,3 +5221,42 @@ const ruleFamilies = [
   `Xiumi SVG gallery state wrapper residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 85. Xiumi Overflow-Hidden State Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor
+  overflow state class `tn-overflow-hidden`.
+- This class came from the applied Xiumi SVG sample DOM readback. It is editor viewport/state
+  residue from the Xiumi gallery/image-slot system, not an InkForge-owned publishable article
+  class.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi overflow-hidden state residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-overflow-hidden` appears in a class/id attribute.
+- The rule must match only the Xiumi-prefixed marker `tn-overflow-hidden`. It must not treat
+  ordinary prose or generic CSS `overflow:hidden` as this specific market-editor residue.
+- The rule must not rely on broader `tn-*`, `ng-*`, `opera-*`, `contenteditable`, hosted-media,
+  SVG content-layer, `raw-image`, `tn-image-presenter`, `tn-content-overlap`,
+  `tn-image-inst-wrapper`, `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- `tn-overflow-hidden` must be diagnosed as overflow-hidden state residue instead of the generic
+  Xiumi gallery state wrapper label. Other gallery state wrappers must remain blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced overflow-hidden-only fixture reports the generic gallery state
+  wrapper label before the rule split and the precise overflow-hidden state residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the remaining gallery state wrapper fixture blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

@@ -4692,3 +4692,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Overflow-Hidden State Residue
+
+- [x] xiumi-overflow-hidden-state-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor overflow state class observed in the
+  central SVG sample readback: `tn-overflow-hidden`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned overflow-hidden state residue is blocked without relying on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

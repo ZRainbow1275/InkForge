@@ -109,7 +109,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi content-overlap state residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-quick-input(?:-block|-comp)?|tn-page-vessel|tn-group-(?:box-wrapper|sortable-box|fixed-box)|tn-sortable-pin|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active|tn-overflow-hidden)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-overflow-hidden\b[^"']*["']/i,
+    label: 'Xiumi overflow-hidden state residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-quick-input(?:-block|-comp)?|tn-page-vessel|tn-group-(?:box-wrapper|sortable-box|fixed-box)|tn-sortable-pin|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active)\b[^"']*["']/i,
     label: 'Xiumi SVG gallery state wrapper residue',
   },
   {
