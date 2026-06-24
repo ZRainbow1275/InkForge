@@ -142,7 +142,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-group-(?:box-wrapper|fixed-box)\b[^"']*["']/i,
-    label: 'Xiumi SVG gallery state wrapper residue',
+    label: 'Xiumi group box wrapper residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:\bng-bind-html\s*=\s*["'][^"']*(?:renderer_accelerate|validateImageTypeInHtml)|\bng-class\s*=\s*["'][^"']*tpl2BoxClasses|\bng-click\s*=\s*["'][^"']*tplLib\.onTemplateClicked|\bng-switch\s*=\s*["'][^"']*tpl2PresentType|\btn-tpl-pose-fit-box\s*=)/i,

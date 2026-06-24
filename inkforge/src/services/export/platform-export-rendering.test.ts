@@ -391,6 +391,12 @@ const MARKET_EDITOR_XIUMI_IN_CELL_ACTIVE_STATE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_GROUP_BOX_WRAPPER_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-group-box-wrapper">Xiumi group box wrapper residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-page-vessel tn-group-sortable-box tn-sortable-pin tn-state-active tn-on-child-editing tn-group-box-wrapper">',
@@ -8867,17 +8873,33 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
-  it('blocks Xiumi SVG gallery state wrappers from publishable outputs', () => {
+  it('blocks Xiumi group box wrappers after gallery cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_GROUP_BOX_WRAPPER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_GROUP_BOX_WRAPPER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_GROUP_BOX_WRAPPER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi group box wrapper residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi group box wrapper residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi group box wrapper residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi gallery group wrappers from publishable outputs', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_STATE_WRAPPER_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
-      .toContain('Xiumi SVG gallery state wrapper residue')
+      .toContain('Xiumi group box wrapper residue')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
-      .toContain('Xiumi SVG gallery state wrapper residue')
+      .toContain('Xiumi group box wrapper residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
-      .toContain('Xiumi SVG gallery state wrapper residue')
+      .toContain('Xiumi group box wrapper residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

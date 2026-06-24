@@ -1230,6 +1230,11 @@ Rules:
   state wrappers are removed.
 - Xiumi in-cell active-state residues such as `tn-in-cell-state-active` must fail after broader
   gallery state wrappers are removed.
+- Xiumi group-box wrapper residues such as `tn-group-box-wrapper` and `tn-group-fixed-box` must
+  fail after broader gallery state wrappers are removed.
+- The previous `Xiumi SVG gallery state wrapper residue` bucket has now been split into precise
+  executable labels for image instance, overflow hidden, page vessel, group sortable box, sortable
+  pin, quick input, state toggle, editing state, in-cell active state, and group box wrappers.
 - Xiumi image-presentation residues such as `tn-image-presenter` must fail after broader `tn-*`
   authoring-tree wrappers are removed.
 - Xiumi applied image-gallery state residue such as `tn-content-overlap` must fail after broader
@@ -1257,10 +1262,11 @@ Evidence:
 - `prompts/0601/evidence/xiumi-state-toggle-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-editing-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-in-cell-active-state-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-group-box-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-image-presenter-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-content-overlap-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-92.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-93.

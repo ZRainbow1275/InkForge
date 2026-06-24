@@ -5476,9 +5476,8 @@ const ruleFamilies = [
   `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
   `visibility:hidden`, or `foreignObject` markers.
 - `tn-on-*` editing-state markers must be diagnosed as editing state residue instead of the
-  generic Xiumi gallery state wrapper label. Remaining gallery wrappers such as
-  `tn-group-box-wrapper`, `tn-group-fixed-box`, and `tn-in-cell-state-active` must stay blocked by
-  `Xiumi SVG gallery state wrapper residue`.
+  generic Xiumi gallery state wrapper label. Remaining in-cell and group wrappers must stay
+  blocked by their own precise residue rules.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5489,8 +5488,8 @@ const ruleFamilies = [
   wrapper label before the rule split and the precise editing state residue label after it.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
-- Regression tests must keep the remaining gallery state wrapper fixture blocked by
-  `Xiumi SVG gallery state wrapper residue`.
+- Regression tests must keep the remaining in-cell and group wrapper fixtures blocked by precise
+  Xiumi residue labels.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
@@ -5519,7 +5518,7 @@ const ruleFamilies = [
 - `tn-in-cell-state-active` must be diagnosed as in-cell active state residue instead of the
   generic Xiumi gallery state wrapper label. Remaining group wrappers such as
   `tn-group-box-wrapper` and `tn-group-fixed-box` must stay blocked by
-  `Xiumi SVG gallery state wrapper residue`.
+  `Xiumi group box wrapper residue`.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5531,6 +5530,48 @@ const ruleFamilies = [
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
 - Regression tests must keep the remaining group wrapper fixture blocked by
-  `Xiumi SVG gallery state wrapper residue`.
+  `Xiumi group box wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 93. Xiumi Group Box Wrapper Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi applied-editor group box
+  wrapper classes `tn-group-box-wrapper` or `tn-group-fixed-box`.
+- These classes came from the applied Xiumi SVG sample DOM readback. They are editor grouping and
+  fixed-box wrappers from the Xiumi gallery/image-slot system, not InkForge-owned publishable
+  article wrappers.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi group box wrapper residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-group-box-wrapper` or `tn-group-fixed-box` appears in a class/id
+  attribute.
+- The rule must match only class/id attributes containing the exact supported group-box wrapper
+  markers.
+- The reduced fixture must not rely on other Xiumi markers such as `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`, `tn-state-*`, `tn-on-*`,
+  `tn-in-cell-state-active`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- `tn-group-box-wrapper` and `tn-group-fixed-box` must be diagnosed as group box wrapper residue
+  instead of the generic Xiumi gallery state wrapper label. This completes the current
+  `tn-*` gallery state-wrapper split; no remaining concrete marker in this family should require
+  the old generic `Xiumi SVG gallery state wrapper residue` label.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced group-box-wrapper-only fixture reports the generic gallery state
+  wrapper label before the rule split and the precise group box wrapper residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the previous aggregate gallery fixture blocked by the precise
+  `Xiumi group box wrapper residue` label.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

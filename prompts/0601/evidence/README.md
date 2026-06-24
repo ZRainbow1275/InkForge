@@ -4811,3 +4811,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Group Box Wrapper Residue
+
+- [x] xiumi-group-box-wrapper-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor group box wrapper classes observed in
+  the central SVG sample readback: `tn-group-box-wrapper` and `tn-group-fixed-box`.
+- The reduced regression intentionally keeps only `tn-group-box-wrapper` plus readable text,
+  proving the cleaned group-box wrapper residue is blocked without relying on additional `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`,
+  `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`, `tn-quick-input*`,
+  `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
