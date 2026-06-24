@@ -4735,3 +4735,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Sortable Pin Residue
+
+- [x] xiumi-sortable-pin-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor sortable position class observed in the
+  central SVG sample readback: `tn-sortable-pin`.
+- The reduced regression intentionally keeps only that class plus readable text, proving the
+  cleaned sortable-pin residue is blocked without relying on additional `ng-*`, `opera-*`,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, `tn-image-presenter`,
+  `tn-content-overlap`, `tn-image-inst-wrapper`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
