@@ -11217,3 +11217,37 @@ Verification:
 - Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
 - GitNexus staged detect reported low risk with 4 changed files, 0 changed symbols, and 0 affected
   processes.
+
+## 2026-06-25 WeChat Login-State Readonly Check
+
+Scope:
+- CloakBrowser-only read-only check of the WeChat Public Platform entry page after the Xiumi
+  market-editor study.
+- No menu activation, editor creation, clipboard write, paste, save, preview, sync, scheduled send,
+  upload, phone preview, public rendering, or publish action occurred.
+
+Observed sanitized readback:
+- Page title indicated the WeChat Public Platform entry surface.
+- Body text length was 374.
+- `.ProseMirror=0`, `[contenteditable]=0`, `iframes=2`, scan-login visual markers `=2`, and
+  draft/article/create-like actions `=0`.
+- Text signals: login/scan prompt present; backend dashboard text absent; article editor text
+  absent; expired/session-warning text absent.
+
+Interpretation:
+- Current WeChat browser state is a login/scan entry, not an authenticated dashboard, draftbox, or
+  article editor.
+- This is external-account blocker evidence only and keeps authenticated editor, PC DOM readback,
+  paste, safe disposable draft, phone preview, Dark Mode, cover thumbnail, sync, schedule, platform
+  preview, public rendering, and publish success unclaimed.
+
+Evidence artifact:
+- `prompts/0601/evidence/wechat-login-state-readonly-20260625.txt`
+
+Verification:
+- `git diff --check` for the WeChat login-state docs/evidence files passed.
+- `git diff --cached --check`
+  passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
+- GitNexus staged detect reported low risk with 3 changed files, 0 changed symbols, and 0 affected
+  processes.

@@ -4514,3 +4514,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   so it remains center-unchanged taxonomy evidence only, not applied title proof.
 - Boundary: this is market editor DOM learning only. It does not prove paste, phone preview, sync,
   upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 WeChat Login-State Readonly Check
+
+- [x] wechat-login-state-readonly-20260625.txt
+- CloakBrowser-only read-only check of the WeChat Public Platform entry page after the Xiumi
+  market-editor study.
+- Sanitized readback: page title indicated the public platform entry surface, body text length was
+  374, `.ProseMirror=0`, `[contenteditable]=0`, `iframes=2`, scan-login visual markers `=2`, and
+  draft/article/create-like actions `=0`.
+- Text signals showed a login/scan prompt, with backend dashboard text absent and article editor
+  text absent.
+- Boundary: this is external-account blocker evidence only. It does not prove editor reachability,
+  ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success.

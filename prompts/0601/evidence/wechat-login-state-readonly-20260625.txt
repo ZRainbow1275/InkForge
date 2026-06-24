@@ -1,0 +1,40 @@
+WeChat Login-State Readonly Check - 2026-06-25
+
+Scope:
+- CloakBrowser-only read-only check of the WeChat Public Platform entry page after the Xiumi
+  market-editor study.
+- No menu activation, editor creation, clipboard write, paste, save, preview, sync, scheduled
+  send, upload, phone preview, public rendering, or publish action occurred.
+
+Sanitized readback:
+- Page title: WeChat Public Platform.
+- Route category: public-platform entry/login surface.
+- Body text length: 374.
+- Editor selectors:
+  - `.ProseMirror`: 0
+  - `[contenteditable]`: 0
+  - iframes: 2
+  - scan-login visual markers: 2
+  - draft/article/create-like actions: 0
+- Text signals:
+  - login/scan prompt: present
+  - backend dashboard text: absent
+  - article editor text: absent
+  - expired/session-warning text: absent
+
+Interpretation:
+- The current WeChat browser state is a login/scan entry, not an authenticated dashboard, draftbox,
+  or article editor.
+- This is external-account blocker evidence only.
+- It keeps `authenticated-pc-editor`, `pc-editor-dom-readback`, `pc-editor-paste-event`,
+  `safe-disposable-draft`, `phone-preview-readback`, `dark-mode-check`, `cover-thumbnail-check`,
+  `credentialed-sync`, `scheduled-send`, `platform-preview`, `public-rendering`, and `published`
+  unclaimed.
+
+Boundary:
+- This evidence does not prove WeChat editor reachability, ordinary rich paste, exact artifact
+  retention, disposable draft cleanup, phone preview, mobile SVG interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.
+- No raw platform page address, account label, local browser runtime location, screenshot location,
+  raw scan payload, credential material, request archive, or page capture is recorded.
