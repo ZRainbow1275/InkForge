@@ -1193,3 +1193,37 @@ Evidence:
 - `prompts/0601/evidence/market-live-dom-135-xiumi-20260623.txt`
 - `prompts/0601/evidence/wechat-market-svg-h5-fallback-matrix-20260623.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 54.
+
+## 16. 2026-06-25 Market Editor Residue Rule Tightening
+
+The applied 135/Xiumi DOM learning has been converted into additional executable residue blockers.
+These rules tighten static publishability checks only; they do not change platform proof status,
+style availability, account workflows, browser state, sync, upload, scheduled-send, or publish
+claims.
+
+Rules:
+- A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
+  tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
+  and Zhihu, even when vendor class/id/source markers are stripped.
+- Xiumi flow-canvas wrappers such as `tn-group-flow-canvas-for-svg-animation` must fail
+  independently of broader `tn-cell`, `tn-animate`, Angular, editable, hosted-media, or
+  `foreignObject` markers.
+- Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
+  broader component wrappers are removed.
+- Xiumi interaction-layer styles must fail when the same style attribute contains both
+  `touch-action` and `user-select`; these are editor interaction controls, not article styling.
+- Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
+  classes or `op-loader` operation-panel loader state.
+- All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
+  slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
+  raster fallback, or long-image fallback only.
+
+Evidence:
+- `prompts/0601/evidence/style-proof-135-background-size-shell-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-flow-canvas-animation-wrapper-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-79.
