@@ -1210,6 +1210,8 @@ Rules:
   `foreignObject` markers.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
+- Xiumi image-presentation residues such as `tn-image-presenter` must fail after broader `tn-*`
+  authoring-tree wrappers are removed.
 - Xiumi applied image-gallery state residue such as `tn-content-overlap` must fail after broader
   state wrappers are removed.
 - Xiumi interaction-layer styles must fail when the same style attribute contains both
@@ -1225,9 +1227,10 @@ Evidence:
 - `prompts/0601/evidence/xiumi-flow-canvas-animation-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-image-presenter-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-content-overlap-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-81.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-82.

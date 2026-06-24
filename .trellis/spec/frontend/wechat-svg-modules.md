@@ -5108,3 +5108,41 @@ const ruleFamilies = [
   `Xiumi SVG gallery state wrapper residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 82. Xiumi Image Presenter Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor image
+  presenter class `tn-image-presenter`.
+- This class came from the applied Xiumi SVG sample DOM readback. It is editor image-presentation
+  state from the Xiumi image-gallery composition model, not an InkForge-owned publishable image
+  component.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi image presenter residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-image-presenter` appears in a class/id attribute.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-child-position-*`, `tn-child-orientation-*`, `tn-content-overlap`, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- `tn-image-presenter` must be diagnosed as image presenter residue instead of the generic
+  Xiumi `tn-*` authoring tree label. Other `tn-page`, `tn-comp`, `tn-cell`, `tn-from-house`,
+  `tn-theme-color-mask`, `tn-tpl`, and `tn-layer` authoring classes must remain blocked by
+  `Xiumi tn-* authoring tree`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced image-presenter-only fixture reports the generic `tn-*` authoring
+  tree label before the rule split and the precise image presenter residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep broader `tn-*` authoring-tree fixtures blocked by
+  `Xiumi tn-* authoring tree`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

@@ -117,7 +117,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operation panel loader residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|image-presenter|theme-color-mask|tpl|layer)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-image-presenter\b[^"']*["']/i,
+    label: 'Xiumi image presenter residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|comp|cell|cell-group|comp-pin|from-house|theme-color-mask|tpl|layer)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },
   {
