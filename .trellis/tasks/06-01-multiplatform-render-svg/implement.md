@@ -11342,6 +11342,62 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi State Toggle Residue Slice
+
+Scope:
+- Converts the applied Xiumi SVG sample state-toggle class family `tn-state-active` and
+  `tn-state-frozen` into a precise executable static residue blocker.
+- The rule split is behavior-preserving for blocked output: `tn-state-*` was previously caught by
+  the generic `Xiumi SVG gallery state wrapper residue` rule, but now reports the source-specific
+  `Xiumi state toggle residue` label.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi state toggle residue`.
+- Moved `tn-state-active` and `tn-state-frozen` out of the generic gallery state-wrapper
+  alternation so the remaining Xiumi gallery state wrappers keep their existing blocker label
+  without duplicate gallery-state diagnostics.
+- Added a reduced regression fixture with only `tn-state-active` and readable text, intentionally
+  omitting additional `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `raw-image`, `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`,
+  `tn-overflow-hidden`, `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `tn-quick-input*`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "state toggles" --reporter=default` failed before implementation because the residue was
+  reported as `Xiumi SVG gallery state wrapper residue`, not `Xiumi state toggle residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "state toggles" --reporter=default` passed with 1 selected test and 193 skipped tests.
+- Platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 194 tests.
+- Export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1171 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; Vite transformed
+  4653 modules and built in 26.90s.
+- Build cleanup: `git restore -- inkforge/tsconfig.tsbuildinfo` left no tracked build-info diff.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight -- --json` returned the expected exit 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Quick Input Residue Slice
 
 Scope:

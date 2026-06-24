@@ -129,7 +129,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi quick input residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-group-(?:box-wrapper|fixed-box)|tn-state-(?:active|frozen)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-state-(?:active|frozen)\b[^"']*["']/i,
+    label: 'Xiumi state toggle residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-group-(?:box-wrapper|fixed-box)|tn-on-(?:editing|child-editing|son-editing|multi-select)|tn-in-cell-state-active)\b[^"']*["']/i,
     label: 'Xiumi SVG gallery state wrapper residue',
   },
   {
