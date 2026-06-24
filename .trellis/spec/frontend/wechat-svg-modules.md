@@ -5182,3 +5182,42 @@ const ruleFamilies = [
 - Regression tests must keep layer-slot fixtures blocked by `Xiumi SVG layer slot residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 84. Xiumi Image Instance Wrapper Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor image
+  instance wrapper class `tn-image-inst-wrapper`.
+- This wrapper came from the applied Xiumi SVG sample DOM readback. It is editor image-instance
+  state from the Xiumi gallery/image-slot system, not an InkForge-owned publishable article
+  wrapper.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi image instance wrapper residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-image-inst-wrapper` appears in a class/id attribute.
+- The rule must match only class/id attributes. It must not rely on broader `tn-*`, `ng-*`,
+  `opera-*`, `contenteditable`, hosted-media, SVG content-layer, `raw-image`,
+  `tn-image-presenter`, `tn-content-overlap`, `tn-overflow-hidden`, `tn-page-vessel`,
+  `tn-group-sortable-box`, `tn-sortable-pin`, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- `tn-image-inst-wrapper` must be diagnosed as image instance wrapper residue instead of the
+  generic Xiumi gallery state wrapper label. Other gallery state wrappers must remain blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced image-instance-wrapper-only fixture reports the generic gallery
+  state wrapper label before the rule split and the precise image instance wrapper residue label
+  after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the remaining gallery state wrapper fixture blocked by
+  `Xiumi SVG gallery state wrapper residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

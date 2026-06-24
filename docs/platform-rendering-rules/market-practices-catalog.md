@@ -1212,6 +1212,8 @@ Rules:
   broader component wrappers are removed.
 - Xiumi raw image-cell residues such as `raw-image` must fail after broader layer-slot wrappers are
   removed.
+- Xiumi image-instance wrappers such as `tn-image-inst-wrapper` must fail after broader gallery
+  state wrappers are removed.
 - Xiumi image-presentation residues such as `tn-image-presenter` must fail after broader `tn-*`
   authoring-tree wrappers are removed.
 - Xiumi applied image-gallery state residue such as `tn-content-overlap` must fail after broader
@@ -1230,10 +1232,11 @@ Evidence:
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-raw-image-cell-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-image-instance-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-image-presenter-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-content-overlap-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-interaction-style-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-83.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-84.
