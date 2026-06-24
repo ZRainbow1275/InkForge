@@ -11251,3 +11251,48 @@ Verification:
 - Staged sensitive-fragment scan passed for account/runtime/capture/auth material.
 - GitNexus staged detect reported low risk with 3 changed files, 0 changed symbols, and 0 affected
   processes.
+
+## 2026-06-25 WeChat Login-State Blocker Manifest Slice
+
+Scope:
+- Adds local, repo-committed blocker accounting for the 2026-06-25 WeChat login-state readback.
+- The blocker pack is separate from the committed local/PC evidence pack and must not change
+  release-gate success counts or make any platform row safe to claim.
+
+Implementation:
+- Added `getCommittedStyleProofExternalBlockerManifests()` for redacted blocker-only manifests.
+- Added `getCommittedStyleProofExternalBlockerAuditReport()` to run the existing acceptance audit
+  over that blocker-only pack.
+- The WeChat blocker manifest records two failed platform-editor readbacks:
+  `authenticated-editor-url` and `pc-editor-dom-readback`, both with
+  `externalAccountLoginBlocked:true` and without authenticated editor success fields.
+- A separate hygiene row records only that the committed summary is safe repository evidence.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "committed WeChat|login-state blocker|committed local and WeChat PC" --reporter=default`
+  passed with 3 tests and 174 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 177 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1154 tests.
+- `pnpm -C inkforge exec eslint src/services/export/style-catalog.ts
+  src/services/export/index.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 28.50s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- `git diff --cached --check` passed.
+- Staged sensitive-fragment scan passed for account/runtime/capture/credential material.
+- `npx gitnexus detect-changes -r InkForge --scope staged` reported low risk with 7 changed
+  files, 37 changed symbols, and 0 affected processes.
+
+Boundary:
+- This is local cannot-claim accounting only. It does not prove WeChat authenticated editor access,
+  ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, or publish success.

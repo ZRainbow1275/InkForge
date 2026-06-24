@@ -4792,3 +4792,44 @@ const ruleFamilies = [
 - Evidence must not include account labels, raw profile locations, raw platform URLs, screenshots,
   authentication secrets, QR payloads, HAR payloads, local capture locations, raw media addresses,
   or copied template source.
+
+## 72. Committed External Blocker Manifests - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: a real platform check reaches only a login, sign-in, verification, expired-session, or
+  other external-account gate after a read-only browser probe.
+- The blocker must be recorded as evidence, but it must never be merged into a success proof pack
+  or used to upgrade style availability, authenticated editor reachability, PC DOM readback, phone
+  preview, sync, scheduled send, public rendering, or publish success.
+- `getCommittedStyleProofExternalBlockerManifests()` is the explicit entry point for these
+  repo-committed blocker manifests. `getCommittedStyleProofExternalBlockerAuditReport()` runs the
+  normal acceptance audit against that blocker-only pack.
+
+### 2. Manifest Contract
+
+- A blocker manifest may carry the same platform and style-choice identity as the intended proof
+  target, but every blocked platform row must set `externalAccountLoginBlocked:true` and must not
+  set success fields such as `authenticatedSessionVerified:true`,
+  `platformEditorTargetVerified:true`, `platformEditorDomVerified:true`,
+  `ordinaryClipboardPasteVerified:true`, `phonePreviewContentVerified:true`,
+  `externalAccountAuthenticated:true`, `scheduledSendVerified:true`, or
+  `coverThumbnailAccepted:true`.
+- The blocker pack is intentionally separate from `getCommittedStyleProofEvidenceManifests()`.
+  The committed local/PC proof pack must keep its existing snapshot counts unless a separate
+  verified success artifact is collected and reviewed.
+- The accompanying hygiene artifact may prove only that the committed summary is redacted and safe
+  for repository evidence. It does not prove the target platform gate.
+
+### 3. Required Checks
+
+- Regression tests must prove the blocker manifest is invalid, while `no-sensitive-artifact`
+  remains satisfied by the hygiene row.
+- Regression tests must prove `authenticated-editor-url`, `pc-editor-dom-readback`,
+  `exact-artifact`, `safe-disposable-draft`, `pc-editor-paste-event`, `phone-preview-readback`,
+  `dark-mode-check`, `cover-thumbnail-check`, `scheduled-send-readback`, and
+  `published-url-or-platform-preview` remain unclaimable.
+- Regression tests must prove `getCommittedStyleProofEvidenceManifests()` is not expanded by the
+  blocker-only API.
+- Evidence docs must not include account labels, raw browser state locations, raw platform URLs,
+  screenshots, credential material, QR payloads, HAR payloads, or local capture locations.

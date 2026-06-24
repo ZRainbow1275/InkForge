@@ -4529,3 +4529,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, or publish success.
+
+## 2026-06-25 WeChat Login-State Blocker Manifest
+
+- [x] style-proof-wechat-login-blocker-manifest-20260625.txt
+- Added a committed external-blocker manifest pack for the WeChat login-state readback.
+- The pack is exposed only through `getCommittedStyleProofExternalBlockerManifests()` and
+  `getCommittedStyleProofExternalBlockerAuditReport()`.
+- The blocker manifest records `authenticated-editor-url` and `pc-editor-dom-readback` as invalid
+  external-account blocked rows, with `no-sensitive-artifact` satisfied by a redacted hygiene row.
+- Boundary: this is local cannot-claim accounting only. It does not prove authenticated editor
+  access, ordinary rich paste, exact artifact retention, safe disposable draft cleanup, phone
+  preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public rendering, or publish success.

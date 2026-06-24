@@ -306,6 +306,8 @@ export {
   getBestEvidence,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
+  getCommittedStyleProofExternalBlockerAuditReport,
+  getCommittedStyleProofExternalBlockerManifests,
   formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofExternalHandoffReport,
   getCommittedStyleProofExternalHandoffPacket,

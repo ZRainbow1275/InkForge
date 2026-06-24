@@ -3201,6 +3201,15 @@ interface CommittedStyleProofWechatPcEvidenceManifestOptions {
   collectedAt: string
 }
 
+interface CommittedStyleProofWechatExternalBlockerManifestOptions {
+  choiceId: 'wechat-flagship-amber'
+  idPrefix: string
+  label: string
+  artifactFingerprint: string
+  reportRef: string
+  collectedAt: string
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_REPORT_REF =
   'prompts/0601/evidence/style-proof-committed-local-evidence-20260617.txt'
 
@@ -3300,11 +3309,17 @@ const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_REPORT_REF =
 const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_REPORT_REF =
   'prompts/0601/evidence/wechat-tempera-entity-ordinary-ctrlv-cleanup-20260619.txt'
 
+const COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_REPORT_REF =
+  'prompts/0601/evidence/wechat-login-state-readonly-20260625.txt'
+
 const COMMITTED_STYLE_PROOF_WECHAT_AMBER_PC_ARTIFACT_FINGERPRINT =
   'sha256:09607268931e18aa05244594f941dfd181d24bc6420f3263a022ff263018fa3d'
 
 const COMMITTED_STYLE_PROOF_WECHAT_TEMPERA_ENTITY_PC_ARTIFACT_FINGERPRINT =
   'sha256:f7142d6e996a7933d80f8b7494a85db79779a6ac63c200754015772ba8e1a878'
+
+const COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_ARTIFACT_FINGERPRINT =
+  'sha256:redacted-wechat-login-state-readonly-20260625'
 
 function createCommittedStyleProofLocalEvidenceManifest(
   options: CommittedStyleProofLocalEvidenceManifestOptions,
@@ -3944,6 +3959,80 @@ function createCommittedStyleProofWechatPcEvidenceManifest(
   }
 }
 
+function createCommittedStyleProofWechatExternalBlockerManifest(
+  options: CommittedStyleProofWechatExternalBlockerManifestOptions,
+): StyleProofManifest {
+  return {
+    platform: 'wechat',
+    scope: 'style-choice',
+    choiceId: options.choiceId,
+    artifactFingerprint: options.artifactFingerprint,
+    claimedEvidence: ['pc-editor-dom-readable'],
+    artifacts: [
+      {
+        id: `${options.idPrefix}-committed-login-state-editor-url-blocker`,
+        requirementId: 'authenticated-editor-url',
+        kind: 'browser-readback',
+        label: `${options.label} committed login-state readback is not authenticated editor reachability`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'platform-editor',
+        action: 'authenticated-editor-opened',
+        readback: 'dom',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        authenticatedSessionVerified: false,
+        externalAccountAuthenticated: false,
+        externalAccountLoginBlocked: true,
+        platformEditorTargetVerified: false,
+        collectedAt: options.collectedAt,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${options.idPrefix}-committed-login-state-pc-dom-blocker`,
+        requirementId: 'pc-editor-dom-readback',
+        kind: 'browser-readback',
+        label: `${options.label} committed login-state readback is not PC article editor DOM proof`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'platform-editor',
+        action: 'pc-editor-dom-readback',
+        readback: 'visual-and-dom',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        authenticatedSessionVerified: false,
+        externalAccountAuthenticated: false,
+        externalAccountLoginBlocked: true,
+        platformEditorTargetVerified: false,
+        platformEditorSurfaceVerified: false,
+        platformEditorDomVerified: false,
+        mojibakeFreeVerified: false,
+        collectedAt: options.collectedAt,
+        committed: true,
+        safeForCommit: true,
+      },
+      {
+        id: `${options.idPrefix}-committed-login-state-sensitive-hygiene-proof`,
+        requirementId: 'no-sensitive-artifact',
+        kind: 'hygiene-review',
+        label: `${options.label} committed login-state evidence hygiene review`,
+        platform: 'wechat',
+        choiceId: options.choiceId,
+        channel: 'local-artifact',
+        action: 'sensitive-hygiene-review',
+        readback: 'hygiene-log',
+        artifactFingerprint: options.artifactFingerprint,
+        artifactRef: options.reportRef,
+        redactionVerified: true,
+        collectedAt: options.collectedAt,
+        committed: true,
+        safeForCommit: true,
+      },
+    ],
+  }
+}
+
 const COMMITTED_STYLE_PROOF_LOCAL_EVIDENCE_MANIFESTS = [
   createCommittedStyleProofWechatUnitEvidenceManifest({
     choiceId: 'wechat-classic-inline',
@@ -4117,6 +4206,17 @@ const COMMITTED_STYLE_PROOF_WECHAT_PC_EVIDENCE_MANIFESTS = [
   }),
 ] as const satisfies readonly StyleProofManifest[]
 
+const COMMITTED_STYLE_PROOF_EXTERNAL_BLOCKER_MANIFESTS = [
+  createCommittedStyleProofWechatExternalBlockerManifest({
+    choiceId: 'wechat-flagship-amber',
+    idPrefix: 'wechat-flagship-amber',
+    label: 'Amber',
+    artifactFingerprint: COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_ARTIFACT_FINGERPRINT,
+    reportRef: COMMITTED_STYLE_PROOF_WECHAT_LOGIN_BLOCKER_REPORT_REF,
+    collectedAt: '2026-06-24T00:00:00.000Z',
+  }),
+] as const satisfies readonly StyleProofManifest[]
+
 function cloneStyleProofManifest(manifest: StyleProofManifest): StyleProofManifest {
   return {
     ...manifest,
@@ -4139,6 +4239,14 @@ export function getCommittedStyleProofWechatPcEvidenceManifests(): readonly Styl
 
 export function getCommittedStyleProofWechatPcEvidenceAuditReport(): StyleProofAcceptanceAuditReport {
   return getStyleProofAcceptanceAuditReport(getCommittedStyleProofWechatPcEvidenceManifests())
+}
+
+export function getCommittedStyleProofExternalBlockerManifests(): readonly StyleProofManifest[] {
+  return COMMITTED_STYLE_PROOF_EXTERNAL_BLOCKER_MANIFESTS.map(cloneStyleProofManifest)
+}
+
+export function getCommittedStyleProofExternalBlockerAuditReport(): StyleProofAcceptanceAuditReport {
+  return getStyleProofAcceptanceAuditReport(getCommittedStyleProofExternalBlockerManifests())
 }
 
 export function getCommittedStyleProofEvidenceManifests(): readonly StyleProofManifest[] {

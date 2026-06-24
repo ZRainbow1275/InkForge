@@ -1,0 +1,64 @@
+Style Proof WeChat Login-State Blocker Manifest - 2026-06-25
+
+Scope:
+- Local acceptance accounting for the WeChat login-state readback captured on 2026-06-25.
+- No platform menu activation, editor creation, clipboard write, paste, save, preview, sync,
+  scheduled send, upload, phone preview, public rendering, or publish action is performed by this
+  slice.
+
+Implemented:
+- getCommittedStyleProofExternalBlockerManifests()
+- getCommittedStyleProofExternalBlockerAuditReport()
+
+Manifest shape:
+- One redacted WeChat blocker manifest for wechat-flagship-amber.
+- The manifest is intentionally separate from getCommittedStyleProofEvidenceManifests().
+- Artifact 1 records authenticated-editor-url as a login-state blocker.
+- Artifact 2 records pc-editor-dom-readback as a login-state blocker.
+- Artifact 3 records repository evidence hygiene only.
+
+Expected audit behavior:
+- The blocker manifest is invalid.
+- no-sensitive-artifact remains satisfied by the hygiene artifact.
+- authenticated-editor-url remains invalid.
+- pc-editor-dom-readback remains invalid.
+- exact-artifact, safe-disposable-draft, pc-editor-paste-event, phone-preview-readback,
+  dark-mode-check, cover-thumbnail-check, scheduled-send-readback, and
+  published-url-or-platform-preview remain unclaimable.
+- The committed local and WeChat PC success evidence pack remains at the existing 22-manifest
+  snapshot.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "committed WeChat|login-state blocker|committed local and WeChat PC" --reporter=default
+  PASS: 1 file, 3 tests, 174 skipped tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default
+  PASS: 1 file, 177 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism
+  PASS: 36 files, 1154 tests.
+- pnpm -C inkforge exec eslint src/services/export/style-catalog.ts src/services/export/index.ts
+  src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 28.50s.
+- Generated TypeScript build cache was restored after the build.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exited 1 with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, and uniqueNextRows=3.
+- git diff --cached --check
+  PASS.
+- Staged sensitive-fragment scan
+  PASS for account/runtime/capture/credential material.
+- npx gitnexus detect-changes -r InkForge --scope staged
+  PASS: low risk, 7 changed files, 37 changed symbols, 0 affected processes.
+
+Boundary:
+- This is local cannot-claim enforcement only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste, exact artifact
+  retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, or
+  publish success.

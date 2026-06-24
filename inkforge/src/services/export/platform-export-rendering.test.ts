@@ -17,6 +17,8 @@ import {
   formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofEvidenceAuditReport,
   getCommittedStyleProofEvidenceExecutionRunbookReport,
+  getCommittedStyleProofExternalBlockerAuditReport,
+  getCommittedStyleProofExternalBlockerManifests,
   getCommittedStyleProofExternalHandoffReport,
   getCommittedStyleProofExternalHandoffPacket,
   getCommittedStyleProofExternalProofChecklistReport,
@@ -2829,6 +2831,99 @@ describe('platform native export rendering rules', () => {
       'scheduled-send-readback',
       'published-url-or-platform-preview',
     ]))
+  })
+
+  it('records committed WeChat login-state blocker evidence without upgrading PC proof', () => {
+    const manifests = getCommittedStyleProofExternalBlockerManifests()
+    const secondRead = getCommittedStyleProofExternalBlockerManifests()
+    const manifest = manifests[0]
+
+    expect(manifests).toHaveLength(1)
+    expect(secondRead[0]).not.toBe(manifest)
+    expect(secondRead[0]?.artifacts[0]).not.toBe(manifest?.artifacts[0])
+    expect(manifest?.platform).toBe('wechat')
+    expect(manifest?.scope).toBe('style-choice')
+    expect(manifest?.choiceId).toBe('wechat-flagship-amber')
+    expect(manifest?.claimedEvidence).toEqual(['pc-editor-dom-readable'])
+    expect(manifest?.artifactFingerprint).toBe('sha256:redacted-wechat-login-state-readonly-20260625')
+    expect(manifest?.artifacts).toHaveLength(3)
+    expect(manifest?.artifacts.every(artifact =>
+      artifact.committed === true
+      && artifact.safeForCommit === true
+      && artifact.artifactFingerprint === manifest.artifactFingerprint
+      && artifact.artifactRef === 'prompts/0601/evidence/wechat-login-state-readonly-20260625.txt'
+    )).toBe(true)
+    expect(manifest?.artifacts.filter(artifact => artifact.externalAccountLoginBlocked === true).map(artifact => artifact.id))
+      .toEqual([
+        'wechat-flagship-amber-committed-login-state-editor-url-blocker',
+        'wechat-flagship-amber-committed-login-state-pc-dom-blocker',
+      ])
+    expect(manifest?.artifacts.some(artifact => artifact.externalAccountAuthenticated === false)).toBe(true)
+    expect(manifest?.artifacts.every(artifact => artifact.sensitive !== true)).toBe(true)
+
+    const packReport = getStyleProofManifestPackReport(manifests)
+    const packIssueIds = packReport.issues.map(issue => issue.id)
+    const wechatProgress = packReport.platformReports.wechat
+    const amberProgress = wechatProgress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')
+    const requirementStatus = new Map(
+      amberProgress?.report.requirements.map(requirement => [requirement.requirement.id, requirement.status]) ?? [],
+    )
+
+    expect(packReport.summary).toMatchObject({
+      manifestCount: 1,
+      validManifestCount: 0,
+      invalidManifestCount: 1,
+      artifactCount: 3,
+      duplicateArtifactIdCount: 0,
+    })
+    expect(amberProgress?.status).toBe('invalid')
+    expect(requirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(requirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(requirementStatus.get('exact-artifact')).toBe('missing')
+    expect(requirementStatus.get('safe-disposable-draft')).toBe('missing')
+    expect(requirementStatus.get('pc-editor-paste-event')).toBe('missing')
+    expect(requirementStatus.get('phone-preview-readback')).toBe('missing')
+    expect(requirementStatus.get('dark-mode-check')).toBe('missing')
+    expect(requirementStatus.get('cover-thumbnail-check')).toBe('missing')
+    expect(requirementStatus.get('scheduled-send-readback')).toBe('missing')
+    expect(requirementStatus.get('published-url-or-platform-preview')).toBe('missing')
+    expect(packIssueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-external-account-login-blocked',
+      'style-proof-manifest-authenticated-session-not-verified',
+      'style-proof-manifest-platform-editor-target-not-verified',
+      'style-proof-manifest-platform-editor-surface-not-verified',
+      'style-proof-manifest-platform-editor-dom-not-verified',
+      'style-proof-manifest-editor-mojibake-not-ruled-out',
+    ]))
+    expect(packIssueIds).not.toContain('style-proof-manifest-sensitive-artifact')
+    expect(packIssueIds).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+
+    const audit = getCommittedStyleProofExternalBlockerAuditReport()
+    const wechatAudit = audit.platformReports.wechat
+    const cannotClaimIds = wechatAudit.cannotClaim.map(requirement => requirement.requirement.id)
+
+    expect(audit.summary).toMatchObject({
+      manifestCount: 1,
+      validManifestCount: 0,
+      invalidManifestCount: 1,
+    })
+    expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.status)
+      .toBe('invalid')
+    expect(cannotClaimIds).toEqual(expect.arrayContaining([
+      'authenticated-editor-url',
+      'pc-editor-dom-readback',
+      'exact-artifact',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+      'phone-preview-readback',
+      'dark-mode-check',
+      'cover-thumbnail-check',
+      'scheduled-send-readback',
+      'published-url-or-platform-preview',
+    ]))
+
+    expect(getCommittedStyleProofEvidenceManifests()).toHaveLength(22)
   })
 
   it('audits committed local and WeChat PC evidence together without merging exact-artifact claims', () => {
