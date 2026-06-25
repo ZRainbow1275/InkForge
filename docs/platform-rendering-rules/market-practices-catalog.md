@@ -854,9 +854,9 @@ Zhihu.
   ten `block-img__inner` image-slot shells, ten `placeholder__help` helpers, two
   `block-spacing` / `block-gap` controls, four `gap-item-wrapper` rows, four
   `ant-slider-track` / `ant-slider-handle` controls, and `edit-trigger__switch` /
-  `ant-switch-checked` trigger switches. This confirms that the existing detector coverage for
-  trigger, placeholder, image-slot, spacing, gap, and slider authoring residue is still the right
-  enforcement path.
+  `ant-switch-checked` trigger switches. Trigger overlay and switch controls now have
+  source-specific residue labels; they remain schema inputs only and must not be copied into
+  publishable output.
 - 2026-06-21 CloakBrowser SVG background-style refresh: a material-included 135 free-trial layer
   exposed a tall background SVG using `background-attachment`, `background-position`,
   `background-repeat`, `background-size:100.1% 100.1%`, `margin-top:-1px`,
@@ -1213,6 +1213,9 @@ Rules:
 - 135 SVG trigger hot-area overlays such as `block-img__trigger`, `edit-trigger`,
   `edit-trigger__switch`, and `trigger__ajuster` must fail independently of broader SVG builder
   canvas markers.
+- 135 SVG trigger switch controls such as `ant-switch`, `ant-switch-checked`, `ant-switch-inner`,
+  and `ant-switch-handle` must fail independently of trigger overlay geometry and broader SVG
+  builder canvas markers.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1373,4 +1376,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-117.
+- `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-118.

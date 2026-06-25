@@ -69,6 +69,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG trigger hot-area overlay residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bant-switch(?:-(?:checked|inner|handle))?\b[^"']*["']/i,
+    label: '135 SVG trigger switch control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|edit-placeholder|placeholder__name|ant-tooltip-open)[^"']*["']/i,
     label: '135 SVG builder canvas residue',
   },

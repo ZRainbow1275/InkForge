@@ -226,6 +226,15 @@ const MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_TRIGGER_SWITCH_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<button class="ant-switch ant-switch-checked" type="button">',
+  '<span class="ant-switch-inner">显示触发热区</span>',
+  '<span class="ant-switch-handle"></span>',
+  '</button>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML = [
   '<section class="content-canvas content-background content-inner">',
   '<div class="block"><div class="block-inner"><div class="block-img">',
@@ -8687,6 +8696,22 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 SVG builder canvas residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .not.toContain('135 SVG builder canvas residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG trigger switch controls without overlay geometry', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_SWITCH_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_SWITCH_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_SWITCH_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG trigger switch control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG trigger switch control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG trigger switch control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

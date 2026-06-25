@@ -2559,6 +2559,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
 
+## 2026-06-26 135 SVG Trigger Switch Control Residue
+
+- [x] 135-svg-trigger-switch-control-residue-20260626.txt
+- Added a static quality rule for 135 SVG trigger switch controls observed in the applied editor:
+  `ant-switch`, `ant-switch-checked`, `ant-switch-inner`, and `ant-switch-handle`.
+- The reduced regression intentionally keeps only the Ant switch control plus readable text,
+  proving the switch residue is blocked without relying on trigger overlay geometry,
+  `app-content-canvas`, known `data-name` values, hosted material, or canvas shell markers.
+- Adjacent regressions keep ordinary builder canvas, trigger-prompt, and trigger overlay fixtures
+  reporting their existing residue labels.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
 ## 2026-06-20 135 SVG Editor Shell Residue Contract
 
 - [x] 135-svg-editor-shell-residue-contract-20260620.txt

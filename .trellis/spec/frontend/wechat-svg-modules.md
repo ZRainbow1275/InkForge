@@ -2259,9 +2259,9 @@ Contracts:
   `block-img__inner` image-slot shells, ten `placeholder__help` helpers, two
   `block-spacing` / `block-gap` controls, four `gap-item-wrapper` rows, four
   `ant-slider-track` / `ant-slider-handle` controls, and `edit-trigger__switch` /
-  `ant-switch-checked` trigger switches. This confirms the existing residue rules remain correct:
-  these structures are schema inputs for InkForge-owned trigger-zone, image-slot, spacing,
-  fallback, and layout-report models only; they must not be copied into publishable output.
+  `ant-switch-checked` trigger switches. Trigger overlay and switch controls are schema inputs for
+  InkForge-owned trigger-zone, image-slot, spacing, fallback, and layout-report models only; they
+  must not be copied into publishable output, and the switch controls are covered by section 118.
 - 2026-06-22 post-reboot 135 SVG editor recheck: a visible CloakBrowser `免费试用` click plus the
   material-included confirmation again inserted a `coverclickmovewithspread` active block. The
   sampled block used a zero-font/zero-line-height section and a background-only `svg
@@ -6230,6 +6230,40 @@ const ruleFamilies = [
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
   narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 118. 135 SVG Trigger Switch Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains Ant Design switch controls used
+  by the 135 SVG editor trigger UI, such as `ant-switch`, `ant-switch-checked`,
+  `ant-switch-inner`, or `ant-switch-handle`.
+- These controls are authoring UI for trigger-area visibility/settings. They are not publishable
+  article DOM and must not remain in WeChat, Xiaohongshu, or Zhihu output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG trigger switch control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the Ant switch markers appear in class/id attributes.
+- A reduced fixture containing only the Ant switch markers must fail even when trigger overlay
+  geometry, `app-content-canvas`, known 135 `data-name`, hosted-media, or material-shell markers are
+  absent.
+- Existing 135 SVG trigger overlay, builder canvas, and trigger prompt fixtures must continue to
+  report their source-specific residue labels.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced Ant switch fixture fails before implementation and reports
+  `135 SVG trigger switch control residue` after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regression tests must keep ordinary 135 SVG builder canvas, trigger prompt, and trigger
+  overlay fixtures reporting their existing source-specific labels.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
