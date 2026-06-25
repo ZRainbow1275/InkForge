@@ -1292,6 +1292,10 @@ Rules:
   broader component-binding bucket.
 - Xiumi atom context binding metadata such as `tn-atom-context` must fail independently of the
   broader component-binding bucket.
+- Xiumi auxiliary binding metadata such as `tn-bind-aux-prop` must fail independently of the
+  generic `Xiumi tn-* attribute` catch-all. Live Xiumi paper-editor DOM uses this attribute to bind
+  auxiliary state such as `compAux.bgc1` into a shape/line cell; publishable outputs must carry the
+  resolved inline style or InkForge-owned SVG/HTML fallback, never the editor-side binding.
 - The old broad `Xiumi component binding attribute residue` bucket is now fully decomposed. The
   generic `Xiumi tn-* attribute` guard remains a final catch-all for unexpected Xiumi `tn-*`
   leakage.

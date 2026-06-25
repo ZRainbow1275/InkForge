@@ -5332,3 +5332,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   leakage.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Auxiliary Binding Metadata Residue
+
+- [x] xiumi-auxiliary-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi auxiliary binding metadata observed in a live Xiumi v5
+  paper-editor center sample: `tn-bind-aux-prop`.
+- The reduced regression intentionally keeps only `tn-bind-aux-prop` plus readable text, proving
+  the cleaned auxiliary-binding residue is blocked without relying on `tn-bind-comp-*`, `tn-uuid`,
+  `tn-animate`, `tn-link`, `tn-image`, `tn-image-usage`, `tn-comp*`, `tn-cell*`, `tn-child-*`,
+  `tn-page-*`, `tn-atom-context`, component/cell/layer/page classes, hosted-media, Angular
+  `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG content-layer,
+  `raw-image`, image wrapper classes, page/layer slots, gallery wrappers, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

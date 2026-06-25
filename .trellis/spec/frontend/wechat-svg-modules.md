@@ -6325,6 +6325,42 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 122. Xiumi Auxiliary Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the auxiliary binding attribute
+  `tn-bind-aux-prop`, observed in a live CloakBrowser Xiumi v5 paper-editor sample after entering a
+  visible template/style into the center paper.
+- The observed center-paper shape/line cell used
+  `tn-bind-aux-prop="{ backgroundColor: compAux.bgc1 }"` to bind editor-side auxiliary color state
+  into the applied element. This is not publishable article semantics for WeChat, Xiaohongshu, or
+  Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi auxiliary binding metadata residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-bind-aux-prop` appears as an attribute name.
+- A reduced fixture containing only `tn-bind-aux-prop` plus readable text must report the precise
+  auxiliary-binding label instead of relying on the generic `Xiumi tn-* attribute` catch-all.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-bind-aux-prop` fixture reports only the generic `Xiumi tn-*`
+  catch-all before implementation and the precise `Xiumi auxiliary binding metadata residue` label
+  after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi atom context binding metadata residue`, decomposed
+  component/cell/page binding metadata labels, and the final generic `Xiumi tn-* attribute`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 119. 135 SVG Editor Base Shell Residue - 2026-06-26
 
 ### 1. Scope / Trigger

@@ -253,6 +253,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi atom context binding metadata residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-bind-aux-prop\s*=/i,
+    label: 'Xiumi auxiliary binding metadata residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,
     label: 'Xiumi tn-* attribute',
   },

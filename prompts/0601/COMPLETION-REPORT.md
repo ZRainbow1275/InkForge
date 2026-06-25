@@ -5130,3 +5130,31 @@ Boundary:
   artifact retention, safe disposable draft cleanup, phone preview, mobile interaction, Dark Mode,
   cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+---
+
+## 2026-06-26 Xiumi Auxiliary Binding Metadata Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed an applied center
+  paper shape/line cell can retain `tn-bind-aux-prop="{ backgroundColor: compAux.bgc1 }"`.
+- Added the static detector label `Xiumi auxiliary binding metadata residue` before the final
+  generic `Xiumi tn-* attribute` catch-all.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 228 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1205 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 40.09s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-auxiliary-binding-metadata-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
