@@ -1348,7 +1348,8 @@ Rules:
   `op-dc-depot`, `op-dc-slot`, `ce-dc`, `dc-ce-svg`, `dc-cp-aux-props`, and
   `tn-op-dc-item`, or selection-overlay child controls such as `full-screen-mask`, `brim-group`,
   `box-lines`, `box-handles`, `hm-panstart`, `hm-panmove`, `stop-propagation`, and
-  `tn-attach-to`.
+  `tn-attach-to`, or crop/worker-surface controls such as `op-worker-surface`,
+  `op-worker-block-gesture`, `crop-mask`, `crop-box`, and `crop-handle`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.

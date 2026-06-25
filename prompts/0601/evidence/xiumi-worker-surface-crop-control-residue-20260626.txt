@@ -1,0 +1,73 @@
+Xiumi Worker Surface Crop Control Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi worker-surface and crop
+  controls.
+- Covers Xiumi crop/worker classes such as crop-mask, crop-box, crop-handle, op-worker-surface,
+  and op-worker-block-gesture.
+- No platform save, sync, copy-to-WeChat, preview, upload, scheduled send, or publish action.
+
+Live source:
+- CloakBrowser opened the live Xiumi v5 paper editor and read back the applied editor/control DOM.
+- The control DOM exposed crop and gesture-blocking worker surface families including crop-mask,
+  crop-box, crop-handle, op-worker-surface, and op-worker-block-gesture.
+- These nodes describe editor crop handles and work surfaces. They are not article content, style,
+  SVG payload, or platform-safe export markup.
+
+Implemented:
+- Added a reduced regression fixture that keeps only crop/worker surface controls after selection
+  overlay, operator dock, and operator depot markers have been removed.
+- Added the detector label:
+  Xiumi worker surface crop control residue
+
+Why this matters:
+- Existing Xiumi guards already catch selection overlays, operator docks, operator depot items,
+  operation-panel loaders, broad tn-* trees, Angular runtime attributes/classes, hosted media,
+  interaction styles, and applied SVG content layers.
+- This slice covers the child-only path where copied DOM keeps crop handles or gesture-blocking
+  work surfaces after broader controls have been cleaned.
+- The rule stays anchored to Xiumi crop/worker names and does not match generic bar, handle, mask,
+  or box prose unless source-specific crop/worker markers are present.
+
+Regression coverage:
+- WeChat: detectQuality(..., 'wechat') reports wechat-market-editor-residue with
+  Xiumi worker surface crop control residue.
+- Xiaohongshu: detectQuality(..., 'xiaohongshu') reports xhs-market-editor-residue with
+  Xiumi worker surface crop control residue.
+- Zhihu: detectQuality(..., 'zhihu') reports zhihu-market-editor-residue with
+  Xiumi worker surface crop control residue.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "worker surface crop" --reporter=default
+  Result: failed as expected because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "worker surface crop" --reporter=default
+  Result: passed, 1 selected test, 229 skipped tests.
+
+Verification:
+- git diff --check -- <slice paths>
+  Result: passed with only normal Windows LF-to-CRLF warnings.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file / 230 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 36 files / 1207 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite build completed in 43.60s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC rich paste, WeChat phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+- No local browser runtime directory, session secret, QR code, account capture, capture-file
+  reference, traffic archive, or account artifact is included in this committed evidence.

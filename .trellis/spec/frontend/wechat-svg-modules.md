@@ -6327,6 +6327,44 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 124. Xiumi Worker Surface Crop Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains worker-surface or crop-control
+  classes observed in a live CloakBrowser Xiumi v5 paper-editor readback, such as
+  `op-worker-surface`, `op-worker-block-gesture`, `crop-mask`, `crop-box`, or `crop-handle`.
+- These controls are Xiumi authoring UI for image crop masks, crop boxes, and gesture-blocking
+  work surfaces. They are not article content, style semantics, or platform-safe SVG/HTML.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi worker surface crop control residue` for
+  WeChat, Xiaohongshu, and Zhihu when supported worker-surface or crop-control classes appear.
+- A reduced fixture containing only the worker/crop controls must fail even when selection-overlay
+  wrappers, operator-dock parents, operator depot items, `op-loader`, broad `tn-*` trees, broad
+  `ng-*` attributes/classes, `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer,
+  `ui-slider`, `ui-sortable`, `touch-action`, and `user-select` markers are absent.
+- This rule must stay anchored to Xiumi worker/crop class names and must not match generic
+  `bar`, `handle`, `mask`, or `box` words unless the source-specific crop/worker markers are
+  present.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced worker-surface/crop fixture fails before implementation and reports
+  `Xiumi worker surface crop control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi selection overlay control residue`,
+  `Xiumi operator depot item residue`, `Xiumi operator dock control residue`, and
+  `Xiumi interaction style residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

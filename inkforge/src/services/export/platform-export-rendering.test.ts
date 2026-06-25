@@ -396,6 +396,15 @@ const MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_WORKER_SURFACE_CROP_CONTROLS_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="crop-mask op-worker-surface op-worker-block-gesture"></div>',
+  '<div class="crop-box op-worker-surface op-worker-block-gesture">',
+  '<div class="crop-handle"><span class="bar handle n"></span><span class="bar handle e"></span></div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -9986,6 +9995,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi selection overlay control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi selection overlay control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi worker surface crop controls after overlay cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_WORKER_SURFACE_CROP_CONTROLS_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_WORKER_SURFACE_CROP_CONTROLS_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_WORKER_SURFACE_CROP_CONTROLS_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi worker surface crop control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi worker surface crop control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi worker surface crop control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

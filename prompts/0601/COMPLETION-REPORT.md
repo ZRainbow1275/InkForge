@@ -5161,6 +5161,35 @@ Boundary:
 
 ---
 
+## 2026-06-26 Xiumi Worker Surface Crop Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the control DOM can
+  retain crop/worker surface classes such as `crop-mask`, `crop-box`, `crop-handle`,
+  `op-worker-surface`, and `op-worker-block-gesture`.
+- Added the static detector label `Xiumi worker surface crop control residue` for child-only crop
+  and gesture-blocking worker controls after broader selection/operator wrappers have been removed.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 230 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1207 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 43.60s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-worker-surface-crop-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-26 Xiumi Operator Depot Item Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the operation-control

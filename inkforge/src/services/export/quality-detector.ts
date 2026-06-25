@@ -181,6 +181,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi selection overlay control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-worker-(?:surface|block-gesture)|crop-(?:mask|box|handle))\b[^"']*["']/i,
+    label: 'Xiumi worker surface crop control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-image-presenter\b[^"']*["']/i,
     label: 'Xiumi image presenter residue',
   },
