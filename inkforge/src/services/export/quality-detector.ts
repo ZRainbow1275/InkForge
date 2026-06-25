@@ -202,7 +202,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   },
   {
     pattern: /<[a-zA-Z][^>]*\btn-yzk-font-[\w-]+(?=[\s"'=/>])/i,
-    label: 'Xiumi text authoring metadata',
+    label: 'Xiumi yzk font metadata residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-text\b[^"']*["']/i,
