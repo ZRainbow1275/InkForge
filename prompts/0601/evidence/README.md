@@ -4982,3 +4982,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `tn-tpl-pose-fit-box` on `Xiumi template renderer pipeline residue`.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Source-House Authoring Residue
+
+- [x] xiumi-source-house-authoring-residue-20260625.txt
+- Added a static quality rule for Xiumi source-house authoring classes observed in material/source
+  metadata readbacks: `tn-from-house`, `tn-from-house-template`, and other `tn-from-house-*`
+  markers.
+- The reduced regression intentionally keeps only `tn-from-house tn-from-house-template` plus
+  readable text, proving the cleaned source-house residue is blocked without relying on
+  `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`, hosted-media, Angular `ng-*`, `opera-*`,
+  renderer-pipeline attributes, `contenteditable`, SVG content-layer, `raw-image`, page/layer
+  slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

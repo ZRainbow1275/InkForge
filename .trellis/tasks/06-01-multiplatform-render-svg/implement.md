@@ -11342,6 +11342,61 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Source-House Authoring Residue Slice
+
+Scope:
+- Converts the Xiumi source-house / material-source observation `tn-from-house*` into an
+  executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi source-house authoring residue`.
+- The rule matches `class` or `id` attributes containing `tn-from-house` or `tn-from-house-*`,
+  including `tn-from-house-template`.
+- Removed `tn-from-house` from the generic `Xiumi tn-* authoring tree` alternation while leaving
+  theme color mask markers covered by the generic fallback.
+- Added a reduced regression fixture with only `tn-from-house tn-from-house-template` and readable
+  text, intentionally omitting `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`,
+  hosted-media, Angular, opera runtime, renderer-pipeline attributes, `contenteditable`, SVG
+  content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and
+  `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "source-house authoring classes" --reporter=default` failed before implementation because the
+  message contained `Xiumi tn-* authoring tree` and `Xiumi tn-* attribute`, not the precise
+  source-house label.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "source-house authoring classes" --reporter=default` passed with 1 selected test and 207
+  skipped tests.
+- Adjacent template guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "template authoring tree classes" --reporter=default` passed with 1 selected test and 207
+  skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 208 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1185 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 41.04s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Template Authoring Tree Residue Slice
 
 Scope:

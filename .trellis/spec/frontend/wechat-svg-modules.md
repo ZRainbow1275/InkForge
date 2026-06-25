@@ -5936,7 +5936,7 @@ const ruleFamilies = [
   covered by that existing pipeline rule.
 - `tn-tpl*` class/id markers must be diagnosed as template authoring tree residue instead of only
   the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for
-  from-house/theme tree markers that are not yet split.
+  theme tree markers that are not yet split.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5949,5 +5949,38 @@ const ruleFamilies = [
   quality reports.
 - Regression tests must keep the existing template renderer pipeline fixture reporting
   `Xiumi template renderer pipeline residue` after the template authoring tree split.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 104. Xiumi Source-House Authoring Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi source-house class such
+  as `tn-from-house`, `tn-from-house-template`, or other `tn-from-house-*` class/id markers.
+- These markers represent editor/template-source ownership metadata from Xiumi material insertion,
+  not InkForge-owned publishable article structure.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi source-house authoring residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-from-house` or `tn-from-house-*` appears in a class/id
+  attribute.
+- The rule must not require `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`, hosted media,
+  Angular, opera runtime, SVG content-layer, or any other market-editor marker to fire.
+- `tn-from-house*` class/id markers must be diagnosed as source-house authoring residue instead of
+  only the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for theme
+  tree markers that are not yet split.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-from-house tn-from-house-template` fixture reports the old
+  generic authoring tree label before the rule split and the precise source-house authoring
+  residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
