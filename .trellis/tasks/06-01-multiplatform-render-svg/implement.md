@@ -11342,6 +11342,55 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Placeholder Metadata Residue Slice
+
+Scope:
+- Converts the applied Xiumi SVG carousel/text-cell observation `tn-placeholder` into an
+  executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Split the previous combined `Xiumi text authoring metadata` rule:
+  - `tn-placeholder` now reports `Xiumi placeholder metadata residue`.
+  - `tn-yzk-font-*` remains covered by `Xiumi text authoring metadata`.
+- Added a reduced regression fixture with only `tn-placeholder` and readable text, intentionally
+  omitting `tn-yzk-font-*`, broader `tn-*` classes, flow-canvas, Angular, opera runtime,
+  `contenteditable`, hosted-media, SVG content-layer, `raw-image`, page/layer slots,
+  gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "placeholder metadata" --reporter=default` failed before implementation because the message
+  only contained `Xiumi tn-* attribute` and `Xiumi text authoring metadata`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "placeholder metadata" --reporter=default` passed with 1 selected test and 199 skipped tests.
+- Regression guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "SVG carousel and flow-canvas" --reporter=default` passed with 1 selected test and 199 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 200 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1177 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 25.63s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Child Layer State Residue Slice
 
 Scope:

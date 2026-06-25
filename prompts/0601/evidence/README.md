@@ -4862,3 +4862,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Placeholder Metadata Residue
+
+- [x] xiumi-placeholder-metadata-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor placeholder attribute observed in the
+  central SVG carousel/text-cell sample readback: `tn-placeholder`.
+- The reduced regression intentionally keeps only `tn-placeholder` plus readable text, proving the
+  cleaned placeholder metadata residue is blocked without relying on `tn-yzk-font-*`, `tn-cell`,
+  flow-canvas, Angular `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

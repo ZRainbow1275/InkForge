@@ -1,0 +1,43 @@
+Xiumi Placeholder Metadata Residue - 2026-06-25
+
+Scope:
+- Static publishability blocker for copied or partially cleaned Xiumi placeholder editor metadata.
+- Covered marker:
+  - tn-placeholder
+
+Implemented:
+- MARKET_EDITOR_RESIDUE_RULES reports Xiumi placeholder metadata residue for tn-placeholder.
+- The previous combined text-authoring metadata rule was split:
+  - tn-placeholder -> Xiumi placeholder metadata residue
+  - tn-yzk-font-* -> Xiumi text authoring metadata
+- Reduced regression fixture keeps only tn-placeholder plus readable text.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "placeholder metadata" --reporter=default
+  Failed before implementation because the message only contained Xiumi tn-* attribute and
+  Xiumi text authoring metadata.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "placeholder metadata" --reporter=default
+  PASS: 1 selected / 199 skipped.
+- Regression guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "SVG carousel and flow-canvas" --reporter=default
+  PASS: 1 selected / 199 skipped.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 200 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1177 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 25.63s.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or
+  publish success.

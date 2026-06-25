@@ -197,7 +197,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi applied SVG content layer',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:\btn-yzk-font-[\w-]+(?=[\s"'=/>])|\btn-placeholder(?=[\s"'=/>]))/i,
+    pattern: /<[a-zA-Z][^>]*\btn-placeholder(?=[\s"'=/>])/i,
+    label: 'Xiumi placeholder metadata residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-yzk-font-[\w-]+(?=[\s"'=/>])/i,
     label: 'Xiumi text authoring metadata',
   },
   {

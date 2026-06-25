@@ -5661,3 +5661,39 @@ const ruleFamilies = [
   the precise `Xiumi child layer state residue` label without relying on page/layer slot classes.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 96. Xiumi Placeholder Metadata Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi applied-editor
+  placeholder attribute `tn-placeholder`.
+- This attribute came from the applied Xiumi SVG carousel/text-cell sample DOM readback. It stores
+  editor prompt text such as "click edit"; it is not publishable article copy or InkForge-owned
+  semantic metadata.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi placeholder metadata residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-placeholder` appears as an attribute marker.
+- The rule must not require `tn-yzk-font-*`, `tn-cell`, flow-canvas, Angular, opera runtime,
+  editable surface, hosted media, SVG content-layer, `raw-image`, page/layer slots, or any other
+  market-editor marker to fire.
+- `tn-placeholder` must be diagnosed as placeholder metadata residue instead of only the generic
+  `Xiumi text authoring metadata` label. `tn-yzk-font-*` remains covered by
+  `Xiumi text authoring metadata`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced placeholder-only fixture reports only the old
+  text-authoring/generic labels before the rule split and the precise placeholder metadata residue
+  label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing carousel fixture reporting
+  `Xiumi text authoring metadata` through `tn-yzk-font-*` after the placeholder split.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
