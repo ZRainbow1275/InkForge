@@ -960,6 +960,12 @@ Xiumi SVG/H5 rules:
   InkForge's local no-copy gate on WeChat/XHS/Zhihu publishable output; they do not prove WeChat
   paste, mobile trigger behavior, Dark Mode, cover thumbnail acceptance, sync, upload, public
   preview, scheduled send, or publish success.
+- 2026-06-26 CloakBrowser material-panel child-control follow-up: the 135 right-side settings panel
+  exposed source-specific child controls such as `edit-image`, `image__title-bar`,
+  `edit-add-images`, `edit-add-btn`, `edit-add__title`, `edit-animate`,
+  `edit-animate__title`, `edit-animate__opt`, and `animate__dur`. Treat these as image-slot and
+  motion-parameter inputs only after rewriting them into InkForge-owned schemas; copied controls
+  remain `135 SVG material panel residue`.
 - 2026-06-22 applied Xiumi SVG sample follow-up: clicking the live `SVG` category expanded the
   library from 23 to 43 template items and exposed the same mobile-interaction taxonomy in the
   current editor. Clicking the first visible SVG image-gallery sample changed the center

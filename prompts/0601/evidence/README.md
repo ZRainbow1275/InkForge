@@ -3784,6 +3784,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   credentialed sync, public-host acceptance, account upload, scheduled send, platform preview,
   public rendering, or publish success.
 
+## 2026-06-26 135 SVG Material Panel Child Controls
+
+- [x] 135-svg-material-panel-child-controls-residue-20260626.txt
+- CloakBrowser inspection of the 135 SVG right-side settings panel found child-only controls for
+  image slots and animation settings: `edit-image`, `image__title-bar`, `edit-add-images`,
+  `edit-add-btn`, `edit-add__title`, `edit-animate`, `edit-animate__title`,
+  `edit-animate__opt`, and `animate__dur`.
+- A reduced regression now proves those children fail as `135 SVG material panel residue` even
+  when parent `editor-bar`, `editor-img`, and `editor-course` wrappers are absent.
+- Verification passed: red/green focused platform rendering test, full platform rendering test,
+  full export serial regression, targeted ESLint, `vue-tsc`, production build, and release
+  preflight expected external blocker.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
 ## 2026-06-22 Xiumi Applied SVG Sample CloakBrowser Probe
 
 - [x] xiumi-applied-svg-sample-cloakbrowser-20260622.txt
