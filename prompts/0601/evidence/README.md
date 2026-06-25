@@ -5088,3 +5088,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   component/runtime binding attributes after link binding metadata moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Image Binding Metadata Residue
+
+- [x] xiumi-image-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi image/material binding metadata observed in editor-side
+  image/card state: `tn-image` and `tn-image-usage`.
+- The reduced regression intentionally keeps only `tn-image` / `tn-image-usage` plus readable
+  text, proving the cleaned image binding residue is blocked without relying on `tn-bind-comp-*`,
+  `tn-uuid`, `tn-animate`, `tn-link`, `tn-comp`, `tn-comp-role`, `tn-cell-type`,
+  `tn-child-position`, `tn-page-stage-size`, component/cell/layer/page classes, hosted-media,
+  Angular `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG content-layer,
+  `raw-image`, image wrapper classes, page/layer slots, gallery wrappers, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the other
+  component/runtime binding attributes after image binding metadata moved to a narrower
+  diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

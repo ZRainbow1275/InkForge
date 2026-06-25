@@ -1259,7 +1259,12 @@ Rules:
 - Xiumi link binding metadata such as `tn-link` must fail independently of the broader
   component-binding bucket. Other component/runtime attributes such as `tn-comp`, `tn-comp-role`,
   `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`, and
-  `tn-image-usage` remain covered by
+  `tn-atom-context` remain covered by
+  `Xiumi component binding attribute residue`.
+- Xiumi image binding metadata such as `tn-image` and `tn-image-usage` must fail independently of
+  the broader component-binding bucket. Other component/runtime attributes such as `tn-comp`,
+  `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`,
+  `tn-page-stage-size`, and `tn-atom-context` remain covered by
   `Xiumi component binding attribute residue`.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
@@ -1322,6 +1327,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-identity-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-animation-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-link-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-image-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1343,4 +1349,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-109.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-110.
