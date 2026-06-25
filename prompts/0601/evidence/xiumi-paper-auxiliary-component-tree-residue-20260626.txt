@@ -1,0 +1,77 @@
+Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi paper auxiliary
+  component-tree controls.
+- Covers Xiumi auxiliary tree classes and attributes such as tn-paper-aux-comps-tree-assistant,
+  tn-paper-aux-comps-tree, paper-comps-assistant, paper-aux-comp-tree, aux-tree-node-data, and
+  on-paper-aux-tree-node-*.
+- No platform save, sync, copy-to-WeChat, preview, upload, scheduled send, or publish action.
+
+Live source:
+- CloakBrowser opened the live Xiumi v5 paper editor and read back the applied editor/control DOM.
+- The auxiliary tree DOM exposed tn-paper-aux-comps-tree-assistant, tn-paper-aux-comps-tree,
+  paper-comps-assistant, paper-aux-comp-tree, aux-tree-node-data,
+  on-paper-aux-tree-node-active-state-change, and on-paper-aux-tree-node-clicked.
+- These nodes describe editor component-tree controls and callbacks. They are not article content,
+  style, SVG payload, or platform-safe export markup.
+
+Implemented:
+- Added a reduced regression fixture that keeps only paper auxiliary component-tree controls after
+  operator, selection overlay, crop/worker, Angular, tn-attribute, hosted media, and interaction
+  markers have been removed.
+- Added the detector label:
+  Xiumi paper auxiliary component tree residue
+
+Why this matters:
+- Existing Xiumi guards already catch component/cell/page/layer authoring trees, selection
+  overlays, crop worker surfaces, operator docks, operator depot items, operation-panel loaders,
+  broad tn-* attributes, Angular runtime attributes/classes, hosted media, interaction styles, and
+  applied SVG content layers.
+- This slice covers the child-only path where copied DOM keeps paper auxiliary component-tree
+  helpers after broader controls have been cleaned.
+- The rule stays anchored to Xiumi paper auxiliary tree names and does not match generic paper,
+  tree, or assistant prose unless source-specific auxiliary tree markers are present.
+
+Regression coverage:
+- WeChat: detectQuality(..., 'wechat') reports wechat-market-editor-residue with
+  Xiumi paper auxiliary component tree residue.
+- Xiaohongshu: detectQuality(..., 'xiaohongshu') reports xhs-market-editor-residue with
+  Xiumi paper auxiliary component tree residue.
+- Zhihu: detectQuality(..., 'zhihu') reports zhihu-market-editor-residue with
+  Xiumi paper auxiliary component tree residue.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "paper auxiliary" --reporter=default
+  Result: failed as expected because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "paper auxiliary" --reporter=default
+  Result: passed, 1 selected test, 230 skipped tests.
+
+Verification:
+- git diff --check -- <slice paths>
+  Result: passed with only normal Windows LF-to-CRLF warnings.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file / 231 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 36 files / 1208 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite build completed in 38.53s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC rich paste, WeChat phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+- No local browser runtime directory, session secret, QR code, account capture, capture-file
+  reference, traffic archive, or account artifact is included in this committed evidence.

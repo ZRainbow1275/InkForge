@@ -6365,6 +6365,46 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains paper auxiliary component-tree
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor readback, such as
+  `tn-paper-aux-comps-tree-assistant`, `tn-paper-aux-comps-tree`, `paper-comps-assistant`,
+  `paper-aux-comp-tree`, `aux-tree-node-data`, or `on-paper-aux-tree-node-*`.
+- These controls are Xiumi authoring UI for the editor-side component tree and mouse/selection
+  callbacks. They are not article content, style semantics, or platform-safe SVG/HTML.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi paper auxiliary component tree residue` for
+  WeChat, Xiaohongshu, and Zhihu when supported paper auxiliary tree classes or attributes appear.
+- A reduced fixture containing only the paper auxiliary tree controls must fail even when
+  selection-overlay wrappers, crop/worker controls, operator-dock parents, operator depot items,
+  `op-loader`, broad `tn-*` attributes, broad `ng-*` attributes/classes, `opera-tn-*`,
+  `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, and `user-select` markers are absent.
+- This rule must stay anchored to Xiumi paper auxiliary tree names and must not match generic
+  `paper`, `tree`, or `assistant` prose unless source-specific auxiliary component-tree markers
+  are present.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced paper auxiliary tree fixture fails before implementation and
+  reports `Xiumi paper auxiliary component tree residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi worker surface crop control residue`,
+  `Xiumi selection overlay control residue`, `Xiumi operator depot item residue`, and
+  `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

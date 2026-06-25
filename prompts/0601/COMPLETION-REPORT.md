@@ -5190,6 +5190,37 @@ Boundary:
 
 ---
 
+## 2026-06-26 Xiumi Paper Auxiliary Component Tree Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the auxiliary
+  component-tree DOM can retain `tn-paper-aux-comps-tree-assistant`,
+  `tn-paper-aux-comps-tree`, `paper-comps-assistant`, `paper-aux-comp-tree`,
+  `aux-tree-node-data`, and `on-paper-aux-tree-node-*`.
+- Added the static detector label `Xiumi paper auxiliary component tree residue` for child-only
+  auxiliary component-tree controls after broader operator/selection/crop/runtime markers have
+  been removed.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 231 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1208 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 38.53s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-paper-auxiliary-component-tree-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-26 Xiumi Operator Depot Item Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the operation-control

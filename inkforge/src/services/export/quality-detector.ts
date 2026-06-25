@@ -165,6 +165,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operator dock control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:tn-paper-aux-comps-tree(?:-assistant)?|paper-(?:comps-assistant|aux-comp-tree))\b[^"']*["']|\b(?:aux-tree-node-data|on-paper-aux-tree-node-(?:active-state-change|clicked))\s*=)/i,
+    label: 'Xiumi paper auxiliary component tree residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },
