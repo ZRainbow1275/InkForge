@@ -205,7 +205,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi animation binding metadata residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\btn-(?:comp(?:-role|-index|-pose)?|cell(?:-type)?|child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context|link|image(?:-usage)?)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\btn-link\s*=/i,
+    label: 'Xiumi link binding metadata residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:comp(?:-role|-index|-pose)?|cell(?:-type)?|child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context|image(?:-usage)?)\s*=/i,
     label: 'Xiumi component binding attribute residue',
   },
   {
