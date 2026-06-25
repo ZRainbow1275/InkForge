@@ -5729,3 +5729,38 @@ const ruleFamilies = [
   `Xiumi yzk font metadata residue` after the rename.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 98. Xiumi Disabled Control Binding Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi `disable-tn-*`
+  attribute.
+- This marker came from the applied Xiumi editor runtime sample DOM readback. It represents editor
+  control-state gating such as disabling a Xiumi group flex box control, not publishable article
+  semantics.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi disabled control binding residue` for WeChat,
+  Xiaohongshu, and Zhihu when `disable-tn-*` appears as an attribute marker.
+- The rule must not require `opera-tn-ra-*`, `tn-*`, Angular, opera runtime path readbacks,
+  editable surface, hosted media, SVG content-layer, `raw-image`, page/layer slots, or any other
+  market-editor marker to fire.
+- `disable-tn-*` must be diagnosed as disabled control binding residue instead of only the generic
+  `Xiumi runtime binding attribute` label. `opera-tn-ra-comp` and `opera-tn-ra-cell` remain covered
+  by `Xiumi runtime binding attribute`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced disable-only fixture reports only the old runtime/generic labels
+  before the rule split and the precise disabled control binding residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing runtime-binding fixture reporting
+  `Xiumi runtime binding attribute` through `opera-tn-ra-*` after the split.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

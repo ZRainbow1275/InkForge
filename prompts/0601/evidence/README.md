@@ -4890,3 +4890,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Disabled Control Binding Residue
+
+- [x] xiumi-disabled-control-binding-residue-20260625.txt
+- Added a static quality rule for the Xiumi applied-editor disabled control binding attribute
+  observed in the runtime sample readback: `disable-tn-group-flex-box`.
+- The reduced regression intentionally keeps only `disable-tn-group-flex-box` plus readable text,
+  proving the cleaned disabled control binding residue is blocked without relying on
+  `opera-tn-ra-*`, `tn-*`, Angular `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG
+  content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or
+  `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

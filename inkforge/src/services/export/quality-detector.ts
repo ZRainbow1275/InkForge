@@ -221,7 +221,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi sortable control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\b(?:opera-tn-ra-(?:comp|cell)|disable-tn-[\w-]+)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\bdisable-tn-[\w-]+\s*=/i,
+    label: 'Xiumi disabled control binding residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\bopera-tn-ra-(?:comp|cell)\s*=/i,
     label: 'Xiumi runtime binding attribute',
   },
   {

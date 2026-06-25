@@ -1,0 +1,43 @@
+Xiumi Disabled Control Binding Residue - 2026-06-25
+
+Scope:
+- Static publishability blocker for copied or partially cleaned Xiumi disabled control bindings.
+- Covered marker:
+  - disable-tn-*
+
+Implemented:
+- MARKET_EDITOR_RESIDUE_RULES reports Xiumi disabled control binding residue for disable-tn-*.
+- The previous runtime binding attribute rule was split:
+  - disable-tn-* -> Xiumi disabled control binding residue
+  - opera-tn-ra-comp / opera-tn-ra-cell -> Xiumi runtime binding attribute
+- Reduced regression fixture keeps only disable-tn-group-flex-box plus readable text.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "disabled control bindings" --reporter=default
+  Failed before implementation because the message only contained Xiumi tn-* attribute and
+  Xiumi runtime binding attribute.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "disabled control bindings" --reporter=default
+  PASS: 1 selected / 201 skipped.
+- Regression guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "runtime binding attributes" --reporter=default
+  PASS: 1 selected / 201 skipped.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 202 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1179 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 24.82s.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or
+  publish success.

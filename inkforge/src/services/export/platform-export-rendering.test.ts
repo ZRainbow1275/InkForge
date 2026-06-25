@@ -281,6 +281,12 @@ const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_DISABLED_CONTROL_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div disable-tn-group-flex-box="block">Xiumi disabled control binding residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_ANGULAR_RUNTIME_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<input ng-model="status.animatedArgs.duration" ng-change="onTransitionDurationChanged()" class="ng-pristine ng-untouched ng-valid ng-not-empty">',
@@ -8662,6 +8668,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi runtime binding attribute')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi runtime binding attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi disabled control bindings after runtime cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_DISABLED_CONTROL_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_DISABLED_CONTROL_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_DISABLED_CONTROL_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi disabled control binding residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi disabled control binding residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi disabled control binding residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

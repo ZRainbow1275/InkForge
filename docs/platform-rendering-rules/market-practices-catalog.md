@@ -1214,6 +1214,8 @@ Rules:
 - Xiumi yzk font metadata such as `tn-yzk-font-usage-id` must fail independently of
   `tn-placeholder`, `tn-cell`, flow-canvas, Angular, opera runtime, editable, hosted-media, or SVG
   content-layer markers.
+- Xiumi disabled control bindings such as `disable-tn-group-flex-box` must fail independently of
+  `opera-tn-ra-*`, `tn-*`, Angular, editable, hosted-media, or SVG content-layer markers.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1263,6 +1265,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-flow-canvas-animation-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-placeholder-metadata-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-yzk-font-metadata-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-disabled-control-binding-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1284,4 +1287,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-97.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-98.
