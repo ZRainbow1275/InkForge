@@ -1,0 +1,50 @@
+135 SVG Trigger Child-Handle Residue - 2026-06-26
+
+Scope:
+- Static publishability blocker for copied 135 SVG editor trigger hot-area child controls.
+- Applies to WeChat, Xiaohongshu, and Zhihu export quality checks.
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor after a free-trial SVG effect was inserted
+  with the no-material option.
+- The center authoring canvas exposed child-only hot-area editor DOM:
+  - directional resize handles such as class="ajuster nw" and class="ajuster se"
+  - trigger labels such as class="trigger_tip" with visible "设置弹出" text
+- No account-state material, local browser runtime material, platform sync artifact, or platform
+  publish artifact is part of this evidence.
+
+Implementation:
+- Added MARKET_EDITOR_135_SVG_TRIGGER_CHILD_RESIDUE_HTML as a reduced regression fixture.
+- The fixture intentionally omits trigger__ajuster, block-img__trigger, edit-trigger,
+  app-content-canvas, known 135 builder data-name values, hosted media, material panel markers,
+  and canvas shell markers.
+- Expanded the existing 135 SVG trigger hot-area overlay residue detector to catch trigger_tip
+  and adjuster child classes under the same source-specific label.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Failed with 1 new test because child-only trigger controls emitted no market-editor-residue issue.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Passed: 1 file / 224 tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Passed: 36 files / 1201 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Passed: 4653 modules transformed, Vite build completed in 41.35s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Expected blocked result: status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves only local static residue detection and regression coverage.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.

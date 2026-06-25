@@ -721,7 +721,8 @@ This trace maps existing InkForge style assets to user-facing choices so future 
   `ant-tooltip-open` are residue signals. They can inform InkForge trigger-zone and expanded-
   content schema only after being rewritten as source-owned modules.
 - 135 SVG trigger hot-area overlay wrappers such as `block-img__trigger`, `edit-trigger`,
-  `edit-trigger__switch`, and `trigger__ajuster` must fail as
+  `edit-trigger__switch`, `trigger__ajuster`, `trigger_tip`, and direction handles such as
+  `ajuster nw` must fail as
   `135 SVG trigger hot-area overlay residue`, not only as the broader builder-canvas residue.
 - 135 ordinary editor examples may inform title/body rhythm, nested hierarchy, and block insertion
   risk. Do not retain `_135editor`, helper classes, `data-tools`, `data-id`, editor metadata,
@@ -836,9 +837,9 @@ Zhihu.
   trigger helpers, and editor metadata must remain market-editor residue blockers if they appear in
   WeChat, Xiaohongshu, or Zhihu publishable output.
 - Trigger hot-area overlay markers are source-specific residue. `block-img__trigger`,
-  `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster` must fail as
-  `135 SVG trigger hot-area overlay residue` even when `app-content-canvas`, known `data-name`
-  values, hosted material, and canvas shell markers are absent.
+  `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`, `trigger_tip`, and `ajuster`
+  handles must fail as `135 SVG trigger hot-area overlay residue` even when `app-content-canvas`,
+  known `data-name` values, hosted material, and canvas shell markers are absent.
 - 2026-06-20 CloakBrowser shell refresh: the active 135 SVG editor free-trial page exposed center
   shell wrappers such as `content-canvas`, `content-background`, `content-inner`, `block-inner`,
   `block-img__inner`, `placeholder__help`, `placeholder__icon`, `article-item__inner`,
@@ -1216,8 +1217,8 @@ claims.
 
 Rules:
 - 135 SVG trigger hot-area overlays such as `block-img__trigger`, `edit-trigger`,
-  `edit-trigger__switch`, and `trigger__ajuster` must fail independently of broader SVG builder
-  canvas markers.
+  `edit-trigger__switch`, `trigger__ajuster`, `trigger_tip`, and `ajuster` resize handles must
+  fail independently of broader SVG builder canvas markers.
 - 135 SVG trigger switch controls such as `ant-switch`, `ant-switch-checked`, `ant-switch-inner`,
   and `ant-switch-handle` must fail independently of trigger overlay geometry and broader SVG
   builder canvas markers.

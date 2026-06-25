@@ -2559,6 +2559,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
 
+## 2026-06-26 135 SVG Trigger Child-Handle Residue
+
+- [x] 135-svg-trigger-child-handle-residue-20260626.txt
+- CloakBrowser inspection of the 135 SVG free-trial editor canvas found child-only hot-area
+  residues: `trigger_tip` labels and `ajuster` resize handles.
+- A reduced regression now proves those children fail as
+  `135 SVG trigger hot-area overlay residue` even when the parent `trigger__ajuster` wrapper is
+  absent.
+- Verification passed: red/green focused platform rendering test, full export serial regression,
+  targeted ESLint, `vue-tsc`, production build, and release preflight expected external blocker.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
 ## 2026-06-26 135 SVG Trigger Switch Control Residue
 
 - [x] 135-svg-trigger-switch-control-residue-20260626.txt

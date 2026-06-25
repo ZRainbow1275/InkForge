@@ -13780,3 +13780,46 @@ Boundary:
 - This is static publishability protection only. It does not prove WeChat paste, phone preview,
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
+
+## 2026-06-26 135 SVG Trigger Child-Handle Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor after choosing a free-trial SVG effect and
+  selecting the no-material import path. The center authoring canvas exposed child-only trigger
+  hot-area DOM such as `trigger_tip` labels with visible `设置弹出` text and directional
+  `ajuster` resize handles.
+- No account-state material, local browser runtime material, platform publish artifact, or sync
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing `trigger_tip` and `ajuster` child nodes without
+  `trigger__ajuster`, `block-img__trigger`, `edit-trigger`, known 135 builder `data-name` values,
+  hosted media, material panel markers, or canvas shell markers.
+- Extended the existing `135 SVG trigger hot-area overlay residue` detector to catch these
+  child-only residues under the same source-specific label.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same command passed with 1 file and 224 tests after the detector update.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1201 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 41.35s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.

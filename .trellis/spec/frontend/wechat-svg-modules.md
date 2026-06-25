@@ -2236,7 +2236,8 @@ Contracts:
 - 2026-06-20 135 SVG editor no-material deep pass residue rule: placeholders and no-material trial
   blocks are schema/risk evidence only. They must not satisfy final visual fidelity, artifact
   paste, phone interaction, or publish proof, and copied authoring markers such as `block-img`,
-  `block-img__trigger`, `edit-trigger`, `trigger__ajuster`, `edit-trigger__switch`,
+  `block-img__trigger`, `edit-trigger`, `trigger__ajuster`, `trigger_tip`, `ajuster`,
+  `edit-trigger__switch`,
   `placeholder__name`, Vue/Ant wrappers, or builder `data-name` families must remain
   market-editor-residue blockers. Trigger overlay markers are reported by the source-specific
   `135 SVG trigger hot-area overlay residue` label defined in section 117.
@@ -2269,8 +2270,8 @@ Contracts:
   `margin-top:-1px`, `pointer-events:none`, `svg:135`, `user-select:none`,
   `vertical-align:top`, and `width:100%`. Treat `100.1%` sizing and `-1px` compensation as
   gap-sealing tactics for InkForge-owned image-slot/fallback/layout-report schemas only. Copied
-  markers such as `svg:135`, `coverclickmovewithspread`, `edit-trigger`, `trigger__ajuster`, and
-  hosted 135 material URLs must remain market-editor residue.
+  markers such as `svg:135`, `coverclickmovewithspread`, `edit-trigger`, `trigger__ajuster`,
+  `trigger_tip`, `ajuster`, and hosted 135 material URLs must remain market-editor residue.
 - 135 ordinary style insertion depends on a live UEditor insertion range. A style list click that
   does not mutate the central editor iframe is only a listing/selection probe; applied evidence
   requires central editor DOM counts or HTML/text length to change and the inserted block to be
@@ -2374,6 +2375,7 @@ Required tests/checks:
   `style_id/style_name/style_price`, known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
+  `trigger_tip`, `ajuster`,
   `placeholder__name`, `ant-tooltip-open`, `tn-*`, `tn-svg-animation-*`,
   `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
   `tn-group-usage-flow-canvas`, `tn-page-slot`, `tn-layer-slot`,
@@ -6310,8 +6312,8 @@ const ruleFamilies = [
 ### 1. Scope / Trigger
 
 - Trigger: copied or partially cleaned 135 SVG editor HTML contains trigger hot-area overlay
-  markers such as `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, or
-  `trigger__ajuster`.
+  markers such as `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`,
+  `trigger__ajuster`, `trigger_tip`, or direction handle classes such as `ajuster nw`.
 - These classes are 135 SVG editor authoring controls for hidden or visible trigger-zone geometry.
   They may inform InkForge-owned trigger-zone manifests and layout reports, but they are not
   publishable article DOM for WeChat, Xiaohongshu, or Zhihu.
@@ -6320,6 +6322,9 @@ const ruleFamilies = [
 
 - `detectQuality(..., platform)` must report `135 SVG trigger hot-area overlay residue` for WeChat,
   Xiaohongshu, and Zhihu when the trigger overlay markers appear in class/id attributes.
+- Child-only residues from the same hot-area editor, including `trigger_tip` labels and
+  `ajuster` resize handles, must fail under the same source-specific label even when the parent
+  `trigger__ajuster` wrapper was removed.
 - A reduced fixture containing trigger overlay markers but no `app-content-canvas`, known 135
   `data-name`, hosted-media, or material-shell markers must not be reported as the broader
   `135 SVG builder canvas residue`.

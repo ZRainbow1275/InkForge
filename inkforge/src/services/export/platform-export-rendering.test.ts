@@ -226,6 +226,14 @@ const MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_TRIGGER_CHILD_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<i class="ajuster nw"></i>',
+  '<i class="ajuster se"></i>',
+  '<div class="trigger_tip" style="padding:5px"><span>设置弹出</span></div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_TRIGGER_SWITCH_RESIDUE_HTML = [
   '<section style="margin:0;padding:0">',
   '<button class="ant-switch ant-switch-checked" type="button">',
@@ -8693,6 +8701,28 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_OVERLAY_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG trigger hot-area overlay residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG trigger hot-area overlay residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG trigger hot-area overlay residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG builder canvas residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('135 SVG builder canvas residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('135 SVG builder canvas residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG trigger child handles and labels without the parent overlay wrapper', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_CHILD_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_CHILD_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TRIGGER_CHILD_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('135 SVG trigger hot-area overlay residue')
