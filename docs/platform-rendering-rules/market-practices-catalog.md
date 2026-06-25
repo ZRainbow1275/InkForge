@@ -1356,7 +1356,9 @@ Rules:
   `x3-nav-op-buttons`, `tn-op-btn-group`, `op-btn`, `op-btn-inset-icon`,
   `op-btn-inset-desc`, and `op-more`, or UI Bootstrap directives such as `uib-dropdown`,
   `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
-  `tooltip-popup-delay`.
+  `tooltip-popup-delay`, or operation-bar dropdown/menu controls such as `op-bar-menu`,
+  `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`,
+  `size-list-menu`, and `insert-text-op-bar-panel`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1408,6 +1410,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-operation-bar-dropdown-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`

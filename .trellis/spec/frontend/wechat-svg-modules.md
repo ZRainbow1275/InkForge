@@ -6483,6 +6483,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 128. Xiumi Operation Bar Dropdown Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains operation-bar dropdown/menu
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `op-bar-menu`, `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`,
+  `format-panel`, `size-list-menu`, or `insert-text-op-bar-panel`.
+- These nodes drive Xiumi's editor-side command bars, shortcut menus, spacing panels, format
+  panels, and text insertion controls. They are not article content, platform-safe SVG/H5
+  semantics, or user-authored visual style.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi operation bar dropdown residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported operation-bar dropdown/menu class or id markers appear.
+- A reduced fixture containing only operation-bar dropdown/menu classes must fail even when broad
+  UI Bootstrap directives, top operation classes, broad Angular `ng-*` attributes/classes, paper
+  auxiliary tree controls, selection overlays, crop/worker controls, operator-dock parents,
+  operator depot items, `op-loader`, broad `tn-*` attributes, `opera-tn-*`, `contenteditable`,
+  hosted media, SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, and `user-select`
+  markers are absent.
+- This rule must not match generic `dropdown-menu`, `btn`, `btn-group`, `line-spacing`, or
+  readable shortcut text by themselves; the detector must stay anchored to Xiumi-specific
+  operation-bar class/id markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operation-bar dropdown fixture fails before implementation and
+  reports `Xiumi operation bar dropdown residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi UI Bootstrap control directive residue`,
+  `Xiumi top operation button residue`, `Xiumi operator depot item residue`, and
+  `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

@@ -5419,3 +5419,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Operation Bar Dropdown Residue
+
+- [x] xiumi-operation-bar-dropdown-residue-20260626.txt
+- Added a static quality rule for Xiumi operation-bar dropdown/menu controls observed in the live
+  Xiumi v5 paper-editor DOM: `op-bar-menu`, `op-bar-btn`, `op-bar-icon`,
+  `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`, `size-list-menu`, and
+  `insert-text-op-bar-panel`.
+- The reduced regression intentionally keeps only source-specific operation-bar classes plus
+  readable shortcut/menu text, proving the cleaned dropdown/menu control residue is blocked
+  without relying on UI Bootstrap directives, top operation classes, broad Angular `ng-*`,
+  paper auxiliary tree controls, selection overlays, crop/worker controls, operator-dock parents,
+  operator depot items, `op-loader`, broad `tn-*`, `opera-tn-*`, `contenteditable`, hosted media,
+  SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
+- The detector intentionally does not block generic `dropdown-menu`, `btn`, `btn-group`,
+  `line-spacing`, or readable shortcut text by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

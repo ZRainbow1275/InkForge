@@ -437,6 +437,18 @@ const MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_OPERATION_BAR_DROPDOWN_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<button class="btn btn-success op-bar-btn dropdown-toggle"><span class="op-bar-icon more"></span></button>',
+  '<ul class="op-bar-menu shorter-panel shortcut-op-bar-panel dropdown-menu" role="menu">',
+  '<li><a title="复制 | Ctrl + c">复制 | Ctrl + c</a></li>',
+  '</ul>',
+  '<section class="op-bar-menu spacing-panel dropdown-menu" role="menu">',
+  '<div class="form-horizontal"><div class="line-spacing btn-group"><span class="unit">倍</span></div></div>',
+  '</section>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10091,6 +10103,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi UI Bootstrap control directive residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi operation bar dropdown controls after Bootstrap directive cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_BAR_DROPDOWN_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_BAR_DROPDOWN_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_BAR_DROPDOWN_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi operation bar dropdown residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi operation bar dropdown residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi operation bar dropdown residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
