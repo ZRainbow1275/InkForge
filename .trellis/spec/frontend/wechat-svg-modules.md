@@ -6285,6 +6285,46 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains selected-component overlay,
+  resize, or drag-handle child controls observed after a live CloakBrowser template click changed
+  the center paper, such as `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`,
+  `hm-recognizer-options`, `hm-panstart`, `hm-panend`, `hm-panmove`, `stop-propagation`, or
+  `tn-attach-to`.
+- These controls are Xiumi authoring UI for selection bounding boxes, resize/rotate handles, and
+  gesture routing. They are not publishable article DOM for WeChat, Xiaohongshu, or Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi selection overlay control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the supported selection-overlay classes or gesture/control
+  attributes appear.
+- A reduced fixture containing only the selection-overlay child controls must fail even when
+  operator-dock parents, `op-loader`, broad `tn-*` trees, broad `ng-*` attributes/classes,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, and `user-select` markers are absent.
+- The rule must avoid generic class names such as `bar`, `line`, `corner`, or `handle` unless they
+  are anchored by source-specific selection-overlay wrappers or gesture attributes.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced selection-overlay fixture fails before implementation and reports
+  `Xiumi selection overlay control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operator dock control residue`, `Xiumi operation panel
+  loader residue`, `Xiumi UI slider control residue`, `Xiumi sortable control residue`, and the
+  existing `tn-*` state wrappers independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 119. 135 SVG Editor Base Shell Residue - 2026-06-26
 
 ### 1. Scope / Trigger

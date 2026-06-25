@@ -13824,6 +13824,58 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-26 Xiumi Selection Overlay Control Residue Slice
+
+Source:
+- CloakBrowser continued the live Xiumi v5 applied-template readback. After a visible template
+  card changed the center paper, the selected component exposed child-only selection overlay and
+  resize controls including `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`,
+  `hm-recognizer-options`, `hm-panstart`, `hm-panend`, and `hm-panmove`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 2` returned LOW risk with 4 direct
+  dependents and 0 affected processes.
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3` returned LOW risk with
+  0 direct dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only Xiumi selection overlay and resize-control
+  child markers without operator-dock parents, broad `tn-*`, broad `ng-*`, `opera-tn-*`,
+  `op-loader`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, or `user-select` markers.
+- Added the `Xiumi selection overlay control residue` detector for source-specific selected-box
+  controls and gesture attributes. The rule intentionally avoids generic classes such as `bar`,
+  `line`, `corner`, or `handle`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "selection overlay" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 226 skipped tests after the
+  detector update.
+- `git diff --check -- <slice paths>` passed with only normal Windows LF-to-CRLF warnings.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 227 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1204 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 42.01s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 Xiumi Operator Dock Control Residue Slice
 
 Source:

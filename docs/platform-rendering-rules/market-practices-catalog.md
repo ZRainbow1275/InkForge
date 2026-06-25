@@ -1340,7 +1340,9 @@ Rules:
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
   `out-comp-edit-panel`, `op-ce-layout-carousel`, `cell-group-edit-container`,
-  `menu-style-input`, and `svg-animation-assistant`.
+  `menu-style-input`, and `svg-animation-assistant`, or selection-overlay child controls such as
+  `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`, `hm-panstart`, `hm-panmove`,
+  `stop-propagation`, and `tn-attach-to`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1367,6 +1369,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-operator-dock-control-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-selection-overlay-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-child-layout-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-atom-context-binding-metadata-residue-20260626.txt`

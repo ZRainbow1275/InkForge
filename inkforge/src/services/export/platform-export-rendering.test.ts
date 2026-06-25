@@ -370,6 +370,19 @@ const MARKET_EDITOR_XIUMI_OPERATOR_DOCK_CHILD_CONTROLS_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="full-screen-mask"></div>',
+  '<div class="brim-group"><span class="brim n"></span><span class="brim e"></span></div>',
+  '<div class="bar-group">',
+  '<div class="box-lines"></div>',
+  '<div class="box-handles">',
+  '<span hm-recognizer-options="[]" hm-panstart="onHaRszPanStart" hm-panend="onHaRszPanEnd" hm-panmove="onHaRszPanE"></span>',
+  '</div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -9900,6 +9913,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi operator dock control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi operator dock control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi selection overlay child controls after operator cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi selection overlay control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi selection overlay control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi selection overlay control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

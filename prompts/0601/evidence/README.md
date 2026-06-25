@@ -4718,6 +4718,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-26 Xiumi Selection Overlay Control Residue
+
+- [x] xiumi-selection-overlay-control-residue-20260626.txt
+- Added a static quality rule for Xiumi selected-component overlay and gesture child controls
+  observed after a live CloakBrowser template click changed the center paper: `full-screen-mask`,
+  `brim-group`, `box-lines`, `box-handles`, `hm-recognizer-options`, `hm-panstart`,
+  `hm-panend`, and `hm-panmove`.
+- The reduced regression intentionally keeps only those selection-overlay markers, proving the
+  cleaned child-control residue is blocked without relying on operator-dock parents, `tn-*`,
+  `ng-*`, `opera-tn-*`, `op-loader`, `contenteditable`, hosted-media, SVG content-layer,
+  `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-25 Xiumi Sortable Control Residue
 
 - [x] xiumi-sortable-control-residue-20260625.txt
