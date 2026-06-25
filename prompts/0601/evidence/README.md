@@ -5034,3 +5034,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   component/runtime binding attributes after `tn-bind-comp-*` moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Component Identity Metadata Residue
+
+- [x] xiumi-component-identity-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi component identity metadata observed in editor-side
+  component instance state: `tn-uuid`.
+- The reduced regression intentionally keeps only `tn-uuid` plus readable text, proving the
+  cleaned component identity residue is blocked without relying on `tn-bind-comp-*`, `tn-comp`,
+  `tn-comp-role`, `tn-animate`, `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`,
+  `tn-link`, `tn-image-usage`, component/cell/layer/page classes, hosted-media, Angular `ng-*`,
+  `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG content-layer, `raw-image`,
+  page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the other
+  component/runtime binding attributes after `tn-uuid` moved to a narrower diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

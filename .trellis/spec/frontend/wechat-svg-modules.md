@@ -6055,3 +6055,36 @@ const ruleFamilies = [
   `Xiumi component binding attribute residue` after `tn-bind-comp-*` moves to a narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 107. Xiumi Component Identity Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi component identity
+  attribute `tn-uuid`.
+- This attribute identifies an editor-side component instance. It is not InkForge-owned
+  publishable article structure and must not remain in WeChat, Xiaohongshu, or Zhihu output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component identity metadata residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-uuid` appears as an attribute name.
+- A reduced fixture containing only `tn-uuid` must not be reported as the broader
+  `Xiumi component binding attribute residue`.
+- The broader component-binding attribute rule remains responsible for other editor/runtime
+  attributes such as `tn-comp`, `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-animate`,
+  `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-uuid` fixture reports only the old broad component-binding
+  label before the split and the precise component-identity metadata residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` after `tn-uuid` moves to a narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
