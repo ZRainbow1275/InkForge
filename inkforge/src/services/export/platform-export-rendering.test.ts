@@ -244,6 +244,16 @@ const MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_BASE_SHELL_RESIDUE_HTML = [
+  '<section class="content-canvas content-background content-inner">',
+  '<div class="block-inner">',
+  '<div class="block-img">',
+  '<svg viewBox="0 0 1080 1920"><path d="M0 0h1080v1920H0z"></path></svg>',
+  '</div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
   '<section style="margin:0;padding:0">',
   '<div class="block-spacing" style="top:10px;left:0;display:none"></div>',
@@ -8721,6 +8731,22 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_135_SVG_SHELL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG editor shell residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG editor shell residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG editor shell residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG editor base shell wrappers without image-slot helpers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_BASE_SHELL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_BASE_SHELL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_BASE_SHELL_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('135 SVG editor shell residue')

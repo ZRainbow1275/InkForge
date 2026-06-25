@@ -2574,6 +2574,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
 
+## 2026-06-26 135 SVG Editor Base Shell Residue
+
+- [x] 135-svg-editor-base-shell-residue-20260626.txt
+- Expanded the existing `135 SVG editor shell residue` rule to cover base center-shell markers
+  observed in the applied editor: `content-canvas` with `content-background` / `content-inner`,
+  plus `block-inner` and exact `block-img`.
+- The reduced regression intentionally keeps only these base shell markers and readable SVG content,
+  proving the shell residue is blocked without relying on `block-img__inner`,
+  `placeholder__help/icon`, `article-item__*`, `articles_pop`, `_135editor`,
+  `app-content-canvas`, known `data-name` values, trigger overlays, hosted material URLs, or
+  `svg:135` styles.
+- Generic `block` alone remains insufficient for the residue gate.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
 ## 2026-06-20 135 SVG Editor Shell Residue Contract
 
 - [x] 135-svg-editor-shell-residue-contract-20260620.txt

@@ -1,0 +1,36 @@
+135 SVG Editor Base Shell Residue - 2026-06-26
+
+Scope:
+- Local static publishability guard for base 135 SVG editor center-shell wrappers.
+- Covers content-canvas paired with content-background or content-inner, plus block-inner and exact block-img in class/id attributes.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Expanded the existing label 135 SVG editor shell residue.
+- Covered base center-shell markers observed in applied 135 SVG editor DOM after free-trial insertion.
+- Kept generic block alone out of the residue gate.
+- Kept the existing image-slot helper, placeholder, article-item, trigger overlay, trigger switch, builder canvas, material panel, and background-style rules intact.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "base shell wrappers" --reporter=default failed before implementation because the reduced fixture emitted no market-editor residue issue.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "base shell wrappers" --reporter=default passed with 1 selected test and 222 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editor shell wrappers|base shell wrappers" --reporter=default
+  PASS: 1 file / 2 selected tests, 221 skipped
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 223 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1200 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 49.16s; inkforge/tsconfig.tsbuildinfo restored afterward.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKER: exit 1, status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or publish success.

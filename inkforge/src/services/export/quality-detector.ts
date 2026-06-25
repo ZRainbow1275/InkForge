@@ -77,7 +77,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG builder canvas residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:block-img__inner|placeholder__(?:help|icon)|article-item__(?:inner|label|del)|articles_pop)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:(?:\bcontent-canvas\b(?=[^"']*\bcontent-(?:background|inner)\b))|(?:\bcontent-(?:background|inner)\b(?=[^"']*\bcontent-canvas\b))|\bblock-inner\b|\bblock-img\b|\bblock-img__inner\b|\bplaceholder__(?:help|icon)\b|\barticle-item__(?:inner|label|del)\b|\barticles_pop\b)[^"']*["']/i,
     label: '135 SVG editor shell residue',
   },
   {

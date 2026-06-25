@@ -6209,6 +6209,61 @@ Boundary:
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
   article rendering, XHS/Zhihu account upload, public-host availability, or publish success.
 
+## 2026-06-26 135 SVG Editor Base Shell Residue Slice
+
+Scope:
+- Expands the existing 135 SVG editor shell residue gate to cover base center-shell wrappers
+  observed in applied editor DOM.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Extended the `135 SVG editor shell residue` `MARKET_EDITOR_RESIDUE_RULES` entry to cover
+  `content-canvas` paired with `content-background` or `content-inner`, plus `block-inner` and
+  exact `block-img`.
+- Kept generic `block` out of the blocker to avoid treating ordinary prose/container class names as
+  135 residue without stronger source-specific context.
+- Added a reduced regression fixture that intentionally omits `block-img__inner`,
+  `placeholder__help/icon`, `article-item__*`, `articles_pop`, `_135editor`, `app-content-canvas`,
+  known 135 builder `data-name` values, trigger overlay classes, hosted material URLs, and
+  `svg:135` styles.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "base shell wrappers" --reporter=default` failed before implementation because the reduced
+  fixture emitted no market-editor residue issue.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "base shell wrappers" --reporter=default` passed with 1 selected test and 222 skipped tests.
+- Adjacent shell guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "editor shell wrappers|base shell wrappers" --reporter=default` passed with 2 selected tests
+  and 221 skipped tests.
+- Full platform-rendering test:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 223 tests.
+- Full export serial test:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1200 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- Type-check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite built in 49.16s; `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-20 135 SVG Editor Shell Residue Contract Slice
 
 Scope:

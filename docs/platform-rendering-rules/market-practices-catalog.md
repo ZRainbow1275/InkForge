@@ -844,6 +844,11 @@ Zhihu.
   `block-img__inner`, `placeholder__help`, `placeholder__icon`, `article-item__inner`,
   `article-item__label`, and `article-item__del`. Specific shell markers are blocked as
   `135 SVG editor shell residue` if copied into WeChat/XHS/Zhihu output.
+- 2026-06-26 135 base-shell TDD closeout: copied center shell roots using
+  `content-canvas content-background content-inner`, `block-inner`, or exact `block-img` now fail
+  as `135 SVG editor shell residue` even when image-slot helpers, placeholders, article-item
+  chrome, known effect ids, trigger overlays, hosted materials, and `svg:135` styles are absent.
+  Generic `block` alone remains insufficient.
 - 2026-06-20 CloakBrowser layout-control refresh: a visible 135 SVG free-trial click populated the
   center canvas with authoring-only spacing, gap, slider, and hidden title-edit controls such as
   `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`,
@@ -1377,4 +1382,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-118.
+- `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-119.

@@ -6233,6 +6233,44 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 119. 135 SVG Editor Base Shell Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor center-shell HTML contains the base authoring
+  wrappers observed after a visible free-trial click: `content-canvas` paired with
+  `content-background` or `content-inner`, plus shell image wrappers such as `block-inner` or the
+  exact `block-img` class.
+- These wrappers are 135 SVG editor authoring chrome and image-slot shell state. They may inform
+  InkForge-owned image-slot/fallback/layout-report schemas, but they are not publishable article
+  DOM for WeChat, Xiaohongshu, or Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG editor shell residue` for WeChat,
+  Xiaohongshu, and Zhihu when the base shell markers appear in class/id attributes.
+- A reduced fixture containing only `content-canvas content-background content-inner`,
+  `block-inner`, and exact `block-img` must fail even when `block-img__inner`,
+  `placeholder__help/icon`, `article-item__*`, `articles_pop`, `_135editor`,
+  `app-content-canvas`, known 135 `data-name`, trigger overlay markers, hosted material, and
+  `svg:135` styles are absent.
+- The rule remains source-specific. Generic `block` alone is not sufficient for the market-editor
+  residue gate.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced base-shell fixture fails before implementation and reports
+  `135 SVG editor shell residue` after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent shell regression must keep the older shell fixture with `block-img__inner`,
+  `placeholder__help/icon`, and `article-item__*` reporting `135 SVG editor shell residue`.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 118. 135 SVG Trigger Switch Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger
