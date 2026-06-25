@@ -11342,6 +11342,56 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-26 135 SVG Trigger Hot-Area Overlay Residue Slice
+
+Scope:
+- Converts 135 SVG editor trigger hot-area overlay classes into a precise static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `135 SVG trigger hot-area overlay residue`.
+- Removed `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster` from
+  the broader `135 SVG builder canvas residue` rule.
+- Kept `135 SVG builder canvas residue` active for `app-content-canvas`, `block-img__content`,
+  `block-img__default`, `edit-placeholder`, `placeholder__name`, and `ant-tooltip-open`.
+- Reused the existing reduced trigger-overlay regression fixture, which intentionally omits
+  `app-content-canvas`, known 135 builder `data-name` values, hosted media, material panel markers,
+  and canvas shell markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "trigger hot-area overlay" --reporter=default` failed before implementation because the reduced
+  fixture still emitted `135 SVG builder canvas residue` and did not contain
+  `135 SVG trigger hot-area overlay residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "trigger hot-area overlay" --reporter=default` passed with 1 selected test and 220 skipped tests.
+- Adjacent canvas guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "SVG builder canvas blocks|SVG trigger canvas prompts" --reporter=default` passed with 2
+  selected tests and 219 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 221 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1198 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 42.33s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-26 Xiumi Runtime Path Binding Residue Slice
 
 Scope:

@@ -1,0 +1,34 @@
+135 SVG Trigger Hot-Area Overlay Residue - 2026-06-26
+
+Scope:
+- Local static publishability guard for 135 SVG editor trigger hot-area overlay markers.
+- Covers block-img__trigger, edit-trigger, edit-trigger__switch, and trigger__ajuster in class/id attributes.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added the label 135 SVG trigger hot-area overlay residue.
+- Removed trigger overlay markers from the broader 135 SVG builder canvas residue bucket.
+- Kept 135 SVG builder canvas residue active for app-content-canvas, block-img__content, block-img__default, edit-placeholder, placeholder__name, and ant-tooltip-open.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "trigger hot-area overlay" --reporter=default failed before implementation because the reduced fixture emitted 135 SVG builder canvas residue instead of 135 SVG trigger hot-area overlay residue.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "trigger hot-area overlay" --reporter=default passed with 1 selected test and 220 skipped tests.
+- Adjacent canvas guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "SVG builder canvas blocks|SVG trigger canvas prompts" --reporter=default passed with 2 selected tests and 219 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 221 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1198 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 42.33s; inkforge/tsconfig.tsbuildinfo restored afterward.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKER: exit 1, status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or publish success.

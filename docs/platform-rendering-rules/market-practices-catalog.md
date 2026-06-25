@@ -720,6 +720,9 @@ This trace maps existing InkForge style assets to user-facing choices so future 
 - 135 SVG trigger-canvas wrappers such as `app-content-canvas`, `block-img__content`, and
   `ant-tooltip-open` are residue signals. They can inform InkForge trigger-zone and expanded-
   content schema only after being rewritten as source-owned modules.
+- 135 SVG trigger hot-area overlay wrappers such as `block-img__trigger`, `edit-trigger`,
+  `edit-trigger__switch`, and `trigger__ajuster` must fail as
+  `135 SVG trigger hot-area overlay residue`, not only as the broader builder-canvas residue.
 - 135 ordinary editor examples may inform title/body rhythm, nested hierarchy, and block insertion
   risk. Do not retain `_135editor`, helper classes, `data-tools`, `data-id`, editor metadata,
   transforms, or market image dependencies.
@@ -832,6 +835,10 @@ Zhihu.
 - Trial placeholders, central-canvas authoring wrappers, effect-family ids, Vue/Ant wrappers,
   trigger helpers, and editor metadata must remain market-editor residue blockers if they appear in
   WeChat, Xiaohongshu, or Zhihu publishable output.
+- Trigger hot-area overlay markers are source-specific residue. `block-img__trigger`,
+  `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster` must fail as
+  `135 SVG trigger hot-area overlay residue` even when `app-content-canvas`, known `data-name`
+  values, hosted material, and canvas shell markers are absent.
 - 2026-06-20 CloakBrowser shell refresh: the active 135 SVG editor free-trial page exposed center
   shell wrappers such as `content-canvas`, `content-background`, `content-inner`, `block-inner`,
   `block-img__inner`, `placeholder__help`, `placeholder__icon`, `article-item__inner`,
@@ -968,6 +975,7 @@ Xiumi SVG/H5 rules:
 Evidence:
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-deep-pass-20260620.txt`
 - `prompts/0601/evidence/market-editor-trigger-overlay-residue-contract-20260620.txt`
+- `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-svg-layer-slot-residue-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-gallery-state-wrapper-residue-20260620.txt`
 - `prompts/0601/evidence/xiumi-component-binding-attribute-residue-20260620.txt`
@@ -1202,6 +1210,9 @@ style availability, account workflows, browser state, sync, upload, scheduled-se
 claims.
 
 Rules:
+- 135 SVG trigger hot-area overlays such as `block-img__trigger`, `edit-trigger`,
+  `edit-trigger__switch`, and `trigger__ajuster` must fail independently of broader SVG builder
+  canvas markers.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1361,4 +1372,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-116.
+- `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-117.

@@ -2543,6 +2543,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
   host, or publish success.
 
+## 2026-06-26 135 SVG Trigger Hot-Area Overlay Residue
+
+- [x] 135-svg-trigger-hot-area-overlay-residue-20260626.txt
+- Split the 135 SVG trigger hot-area overlay markers out of the broader builder-canvas diagnostic.
+- `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, and `trigger__ajuster` now report
+  `135 SVG trigger hot-area overlay residue`.
+- The reduced regression intentionally keeps trigger overlay markers without `app-content-canvas`,
+  known `data-name` values, hosted material, or canvas shell markers, proving the overlay residue is
+  blocked independently.
+- Adjacent canvas regressions keep ordinary builder canvas and trigger-prompt fixtures reporting
+  `135 SVG builder canvas residue`.
+- Boundary: this is local detector/test enforcement only. It does not prove WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload, public
+  host, or publish success.
+
 ## 2026-06-20 135 SVG Editor Shell Residue Contract
 
 - [x] 135-svg-editor-shell-residue-contract-20260620.txt

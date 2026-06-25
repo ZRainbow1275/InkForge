@@ -65,7 +65,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG builder effect data-name',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|block-img__trigger|edit-placeholder|edit-trigger|edit-trigger__switch|trigger__ajuster|placeholder__name|ant-tooltip-open)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:block-img__trigger|edit-trigger(?:__switch)?|trigger__ajuster)[^"']*["']/i,
+    label: '135 SVG trigger hot-area overlay residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:app-content-canvas|block-img__content|block-img__default|edit-placeholder|placeholder__name|ant-tooltip-open)[^"']*["']/i,
     label: '135 SVG builder canvas residue',
   },
   {

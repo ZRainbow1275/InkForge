@@ -2238,7 +2238,8 @@ Contracts:
   paste, phone interaction, or publish proof, and copied authoring markers such as `block-img`,
   `block-img__trigger`, `edit-trigger`, `trigger__ajuster`, `edit-trigger__switch`,
   `placeholder__name`, Vue/Ant wrappers, or builder `data-name` families must remain
-  market-editor-residue blockers.
+  market-editor-residue blockers. Trigger overlay markers are reported by the source-specific
+  `135 SVG trigger hot-area overlay residue` label defined in section 117.
 - 2026-06-20 135 SVG editor shell refresh: the active free-trial SVG editor page exposed the center
   authoring shell classes `content-canvas`, `content-background`, `content-inner`, `block`,
   `block-inner`, `block-img`, `block-img__inner`, `placeholder__help`, `placeholder__icon`,
@@ -6229,6 +6230,42 @@ const ruleFamilies = [
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
   narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 117. 135 SVG Trigger Hot-Area Overlay Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains trigger hot-area overlay
+  markers such as `block-img__trigger`, `edit-trigger`, `edit-trigger__switch`, or
+  `trigger__ajuster`.
+- These classes are 135 SVG editor authoring controls for hidden or visible trigger-zone geometry.
+  They may inform InkForge-owned trigger-zone manifests and layout reports, but they are not
+  publishable article DOM for WeChat, Xiaohongshu, or Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG trigger hot-area overlay residue` for WeChat,
+  Xiaohongshu, and Zhihu when the trigger overlay markers appear in class/id attributes.
+- A reduced fixture containing trigger overlay markers but no `app-content-canvas`, known 135
+  `data-name`, hosted-media, or material-shell markers must not be reported as the broader
+  `135 SVG builder canvas residue`.
+- Existing 135 SVG builder/canvas fixtures containing `app-content-canvas`, `block-img__content`,
+  `block-img__default`, `edit-placeholder`, `placeholder__name`, or `ant-tooltip-open` must still
+  report `135 SVG builder canvas residue`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the trigger-overlay fixture reports the old broad canvas label before the split
+  and the precise trigger hot-area overlay label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports and that the old broad canvas label is absent for the reduced overlay fixture.
+- Adjacent regression tests must keep ordinary 135 SVG builder canvas and trigger prompt fixtures
+  reporting `135 SVG builder canvas residue`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
