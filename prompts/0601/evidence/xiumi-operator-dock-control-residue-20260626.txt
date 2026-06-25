@@ -1,0 +1,82 @@
+Xiumi Operator Dock Control Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi editor operator controls.
+- No platform save, sync, copy-to-WeChat, preview, upload, scheduled send, or publish action.
+
+Live source:
+- CloakBrowser opened the live Xiumi v5 paper editor and clicked a visible template card.
+- The center paper changed and exposed selected-component authoring controls.
+- Observed class/control families included:
+  - op-dock
+  - out-comp-edit-dock
+  - out-comp-edit-panel
+  - out-comp-op
+  - op-ce-layout-carousel
+  - op-cp-pose / op-overlap-board
+  - bg-group-edit-container / bg-group-panel
+  - cell-group-edit-container / cell-group-panel
+  - horizontal-layout-tip / general-option-panel
+  - menu-style-input
+  - svg-animation-assistant
+
+Implemented:
+- Added a reduced regression fixture that keeps only the operator-dock and external-edit-panel
+  child controls.
+- Added the detector label:
+  Xiumi operator dock control residue
+
+Why this matters:
+- Existing Xiumi guards already catch broad tn-* trees, Angular ng-* runtime state, op-loader,
+  contenteditable surfaces, hosted media, ui-slider, ui-sortable, interaction styles, and applied
+  SVG content layers.
+- This slice covers the child-control path where copied DOM keeps Xiumi operator-dock or
+  external-edit-panel classes after broader wrappers have been removed.
+
+Regression coverage:
+- WeChat: detectQuality(..., 'wechat') reports wechat-market-editor-residue with
+  Xiumi operator dock control residue.
+- Xiaohongshu: detectQuality(..., 'xiaohongshu') reports xhs-market-editor-residue with
+  Xiumi operator dock control residue.
+- Zhihu: detectQuality(..., 'zhihu') reports zhihu-market-editor-residue with
+  Xiumi operator dock control residue.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator dock" --reporter=default
+  Result: failed as expected because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator dock" --reporter=default
+  Result: passed, 1 selected test, 225 skipped tests.
+- Slice diff:
+  git diff --check -- <slice paths>
+  Result: passed with only normal Windows LF-to-CRLF warnings.
+- Focused file:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file, 226 tests.
+- Export suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 36 files, 1203 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- Build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite built in 51.95s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: expected exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat PC rich paste, WeChat phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+- No local browser runtime directory, session secret, QR code, account capture, capture-file
+  reference, traffic archive, or account artifact is included in this committed evidence.

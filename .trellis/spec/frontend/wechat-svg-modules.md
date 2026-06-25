@@ -6246,6 +6246,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 120. Xiumi Operator Dock Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains operator-dock or external
+  component-editing controls observed after a live CloakBrowser template click changed the center
+  paper, such as `op-dock`, `out-comp-edit-dock`, `out-comp-edit-panel`, `out-comp-op`,
+  `op-ce-layout-carousel`, `op-cp-pose`, `op-overlap-board`, `bg-group-edit-container`,
+  `cell-group-edit-container`, `cell-group-panel`, `horizontal-layout-tip`,
+  `general-option-panel`, `menu-style-input`, or `svg-animation-assistant`.
+- These controls are Xiumi authoring UI for selected components, image sets, carousel/SVG action
+  parameters, hit-area assistants, and panel state. They may inform InkForge-owned layout reports,
+  action schemas, image-slot manifests, and static/raster fallbacks, but they are not publishable
+  article DOM for WeChat, Xiaohongshu, or Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi operator dock control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the supported operator-dock / external-edit-panel markers appear in
+  class/id attributes.
+- A reduced fixture containing only those operator-control classes must fail even when broad
+  `tn-*`, `ng-*`, `opera-tn-*`, `op-loader`, `contenteditable`, hosted media, SVG content-layer,
+  `ui-slider`, `ui-sortable`, `touch-action`, and `user-select` markers are absent.
+- This rule is additive and source-specific. It must not alter renderer output, style
+  availability, selectable actions, release-gate success accounting, clipboard behavior, account
+  state, upload, sync, schedule, public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operator-control fixture fails before implementation and reports
+  `Xiumi operator dock control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operation panel loader residue`, `Xiumi UI slider control
+  residue`, `Xiumi sortable control residue`, and the existing `tn-*` state wrappers independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 119. 135 SVG Editor Base Shell Residue - 2026-06-26
 
 ### 1. Scope / Trigger

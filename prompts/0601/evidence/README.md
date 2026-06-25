@@ -4704,6 +4704,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-26 Xiumi Operator Dock Control Residue
+
+- [x] xiumi-operator-dock-control-residue-20260626.txt
+- Added a static quality rule for Xiumi operator-dock and external-edit-panel child controls
+  observed after a live CloakBrowser template click changed the center paper: `op-dock`,
+  `out-comp-edit-dock`, `out-comp-edit-panel`, `op-ce-layout-carousel`,
+  `cell-group-edit-container`, `menu-style-input`, and `svg-animation-assistant`.
+- The reduced regression intentionally keeps only those child-control class/id markers, proving
+  the cleaned operator-control residue is blocked without relying on `tn-*`, `ng-*`,
+  `opera-tn-*`, `op-loader`, `contenteditable`, hosted-media, SVG content-layer, `ui-slider`,
+  `ui-sortable`, `touch-action`, or `user-select` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-25 Xiumi Sortable Control Residue
 
 - [x] xiumi-sortable-control-residue-20260625.txt

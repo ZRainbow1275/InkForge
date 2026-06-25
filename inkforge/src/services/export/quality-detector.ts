@@ -161,6 +161,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operation panel loader residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dock|out-comp-(?:edit-dock|edit-panel|op)|op-ce-layout-[\w-]+|op-cp-(?:pose|paper-comps-assistant)|op-overlap-board|bg-group-edit-container|bg-group-panel|cell-group-edit-container|cell-group-panel|horizontal-layout-tip|general-option-panel|menu-style-input|svg-animation-assistant)\b[^"']*["']/i,
+    label: 'Xiumi operator dock control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-image-presenter\b[^"']*["']/i,
     label: 'Xiumi image presenter residue',
   },

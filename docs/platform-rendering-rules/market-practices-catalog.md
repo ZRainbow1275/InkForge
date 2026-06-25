@@ -1337,7 +1337,10 @@ Rules:
 - Xiumi interaction-layer styles must fail when the same style attribute contains both
   `touch-action` and `user-select`; these are editor interaction controls, not article styling.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
-  classes, `ui-sortable` drag/sort controls, or `op-loader` operation-panel loader state.
+  classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
+  operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
+  `out-comp-edit-panel`, `op-ce-layout-carousel`, `cell-group-edit-container`,
+  `menu-style-input`, and `svg-animation-assistant`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1363,6 +1366,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-image-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-operator-dock-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-child-layout-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-atom-context-binding-metadata-residue-20260626.txt`
