@@ -5969,8 +5969,7 @@ const ruleFamilies = [
 - The rule must not require `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`, hosted media,
   Angular, opera runtime, SVG content-layer, or any other market-editor marker to fire.
 - `tn-from-house*` class/id markers must be diagnosed as source-house authoring residue instead of
-  only the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for theme
-  tree markers that are not yet split.
+  only the generic `Xiumi tn-* authoring tree` label.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5982,5 +5981,42 @@ const ruleFamilies = [
   residue label after it.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 105. Xiumi Theme Color Mask Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi theme color mask class
+  such as `tn-theme-color-mask`, `tn-theme-color-mask-active`, or other
+  `tn-theme-color-mask-*` class/id markers.
+- These markers represent Xiumi editor-side theme color overlay/mask controls, not InkForge-owned
+  publishable article styling.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi theme color mask residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-theme-color-mask` or `tn-theme-color-mask-*` appears in a
+  class/id attribute.
+- The rule must not require `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`,
+  `tn-from-house`, hosted media, Angular, opera runtime, SVG content-layer, or any other
+  market-editor marker to fire.
+- The legacy `Xiumi tn-* authoring tree` active rule is fully decomposed by the component, cell,
+  layer, page, template, source-house, and theme-color-mask residue rules. Future new Xiumi
+  authoring-tree families must get source-specific labels instead of restoring a broad bucket.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-theme-color-mask tn-theme-color-mask-active` fixture reports
+  the old generic authoring tree label before the rule split and the precise theme color mask
+  residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the source-house fixture reporting
+  `Xiumi source-house authoring residue` after the theme-color-mask split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

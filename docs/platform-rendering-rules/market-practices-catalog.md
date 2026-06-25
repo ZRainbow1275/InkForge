@@ -1235,6 +1235,12 @@ Rules:
 - Xiumi source-house authoring classes such as `tn-from-house` and `tn-from-house-template` must
   fail independently of component, cell, layer, page, template, hosted-media, Angular, opera
   runtime, renderer-pipeline, or SVG content-layer markers.
+- Xiumi theme color mask classes such as `tn-theme-color-mask` and
+  `tn-theme-color-mask-active` must fail independently of component, cell, layer, page, template,
+  source-house, hosted-media, Angular, opera runtime, renderer-pipeline, or SVG content-layer
+  markers.
+- The old generic `Xiumi tn-* authoring tree` bucket has been decomposed into precise component,
+  cell, layer, page, template, source-house, and theme-color-mask diagnostics.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1291,6 +1297,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-page-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-template-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-source-house-authoring-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-theme-color-mask-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1312,4 +1319,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-104.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-105.

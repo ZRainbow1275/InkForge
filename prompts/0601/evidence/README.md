@@ -4997,3 +4997,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Theme Color Mask Residue
+
+- [x] xiumi-theme-color-mask-residue-20260625.txt
+- Added a static quality rule for Xiumi theme color mask classes observed in editor-side theme
+  overlay state: `tn-theme-color-mask`, `tn-theme-color-mask-active`, and other
+  `tn-theme-color-mask-*` markers.
+- The reduced regression intentionally keeps only `tn-theme-color-mask tn-theme-color-mask-active`
+  plus readable text, proving the cleaned theme color mask residue is blocked without relying on
+  `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, `tn-tpl`, `tn-from-house`, hosted-media, Angular
+  `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG content-layer,
+  `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- This closes the old generic `Xiumi tn-* authoring tree` active bucket into source-specific
+  diagnostics for component, cell, layer, page, template, source-house, and theme-color-mask
+  residues.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

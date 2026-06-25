@@ -185,8 +185,8 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi source-house authoring residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-theme-color-mask[^"']*["']/i,
-    label: 'Xiumi tn-* authoring tree',
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-theme-color-mask(?:-[\w-]+)?\b[^"']*["']/i,
+    label: 'Xiumi theme color mask residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-paper-document-root\b[^"']*["']/i,

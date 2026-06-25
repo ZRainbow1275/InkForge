@@ -1,0 +1,50 @@
+Xiumi Theme Color Mask Residue - 2026-06-25
+
+Scope:
+- Local static publishability protection for Xiumi editor-side theme color mask classes copied
+  from market-editor DOM into publishable WeChat, Xiaohongshu, or Zhihu output.
+- No platform action, no browser session, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Implemented:
+- Added `Xiumi theme color mask residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The rule matches class/id attributes containing `tn-theme-color-mask` or
+  `tn-theme-color-mask-*`, including `tn-theme-color-mask-active`.
+- Replaced the final active `Xiumi tn-* authoring tree` fallback with this precise rule. The
+  previous generic bucket is now decomposed into component, cell, layer, page, template,
+  source-house, and theme-color-mask diagnostics.
+
+TDD:
+- Red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color mask classes" --reporter=default`
+  failed before implementation because the message contained `Xiumi tn-* authoring tree` and
+  `Xiumi tn-* attribute`, not `Xiumi theme color mask residue`.
+- Green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color mask classes" --reporter=default`
+  passed with 1 selected test and 208 skipped tests.
+- Adjacent source-house guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-house authoring classes" --reporter=default`
+  passed with 1 selected test and 208 skipped tests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 209 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1186 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite build completed in 44.75s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json`
+  EXPECTED BLOCK: exit code 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, Xiaohongshu upload/publish, Zhihu upload/publish, or
+  any external account workflow.
