@@ -355,6 +355,12 @@ const MARKET_EDITOR_XIUMI_COMPONENT_AUTHORING_TREE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_CELL_CONTAINER_AUTHORING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-cell tn-cell-group">Xiumi cell container authoring residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-child-position-absolute">Xiumi child layer state residue</div>',
@@ -8478,7 +8484,8 @@ describe('platform native export rendering rules', () => {
     expect(report.passed).toBe(false)
     expect(issue?.severity).toBe('error')
     expect(issue?.message).toContain('135 class/id authoring residue')
-    expect(issue?.message).toContain('Xiumi tn-* authoring tree')
+    expect(issue?.message).toContain('Xiumi component authoring tree residue')
+    expect(issue?.message).toContain('Xiumi cell container authoring residue')
     expect(issue?.suggestion).toContain('InkForge 自有')
     expect(report.issues.some(item => item.id === 'wechat-unsupported-css' && item.severity === 'error')).toBe(true)
   })
@@ -9096,6 +9103,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi component authoring tree residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi component authoring tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi cell container authoring classes after component cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_CELL_CONTAINER_AUTHORING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_CELL_CONTAINER_AUTHORING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_CELL_CONTAINER_AUTHORING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi cell container authoring residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi cell container authoring residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi cell container authoring residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

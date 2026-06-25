@@ -4919,3 +4919,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Cell Container Authoring Residue
+
+- [x] xiumi-cell-container-authoring-residue-20260625.txt
+- Added a static quality rule for Xiumi cell/container authoring classes observed in applied
+  card, text-cell, image-cell, and SVG gallery DOM readbacks: `tn-cell`, `tn-cell-inst`,
+  `tn-cell-image`, `tn-cell-text`, and `tn-cell-group`.
+- The reduced regression intentionally keeps only `tn-cell tn-cell-group` plus readable text,
+  proving the cleaned cell container authoring residue is blocked without relying on `tn-comp`,
+  `tn-page`, `tn-tpl`, hosted-media, Angular `ng-*`, `opera-*`, `contenteditable`, SVG
+  content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or
+  `foreignObject` markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
