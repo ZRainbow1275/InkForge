@@ -1,0 +1,38 @@
+Xiumi Component Structure Binding Metadata Residue - 2026-06-26
+
+Scope:
+- Local static publishability guard for Xiumi component-structure binding attributes.
+- Covers tn-comp, tn-comp-role, tn-comp-index, and tn-comp-pose when they appear as attribute names.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added the label Xiumi component structure binding metadata residue.
+- Split tn-comp / tn-comp-role / tn-comp-index / tn-comp-pose from the broader Xiumi component binding attribute residue bucket.
+- Kept the broad component-binding bucket active for still-unsplit tn-cell, tn-cell-type, tn-child-position, tn-child-orientation, tn-page-stage-size, tn-page-view-box-editor-desktop, tn-page-cache-gatherer, and tn-atom-context attributes.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component structure binding metadata" --reporter=default
+  Failed before implementation because the message still reported Xiumi component binding attribute residue and did not contain Xiumi component structure binding metadata residue.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component structure binding metadata" --reporter=default
+  PASS: 1 selected test / 214 skipped.
+- Broad guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component binding attributes from publishable outputs" --reporter=default
+  PASS: 1 selected test / 214 skipped.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 215 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1192 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite build completed in 36.31s.
+- inkforge/tsconfig.tsbuildinfo was restored after the build.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  Expected exit 1: status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or publish success.

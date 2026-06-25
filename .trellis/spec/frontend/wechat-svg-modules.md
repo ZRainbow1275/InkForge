@@ -6174,9 +6174,10 @@ const ruleFamilies = [
   Xiaohongshu, and Zhihu when `tn-image` or `tn-image-usage` appears as an attribute name.
 - A reduced fixture containing only `tn-image` / `tn-image-usage` must not be reported as the
   broader `Xiumi component binding attribute residue`.
-- The broader component-binding attribute rule remains responsible for other editor/runtime
-  attributes such as `tn-comp`, `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`,
-  `tn-child-position`, `tn-page-stage-size`, and `tn-atom-context`.
+- The broader component-binding attribute rule remains responsible for the still-unsplit
+  editor/runtime attributes such as `tn-cell`, `tn-cell-type`, `tn-child-position`,
+  `tn-child-orientation`, `tn-page-stage-size`, `tn-page-view-box-editor-desktop`,
+  `tn-page-cache-gatherer`, and `tn-atom-context`.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -6191,5 +6192,44 @@ const ruleFamilies = [
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after image binding attributes move to a narrower
   rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 111. Xiumi Component Structure Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi component-structure
+  binding attributes such as `tn-comp`, `tn-comp-role`, `tn-comp-index`, or `tn-comp-pose`.
+- These attributes bind editor-side component instances, pose, role, and ordering state. They are
+  distinct from publishable component wrapper classes and must not remain in WeChat,
+  Xiaohongshu, or Zhihu output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi component structure binding metadata residue` for WeChat, Xiaohongshu, and Zhihu when
+  `tn-comp`, `tn-comp-role`, `tn-comp-index`, or `tn-comp-pose` appears as an attribute name.
+- A reduced fixture containing only `tn-comp` / `tn-comp-role` / `tn-comp-index` /
+  `tn-comp-pose` must not be reported as the broader
+  `Xiumi component binding attribute residue`.
+- The broader component-binding attribute rule remains responsible only for the still-unsplit
+  editor/runtime attributes such as `tn-cell`, `tn-cell-type`, `tn-child-position`,
+  `tn-child-orientation`, `tn-page-stage-size`, `tn-page-view-box-editor-desktop`,
+  `tn-page-cache-gatherer`, and `tn-atom-context`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-comp*` binding fixture reports only the old broad
+  component-binding label before the split and the precise component-structure metadata residue
+  label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
+  narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

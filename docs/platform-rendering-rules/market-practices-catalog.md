@@ -1242,30 +1242,21 @@ Rules:
 - The old generic `Xiumi tn-* authoring tree` bucket has been decomposed into precise component,
   cell, layer, page, template, source-house, and theme-color-mask diagnostics.
 - Xiumi component-template binding attributes such as `tn-bind-comp-tpl-id` and
-  `tn-bind-comp-index` must fail independently of the broader component-binding bucket. Other
-  component/runtime attributes such as `tn-comp`, `tn-comp-role`, `tn-animate`,
-  `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage`
-  remain covered by `Xiumi component binding attribute residue`.
+  `tn-bind-comp-index` must fail independently of the broader component-binding bucket.
 - Xiumi component identity metadata such as `tn-uuid` must fail independently of the broader
-  component-binding bucket. Other component/runtime attributes such as `tn-comp`, `tn-comp-role`,
-  `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`,
-  `tn-link`, and `tn-image-usage` remain covered by
-  `Xiumi component binding attribute residue`.
+  component-binding bucket.
 - Xiumi animation binding metadata such as `tn-animate` and `tn-animate-on-self` must fail
-  independently of the broader component-binding bucket. Other component/runtime attributes such
-  as `tn-comp`, `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`,
-  `tn-child-position`, `tn-page-stage-size`, and `tn-image-usage` remain covered by
-  `Xiumi component binding attribute residue`.
+  independently of the broader component-binding bucket.
 - Xiumi link binding metadata such as `tn-link` must fail independently of the broader
-  component-binding bucket. Other component/runtime attributes such as `tn-comp`, `tn-comp-role`,
-  `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`, and
-  `tn-atom-context` remain covered by
-  `Xiumi component binding attribute residue`.
+  component-binding bucket.
 - Xiumi image binding metadata such as `tn-image` and `tn-image-usage` must fail independently of
-  the broader component-binding bucket. Other component/runtime attributes such as `tn-comp`,
-  `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`,
-  `tn-page-stage-size`, and `tn-atom-context` remain covered by
-  `Xiumi component binding attribute residue`.
+  the broader component-binding bucket.
+- Xiumi component-structure binding metadata such as `tn-comp`, `tn-comp-role`, `tn-comp-index`,
+  and `tn-comp-pose` must fail independently of the broader component-binding bucket.
+- The current broad `Xiumi component binding attribute residue` bucket remains active only for the
+  still-unsplit component/runtime attributes such as `tn-cell`, `tn-cell-type`,
+  `tn-child-position`, `tn-child-orientation`, `tn-page-stage-size`,
+  `tn-page-view-box-editor-desktop`, `tn-page-cache-gatherer`, and `tn-atom-context`.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1328,6 +1319,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animation-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-link-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-image-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1349,4 +1341,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-110.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-111.
