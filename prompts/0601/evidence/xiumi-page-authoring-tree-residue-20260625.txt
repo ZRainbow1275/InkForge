@@ -1,0 +1,54 @@
+Xiumi Page Authoring Tree Residue - 2026-06-25
+
+Scope:
+- Local static publishability protection for Xiumi page authoring classes copied from
+  market-editor DOM into publishable WeChat, Xiaohongshu, or Zhihu output.
+- No platform action, no browser session, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Implemented:
+- Added `Xiumi page authoring tree residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The rule matches class/id attributes containing `tn-page` or `tn-page-*`, including
+  `tn-page-root`.
+- The rule excludes `tn-page-slot` and `tn-page-vessel` so the existing
+  `Xiumi page layer slot residue` and `Xiumi page vessel residue` rules remain precise.
+- Removed `tn-page` from the generic `Xiumi tn-* authoring tree` bucket while keeping tpl,
+  from-house, and theme tree markers covered by the generic fallback.
+
+TDD:
+- Red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page authoring tree classes" --reporter=default`
+  failed before implementation because the message contained `Xiumi tn-* authoring tree` and
+  `Xiumi tn-* attribute`, not `Xiumi page authoring tree residue`.
+- Green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page authoring tree classes" --reporter=default`
+  passed with 1 selected test and 205 skipped tests.
+- Slot guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page and layer slots" --reporter=default`
+  passed with 1 selected test and 205 skipped tests.
+- Vessel guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page vessel wrappers" --reporter=default`
+  passed with 1 selected test and 205 skipped tests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 206 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1183 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite build completed in 37.79s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json`
+  EXPECTED BLOCK: exit code 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, Xiaohongshu upload/publish, Zhihu upload/publish, or
+  any external account workflow.

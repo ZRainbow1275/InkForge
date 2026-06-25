@@ -11342,6 +11342,64 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Page Authoring Tree Residue Slice
+
+Scope:
+- Converts the applied Xiumi page/root editor observation `tn-page*` into an executable static
+  residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled `Xiumi page authoring tree residue`.
+- The rule matches `class` or `id` attributes containing `tn-page` or `tn-page-*`, including
+  `tn-page-root`.
+- Excluded `tn-page-slot` and `tn-page-vessel` from this new rule so the existing
+  `Xiumi page layer slot residue` and `Xiumi page vessel residue` diagnostics remain
+  source-specific.
+- Removed `tn-page` from the generic `Xiumi tn-* authoring tree` alternation while leaving tpl,
+  from-house, and theme tree markers covered by the generic fallback.
+- Added a reduced regression fixture with only `tn-page tn-page-root` and readable text,
+  intentionally omitting `tn-comp`, `tn-cell`, `tn-layer`, `tn-tpl`, hosted-media, Angular,
+  opera runtime, `contenteditable`, SVG content-layer, `raw-image`, page/layer slots, gallery
+  wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page authoring tree classes" --reporter=default` failed before implementation because the
+  message contained `Xiumi tn-* authoring tree` and `Xiumi tn-* attribute`, not the precise page
+  authoring label.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page authoring tree classes" --reporter=default` passed with 1 selected test and 205 skipped
+  tests.
+- Page/layer slot guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page and layer slots" --reporter=default` passed with 1 selected test and 205 skipped tests.
+- Page vessel guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "page vessel wrappers" --reporter=default` passed with 1 selected test and 205 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 206 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1183 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 37.79s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Layer Authoring Tree Residue Slice
 
 Scope:
