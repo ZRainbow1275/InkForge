@@ -185,6 +185,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi color selector control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:tn-global-format-dropdown|tn-basic-format-tabset|font-family-menu|font-family-list|stc-family-name-yzk--?\d+|text-format-brush|text-misc|size-input)\b[^"']*["']|\b(?:tn-list-locate-active-item|tn-number-input|tn-text-input-done|skim-(?:value-(?:prev|next)|change|end))\s*=)/i,
+    label: 'Xiumi font and format control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },

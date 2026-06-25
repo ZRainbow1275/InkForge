@@ -6570,6 +6570,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 130. Xiumi Font And Format Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains font-family, font-size, or basic
+  text-format controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `tn-global-format-dropdown`, `tn-basic-format-tabset`, `font-family-menu`, `font-family-list`,
+  `stc-family-name-yzk-*`, `text-format-brush`, `text-misc`, `size-input`,
+  `tn-list-locate-active-item`, `tn-number-input`, `tn-text-input-done`, `skim-value-prev`,
+  `skim-value-next`, `skim-change`, or `skim-end`.
+- These nodes drive Xiumi editor font-family menus, font-size skimmers, global/basic format tabs,
+  and text-format extraction controls. They are not article content, InkForge-owned typography
+  primitives, or platform-safe SVG/H5 semantics.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi font and format control residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported font/basic-format class/id markers or source-specific
+  font-size control attributes appear.
+- A reduced fixture containing only font-family/basic-format controls must fail even when
+  color-selector controls, operation-bar dropdown/menu controls, UI Bootstrap directives, top
+  operation classes, broad Angular `ng-*` attributes/classes, paper auxiliary tree controls,
+  selection overlays, crop/worker controls, operator-dock parents, operator depot items,
+  `op-loader`, broad non-font `tn-*` attributes, `opera-tn-*`, `contenteditable`, hosted media,
+  SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, and `user-select` markers are
+  absent.
+- This rule must not match ordinary prose containing font names, generic `font-family`,
+  generic `font-size`, generic `btn-group`, regular inline font styles, or readable font labels by
+  themselves.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced font/basic-format fixture fails before implementation and reports
+  `Xiumi font and format control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi color selector control residue`,
+  `Xiumi operation bar dropdown residue`, `Xiumi UI Bootstrap control directive residue`, and
+  `Xiumi top operation button residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

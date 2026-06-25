@@ -13824,6 +13824,64 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-26 Xiumi Font And Format Control Residue Slice
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM. The font/basic-format control surface
+  exposed editor-only markers including `tn-global-format-dropdown`, `tn-basic-format-tabset`,
+  `font-family-menu`, `font-family-list`, `stc-family-name-yzk--1`, `text-format-brush`,
+  `text-misc`, `size-input`, `tn-list-locate-active-item`, `tn-number-input`,
+  `tn-text-input-done`, `skim-value-prev`, `skim-value-next`, `skim-change`, and `skim-end`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing Xiumi font-family/basic-format controls without
+  color-selector controls, operation-bar controls, UI Bootstrap directives, top operation classes,
+  broad Angular `ng-*`, paper auxiliary tree controls, selection overlays, crop/worker controls,
+  operator-dock parents, operator depot items, `op-loader`, broad non-font `tn-*`, `opera-tn-*`,
+  `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`,
+  or `user-select` markers.
+- Added the `Xiumi font and format control residue` detector for source-specific font/basic-format
+  controls such as `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`,
+  `tn-global-format-dropdown`, `tn-basic-format-tabset`, `text-format-brush`, `text-misc`,
+  `size-input`, and font-size skim callbacks.
+- Kept ordinary font prose, generic `font-family`, generic `font-size`, generic `btn-group`,
+  regular inline font styles, and readable font labels out of the detector unless paired with
+  source-specific Xiumi font/basic-format markers.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "font and format controls" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 235 skipped tests after the
+  detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 236 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1213 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 46.43s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 Xiumi Color Selector Control Residue Slice
 
 Source:

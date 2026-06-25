@@ -5459,3 +5459,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   declarations by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Font And Format Control Residue
+
+- [x] xiumi-font-format-control-residue-20260626.txt
+- Added a static quality rule for Xiumi font-family, font-size, and basic-format controls observed
+  in the live Xiumi v5 paper-editor DOM: `tn-global-format-dropdown`,
+  `tn-basic-format-tabset`, `font-family-menu`, `font-family-list`, `stc-family-name-yzk--1`,
+  `text-format-brush`, `text-misc`, `size-input`, `tn-list-locate-active-item`,
+  `tn-number-input`, `tn-text-input-done`, `skim-value-prev`, `skim-value-next`,
+  `skim-change`, and `skim-end`.
+- The reduced regression intentionally keeps only source-specific font/basic-format controls plus
+  readable font labels, proving the cleaned typography-control residue is blocked without relying
+  on color-selector controls, operation-bar controls, UI Bootstrap directives, top operation
+  classes, broad Angular `ng-*`, paper auxiliary tree controls, selection overlays,
+  crop/worker controls, operator-dock parents, operator depot items, `op-loader`, broad non-font
+  `tn-*`, `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`,
+  `ui-sortable`, `touch-action`, or `user-select` markers.
+- The detector intentionally does not block ordinary prose containing font names, generic
+  `font-family`, generic `font-size`, generic `btn-group`, regular inline font styles, or readable
+  font labels by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

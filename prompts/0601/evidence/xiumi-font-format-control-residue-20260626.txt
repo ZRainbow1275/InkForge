@@ -1,0 +1,68 @@
+Xiumi Font And Format Control Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi editor font-family,
+  font-size, and basic-format controls.
+- No platform action, no phone preview, no upload, no sync, no scheduled send, no publish.
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM after the operator had already signed in.
+- The editor-side DOM exposed font and basic-format controls including tn-global-format-dropdown,
+  tn-basic-format-tabset, font-family-menu, font-family-list, stc-family-name-yzk--1,
+  text-format-brush, text-misc, size-input, tn-list-locate-active-item, tn-number-input,
+  tn-text-input-done, skim-value-prev, skim-value-next, skim-change, and skim-end.
+- The observed nodes belonged to editor font-family menus, font-size skimmers, global/basic format
+  tabs, and text-format extraction controls; they are not article content or InkForge-owned
+  typography semantics.
+- No account-state material, local browser runtime material, local capture-location material,
+  sign-in material, platform publish artifact, upload artifact, sync artifact, preview artifact, or
+  runtime browser artifact is included here.
+
+Impact:
+- GitNexus impact on detectQuality returned LOW risk with 4 direct dependents and 0 affected
+  execution flows.
+- GitNexus impact on MARKET_EDITOR_RESIDUE_RULES returned LOW risk with 0 direct dependents and
+  0 affected execution flows.
+
+Implementation:
+- Added a reduced regression fixture containing Xiumi font-family and format controls without
+  color-selector controls, operation-bar dropdown controls, UI Bootstrap directives, top operation
+  classes, broad Angular ng-* attributes/classes, paper auxiliary tree controls, selection overlays,
+  crop/worker controls, operator-dock parents, operator depot items, op-loader, broad non-font tn-*
+  attributes, opera-tn-*, contenteditable, hosted media, SVG content-layer, ui-slider, ui-sortable,
+  touch-action, or user-select markers.
+- Added the Xiumi font and format control residue detector for source-specific font/basic-format
+  class/id markers and font-size control attributes.
+- The detector intentionally does not block ordinary prose containing font names, generic
+  font-family, generic font-size, generic btn-group, regular inline font styles, or readable font
+  labels by themselves.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "font and format controls" --reporter=default
+  Result: failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "font and format controls" --reporter=default
+  Result: passed with 1 selected test and 235 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 236 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1213 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite build completed in 46.43s
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3
+
+Boundary:
+- This proves local static quality detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -5161,6 +5161,38 @@ Boundary:
 
 ---
 
+## 2026-06-26 Xiumi Font And Format Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the font/basic-format
+  DOM can retain `tn-global-format-dropdown`, `tn-basic-format-tabset`, `font-family-menu`,
+  `font-family-list`, `stc-family-name-yzk--1`, `text-format-brush`, `text-misc`, `size-input`,
+  `tn-list-locate-active-item`, `tn-number-input`, `tn-text-input-done`, `skim-value-prev`,
+  `skim-value-next`, `skim-change`, and `skim-end`.
+- Added the static detector label `Xiumi font and format control residue` for font-family,
+  font-size, and basic-format controls after color-selector, operation-bar, UI Bootstrap,
+  top-operation, operator, auxiliary, selection, crop, and runtime markers have been removed.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 236 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1213 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 46.43s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-font-format-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-26 Xiumi Color Selector Control Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the color-selector DOM
