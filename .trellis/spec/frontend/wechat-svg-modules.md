@@ -5748,8 +5748,8 @@ const ruleFamilies = [
   editable surface, hosted media, SVG content-layer, `raw-image`, page/layer slots, or any other
   market-editor marker to fire.
 - `disable-tn-*` must be diagnosed as disabled control binding residue instead of only the generic
-  `Xiumi runtime binding attribute` label. `opera-tn-ra-comp` and `opera-tn-ra-cell` remain covered
-  by `Xiumi runtime binding attribute`.
+  runtime label. `opera-tn-ra-comp` and `opera-tn-ra-cell` are split into source-specific runtime
+  path binding residue labels by section 116.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5760,8 +5760,8 @@ const ruleFamilies = [
   before the rule split and the precise disabled control binding residue label after it.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
-- Regression tests must keep the existing runtime-binding fixture reporting
-  `Xiumi runtime binding attribute` through `opera-tn-ra-*` after the split.
+- Regression tests must keep the existing runtime-binding fixture reporting the section 116
+  source-specific `opera-tn-ra-*` labels after the split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
@@ -6229,6 +6229,43 @@ const ruleFamilies = [
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
   narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 116. Xiumi Runtime Path Binding Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi applied-editor runtime path
+  binding attributes `opera-tn-ra-comp` or `opera-tn-ra-cell`.
+- These attributes bind editor runtime paths for component and cell state. They are Xiumi editor
+  readback schema, not publishable article metadata, and must not remain in WeChat, Xiaohongshu, or
+  Zhihu output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component runtime path binding residue` for
+  WeChat, Xiaohongshu, and Zhihu when `opera-tn-ra-comp` appears as an attribute name.
+- `detectQuality(..., platform)` must report `Xiumi cell runtime path binding residue` for WeChat,
+  Xiaohongshu, and Zhihu when `opera-tn-ra-cell` appears as an attribute name.
+- Reduced fixtures containing only `opera-tn-ra-comp` or only `opera-tn-ra-cell` must not be
+  reported as the old broad `Xiumi runtime binding attribute`.
+- The mixed runtime-binding fixture must report both source-specific labels and must not report the
+  old broad `Xiumi runtime binding attribute` bucket.
+- The generic `Xiumi tn-* attribute` guard may still report on `opera-tn-ra-*` because `tn-ra-*` is
+  a copied Xiumi marker inside the attribute name; this is acceptable as a final catch-all.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `opera-tn-ra-comp` and `opera-tn-ra-cell` fixtures report the old
+  broad runtime label before the split and the precise component/cell runtime path labels after it.
+- Regression tests must assert the new labels appear in the WeChat, Xiaohongshu, and Zhihu quality
+  reports.
+- Regression tests must assert the existing mixed runtime-binding fixture no longer reports
+  `Xiumi runtime binding attribute`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 

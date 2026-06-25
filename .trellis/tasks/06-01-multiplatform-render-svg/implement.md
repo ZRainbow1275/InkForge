@@ -11342,6 +11342,61 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-26 Xiumi Runtime Path Binding Residue Slice
+
+Scope:
+- Converts the Xiumi applied-editor runtime path binding attributes `opera-tn-ra-comp` and
+  `opera-tn-ra-cell` into precise static residue blockers.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi component runtime path binding residue` for `opera-tn-ra-comp`.
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi cell runtime path binding residue` for `opera-tn-ra-cell`.
+- Replaced the broad `Xiumi runtime binding attribute` label for the `opera-tn-ra-*` runtime path
+  family.
+- Kept the generic `Xiumi tn-* attribute` guard active as the final catch-all for nested Xiumi
+  `tn-*` leakage in copied runtime attribute names.
+- Added reduced regression fixtures with only `opera-tn-ra-comp` or only `opera-tn-ra-cell` and
+  readable text, intentionally omitting `disable-tn-*`, broader `tn-*`, component/cell/layer
+  classes, hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline attributes,
+  `contenteditable`, SVG content-layer, image wrappers, page/layer slots, gallery wrappers, UI
+  controls, interaction styles, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "runtime path binding" --reporter=default` failed before implementation because the reduced
+  fixtures still emitted `Xiumi runtime binding attribute` and did not contain the component/cell
+  runtime path labels.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "runtime path binding" --reporter=default` passed with 2 selected tests and 219 skipped tests.
+- Aggregate runtime guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "applied-editor runtime binding" --reporter=default` passed with 1 selected test and 220 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 221 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1198 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 40.05s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-26 Xiumi Atom Context Binding Metadata Residue Slice
 
 Scope:

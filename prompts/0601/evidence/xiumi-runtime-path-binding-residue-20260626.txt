@@ -1,0 +1,35 @@
+Xiumi Runtime Path Binding Residue - 2026-06-26
+
+Scope:
+- Local static publishability guard for Xiumi applied-editor runtime path binding attributes.
+- Covers opera-tn-ra-comp and opera-tn-ra-cell when they appear as attribute names.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added the label Xiumi component runtime path binding residue for opera-tn-ra-comp.
+- Added the label Xiumi cell runtime path binding residue for opera-tn-ra-cell.
+- Replaced the broad Xiumi runtime binding attribute label for the opera-tn-ra-* runtime path family.
+- Kept Xiumi tn-* attribute active as the generic final catch-all for nested tn-* leakage in copied runtime attribute names.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "runtime path binding" --reporter=default failed before implementation because the reduced fixtures emitted Xiumi tn-* attribute and Xiumi runtime binding attribute instead of the component/cell runtime path labels.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "runtime path binding" --reporter=default passed with 2 selected tests and 219 skipped tests.
+- Aggregate runtime guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "applied-editor runtime binding" --reporter=default passed with 1 selected test and 220 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 221 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1198 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 40.05s; inkforge/tsconfig.tsbuildinfo restored afterward.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKER: exit 1, status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or publish success.

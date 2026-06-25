@@ -285,8 +285,12 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi disabled control binding residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\bopera-tn-ra-(?:comp|cell)\s*=/i,
-    label: 'Xiumi runtime binding attribute',
+    pattern: /<[a-zA-Z][^>]*\bopera-tn-ra-comp\s*=/i,
+    label: 'Xiumi component runtime path binding residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\bopera-tn-ra-cell\s*=/i,
+    label: 'Xiumi cell runtime path binding residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*\b(?:(?:data-)?ng-(?:click|style|repeat|class|show|hide|if|switch|bind|model|include|controller|change|blur|focus|dblclick|options|disabled|value|submit)[\w-]*|v-(?:if|show|for|model|bind|on|html|text|cloak|slot)[\w-]*)\s*=/i,

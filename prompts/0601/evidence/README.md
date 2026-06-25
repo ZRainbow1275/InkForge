@@ -4905,6 +4905,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-26 Xiumi Runtime Path Binding Residue
+
+- [x] xiumi-runtime-path-binding-residue-20260626.txt
+- Split Xiumi applied-editor runtime path readbacks into component/cell diagnostics:
+  `opera-tn-ra-comp` reports `Xiumi component runtime path binding residue`, and
+  `opera-tn-ra-cell` reports `Xiumi cell runtime path binding residue`.
+- The reduced regressions intentionally keep only one runtime path binding plus readable text,
+  proving the cleaned runtime path residue is blocked without relying on `disable-tn-*`, broader
+  `tn-*`, Angular `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- The old broad `Xiumi runtime binding attribute` bucket is now decomposed for `opera-tn-ra-comp`
+  and `opera-tn-ra-cell`; the generic `Xiumi tn-* attribute` guard remains a final catch-all for
+  nested Xiumi `tn-*` leakage in copied runtime attribute names.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-25 Xiumi Component Authoring Tree Residue
 
 - [x] xiumi-component-authoring-tree-residue-20260625.txt

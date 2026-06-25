@@ -281,6 +281,18 @@ const MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COMPONENT_RUNTIME_PATH_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div opera-tn-ra-comp="_$.pages:0.layers:0.comps:0">Xiumi component runtime path binding</div>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_CELL_RUNTIME_PATH_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div opera-tn-ra-cell="_$.pages:0.layers:0.comps:0.col1">Xiumi cell runtime path binding</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_DISABLED_CONTROL_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div disable-tn-group-flex-box="block">Xiumi disabled control binding residue</div>',
@@ -8774,11 +8786,67 @@ describe('platform native export rendering rules', () => {
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_BINDING_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
-      .toContain('Xiumi runtime binding attribute')
+      .toContain('Xiumi component runtime path binding residue')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
-      .toContain('Xiumi runtime binding attribute')
+      .toContain('Xiumi component runtime path binding residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
-      .toContain('Xiumi runtime binding attribute')
+      .toContain('Xiumi component runtime path binding residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi component runtime path binding after broad runtime cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi component runtime path binding residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi component runtime path binding residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi component runtime path binding residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi cell runtime path binding after broad runtime cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_CELL_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_CELL_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_CELL_RUNTIME_PATH_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi cell runtime path binding residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi runtime binding attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
