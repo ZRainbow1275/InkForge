@@ -6285,6 +6285,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 123. Xiumi Operator Depot Item Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains operator-depot/menu item controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor readback after a visible template/style
+  changed the center paper, such as `op-dc-depot`, `op-dc-hidden`, `op-dc-slot`, `ce-dc`,
+  `cp-dc`, `dc-ce-*`, `dc-cp-*`, `dc-multi-cp-*`, `op-gl-dc-attr-bars`, `cp-role-*`,
+  `ce-type-*`, or `tn-op-dc-item`.
+- These controls are Xiumi authoring UI for operator menu bars and hidden operation-item depots.
+  They may describe how the editor exposes margin, background, image, SVG, animation, clipboard,
+  and component actions, but they are not publishable article DOM for WeChat, Xiaohongshu, or
+  Zhihu.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi operator depot item residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported operator-depot class/id markers or `tn-op-dc-item`
+  attributes appear.
+- A reduced fixture containing only the depot/item children must fail even when `op-dock`,
+  `out-comp-*`, `op-loader`, broad `tn-*` trees, broad `ng-*` attributes/classes, `opera-tn-*`,
+  `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`,
+  and `user-select` markers are absent.
+- This rule must stay anchored to Xiumi operation item names and must not match generic `slot`,
+  `menu`, `bar`, `dc`, or `cp` words in prose or unrelated HTML.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operator-depot fixture fails before implementation and reports
+  `Xiumi operator depot item residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operator dock control residue`,
+  `Xiumi selection overlay control residue`, `Xiumi operation panel loader residue`, and the
+  generic `Xiumi tn-* attribute` fallback independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

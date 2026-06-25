@@ -370,6 +370,19 @@ const MARKET_EDITOR_XIUMI_OPERATOR_DOCK_CHILD_CONTROLS_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_OPERATOR_DEPOT_ITEM_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<section class="op-dc-depot op-dc-hidden">',
+  '<div class="op-dc-slot dc-cp-aux-props"></div>',
+  '<div class="op-dc-slot dc-cp-copy-to-clipboard"></div>',
+  '</section>',
+  '<ul>',
+  '<li class="ce-dc dc-ce-svg"></li>',
+  '<li class="ce-dc dc-ce-animation"></li>',
+  '</ul>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML = [
   '<section style="margin:10px 0">',
   '<div class="full-screen-mask"></div>',
@@ -9941,6 +9954,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi operator dock control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi operator dock control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi operator depot item controls after dock cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_OPERATOR_DEPOT_ITEM_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_OPERATOR_DEPOT_ITEM_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_OPERATOR_DEPOT_ITEM_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi operator depot item residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi operator depot item residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi operator depot item residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

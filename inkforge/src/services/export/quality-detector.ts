@@ -165,6 +165,14 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operator dock control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
+    label: 'Xiumi operator depot item residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-op-dc-item\s*=/i,
+    label: 'Xiumi operator depot item residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:full-screen-mask|brim-group|box-lines|box-handles)\b[^"']*["']/i,
     label: 'Xiumi selection overlay control residue',
   },

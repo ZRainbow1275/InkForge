@@ -1344,9 +1344,11 @@ Rules:
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
   `out-comp-edit-panel`, `op-ce-layout-carousel`, `cell-group-edit-container`,
-  `menu-style-input`, and `svg-animation-assistant`, or selection-overlay child controls such as
-  `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`, `hm-panstart`, `hm-panmove`,
-  `stop-propagation`, and `tn-attach-to`.
+  `menu-style-input`, and `svg-animation-assistant`, operator depot/menu items such as
+  `op-dc-depot`, `op-dc-slot`, `ce-dc`, `dc-ce-svg`, `dc-cp-aux-props`, and
+  `tn-op-dc-item`, or selection-overlay child controls such as `full-screen-mask`, `brim-group`,
+  `box-lines`, `box-handles`, `hm-panstart`, `hm-panmove`, `stop-propagation`, and
+  `tn-attach-to`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
