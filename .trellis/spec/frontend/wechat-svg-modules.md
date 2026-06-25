@@ -5897,7 +5897,7 @@ const ruleFamilies = [
   `Xiumi page layer slot residue` and `Xiumi page vessel residue` respectively.
 - `tn-page*` class/id markers must be diagnosed as page authoring tree residue instead of only
   the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for
-  tpl/from-house/theme tree markers that are not yet split.
+  from-house/theme tree markers that are not yet split.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5912,5 +5912,42 @@ const ruleFamilies = [
   `Xiumi page layer slot residue` after the page split.
 - Regression tests must keep the existing `tn-page-vessel` fixture reporting
   `Xiumi page vessel residue` after the page split.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 103. Xiumi Template Authoring Tree Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi template authoring
+  class such as `tn-tpl`, `tn-tpl-card`, or other `tn-tpl-*` class/id markers.
+- These markers came from the applied Xiumi template/card editor DOM readbacks. They describe
+  editor-side template assembly containers, not InkForge-owned publishable article structure.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi template authoring tree residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-tpl` or `tn-tpl-*` appears in a class/id attribute.
+- The rule must not require `tn-comp`, `tn-cell`, `tn-layer`, `tn-page`, hosted media, Angular,
+  opera runtime, SVG content-layer, renderer-pipeline attributes, or any other market-editor marker
+  to fire.
+- The rule must not replace `Xiumi template renderer pipeline residue`; Angular/renderer
+  attributes such as `ng-bind-html`, `ng-click`, `ng-switch`, and `tn-tpl-pose-fit-box` remain
+  covered by that existing pipeline rule.
+- `tn-tpl*` class/id markers must be diagnosed as template authoring tree residue instead of only
+  the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for
+  from-house/theme tree markers that are not yet split.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-tpl tn-tpl-card` fixture reports the old generic authoring
+  tree label before the rule split and the precise template authoring tree residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing template renderer pipeline fixture reporting
+  `Xiumi template renderer pipeline residue` after the template authoring tree split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

@@ -4966,3 +4966,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `Xiumi page layer slot residue` and `tn-page-vessel` on `Xiumi page vessel residue`.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Template Authoring Tree Residue
+
+- [x] xiumi-template-authoring-tree-residue-20260625.txt
+- Added a static quality rule for Xiumi template authoring classes observed in applied template/card
+  editor DOM readbacks: `tn-tpl`, `tn-tpl-card`, and other `tn-tpl-*` markers.
+- The reduced regression intentionally keeps only `tn-tpl tn-tpl-card` plus readable text,
+  proving the cleaned template authoring tree residue is blocked without relying on `tn-comp`,
+  `tn-cell`, `tn-layer`, `tn-page`, hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline
+  attributes, `contenteditable`, SVG content-layer, `raw-image`, page/layer slots, gallery
+  wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- The template renderer pipeline guard keeps `ng-bind-html`, `ng-click`, `ng-switch`, and
+  `tn-tpl-pose-fit-box` on `Xiumi template renderer pipeline residue`.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

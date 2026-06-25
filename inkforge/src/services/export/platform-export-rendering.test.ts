@@ -373,6 +373,12 @@ const MARKET_EDITOR_XIUMI_PAGE_AUTHORING_TREE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEMPLATE_AUTHORING_TREE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-tpl tn-tpl-card">Xiumi template authoring tree residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-child-position-absolute">Xiumi child layer state residue</div>',
@@ -9163,6 +9169,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi page authoring tree residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi page authoring tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi template authoring tree classes without renderer pipeline attributes', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_AUTHORING_TREE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_AUTHORING_TREE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_AUTHORING_TREE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template authoring tree residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi template authoring tree residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi template authoring tree residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -1,0 +1,51 @@
+Xiumi Template Authoring Tree Residue - 2026-06-25
+
+Scope:
+- Local static publishability protection for Xiumi template/card authoring classes copied from
+  market-editor DOM into publishable WeChat, Xiaohongshu, or Zhihu output.
+- No platform action, no browser session, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Implemented:
+- Added `Xiumi template authoring tree residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The rule matches class/id attributes containing `tn-tpl` or `tn-tpl-*`, including
+  `tn-tpl-card`.
+- Removed `tn-tpl` from the generic `Xiumi tn-* authoring tree` bucket while keeping from-house
+  and theme tree markers covered by the generic fallback.
+- Kept `Xiumi template renderer pipeline residue` intact for Angular/renderer-pipeline attributes
+  such as `ng-bind-html`, `ng-click`, `ng-switch`, and `tn-tpl-pose-fit-box`.
+
+TDD:
+- Red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template authoring tree classes" --reporter=default`
+  failed before implementation because the message contained `Xiumi tn-* authoring tree` and
+  `Xiumi tn-* attribute`, not `Xiumi template authoring tree residue`.
+- Green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template authoring tree classes" --reporter=default`
+  passed with 1 selected test and 206 skipped tests.
+- Pipeline guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template renderer pipeline residues" --reporter=default`
+  passed with 1 selected test and 206 skipped tests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 207 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1184 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite build completed in 45.02s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json`
+  EXPECTED BLOCK: exit code 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, Xiaohongshu upload/publish, Zhihu upload/publish, or
+  any external account workflow.

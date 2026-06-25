@@ -177,7 +177,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi page authoring tree residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:from-house|theme-color-mask|tpl)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-tpl(?:-[\w-]+)?\b[^"']*["']/i,
+    label: 'Xiumi template authoring tree residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:from-house|theme-color-mask)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },
   {
