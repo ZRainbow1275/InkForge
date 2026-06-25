@@ -1354,7 +1354,9 @@ Rules:
   `tn-paper-aux-comps-tree`, `paper-comps-assistant`, `paper-aux-comp-tree`,
   `aux-tree-node-data`, and `on-paper-aux-tree-node-*`, or top operation buttons such as
   `x3-nav-op-buttons`, `tn-op-btn-group`, `op-btn`, `op-btn-inset-icon`,
-  `op-btn-inset-desc`, and `op-more`.
+  `op-btn-inset-desc`, and `op-more`, or UI Bootstrap directives such as `uib-dropdown`,
+  `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
+  `tooltip-popup-delay`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.

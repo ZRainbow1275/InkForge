@@ -173,6 +173,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi top operation button residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\b(?:uib-(?:dropdown(?:-(?:toggle|menu))?|tooltip|accordion(?:-[\w-]+)?|collapse|tab(?:set|-heading-transclude)?)|tooltip-(?:placement|popup-delay))\s*=/i,
+    label: 'Xiumi UI Bootstrap control directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },

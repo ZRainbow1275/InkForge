@@ -427,6 +427,16 @@ const MARKET_EDITOR_XIUMI_TOP_OPERATION_BUTTON_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div uib-dropdown="">',
+  '<button uib-dropdown-toggle="">导出</button>',
+  '<ul uib-dropdown-menu="" role="menu"><li><a role="menuitem">同步到公众号</a></li></ul>',
+  '</div>',
+  '<button tooltip-placement="bottom" uib-tooltip="预览 | Ctrl + Alt + p" tooltip-popup-delay="800">预览</button>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10065,6 +10075,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi top operation button residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi top operation button residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi UI Bootstrap directives after operation class cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

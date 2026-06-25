@@ -13975,6 +13975,57 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-26 Xiumi UI Bootstrap Control Directive Residue Slice
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor top operation bar, authorization/user
+  panels, message/statistics panels, and template category menus.
+- The editor DOM exposed Angular UI Bootstrap directives including `uib-dropdown`,
+  `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
+  `tooltip-popup-delay`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 2` returned LOW risk with 4 direct
+  dependents and 0 affected processes.
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3` returned LOW risk with
+  0 direct dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only Xiumi UI Bootstrap dropdown/tooltip
+  directives after Angular, top operation, operator, auxiliary tree, selection overlay,
+  crop/worker, and broad runtime markers have been removed.
+- Added the `Xiumi UI Bootstrap control directive residue` detector for source-specific
+  `uib-*` and tooltip control directives.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI Bootstrap" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 232 skipped tests after the
+  detector update.
+- `git diff --check -- <slice paths>` passed with only normal Windows LF-to-CRLF warnings.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 233 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1210 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 39.79s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 Xiumi Operator Depot Item Residue Slice
 
 Source:

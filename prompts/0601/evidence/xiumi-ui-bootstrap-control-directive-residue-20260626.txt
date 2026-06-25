@@ -1,0 +1,73 @@
+Xiumi UI Bootstrap Control Directive Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi Angular UI Bootstrap
+  control directives.
+- Covers Xiumi UI Bootstrap directive attributes such as uib-dropdown, uib-dropdown-toggle,
+  uib-dropdown-menu, uib-tooltip, tooltip-placement, and tooltip-popup-delay.
+- No platform save, sync, copy-to-WeChat, preview, upload, scheduled send, or publish action.
+
+Live source:
+- CloakBrowser opened the live Xiumi v5 paper editor and read back top operation, authorization,
+  message, statistics, and template-menu DOM.
+- The editor DOM exposed uib-dropdown, uib-dropdown-toggle, uib-dropdown-menu, uib-tooltip,
+  tooltip-placement, and tooltip-popup-delay on authoring controls.
+- These directives drive editor dropdowns, tooltips, accordions, tabs, and menus. They are not
+  article content, style, SVG payload, or platform-safe export markup.
+
+Implemented:
+- Added a reduced regression fixture that keeps only UI Bootstrap dropdown/tooltip directives
+  after top operation classes, Angular ng-* attributes/classes, operator, paper auxiliary tree,
+  selection overlay, crop/worker, hosted media, and interaction markers have been removed.
+- Added the detector label:
+  Xiumi UI Bootstrap control directive residue
+
+Why this matters:
+- Existing Xiumi guards already catch full Angular controls through ng-* attributes/classes and
+  catch Xiumi operation buttons through op-btn/op-more classes.
+- This slice covers the child-only path where copied DOM keeps uib-* or tooltip directives after
+  broader classes and Angular markers have been cleaned.
+- The rule intentionally does not match generic is-open or on-toggle attributes by themselves.
+
+Regression coverage:
+- WeChat: detectQuality(..., 'wechat') reports wechat-market-editor-residue with
+  Xiumi UI Bootstrap control directive residue.
+- Xiaohongshu: detectQuality(..., 'xiaohongshu') reports xhs-market-editor-residue with
+  Xiumi UI Bootstrap control directive residue.
+- Zhihu: detectQuality(..., 'zhihu') reports zhihu-market-editor-residue with
+  Xiumi UI Bootstrap control directive residue.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI Bootstrap" --reporter=default
+  Result: failed as expected because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI Bootstrap" --reporter=default
+  Result: passed, 1 selected test, 232 skipped tests.
+
+Verification:
+- git diff --check -- <slice paths>
+  Result: passed with only normal Windows LF-to-CRLF warnings.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file / 233 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 36 files / 1210 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite build completed in 39.79s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC rich paste, WeChat phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+- No local browser runtime directory, session secret, QR code, account capture, capture-file
+  reference, traffic archive, or account artifact is included in this committed evidence.
