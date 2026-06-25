@@ -6525,6 +6525,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 129. Xiumi Color Selector Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains color-selector controls observed
+  in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`, `tn-color-circle`,
+  `text-shadow-icon`, `text-fill-image-icon`, `tn-color-selector`, `tn-color-selector-x`,
+  `hello-color-x`, `on-color-choose`, `on-color-changing`, `on-color-choose-cancel`,
+  `support-color-category`, `fetch-color-from-template-panel`, or
+  `support-batch-change-color`.
+- These nodes drive Xiumi editor color palettes, text color panels, theme-color controls,
+  template color extraction, and color-picking callbacks. They are not article content,
+  InkForge-owned style primitives, or platform-safe SVG/H5 semantics.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi color selector control residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported color-selector class/id markers or source-specific color
+  selector attributes appear.
+- A reduced fixture containing only color-selector controls must fail even when operation-bar
+  dropdown/menu controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`
+  attributes/classes, paper auxiliary tree controls, selection overlays, crop/worker controls,
+  operator-dock parents, operator depot items, `op-loader`, broad `tn-*` non-color attributes,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, and `user-select` markers are absent.
+- This rule must not match ordinary text about colors, generic `dropdown-toggle`, generic
+  `btn-group`, readable color labels, or regular inline style color declarations by themselves.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced color-selector fixture fails before implementation and reports
+  `Xiumi color selector control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operation bar dropdown residue`,
+  `Xiumi UI Bootstrap control directive residue`, `Xiumi top operation button residue`, and
+  `Xiumi operator depot item residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

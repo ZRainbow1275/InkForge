@@ -5437,3 +5437,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `line-spacing`, or readable shortcut text by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Color Selector Control Residue
+
+- [x] xiumi-color-selector-control-residue-20260626.txt
+- Added a static quality rule for Xiumi color-selector controls observed in the live Xiumi v5
+  paper-editor DOM: `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`,
+  `tn-color-circle`, `text-shadow-icon`, `text-fill-image-icon`, `tn-color-selector`,
+  `tn-color-selector-x`, `hello-color-x`, `on-color-choose`, `on-color-changing`,
+  `on-color-choose-cancel`, `support-color-category`, `fetch-color-from-template-panel`, and
+  `support-batch-change-color`.
+- The reduced regression intentionally keeps only source-specific color-selector controls plus
+  readable color labels, proving the cleaned color-control residue is blocked without relying on
+  operation-bar controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`,
+  paper auxiliary tree controls, selection overlays, crop/worker controls, operator-dock parents,
+  operator depot items, `op-loader`, broad non-color `tn-*`, `opera-tn-*`, `contenteditable`,
+  hosted media, SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, or `user-select`
+  markers.
+- The detector intentionally does not block ordinary text about colors, generic
+  `dropdown-toggle`, generic `btn-group`, readable color labels, or regular inline style color
+  declarations by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

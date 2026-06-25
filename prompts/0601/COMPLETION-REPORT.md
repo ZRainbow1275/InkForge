@@ -5161,6 +5161,39 @@ Boundary:
 
 ---
 
+## 2026-06-26 Xiumi Color Selector Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the color-selector DOM
+  can retain `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`,
+  `tn-color-circle`, `text-shadow-icon`, `text-fill-image-icon`, `tn-color-selector`,
+  `tn-color-selector-x`, `hello-color-x`, `on-color-choose`, `support-color-category`, and
+  template color-fetch flags.
+- Added the static detector label `Xiumi color selector control residue` for color palette,
+  text-color, theme-color, and template color extraction controls after operation-bar,
+  UI Bootstrap, top-operation, operator, auxiliary, selection, crop, and runtime markers have been
+  removed.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 235 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1212 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 44.52s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-color-selector-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-26 Xiumi Operation Bar Dropdown Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the operation-bar and
