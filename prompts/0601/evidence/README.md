@@ -4904,3 +4904,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Component Authoring Tree Residue
+
+- [x] xiumi-component-authoring-tree-residue-20260625.txt
+- Added a static quality rule for Xiumi component authoring tree classes observed in applied
+  component/canvas DOM readbacks: `tn-comp`, `tn-comp-inst`, `tn-comp-top-level`, `tn-comp-pin`,
+  and `tn-comp-style-pin`.
+- The reduced regression intentionally keeps only `tn-comp-inst` plus readable text, proving the
+  cleaned component authoring tree residue is blocked without relying on `tn-page`, `tn-cell`,
+  `tn-tpl`, hosted-media, Angular `ng-*`, `opera-*`, `contenteditable`, SVG content-layer,
+  `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

@@ -5764,3 +5764,39 @@ const ruleFamilies = [
   `Xiumi runtime binding attribute` through `opera-tn-ra-*` after the split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 99. Xiumi Component Authoring Tree Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi component authoring
+  class such as `tn-comp`, `tn-comp-inst`, `tn-comp-top-level`, `tn-comp-pin`,
+  `tn-comp-style-pin`, or other `tn-comp-*` class/id markers.
+- These markers came from the applied Xiumi component/canvas DOM readbacks. They are editor
+  component tree wrappers, not InkForge-owned publishable article wrappers.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component authoring tree residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-comp` or `tn-comp-*` appears in a class/id attribute.
+- The rule must not require `tn-page`, `tn-cell`, `tn-tpl`, hosted media, Angular, opera runtime,
+  SVG content-layer, page/layer slots, or any other market-editor marker to fire.
+- `tn-comp*` class/id markers must be diagnosed as component authoring tree residue instead of
+  only the generic `Xiumi tn-* authoring tree` label. The remaining page/cell/tpl/layer tree
+  markers stay covered by `Xiumi tn-* authoring tree`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-comp-inst` fixture reports the old generic authoring tree label
+  before the rule split and the precise component authoring tree residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed 135/Xiumi fixture reporting the generic
+  `Xiumi tn-* authoring tree` label through `tn-cell` after the component split.
+- Regression tests must update Xiumi applied SVG wrapper expectations to the precise component
+  authoring tree label when the sample only carries `tn-comp*` authoring classes.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

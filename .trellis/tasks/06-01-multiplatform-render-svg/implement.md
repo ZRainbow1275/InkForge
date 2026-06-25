@@ -11342,6 +11342,64 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Component Authoring Tree Residue Slice
+
+Scope:
+- Converts the applied Xiumi component/canvas DOM observation `tn-comp` / `tn-comp-*` class/id
+  markers into an executable static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi component authoring tree residue`.
+- Removed `tn-comp*` class/id markers from the remaining generic
+  `Xiumi tn-* authoring tree` bucket while keeping page/cell/tpl/layer/from-house/theme markers
+  blocked by that generic label.
+- Added a reduced regression fixture with only `tn-comp-inst` and readable text, intentionally
+  omitting `tn-page`, `tn-cell`, `tn-tpl`, hosted-media, Angular, opera runtime, `contenteditable`,
+  SVG content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and
+  `foreignObject` markers.
+- Updated the Xiumi applied SVG foreignObject fixture assertions to expect the precise component
+  authoring tree label when the sample only carries `tn-comp*` authoring classes.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component authoring tree classes" --reporter=default` failed before implementation because the
+  message only contained `Xiumi tn-* authoring tree`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component authoring tree classes" --reporter=default` passed with 1 selected test and 202
+  skipped tests.
+- Generic authoring guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "copied 135 and Xiumi authoring residues" --reporter=default` passed with 1 selected test and
+  202 skipped tests.
+- Applied SVG guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "applied SVG foreignObject" --reporter=default` passed with 1 selected test and 202 skipped
+  tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 203 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1180 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 24.12s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Disabled Control Binding Residue Slice
 
 Scope:

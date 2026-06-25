@@ -1,0 +1,46 @@
+Xiumi Component Authoring Tree Residue - 2026-06-25
+
+Scope:
+- Static publishability blocker for copied or partially cleaned Xiumi component authoring tree
+  classes.
+- Covered class/id markers:
+  - tn-comp
+  - tn-comp-*
+
+Implemented:
+- MARKET_EDITOR_RESIDUE_RULES reports Xiumi component authoring tree residue for tn-comp class/id
+  markers.
+- The remaining Xiumi tn-* authoring tree rule still covers page/cell/tpl/layer/from-house/theme
+  markers.
+- Reduced regression fixture keeps only tn-comp-inst plus readable text.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component authoring tree classes" --reporter=default
+  Failed before implementation because the message contained only Xiumi tn-* authoring tree.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component authoring tree classes" --reporter=default
+  PASS: 1 selected / 202 skipped.
+- Regression guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "copied 135 and Xiumi authoring residues" --reporter=default
+  PASS: 1 selected / 202 skipped.
+- Applied SVG guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "applied SVG foreignObject" --reporter=default
+  PASS: 1 selected / 202 skipped.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 203 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1180 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 24.12s.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or
+  publish success.
