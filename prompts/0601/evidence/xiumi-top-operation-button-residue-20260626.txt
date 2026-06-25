@@ -1,0 +1,75 @@
+Xiumi Top Operation Button Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi top operation button
+  controls.
+- Covers Xiumi operation button classes such as x3-nav-op-buttons, tn-op-btn-group, op-btn,
+  op-btn-inset-icon, op-btn-inset-desc, and op-more.
+- No platform save, sync, copy-to-WeChat, preview, upload, scheduled send, or publish action.
+
+Live source:
+- CloakBrowser opened the live Xiumi v5 paper editor and read back the top operation bar DOM.
+- The operation bar exposed open, preview, save, export, sync, and more-menu authoring controls
+  including x3-nav-op-buttons, tn-op-btn-group, op-btn, op-btn-inset-icon, op-btn-inset-desc, and
+  op-more.
+- These nodes describe editor operation buttons and menus. They are not article content, style,
+  SVG payload, or platform-safe export markup.
+
+Implemented:
+- Added a reduced regression fixture that keeps only top operation button controls after Angular,
+  operator, paper auxiliary tree, selection overlay, crop/worker, hosted media, and interaction
+  markers have been removed.
+- Added the detector label:
+  Xiumi top operation button residue
+
+Why this matters:
+- Existing Xiumi guards already catch full Angular buttons through ng-* attributes/classes and
+  catch editor operation panels through op-dock, op-dc, op-loader, selection, crop, and auxiliary
+  tree markers.
+- This slice covers the child-only path where copied DOM keeps operation button classes after
+  broader controls have been cleaned.
+- The rule stays anchored to Xiumi operation-button names and does not match generic button,
+  dropdown, or menu prose unless source-specific op-btn/op-more markers are present.
+
+Regression coverage:
+- WeChat: detectQuality(..., 'wechat') reports wechat-market-editor-residue with
+  Xiumi top operation button residue.
+- Xiaohongshu: detectQuality(..., 'xiaohongshu') reports xhs-market-editor-residue with
+  Xiumi top operation button residue.
+- Zhihu: detectQuality(..., 'zhihu') reports zhihu-market-editor-residue with
+  Xiumi top operation button residue.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "top operation" --reporter=default
+  Result: failed as expected because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "top operation" --reporter=default
+  Result: passed, 1 selected test, 231 skipped tests.
+
+Verification:
+- git diff --check -- <slice paths>
+  Result: passed with only normal Windows LF-to-CRLF warnings.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed, 1 file / 232 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed, 36 files / 1209 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite build completed in 43.56s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC rich paste, WeChat phone preview, mobile SMIL/click interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host acceptance, or publish
+  success.
+- No local browser runtime directory, session secret, QR code, account capture, capture-file
+  reference, traffic archive, or account artifact is included in this committed evidence.

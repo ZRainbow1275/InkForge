@@ -6405,6 +6405,45 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 126. Xiumi Top Operation Button Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains top operation button controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor readback, such as `x3-nav-op-buttons`,
+  `tn-op-btn-group`, `op-btn`, `op-btn-inset-icon`, `op-btn-inset-desc`, or `op-more`.
+- These controls are Xiumi authoring UI for opening, previewing, saving, exporting, syncing, and
+  editor menu actions. They are not article content, style semantics, or platform-safe SVG/HTML.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi top operation button residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported top-operation button classes appear.
+- A reduced fixture containing only the top operation button controls must fail even when broad
+  Angular `ng-*` attributes/classes, paper auxiliary tree controls, selection overlays,
+  crop/worker controls, operator-dock parents, operator depot items, `op-loader`, broad `tn-*`
+  attributes, `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`,
+  `ui-sortable`, `touch-action`, and `user-select` markers are absent.
+- This rule must stay anchored to Xiumi operation-button names and must not match generic
+  `button`, `dropdown`, or menu prose unless source-specific `op-btn` / `op-more` markers are
+  present.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced top-operation button fixture fails before implementation and
+  reports `Xiumi top operation button residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi paper auxiliary component tree residue`,
+  `Xiumi worker surface crop control residue`, `Xiumi operator depot item residue`, and
+  `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

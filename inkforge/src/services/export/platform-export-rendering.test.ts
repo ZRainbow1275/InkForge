@@ -415,6 +415,18 @@ const MARKET_EDITOR_XIUMI_PAPER_AUXILIARY_TREE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TOP_OPERATION_BUTTON_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<button class="btn-img op-btn preview">',
+  '<span class="op-btn-inset-icon"></span>',
+  '<span class="op-btn-inset-desc">预览</span>',
+  '</button>',
+  '<div class="btn-dropdown op-more btn-group dropdown"><ul class="dropdown-menu">',
+  '<li><a role="menuitem" tabindex="-1" href="javascript:void(0)">同步到公众号</a></li>',
+  '</ul></div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10037,6 +10049,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi paper auxiliary component tree residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi paper auxiliary component tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi top operation buttons after Angular cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TOP_OPERATION_BUTTON_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TOP_OPERATION_BUTTON_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TOP_OPERATION_BUTTON_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi top operation button residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi top operation button residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi top operation button residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
