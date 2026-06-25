@@ -5822,7 +5822,7 @@ const ruleFamilies = [
   the component-binding attribute rule.
 - `tn-cell*` class/id markers must be diagnosed as cell container authoring residue instead of
   only the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for
-  page/tpl/layer/from-house/theme tree markers that are not yet split.
+  page/tpl/from-house/theme tree markers that are not yet split.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5835,5 +5835,43 @@ const ruleFamilies = [
   quality reports.
 - Regression tests must keep the existing mixed 135/Xiumi fixture reporting the precise component
   authoring tree and cell container authoring labels after the split.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 101. Xiumi Layer Authoring Tree Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains a Xiumi layer authoring class
+  such as `tn-layer`, `tn-layer-absolute`, or other `tn-layer-*` class/id markers, excluding the
+  already split `tn-layer-slot` marker.
+- These markers came from the applied Xiumi SVG/H5 layered editor DOM readbacks. They describe
+  editor-side layering containers and absolute-positioning authoring state, not InkForge-owned
+  publishable article structure.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi layer authoring tree residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-layer` or `tn-layer-*` appears in a class/id attribute.
+- The rule must not require `tn-comp`, `tn-cell`, `tn-page`, `tn-tpl`, hosted media, Angular,
+  opera runtime, SVG content-layer, page/layer slots, or any other market-editor marker to fire.
+- The rule must not absorb `tn-layer-slot`; that marker remains covered by the existing
+  `Xiumi page layer slot residue` rule.
+- `tn-layer*` class/id markers must be diagnosed as layer authoring tree residue instead of only
+  the generic `Xiumi tn-* authoring tree` label. The broader generic rule remains for
+  page/tpl/from-house/theme tree markers that are not yet split.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-layer tn-layer-absolute` fixture reports the old generic
+  authoring tree label before the rule split and the precise layer authoring tree residue label
+  after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing `tn-page-slot` / `tn-layer-slot` fixture reporting
+  `Xiumi page layer slot residue` after the layer split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

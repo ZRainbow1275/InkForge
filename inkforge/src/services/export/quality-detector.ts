@@ -169,7 +169,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi cell container authoring residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|from-house|theme-color-mask|tpl|layer)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-layer(?!-slot\b)(?:-[\w-]+)?\b[^"']*["']/i,
+    label: 'Xiumi layer authoring tree residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:page|from-house|theme-color-mask|tpl)[^"']*["']/i,
     label: 'Xiumi tn-* authoring tree',
   },
   {

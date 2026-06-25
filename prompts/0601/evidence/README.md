@@ -4934,3 +4934,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `foreignObject` markers.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-25 Xiumi Layer Authoring Tree Residue
+
+- [x] xiumi-layer-authoring-tree-residue-20260625.txt
+- Added a static quality rule for Xiumi layer authoring classes observed in applied SVG/H5 layered
+  editor DOM readbacks: `tn-layer`, `tn-layer-absolute`, and other `tn-layer-*` markers.
+- The reduced regression intentionally keeps only `tn-layer tn-layer-absolute` plus readable text,
+  proving the cleaned layer authoring tree residue is blocked without relying on `tn-comp`,
+  `tn-cell`, `tn-page`, `tn-tpl`, hosted-media, Angular `ng-*`, `opera-*`, `contenteditable`,
+  SVG content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or
+  `foreignObject` markers.
+- The page/layer slot guard keeps `tn-layer-slot` on the existing
+  `Xiumi page layer slot residue` label after the split.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

@@ -1222,6 +1222,9 @@ Rules:
 - Xiumi cell container authoring classes such as `tn-cell`, `tn-cell-inst`, `tn-cell-image`,
   `tn-cell-text`, and `tn-cell-group` must fail independently of `tn-comp`, `tn-page`,
   `tn-tpl`, hosted-media, Angular, opera runtime, or SVG content-layer markers.
+- Xiumi layer authoring classes such as `tn-layer` and `tn-layer-absolute` must fail
+  independently of `tn-comp`, `tn-cell`, `tn-page`, `tn-tpl`, hosted-media, Angular, opera
+  runtime, or SVG content-layer markers, while `tn-layer-slot` stays covered by the slot rule.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1274,6 +1277,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-disabled-control-binding-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-component-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-cell-container-authoring-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-layer-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1295,4 +1299,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-100.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-101.
