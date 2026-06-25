@@ -5600,9 +5600,9 @@ const ruleFamilies = [
   `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
   markers.
 - `tn-page-slot` and `tn-layer-slot` must be diagnosed as page layer slot residue instead of the
-  generic Xiumi SVG layer slot label. Remaining child position/orientation wrappers such as
+  generic Xiumi SVG layer slot label. Child position/orientation wrappers such as
   `tn-child-position-absolute`, `tn-child-position-static`, `tn-child-orientation-fixed`, and
-  `tn-child-orientation-flow-canvas` must stay blocked by `Xiumi SVG layer slot residue`.
+  `tn-child-orientation-flow-canvas` must be handled by the child layer state rule below.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -5613,7 +5613,51 @@ const ruleFamilies = [
   before the rule split and the precise page layer slot residue label after it.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
-- Regression tests must keep the previous aggregate layer-slot fixture blocked by
-  `Xiumi SVG layer slot residue` through child position/orientation markers.
+- Regression tests must keep the previous aggregate layer-state fixture blocked by
+  `Xiumi child layer state residue` through child position/orientation markers.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 95. Xiumi Child Layer State Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi applied-editor child
+  layer positioning/orientation classes: `tn-child-position-absolute`,
+  `tn-child-position-static`, `tn-child-orientation-fixed`, or
+  `tn-child-orientation-flow-canvas`.
+- These classes came from the applied Xiumi SVG/image-layer sample DOM readback. They are editor
+  layer state metadata used to place child cells inside the Xiumi canvas, not InkForge-owned
+  publishable article classes.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi child layer state residue` for WeChat,
+  Xiaohongshu, and Zhihu when any supported child position/orientation marker appears in a
+  class/id attribute.
+- The rule must match only class/id attributes containing the exact supported child layer state
+  markers.
+- The reduced fixture must not rely on other Xiumi markers such as `tn-page-slot`,
+  `tn-layer-slot`, `ng-*`, `opera-*`, `contenteditable`, hosted-media, SVG content-layer,
+  `raw-image`, `tn-image-presenter`, `tn-content-overlap`, `tn-image-inst-wrapper`,
+  `tn-overflow-hidden`, `tn-page-vessel`, `tn-group-sortable-box`, `tn-sortable-pin`,
+  `tn-quick-input*`, `tn-state-*`, `tn-on-*`, `tn-in-cell-state-active`,
+  `tn-group-box-wrapper`, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`,
+  `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- `tn-child-position-*` and `tn-child-orientation-*` class markers must be diagnosed as child
+  layer state residue instead of the generic `Xiumi SVG layer slot residue` label. This closes the
+  current layer-slot split after the page/layer slot rule.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced child-layer-state-only fixture reports the generic layer slot label
+  before the rule split and the precise child layer state residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the aggregate child-layer-state plus `raw-image` fixture blocked by
+  the precise `Xiumi child layer state residue` label without relying on page/layer slot classes.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

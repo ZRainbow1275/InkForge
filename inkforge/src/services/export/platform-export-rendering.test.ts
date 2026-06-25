@@ -317,9 +317,9 @@ const MARKET_EDITOR_XIUMI_FLOW_CANVAS_ANIMATION_WRAPPER_HTML = [
   '</section>',
 ].join('')
 
-const MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML = [
+const MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_AND_RAW_IMAGE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
-  '<div class="tn-page-slot tn-layer-slot">',
+  '<div>',
   '<div class="tn-child-position-absolute tn-child-orientation-fixed raw-image">Layer slot image</div>',
   '</div>',
   '</section>',
@@ -328,6 +328,12 @@ const MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML = [
 const MARKET_EDITOR_XIUMI_PAGE_LAYER_SLOT_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-page-slot">Xiumi page layer slot residue</div>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-child-position-absolute">Xiumi child layer state residue</div>',
   '</section>',
 ].join('')
 
@@ -8687,17 +8693,17 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
-  it('blocks Xiumi SVG layer slot and raw-image residues without broad tn wrappers', () => {
-    const wechat = detectQuality(MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML, 'wechat')
-    const xhs = detectQuality(MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML, 'xiaohongshu')
-    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_LAYER_SLOT_RESIDUE_HTML, 'zhihu')
+  it('blocks Xiumi child layer state and raw-image residues without broad tn wrappers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_AND_RAW_IMAGE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_AND_RAW_IMAGE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_AND_RAW_IMAGE_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
-      .toContain('Xiumi SVG layer slot residue')
+      .toContain('Xiumi child layer state residue')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
-      .toContain('Xiumi SVG layer slot residue')
+      .toContain('Xiumi child layer state residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
-      .toContain('Xiumi SVG layer slot residue')
+      .toContain('Xiumi child layer state residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
@@ -8714,6 +8720,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi page layer slot residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi page layer slot residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi child layer states after slot cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_CHILD_LAYER_STATE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi child layer state residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi child layer state residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi child layer state residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -1,0 +1,44 @@
+Xiumi Child Layer State Residue - 2026-06-25
+
+Scope:
+- Static publishability blocker for copied or partially cleaned Xiumi child layer state classes.
+- Covered class/id markers:
+  - tn-child-position-absolute
+  - tn-child-position-static
+  - tn-child-orientation-fixed
+  - tn-child-orientation-flow-canvas
+
+Implemented:
+- MARKET_EDITOR_RESIDUE_RULES reports Xiumi child layer state residue.
+- Reduced regression fixture keeps only tn-child-position-absolute plus readable text.
+- Aggregate child-layer-state plus raw-image fixture no longer relies on tn-page-slot or
+  tn-layer-slot before asserting the child layer state label.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "child layer states" --reporter=default
+  Failed before implementation because the message still contained Xiumi SVG layer slot residue.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "child layer states" --reporter=default
+  PASS: 1 selected / 198 skipped.
+- Aggregate guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "child layer state and raw-image" --reporter=default
+  PASS: 1 selected / 198 skipped.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 199 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1176 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 26.27s.
+- pnpm -C inkforge style-proof:release-preflight -- --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or
+  publish success.

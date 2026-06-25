@@ -190,7 +190,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-child-(?:position-(?:absolute|static)|orientation-(?:fixed|flow-canvas))\b[^"']*["']/i,
-    label: 'Xiumi SVG layer slot residue',
+    label: 'Xiumi child layer state residue',
   },
   {
     pattern: /<(?:svg|animate)\b[^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:svg-layout-content|root-svg|rect-content|fade-self-animation)\b[^"']*["']/i,
