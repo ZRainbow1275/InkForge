@@ -7037,3 +7037,46 @@ const ruleFamilies = [
   narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 132. Xiumi Right Toolbar Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains right-side editor toolbar and
+  page-assist controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `x5-right-toolbar`, `right-toolbar-container`, `right-toolbar-container-normal`,
+  `right-toolbar-switch-container`, `right-toolbar-switch`, `right-toolbar-arrow-up`,
+  `right-toolbar-arrow-down`, `content-statistics`, `page-assist-on-toolbar`,
+  `zooming-selector`, and `tn-viewport-zooming-panel`.
+- These controls drive Xiumi editor chrome for page statistics, editing assistant toggles,
+  right-side toolbar switching, and zoom controls. They are not article DOM and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi right toolbar control residue` for WeChat,
+  Xiaohongshu, and Zhihu when the supported right-toolbar class/id markers appear.
+- A reduced fixture containing only right-toolbar controls must fail even when text-toolbar
+  controls, font-family menus, color-selector controls, operation-bar controls, UI Bootstrap
+  directives, top operation classes, broad Angular `ng-*` attributes/classes, paper auxiliary tree
+  controls, selection overlays, crop/worker controls, operator-dock parents, operator depot items,
+  `op-loader`, broad non-toolbar `tn-*`, `opera-tn-*`, `contenteditable`, hosted media, SVG
+  content-layer, `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers are absent.
+- The detector must not block ordinary prose containing toolbar, statistics, zoom, assistant, or
+  right-side language by itself. It must stay anchored to Xiumi-specific right-toolbar class/id
+  names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced right-toolbar fixture fails before implementation and reports
+  `Xiumi right toolbar control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi text toolbar control residue`,
+  `Xiumi font and format control residue`, `Xiumi color selector control residue`, and
+  `Xiumi top operation button residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

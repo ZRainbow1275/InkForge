@@ -193,6 +193,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi text toolbar control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:x5-right-toolbar|right-toolbar-(?:container(?:-normal)?|switch(?:-container)?|arrow-(?:down|up))|content-statistics|page-assist-on-toolbar|zooming-selector|tn-viewport-zooming-panel)\b[^"']*["']/i,
+    label: 'Xiumi right toolbar control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },

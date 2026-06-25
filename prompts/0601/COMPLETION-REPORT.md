@@ -5432,3 +5432,34 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-26 Xiumi Right Toolbar Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed right-side editor
+  toolbar/page-assist DOM can retain `x5-right-toolbar`, `right-toolbar-container`,
+  `right-toolbar-container-normal`, `right-toolbar-switch-container`, `right-toolbar-switch`,
+  `right-toolbar-arrow-up`, `right-toolbar-arrow-down`, `content-statistics`,
+  `page-assist-on-toolbar`, `zooming-selector`, and `tn-viewport-zooming-panel`.
+- Added the static detector label `Xiumi right toolbar control residue` for right-toolbar editor
+  chrome after text-toolbar/font/color/operation controls have been cleaned.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 238 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1215 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 39.87s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-right-toolbar-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

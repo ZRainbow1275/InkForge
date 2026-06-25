@@ -5500,3 +5500,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   toolbar labels by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Right Toolbar Control Residue
+
+- [x] xiumi-right-toolbar-control-residue-20260626.txt
+- Added a static quality rule for Xiumi right-side toolbar controls observed in the live Xiumi v5
+  paper-editor DOM: `x5-right-toolbar`, `right-toolbar-container`,
+  `right-toolbar-container-normal`, `right-toolbar-switch-container`, `right-toolbar-switch`,
+  `right-toolbar-arrow-up`, `right-toolbar-arrow-down`, `content-statistics`,
+  `page-assist-on-toolbar`, `zooming-selector`, and `tn-viewport-zooming-panel`.
+- The reduced regression intentionally keeps only source-specific right-toolbar controls plus
+  readable statistics/assistant/zoom labels, proving the cleaned editor chrome residue is blocked
+  without relying on text-toolbar controls, font-family menus, font-size skimmer attributes,
+  color-selector controls, operation-bar controls, UI Bootstrap directives, top operation classes,
+  broad Angular `ng-*`, paper auxiliary tree controls, selection overlays, crop/worker controls,
+  operator-dock parents, operator depot items, `op-loader`, broad non-toolbar `tn-*`,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, or `user-select` markers.
+- The detector intentionally does not block ordinary prose containing toolbar, statistics, zoom,
+  assistant, or right-side wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

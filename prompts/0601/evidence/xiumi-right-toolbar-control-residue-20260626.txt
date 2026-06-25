@@ -1,0 +1,63 @@
+Xiumi Right Toolbar Control Residue - 2026-06-26
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi editor right-toolbar DOM.
+- No platform action, phone preview, sync, upload, scheduled send, or publish operation.
+
+Live DOM source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor.
+- Observed editor-side right toolbar and page-assist controls:
+  - x5-right-toolbar
+  - right-toolbar-container
+  - right-toolbar-container-normal
+  - right-toolbar-switch-container
+  - right-toolbar-switch
+  - right-toolbar-arrow-up
+  - right-toolbar-arrow-down
+  - content-statistics
+  - page-assist-on-toolbar
+  - zooming-selector
+  - tn-viewport-zooming-panel
+
+Implemented:
+- Added detector label: Xiumi right toolbar control residue
+- Added reduced three-platform regression fixture:
+  MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality reports now fail when Xiumi right-toolbar editor chrome
+  appears in publishable output.
+- The reduced fixture intentionally avoids text-toolbar controls, font-family menus, font-size
+  skimmer attributes, color-selector controls, operation-bar controls, UI Bootstrap directives,
+  top operation classes, broad Angular ng-* markers, paper auxiliary tree controls, selection
+  overlays, crop/worker controls, operator-dock parents, operator depot items, op-loader, broad
+  non-toolbar tn-* markers, opera-tn-* markers, contenteditable, hosted media, SVG content-layer,
+  ui-slider, ui-sortable, touch-action, and user-select markers.
+- The detector stays anchored to Xiumi-specific class/id markers and does not block ordinary prose
+  containing toolbar, statistics, zoom, assistant, or right-side wording by itself.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "right toolbar controls" --reporter=default
+  RED: failed before detector update; no market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "right toolbar controls" --reporter=default
+  PASS: 1 selected test / 237 skipped tests after detector update.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 238 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1215 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 39.87s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu/Zhihu account upload, or publish success.

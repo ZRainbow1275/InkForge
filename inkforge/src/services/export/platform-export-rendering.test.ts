@@ -475,6 +475,20 @@ const MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="x5-right-toolbar right-toolbar-container right-toolbar-container-normal">',
+  '<button class="right-toolbar-switch-container"><span class="right-toolbar-switch"></span></button>',
+  '</div>',
+  '<ul class="content-statistics dropdown"><li>全文字数：100</li><li>图片数目：0</li></ul>',
+  '<button class="page-assist-on-toolbar" title="编辑辅助">编辑辅助</button>',
+  '<div class="zooming-selector">',
+  '<button class="right-toolbar-arrow-up">放大</button>',
+  '<button class="right-toolbar-arrow-down">缩小</button>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10193,6 +10207,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi text toolbar control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi text toolbar control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi right toolbar controls after text-toolbar cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi right toolbar control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi right toolbar control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi right toolbar control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
