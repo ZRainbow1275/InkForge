@@ -230,7 +230,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   },
   {
     pattern: /<[a-zA-Z][^>]*\btn-atom-context\s*=/i,
-    label: 'Xiumi component binding attribute residue',
+    label: 'Xiumi atom context binding metadata residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,

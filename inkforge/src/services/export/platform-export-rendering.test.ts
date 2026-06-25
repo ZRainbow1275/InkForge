@@ -556,6 +556,12 @@ const MARKET_EDITOR_XIUMI_PAGE_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_ATOM_CONTEXT_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<article tn-atom-context="cell.atom">Xiumi atom context binding shell</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML = [
   '<li class="tn-tpl-item tn-lighting-box ng-scope" ng-repeat="tpl in tnDataList track by $id(tpl)" ng-click="tplLib.onTemplateClicked($event, tpl)" ng-switch="::tpl | tpl2PresentType:true">',
   '<div class="tn-tpl-comp-box lighting-hover with-ra ng-scope" ng-class="::tpl | tpl2BoxClasses">',
@@ -9152,17 +9158,23 @@ describe('platform native export rendering rules', () => {
     expect(zhihu.passed).toBe(false)
   })
 
-  it('blocks Xiumi component binding attributes from publishable outputs', () => {
+  it('blocks decomposed Xiumi component binding attributes from publishable outputs', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
-      .toContain('Xiumi component binding attribute residue')
+      .toContain('Xiumi atom context binding metadata residue')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
-      .toContain('Xiumi component binding attribute residue')
+      .toContain('Xiumi atom context binding metadata residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
-      .toContain('Xiumi component binding attribute residue')
+      .toContain('Xiumi atom context binding metadata residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
@@ -9355,6 +9367,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi page binding metadata residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi page binding metadata residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi atom context binding metadata after broad component binding cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_ATOM_CONTEXT_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_ATOM_CONTEXT_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ATOM_CONTEXT_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi atom context binding metadata residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi atom context binding metadata residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi atom context binding metadata residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi component binding attribute residue')
     expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)

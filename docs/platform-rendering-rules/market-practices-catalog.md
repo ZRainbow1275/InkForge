@@ -911,7 +911,7 @@ Xiumi SVG/H5 rules:
   `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`, `tn-child-position`,
   `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`, `tn-atom-context`,
   `tn-link`, and `tn-image-usage`. These bindings are editor/runtime schema and must be blocked as
-  `Xiumi component binding attribute residue` if copied into WeChat/XHS/Zhihu output.
+  source-specific Xiumi component-binding diagnostics if copied into WeChat/XHS/Zhihu output.
 - 2026-06-22 executable fallback-catalog contract refresh: the market SVG/H5/rich-layout family is
   visible in the runtime style catalog by platform-specific proof state. WeChat
   `wechat-market-svg-h5-fallback-matrix` and Zhihu `zhihu-market-rich-layout-fallback` remain
@@ -1261,8 +1261,11 @@ Rules:
 - Xiumi page binding metadata such as `tn-page-stage-size`,
   `tn-page-view-box-editor-desktop`, and `tn-page-cache-gatherer` must fail independently of the
   broader component-binding bucket.
-- The current broad `Xiumi component binding attribute residue` bucket remains active only for the
-  still-unsplit component/runtime attribute `tn-atom-context`.
+- Xiumi atom context binding metadata such as `tn-atom-context` must fail independently of the
+  broader component-binding bucket.
+- The old broad `Xiumi component binding attribute residue` bucket is now fully decomposed. The
+  generic `Xiumi tn-* attribute` guard remains a final catch-all for unexpected Xiumi `tn-*`
+  leakage.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1329,6 +1332,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-child-layout-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-atom-context-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1350,4 +1354,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-114.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-115.

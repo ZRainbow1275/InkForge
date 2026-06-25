@@ -1,0 +1,35 @@
+Xiumi Atom Context Binding Metadata Residue - 2026-06-26
+
+Scope:
+- Local static publishability guard for Xiumi atom context binding metadata.
+- Covers tn-atom-context when it appears as an attribute name.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Implemented:
+- Added the label Xiumi atom context binding metadata residue.
+- Replaced the final broad Xiumi component binding attribute residue rule for tn-atom-context.
+- The old broad component-binding bucket is now fully decomposed into source-specific labels.
+- Kept Xiumi tn-* attribute active as the generic final catch-all for unexpected tn-* leakage.
+
+TDD:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "atom context" --reporter=default failed before implementation because the detector emitted Xiumi component binding attribute residue and Xiumi tn-* attribute instead of Xiumi atom context binding metadata residue.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "atom context" --reporter=default passed with 1 selected test and 218 skipped tests.
+- Aggregate decomposed guard: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "decomposed Xiumi component binding attributes" --reporter=default passed with 1 selected test and 218 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 219 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1196 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 36.76s; inkforge/tsconfig.tsbuildinfo restored afterward.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKER: exit 1, status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public rendering, upload, or publish success.

@@ -2317,8 +2317,8 @@ Contracts:
   `tn-comp`, `tn-comp-pose`, `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell-type`,
   `tn-child-position`, `tn-child-orientation`, `tn-page-stage-size`, `tn-page-cache-gatherer`,
   `tn-atom-context`, `tn-link`, and `tn-image-usage`. These attributes are Xiumi authoring/runtime
-  bindings. They must fail as `Xiumi component binding attribute residue`, not only as a generic
-  `Xiumi tn-* attribute`, when they appear in WeChat/XHS/Zhihu publishable output.
+  bindings. They must fail as source-specific Xiumi component-binding diagnostics, not only as a
+  generic `Xiumi tn-* attribute`, when they appear in WeChat/XHS/Zhihu publishable output.
 - 2026-06-20 Xiumi SVG taxonomy deep pass: the SVG category exposed families such as basic SVG,
   image carousel, click-expand, path animation, draw/lottery, sliding, transition, branch
   transition, scroll trigger, parallax, click switch, flip/turn page, zoom, click quiz, bullet text,
@@ -6232,6 +6232,43 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 115. Xiumi Atom Context Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains the Xiumi atom-context binding
+  attribute `tn-atom-context`.
+- This attribute binds editor-side atom/component context. It is Xiumi runtime schema, not
+  InkForge-owned publishable article metadata, and must not remain in WeChat, Xiaohongshu, or Zhihu
+  output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi atom context binding metadata residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-atom-context` appears as an attribute name.
+- A reduced fixture containing only `tn-atom-context` must not be reported as the broader
+  `Xiumi component binding attribute residue`.
+- The mixed component-binding fixture must report the decomposed labels, including
+  `Xiumi atom context binding metadata residue`, and must not report the old broad
+  `Xiumi component binding attribute residue` bucket.
+- The old broad component-binding bucket is fully decomposed after this section. The generic
+  `Xiumi tn-* attribute` guard remains active as a final catch-all for unexpected Xiumi `tn-*`
+  leakage.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-atom-context` fixture reports the old broad component-binding
+  label before the split and the precise atom-context metadata residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must assert the existing mixed component-binding fixture no longer reports
+  `Xiumi component binding attribute residue` after `tn-atom-context` moves to a narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 114. Xiumi Page Binding Metadata Residue - 2026-06-26
 
 ### 1. Scope / Trigger
@@ -6251,8 +6288,9 @@ const ruleFamilies = [
 - A reduced fixture containing only `tn-page-stage-size` / `tn-page-view-box-editor-desktop` /
   `tn-page-cache-gatherer` must not be reported as the broader
   `Xiumi component binding attribute residue`.
-- The broader component-binding attribute rule remains responsible only for the still-unsplit
-  editor/runtime attribute `tn-atom-context`.
+- The old broad component-binding attribute rule is fully decomposed by section 115. The generic
+  `Xiumi tn-* attribute` guard remains responsible only as a final catch-all for unexpected Xiumi
+  `tn-*` leakage.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -6264,9 +6302,9 @@ const ruleFamilies = [
   after it.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
-- Regression tests must keep the existing mixed component-binding fixture reporting
-  `Xiumi component binding attribute residue` through `tn-atom-context` after `tn-page-*`
-  binding attributes move to a narrower rule.
+- Regression tests must keep the existing mixed component-binding fixture reporting decomposed
+  component-binding labels and must not reintroduce `Xiumi component binding attribute residue`
+  after section 115 splits `tn-atom-context`.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 

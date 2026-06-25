@@ -11342,6 +11342,59 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-26 Xiumi Atom Context Binding Metadata Residue Slice
+
+Scope:
+- Converts the final Xiumi atom/context binding attribute `tn-atom-context` into a precise static
+  residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi atom context binding metadata residue`.
+- Replaced the last broad `Xiumi component binding attribute residue` rule for `tn-atom-context`.
+- The old broad component-binding bucket is now fully decomposed into source-specific labels.
+- Kept the generic `Xiumi tn-* attribute` guard active as the final catch-all for unexpected Xiumi
+  `tn-*` leakage.
+- Added a reduced regression fixture with only `tn-atom-context` and readable text, intentionally
+  omitting broader `tn-*`, component/cell/layer classes, hosted-media, Angular `ng-*`, `opera-*`,
+  renderer-pipeline attributes, `contenteditable`, SVG content-layer, image wrappers, page/layer
+  slots, gallery wrappers, UI controls, interaction styles, `visibility:hidden`, and
+  `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "atom context" --reporter=default` failed before implementation because the message still
+  contained `Xiumi component binding attribute residue` and did not contain
+  `Xiumi atom context binding metadata residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "atom context" --reporter=default` passed with 1 selected test and 218 skipped tests.
+- Decomposed aggregate guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "decomposed Xiumi component binding attributes" --reporter=default` passed with 1 selected test
+  and 218 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 219 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1196 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 36.76s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-26 Xiumi Page Binding Metadata Residue Slice
 
 Scope:

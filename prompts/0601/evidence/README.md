@@ -5187,3 +5187,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Atom Context Binding Metadata Residue
+
+- [x] xiumi-atom-context-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi atom context binding metadata observed in editor-side
+  atom/component runtime state: `tn-atom-context`.
+- The reduced regression intentionally keeps only `tn-atom-context` plus readable text, proving the
+  cleaned atom-context residue is blocked without relying on `tn-bind-comp-*`, `tn-uuid`,
+  `tn-animate`, `tn-link`, `tn-image`, `tn-image-usage`, `tn-comp*`, `tn-cell*`, `tn-child-*`,
+  `tn-page-*`, component/cell/layer/page classes, hosted-media, Angular `ng-*`, `opera-*`,
+  renderer-pipeline attributes, `contenteditable`, SVG content-layer, `raw-image`, image wrapper
+  classes, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`,
+  `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or `foreignObject`
+  markers.
+- The old broad `Xiumi component binding attribute residue` bucket is now fully decomposed; the
+  generic `Xiumi tn-* attribute` guard remains a final catch-all for unexpected Xiumi `tn-*`
+  leakage.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
