@@ -5127,3 +5127,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   after component-structure binding metadata moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Cell Binding Metadata Residue
+
+- [x] xiumi-cell-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi cell binding metadata observed in editor-side cell/content
+  slot state: `tn-cell` and `tn-cell-type`.
+- The reduced regression intentionally keeps only `tn-cell` / `tn-cell-type` binding attributes
+  plus readable text, proving the cleaned cell binding residue is blocked without relying on
+  `tn-bind-comp-*`, `tn-uuid`, `tn-animate`, `tn-link`, `tn-image`, `tn-image-usage`,
+  `tn-comp*`, `tn-child-position`, `tn-page-stage-size`, component/cell/layer/page classes,
+  hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG
+  content-layer, `raw-image`, image wrapper classes, page/layer slots, gallery wrappers,
+  `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the
+  still-unsplit `tn-child-*`, `tn-page-*`, and `tn-atom-context` binding attributes after cell
+  binding metadata moved to a narrower diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
