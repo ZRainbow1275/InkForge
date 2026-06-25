@@ -6088,3 +6088,39 @@ const ruleFamilies = [
   `Xiumi component binding attribute residue` after `tn-uuid` moves to a narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 108. Xiumi Animation Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi animation binding
+  attributes such as `tn-animate` or `tn-animate-on-self`.
+- These attributes bind editor-side component/layer animation state. They are not InkForge-owned
+  publishable article semantics and are especially risky when copied from SVG/H5 effect editors.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi animation binding metadata residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-animate` or `tn-animate-on-self` appears as an attribute
+  name.
+- A reduced fixture containing only `tn-animate` / `tn-animate-on-self` must not be reported as
+  the broader `Xiumi component binding attribute residue`.
+- The broader component-binding attribute rule remains responsible for other editor/runtime
+  attributes such as `tn-comp`, `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`,
+  `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-animate` / `tn-animate-on-self` fixture reports only the old
+  broad component-binding label before the split and the precise animation-binding metadata
+  residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` after animation binding attributes move to a
+  narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

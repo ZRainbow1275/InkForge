@@ -5051,3 +5051,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   component/runtime binding attributes after `tn-uuid` moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Animation Binding Metadata Residue
+
+- [x] xiumi-animation-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi animation binding metadata observed in editor-side SVG/H5
+  effect state: `tn-animate` and `tn-animate-on-self`.
+- The reduced regression intentionally keeps only `tn-animate` / `tn-animate-on-self` plus
+  readable text, proving the cleaned animation binding residue is blocked without relying on
+  `tn-bind-comp-*`, `tn-uuid`, `tn-comp`, `tn-comp-role`, `tn-cell-type`, `tn-child-position`,
+  `tn-page-stage-size`, `tn-link`, `tn-image-usage`, component/cell/layer/page classes,
+  hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG
+  content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, or
+  `foreignObject` markers.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the other
+  component/runtime binding attributes after animation binding metadata moved to a narrower
+  diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

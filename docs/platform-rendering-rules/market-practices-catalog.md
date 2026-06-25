@@ -1248,8 +1248,13 @@ Rules:
   remain covered by `Xiumi component binding attribute residue`.
 - Xiumi component identity metadata such as `tn-uuid` must fail independently of the broader
   component-binding bucket. Other component/runtime attributes such as `tn-comp`, `tn-comp-role`,
-  `tn-comp-index`, `tn-comp-pose`, `tn-animate`, `tn-cell-type`, `tn-child-position`,
-  `tn-page-stage-size`, `tn-link`, and `tn-image-usage` remain covered by
+  `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`,
+  `tn-link`, and `tn-image-usage` remain covered by
+  `Xiumi component binding attribute residue`.
+- Xiumi animation binding metadata such as `tn-animate` and `tn-animate-on-self` must fail
+  independently of the broader component-binding bucket. Other component/runtime attributes such
+  as `tn-comp`, `tn-comp-role`, `tn-comp-index`, `tn-comp-pose`, `tn-cell-type`,
+  `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage` remain covered by
   `Xiumi component binding attribute residue`.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
@@ -1310,6 +1315,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-theme-color-mask-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-component-template-binding-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-component-identity-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-animation-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1331,4 +1337,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-107.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-108.

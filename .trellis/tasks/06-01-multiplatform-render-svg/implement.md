@@ -11342,6 +11342,64 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-26 Xiumi Animation Binding Metadata Residue Slice
+
+Scope:
+- Splits Xiumi animation binding attributes `tn-animate` and `tn-animate-on-self` out of the
+  broader component-binding attribute bucket.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi animation binding metadata residue`.
+- The rule matches `tn-animate` and `tn-animate-on-self` attribute names.
+- Removed `animate(?:-on-self)?` from the broader `Xiumi component binding attribute residue`
+  rule so reduced animation-binding fixtures do not keep receiving the broad label.
+- Kept the broad component-binding attribute rule for `tn-comp`, `tn-comp-role`, `tn-comp-index`,
+  `tn-comp-pose`, `tn-cell`, `tn-cell-type`, `tn-child-position`, `tn-child-orientation`,
+  `tn-page-stage-size`, `tn-page-view-box-editor-desktop`, `tn-page-cache-gatherer`,
+  `tn-atom-context`, `tn-link`, `tn-image`, and `tn-image-usage`.
+- Added a reduced regression fixture with only `tn-animate` / `tn-animate-on-self` and readable
+  text, intentionally omitting broader component/runtime attributes, component/cell/layer classes,
+  hosted-media, Angular, opera runtime, renderer-pipeline attributes, `contenteditable`, SVG
+  content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and
+  `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "animation binding metadata" --reporter=default` failed before implementation because the
+  message contained `Xiumi component binding attribute residue` and `Xiumi tn-* attribute`, not
+  the precise animation-binding metadata label.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "animation binding metadata" --reporter=default` passed with 1 selected test and 211 skipped
+  tests.
+- Adjacent broad component-binding guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component binding attributes from publishable outputs" --reporter=default` passed with 1
+  selected test and 211 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 212 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1189 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 42.52s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-26 Xiumi Component Identity Metadata Residue Slice
 
 Scope:

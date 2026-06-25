@@ -1,0 +1,51 @@
+Xiumi Animation Binding Metadata Residue - 2026-06-26
+
+Scope:
+- Local static publishability protection for Xiumi animation binding metadata copied from
+  market-editor SVG/H5 effect DOM into publishable WeChat, Xiaohongshu, or Zhihu output.
+- No platform action, no browser session, no phone preview, no sync, no upload, no scheduled send,
+  and no publish action.
+
+Implemented:
+- Added `Xiumi animation binding metadata residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The rule matches `tn-animate` and `tn-animate-on-self` attribute names.
+- Removed `animate(?:-on-self)?` from the broader `Xiumi component binding attribute residue`
+  rule so reduced animation-binding fixtures do not continue receiving the broad label.
+- Kept the broader component-binding attribute rule active for the remaining component/runtime
+  binding attributes, including `tn-comp`, `tn-comp-role`, `tn-cell-type`, `tn-child-position`,
+  `tn-page-stage-size`, `tn-link`, and `tn-image-usage`.
+
+TDD:
+- Red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation binding metadata" --reporter=default`
+  failed before implementation because the message contained `Xiumi component binding attribute
+  residue` and `Xiumi tn-* attribute`, not `Xiumi animation binding metadata residue`.
+- Green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation binding metadata" --reporter=default`
+  passed with 1 selected test and 211 skipped tests.
+- Adjacent broad component-binding guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component binding attributes from publishable outputs" --reporter=default`
+  passed with 1 selected test and 211 skipped tests.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  PASS: 1 file / 212 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  PASS: 36 files / 1189 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite build completed in 42.52s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json`
+  EXPECTED BLOCK: exit code 1, `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public rendering, public-host acceptance, Xiaohongshu upload/publish, Zhihu upload/publish, or
+  any external account workflow.
