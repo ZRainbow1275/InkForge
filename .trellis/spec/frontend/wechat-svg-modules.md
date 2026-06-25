@@ -6616,6 +6616,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 131. Xiumi Text Toolbar Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains text-toolbar controls observed in
+  a live CloakBrowser Xiumi v5 paper-editor DOM readback where `op-text-sec` appears on the same
+  element as a concrete toolbar class such as `font-size`, `font-family`, `text-style`, or
+  `text-misc`.
+- These nodes drive Xiumi editor text toolbar affordances for font sizing, font-family selection,
+  alignment, bold/italic/underline/strike controls, and miscellaneous text insertion controls.
+  They are not article content, InkForge-owned typography primitives, or platform-safe SVG/H5
+  semantics.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi text toolbar control residue` for WeChat,
+  Xiaohongshu, and Zhihu when `op-text-sec` is paired with a supported text-toolbar type class on
+  the same class/id value.
+- A reduced fixture containing only the paired text-toolbar controls must fail even when
+  font-family menus, font-size skimmer attributes, color-selector controls, operation-bar
+  dropdown/menu controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`
+  attributes/classes, paper auxiliary tree controls, selection overlays, crop/worker controls,
+  operator-dock parents, operator depot items, `op-loader`, broad `tn-*` attributes,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, and `user-select` markers are absent.
+- This rule must not match standalone `op-text-sec`, standalone `font-size`, standalone
+  `font-family`, ordinary text about fonts, regular inline font styles, or readable toolbar labels
+  by themselves.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule,
+  public host, or publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced text-toolbar fixture fails before implementation and reports
+  `Xiumi text toolbar control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi font and format control residue`,
+  `Xiumi color selector control residue`, `Xiumi operation bar dropdown residue`, and
+  `Xiumi UI Bootstrap control directive residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  public rendering, upload, scheduled send, or publish success.
+
 ## 121. Xiumi Selection Overlay Control Residue - 2026-06-26
 
 ### 1. Scope / Trigger

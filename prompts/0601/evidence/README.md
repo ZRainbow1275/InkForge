@@ -5481,3 +5481,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   font labels by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Text Toolbar Control Residue
+
+- [x] xiumi-text-toolbar-control-residue-20260626.txt
+- Added a static quality rule for Xiumi text-toolbar controls observed in the live Xiumi v5
+  paper-editor DOM where `op-text-sec` is paired with `font-size`, `font-family`, `text-style`, or
+  `text-misc` on the same element.
+- The reduced regression intentionally keeps only paired text-toolbar controls plus readable
+  toolbar labels, proving the cleaned toolbar residue is blocked without relying on font-family
+  menus, font-size skimmer attributes, color-selector controls, operation-bar controls,
+  UI Bootstrap directives, top operation classes, broad Angular `ng-*`, paper auxiliary tree
+  controls, selection overlays, crop/worker controls, operator-dock parents, operator depot items,
+  `op-loader`, broad `tn-*`, `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer,
+  `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
+- The detector intentionally does not block standalone `op-text-sec`, standalone `font-size`,
+  standalone `font-family`, ordinary text about fonts, regular inline font styles, or readable
+  toolbar labels by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

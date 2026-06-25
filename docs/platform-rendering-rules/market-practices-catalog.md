@@ -1363,7 +1363,9 @@ Rules:
   `hello-color-x`, `on-color-choose`, `support-color-category`, and template color-fetch flags,
   or font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
   `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`, `text-format-brush`,
-  `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks.
+  `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks, or
+  text-toolbar controls where `op-text-sec` is paired with `font-size`, `font-family`,
+  `text-style`, or `text-misc`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1418,6 +1420,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-operation-bar-dropdown-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-color-selector-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-font-format-control-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-text-toolbar-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`

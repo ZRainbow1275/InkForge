@@ -467,6 +467,14 @@ const MARKET_EDITOR_XIUMI_FONT_FORMAT_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="op-text-sec font-size btn-group dropdown" title="字体大小">12 14 16 18</div>',
+  '<div class="op-text-sec font-family dropdown" title="字体">默认字体</div>',
+  '<div class="op-text-sec text-style">B I U 设置下划线</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10169,6 +10177,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi font and format control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi font and format control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi text toolbar controls after font-format cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi text toolbar control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi text toolbar control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi text toolbar control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
