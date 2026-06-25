@@ -6214,9 +6214,8 @@ const ruleFamilies = [
   `tn-comp-pose` must not be reported as the broader
   `Xiumi component binding attribute residue`.
 - The broader component-binding attribute rule remains responsible only for the still-unsplit
-  editor/runtime attributes such as `tn-child-position`, `tn-child-orientation`,
-  `tn-page-stage-size`, `tn-page-view-box-editor-desktop`, `tn-page-cache-gatherer`, and
-  `tn-atom-context`.
+  editor/runtime attributes such as `tn-page-stage-size`, `tn-page-view-box-editor-desktop`,
+  `tn-page-cache-gatherer`, and `tn-atom-context`.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -6230,6 +6229,46 @@ const ruleFamilies = [
   quality reports.
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
+  narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 113. Xiumi Child Layout Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi child layout binding
+  attributes such as `tn-child-position` or `tn-child-orientation`.
+- These attributes bind editor-side child layout state. They are distinct from class-level child
+  state markers such as `tn-child-position-absolute` and from flow-canvas SVG/H5 risk labels that
+  may also fire on `tn-child-orientation="flow-canvas"`.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi child layout binding metadata residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-child-position` or `tn-child-orientation` appears as an
+  attribute name.
+- A reduced fixture containing only `tn-child-position` / `tn-child-orientation` must not be
+  reported as the broader `Xiumi component binding attribute residue`.
+- The existing `Xiumi SVG carousel flow-canvas residue` guard may also report when
+  `tn-child-orientation="flow-canvas"` is present; this is allowed and documents a separate
+  SVG/H5 interaction risk.
+- The broader component-binding attribute rule remains responsible only for the still-unsplit
+  editor/runtime attributes such as `tn-page-stage-size`, `tn-page-view-box-editor-desktop`,
+  `tn-page-cache-gatherer`, and `tn-atom-context`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-child-position` / `tn-child-orientation` fixture reports only
+  the old broad component-binding label before the split and the precise child-layout metadata
+  residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` after child-layout binding attributes move to a
   narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

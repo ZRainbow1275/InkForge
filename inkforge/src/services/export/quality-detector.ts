@@ -221,7 +221,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi cell binding metadata residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\btn-(?:child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\btn-child-(?:position|orientation)\s*=/i,
+    label: 'Xiumi child layout binding metadata residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context)\s*=/i,
     label: 'Xiumi component binding attribute residue',
   },
   {

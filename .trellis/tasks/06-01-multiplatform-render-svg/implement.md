@@ -11342,6 +11342,62 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-26 Xiumi Child Layout Binding Metadata Residue Slice
+
+Scope:
+- Converts the Xiumi child layout binding attributes `tn-child-position` and
+  `tn-child-orientation` into a precise static residue blocker.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi child layout binding metadata residue`.
+- Removed `tn-child-position` and `tn-child-orientation` from the broad
+  `Xiumi component binding attribute residue` alternation.
+- Kept the existing `Xiumi SVG carousel flow-canvas residue` guard active for
+  `tn-child-orientation="flow-canvas"` as a separate SVG/H5 risk.
+- Kept the broad component-binding bucket active for the still-unsplit `tn-page-*` and
+  `tn-atom-context` binding attributes.
+- Added a reduced regression fixture with only `tn-child-position`, `tn-child-orientation`, and
+  readable text, intentionally omitting broader `tn-*`, component/cell/layer classes,
+  hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG
+  content-layer, image wrappers, page/layer slots, gallery wrappers, UI controls, interaction
+  styles, `visibility:hidden`, and `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "child layout binding metadata" --reporter=default` failed before implementation because the
+  message still contained `Xiumi component binding attribute residue` and did not contain
+  `Xiumi child layout binding metadata residue`.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "child layout binding metadata" --reporter=default` passed with 1 selected test and 216
+  skipped tests.
+- Broad fallback guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component binding attributes from publishable outputs" --reporter=default` passed with 1
+  selected test and 216 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 217 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1194 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 36.49s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-26 Xiumi Cell Binding Metadata Residue Slice
 
 Scope:

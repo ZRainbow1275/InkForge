@@ -5146,3 +5146,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   binding metadata moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Child Layout Binding Metadata Residue
+
+- [x] xiumi-child-layout-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi child layout binding metadata observed in editor-side
+  child/layer layout state: `tn-child-position` and `tn-child-orientation`.
+- The reduced regression intentionally keeps only `tn-child-position` / `tn-child-orientation`
+  binding attributes plus readable text, proving the cleaned child layout binding residue is
+  blocked without relying on `tn-bind-comp-*`, `tn-uuid`, `tn-animate`, `tn-link`, `tn-image`,
+  `tn-image-usage`, `tn-comp*`, `tn-cell*`, `tn-page-stage-size`, component/cell/layer/page
+  classes, hosted-media, Angular `ng-*`, `opera-*`, renderer-pipeline attributes,
+  `contenteditable`, SVG content-layer, `raw-image`, image wrapper classes, page/layer slots,
+  gallery wrappers, `ui-slider`, `ui-sortable`, `op-loader`, `touch-action`, `user-select`,
+  `pointer-events`, `visibility:hidden`, or `foreignObject` markers.
+- The fixture intentionally uses `tn-child-orientation="flow-canvas"`, so the existing
+  `Xiumi SVG carousel flow-canvas residue` may remain in the report as a separate SVG/H5 risk.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the
+  still-unsplit `tn-page-*` and `tn-atom-context` binding attributes after child layout binding
+  metadata moved to a narrower diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
