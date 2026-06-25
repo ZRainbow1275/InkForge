@@ -494,6 +494,14 @@ const MARKET_EDITOR_XIUMI_COMPONENT_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COMPONENT_TEMPLATE_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<article tn-bind-comp-tpl-id="edit_paper-cp:sys-edit/loader-multi-pages" tn-bind-comp-index="0">',
+  'Xiumi component template binding shell',
+  '</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_TEMPLATE_RENDERER_PIPELINE_RESIDUE_HTML = [
   '<li class="tn-tpl-item tn-lighting-box ng-scope" ng-repeat="tpl in tnDataList track by $id(tpl)" ng-click="tplLib.onTemplateClicked($event, tpl)" ng-switch="::tpl | tpl2PresentType:true">',
   '<div class="tn-tpl-comp-box lighting-hover with-ra ng-scope" ng-class="::tpl | tpl2BoxClasses">',
@@ -9101,6 +9109,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi component binding attribute residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi component binding attribute residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi component template binding attributes separately from broad component binding', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_TEMPLATE_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_TEMPLATE_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_TEMPLATE_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi component template binding residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi component template binding residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi component template binding residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

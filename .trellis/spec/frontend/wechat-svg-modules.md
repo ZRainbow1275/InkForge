@@ -6020,3 +6020,38 @@ const ruleFamilies = [
   `Xiumi source-house authoring residue` after the theme-color-mask split.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 106. Xiumi Component Template Binding Residue - 2026-06-25
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi component-template
+  binding attributes such as `tn-bind-comp-tpl-id` or `tn-bind-comp-index`.
+- These attributes are Xiumi editor/runtime metadata for binding a selected component instance to
+  a template definition or list index. They are not InkForge-owned publishable article semantics.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component template binding residue` for
+  WeChat, Xiaohongshu, and Zhihu when `tn-bind-comp-tpl-id` or `tn-bind-comp-index` appears as an
+  attribute name.
+- A reduced fixture containing only `tn-bind-comp-tpl-id` / `tn-bind-comp-index` must not be
+  reported as the broader `Xiumi component binding attribute residue`.
+- The broader component-binding attribute rule remains responsible for other editor/runtime
+  attributes such as `tn-comp`, `tn-comp-role`, `tn-uuid`, `tn-animate`, `tn-cell-type`,
+  `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-bind-comp-tpl-id` / `tn-bind-comp-index` fixture reports only
+  the old broad component-binding label before the split and the precise component-template
+  binding residue label after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` after `tn-bind-comp-*` moves to a narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

@@ -11342,6 +11342,66 @@ Boundary:
   mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
   platform preview, public rendering, upload, or publish success.
 
+## 2026-06-25 Xiumi Component Template Binding Residue Slice
+
+Scope:
+- Splits Xiumi component-template binding attributes `tn-bind-comp-tpl-id` and
+  `tn-bind-comp-index` out of the broader component-binding attribute bucket.
+- The rule is additive and does not change renderer output, style availability, release gate
+  status, browser state, clipboard state, upload, sync, schedule, or publish behavior.
+
+Implementation:
+- Added a `MARKET_EDITOR_RESIDUE_RULES` entry labeled
+  `Xiumi component template binding residue`.
+- The rule matches `tn-bind-comp-tpl-id` and `tn-bind-comp-index` attribute names.
+- Removed `bind-comp-(tpl-id|index)` from the broader
+  `Xiumi component binding attribute residue` rule so reduced template-binding fixtures do not
+  keep receiving the broad label.
+- Kept the broad component-binding attribute rule for `tn-comp`, `tn-comp-role`, `tn-comp-index`,
+  `tn-comp-pose`, `tn-uuid`, `tn-animate`, `tn-animate-on-self`, `tn-cell`, `tn-cell-type`,
+  `tn-child-position`, `tn-child-orientation`, `tn-page-stage-size`,
+  `tn-page-view-box-editor-desktop`, `tn-page-cache-gatherer`, `tn-atom-context`, `tn-link`,
+  `tn-image`, and `tn-image-usage`.
+- Added a reduced regression fixture with only `tn-bind-comp-tpl-id` / `tn-bind-comp-index` and
+  readable text, intentionally omitting broader component/runtime attributes, component/cell/layer
+  classes, hosted-media, Angular, opera runtime, renderer-pipeline attributes, `contenteditable`,
+  SVG content-layer, `raw-image`, page/layer slots, gallery wrappers, `ui-slider`, `ui-sortable`,
+  `op-loader`, `touch-action`, `user-select`, `pointer-events`, `visibility:hidden`, and
+  `foreignObject` markers.
+
+Verification:
+- TDD red run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component template binding attributes" --reporter=default` failed before implementation
+  because the message contained `Xiumi component binding attribute residue` and
+  `Xiumi tn-* attribute`, not the precise component-template binding label.
+- Focused green run:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component template binding attributes" --reporter=default` passed with 1 selected test and
+  209 skipped tests.
+- Adjacent broad component-binding guard:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t
+  "component binding attributes from publishable outputs" --reporter=default` passed with 1
+  selected test and 209 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts
+  --reporter=default` passed with 1 file and 210 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1
+  --no-file-parallelism` passed with 36 files and 1187 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts
+  src/services/export/platform-export-rendering.test.ts --quiet` passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 43.52s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight -- --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public rendering, upload, or publish success.
+
 ## 2026-06-25 Xiumi Theme Color Mask Residue Slice
 
 Scope:

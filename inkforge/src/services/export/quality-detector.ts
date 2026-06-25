@@ -193,7 +193,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi paper document root residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\btn-(?:bind-comp-(?:tpl-id|index)|comp(?:-role|-index|-pose)?|uuid|animate(?:-on-self)?|cell(?:-type)?|child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context|link|image(?:-usage)?)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\btn-bind-comp-(?:tpl-id|index)\s*=/i,
+    label: 'Xiumi component template binding residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:comp(?:-role|-index|-pose)?|uuid|animate(?:-on-self)?|cell(?:-type)?|child-(?:position|orientation)|page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|atom-context|link|image(?:-usage)?)\s*=/i,
     label: 'Xiumi component binding attribute residue',
   },
   {

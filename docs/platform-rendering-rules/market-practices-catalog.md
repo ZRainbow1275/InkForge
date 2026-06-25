@@ -1241,6 +1241,11 @@ Rules:
   markers.
 - The old generic `Xiumi tn-* authoring tree` bucket has been decomposed into precise component,
   cell, layer, page, template, source-house, and theme-color-mask diagnostics.
+- Xiumi component-template binding attributes such as `tn-bind-comp-tpl-id` and
+  `tn-bind-comp-index` must fail independently of the broader component-binding bucket. Other
+  component/runtime attributes such as `tn-comp`, `tn-comp-role`, `tn-uuid`, `tn-animate`,
+  `tn-cell-type`, `tn-child-position`, `tn-page-stage-size`, `tn-link`, and `tn-image-usage`
+  remain covered by `Xiumi component binding attribute residue`.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1298,6 +1303,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-template-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-source-house-authoring-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-theme-color-mask-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-component-template-binding-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1319,4 +1325,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-105.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-106.
