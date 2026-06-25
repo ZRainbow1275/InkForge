@@ -1258,9 +1258,11 @@ Rules:
 - Xiumi child layout binding metadata such as `tn-child-position` and `tn-child-orientation` must
   fail independently of the broader component-binding bucket. `tn-child-orientation="flow-canvas"`
   may still also report `Xiumi SVG carousel flow-canvas residue` as a separate SVG/H5 risk.
+- Xiumi page binding metadata such as `tn-page-stage-size`,
+  `tn-page-view-box-editor-desktop`, and `tn-page-cache-gatherer` must fail independently of the
+  broader component-binding bucket.
 - The current broad `Xiumi component binding attribute residue` bucket remains active only for the
-  still-unsplit component/runtime attributes such as `tn-page-stage-size`,
-  `tn-page-view-box-editor-desktop`, `tn-page-cache-gatherer`, and `tn-atom-context`.
+  still-unsplit component/runtime attribute `tn-atom-context`.
 - Xiumi root/text cleanup residues such as `tn-paper-document-root` and `tn-text` must fail after
   broader component wrappers are removed.
 - Xiumi page/layer slot residues such as `tn-page-slot` and `tn-layer-slot` must fail after
@@ -1326,6 +1328,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-child-layout-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1347,4 +1350,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-113.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-114.

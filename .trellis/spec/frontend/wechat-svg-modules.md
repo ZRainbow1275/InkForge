@@ -6214,8 +6214,7 @@ const ruleFamilies = [
   `tn-comp-pose` must not be reported as the broader
   `Xiumi component binding attribute residue`.
 - The broader component-binding attribute rule remains responsible only for the still-unsplit
-  editor/runtime attributes such as `tn-page-stage-size`, `tn-page-view-box-editor-desktop`,
-  `tn-page-cache-gatherer`, and `tn-atom-context`.
+  editor/runtime attribute `tn-atom-context`.
 - The rule is additive. It must not alter renderer output, style availability, selectable actions,
   release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
   publish behavior.
@@ -6230,6 +6229,44 @@ const ruleFamilies = [
 - Regression tests must keep the existing mixed component-binding fixture reporting
   `Xiumi component binding attribute residue` after `tn-comp*` binding attributes move to a
   narrower rule.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 114. Xiumi Page Binding Metadata Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned market-editor HTML contains Xiumi page/stage binding
+  attributes such as `tn-page-stage-size`, `tn-page-view-box-editor-desktop`, or
+  `tn-page-cache-gatherer`.
+- These attributes bind editor-side canvas stage, viewBox, and cache/gathering state. They are
+  not InkForge-owned publishable article metadata and must not remain in WeChat, Xiaohongshu, or
+  Zhihu output.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi page binding metadata residue` for WeChat,
+  Xiaohongshu, and Zhihu when any of the supported `tn-page-*` binding attributes appears as an
+  attribute name.
+- A reduced fixture containing only `tn-page-stage-size` / `tn-page-view-box-editor-desktop` /
+  `tn-page-cache-gatherer` must not be reported as the broader
+  `Xiumi component binding attribute residue`.
+- The broader component-binding attribute rule remains responsible only for the still-unsplit
+  editor/runtime attribute `tn-atom-context`.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-page-*` binding fixture reports only the old broad
+  component-binding label before the split and the precise page-binding metadata residue label
+  after it.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Regression tests must keep the existing mixed component-binding fixture reporting
+  `Xiumi component binding attribute residue` through `tn-atom-context` after `tn-page-*`
+  binding attributes move to a narrower rule.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 

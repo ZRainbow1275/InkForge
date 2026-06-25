@@ -5167,3 +5167,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   metadata moved to a narrower diagnostic.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Page Binding Metadata Residue
+
+- [x] xiumi-page-binding-metadata-residue-20260626.txt
+- Added a static quality rule for Xiumi page/stage binding metadata observed in editor-side page
+  canvas state: `tn-page-stage-size`, `tn-page-view-box-editor-desktop`, and
+  `tn-page-cache-gatherer`.
+- The reduced regression intentionally keeps only `tn-page-*` binding attributes plus readable
+  text, proving the cleaned page binding residue is blocked without relying on
+  `tn-bind-comp-*`, `tn-uuid`, `tn-animate`, `tn-link`, `tn-image`, `tn-image-usage`,
+  `tn-comp*`, `tn-cell*`, `tn-child-*`, component/cell/layer/page classes, hosted-media,
+  Angular `ng-*`, `opera-*`, renderer-pipeline attributes, `contenteditable`, SVG content-layer,
+  `raw-image`, image wrapper classes, page/layer slots, gallery wrappers, `ui-slider`,
+  `ui-sortable`, `op-loader`, `touch-action`, `user-select`, `pointer-events`,
+  `visibility:hidden`, or `foreignObject` markers.
+- The broader `Xiumi component binding attribute residue` bucket remains active for the
+  still-unsplit `tn-atom-context` binding attribute after page binding metadata moved to a
+  narrower diagnostic.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
