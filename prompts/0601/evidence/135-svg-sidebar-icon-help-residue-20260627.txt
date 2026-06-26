@@ -1,0 +1,72 @@
+135 SVG Sidebar Icon Help Residue - 2026-06-27
+
+Scope:
+- Local static publishability protection for WeChat, Xiaohongshu, and Zhihu output.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action.
+
+Source:
+- CloakBrowser review of the logged-in 135 SVG editor left sidebar found editor chrome markers:
+  side-tab-menu__icon-box
+  side-tab-menu__icon
+  side-bar-banner-wrap
+  sidebar-help black
+- These markers describe the 135 SVG editor's sidebar icon, banner, and help affordances. They
+  are not article content and must not appear in publishable InkForge output.
+- This evidence file records only reduced class-marker facts and local validation results. It
+  contains no account/session/runtime artifacts, request archives, QR material, screenshots,
+  local paths, platform artifact, sync artifact, or publish artifact.
+
+Implementation:
+- Added MARKET_EDITOR_135_SVG_SIDEBAR_ICON_HELP_RESIDUE_HTML as a reduced regression fixture.
+- Added the quality detector label:
+  135 SVG sidebar icon/help residue
+- Tightened the older sidebar navigation detector so side-bar is treated as a complete class name
+  and side-bar-banner-wrap is no longer mislabeled as navigation residue.
+
+Regression contract:
+- WeChat must emit wechat-market-editor-residue with 135 SVG sidebar icon/help residue.
+- Xiaohongshu must emit xhs-market-editor-residue with 135 SVG sidebar icon/help residue.
+- Zhihu must emit zhihu-market-editor-residue with 135 SVG sidebar icon/help residue.
+- The reduced fixture must not emit 135 SVG sidebar navigation residue, 135 SVG editor toolbar
+  residue, or 135 SVG material panel residue.
+- Generic sidebar, icon, help, banner, active, work, upload, material, or editor wording remains
+  insufficient.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sidebar icon/help" --reporter=default
+  Result: failed with 1 selected failing test. The failure showed the old navigation label caught
+  side-bar-banner-wrap before the new label and class-name boundary fix existed.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sidebar icon/help" --reporter=default
+  Result: PASS, 1 selected test / 253 skipped tests.
+- Focused Mermaid rerun after an unrelated full-file timeout:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "routes WeChat markdown Mermaid" --reporter=default
+  Result: PASS, 1 selected test / 253 skipped tests.
+- Full platform export rendering:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: PASS, 1 file / 254 tests.
+- Serial export suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: PASS, 36 files / 1231 tests.
+- Targeted lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: PASS, 4653 modules transformed, Vite built in 59.71s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: expected exit 1 with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves only local static publishability protection and cannot-claim enforcement for this
+  residue class.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu/Zhihu account upload, or publish success.

@@ -5648,6 +5648,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Sidebar Icon Help Residue
+
+- [x] 135-svg-sidebar-icon-help-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor sidebar icon/help chrome:
+  `side-tab-menu__icon-box`, `side-tab-menu__icon`, `side-bar-banner-wrap`, and
+  `sidebar-help black`.
+- The reduced regression intentionally keeps only source-specific sidebar icon/help chrome,
+  proving the cleaned editor chrome residue is blocked without relying on sidebar navigation
+  wrappers, toolbar classes, material search controls, material-panel controls, header/user
+  chrome, work-title controls, work-tool quick-entry chrome, material cards, shell wrappers,
+  layout controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch
+  controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing sidebar, icon, help, banner,
+  active, work, upload, material, or editor wording by itself. The older sidebar-navigation rule
+  now treats `side-bar` as a complete class name so `side-bar-banner-wrap` is not mislabeled.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 135 SVG Sidebar Navigation Residue
 
 - [x] 135-svg-sidebar-navigation-residue-20260626.txt

@@ -4904,6 +4904,46 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 148. 135 SVG Sidebar Icon Help Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains left-sidebar icon/help chrome
+  observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `side-tab-menu__icon-box`, `side-tab-menu__icon`, `side-bar-banner-wrap`, or
+  `sidebar-help black`.
+- These nodes render the 135 SVG editor's sidebar icon, banner, and help affordances. They are
+  editor chrome, not article content, and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG sidebar icon/help residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported sidebar icon/help markers appear.
+- A reduced fixture containing only sidebar icon/help chrome must fail even when 135 SVG sidebar
+  navigation wrappers, toolbar classes, material search controls, material-panel controls,
+  header/logo/menu chrome, user/header chrome, work-title controls, work-tool quick-entry chrome,
+  material cards, material component paths, material purchase controls, shell wrappers, layout
+  controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls,
+  `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing sidebar, icon, help, banner, active, work,
+  upload, material, or editor wording by itself. It must stay anchored to 135-specific class names.
+- `side-bar-banner-wrap` must not be reported by the older `135 SVG sidebar navigation residue`
+  label; the navigation rule must treat `side-bar` as a complete class name.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced sidebar icon/help fixture fails before implementation and reports
+  `135 SVG sidebar icon/help residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar navigation residue`,
+  `135 SVG editor toolbar residue`, and `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 147. 135 SVG Work Tool Quick-Entry Residue - 2026-06-27
 
 ### 1. Scope / Trigger
@@ -5404,6 +5444,9 @@ const ruleFamilies = [
 - The detector must not block ordinary prose containing sidebar, navigation, SVG effect, SVG
   template, work, upload, material, clipboard, search, or tab wording by itself. It must stay
   anchored to 135-specific sidebar/navigation class/id names.
+- The detector must treat `side-bar` as a complete class name. Prefix-adjacent controls such as
+  `side-bar-banner-wrap` belong to the newer sidebar icon/help residue rule and must not be
+  reported under this navigation label.
 
 ### 3. Required Checks
 
