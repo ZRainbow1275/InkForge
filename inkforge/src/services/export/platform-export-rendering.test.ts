@@ -306,6 +306,25 @@ const MARKET_EDITOR_135_SVG_SIDEBAR_NAV_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_MATERIAL_LIST_ITEM_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<article class="item-element" file_path="sidebar/tabs/ItemElement">',
+  '<div class="item-element_id"><span>ID: 1060</span></div>',
+  '<div class="item-element__box">',
+  '<div class="item-tag_wrap"><div class="item-element__help"></div>',
+  '<div class="item-content__tag"><span>NEW</span></div></div>',
+  '<div class="item-element__title"><span>多选一点击弹出</span></div>',
+  '<div class="item-element__price"><div class="item-line">',
+  '<div class="element-price__wrap"><span>特惠69元/年</span></div>',
+  '<div class="element-actions__wrap"><button class="btn btn-buy">免费试用</button></div>',
+  '</div></div>',
+  '</div>',
+  '<div class="item-summary-tag"></div>',
+  '<div class="item-collect-tag" title="收藏"></div>',
+  '</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML = [
   '<aside class="editor-bar open">',
   '<div class="editor-bar-inner">',
@@ -9038,6 +9057,22 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG sidebar navigation residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG sidebar navigation residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG material list item actions without sidebar or panel wrappers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_LIST_ITEM_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_LIST_ITEM_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_MATERIAL_LIST_ITEM_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG material list item residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG material list item residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG material list item residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

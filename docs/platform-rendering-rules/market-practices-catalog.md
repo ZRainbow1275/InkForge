@@ -1236,6 +1236,11 @@ Rules:
   `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
   `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special` must
   fail independently of toolbar, shell, layout, material-panel, or canvas wrappers.
+- 135 SVG material list-card controls such as `item-element`, `item-element_id`,
+  `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
+  `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
+  `item-collect-tag` must fail independently of sidebar, toolbar, shell, layout,
+  material-panel, or canvas wrappers.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1442,4 +1447,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-136.
+- `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-137.

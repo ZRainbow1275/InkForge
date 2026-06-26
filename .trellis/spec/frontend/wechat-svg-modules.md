@@ -4904,6 +4904,47 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 137. 135 SVG Material List Item Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains left material-list card
+  controls observed in a live CloakBrowser 135 SVG editor DOM readback, such as `item-element`,
+  `item-element_id`, `item-element__box`, `item-element__help`, `item-content__tag`,
+  `item-element__title`, `item-element__price`, `item-line`, `element-price__wrap`,
+  `element-actions__wrap`, `item-summary-tag`, and `item-collect-tag`.
+- These controls drive 135's SVG effect marketplace cards, free-trial/buy actions, collection
+  badges, price rows, and item preview metadata. They are not article DOM and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material list item residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported material-list card class/id markers appear.
+- A reduced fixture containing only material-list card controls must fail even when 135 SVG canvas
+  markers, sidebar/navigation controls, toolbar controls, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted-media, trigger overlays, Ant
+  switch controls, `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing material, item, card, title, price, buy,
+  trial, collect, or action wording by itself. It must stay anchored to 135-specific material-list
+  card class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced material-list fixture fails before implementation and reports
+  `135 SVG material list item residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar navigation residue`,
+  `135 SVG editor toolbar residue`, `135 SVG editor layout control residue`,
+  `135 SVG editor shell residue`, `135 SVG material panel residue`, and
+  `135 SVG trigger switch control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 136. 135 SVG Sidebar Navigation Residue - 2026-06-26
 
 ### 1. Scope / Trigger
