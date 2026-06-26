@@ -1254,6 +1254,11 @@ Rules:
   `img-preview-hide` must fail independently of the material filter, material list-card, sidebar,
   toolbar, shell, layout, material-panel, or canvas wrappers. Generic `item`, `active`, `more`,
   `new`, `search-input`, and `list-item` selectors remain out of scope.
+- 135 SVG material list-loader state such as `issvglist="true"` and `list-loader__inner`,
+  `list-loader__load`, `list-loader__loading`, and `list-loader__loading-inner` must fail
+  independently of material card items, category wrappers, filters, sidebar, toolbar, shell,
+  layout, material-panel, or canvas wrappers. Generic `list-item`, `loading`, `black`, `active`,
+  Ant icon, and button classes remain out of scope.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1463,4 +1468,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-139.
+- `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-140.

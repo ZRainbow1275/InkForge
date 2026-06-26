@@ -4904,6 +4904,47 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 140. 135 SVG Material List Loader Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains left material list-loader or
+  SVG-list runtime state observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `issvglist="true"`, `list-loader__inner`, `list-loader__load`,
+  `list-loader__loading`, and `list-loader__loading-inner`.
+- These controls drive 135's SVG material pagination and loading state. They are not article DOM
+  and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material list loader residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported list-loader class/id or SVG-list attribute markers appear.
+- A reduced fixture containing only material list-loader state must fail even when 135 SVG canvas
+  markers, sidebar/navigation controls, material-filter controls, material-category wrappers,
+  material-list card controls, toolbar controls, shell wrappers, layout controls, material-panel
+  controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls,
+  `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing load, loading, list, more, material, or
+  SVG wording by itself. It must also avoid generic selectors such as `list-item`, `loading`,
+  `black`, `active`, Ant icon classes, and button classes; matching must stay anchored to
+  135-specific list-loader class/id names or the `issvglist` attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced list-loader fixture fails before implementation and reports
+  `135 SVG material list loader residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar navigation residue`,
+  `135 SVG material filter control residue`, `135 SVG material category wrapper residue`,
+  `135 SVG material list item residue`, `135 SVG editor toolbar residue`,
+  `135 SVG editor shell residue`, and `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 139. 135 SVG Material Category Wrapper Residue - 2026-06-27
 
 ### 1. Scope / Trigger

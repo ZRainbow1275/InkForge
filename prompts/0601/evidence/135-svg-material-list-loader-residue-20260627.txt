@@ -1,0 +1,65 @@
+135 SVG Material List Loader Residue - 2026-06-27
+
+Scope:
+- Local static publishability protection for copied or partially cleaned 135 SVG editor material
+  list-loader and SVG-list runtime state.
+- No platform action, no phone preview, no sync, no upload, and no publish.
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor at /svgeditor/.
+- The live left material list runtime DOM exposed source-owned controls including:
+  issvglist="true", list-loader__inner, list-loader__load, list-loader__loading, and
+  list-loader__loading-inner.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of this committed evidence.
+
+Implemented:
+- Added MARKET_EDITOR_135_SVG_MATERIAL_LIST_LOADER_RESIDUE_HTML as a reduced regression fixture.
+- Added the static detector label:
+  135 SVG material list loader residue
+- The detector is anchored to source-specific 135 SVG editor class/id names or the issvglist
+  attribute and intentionally avoids generic list-item, loading, black, active, Ant icon, or button
+  selectors.
+
+Regression contract:
+- WeChat emits wechat-market-editor-residue with the list-loader residue label.
+- Xiaohongshu emits xhs-market-editor-residue with the list-loader residue label.
+- Zhihu emits zhihu-market-editor-residue with the list-loader residue label.
+- The reduced fixture does not rely on sidebar/navigation, material-filter, material-category
+  wrapper, material-list card, toolbar, shell, layout, material-panel, canvas, trigger, Ant switch,
+  svg:135, hosted media, known 135 data-name, or background-size shell markers.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material list loader" --reporter=default
+  Result: failed with 1 selected failing test before the detector rule existed.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material list loader" --reporter=default
+  Result: passed with 1 selected test and 245 skipped tests.
+- Platform full:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed with 1 file and 246 tests.
+- Export service serial:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed with 36 files and 1223 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- Typecheck:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- Build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed; 4653 modules transformed; Vite build completed in 40.63s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static market-editor residue blocking only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, Xiaohongshu/Zhihu account upload, or publish success.

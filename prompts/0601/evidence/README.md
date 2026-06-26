@@ -5653,3 +5653,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   use generic `item`, `active`, `more`, `new`, `search-input`, or `list-item` selectors.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Material List Loader Residue
+
+- [x] 135-svg-material-list-loader-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material list-loader/runtime state:
+  `issvglist="true"`, `list-loader__inner`, `list-loader__load`,
+  `list-loader__loading`, and `list-loader__loading-inner`.
+- The reduced regression intentionally keeps only source-specific list-loader state plus readable
+  load labels, proving the cleaned editor list runtime residue is blocked without relying on 135
+  SVG canvas markers, sidebar/navigation controls, material-filter controls, material-category
+  wrappers, material-list card controls, toolbar controls, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing load, loading, list, more,
+  material, or SVG wording by itself, and it does not use generic `list-item`, `loading`, `black`,
+  `active`, Ant icon, or button selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
