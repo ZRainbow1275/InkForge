@@ -5671,3 +5671,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `active`, Ant icon, or button selectors.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Material Purchase Control Residue
+
+- [x] 135-svg-material-purchase-control-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material purchase/discount child controls:
+  `discount-instructions`, `discount-desc`, and `btn-buy` buttons paired with `ant-btn` and the
+  live action text `免费试用` / `立即购买`.
+- The reduced regression intentionally keeps only purchase/discount child controls plus readable
+  labels, proving the cleaned editor purchase-control residue is blocked without relying on 135
+  SVG canvas markers, sidebar/navigation controls, material-filter controls, material-category
+  wrappers, material-list card controls, material list-loader state, toolbar controls, shell
+  wrappers, layout controls, material-panel controls, known 135 `data-name` values, hosted media,
+  trigger overlays, Ant switch controls, `svg:135` styles, or `background-size:100.1%` background
+  shells.
+- The detector intentionally does not block ordinary prose containing price, buy, purchase, trial,
+  discount, material, SVG, button, free, or action wording by itself, and it does not use generic
+  `btn`, `ant-btn`, `button`, or `new` selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

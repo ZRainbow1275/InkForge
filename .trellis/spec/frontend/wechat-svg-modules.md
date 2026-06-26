@@ -4904,6 +4904,50 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 141. 135 SVG Material Purchase Control Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains material purchase or discount
+  child controls observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `discount-instructions`, `discount-desc`, and `btn-buy` buttons paired with `ant-btn` and the
+  action text `免费试用` / `立即购买`.
+- These controls drive 135's SVG material discount labels, free-trial actions, and purchase
+  actions. They are not article DOM and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material purchase control residue` for
+  WeChat, Xiaohongshu, and Zhihu when supported purchase/discount child markers appear.
+- A reduced fixture containing only purchase/discount child controls must fail even when 135 SVG
+  canvas markers, sidebar/navigation controls, material-filter controls, material-category
+  wrappers, material-list card controls, material list-loader state, toolbar controls, shell
+  wrappers, layout controls, material-panel controls, known 135 `data-name` values, hosted media,
+  trigger overlays, Ant switch controls, `svg:135` styles, and `background-size:100.1%` background
+  shells are absent.
+- The detector must not block ordinary prose containing price, buy, purchase, trial, discount,
+  material, SVG, button, free, or action wording by itself. It must also avoid generic selectors
+  such as `btn`, `ant-btn`, `button`, and `new`; matching must stay anchored to 135-specific
+  `discount-*` classes or the `btn-buy` + `ant-btn` + live action-text combination.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced purchase-control fixture fails before implementation and reports
+  `135 SVG material purchase control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG material list loader residue`,
+  `135 SVG material list item residue`, `135 SVG material category wrapper residue`,
+  `135 SVG material filter control residue`, `135 SVG sidebar navigation residue`,
+  `135 SVG editor toolbar residue`, `135 SVG editor shell residue`, and
+  `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 140. 135 SVG Material List Loader Residue - 2026-06-27
 
 ### 1. Scope / Trigger

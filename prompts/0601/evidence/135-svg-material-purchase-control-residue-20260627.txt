@@ -1,0 +1,60 @@
+135 SVG Material Purchase Control Residue - 2026-06-27
+
+Scope:
+- Local static publishability protection for copied or partially cleaned 135 SVG editor material purchase and discount child controls.
+- No platform action, no phone preview, no sync, no upload, no schedule, and no publish action.
+
+Live source:
+- CloakBrowser reviewed the logged-in 135 SVG editor material list in the left SVG-effect panel.
+- The material list DOM exposed child controls and labels including discount-instructions, discount-desc, btn-buy, ant-btn, 免费试用, and 立即购买.
+- No account-state material, local browser runtime material, capture-file reference, platform publish artifact, QR artifact, or sync artifact is included in this evidence.
+
+Implemented:
+- Added detector label: 135 SVG material purchase control residue.
+- The detector catches source-specific discount-instructions / discount-desc classes.
+- The detector also catches button elements only when btn-buy and ant-btn appear together with the live 135 action text 免费试用 or 立即购买.
+
+False-positive boundary:
+- The reduced fixture removes item-element, item-element__price, item-line, element-price__wrap, element-actions__wrap, list-loader state, sidebar/navigation controls, material-filter controls, material-category wrappers, toolbar controls, shell wrappers, material-panel controls, known 135 data-name values, hosted media, trigger overlays, Ant switch controls, svg:135 styles, and background-size:100.1% background shells.
+- The detector intentionally does not block ordinary price, buy, purchase, trial, discount, material, SVG, button, free, or action wording by itself.
+- The detector intentionally avoids generic btn, ant-btn, button, and new selectors.
+
+Regression coverage:
+- WeChat: detectQuality reports 135 SVG material purchase control residue.
+- Xiaohongshu: detectQuality reports 135 SVG material purchase control residue.
+- Zhihu: detectQuality reports 135 SVG material purchase control residue.
+- Adjacent 135 material list item and list-loader labels remain independent for the reduced fixture.
+
+Verification:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "purchase child controls" --reporter=default
+  FAIL before detector: 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "purchase child controls" --reporter=default
+  PASS: 1 selected test / 246 skipped tests.
+- Initial full platform rerun found one unrelated Mermaid timeout:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  FAIL: routes WeChat markdown Mermaid through readable placeholder timed out at 30000 ms.
+- Focused Mermaid rerun:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "routes WeChat markdown Mermaid through readable placeholder" --reporter=default
+  PASS: 1 selected test / 246 skipped tests.
+- Full platform rerun:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 247 tests.
+- Export service serial suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1224 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 50.99s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Expected exit 1 with status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

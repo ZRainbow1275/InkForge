@@ -1259,6 +1259,12 @@ Rules:
   independently of material card items, category wrappers, filters, sidebar, toolbar, shell,
   layout, material-panel, or canvas wrappers. Generic `list-item`, `loading`, `black`, `active`,
   Ant icon, and button classes remain out of scope.
+- 135 SVG material purchase/discount child controls such as `discount-instructions`,
+  `discount-desc`, and `btn-buy` buttons paired with `ant-btn` and the live action text
+  `免费试用` / `立即购买` must fail independently of material card items, list-loader state,
+  category wrappers, filters, sidebar, toolbar, shell, layout, material-panel, or canvas wrappers.
+  Generic price, buy, trial, discount, button, `btn`, `ant-btn`, and `new` wording/classes remain
+  out of scope.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1469,4 +1475,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-140.
+- `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-141.

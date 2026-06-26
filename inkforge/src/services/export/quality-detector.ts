@@ -109,6 +109,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG material list loader residue',
   },
   {
+    pattern: /(?:<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdiscount-(?:instructions|desc)\b[^"']*["']|<button\b(?=[^>]*(?:class|id)\s*=\s*["'][^"']*\bbtn-buy\b)(?=[^>]*(?:class|id)\s*=\s*["'][^"']*\bant-btn\b)[^>]*>[\s\S]{0,120}(?:免费试用|立即购买))/i,
+    label: '135 SVG material purchase control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:editor-bar(?:-inner|-body|-title|-nav|-pop-close|-pop-trigger)?|edit-bar-nav_opt|bar-template-name|editor-img(?:__block|__title)?|editor-spread(?:__edit)?|editor-background|editor-course(?:__detail|__opt|___tag)?|course__(?:title|intro|removal)|edit-image|edit-images|edit-add-(?:images|btn)|edit-add__title|image__(?:header|title-bar|title|tip|body|upload|handle)|image_help|edit-animate(?:__title|__opt)?|animate__dur)\b[^"']*["']/i,
     label: '135 SVG material panel residue',
   },

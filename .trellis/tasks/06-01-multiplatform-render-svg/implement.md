@@ -13824,6 +13824,58 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-27 135 SVG Material Purchase Control Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor left material list after the free SVG-effect
+  panel was visible. The list DOM exposed child-only purchase/discount controls including
+  `discount-instructions`, `discount-desc`, `btn-buy`, `ant-btn`, `免费试用`, and `立即购买`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, or sync artifact is part of the committed evidence.
+
+Impact:
+- `npx gitnexus analyze` refreshed the InkForge graph before impact analysis.
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only 135 purchase/discount child controls without
+  parent `item-element`, `item-element__price`, `item-line`, `element-price__wrap`,
+  `element-actions__wrap`, list-loader state, category/filter/sidebar wrappers, toolbar controls,
+  shell wrappers, material-panel controls, known 135 `data-name` values, hosted media, trigger
+  overlays, Ant switch controls, `svg:135` styles, or background-size shells.
+- Added the `135 SVG material purchase control residue` detector for source-specific
+  `discount-*` classes and `btn-buy` + `ant-btn` buttons only when the live 135 action text is
+  present. Generic `btn`, `ant-btn`, `button`, `new`, price, buy, trial, and discount wording
+  remains out of scope.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "purchase child controls" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 246 skipped tests after the
+  detector update.
+- Initial full platform rerun found one unrelated Mermaid timeout. Focused Mermaid rerun passed,
+  then the full platform rerun passed with 1 file and 247 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1224 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 50.99s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-27 135 SVG Material List Loader Residue Slice
 
 Source:
