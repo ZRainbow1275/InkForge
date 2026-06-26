@@ -1,0 +1,51 @@
+135 SVG Material Action Asset Residue - 2026-06-27
+
+Scope:
+- Static publishability protection for copied or partially cleaned 135 SVG editor material-card
+  action icon asset pairs.
+- Platforms covered by the local quality gate: WeChat, Xiaohongshu, Zhihu.
+- No platform action, no phone preview, no sync, no upload, and no publish.
+
+Observed source pattern:
+- Live 135 SVG editor material cards can retain paired relative action icon resources:
+  `img/message.6ba842d4.svg`
+  `img/collect.645fe3be.svg`
+
+Implemented:
+- Detector label: `135 SVG material action asset residue`
+- Trigger scope: nearby paired source-specific relative `img/message` and `img/collect` SVG
+  resource paths.
+- Non-goals: single generic SVG icon paths, generic message/collect wording, and ordinary article
+  prose.
+
+Regression coverage:
+- Added a reduced fixture containing only the paired action asset paths and readable article text.
+- Verified WeChat, Xiaohongshu, and Zhihu all emit the platform market-editor-residue issue.
+- Verified the reduced fixture does not rely on `135 SVG material list item residue`,
+  `135 SVG material preview asset residue`, or `135 SVG sidebar icon asset residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material action asset" --reporter=default`
+  Result: failed with 1 selected failing test before the detector rule existed.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material action asset" --reporter=default`
+  Result: passed with 1 selected test and 256 skipped tests after the detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  Result: passed with 1 file and 257 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  Result: passed with 36 files and 1234 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Result: passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Result: passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Result: passed with 4653 modules transformed and Vite build completed in 42.76s.
+- `pnpm -C inkforge style-proof:release-preflight --json`
+  Result: exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

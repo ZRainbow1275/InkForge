@@ -5773,6 +5773,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Material Action Asset Residue
+
+- [x] 135-svg-material-action-asset-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material-card action icon resource pairs:
+  `img/message.6ba842d4.svg` and `img/collect.645fe3be.svg`.
+- The reduced regression intentionally keeps only the paired source-specific action asset paths
+  plus readable text, proving the cleaned editor asset residue is blocked without relying on 135
+  SVG canvas markers, material-list card classes, preview asset paths, material-category wrappers,
+  material-filter controls, sidebar icon assets, toolbar controls, shell wrappers, layout
+  controls, material-panel controls, known 135 `data-name` values, hosted media, trigger
+  overlays, Ant switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing message, collect, summary,
+  action, icon, material, SVG, asset, or editor wording by itself, and it does not use single
+  generic SVG icon paths.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-27 135 SVG Material List Loader Residue
 
 - [x] 135-svg-material-list-loader-residue-20260627.txt

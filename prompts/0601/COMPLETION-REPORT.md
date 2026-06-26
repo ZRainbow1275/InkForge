@@ -5193,6 +5193,44 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Material Action Asset Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed material-card DOM can
+  retain paired relative editor chrome resources such as `img/message.6ba842d4.svg` and
+  `img/collect.645fe3be.svg`.
+- Added the static detector label `135 SVG material action asset residue` for source-specific
+  nearby pairs of `img/message` and `img/collect` SVG editor chrome resources. Generic message,
+  collect, summary, action, icon, material, SVG, asset, or editor wording is not enough, and a
+  single generic SVG icon path is not a standalone trigger.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material action asset" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green verification:
+  the same focused command passed with 1 selected test and 256 skipped tests after the detector
+  update.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 257 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1234 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 42.76s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-material-action-asset-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Material Preview Asset Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed material preview DOM can
