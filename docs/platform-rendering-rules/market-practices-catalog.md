@@ -1232,6 +1232,12 @@ Rules:
   `toolbar-tool`, `bar-item`, `bar-item__label`, `delete-dropdown_entry`,
   `tool-dropdown_entry`, and `team_btn` must fail independently of canvas, shell, layout, or
   material-panel wrappers.
+- 135 SVG editor user/header chrome such as `header-user`, `user-info noheader`,
+  `user-info__head`, and `user-info__nickname` must fail independently of toolbar classes,
+  sidebar/navigation wrappers, material cards, shell wrappers, layout controls, material-panel
+  controls, or canvas wrappers. Generic user, avatar, nickname, profile, or account wording is not
+  enough; the detector stays anchored to 135 SVG editor header/user class names and never records
+  real account text in committed evidence.
 - 135 SVG sidebar/navigation controls such as `side-bar`, `side-bar-wrap`,
   `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
   `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special` must
@@ -1484,6 +1490,7 @@ Evidence:
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
+- `prompts/0601/evidence/135-svg-user-header-chrome-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-material-search-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
@@ -1492,4 +1499,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-143.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-144.
