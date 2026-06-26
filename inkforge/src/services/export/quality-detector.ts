@@ -145,6 +145,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG material action asset residue',
   },
   {
+    pattern: /(?:<img\b(?=[^>]*\bsrc\s*=\s*["']img\/hot(?:\.[a-z0-9]+)?\.png["'])[^>]*>[\s\S]{0,800}<img\b(?=[^>]*\bsrc\s*=\s*["']img\/icon-up2(?:\.[a-z0-9]+)?\.png["'])[^>]*>|<img\b(?=[^>]*\bsrc\s*=\s*["']img\/icon-up2(?:\.[a-z0-9]+)?\.png["'])[^>]*>[\s\S]{0,800}<img\b(?=[^>]*\bsrc\s*=\s*["']img\/hot(?:\.[a-z0-9]+)?\.png["'])[^>]*>)/i,
+    label: '135 SVG material category helper asset residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:\bissvglist\s*=\s*["']true["']|(?:class|id)\s*=\s*["'][^"']*\blist-loader__(?:inner|load|loading(?:-inner)?)\b[^"']*["'])/i,
     label: '135 SVG material list loader residue',
   },

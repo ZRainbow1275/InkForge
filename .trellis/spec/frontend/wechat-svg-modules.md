@@ -4904,6 +4904,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 152. 135 SVG Material Category Helper Asset Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains paired material-category
+  helper resource paths observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `src="img/hot.74ee6ac4.png"` and `src="img/icon-up2.e0ef1973.png"` in the same category/filter
+  fragment.
+- These relative `img/hot` and `img/icon-up2` resources are editor-side material category badges
+  and fold controls, not article content, and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output when they appear as the paired 135 material-category asset family.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material category helper asset residue` for
+  WeChat, Xiaohongshu, and Zhihu when the supported `img/hot` and `img/icon-up2` PNG asset paths
+  appear as a nearby pair.
+- A reduced fixture containing only the paired category helper asset paths must fail even when
+  material-category classes, material-filter controls, material-preview asset paths,
+  material-action asset paths, material-card classes, sidebar icon assets, sidebar icon/help
+  classes, sidebar navigation wrappers, toolbar classes, material search controls, material-panel
+  controls, material component paths, purchase controls, list-loader state, shell wrappers, layout
+  controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls,
+  `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing hot, fold, up, category, helper, icon,
+  material, asset, PNG, or editor wording by itself. It must stay anchored to the 135-specific
+  nearby pair of relative `img/hot` and `img/icon-up2` PNG paths.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced material-category helper asset fixture fails before implementation
+  and reports `135 SVG material category helper asset residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG material category wrapper residue`,
+  `135 SVG material filter control residue`, `135 SVG material preview asset residue`,
+  `135 SVG material action asset residue`, and `135 SVG sidebar icon asset residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 151. 135 SVG Material Action Asset Residue - 2026-06-27
 
 ### 1. Scope / Trigger

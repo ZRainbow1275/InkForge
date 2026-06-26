@@ -1319,6 +1319,12 @@ Rules:
   wrappers. Generic message/collect/action/icon wording and single generic SVG icons are not
   enough; the rule stays anchored to a nearby pair of source-specific relative `img/message` and
   `img/collect` resources.
+- 135 SVG material category helper asset pairs such as `img/hot.74ee6ac4.png` and
+  `img/icon-up2.e0ef1973.png` must fail independently of material-category classes, filter
+  controls, preview assets, action assets, material-list card classes, sidebar icon assets,
+  toolbar, shell, layout, or canvas wrappers. Generic hot/fold/up/category/helper/icon wording and
+  single generic PNG images are not enough; the rule stays anchored to a nearby pair of
+  source-specific relative `img/hot` and `img/icon-up2` resources.
 - 135 SVG material list-loader state such as `issvglist="true"` and `list-loader__inner`,
   `list-loader__load`, `list-loader__loading`, and `list-loader__loading-inner` must fail
   independently of material card items, category wrappers, filters, sidebar, toolbar, shell,
@@ -1548,7 +1554,8 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-preview-asset-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-action-asset-residue-20260627.txt`
+- `prompts/0601/evidence/135-svg-material-category-helper-asset-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-151.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-152.
