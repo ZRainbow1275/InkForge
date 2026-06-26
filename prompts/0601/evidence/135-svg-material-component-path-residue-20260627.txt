@@ -1,0 +1,64 @@
+135 SVG Material Component Path Residue - 2026-06-27
+
+Scope:
+- Local static quality gate for copied or partially cleaned 135 SVG material-card source metadata.
+- No platform action, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, upload, scheduled send, public rendering, public host, or publish action.
+
+Source:
+- CloakBrowser review of the logged-in 135 SVG editor showed material-card DOM can expose the
+  exact component path attribute `file_path="sidebar/tabs/ItemElement"`.
+- The committed evidence contains no account-state material, local browser runtime material,
+  capture-file reference, platform publish artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, raw session export, HAR artifact, or browser runtime material.
+
+Implemented:
+- Added detector label: `135 SVG material component path residue`.
+- Added exact-match rule for `file_path="sidebar/tabs/ItemElement"`.
+- Added a reduced regression fixture containing only that exact component-path attribute plus
+  readable text.
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit the platform-specific
+  market-editor-residue issue when the exact 135 SVG material component path appears.
+- The reduced fixture remains independent of material list-card classes, sidebar/navigation
+  wrappers, filters, category wrappers, search controls, list-loader state, purchase controls,
+  toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, and
+  `background-size:100.1%` background shells.
+- Generic `file_path`, path, sidebar, tab, item, component, material, SVG, or editor wording is
+  intentionally out of scope.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component path attributes" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component path attributes" --reporter=default`
+  passed with 1 selected test and 248 skipped tests after the detector rule was added.
+- Full platform rendering:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 249 tests.
+- Export service serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1226 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite build completed in 33.51s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

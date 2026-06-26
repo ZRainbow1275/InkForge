@@ -1242,6 +1242,14 @@ Rules:
   search controls without relying on `tab-special__searchbar`, sidebar wrappers, filters, or
   material cards. Generic search wording, `search-input` alone, and Ant icon classes alone remain
   out of scope.
+- 135 SVG material component path attributes such as the exact
+  `file_path="sidebar/tabs/ItemElement"` value must fail independently of material list-card
+  classes, sidebar/navigation wrappers, filters, category wrappers, search controls, loader state,
+  purchase controls, toolbar controls, shell wrappers, layout controls, material-panel controls,
+  known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135`
+  styles, or `background-size:100.1%` background shells. Generic `file_path`, path, sidebar, tab,
+  item, or component wording is not enough; the detector stays anchored to that exact 135 SVG
+  material component path.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1483,4 +1491,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-142.
+- `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-143.

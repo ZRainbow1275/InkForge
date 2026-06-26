@@ -97,6 +97,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG material search control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bfile_path\s*=\s*["']sidebar\/tabs\/ItemElement["']/i,
+    label: '135 SVG material component path residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:item-element(?:__(?:box|help|price|title)|_id)?|item-(?:tag_wrap|content__tag|summary-tag|collect-tag|line)|element-(?:actions|price)__wrap)\b[^"']*["']/i,
     label: '135 SVG material list item residue',
   },

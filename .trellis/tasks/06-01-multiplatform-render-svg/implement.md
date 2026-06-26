@@ -13824,6 +13824,55 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-27 135 SVG Material Component Path Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor left material list after the SVG-effect
+  panel was visible. The material-card DOM can expose the exact source component path
+  `file_path="sidebar/tabs/ItemElement"`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, or sync artifact is part of the committed evidence.
+
+Impact:
+- `npx gitnexus analyze` was rerun before impact analysis. The first refresh attempt exited 127
+  after parse-splitting output; the immediate rerun completed successfully and refreshed the graph.
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the exact
+  `file_path="sidebar/tabs/ItemElement"` attribute and readable text.
+- Added the `135 SVG material component path residue` detector for that exact source component
+  path. Generic `file_path`, path, sidebar, item, component, material, and SVG wording remains out
+  of scope.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component path attributes" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 248 skipped tests after the
+  detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 249 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1226 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 33.51s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-27 135 SVG Material Search Control Residue Slice
 
 Source:

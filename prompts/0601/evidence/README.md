@@ -5709,3 +5709,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `btn`, `ant-btn`, `button`, or `new` selectors.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Material Component Path Residue
+
+- [x] 135-svg-material-component-path-residue-20260627.txt
+- Added a static quality rule for the exact live 135 SVG material component path
+  `file_path="sidebar/tabs/ItemElement"`.
+- The reduced regression intentionally keeps only the exact component-path attribute plus readable
+  text, proving the cleaned editor source-path residue is blocked without relying on 135 SVG canvas
+  markers, sidebar/navigation controls, material-filter controls, material-category wrappers,
+  material-list card controls, material list-loader state, material search controls, purchase
+  controls, toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing path, sidebar, tab, item,
+  component, material, SVG, or editor wording by itself, and it does not use generic `file_path`
+  selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

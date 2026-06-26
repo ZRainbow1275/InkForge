@@ -4904,6 +4904,50 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 143. 135 SVG Material Component Path Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains the exact material component
+  path attribute `file_path="sidebar/tabs/ItemElement"` observed in live 135 SVG material cards.
+- The attribute identifies a 135 SVG editor/sidebar material component source path. It is not
+  publishable article metadata for WeChat, Xiaohongshu, or Zhihu and must not survive final output
+  even if the surrounding `item-element` card classes, price rows, sidebar wrappers, filters, and
+  purchase controls have already been removed.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material component path residue` for
+  WeChat, Xiaohongshu, and Zhihu when an element contains the exact
+  `file_path="sidebar/tabs/ItemElement"` attribute value.
+- A reduced fixture containing only that exact component path must fail even when 135 SVG canvas
+  markers, sidebar/navigation controls, material-filter controls, material-category wrappers,
+  material-list card controls, material list-loader state, material search controls, material
+  purchase controls, toolbar controls, shell wrappers, layout controls, material-panel controls,
+  known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135`
+  styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing path, sidebar, tab, item, component,
+  material, SVG, or editor wording by itself. It must also avoid generic `file_path` detection;
+  matching must stay anchored to the exact 135 SVG material component path value.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced component-path fixture fails before implementation and reports
+  `135 SVG material component path residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG material list item residue`,
+  `135 SVG sidebar navigation residue`, `135 SVG material filter control residue`,
+  `135 SVG material category wrapper residue`, `135 SVG material list loader residue`,
+  `135 SVG material search control residue`, `135 SVG material purchase control residue`,
+  `135 SVG editor toolbar residue`, `135 SVG editor shell residue`, and
+  `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 142. 135 SVG Material Search Control Residue - 2026-06-27
 
 ### 1. Scope / Trigger
