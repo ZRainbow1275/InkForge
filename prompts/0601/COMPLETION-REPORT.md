@@ -5161,6 +5161,44 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Material Search Control Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material search DOM can
+  retain `search__wrap`, `search-area`, `search-input`, `search__input`, `search-hint`, the
+  placeholder `请输入关键词搜索`, and search/help icon markers.
+- Added the static detector label `135 SVG material search control residue` for source-specific
+  material search child controls. The rule avoids generic search wording, `search-input` alone,
+  `anticon`, `ant-btn`, and button selectors.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "search child controls" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green verification:
+  the same focused command passed with 1 selected test and 247 skipped tests after the detector
+  update.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  initially hit one unrelated Mermaid timeout, the focused Mermaid rerun passed, and the full
+  platform rerun passed with 1 file / 248 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1225 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 56.46s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-material-search-control-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Material Purchase Control Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material list purchase

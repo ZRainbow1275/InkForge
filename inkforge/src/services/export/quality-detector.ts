@@ -93,6 +93,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG sidebar navigation residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:search__(?:wrap|input)|search-(?:area|input|hint))\b[^"']*["'][\s\S]{0,220}(?:placeholder\s*=\s*["']请输入关键词搜索["']|aria-label\s*=\s*["']icon:\s*(?:search|question-circle)["']|data-icon\s*=\s*["'](?:search|question-circle)["'])/i,
+    label: '135 SVG material search control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:item-element(?:__(?:box|help|price|title)|_id)?|item-(?:tag_wrap|content__tag|summary-tag|collect-tag|line)|element-(?:actions|price)__wrap)\b[^"']*["']/i,
     label: '135 SVG material list item residue',
   },

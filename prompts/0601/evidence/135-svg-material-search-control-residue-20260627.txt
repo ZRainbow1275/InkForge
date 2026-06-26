@@ -1,0 +1,59 @@
+135 SVG Material Search Control Residue - 2026-06-27
+
+Scope:
+- Local static publishability protection for copied or partially cleaned 135 SVG editor material search child controls.
+- No platform action, no phone preview, no sync, no upload, no schedule, and no publish action.
+
+Live source:
+- CloakBrowser reviewed the logged-in 135 SVG editor material panel in the left SVG-effect area.
+- The material search DOM exposed child controls including search__wrap, search-area, search-input, search__input, search-hint, the placeholder 请输入关键词搜索, and search/help icon markers.
+- No account-state material, local browser runtime material, capture-file reference, platform publish artifact, QR artifact, or sync artifact is included in this evidence.
+
+Implemented:
+- Added detector label: 135 SVG material search control residue.
+- The detector catches source-specific search child classes only when the live 135 search placeholder or search/help icon context is nearby.
+
+False-positive boundary:
+- The reduced fixture removes side-bar, side-tab, tab-special__searchbar, tab-special wrappers, menu-filter controls, material-list cards, list-loader state, purchase controls, toolbar controls, shell wrappers, material-panel controls, known 135 data-name values, hosted media, trigger overlays, Ant switch controls, svg:135 styles, and background-size:100.1% background shells.
+- The detector intentionally does not block ordinary search, keyword, placeholder, material, SVG, help, or icon wording by itself.
+- The detector intentionally avoids generic search-input alone, anticon, ant-btn, button, and other generic UI selectors.
+
+Regression coverage:
+- WeChat: detectQuality reports 135 SVG material search control residue.
+- Xiaohongshu: detectQuality reports 135 SVG material search control residue.
+- Zhihu: detectQuality reports 135 SVG material search control residue.
+- Adjacent 135 sidebar navigation and material filter labels remain independent for the reduced fixture.
+
+Verification:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "search child controls" --reporter=default
+  FAIL before detector: 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "search child controls" --reporter=default
+  PASS: 1 selected test / 247 skipped tests.
+- Initial full platform rerun found one unrelated Mermaid timeout:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  FAIL: routes WeChat markdown Mermaid through readable placeholder timed out at 30000 ms.
+- Focused Mermaid rerun:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "routes WeChat markdown Mermaid through readable placeholder" --reporter=default
+  PASS: 1 selected test / 247 skipped tests.
+- Full platform rerun:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  PASS: 1 file / 248 tests.
+- Export service serial suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  PASS: 36 files / 1225 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 56.46s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Expected exit 1 with status=blocked-by-external, canClaimComplete=false, externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

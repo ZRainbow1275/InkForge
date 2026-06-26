@@ -4904,6 +4904,50 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 142. 135 SVG Material Search Control Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains material search child controls
+  observed in a live CloakBrowser 135 SVG editor DOM readback, such as `search__wrap`,
+  `search-area`, `search-input`, `search__input`, `search-hint`, the placeholder
+  `请输入关键词搜索`, and search/help icon markers.
+- These controls drive 135's SVG material keyword search and help affordance. They are not article
+  DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material search control residue` for
+  WeChat, Xiaohongshu, and Zhihu when supported source-specific search child markers appear with
+  the live 135 search placeholder or icon context.
+- A reduced fixture containing only search child controls must fail even when 135 SVG canvas
+  markers, sidebar/navigation controls, material-filter controls, material-category wrappers,
+  material-list card controls, material list-loader state, purchase controls, toolbar controls,
+  shell wrappers, layout controls, material-panel controls, known 135 `data-name` values, hosted
+  media, trigger overlays, Ant switch controls, `svg:135` styles, and `background-size:100.1%`
+  background shells are absent.
+- The detector must not block ordinary prose containing search, keyword, placeholder, material,
+  SVG, help, or icon wording by itself. It must also avoid generic selectors such as
+  `search-input` alone, `anticon`, `ant-btn`, and button classes; matching must stay anchored to
+  source-specific 135 search child classes plus the live placeholder or icon context.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced search-control fixture fails before implementation and reports
+  `135 SVG material search control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar navigation residue`,
+  `135 SVG material filter control residue`, `135 SVG material list item residue`,
+  `135 SVG material list loader residue`, `135 SVG material purchase control residue`,
+  `135 SVG editor toolbar residue`, `135 SVG editor shell residue`, and
+  `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 141. 135 SVG Material Purchase Control Residue - 2026-06-27
 
 ### 1. Scope / Trigger

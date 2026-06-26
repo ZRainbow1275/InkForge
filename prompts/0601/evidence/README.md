@@ -5672,6 +5672,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Material Search Control Residue
+
+- [x] 135-svg-material-search-control-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material search child controls:
+  `search__wrap`, `search-area`, `search-input`, `search__input`, `search-hint`, the placeholder
+  `请输入关键词搜索`, and search/help icon markers.
+- The reduced regression intentionally keeps only search child controls plus the live placeholder
+  and help marker, proving the cleaned editor search residue is blocked without relying on 135 SVG
+  canvas markers, sidebar/navigation controls, material-filter controls, material-category
+  wrappers, material-list card controls, material list-loader state, purchase controls, toolbar
+  controls, shell wrappers, layout controls, material-panel controls, known 135 `data-name` values,
+  hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing search, keyword,
+  placeholder, material, SVG, help, or icon wording by itself, and it does not use generic
+  `search-input` alone, `anticon`, `ant-btn`, button, or other generic UI selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-27 135 SVG Material Purchase Control Residue
 
 - [x] 135-svg-material-purchase-control-residue-20260627.txt

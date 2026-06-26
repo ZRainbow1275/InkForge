@@ -1236,6 +1236,12 @@ Rules:
   `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
   `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special` must
   fail independently of toolbar, shell, layout, material-panel, or canvas wrappers.
+- 135 SVG material search child controls such as `search__wrap`, `search__input`,
+  `search-area`, `search-input`, and `search-hint` must fail when paired with the live search
+  placeholder `请输入关键词搜索` or search/help icon markers. This catches cleaned child-only
+  search controls without relying on `tab-special__searchbar`, sidebar wrappers, filters, or
+  material cards. Generic search wording, `search-input` alone, and Ant icon classes alone remain
+  out of scope.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1471,9 +1477,10 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
+- `prompts/0601/evidence/135-svg-material-search-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-141.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-142.
