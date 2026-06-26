@@ -7080,3 +7080,48 @@ const ruleFamilies = [
   `Xiumi top operation button residue` independent.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 133. Xiumi Sidebar Tab Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains left sidebar and material/template
+  tab chrome observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `sidebar-panel`, `sidebar-style-normal`, `x3-tab-item`, and `tn-tab-ctrl-pin`.
+- The live DOM also shows adjacent icon classes such as `icon templates`, `icon material-img`,
+  `icon fragments`, `icon clipboard`, `icon images`, `icon team-images`, and `icon music`; these
+  are documented as context but must not be used as standalone triggers because generic icon class
+  names can appear in legitimate article content.
+- These controls drive Xiumi's editor-side material library, template categories, clipboard, image
+  library, and tab panel navigation. They are not article DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi sidebar tab control residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported sidebar/tab class or id markers appear.
+- A reduced fixture containing only non-`tn-*` sidebar/tab controls must fail even when right
+  toolbar controls, text-toolbar controls, font-family menus, color-selector controls,
+  operation-bar controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`
+  attributes/classes, paper auxiliary tree controls, selection overlays, crop/worker controls,
+  operator-dock parents, operator depot items, `op-loader`, broad `tn-*`, `opera-tn-*`,
+  `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`,
+  or `user-select` markers are absent.
+- The detector must not block ordinary prose containing sidebar, template, material, image, music,
+  clipboard, tab, or icon language by itself. It must stay anchored to Xiumi-specific sidebar/tab
+  class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced sidebar/tab fixture fails before implementation and reports
+  `Xiumi sidebar tab control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi right toolbar control residue`,
+  `Xiumi text toolbar control residue`, `Xiumi UI Bootstrap control directive residue`, and
+  `Xiumi template authoring tree residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

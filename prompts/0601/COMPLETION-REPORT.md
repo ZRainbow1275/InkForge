@@ -5463,3 +5463,35 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-26 Xiumi Sidebar Tab Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed left
+  material/template sidebar DOM can retain `sidebar-panel`, `sidebar-style-normal`, `x3-tab-item`,
+  `uib-tab`, `tn-tab-ctrl-pin`, and adjacent icon classes such as `icon templates`,
+  `icon material-img`, `icon fragments`, `icon clipboard`, `icon images`, `icon team-images`, and
+  `icon music`.
+- Added the static detector label `Xiumi sidebar tab control residue` for source-specific
+  sidebar/tab editor chrome. Adjacent icon classes are documented as context only and are not
+  standalone detector triggers.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 239 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1216 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 41.99s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-sidebar-tab-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

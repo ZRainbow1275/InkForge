@@ -5521,3 +5521,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   assistant, or right-side wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Sidebar Tab Control Residue
+
+- [x] xiumi-sidebar-tab-control-residue-20260626.txt
+- Added a static quality rule for Xiumi left-sidebar and material/template tab controls observed in
+  the live Xiumi v5 paper-editor DOM: `sidebar-panel`, `sidebar-style-normal`, `x3-tab-item`, and
+  `tn-tab-ctrl-pin`.
+- Adjacent icon classes such as `icon templates`, `icon material-img`, `icon fragments`,
+  `icon clipboard`, `icon images`, `icon team-images`, and `icon music` are documented as observed
+  context only; they are not standalone detector triggers.
+- The reduced regression intentionally keeps only non-`tn-*` sidebar/tab controls plus readable
+  template/material labels, proving the cleaned editor chrome residue is blocked without relying on
+  right-toolbar controls, text-toolbar controls, font-family menus, color-selector controls,
+  operation-bar controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`,
+  paper auxiliary tree controls, selection overlays, crop/worker controls, operator-dock parents,
+  operator depot items, `op-loader`, broad `tn-*`, `opera-tn-*`, `contenteditable`, hosted media,
+  SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
+- The detector intentionally does not block ordinary prose containing sidebar, template, material,
+  image, music, clipboard, tab, or icon wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
