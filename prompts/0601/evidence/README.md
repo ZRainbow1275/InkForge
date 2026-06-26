@@ -5596,6 +5596,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Header Logo Menu Residue
+
+- [x] 135-svg-header-logo-menu-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor header/logo/menu chrome controls:
+  `header__logo`, `header__link menu` paired with `/svgeditor/`, and `img/logo_name.*.png`.
+- The reduced regression intentionally keeps only source-specific header/logo/menu chrome, proving
+  the cleaned editor chrome residue is blocked without relying on user/header chrome, work-title
+  controls, toolbar controls, sidebar/navigation controls, material-list cards, material component
+  paths, material search controls, material purchase controls, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing header, logo, menu, home,
+  brand, link, or editor wording by itself, and `header__link menu` only counts when tied to
+  `/svgeditor/`.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-27 135 SVG Work Title Edit Control Residue
 
 - [x] 135-svg-work-title-edit-control-residue-20260627.txt

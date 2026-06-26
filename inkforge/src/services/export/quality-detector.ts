@@ -89,6 +89,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor toolbar residue',
   },
   {
+    pattern: /(?:<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bheader__logo\b[^"']*["']|<a\b(?=[^>]*(?:class|id)\s*=\s*["'][^"']*\bheader__link\b[^"']*\bmenu\b[^"']*["'])(?=[^>]*\bhref\s*=\s*["']\/svgeditor\/["'])|<(?:img|source)\b[^>]*(?:src|data-src)\s*=\s*["'][^"']*\/?img\/logo_name\.[^"']+\.png["'])/i,
+    label: '135 SVG header logo menu residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:\bheader-user\b|\buser-info__(?:head|nickname)\b|\buser-info\b(?=[^"']*\bnoheader\b))[^"']*["']/i,
     label: '135 SVG user header chrome residue',
   },

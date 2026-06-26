@@ -1238,6 +1238,12 @@ Rules:
   controls, or canvas wrappers. Generic user, avatar, nickname, profile, or account wording is not
   enough; the detector stays anchored to 135 SVG editor header/user class names and never records
   real account text in committed evidence.
+- 135 SVG editor brand/header menu chrome such as `header__logo`, `header__link menu` paired with
+  `/svgeditor/`, and `img/logo_name.*.png` must fail independently of user/header chrome,
+  work-title controls, toolbar classes, sidebar/navigation wrappers, material cards, shell
+  wrappers, layout controls, material-panel controls, or canvas wrappers. Generic header, logo,
+  menu, home, brand, link, or editor wording is not enough; `header__link menu` only counts when it
+  is tied to the 135 SVG editor route.
 - 135 SVG editor work-title edit controls such as `work-title`, `work-title__editing`, and
   `edit-text__input` paired with the live placeholder `作品标题` must fail independently of
   header/user chrome, toolbar classes, sidebar/navigation wrappers, material cards, shell wrappers,
@@ -1497,6 +1503,7 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-user-header-chrome-residue-20260627.txt`
+- `prompts/0601/evidence/135-svg-header-logo-menu-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-work-title-edit-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-material-search-control-residue-20260627.txt`
@@ -1506,4 +1513,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-145.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-146.
