@@ -101,6 +101,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG work title edit control residue',
   },
   {
+    pattern: /(?:<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bwork-tool(?:-signature)?\b[^"']*["']|<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:ant_btn_panel|idea-entry-quick|entry-popover)\b[^"']*["']|<button\b(?=[^>]*(?:class|id)\s*=\s*["'][^"']*\bbtn-entry\b)(?=[^>]*(?:class|id)\s*=\s*["'][^"']*\bant-btn\b))/i,
+    label: '135 SVG work tool quick-entry residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:side-bar(?:-(?:wrap|menu-wrap|content-wrap))?|side_bar__wrap|side-tab-(?:menu(?:__(?:content|label))?|content)|side_tab__content|tab-special(?:__(?:header|searchbar|wrap|segs?|seg))?)\b[^"']*["']/i,
     label: '135 SVG sidebar navigation residue',
   },

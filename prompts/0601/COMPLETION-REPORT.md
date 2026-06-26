@@ -5945,3 +5945,33 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-27 135 SVG Work Tool Quick-Entry Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed work-tool quick-entry DOM can
+  retain `work-tool`, `work-tool-signature fixed`, `ant_btn_panel`, `idea-entry-quick`,
+  `entry-popover`, and `btn-entry ant-btn`.
+- Added the static detector label `135 SVG work tool quick-entry residue` for source-specific
+  work-tool quick-entry editor chrome. Generic work, tool, entry, history, signature, quick,
+  panel, button, or editor wording is not enough.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 253 tests after an unrelated Mermaid timeout was proven by focused rerun.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1230 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 50.64s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-work-tool-quick-entry-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

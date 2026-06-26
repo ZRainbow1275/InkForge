@@ -5629,6 +5629,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Work Tool Quick-Entry Residue
+
+- [x] 135-svg-work-tool-quick-entry-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor work-tool quick-entry chrome:
+  `work-tool`, `work-tool-signature fixed`, `ant_btn_panel`, `idea-entry-quick`,
+  `entry-popover`, and `btn-entry ant-btn`.
+- The reduced regression intentionally keeps only source-specific work-tool quick-entry chrome,
+  proving the cleaned editor chrome residue is blocked without relying on header/logo/menu chrome,
+  user/header chrome, work-title controls, toolbar controls, sidebar/navigation controls,
+  material-list cards, material component paths, material search controls, material purchase
+  controls, shell wrappers, layout controls, material-panel controls, known 135 `data-name` values,
+  hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing work, tool, entry, history,
+  signature, quick, panel, button, or editor wording by itself, and generic `entry-list`,
+  `entry-item`, `history`, `button`, or `ant-btn` is not a standalone trigger.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 135 SVG Sidebar Navigation Residue
 
 - [x] 135-svg-sidebar-navigation-residue-20260626.txt

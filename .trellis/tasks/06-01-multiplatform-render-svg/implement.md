@@ -13824,6 +13824,56 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-27 135 SVG Work Tool Quick-Entry Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor work-tool area. The live DOM exposed
+  quick-entry/editor operation chrome including `work-tool`, `work-tool-signature fixed`,
+  `ant_btn_panel`, `idea-entry-quick`, `entry-popover`, and `btn-entry ant-btn`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, or sync artifact is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only 135 SVG editor work-tool quick-entry chrome
+  after header/logo/menu chrome, user/header chrome, work-title controls, toolbar, sidebar,
+  material-card, shell, layout, material-panel, and canvas markers have been removed.
+- Added the `135 SVG work tool quick-entry residue` detector for source-specific work-tool,
+  quick-entry, and entry-popover classes. Generic work, tool, entry, history, signature, quick,
+  panel, button, and editor wording remains out of scope; generic `entry-list`, `entry-item`,
+  `history`, `button`, and `ant-btn` are not standalone triggers.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "work tool quick-entry" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 252 skipped tests after the
+  detector update.
+- Initial full platform rerun hit one unrelated Mermaid timeout. Focused Mermaid rerun passed,
+  focused work-tool quick-entry rerun passed, then the full platform rerun passed with 1 file and
+  253 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1230 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 50.64s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-27 135 SVG Header Logo Menu Residue Slice
 
 Source:

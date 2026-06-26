@@ -4904,6 +4904,51 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 147. 135 SVG Work Tool Quick-Entry Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains work-tool quick-entry chrome
+  observed in a live CloakBrowser 135 SVG editor DOM readback, such as `work-tool`,
+  `work-tool-signature fixed`, `ant_btn_panel`, `idea-entry-quick`, `entry-popover`, or
+  `btn-entry ant-btn`.
+- These controls render the 135 SVG editor's quick entry/history/signature operation panel. They
+  are editor chrome, not publishable article DOM, and must not appear in WeChat, Xiaohongshu, or
+  Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG work tool quick-entry residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported work-tool quick-entry class markers appear.
+- A reduced fixture containing only work-tool quick-entry controls must fail even when 135 SVG
+  editor header/logo/menu chrome, user/header chrome, work-title controls, toolbar classes,
+  sidebar/navigation controls, material cards, material component paths, material search controls,
+  material purchase controls, material list-loader state, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing work, tool, entry, history, signature,
+  quick, panel, button, or editor wording by itself. It must stay anchored to 135 SVG editor
+  markers and must not use generic `entry-list`, `entry-item`, `history`, `button`, or `ant-btn`
+  as standalone triggers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced work-tool quick-entry fixture fails before implementation and
+  reports `135 SVG work tool quick-entry residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG header logo menu residue`,
+  `135 SVG user header chrome residue`, `135 SVG work title edit control residue`,
+  `135 SVG editor toolbar residue`, `135 SVG sidebar navigation residue`,
+  `135 SVG material list item residue`, `135 SVG material component path residue`,
+  `135 SVG material search control residue`, `135 SVG material purchase control residue`,
+  `135 SVG editor shell residue`, and `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 146. 135 SVG Header Logo Menu Residue - 2026-06-27
 
 ### 1. Scope / Trigger

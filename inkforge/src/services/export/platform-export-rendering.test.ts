@@ -352,6 +352,20 @@ const MARKET_EDITOR_135_SVG_WORK_TITLE_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_WORK_TOOL_QUICK_ENTRY_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div class="work-tool-signature fixed">',
+  '<div class="ant_btn_panel">',
+  '<div class="idea-entry-quick">',
+  '<div class="entry-popover">',
+  '<button type="button" class="btn-entry ant-btn"></button>',
+  '</div>',
+  '</div>',
+  '</div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_MATERIAL_LIST_ITEM_RESIDUE_HTML = [
   '<section style="margin:0;padding:0">',
   '<article class="item-element" file_path="sidebar/tabs/ItemElement">',
@@ -9262,6 +9276,30 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 SVG user header chrome residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 SVG editor toolbar residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG work tool quick-entry controls without toolbar chrome', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_WORK_TOOL_QUICK_ENTRY_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_WORK_TOOL_QUICK_ENTRY_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_WORK_TOOL_QUICK_ENTRY_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG work tool quick-entry residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG work tool quick-entry residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG work tool quick-entry residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor toolbar residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG work title edit control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG user header chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG material panel residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
