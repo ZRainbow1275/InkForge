@@ -5614,3 +5614,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   price, buy, trial, collect, or action wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Material Filter Control Residue
+
+- [x] 135-svg-material-filter-control-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material filter/category controls:
+  `menu-filter`, `menu-filter__container`, `menu-filter__group`, `menu-level__group`,
+  `menu__warp_btn`, `level_entry`, `svg-types`, `tab-switch_btn`, `special-tags__left`,
+  `special-tags__center`, `special-tags__right`, `special-tags__cover`, `tab-visible_cat`,
+  `preview-guide`, `usage-history`, and `modal-entrance`.
+- The reduced regression intentionally keeps only source-specific material filter/category
+  controls plus readable category labels, proving the cleaned editor chrome residue is blocked
+  without relying on 135 SVG canvas markers, sidebar/navigation controls, material-list card
+  controls, toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing filter, search, category,
+  preview, history, modal, all, click, material, SVG, or tag wording by itself, and it does not
+  use generic `search-input`, `search-container`, `list-item`, or `new` selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

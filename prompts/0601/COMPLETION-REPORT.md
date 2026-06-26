@@ -5161,6 +5161,47 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Material Filter Control Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material
+  filter/category DOM can retain `menu-filter`, `menu-filter__container`,
+  `menu-filter__group`, `menu-level__group`, `menu__warp_btn`, `level_entry`, `svg-types`,
+  `tab-switch_btn`, `special-tags__left`, `special-tags__center`, `special-tags__right`,
+  `special-tags__cover`, `tab-visible_cat`, `preview-guide`, `usage-history`, and
+  `modal-entrance`.
+- Added the static detector label `135 SVG material filter control residue` for source-specific
+  material filter/category editor chrome. The rule avoids generic `search-input`,
+  `search-container`, `list-item`, and `new` selectors.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material filter controls" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green verification:
+  the same focused command passed with 1 selected test and 243 skipped tests after the detector
+  update.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 244 tests after one unrelated Mermaid timeout was isolated by focused
+  rerun and the full command was rerun successfully.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1221 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 49.04s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Material List Item Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material-list card DOM
