@@ -1307,6 +1307,12 @@ Rules:
   `img-preview-hide` must fail independently of the material filter, material list-card, sidebar,
   toolbar, shell, layout, material-panel, or canvas wrappers. Generic `item`, `active`, `more`,
   `new`, `search-input`, and `list-item` selectors remain out of scope.
+- 135 SVG material preview asset paths such as `img/img-preview-show.0471d3a6.svg` and
+  `img/img-preview-hide.bff8f2cc.svg` must fail independently of preview classes,
+  material-category wrappers, material-filter controls, sidebar icon assets, material cards,
+  shell wrappers, layout controls, or canvas wrappers. Generic preview/image/show/hide wording and
+  generic SVG images are not enough; the rule stays anchored to source-specific relative
+  `img/img-preview-show|hide` resources.
 - 135 SVG material list-loader state such as `issvglist="true"` and `list-loader__inner`,
   `list-loader__load`, `list-loader__loading`, and `list-loader__loading-inner` must fail
   independently of material card items, category wrappers, filters, sidebar, toolbar, shell,
@@ -1534,7 +1540,8 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
+- `prompts/0601/evidence/135-svg-material-preview-asset-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-149.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-150.

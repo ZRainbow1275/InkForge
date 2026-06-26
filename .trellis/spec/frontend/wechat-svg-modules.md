@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 150. 135 SVG Material Preview Asset Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains material-preview icon resource
+  paths observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `src="img/img-preview-show.0471d3a6.svg"` or
+  `src="img/img-preview-hide.bff8f2cc.svg"`.
+- These relative `img/img-preview-show|hide` resources are editor-side material preview toggles,
+  not article content, and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material preview asset residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported material-preview asset paths appear.
+- A reduced fixture containing only the preview asset paths must fail even when preview classes,
+  material-category wrappers, material-filter controls, sidebar icon assets, sidebar icon/help
+  classes, sidebar navigation wrappers, toolbar classes, material search controls, material-panel
+  controls, material cards, material component paths, purchase controls, list-loader state, shell
+  wrappers, layout controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing preview, image, show, hide, material,
+  asset, SVG, or editor wording by itself. It must stay anchored to 135-specific relative
+  `img/img-preview-show|hide` SVG paths and must not treat generic SVG images as residue.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced material-preview asset fixture fails before implementation and
+  reports `135 SVG material preview asset residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG material category wrapper residue`,
+  `135 SVG material filter control residue`, and `135 SVG sidebar icon asset residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 149. 135 SVG Sidebar Icon Asset Residue - 2026-06-27
 
 ### 1. Scope / Trigger
