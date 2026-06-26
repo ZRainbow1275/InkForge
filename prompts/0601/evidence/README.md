@@ -5596,6 +5596,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-27 135 SVG Work Title Edit Control Residue
+
+- [x] 135-svg-work-title-edit-control-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor work-title controls: `work-title`,
+  `work-title__editing`, `edit-text__input`, and the live placeholder `作品标题`.
+- The reduced regression intentionally keeps only source-specific title edit controls, proving the
+  cleaned editor chrome residue is blocked without relying on user/header chrome, toolbar
+  controls, sidebar/navigation controls, material-list cards, material component paths, material
+  search controls, material purchase controls, shell wrappers, layout controls, material-panel
+  controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls,
+  `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing title, work, edit, input,
+  placeholder, `作品标题`, header, or editor wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 135 SVG Sidebar Navigation Residue
 
 - [x] 135-svg-sidebar-navigation-residue-20260626.txt

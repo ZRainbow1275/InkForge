@@ -5161,6 +5161,44 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Work Title Edit Control Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed work-title edit controls can
+  retain `work-title`, `work-title__editing`, `edit-text__input`, and the live placeholder
+  `作品标题`.
+- Added the static detector label `135 SVG work title edit control residue` for source-specific
+  title edit chrome. The rule avoids generic title, work, edit, input, placeholder, header, and
+  editor wording by itself.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "work title edit controls" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green verification:
+  the same focused command passed with 1 selected test and 250 skipped tests after the detector
+  update.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  initially hit one unrelated Mermaid timeout; the focused Mermaid rerun passed, then the full
+  platform rerun passed with 1 file / 251 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1228 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 53.27s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-work-title-edit-control-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG User Header Chrome Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed header/user chrome can

@@ -1,0 +1,67 @@
+135 SVG Work Title Edit Control Residue - 2026-06-27
+
+Scope:
+- Local static quality gate for copied or partially cleaned 135 SVG editor work-title controls.
+- No platform action, phone preview, mobile interaction, mobile Dark Mode, cover thumbnail,
+  credentialed sync, upload, scheduled send, public rendering, public host, or publish action.
+
+Source:
+- CloakBrowser review of the logged-in 135 SVG editor showed work-title edit controls including
+  `work-title`, `work-title__editing`, `edit-text__input`, and the live placeholder `作品标题`.
+- The committed fixture contains no account-state material, local browser runtime material,
+  capture-file reference, platform publish artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, raw session export, HAR artifact, or browser runtime material.
+
+Implemented:
+- Added detector label: `135 SVG work title edit control residue`.
+- Added source-specific class matching for `work-title` and `work-title__editing`.
+- Added guarded `edit-text__input` matching only when paired with the live `作品标题` placeholder.
+- Added a reduced regression fixture containing only work-title edit controls.
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit the platform-specific
+  market-editor-residue issue when 135 SVG editor work-title edit controls appear.
+- The reduced fixture remains independent of user/header chrome, toolbar controls,
+  sidebar/navigation controls, material-list cards, material component paths, material search
+  controls, material purchase controls, shell wrappers, layout controls, material-panel controls,
+  known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135`
+  styles, and `background-size:100.1%` background shells.
+- Generic title, work, edit, input, placeholder, `作品标题`, header, or editor wording is
+  intentionally out of scope.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "work title edit controls" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "work title edit controls" --reporter=default`
+  passed with 1 selected test and 250 skipped tests after the detector rule was added.
+- Mermaid timeout isolation:
+  The first full platform rendering run hit one unrelated Mermaid timeout; the focused Mermaid
+  rerun passed before the full platform command was rerun.
+- Full platform rendering:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 251 tests.
+- Export service serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1228 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite build completed in 53.27s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
