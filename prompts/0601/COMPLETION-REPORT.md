@@ -5193,6 +5193,36 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Sidebar Icon Asset Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed sidebar icon DOM can retain
+  relative editor chrome resources such as `img/sidebar-work-active.1e2c6eb1.png`.
+- Added the static detector label `135 SVG sidebar icon asset residue` for source-specific
+  `img/sidebar-*.png` editor chrome resources. Generic sidebar, icon, asset, image, help, active,
+  work, upload, material, or editor wording is not enough, and generic data images are not
+  standalone triggers.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 255 tests after an unrelated Mermaid timeout was proven by focused rerun.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1232 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 57.42s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-sidebar-icon-asset-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Header Logo Menu Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed header brand/home menu DOM

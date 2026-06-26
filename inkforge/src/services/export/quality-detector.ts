@@ -109,6 +109,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG sidebar icon/help residue',
   },
   {
+    pattern: /<img\b[^>]*\bsrc\s*=\s*["']img\/sidebar-[a-z0-9-]+(?:\.[a-f0-9]+)?\.png["'][^>]*>/i,
+    label: '135 SVG sidebar icon asset residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?:[^"']*\s)?(?:side-bar(?:-(?:wrap|menu-wrap|content-wrap))?|side_bar__wrap|side-tab-(?:menu(?:__(?:content|label))?|content)|side_tab__content|tab-special(?:__(?:header|searchbar|wrap|segs?|seg))?)(?=\s|["'])[^"']*["']/i,
     label: '135 SVG sidebar navigation residue',
   },

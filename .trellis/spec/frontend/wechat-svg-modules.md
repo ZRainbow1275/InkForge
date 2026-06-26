@@ -4904,6 +4904,44 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 149. 135 SVG Sidebar Icon Asset Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains sidebar icon resource paths
+  observed in a live CloakBrowser 135 SVG editor DOM readback, such as
+  `src="img/sidebar-work-active.1e2c6eb1.png"`.
+- These relative `img/sidebar-*.png` resources are editor chrome icons, not article content, and
+  must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG sidebar icon asset residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported `img/sidebar-*.png` asset paths appear.
+- A reduced fixture containing only the sidebar icon asset path must fail even when sidebar
+  icon/help classes, sidebar navigation wrappers, toolbar classes, material search controls,
+  material-panel controls, header/logo/menu chrome, user/header chrome, work-title controls,
+  work-tool quick-entry chrome, material cards, material component paths, material purchase
+  controls, shell wrappers, layout controls, known 135 `data-name` values, hosted media, trigger
+  overlays, Ant switch controls, `svg:135` styles, and `background-size:100.1%` background shells
+  are absent.
+- The detector must not block ordinary prose containing sidebar, icon, asset, image, help, active,
+  work, upload, material, or editor wording by itself. It must stay anchored to 135-specific
+  relative `img/sidebar-*.png` paths and must not treat generic data images as residue.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced sidebar icon asset fixture fails before implementation and reports
+  `135 SVG sidebar icon asset residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar icon/help residue` and
+  `135 SVG sidebar navigation residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 148. 135 SVG Sidebar Icon Help Residue - 2026-06-27
 
 ### 1. Scope / Trigger

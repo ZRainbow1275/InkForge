@@ -1264,6 +1264,12 @@ Rules:
   shell wrappers, layout controls, or canvas wrappers. Generic sidebar, icon, help, banner,
   active, work, upload, material, or editor wording is not enough, and `side-bar-banner-wrap`
   must not be misreported as the older sidebar/navigation label.
+- 135 SVG sidebar icon asset paths such as `img/sidebar-work-active.1e2c6eb1.png` must fail
+  independently of sidebar icon/help classes, sidebar/navigation wrappers, toolbar classes,
+  material search controls, material-panel controls, header/user chrome, work-title controls,
+  work-tool quick-entry chrome, shell wrappers, layout controls, or canvas wrappers. Generic
+  sidebar/icon/image wording and generic data images are not enough; the rule stays anchored to
+  source-specific relative `img/sidebar-*.png` resources.
 - 135 SVG sidebar/navigation controls such as `side-bar`, `side-bar-wrap`,
   `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
   `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special` must
@@ -1522,6 +1528,7 @@ Evidence:
 - `prompts/0601/evidence/135-svg-work-title-edit-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-work-tool-quick-entry-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-sidebar-icon-help-residue-20260627.txt`
+- `prompts/0601/evidence/135-svg-sidebar-icon-asset-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-material-search-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
@@ -1530,4 +1537,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-148.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-149.
