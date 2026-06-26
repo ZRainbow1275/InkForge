@@ -7125,3 +7125,48 @@ const ruleFamilies = [
   `Xiumi template authoring tree residue` independent.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 134. Xiumi Meta Panel Control Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains cover/article metadata panel
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, such as
+  `tn-meta-container`, `tn-meta-panel`, and `toggle-green-gray`.
+- The live DOM also shows adjacent generic classes such as `top-group`, `meta-group`,
+  `toggle-btn`, `toggle-off`, `toggle-on`, and `tn-lighting-box`; these are documented as context
+  but must not be used as standalone triggers because generic meta/toggle/image-lighting class
+  names can appear in legitimate authored content.
+- These controls drive Xiumi's editor-side cover image, music/video enhanced mode, custom title,
+  gutter, tag, and image-ratio settings. They are not article DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi meta panel control residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported meta-panel class or id markers appear.
+- A reduced fixture containing only `toggle-green-gray` meta-panel controls must fail even when
+  sidebar/tab controls, right-toolbar controls, text-toolbar controls, font-family menus,
+  color-selector controls, operation-bar controls, UI Bootstrap directives, top operation classes,
+  broad Angular `ng-*` attributes/classes, paper auxiliary tree controls, selection overlays,
+  crop/worker controls, operator-dock parents, operator depot items, `op-loader`, broad `tn-*`,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, or `user-select` markers are absent.
+- The detector must not block ordinary prose containing cover, music, video, custom title,
+  spacing, tag, ratio, metadata, toggle, or image wording by itself. It must stay anchored to
+  Xiumi-specific meta-panel class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced meta-panel fixture fails before implementation and reports
+  `Xiumi meta panel control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi sidebar tab control residue`,
+  `Xiumi right toolbar control residue`, `Xiumi text toolbar control residue`, and
+  `Xiumi theme color mask residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.

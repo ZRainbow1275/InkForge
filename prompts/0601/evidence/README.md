@@ -5542,3 +5542,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   image, music, clipboard, tab, or icon wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 Xiumi Meta Panel Control Residue
+
+- [x] xiumi-meta-panel-control-residue-20260626.txt
+- Added a static quality rule for Xiumi cover/article metadata panel controls observed in the live
+  Xiumi v5 paper-editor DOM: `tn-meta-container`, `tn-meta-panel`, and `toggle-green-gray`.
+- Adjacent generic classes such as `top-group`, `meta-group`, `toggle-btn`, `toggle-off`,
+  `toggle-on`, and `tn-lighting-box` are documented as observed context only; they are not
+  standalone detector triggers.
+- The reduced regression intentionally keeps only `toggle-green-gray` meta-panel controls plus
+  readable cover/music/custom-title labels, proving the cleaned editor chrome residue is blocked
+  without relying on sidebar/tab controls, right-toolbar controls, text-toolbar controls,
+  font-family menus, color-selector controls, operation-bar controls, UI Bootstrap directives,
+  top operation classes, broad Angular `ng-*`, paper auxiliary tree controls, selection overlays,
+  crop/worker controls, operator-dock parents, operator depot items, `op-loader`, broad `tn-*`,
+  `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer, `ui-slider`, `ui-sortable`,
+  `touch-action`, or `user-select` markers.
+- The detector intentionally does not block ordinary prose containing cover, music, video, custom
+  title, spacing, tag, ratio, metadata, toggle, or image wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

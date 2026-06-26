@@ -5495,3 +5495,33 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-26 Xiumi Meta Panel Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed cover/article
+  metadata panel DOM can retain `tn-meta-container`, `tn-meta-panel`, `top-group meta-group`,
+  `toggle-btn`, `toggle-green-gray`, `toggle-off`, `toggle-on`, and `tn-lighting-box`.
+- Added the static detector label `Xiumi meta panel control residue` for source-specific
+  meta-panel editor chrome. Generic adjacent classes such as `meta-group`, `toggle-btn`, and
+  `tn-lighting-box` are documented as context only and are not standalone detector triggers.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 240 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1217 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 28.75s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-meta-panel-control-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

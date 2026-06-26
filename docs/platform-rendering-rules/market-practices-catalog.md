@@ -1369,7 +1369,8 @@ Rules:
   `right-toolbar-container`, `right-toolbar-switch`, `right-toolbar-arrow-*`,
   `content-statistics`, `page-assist-on-toolbar`, `zooming-selector`, and
   `tn-viewport-zooming-panel`, or sidebar/tab controls such as `sidebar-panel`,
-  `sidebar-style-normal`, `x3-tab-item`, and `tn-tab-ctrl-pin`.
+  `sidebar-style-normal`, `x3-tab-item`, and `tn-tab-ctrl-pin`, or meta-panel controls such as
+  `tn-meta-container`, `tn-meta-panel`, and `toggle-green-gray`.
 - All of the above remain no-copy/source-ownership gates. They can inform InkForge-owned image
   slot manifests, motion/action schema, readable DOM order, layout reports, static fallback,
   raster fallback, or long-image fallback only.
@@ -1427,7 +1428,8 @@ Evidence:
 - `prompts/0601/evidence/xiumi-text-toolbar-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-right-toolbar-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-sidebar-tab-control-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-meta-panel-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-133.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-134.

@@ -500,6 +500,16 @@ const MARKET_EDITOR_XIUMI_SIDEBAR_TAB_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_META_PANEL_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="btn-group toggle-btn toggle-green-gray">',
+  '<label class="btn btn-default toggle-off active">关闭</label>',
+  '<label class="btn btn-default toggle-on">开启</label>',
+  '</div>',
+  '<p>开启音乐视频等增强模式，使用自定义标题，两边不留白。</p>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SVG_CAROUSEL_RESIDUE_HTML = [
   '<section class="tn-comp-top-level tn-comp-inst">',
   '<div class="tn-cell tn-cell-group tn-child-position-static tn-group-usage-flow-canvas"',
@@ -10250,6 +10260,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi sidebar tab control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi sidebar tab control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi meta panel controls after sidebar cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_META_PANEL_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_META_PANEL_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_META_PANEL_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi meta panel control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi meta panel control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi meta panel control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

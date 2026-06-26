@@ -13824,6 +13824,57 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-26 Xiumi Meta Panel Control Residue Slice
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor. The cover/article metadata panel exposed
+  editor chrome including `tn-meta-container`, `tn-meta-panel`, `top-group meta-group`,
+  `toggle-btn`, `toggle-green-gray`, `toggle-off`, `toggle-on`, and `tn-lighting-box`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` returned LOW risk with 4 direct dependents,
+  0 affected processes, and the affected module limited to Export.
+
+Implementation:
+- Added a reduced regression fixture containing only `toggle-green-gray` meta-panel controls and
+  readable cover/music/custom-title labels without sidebar/tab controls, right-toolbar controls,
+  text-toolbar controls, font-family menus, font-size skimmer attributes, color-selector controls,
+  operation-bar controls, UI Bootstrap directives, top operation classes, broad Angular `ng-*`,
+  paper auxiliary tree controls, selection overlays, crop/worker controls, operator-dock parents,
+  operator depot items, `op-loader`, broad `tn-*`, `opera-tn-*`, `contenteditable`, hosted media,
+  SVG content-layer, `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
+- Added the `Xiumi meta panel control residue` detector for source-specific meta-panel chrome.
+  Adjacent generic classes such as `meta-group`, `toggle-btn`, and `tn-lighting-box` are
+  documented as context only and are not standalone triggers.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "meta panel controls" --reporter=default`
+  failed because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 239 skipped tests after the
+  detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 240 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1217 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 28.75s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 Xiumi Sidebar Tab Control Residue Slice
 
 Source:
