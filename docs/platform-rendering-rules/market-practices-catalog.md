@@ -1232,6 +1232,10 @@ Rules:
   `toolbar-tool`, `bar-item`, `bar-item__label`, `delete-dropdown_entry`,
   `tool-dropdown_entry`, and `team_btn` must fail independently of canvas, shell, layout, or
   material-panel wrappers.
+- 135 SVG sidebar/navigation controls such as `side-bar`, `side-bar-wrap`,
+  `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
+  `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special` must
+  fail independently of toolbar, shell, layout, material-panel, or canvas wrappers.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1437,4 +1441,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-135.
+- `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-136.

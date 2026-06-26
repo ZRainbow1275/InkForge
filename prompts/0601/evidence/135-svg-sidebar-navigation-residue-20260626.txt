@@ -1,0 +1,50 @@
+135 SVG Sidebar Navigation Residue - 2026-06-26
+
+Source:
+- CloakBrowser live DOM review of the logged-in 135 SVG editor left sidebar/navigation surface.
+- Observed source-owned editor controls: side-bar, side-bar-wrap, side-bar-menu-wrap,
+  side-tab-menu, side-tab-menu__content, side-tab-menu__label, side-tab-content,
+  side-bar-content-wrap, tab-special.
+
+Implemented:
+- Added a reduced fixture in src/services/export/platform-export-rendering.test.ts.
+- Added the static detector label: 135 SVG sidebar navigation residue.
+
+Behavior:
+- detectQuality(..., "wechat") reports wechat-market-editor-residue.
+- detectQuality(..., "xiaohongshu") reports xhs-market-editor-residue.
+- detectQuality(..., "zhihu") reports zhihu-market-editor-residue.
+- The rule is anchored to class/id markers and does not block ordinary prose containing sidebar,
+  navigation, SVG effect, SVG template, work, upload, material, clipboard, search, or tab wording
+  by itself.
+
+Fixture Isolation:
+- The reduced fixture does not contain 135 SVG canvas markers, toolbar controls, shell wrappers,
+  layout controls, material-panel controls, known 135 data-name values, hosted media, trigger
+  overlays, Ant switch controls, svg:135 styles, or background-size:100.1% background shells.
+
+Verification:
+- Red: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sidebar navigation" --reporter=default
+  Result: failed with 1 new failing test before the detector update.
+- Green: pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sidebar navigation" --reporter=default
+  Result: passed with 1 selected test and 241 skipped tests after the detector update.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default
+  Result: passed with 1 file and 242 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism
+  Result: passed with 36 files and 1219 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed with 4653 modules transformed and Vite build completed in 1m 1s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

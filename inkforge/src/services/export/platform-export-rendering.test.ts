@@ -287,6 +287,25 @@ const MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_SIDEBAR_NAV_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<nav class="side-bar open">',
+  '<div id="side_bar__wrap" class="side-bar-wrap">',
+  '<div class="side-bar-menu-wrap">',
+  '<div class="side-tab-menu active special">',
+  '<div class="side-tab-menu__content">',
+  '<span class="side-tab-menu__label">SVG效果</span>',
+  '</div>',
+  '</div>',
+  '</div>',
+  '</div>',
+  '</nav>',
+  '<aside id="side_tab__content" class="side-tab-content side-bar-content-wrap">',
+  '<div class="tab-special"><div class="tab-special__header">SVG模板</div></div>',
+  '</aside>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML = [
   '<aside class="editor-bar open">',
   '<div class="editor-bar-inner">',
@@ -9003,6 +9022,22 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG editor toolbar residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG editor toolbar residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG sidebar navigation controls without toolbar or material panels', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_SIDEBAR_NAV_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_SIDEBAR_NAV_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_SIDEBAR_NAV_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG sidebar navigation residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG sidebar navigation residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG sidebar navigation residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -13824,6 +13824,54 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-26 135 SVG Sidebar Navigation Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor at `/svgeditor/`. The live left sidebar DOM
+  exposed source-owned navigation controls including `side-bar`, `side-bar-wrap`,
+  `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
+  `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 2` returned LOW risk with 4 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing 135 SVG editor left sidebar/navigation controls
+  without 135 SVG canvas markers, toolbar controls, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- Added the `135 SVG sidebar navigation residue` detector for source-specific sidebar/navigation
+  class/id markers.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sidebar navigation" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 241 skipped tests after the
+  detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 242 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1219 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 1m 1s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 135 SVG Editor Toolbar Residue Slice
 
 Source:

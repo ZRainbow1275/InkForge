@@ -89,6 +89,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor toolbar residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:side-bar(?:-(?:wrap|menu-wrap|content-wrap))?|side_bar__wrap|side-tab-(?:menu(?:__(?:content|label))?|content)|side_tab__content|tab-special(?:__(?:header|searchbar|wrap|segs?|seg))?)\b[^"']*["']/i,
+    label: '135 SVG sidebar navigation residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:editor-bar(?:-inner|-body|-title|-nav|-pop-close|-pop-trigger)?|edit-bar-nav_opt|bar-template-name|editor-img(?:__block|__title)?|editor-spread(?:__edit)?|editor-background|editor-course(?:__detail|__opt|___tag)?|course__(?:title|intro|removal)|edit-image|edit-images|edit-add-(?:images|btn)|edit-add__title|image__(?:header|title-bar|title|tip|body|upload|handle)|image_help|edit-animate(?:__title|__opt)?|animate__dur)\b[^"']*["']/i,
     label: '135 SVG material panel residue',
   },

@@ -5579,3 +5579,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   spacing, copy, delete, team, or tool wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 135 SVG Sidebar Navigation Residue
+
+- [x] 135-svg-sidebar-navigation-residue-20260626.txt
+- Added a static quality rule for live 135 SVG editor left sidebar/navigation controls:
+  `side-bar`, `side-bar-wrap`, `side-bar-menu-wrap`, `side-tab-menu`,
+  `side-tab-menu__content`, `side-tab-menu__label`, `side-tab-content`,
+  `side-bar-content-wrap`, and `tab-special`.
+- The reduced regression intentionally keeps only source-specific sidebar/navigation controls plus
+  readable SVG effect/template labels, proving the cleaned editor chrome residue is blocked
+  without relying on 135 SVG canvas markers, toolbar controls, shell wrappers, layout controls,
+  material-panel controls, known 135 `data-name` values, hosted media, trigger overlays, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing sidebar, navigation, SVG
+  effect, SVG template, work, upload, material, clipboard, search, or tab wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

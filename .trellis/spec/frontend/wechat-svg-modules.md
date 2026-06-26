@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 136. 135 SVG Sidebar Navigation Residue - 2026-06-26
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains left sidebar or tab-navigation
+  controls observed in a live CloakBrowser 135 SVG editor DOM readback, such as `side-bar`,
+  `side-bar-wrap`, `side-bar-menu-wrap`, `side-tab-menu`, `side-tab-menu__content`,
+  `side-tab-menu__label`, `side-tab-content`, `side-bar-content-wrap`, and `tab-special`.
+- These controls drive 135's SVG effect/template/work/upload/material/clipboard navigation and
+  search/tab panes. They are not article DOM and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG sidebar navigation residue` for WeChat,
+  Xiaohongshu, and Zhihu when supported sidebar/navigation class/id markers appear.
+- A reduced fixture containing only sidebar/navigation controls must fail even when 135 SVG canvas
+  markers, toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted-media, trigger overlays, Ant switch controls, `svg:135` styles, and
+  `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing sidebar, navigation, SVG effect, SVG
+  template, work, upload, material, clipboard, search, or tab wording by itself. It must stay
+  anchored to 135-specific sidebar/navigation class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced sidebar/navigation fixture fails before implementation and reports
+  `135 SVG sidebar navigation residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG editor toolbar residue`,
+  `135 SVG editor layout control residue`, `135 SVG editor shell residue`,
+  `135 SVG material panel residue`, and `135 SVG trigger switch control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 75. Xiumi Paper Document Root Residue - 2026-06-25
 
 ### 1. Scope / Trigger
