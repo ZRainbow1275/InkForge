@@ -274,6 +274,19 @@ const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div class="editor-toolbar">',
+  '<div class="toolbar-tool editor-toolbar__tool">',
+  '<div class="bar-item disabled"><span class="bar-item__label">撤销</span></div>',
+  '<span class="delete-dropdown_entry">删除</span>',
+  '<span class="tool-dropdown_entry header__link menu">工具</span>',
+  '</div>',
+  '<a class="team_btn">个人模式</a>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_MATERIAL_PANEL_RESIDUE_HTML = [
   '<aside class="editor-bar open">',
   '<div class="editor-bar-inner">',
@@ -8974,6 +8987,22 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG editor layout control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG editor layout control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG editor toolbar controls without shell or material panels', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG editor toolbar residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG editor toolbar residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG editor toolbar residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

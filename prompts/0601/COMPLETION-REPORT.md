@@ -5525,3 +5525,32 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-26 135 SVG Editor Toolbar Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed top-toolbar DOM can retain
+  `editor-toolbar`, `editor-toolbar__tool`, `toolbar-tool`, `bar-item`, `bar-item__label`,
+  `delete-dropdown_entry`, `tool-dropdown_entry`, and `team_btn`.
+- Added the static detector label `135 SVG editor toolbar residue` for source-specific toolbar
+  editor chrome.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 241 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1218 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 40.92s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

@@ -5563,3 +5563,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   title, spacing, tag, ratio, metadata, toggle, or image wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-26 135 SVG Editor Toolbar Residue
+
+- [x] 135-svg-editor-toolbar-residue-20260626.txt
+- Added a static quality rule for live 135 SVG editor top-toolbar controls: `editor-toolbar`,
+  `editor-toolbar__tool`, `toolbar-tool`, `bar-item`, `bar-item__label`,
+  `delete-dropdown_entry`, `tool-dropdown_entry`, and `team_btn`.
+- The reduced regression intentionally keeps only source-specific toolbar controls plus readable
+  toolbar labels, proving the cleaned editor chrome residue is blocked without relying on 135 SVG
+  canvas markers, shell wrappers, layout controls, material-panel controls, known 135 `data-name`
+  values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing toolbar, undo, redo,
+  spacing, copy, delete, team, or tool wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

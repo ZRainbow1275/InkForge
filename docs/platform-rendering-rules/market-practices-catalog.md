@@ -1228,6 +1228,10 @@ Rules:
 - 135 SVG trigger switch controls such as `ant-switch`, `ant-switch-checked`, `ant-switch-inner`,
   and `ant-switch-handle` must fail independently of trigger overlay geometry and broader SVG
   builder canvas markers.
+- 135 SVG editor toolbar controls such as `editor-toolbar`, `editor-toolbar__tool`,
+  `toolbar-tool`, `bar-item`, `bar-item__label`, `delete-dropdown_entry`,
+  `tool-dropdown_entry`, and `team_btn` must fail independently of canvas, shell, layout, or
+  material-panel wrappers.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1432,4 +1436,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-trigger-hot-area-overlay-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-trigger-switch-control-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-editor-base-shell-residue-20260626.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-134.
+- `prompts/0601/evidence/135-svg-editor-toolbar-residue-20260626.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-135.
