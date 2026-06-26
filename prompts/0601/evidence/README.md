@@ -5634,3 +5634,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   use generic `search-input`, `search-container`, `list-item`, or `new` selectors.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Material Category Wrapper Residue
+
+- [x] 135-svg-material-category-wrapper-residue-20260627.txt
+- Added a static quality rule for live 135 SVG editor material category/list wrappers and activity
+  entrances: `tab-special__functions`, `tab-special__tags`, `tab-special__tap`,
+  `tab-special__list`, `tab_special_functions`, `tab-menufilter`, `filter_category`,
+  `filter-list__fold`, `svgMubanYaoqingEnter`, and `img-preview-hide`.
+- The reduced regression intentionally keeps only source-specific category/list wrappers plus
+  readable labels, proving the cleaned editor chrome residue is blocked without relying on 135 SVG
+  canvas markers, sidebar/navigation controls, material-filter controls, material-list card
+  controls, toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing category, fold, list, tab,
+  template, preview, activity, SVG, item, active, more, or new wording by itself, and it does not
+  use generic `item`, `active`, `more`, `new`, `search-input`, or `list-item` selectors.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

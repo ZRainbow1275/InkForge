@@ -5161,6 +5161,44 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Material Category Wrapper Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material category/list
+  wrapper DOM can retain `tab-special__functions`, `tab-special__tags`, `tab-special__tap`,
+  `tab-special__list`, `tab_special_functions`, `tab-menufilter`, `filter_category`,
+  `filter-list__fold`, `svgMubanYaoqingEnter`, and `img-preview-hide`.
+- Added the static detector label `135 SVG material category wrapper residue` for source-specific
+  material category/list wrapper editor chrome. The rule avoids generic `item`, `active`, `more`,
+  `new`, `search-input`, and `list-item` selectors.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material category wrappers" --reporter=default`
+  failed with 1 selected failing test before the detector rule existed.
+- Green verification:
+  the same focused command passed with 1 selected test and 244 skipped tests after the detector
+  update.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file / 245 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files / 1222 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 37.95s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Material Filter Control Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed left material

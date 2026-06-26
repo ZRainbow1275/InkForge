@@ -1248,6 +1248,12 @@ Rules:
   `modal-entrance` must fail independently of sidebar, list-card, toolbar, shell, layout,
   material-panel, or canvas wrappers. Generic search/filter/list wording is not enough; the rule
   stays anchored to source-specific 135 SVG editor class/id names.
+- 135 SVG material category wrappers and activity entrances such as `tab-special__functions`,
+  `tab-special__tags`, `tab-special__tap`, `tab-special__list`, `tab_special_functions`,
+  `tab-menufilter`, `filter_category`, `filter-list__fold`, `svgMubanYaoqingEnter`, and
+  `img-preview-hide` must fail independently of the material filter, material list-card, sidebar,
+  toolbar, shell, layout, material-panel, or canvas wrappers. Generic `item`, `active`, `more`,
+  `new`, `search-input`, and `list-item` selectors remain out of scope.
 - A copied 135 background-SVG shell that combines `background-size:100.1% 100.1%` with a nearby
   tall `svg viewBox="0 0 1080 <height>"` must fail market-editor residue on WeChat, Xiaohongshu,
   and Zhihu, even when vendor class/id/source markers are stripped.
@@ -1456,4 +1462,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-sidebar-navigation-residue-20260626.txt`
 - `prompts/0601/evidence/135-svg-material-list-item-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-filter-control-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-138.
+- `prompts/0601/evidence/135-svg-material-category-wrapper-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-139.

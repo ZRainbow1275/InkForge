@@ -13824,6 +13824,57 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-27 135 SVG Material Category Wrapper Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor at `/svgeditor/`. The live left material
+  category/list wrapper DOM exposed source-owned controls including `tab-special__functions`,
+  `tab-special__tags`, `tab-special__tap`, `tab-special__list`, `tab_special_functions`,
+  `tab-menufilter`, `filter_category`, `filter-list__fold`, `svgMubanYaoqingEnter`, and
+  `img-preview-hide`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` returned LOW risk with 4 direct dependents and
+  0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing 135 SVG editor material category/list wrappers
+  without 135 SVG canvas markers, sidebar/navigation controls, material-filter controls,
+  material-list card controls, toolbar controls, shell wrappers, layout controls, material-panel
+  controls, known 135 `data-name` values, hosted media, trigger overlays, Ant switch controls,
+  `svg:135` styles, or `background-size:100.1%` background shells.
+- Added the `135 SVG material category wrapper residue` detector for source-specific material
+  category/list wrapper class/id markers, while avoiding generic `item`, `active`, `more`, `new`,
+  `search-input`, or `list-item` selectors.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "material category wrappers" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 244 skipped tests after the
+  detector update.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default`
+  passed with 1 file and 245 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism`
+  passed with 36 files and 1222 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 37.95s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after the build.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-27 135 SVG Material Filter Control Residue Slice
 
 Source:

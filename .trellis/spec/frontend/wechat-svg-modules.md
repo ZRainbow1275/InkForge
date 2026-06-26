@@ -4904,6 +4904,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 139. 135 SVG Material Category Wrapper Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains left material category,
+  fold/list wrapper, or SVG-template activity entrance controls observed in a live CloakBrowser
+  135 SVG editor DOM readback, such as `tab-special__functions`, `tab-special__tags`,
+  `tab-special__tap`, `tab-special__list`, `tab_special_functions`, `tab-menufilter`,
+  `filter_category`, `filter-list__fold`, `svgMubanYaoqingEnter`, and `img-preview-hide`.
+- These controls drive 135's SVG material-category panel, folded category list, hidden preview
+  helper, tab body, and template-campaign entry. They are not article DOM and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG material category wrapper residue` for
+  WeChat, Xiaohongshu, and Zhihu when supported category/list wrapper class/id markers appear.
+- A reduced fixture containing only material category/list wrappers must fail even when 135 SVG
+  canvas markers, sidebar/navigation controls, material-filter controls, material-list card
+  controls, toolbar controls, shell wrappers, layout controls, material-panel controls, known 135
+  `data-name` values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, and
+  `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing category, fold, list, tab, template,
+  preview, activity, SVG, item, active, more, or new wording by itself. It must also avoid generic
+  selectors such as `item`, `active`, `more`, `new`, `search-input`, and `list-item`; matching
+  must stay anchored to 135-specific material category/list wrapper class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced material-category fixture fails before implementation and reports
+  `135 SVG material category wrapper residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG sidebar navigation residue`,
+  `135 SVG material filter control residue`, `135 SVG material list item residue`,
+  `135 SVG editor toolbar residue`, `135 SVG editor layout control residue`,
+  `135 SVG editor shell residue`, and `135 SVG material panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 138. 135 SVG Material Filter Control Residue - 2026-06-27
 
 ### 1. Scope / Trigger
