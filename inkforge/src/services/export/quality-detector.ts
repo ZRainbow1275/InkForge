@@ -353,6 +353,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi background attribute control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-comp-animation-attr-board|op-attr-view-cp-animation(?:-[\w-]+)?|anim-selector-x)\b[^"']*["']/i,
+    label: 'Xiumi animation attribute panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-worker-(?:surface|block-gesture)|crop-(?:mask|box|handle))\b[^"']*["']/i,
     label: 'Xiumi worker surface crop control residue',
   },

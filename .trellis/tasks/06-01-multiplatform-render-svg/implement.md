@@ -8,6 +8,71 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Animation Attribute Panel Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after restart. The editor control surface
+  exposed animation attribute panels including `op-comp-animation-attr-board`,
+  `op-attr-view-cp-animation`, `op-attr-view-cp-animation-creation`,
+  `op-attr-view-cp-animation-clipboard`, and `anim-selector-x`.
+- The panel text included animation effect selection, direction, duration, delay, loop count,
+  easing, animation extraction, and animation clipboard controls.
+- These markers are Xiumi editor-side animation controls. They are not publishable article DOM and
+  must remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-comp-animation-attr-board`,
+  `op-attr-view-cp-animation`, and `anim-selector-x`, proving copied Xiumi animation-panel
+  residue is blocked without relying on attribute-board controls, operator-depot controls,
+  operator-dock controls, crop/background controls, paper auxiliary tree controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- Added the exact `Xiumi animation attribute panel residue` detector beside the existing Xiumi
+  background-attribute and worker-surface crop controls.
+- Kept `dc-ce-animation` under the existing operator-depot boundary instead of migrating old
+  depot-menu fixtures into this panel-specific detector.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation attribute panel" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 278 skipped tests after the
+  detector update.
+- Adjacent attribute-board, operator-depot, and operator-dock regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board controls" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator depot item controls" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator dock child controls" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file / 279 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files / 1256 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, transformed 4653 modules,
+  and completed in 28.48s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Background Attribute Control Residue Slice
 
 Source:

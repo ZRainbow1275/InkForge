@@ -1571,6 +1571,12 @@ Rules:
   the precise `Xiumi background attribute control residue` label. These editor-side background
   repeat, attachment, and background operation surfaces may inform InkForge-owned background
   layout reports, but must never be copied as publishable body DOM.
+- Xiumi animation attribute panels such as `op-comp-animation-attr-board`,
+  `op-attr-view-cp-animation*`, and `anim-selector-x` must fail after background-attribute
+  cleanup, and must report the precise `Xiumi animation attribute panel residue` label. These
+  editor-side animation effect, direction, duration, delay, loop, easing, extraction, and
+  clipboard surfaces may inform InkForge-owned motion/action schemas, but must never be copied as
+  publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1698,4 +1704,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-box-metrics-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-crop-panel-child-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-background-attribute-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-172.
+- `prompts/0601/evidence/xiumi-animation-attribute-panel-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-173.
