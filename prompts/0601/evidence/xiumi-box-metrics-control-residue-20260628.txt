@@ -1,0 +1,64 @@
+Xiumi Box Metrics Control Residue - 2026-06-28
+
+Scope:
+- Static publishability guard for copied Xiumi v5 paper-editor box-metrics controls.
+- Applies to WeChat, Xiaohongshu, and Zhihu quality reports through the existing market-editor
+  residue detector path.
+- No platform action, phone preview, sync, upload, scheduled send, public host, or publish action
+  is claimed by this evidence.
+
+Observed source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM after the user logged in again.
+- The editor control surface exposed `op-ce-box-metrics` panels for margin, padding, line-height,
+  border style, border width, border radius, and related format-extraction controls.
+- These controls are useful design references for InkForge-owned box-model parameter schemas and
+  layout reports, but they are editor chrome and must not be copied into publishable article DOM.
+
+Implemented:
+- Added the detector label `Xiumi box metrics control residue`.
+- The rule matches only a source-specific `op-ce-box-metrics` marker inside a class or id
+  attribute.
+- The rule is additive and does not change renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+Regression coverage:
+- Added a reduced fixture containing only `op-ce-box-metrics` plus readable text.
+- The reduced fixture intentionally excludes operation-bar input/separator controls, operation-bar
+  dropdown controls, menu input/icon controls, scale controls, WeChat cover controls,
+  generated-link controls, attribute-board controls, operator dock/depot classes, paper auxiliary
+  tree controls, selection overlays, worker/crop controls, Angular runtime attributes, hosted
+  media, sidebar controls, and meta panels.
+- The regression asserts WeChat, Xiaohongshu, and Zhihu all report the precise market-editor
+  residue label.
+- The regression asserts the WeChat issue is not misreported as
+  `Xiumi operation bar input/separator residue` or `Xiumi operator dock control residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "box metrics controls" --reporter=default`
+  failed before the detector update because no market-editor-residue issue was emitted.
+- Green: the same focused command passed after the detector update with 1 selected test and
+  275 skipped tests.
+- Adjacent focused regressions passed for:
+  `operation bar input and separator`,
+  `operator dock child controls`, and
+  `color selector controls`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 276 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1253 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 36.28s.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability accounting for copied editor residue only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

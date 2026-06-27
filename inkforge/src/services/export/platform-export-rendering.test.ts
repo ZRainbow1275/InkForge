@@ -690,6 +690,12 @@ const MARKET_EDITOR_XIUMI_OPERATION_BAR_INPUT_SEPARATOR_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_BOX_METRICS_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="op-ce-box-metrics">Xiumi box metrics control residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SELECTION_OVERLAY_CHILD_CONTROLS_HTML = [
   '<section style="margin:10px 0">',
   '<div class="full-screen-mask"></div>',
@@ -11091,6 +11097,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi menu input/icon control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operation bar dropdown residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi box metrics controls after operation-bar input cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_BOX_METRICS_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_BOX_METRICS_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_BOX_METRICS_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi box metrics control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi box metrics control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi box metrics control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operation bar input/separator residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operator dock control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

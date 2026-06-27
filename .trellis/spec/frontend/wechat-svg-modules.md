@@ -4946,6 +4946,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 170. Xiumi Box Metrics Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains box-metrics controls
+  observed in a live CloakBrowser DOM readback as `op-ce-box-metrics`.
+- The live box-metrics panel drives editor-side margin, padding, line-height, border style, border
+  width, border radius, and related extraction controls. These controls can inform InkForge-owned
+  layout-report and parameter-schema decisions, but they are not article body DOM and must not
+  appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove layout correctness,
+  paste, phone preview, schedule, sync, upload, cover thumbnail acceptance, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi box metrics control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `op-ce-box-metrics`.
+- A reduced fixture containing only the source-specific `op-ce-box-metrics` marker must fail after
+  operation-bar input/separator cleanup even when operation-bar dropdown controls, menu input/icon
+  controls, scale controls, WeChat cover controls, generated-link controls, attribute-board
+  controls, operator dock/depot controls, paper auxiliary tree controls, selection overlays,
+  worker/crop controls, Angular runtime attributes, hosted media, sidebar controls, and meta
+  panels are absent.
+- The detector must not block ordinary box, metrics, margin, padding, line-height, border, radius,
+  extraction, Xiumi, editor, or template wording by itself; the trigger is the source-specific
+  Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced box-metrics fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi box metrics control residue` after
+  the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operation bar input/separator residue`,
+  `Xiumi operator dock control residue`, and `Xiumi color selector control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 168. Xiumi Menu Input/Icon Control Residue - 2026-06-28
 
 ### 1. Scope / Trigger

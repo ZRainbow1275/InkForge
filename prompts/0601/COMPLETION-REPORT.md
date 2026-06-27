@@ -6731,3 +6731,47 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Box Metrics Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed box-metrics controls
+  can remain as `op-ce-box-metrics`.
+- Added the static detector label `Xiumi box metrics control residue` so copied margin, padding,
+  line-height, border style, border width, border radius, and format-extraction editor controls
+  are blocked even after operation-bar input/separator, operation-bar dropdown, menu input/icon,
+  scale-panel, WeChat-cover, generated-link, attribute-board, and operator/depot markers are
+  absent.
+- Kept the rule anchored to a class/id marker so ordinary box, metrics, margin, padding,
+  line-height, border, radius, extraction, Xiumi, editor, or template wording is not blocked by
+  itself.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "box metrics controls" --reporter=default`.
+- Verification:
+  adjacent operation-bar input/separator, operator-dock, and color-selector regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar input and separator" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator dock child controls" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "color selector controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 276 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1253 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 36.28s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-box-metrics-control-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

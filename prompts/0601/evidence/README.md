@@ -6146,3 +6146,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
+
+## 2026-06-28 Xiumi Box Metrics Control Residue
+
+- [x] xiumi-box-metrics-control-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 box-metrics marker `op-ce-box-metrics`.
+- The reduced regression intentionally keeps only that source-specific box-metrics class, proving
+  the cleaned margin, padding, line-height, border, radius, and format-extraction panel residue is
+  blocked without relying on operation-bar input/separator controls, operation-bar dropdown
+  controls, menu input/icon controls, scale controls, WeChat cover controls, generated-link
+  controls, attribute-board controls, operator dock/depot classes, paper auxiliary tree controls,
+  selection overlays, worker/crop controls, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- The detector intentionally does not block ordinary box, metrics, margin, padding, line-height,
+  border, radius, extraction, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.

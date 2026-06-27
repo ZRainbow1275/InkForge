@@ -1555,6 +1555,12 @@ Rules:
   margin, padding, line-height, text-decoration, and panel separator controls may inform
   InkForge-owned layout reports and parameter schemas, but must never be copied as publishable
   body DOM.
+- Xiumi box-metrics controls such as `op-ce-box-metrics` must fail after operation-bar
+  input/separator cleanup, and must report the precise
+  `Xiumi box metrics control residue` label. These editor-side margin, padding, line-height,
+  border style, border width, border radius, and format-extraction controls may inform
+  InkForge-owned layout reports and box-model parameter schemas, but must never be copied as
+  publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1679,4 +1685,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-scale-panel-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-menu-input-icon-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-operation-bar-input-separator-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-169.
+- `prompts/0601/evidence/xiumi-box-metrics-control-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-170.

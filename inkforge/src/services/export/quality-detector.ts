@@ -277,6 +277,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operation bar input/separator residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-ce-box-metrics\b[^"']*["']/i,
+    label: 'Xiumi box metrics control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:color-selector-dropdown|op-theme-color-sec|text-color-btn|tn-color-circle|text-shadow-icon|text-fill-image-icon)\b[^"']*["']|\b(?:tn-color-selector(?:-x)?|hello-color-x|on-color-(?:choose|changing|choose-cancel)|support-color-category|fetch-color-from-template-panel|support-batch-change-color)\s*=)/i,
     label: 'Xiumi color selector control residue',
   },
