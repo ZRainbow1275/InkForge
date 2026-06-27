@@ -1588,6 +1588,11 @@ Rules:
   `Xiumi animation panel child residue` label. These editor-side animation list, title, unit, and
   clipboard surfaces may inform InkForge-owned motion/action schemas, but must never be copied as
   publishable body DOM.
+- Xiumi animation style picker controls such as `anim-desc`, `anim-icon`, `anim-style`,
+  `anim-styles`, `animate-styles-type`, and `animate-general` must fail after animation-list
+  cleanup, and must report the precise `Xiumi animation style picker residue` label. These
+  editor-side animation effect groups may inform InkForge-owned motion/action schemas, but must
+  never be copied as publishable body DOM.
 - Xiumi animate operation panels such as `animate-op-btn-panel` must fail after animation-child
   cleanup, and must report the precise `Xiumi animate operation panel residue` label. The
   top-operation detector must treat `op-btn*` as class/id tokens so this source-specific animation
@@ -1733,4 +1738,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animate-operation-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-dark-mask-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-178.
+- `prompts/0601/evidence/xiumi-animation-style-picker-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-179.

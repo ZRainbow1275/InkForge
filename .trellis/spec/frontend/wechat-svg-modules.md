@@ -8047,6 +8047,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 179. Xiumi Animation Style Picker Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains animation style picker
+  child controls observed in a live CloakBrowser DOM readback, such as `anim-desc`, `anim-icon`,
+  `anim-style`, `anim-styles`, `animate-styles-type`, and `animate-general`.
+- The live page exposes these markers around editor-side animation effect groups such as text,
+  entrance, emphasis, exit, and custom path choices. They are not article body DOM and must not
+  appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi animation style picker residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `anim-desc`, `anim-icon`,
+  `anim-style`, `anim-styles`, `animate-styles-type`, or `animate-general`.
+- A reduced fixture containing only those style picker markers must fail after animation-list
+  cleanup even when `anim-item-list`, `anim-unit-*`, `anim-title-bar`,
+  `op-comp-animation-attr-board`, `op-attr-view-cp-animation*`, `anim-selector-x`,
+  `animate-op-btn-panel`, Angular runtime attributes, hosted media, sidebar controls, and meta
+  panels are absent.
+- The detector must not block ordinary animation wording, CSS animation properties,
+  SVG `<animate>` elements, or motion-related article text by itself; the trigger is the
+  source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced animation-style-picker fixture fails before implementation because
+  no market-editor-residue issue is emitted, then reports
+  `Xiumi animation style picker residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi animation panel child residue`,
+  `Xiumi animation attribute panel residue`, and `Xiumi animate operation panel residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

@@ -6909,6 +6909,51 @@ Boundary:
 
 ---
 
+## 2026-06-28 Xiumi Animation Style Picker Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed animation style
+  picker controls can remain as `anim-desc`, `anim-icon`, `anim-style`, `anim-styles`,
+  `animate-styles-type`, and `animate-general`.
+- Added the static detector label `Xiumi animation style picker residue` so copied animation
+  effect group, icon, and description controls are blocked even after animation-list,
+  animation-attribute, animation-operation, Angular runtime, hosted media, sidebar, and meta-panel
+  markers are absent.
+- Kept the rule anchored to source-specific class/id markers so ordinary animation wording, CSS
+  animation properties, SVG `<animate>` elements, and motion-related article text are not blocked
+  by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation style picker" --reporter=default`.
+- Verification:
+  adjacent animation-child, animation-attribute, and animate-operation regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation panel child" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation attribute panel" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animate operation" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 285 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1262 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 25.50s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-animation-style-picker-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-28 Xiumi Layout Form Panel Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed layout/form panel

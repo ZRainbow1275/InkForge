@@ -6294,3 +6294,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Animation Style Picker Residue
+
+- [x] xiumi-animation-style-picker-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 animation style picker markers including
+  `anim-desc`, `anim-icon`, `anim-style`, `anim-styles`, `animate-styles-type`, and
+  `animate-general`.
+- The reduced regression intentionally keeps only those source-specific style picker classes,
+  proving the cleaned animation-effect residue is blocked without relying on `anim-item-list`,
+  `anim-unit-*`, `anim-title-bar`, `op-comp-animation-attr-board`,
+  `op-attr-view-cp-animation*`, `anim-selector-x`, `animate-op-btn-panel`, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary animation wording, CSS animation properties,
+  SVG `<animate>` elements, or motion-related article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
