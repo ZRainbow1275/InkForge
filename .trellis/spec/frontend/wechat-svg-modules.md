@@ -4904,6 +4904,46 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 156. 135 SVG Builder Effect Data-Name Expansion - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains a source-specific
+  `data-name` value observed after clicking live free-trial SVG effects and choosing no bundled
+  design material in CloakBrowser.
+- Newly learned values are `autobounceflipcard`, `multipletouchmovetodismissimgs`,
+  `svgscrollswithgruopsslide`, `clickchangecoverwithscroll`, and
+  `clickredpakcetwithscroll`.
+- These names are 135 builder effect metadata, not author-facing article prose, and must not
+  appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report the existing
+  `135 SVG builder effect data-name` label for WeChat, Xiaohongshu, and Zhihu when any newly
+  learned value appears in a `data-name` attribute.
+- A reduced fixture containing only the new `data-name` attributes must fail even when
+  `app-content-canvas`, `content-wrapper`, `block-img__content`, `block-img__default`,
+  `edit-placeholder`, `placeholder__name`, editor shell wrappers, trigger overlays, layout
+  controls, toolbar classes, sidebar/navigation wrappers, material controls, material-panel
+  controls, hosted media, Ant switch controls, `svg:135` styles, and `background-size:100.1%`
+  background shells are absent.
+- The detector must not block ordinary prose containing the English effect words by themselves;
+  the trigger is the exact `data-name` metadata attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced new-effect fixture fails before implementation and reports
+  `135 SVG builder effect data-name` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG builder canvas residue` and
+  `135 SVG editor shell residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 155. 135 SVG Editor Gap Input Child Control Residue - 2026-06-27
 
 ### 1. Scope / Trigger

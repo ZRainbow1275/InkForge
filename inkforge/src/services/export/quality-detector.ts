@@ -61,7 +61,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 style-list metadata',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread)["']/i,
+    pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread|autobounceflipcard|multipletouchmovetodismissimgs|svgscrollswithgruopsslide|clickchangecoverwithscroll|clickredpakcetwithscroll)["']/i,
     label: '135 SVG builder effect data-name',
   },
   {

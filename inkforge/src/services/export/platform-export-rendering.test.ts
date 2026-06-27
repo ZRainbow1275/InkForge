@@ -206,6 +206,16 @@ const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
   '</div>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div data-name="autobounceflipcard">135 SVG effect data-name expansion.</div>',
+  '<div data-name="multipletouchmovetodismissimgs">135 SVG effect data-name expansion.</div>',
+  '<div data-name="svgscrollswithgruopsslide">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickchangecoverwithscroll">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickredpakcetwithscroll">135 SVG effect data-name expansion.</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML = [
   '<section id="app-content-canvas" class="content-wrapper">',
   '<div class="content-background">',
@@ -9081,6 +9091,26 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG builder effect data-name')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG builder effect data-name')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks newly learned 135 SVG builder effect data-name values without canvas wrappers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG builder canvas residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor shell residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

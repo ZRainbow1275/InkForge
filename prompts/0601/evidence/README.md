@@ -5930,3 +5930,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   material, SVG, or editor wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Builder Effect Data-Name Expansion
+
+- [x] 135-svg-builder-effect-data-name-expansion-20260627.txt
+- Added the live 135 free-trial effect metadata values `autobounceflipcard`,
+  `multipletouchmovetodismissimgs`, `svgscrollswithgruopsslide`,
+  `clickchangecoverwithscroll`, and `clickredpakcetwithscroll` to the existing
+  `135 SVG builder effect data-name` quality rule.
+- The reduced regression intentionally keeps only the source-specific `data-name` attributes,
+  proving the cleaned builder metadata residue is blocked without relying on `app-content-canvas`,
+  `content-wrapper`, `block-img__content`, `block-img__default`, `edit-placeholder`,
+  `placeholder__name`, editor shell wrappers, trigger overlays, layout controls, toolbar classes,
+  sidebar/navigation wrappers, material controls, material-panel controls, hosted media, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing the effect words by itself;
+  the trigger is the exact `data-name` metadata attribute.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

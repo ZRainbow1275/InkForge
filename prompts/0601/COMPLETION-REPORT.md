@@ -5225,6 +5225,40 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Builder Effect Data-Name Expansion Addendum
+
+- Clicked live 135 SVG editor free-trial effect buttons through CloakBrowser and selected the
+  no-bundled-design-material option when prompted.
+- Confirmed the center editor can retain additional builder effect `data-name` metadata:
+  `autobounceflipcard`, `multipletouchmovetodismissimgs`, `svgscrollswithgruopsslide`,
+  `clickchangecoverwithscroll`, and `clickredpakcetwithscroll`.
+- Added these values to the static detector label `135 SVG builder effect data-name`. Generic
+  effect wording is not enough; the trigger is the exact `data-name` metadata attribute.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Red verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "newly learned 135 SVG builder effect data-name" --reporter=default`
+  failed before the detector and passed after it.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 262 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1239 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 30.11s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Editor Gap Input Child Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed the layout controls can
