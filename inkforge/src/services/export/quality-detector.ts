@@ -345,6 +345,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi selection overlay control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bcrop-(?:panel|attr-menu|ratio-item|image)\b[^"']*["']/i,
+    label: 'Xiumi crop panel child control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-worker-(?:surface|block-gesture)|crop-(?:mask|box|handle))\b[^"']*["']/i,
     label: 'Xiumi worker surface crop control residue',
   },

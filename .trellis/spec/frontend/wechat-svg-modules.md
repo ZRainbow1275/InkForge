@@ -7786,6 +7786,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
 
+## 171. Xiumi Crop Panel Child Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains crop-panel child
+  controls observed in a live CloakBrowser DOM readback as `crop-panel`, `crop-attr-menu`,
+  `crop-ratio-item`, or `crop-image`.
+- These controls drive editor-side image cropping, crop-ratio selection, cover/article image crop
+  menus, and crop preview image surfaces. They are not article body DOM and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove crop correctness,
+  paste, phone preview, schedule, sync, upload, cover thumbnail acceptance, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi crop panel child control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported crop-panel
+  child markers.
+- A reduced fixture containing only `crop-panel`, `crop-attr-menu`, `crop-ratio-item`, and
+  `crop-image` must fail after worker-surface cleanup even when `crop-mask`, `crop-box`,
+  `crop-handle`, `op-worker-surface`, `op-worker-block-gesture`, selection-overlay controls,
+  operator/depot controls, paper auxiliary tree controls, Angular runtime attributes, hosted
+  media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary crop, image, panel, ratio, cover, editor, or template
+  wording by itself; the trigger is the source-specific class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced crop-panel fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi crop panel child control residue`
+  after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi worker surface crop control residue` and
+  `Xiumi selection overlay control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger

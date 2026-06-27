@@ -1,0 +1,63 @@
+Xiumi Crop Panel Child Control Residue - 2026-06-28
+
+Scope:
+- Static publishability guard for copied Xiumi v5 paper-editor crop-panel child controls.
+- Applies to WeChat, Xiaohongshu, and Zhihu quality reports through the existing market-editor
+  residue detector path.
+- No platform action, phone preview, sync, upload, scheduled send, public host, or publish action
+  is claimed by this evidence.
+
+Observed source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM after the user logged in again.
+- The editor control surface exposed `crop-panel`, `crop-attr-menu`, `crop-ratio-item`, and
+  `crop-image` markers for crop menus, crop-ratio choices, and crop preview images.
+- These controls are useful design references for InkForge-owned image-crop reports and
+  cover/image handling schemas, but they are editor chrome and must not be copied into
+  publishable article DOM.
+
+Implemented:
+- Added the detector label `Xiumi crop panel child control residue`.
+- The rule matches only source-specific `crop-panel`, `crop-attr-menu`, `crop-ratio-item`, or
+  `crop-image` markers inside class or id attributes.
+- The rule is additive and does not change renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+Regression coverage:
+- Added a reduced fixture containing only the crop-panel child controls plus readable text.
+- The reduced fixture intentionally excludes `crop-mask`, `crop-box`, `crop-handle`,
+  `op-worker-surface`, `op-worker-block-gesture`, selection-overlay controls, operator dock/depot
+  classes, paper auxiliary tree controls, Angular runtime attributes, hosted media, sidebar
+  controls, and meta panels.
+- The regression asserts WeChat, Xiaohongshu, and Zhihu all report the precise market-editor
+  residue label.
+- The regression asserts the WeChat issue is not misreported as
+  `Xiumi worker surface crop control residue` or `Xiumi selection overlay control residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "crop panel child controls" --reporter=default`
+  failed before the detector update because no market-editor-residue issue was emitted.
+- Green: the same focused command passed after the detector update with 1 selected test and
+  276 skipped tests.
+- Adjacent focused regressions passed for:
+  `worker surface crop controls` and
+  `selection overlay child controls`.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 277 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1254 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 25.94s.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability accounting for copied editor residue only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

@@ -6775,3 +6775,44 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Crop Panel Child Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed crop-panel child
+  controls can remain as `crop-panel`, `crop-attr-menu`, `crop-ratio-item`, and `crop-image`.
+- Added the static detector label `Xiumi crop panel child control residue` so copied crop menus,
+  crop-ratio choices, and crop preview image surfaces are blocked even after worker-surface crop,
+  selection-overlay, operator/depot, paper auxiliary tree, Angular runtime, hosted media, sidebar,
+  and meta-panel markers are absent.
+- Kept the rule anchored to class/id markers so ordinary crop, image, panel, ratio, cover, Xiumi,
+  editor, or template wording is not blocked by itself.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "crop panel child controls" --reporter=default`.
+- Verification:
+  adjacent worker-surface crop and selection-overlay regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "worker surface crop controls" --reporter=default`
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "selection overlay child controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 277 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1254 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 25.94s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-crop-panel-child-control-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
