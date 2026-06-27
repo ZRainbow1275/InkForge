@@ -1,0 +1,65 @@
+Xiumi WeChat Cover Menu Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi v5 WeChat cover menu and
+  cover preview controls.
+- No platform mutation, no upload, no sync, no schedule, no phone preview, no cover thumbnail
+  acceptance, and no publish action.
+
+Source:
+- A live CloakBrowser Xiumi v5 DOM readback exposed cover-menu controls such as a class value
+  containing both `op-bar-menu` and `cover-menu`, cover preview wrappers such as
+  `op-ce-video-xm-cover`, and child preview markers such as `svg-cover`.
+- Co-observed child classes `cover-desc` and `cover-imgs` are documented as context only and are
+  not standalone detector triggers.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of this evidence.
+
+Implementation:
+- Extended the existing `Xiumi WeChat cover control residue` detector to catch:
+  - a class/id value containing both `op-bar-menu` and `cover-menu`;
+  - `op-ce-video-xm-cover`;
+  - `svg-cover`;
+  - existing `op-ce-wx-cover`.
+- Tightened the generic `Xiumi operation bar dropdown residue` detector so `cover-menu` is
+  classified under the more specific WeChat cover-control label instead of emitting both labels.
+- Added a three-platform regression fixture proving the reduced cover-menu child DOM is blocked
+  for WeChat, Xiaohongshu, and Zhihu without relying on generated-link, dark-mask, or generic
+  operation-bar diagnostics.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "cover menu" --reporter=default`
+  failed before the operation-bar exclusion because the reduced fixture reported
+  `Xiumi operation bar dropdown residue` instead of only the cover-control label.
+- Green: the same focused command passed with 1 selected test and 287 skipped tests after the
+  detector update.
+- Adjacent focused regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat cover controls|operation bar dropdown" --reporter=default`
+  passed with 2 selected tests and 286 skipped tests.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 288 tests.
+- Full export serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1265 tests.
+- Targeted ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Typecheck:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite build completed in 31.63s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Boundary:
+- This is local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

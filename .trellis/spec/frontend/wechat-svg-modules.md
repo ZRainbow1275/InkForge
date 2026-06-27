@@ -8135,6 +8135,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 181. Xiumi WeChat Cover Menu Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains WeChat cover menu or
+  cover preview child controls observed in a live CloakBrowser DOM readback, such as a class/id
+  value containing both `op-bar-menu` and `cover-menu`, or source-specific cover preview markers
+  such as `op-ce-video-xm-cover` and `svg-cover`.
+- Co-observed child classes such as `cover-desc` and `cover-imgs` are documented as context but
+  must not be standalone triggers. They are too generic outside a source-specific Xiumi cover menu
+  or cover preview wrapper.
+- This contract is static publishability protection only. It protects exported article bodies from
+  copied cover-picker controls; it does not prove WeChat cover thumbnail acceptance, sync, schedule,
+  preview, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi WeChat cover control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id value contains both `op-bar-menu` and `cover-menu`, or
+  contains `op-ce-wx-cover`, `op-ce-video-xm-cover`, or `svg-cover`.
+- A reduced fixture containing only `op-bar-menu cover-menu`, `cover-desc`, `cover-imgs`, and
+  `svg-cover` must fail after generated-link, dark-mask, operation-bar, and cover-panel cleanup.
+- The generic `Xiumi operation bar dropdown residue` detector must not also report on
+  `cover-menu`; cover menus are classified under the more specific WeChat cover-control label.
+- The detector must not block ordinary prose about WeChat cover images, gallery picking, cover
+  descriptions, or cover image lists by itself. It must stay anchored to source-specific class/id
+  names or the exact `op-bar-menu` + `cover-menu` combination.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced cover-menu fixture first fails as only a generic operation-bar
+  residue, then reports the precise `Xiumi WeChat cover control residue` label after the detector
+  update and operation-bar exclusion.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi WeChat cover control residue`, `Xiumi operation bar
+  dropdown residue`, `Xiumi generated link control residue`, and `Xiumi dark mask control residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

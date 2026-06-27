@@ -6213,6 +6213,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-28 Xiumi WeChat Cover Menu Residue
+
+- [x] xiumi-wechat-cover-menu-residue-20260628.txt
+- Extended the existing `Xiumi WeChat cover control residue` quality rule for live Xiumi v5 cover
+  menu and preview markers including the exact `op-bar-menu` + `cover-menu` class combination,
+  `op-ce-video-xm-cover`, and `svg-cover`.
+- The reduced regression intentionally keeps only source-specific cover menu/preview markers plus
+  contextual `cover-desc` and `cover-imgs` child classes, proving the cleaned cover-menu residue is
+  blocked without relying on generated-link controls, dark-mask controls, or generic operation-bar
+  diagnostics.
+- The generic `Xiumi operation bar dropdown residue` detector now excludes `cover-menu` so cover
+  picker controls are reported under the more precise WeChat cover-control label.
+- The detector intentionally does not block ordinary WeChat cover, gallery, cover description, or
+  cover image wording by itself; `cover-desc` and `cover-imgs` are not standalone triggers.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi Basic Style Fragment Residue
 
 - [x] xiumi-basic-style-fragment-residue-20260628.txt

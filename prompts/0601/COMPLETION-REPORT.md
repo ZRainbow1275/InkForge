@@ -7258,3 +7258,40 @@ Boundary:
   phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi WeChat Cover Menu Addendum
+
+- Added local static publishability protection for Xiumi v5 WeChat cover menu and preview residue:
+  an `op-bar-menu` + `cover-menu` class combination, `op-ce-video-xm-cover`, and `svg-cover` now
+  report the existing precise `Xiumi WeChat cover control residue` label.
+- Tightened the generic `Xiumi operation bar dropdown residue` detector so cover menus are not
+  double-reported or misclassified as generic operation-bar chrome.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the exclusion because the reduced cover-menu fixture emitted the
+  generic operation-bar label; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "cover menu" --reporter=default`.
+- Verification:
+  adjacent WeChat-cover and operation-bar regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat cover controls|operation bar dropdown" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 288 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1265 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 31.63s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-wechat-cover-menu-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

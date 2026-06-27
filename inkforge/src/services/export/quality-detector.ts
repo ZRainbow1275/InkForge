@@ -269,7 +269,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi UI Bootstrap control directive residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-bar-(?:menu|btn|icon)|shortcut-op-bar-panel|spacing-panel|format-panel|size-list-menu|insert-text-op-bar-panel)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bcover-menu\b)[^"']*\b(?:op-bar-(?:menu|btn|icon)|shortcut-op-bar-panel|spacing-panel|format-panel|size-list-menu|insert-text-op-bar-panel)\b[^"']*["']/i,
     label: 'Xiumi operation bar dropdown residue',
   },
   {
@@ -345,7 +345,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi dark mask control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-ce-wx-cover\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?=[^"']*\bop-bar-menu\b)(?=[^"']*\bcover-menu\b)[^"']*["']/i,
+    label: 'Xiumi WeChat cover control residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-ce-(?:wx|video-xm)-cover|svg-cover)\b[^"']*["']/i,
     label: 'Xiumi WeChat cover control residue',
   },
   {

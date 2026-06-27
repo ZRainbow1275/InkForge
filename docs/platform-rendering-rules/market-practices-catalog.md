@@ -1549,6 +1549,13 @@ Rules:
   and must report the precise `Xiumi WeChat cover control residue` label. This protects the
   publishable article body from copied cover-picker controls; it does not prove WeChat cover
   thumbnail acceptance.
+- Xiumi WeChat cover menu and preview controls such as a class/id value containing both
+  `op-bar-menu` and `cover-menu`, plus `op-ce-video-xm-cover` and `svg-cover`, must fail after
+  generated-link, dark-mask, operation-bar, and cover-panel cleanup, and must report the precise
+  `Xiumi WeChat cover control residue` label. Generic child classes such as `cover-desc` and
+  `cover-imgs` are context only and are not standalone triggers. The generic operation-bar
+  detector must exclude `cover-menu` so cover picker controls are not misclassified as
+  `Xiumi operation bar dropdown residue`.
 - Xiumi scale-panel controls such as `op-ce-scale` must fail after WeChat-cover cleanup, and must
   report the precise `Xiumi scale panel control residue` label. These editor-side scale, width,
   and height controls may inform InkForge-owned layout reports, but must never be copied as
@@ -1746,4 +1753,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-icon-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-180.
+- `prompts/0601/evidence/xiumi-wechat-cover-menu-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-181.
