@@ -289,6 +289,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi comment toolbar panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-page-toolbar\b[^"']*["']/i,
+    label: 'Xiumi page toolbar residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:sidebar-panel|sidebar-style-normal|x3-tab-item|tn-tab-ctrl-pin)\b[^"']*["']/i,
     label: 'Xiumi sidebar tab control residue',
   },
@@ -337,7 +341,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi layer authoring tree residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-page(?!-(?:slot|vessel)\b)(?:-[\w-]+)?\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-page(?!-(?:slot|vessel|toolbar)\b)(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi page authoring tree residue',
   },
   {

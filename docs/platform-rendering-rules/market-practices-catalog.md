@@ -1524,6 +1524,10 @@ Rules:
 - Xiumi comment toolbar/panel residues such as `page-comment-on-toolbar`, `tn-comment-panel`, and
   `tn-comment-list` must fail after right-toolbar and paper auxiliary-tree markers are removed,
   and must report the precise `Xiumi comment toolbar panel residue` label.
+- Xiumi page toolbar residues such as `tn-page-toolbar` must fail after comment-toolbar markers
+  are removed, and must report the precise `Xiumi page toolbar residue` label instead of falling
+  through to the broader page authoring-tree diagnostic. Co-observed `tn-menu`, `booklet`, and
+  `stop-propagation` markers are not standalone triggers for this rule.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1644,4 +1648,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-162.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-163.

@@ -4904,6 +4904,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 163. Xiumi Page Toolbar Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the page-toolbar
+  marker observed in a live CloakBrowser DOM readback, including `tn-page-toolbar` on the
+  `tn-menu tn-page-toolbar booklet` toolbar.
+- The toolbar surfaces editor-side page statistics and controls such as read time, link count,
+  image count, and gallery usage. It is not article body DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- Co-observed generic markers such as `tn-menu`, `booklet`, and `stop-propagation` are not
+  standalone triggers for this rule.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi page toolbar residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-page-toolbar` appears in a class or id attribute.
+- A reduced fixture containing only `tn-page-toolbar` must fail after comment-toolbar cleanup even
+  when right-toolbar controls, comment toolbar/panel controls, paper auxiliary tree controls,
+  sidebar/tab controls, Angular runtime attributes, hosted media, operator controls, selection
+  overlays, meta panels, and broader page authoring-tree controls are absent.
+- The broader `Xiumi page authoring tree residue` rule must exclude `tn-page-toolbar` so page
+  toolbar residue receives a precise diagnostic instead of being reported as a generic page
+  authoring tree.
+- The detector must not block ordinary prose containing page, toolbar, menu, booklet, statistics,
+  Xiumi, editor, or template wording by itself; the trigger is the source-specific Xiumi class/id
+  marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced page-toolbar-only fixture does not receive the precise
+  `Xiumi page toolbar residue` label before implementation and reports that label after the
+  detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi comment toolbar panel residue`,
+  `Xiumi right toolbar control residue`, `Xiumi paper auxiliary component tree residue`,
+  `Xiumi sidebar tab control residue`, and `Xiumi page authoring tree residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 162. Xiumi Comment Toolbar Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

@@ -8,6 +8,56 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Page Toolbar Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor. The page
+  statistics toolbar exposed `tn-page-toolbar` on a `tn-menu tn-page-toolbar booklet` list.
+- This toolbar is Xiumi editor-side page-statistics UI for values such as read time, link count,
+  image count, and gallery usage. It is not publishable article DOM and must remain
+  publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-page-toolbar`, proving the copied Xiumi
+  page toolbar residue receives a precise label without relying on right-toolbar controls,
+  comment toolbar/panel controls, paper auxiliary tree controls, sidebar/tab controls, Angular
+  runtime attributes, hosted media, operator controls, selection overlays, meta panels, or broader
+  page authoring-tree controls.
+- Added the exact `Xiumi page toolbar residue` detector and excluded `tn-page-toolbar` from the
+  broader `Xiumi page authoring tree residue` rule.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page toolbar" --reporter=default`
+  failed with 1 new failing test because the reduced fixture was only reported as
+  `Xiumi page authoring tree residue`, not the required precise page-toolbar label.
+- Green: the same focused command passed with 1 selected test and 268 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 269 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1246 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 29.75s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Comment Toolbar Panel Residue Slice
 
 Source:
