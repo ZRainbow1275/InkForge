@@ -1592,6 +1592,9 @@ Rules:
   cleanup, and must report the precise `Xiumi animate operation panel residue` label. The
   top-operation detector must treat `op-btn*` as class/id tokens so this source-specific animation
   action-extraction panel is not misclassified as `Xiumi top operation button residue`.
+- Xiumi operation dark-mask surfaces such as `op-dark-mask` must fail after WeChat-cover cleanup,
+  and must report the precise `Xiumi dark mask control residue` label. These editor-side mask
+  overlays may surround control panels, but must never be copied as publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1723,4 +1726,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animation-panel-child-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-attribute-stack-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animate-operation-panel-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-176.
+- `prompts/0601/evidence/xiumi-dark-mask-control-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-177.

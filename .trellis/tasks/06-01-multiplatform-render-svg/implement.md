@@ -8,6 +8,64 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Dark Mask Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The editor operation overlay surface
+  exposed `op-dark-mask`.
+- This marker is a Xiumi editor-side mask around operation panels. It is not publishable article
+  DOM and must remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-dark-mask`, proving copied Xiumi overlay
+  residue is blocked without relying on WeChat cover controls, generated-link controls,
+  selection-overlay controls, worker-surface crop controls, operator-dock controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- Added the exact `Xiumi dark mask control residue` detector before the WeChat cover control
+  detector.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "dark mask" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 282 skipped tests after the
+  detector update.
+- Adjacent WeChat-cover, selection-overlay, and worker-surface regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat cover controls" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "selection overlay child" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "worker surface crop" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file / 283 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files / 1260 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, transformed 4653 modules,
+  and completed in 30.17s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Animate Operation Panel Residue Slice
 
 Source:

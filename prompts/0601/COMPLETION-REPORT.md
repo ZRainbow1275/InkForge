@@ -6909,6 +6909,49 @@ Boundary:
 
 ---
 
+## 2026-06-28 Xiumi Dark Mask Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed operation overlay
+  masks can remain as `op-dark-mask`.
+- Added the static detector label `Xiumi dark mask control residue` so copied editor dark-mask
+  surfaces are blocked even after WeChat-cover, generated-link, selection-overlay,
+  worker-surface, operator/depot, Angular runtime, hosted media, sidebar, and meta-panel markers
+  are absent.
+- Kept the rule anchored to source-specific `op-dark-mask` class/id markers so ordinary dark/mask
+  wording, image overlay wording, background CSS, and article text are not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "dark mask" --reporter=default`.
+- Verification:
+  adjacent WeChat-cover, selection-overlay, and worker-surface regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "WeChat cover controls" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "selection overlay child" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "worker surface crop" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 283 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1260 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 30.17s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-dark-mask-control-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-28 Xiumi Animate Operation Panel Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the animate operation

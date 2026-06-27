@@ -8047,6 +8047,46 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 177. Xiumi Dark Mask Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the editor operation
+  dark-mask surface observed in a live CloakBrowser DOM readback as `op-dark-mask`.
+- The live page exposes this marker around editor control panels such as WeChat cover and operation
+  overlays. It is not article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi dark mask control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `op-dark-mask`.
+- A reduced fixture containing only `op-dark-mask` must fail after cover-control cleanup even when
+  `op-ce-wx-cover`, selection-overlay controls, worker-surface crop controls, generated-link
+  controls, operator-dock controls, Angular runtime attributes, hosted media, sidebar controls, and
+  meta panels are absent.
+- The detector must not block ordinary dark/mask wording, image overlay wording, background CSS, or
+  article text by itself; the trigger is the source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced dark-mask fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi dark mask control residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi WeChat cover control residue`,
+  `Xiumi selection overlay control residue`, and `Xiumi worker surface crop control residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger

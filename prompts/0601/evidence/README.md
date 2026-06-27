@@ -6264,3 +6264,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Dark Mask Control Residue
+
+- [x] xiumi-dark-mask-control-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 operation dark-mask marker `op-dark-mask`.
+- The reduced regression intentionally keeps only that source-specific dark-mask class, proving the
+  cleaned editor overlay residue is blocked without relying on `op-ce-wx-cover`, generated-link
+  controls, selection-overlay controls, worker-surface crop controls, operator-dock controls,
+  Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary dark/mask wording, image overlay wording,
+  background CSS, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
