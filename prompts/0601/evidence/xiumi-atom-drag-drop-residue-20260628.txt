@@ -1,0 +1,64 @@
+Xiumi Atom Drag-Drop Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor DOM.
+- No platform paste, phone preview, sync, upload, schedule, public rendering, or publish action.
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor.
+- The live DOM exposed Xiumi atom drag/drop editor-state markers:
+  tn-atom-dragging-source, tn-atom-dropping-sink, and on-atom-drop.
+- These markers appeared on page/editor drag-source and drop-target surfaces. They are authoring
+  interaction state, not article content.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  artifact, QR artifact, credential secret, or browser runtime secret is included in this evidence.
+
+Implemented:
+- Added the exact Xiumi atom drag-drop residue detector for class/id markers
+  tn-atom-dragging-source and tn-atom-dropping-sink, and for attributes
+  tn-atom-dragging-source, tn-atom-dropping-sink, and on-atom-drop.
+- Added a reduced regression fixture containing only tn-atom-dragging-source and
+  tn-atom-dropping-sink classes plus readable text.
+
+Regression behavior:
+- WeChat output containing the atom drag/drop markers reports wechat-market-editor-residue with
+  Xiumi atom drag-drop residue.
+- Xiaohongshu output containing the atom drag/drop markers reports xhs-market-editor-residue with
+  Xiumi atom drag-drop residue.
+- Zhihu output containing the atom drag/drop markers reports zhihu-market-editor-residue with
+  Xiumi atom drag-drop residue.
+- The reduced fixture proves the precise label replaces the previous generic
+  Xiumi tn-* attribute diagnostic for this copied authoring state.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "atom drag-drop" --reporter=default
+  FAIL: 1 new failing test before the detector update because the detector emitted only Xiumi tn-* attribute.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "atom drag-drop" --reporter=default
+  PASS: 1 selected test / 265 skipped after the detector update.
+- Full platform file:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  PASS: 1 file / 266 tests.
+- Export serial suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  PASS: 36 files / 1243 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 28.24s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1 with status=blocked-by-external and canClaimComplete=false.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click behavior, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or publish
+  success.

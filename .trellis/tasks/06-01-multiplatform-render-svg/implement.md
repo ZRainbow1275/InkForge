@@ -8,6 +8,52 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Atom Drag-Drop Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor. The page
+  editor exposed `tn-atom-dragging-source`, `tn-atom-dropping-sink`, and `on-atom-drop` on
+  drag-source/drop-target editor surfaces.
+- These markers were observed as Xiumi authoring interaction state. They are not article content
+  and must remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-atom-dragging-source` and
+  `tn-atom-dropping-sink`, proving the copied atom drag/drop state reports a precise label instead
+  of falling back to generic `Xiumi tn-* attribute`.
+- Added the exact `Xiumi atom drag-drop residue` detector before the final generic Xiumi `tn-*`
+  catch-all.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "atom drag-drop" --reporter=default`
+  failed with 1 new failing test because the detector emitted only `Xiumi tn-* attribute`.
+- Green: the same focused command passed with 1 selected test and 265 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 266 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1243 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 28.24s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Editing Frozen-Toggle Residue Slice
 
 Source:

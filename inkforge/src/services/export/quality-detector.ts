@@ -393,6 +393,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi atom context binding metadata residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\btn-atom-(?:dragging-source|dropping-sink)\b[^"']*["']|\b(?:tn-atom-(?:dragging-source|dropping-sink)|on-atom-drop)\s*=)/i,
+    label: 'Xiumi atom drag-drop residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-bind-aux-prop\s*=/i,
     label: 'Xiumi auxiliary binding metadata residue',
   },

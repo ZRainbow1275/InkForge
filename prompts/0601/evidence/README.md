@@ -5994,3 +5994,16 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   enabled, active, Xiumi, editor, or template wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Atom Drag-Drop Residue
+
+- [x] xiumi-atom-drag-drop-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 atom drag/drop editor state markers:
+  `tn-atom-dragging-source`, `tn-atom-dropping-sink`, and `on-atom-drop`.
+- The reduced regression intentionally keeps only the source-specific atom drag/drop classes,
+  proving the cleaned interaction-state residue reports a precise label instead of relying on the
+  generic `Xiumi tn-* attribute` diagnostic.
+- The detector intentionally does not block ordinary prose containing atom, drag, drop, source,
+  sink, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

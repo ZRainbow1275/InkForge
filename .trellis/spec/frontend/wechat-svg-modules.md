@@ -4904,6 +4904,44 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 160. Xiumi Atom Drag-Drop Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains atom drag/drop editor
+  state markers observed in a live CloakBrowser DOM readback, including
+  `tn-atom-dragging-source`, `tn-atom-dropping-sink`, and `on-atom-drop`.
+- These markers appeared on page/editor drag source and drop receiver nodes. They are Xiumi
+  authoring interaction state, not article DOM, and must not appear in WeChat, Xiaohongshu, or
+  Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi atom drag-drop residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-atom-dragging-source`, `tn-atom-dropping-sink`, or
+  `on-atom-drop` appears as a class/id or editor attribute.
+- A reduced fixture containing only `tn-atom-dragging-source` and `tn-atom-dropping-sink`
+  classes must report the precise atom drag/drop label instead of the generic
+  `Xiumi tn-* attribute` label.
+- The detector must not block ordinary prose containing atom, drag, drop, source, sink, Xiumi,
+  editor, or template wording by itself; the trigger is the source-specific Xiumi class/id or
+  attribute marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced atom-drag/drop fixture reports only the generic `Xiumi tn-*`
+  label before implementation and reports `Xiumi atom drag-drop residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi atom context binding metadata residue`,
+  `Xiumi auxiliary binding metadata residue`, and generic `Xiumi tn-* attribute` handling
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 159. Xiumi Editing Frozen-Toggle Residue - 2026-06-28
 
 ### 1. Scope / Trigger
