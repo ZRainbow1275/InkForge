@@ -269,6 +269,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi UI Bootstrap control directive residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-dropdown(?:-(?:menu|toggle))?\s*=/i,
+    label: 'Xiumi dropdown directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bcover-menu\b)[^"']*\b(?:op-bar-(?:menu|btn|icon)|shortcut-op-bar-panel|spacing-panel|format-panel|size-list-menu|insert-text-op-bar-panel)\b[^"']*["']/i,
     label: 'Xiumi operation bar dropdown residue',
   },
@@ -485,7 +489,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi auxiliary binding metadata residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\btn-[\w-]+(?:\s|=|>)/i,
+    pattern: /<[a-zA-Z][^>]*\btn-(?!(?:dropdown(?:-(?:menu|toggle))?)(?:\s|=|>))[\w-]+(?:\s|=|>)/i,
     label: 'Xiumi tn-* attribute',
   },
   {

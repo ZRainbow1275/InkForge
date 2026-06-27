@@ -849,6 +849,15 @@ const MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_DROPDOWN_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div tn-dropdown="">',
+  '<button tn-dropdown-toggle="">Xiumi dropdown directive residue</button>',
+  '<ul tn-dropdown-menu=""><li><a>Menu item</a></li></ul>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_OPERATION_BAR_DROPDOWN_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<button class="btn btn-success op-bar-btn dropdown-toggle"><span class="op-bar-icon more"></span></button>',
@@ -11560,6 +11569,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi UI Bootstrap control directive residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi dropdown directives after Bootstrap directive cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_DROPDOWN_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_DROPDOWN_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_DROPDOWN_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi dropdown directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi dropdown directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi dropdown directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi UI Bootstrap control directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi tn-* attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

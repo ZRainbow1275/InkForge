@@ -1,0 +1,59 @@
+Xiumi Dropdown Directive Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for copied or partially cleaned Xiumi v5 dropdown directive
+  controls.
+- No platform mutation, no upload, no sync, no schedule, no phone preview, no cover thumbnail
+  acceptance, and no publish action.
+
+Source:
+- A live CloakBrowser Xiumi v5 DOM readback exposed high-frequency editor dropdown directive
+  attributes including `tn-dropdown`, `tn-dropdown-menu`, and `tn-dropdown-toggle`.
+- These are Xiumi editor control directives, not article body markup. They are distinct from
+  Bootstrap `uib-dropdown*` directives and ordinary `class="dropdown"` prose or layout wording.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of this evidence.
+
+Implementation:
+- Added the `Xiumi dropdown directive residue` detector for `tn-dropdown`, `tn-dropdown-menu`, and
+  `tn-dropdown-toggle` attribute names.
+- Tightened the final `Xiumi tn-* attribute` catch-all so these dropdown directives are reported
+  under the precise dropdown label instead of emitting both labels.
+- Added a reduced three-platform regression fixture proving WeChat, Xiaohongshu, and Zhihu all
+  hard-block the cleaned dropdown directive residue without relying on UI Bootstrap directives or
+  operation-bar dropdown classes.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "dropdown directives" --reporter=default`
+  failed before the precise detector because the reduced fixture reported only
+  `Xiumi tn-* attribute`.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "dropdown directives|UI Bootstrap directives|operation bar dropdown" --reporter=default`
+  passed with 3 selected tests and 286 skipped tests after the detector update and catch-all
+  exclusion.
+- Full platform rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 289 tests.
+- Full export serial regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1266 tests.
+- Targeted ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Typecheck:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite build completed in 43.83s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Boundary:
+- This is local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

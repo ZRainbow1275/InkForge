@@ -6213,6 +6213,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-28 Xiumi Dropdown Directive Residue
+
+- [x] xiumi-dropdown-directive-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 dropdown directive attributes including
+  `tn-dropdown`, `tn-dropdown-toggle`, and `tn-dropdown-menu`.
+- The reduced regression intentionally keeps only those source-specific directive attributes,
+  proving the cleaned dropdown residue is blocked without relying on `uib-dropdown*`,
+  `op-bar-menu`, operation-bar classes, or the generic `Xiumi tn-* attribute` diagnostic.
+- The detector intentionally does not block ordinary dropdown/menu wording or standard
+  `class="dropdown"` by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi WeChat Cover Menu Residue
 
 - [x] xiumi-wechat-cover-menu-residue-20260628.txt

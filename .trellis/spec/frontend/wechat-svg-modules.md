@@ -8180,6 +8180,44 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 182. Xiumi Dropdown Directive Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains Xiumi dropdown
+  directive attributes observed in a live CloakBrowser DOM readback, such as `tn-dropdown`,
+  `tn-dropdown-menu`, and `tn-dropdown-toggle`.
+- These directives drive editor-side menu/dropdown control surfaces. They are distinct from
+  Bootstrap `uib-dropdown*` directives and from source-owned article prose about dropdown menus.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi dropdown directive residue` for WeChat,
+  Xiaohongshu, and Zhihu when an attribute name is `tn-dropdown`, `tn-dropdown-menu`, or
+  `tn-dropdown-toggle`.
+- A reduced fixture containing only those `tn-dropdown*` directives must fail after UI Bootstrap
+  cleanup and must not fall through to the broader `Xiumi tn-* attribute` diagnostic.
+- The detector must not block ordinary dropdown/menu wording or standard HTML `class="dropdown"`
+  by itself. The trigger is the source-specific Xiumi `tn-dropdown*` directive name.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced dropdown-directive fixture first reports only `Xiumi tn-* attribute`,
+  then reports `Xiumi dropdown directive residue` after the detector update and catch-all
+  exclusion.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi UI Bootstrap control directive residue`,
+  `Xiumi operation bar dropdown residue`, and `Xiumi tn-* attribute` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

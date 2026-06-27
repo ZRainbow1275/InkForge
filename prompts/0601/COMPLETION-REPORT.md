@@ -6909,6 +6909,40 @@ Boundary:
 
 ---
 
+## 2026-06-28 Xiumi Dropdown Directive Addendum
+
+- Added local static publishability protection for Xiumi v5 dropdown directive residue:
+  `tn-dropdown`, `tn-dropdown-toggle`, and `tn-dropdown-menu` now report the precise
+  `Xiumi dropdown directive residue` label.
+- Tightened the generic `Xiumi tn-* attribute` detector so these dropdown directives are not
+  double-reported after the split.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the precise detector because the reduced dropdown fixture emitted
+  only `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "dropdown directives|UI Bootstrap directives|operation bar dropdown" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 289 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1266 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 43.83s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-dropdown-directive-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-28 Xiumi Basic Style Fragment Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side basic
