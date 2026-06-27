@@ -4904,6 +4904,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains operation-bar input or
+  separator controls observed in a live CloakBrowser DOM readback as `op-bar-input` or
+  `op-bar-separator`.
+- These markers drive Xiumi editor-side width/height, x/y position, text-decoration, static-size,
+  margin, padding, line-height, and operation-panel separator controls. They are not article body
+  DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove layout correctness,
+  paste, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi operation bar input/separator residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id attribute contains `op-bar-input` or
+  `op-bar-separator`.
+- A reduced fixture containing only those source-specific operation-bar input/separator markers
+  must fail after menu-input cleanup even when operation-bar dropdown controls, menu input/icon
+  controls, scale controls, WeChat cover controls, generated-link controls, attribute-board
+  controls, operator dock/depot controls, paper auxiliary tree controls, selection overlays,
+  worker/crop controls, Angular runtime attributes, hosted media, sidebar controls, and meta
+  panels are absent.
+- The detector must not block ordinary `input`, `hr`, separator wording, margin/width/height
+  wording, readable numeric values, or generic form classes by themselves; the trigger is the
+  source-specific Xiumi class/id marker.
+- `op-bar-menu-item` remains outside this rule because it overlaps the existing
+  `Xiumi operation bar dropdown residue` boundary through `op-bar-menu`.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced input/separator fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports
+  `Xiumi operation bar input/separator residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi menu input/icon control residue` and
+  `Xiumi operation bar dropdown residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 168. Xiumi Menu Input/Icon Control Residue - 2026-06-28
 
 ### 1. Scope / Trigger

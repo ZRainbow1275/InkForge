@@ -6128,3 +6128,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
+
+## 2026-06-28 Xiumi Operation Bar Input/Separator Residue
+
+- [x] xiumi-operation-bar-input-separator-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 operation-bar input/separator markers
+  `op-bar-input` and `op-bar-separator`.
+- The reduced regression intentionally keeps only those source-specific operation-bar
+  input/separator classes, proving the cleaned width/height, x/y, margin, padding, line-height,
+  text-decoration, and panel separator residue is blocked without relying on operation-bar
+  dropdown controls, menu input/icon controls, scale controls, WeChat cover controls,
+  generated-link controls, attribute-board controls, operator dock/depot classes, paper auxiliary
+  tree controls, selection overlays, worker/crop controls, Angular runtime attributes, hosted
+  media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary `input`, `hr`, separator wording,
+  margin/width/height wording, readable numeric values, or generic form classes by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.

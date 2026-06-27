@@ -8,6 +8,65 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Operation Bar Input/Separator Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after restart. The editor control surface
+  exposed 36 `op-bar-input` controls for width, height, x/y position, text-decoration thickness,
+  static size, margin, padding, and line-height inputs.
+- The same readback exposed 10 `op-bar-separator` elements inside box-pose, box-metrics, and
+  attribute panels.
+- These markers are Xiumi editor-side operation-bar input/separator controls. They are not
+  publishable article DOM and must remain publish-blocking if copied into WeChat, Xiaohongshu, or
+  Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-bar-input` and `op-bar-separator`,
+  proving copied Xiumi operation-bar input/separator residue is blocked without relying on
+  operation-bar dropdown controls, menu input/icon controls, scale controls, WeChat cover controls,
+  generated-link controls, attribute-board controls, operator dock/depot classes, paper auxiliary
+  tree controls, selection overlays, worker/crop controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- Added the exact `Xiumi operation bar input/separator residue` detector beside the existing
+  Xiumi menu input/icon and color-selector controls.
+- Kept `op-bar-menu-item` outside this rule because it overlaps the existing
+  `Xiumi operation bar dropdown residue` boundary through `op-bar-menu`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar input and separator" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 274 skipped tests after the
+  detector update.
+- Adjacent menu input/icon and operation-bar dropdown regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar dropdown controls" --reporter=default`.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 275 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1252 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 36.21s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Menu Input/Icon Control Residue Slice
 
 Source:

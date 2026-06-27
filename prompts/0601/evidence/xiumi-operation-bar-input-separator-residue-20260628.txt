@@ -1,0 +1,70 @@
+Xiumi Operation Bar Input/Separator Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for copied Xiumi v5 paper-editor operation-bar input/separator
+  controls.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action was performed.
+
+Observed source:
+- CloakBrowser read the live Xiumi v5 paper-editor DOM after restart.
+- The editor control surface exposed 36 `op-bar-input` controls for width, height, x/y position,
+  text-decoration thickness, static size, margin, padding, and line-height inputs.
+- The editor control surface exposed 10 `op-bar-separator` elements inside box-pose, box-metrics,
+  and attribute panels.
+
+Implemented:
+- Added `Xiumi operation bar input/separator residue` to the market-editor residue detector.
+- The rule is anchored to source-specific class/id markers:
+  `op-bar-input` and `op-bar-separator`.
+- `op-bar-menu-item` is intentionally excluded because it overlaps the existing operation-bar
+  dropdown/menu boundary through `op-bar-menu`.
+
+Regression coverage:
+- Reduced fixture contains only `op-bar-input` and `op-bar-separator`.
+- The fixture intentionally excludes operation-bar dropdown controls, menu input/icon controls,
+  scale controls, WeChat cover controls, generated-link controls, attribute-board controls,
+  operator dock/depot classes, paper auxiliary tree controls, selection overlays, worker/crop
+  controls, Angular runtime attributes, hosted media, sidebar controls, and meta panels.
+- WeChat, Xiaohongshu, and Zhihu reports must all include the precise residue label.
+- The WeChat report must not include `Xiumi menu input/icon control residue` or
+  `Xiumi operation bar dropdown residue` for the reduced fixture.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar input and separator" --reporter=default`
+  Failed before detector update because no market-editor-residue issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar input and separator" --reporter=default`
+  Passed with 1 selected test and 274 skipped tests after detector update.
+- Adjacent regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`
+  Passed with 1 selected test and 274 skipped tests.
+- Adjacent regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar dropdown controls" --reporter=default`
+  Passed with 1 selected test and 274 skipped tests.
+- Full platform file:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  Passed with 1 file and 275 tests.
+- Export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  Passed with 36 files and 1252 tests.
+- Targeted ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Passed with 4653 modules transformed and Vite completed in 36.21s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  Exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click behavior, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

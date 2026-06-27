@@ -1549,6 +1549,12 @@ Rules:
   layout-menu, style-brush, and table-control surfaces may inform InkForge-owned parameter
   schemas, but must never be copied as publishable body DOM. `op-bar-item-icon` must not be
   misreported as 135 toolbar residue.
+- Xiumi operation-bar input/separator controls such as `op-bar-input` and `op-bar-separator` must
+  fail after menu-input cleanup, and must report the precise
+  `Xiumi operation bar input/separator residue` label. These editor-side width/height, x/y,
+  margin, padding, line-height, text-decoration, and panel separator controls may inform
+  InkForge-owned layout reports and parameter schemas, but must never be copied as publishable
+  body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1672,4 +1678,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-wechat-cover-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-scale-panel-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-menu-input-icon-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-168.
+- `prompts/0601/evidence/xiumi-operation-bar-input-separator-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-169.
