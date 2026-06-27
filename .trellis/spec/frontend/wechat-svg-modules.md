@@ -7828,6 +7828,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
   acceptance, or publish success.
 
+## 172. Xiumi Background Attribute Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains background-attribute
+  controls observed in a live CloakBrowser DOM readback as `bg-attr-menu`, `bg-repeat-select`,
+  `bg-attach-check`, or `ce-op-background`.
+- These controls drive editor-side background image repeat, attachment, and background operation
+  menus. They can inform InkForge-owned background layout reports, but they are not article body
+  DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove background rendering,
+  paste, phone preview, schedule, sync, upload, cover thumbnail acceptance, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi background attribute control residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported
+  background-attribute markers.
+- A reduced fixture containing only `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`, and
+  `ce-op-background` must fail after crop-panel cleanup even when crop-panel child controls,
+  worker-surface crop controls, selection-overlay controls, attribute-board controls,
+  operator/depot controls, paper auxiliary tree controls, Angular runtime attributes, hosted
+  media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary background CSS, image, repeat, attach, cover, editor, or
+  template wording by itself; the trigger is the source-specific class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced background-attribute fixture fails before implementation because
+  no market-editor-residue issue is emitted, then reports
+  `Xiumi background attribute control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi attribute board control residue` and
+  `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger

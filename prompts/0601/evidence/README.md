@@ -6179,3 +6179,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
+
+## 2026-06-28 Xiumi Background Attribute Control Residue
+
+- [x] xiumi-background-attribute-control-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 background-attribute markers including
+  `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`, and `ce-op-background`.
+- The reduced regression intentionally keeps only those source-specific background-attribute
+  classes, proving the cleaned background-repeat, background-attachment, and background-operation
+  residue is blocked without relying on crop-panel child controls, worker-surface crop controls,
+  selection-overlay controls, attribute-board controls, operator dock/depot classes, paper
+  auxiliary tree controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector intentionally does not block ordinary background CSS, image, repeat, attach, cover,
+  Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
