@@ -8,6 +8,54 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Comment Toolbar Panel Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor. The page
+  toolbar and comment panel exposed `page-comment-on-toolbar`, `tn-comment-panel`, and
+  `tn-comment-list`.
+- These markers are Xiumi editor-side comment entry and comment panel state. They are not
+  publishable article comments and must remain publish-blocking if copied into WeChat,
+  Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `page-comment-on-toolbar`, proving the copied
+  Xiumi comment toolbar entry is blocked without relying on right-toolbar controls, paper
+  auxiliary tree controls, sidebar/tab controls, Angular runtime attributes, broader `tn-*`
+  classes, hosted media, operator controls, selection overlays, or meta panels.
+- Added the exact `Xiumi comment toolbar panel residue` detector beside the existing Xiumi toolbar
+  and sidebar controls.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "comment toolbar" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 267 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 268 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1245 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 33.55s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Editing Dock Residue Slice
 
 Source:

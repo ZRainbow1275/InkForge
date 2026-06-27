@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 162. Xiumi Comment Toolbar Panel Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains comment toolbar or
+  comment panel markers observed in a live CloakBrowser DOM readback, including
+  `page-comment-on-toolbar`, `tn-comment-panel`, and `tn-comment-list`.
+- These markers drive Xiumi editor-side page comment entry and comment panel state. They are not
+  article comments or publishable article DOM and must not appear in WeChat, Xiaohongshu, or
+  Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi comment toolbar panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when `page-comment-on-toolbar`, `tn-comment-panel`, or
+  `tn-comment-list` appears in a class or id attribute.
+- A reduced fixture containing only `page-comment-on-toolbar` must fail even when right-toolbar
+  controls, paper auxiliary tree controls, sidebar/tab controls, Angular runtime attributes,
+  broader `tn-*` classes, hosted media, operator controls, selection overlays, and meta panels are
+  absent.
+- The detector must not block ordinary prose containing comment, toolbar, panel, page, Xiumi,
+  editor, or template wording by itself; the trigger is the source-specific Xiumi class/id marker.
+- Generic comment-panel child classes such as `comment-panel-header`, `comment-panel-content`,
+  `comment-panel-footer`, `comment-page-list`, `rights`, or `link` are not standalone triggers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced comment-toolbar-only fixture fails before implementation and
+  reports `Xiumi comment toolbar panel residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi right toolbar control residue`,
+  `Xiumi paper auxiliary component tree residue`, `Xiumi sidebar tab control residue`, and generic
+  `Xiumi tn-* attribute` handling independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 161. Xiumi Editing Dock Residue - 2026-06-28
 
 ### 1. Scope / Trigger

@@ -6021,3 +6021,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   show, data, Xiumi, editor, or template wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Comment Toolbar Panel Residue
+
+- [x] xiumi-comment-toolbar-panel-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 comment toolbar/panel markers:
+  `page-comment-on-toolbar`, `tn-comment-panel`, and `tn-comment-list`.
+- The reduced regression intentionally keeps only the source-specific comment toolbar class,
+  proving the cleaned comment entry residue is blocked without relying on right-toolbar controls,
+  paper auxiliary tree controls, sidebar/tab controls, Angular runtime attributes, broader
+  `tn-*` classes, hosted media, operator controls, selection overlays, or meta panels.
+- The detector intentionally does not block ordinary prose containing comment, toolbar, panel,
+  page, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
