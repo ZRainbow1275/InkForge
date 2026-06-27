@@ -6298,14 +6298,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 ## 2026-06-28 Xiumi Animation Style Picker Residue
 
 - [x] xiumi-animation-style-picker-residue-20260628.txt
+- [x] xiumi-animation-style-picker-icon-residue-20260628.txt
 - Added a static quality rule for live Xiumi v5 animation style picker markers including
-  `anim-desc`, `anim-icon`, `anim-style`, `anim-styles`, `animate-styles-type`, and
-  `animate-general`.
+  `anim-desc`, `anim-expand-bottom`, `anim-icon`, `anim-style`, `anim-styles`,
+  `animate-styles-type`, and `animate-general`.
 - The reduced regression intentionally keeps only those source-specific style picker classes,
   proving the cleaned animation-effect residue is blocked without relying on `anim-item-list`,
   `anim-unit-*`, `anim-title-bar`, `op-comp-animation-attr-board`,
   `op-attr-view-cp-animation*`, `anim-selector-x`, `animate-op-btn-panel`, Angular runtime
   attributes, hosted media, sidebar controls, or meta panels.
+- The icon-only regression intentionally keeps only `anim-expand-bottom`, proving partially cleaned
+  style picker icon residue is blocked without relying on `anim-style`, `anim-styles`,
+  `anim-desc`, `anim-icon`, `animate-styles-type`, or `animate-general`.
 - The detector intentionally does not block ordinary animation wording, CSS animation properties,
   SVG `<animate>` elements, or motion-related article text by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,

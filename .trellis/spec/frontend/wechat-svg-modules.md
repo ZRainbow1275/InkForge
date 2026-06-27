@@ -8052,8 +8052,9 @@ const ruleFamilies = [
 ### 1. Scope / Trigger
 
 - Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains animation style picker
-  child controls observed in a live CloakBrowser DOM readback, such as `anim-desc`, `anim-icon`,
-  `anim-style`, `anim-styles`, `animate-styles-type`, and `animate-general`.
+  child controls observed in a live CloakBrowser DOM readback, such as `anim-desc`,
+  `anim-expand-bottom`, `anim-icon`, `anim-style`, `anim-styles`, `animate-styles-type`, and
+  `animate-general`.
 - The live page exposes these markers around editor-side animation effect groups such as text,
   entrance, emphasis, exit, and custom path choices. They are not article body DOM and must not
   appear in WeChat, Xiaohongshu, or Zhihu publishable output.
@@ -8063,13 +8064,17 @@ const ruleFamilies = [
 ### 2. Contract
 
 - `detectQuality(..., platform)` must report `Xiumi animation style picker residue` for WeChat,
-  Xiaohongshu, and Zhihu when a class or id attribute contains `anim-desc`, `anim-icon`,
-  `anim-style`, `anim-styles`, `animate-styles-type`, or `animate-general`.
+  Xiaohongshu, and Zhihu when a class or id attribute contains `anim-desc`,
+  `anim-expand-bottom`, `anim-icon`, `anim-style`, `anim-styles`, `animate-styles-type`, or
+  `animate-general`.
 - A reduced fixture containing only those style picker markers must fail after animation-list
   cleanup even when `anim-item-list`, `anim-unit-*`, `anim-title-bar`,
   `op-comp-animation-attr-board`, `op-attr-view-cp-animation*`, `anim-selector-x`,
   `animate-op-btn-panel`, Angular runtime attributes, hosted media, sidebar controls, and meta
   panels are absent.
+- A reduced fixture containing only the isolated `anim-expand-bottom` style picker icon child must
+  fail after the broader `anim-style`, `anim-styles`, `anim-desc`, `anim-icon`,
+  `animate-styles-type`, and `animate-general` parents are absent.
 - The detector must not block ordinary animation wording, CSS animation properties,
   SVG `<animate>` elements, or motion-related article text by itself; the trigger is the
   source-specific Xiumi class/id marker.
@@ -8079,9 +8084,9 @@ const ruleFamilies = [
 
 ### 3. Required Checks
 
-- Use TDD to prove the reduced animation-style-picker fixture fails before implementation because
-  no market-editor-residue issue is emitted, then reports
-  `Xiumi animation style picker residue` after the detector update.
+- Use TDD to prove the reduced animation-style-picker fixture and the isolated
+  `anim-expand-bottom` fixture fail before implementation because no market-editor-residue issue is
+  emitted, then report `Xiumi animation style picker residue` after the detector update.
 - Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
   Zhihu quality reports.
 - Adjacent regressions must keep `Xiumi animation panel child residue`,

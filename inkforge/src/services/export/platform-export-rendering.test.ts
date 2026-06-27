@@ -794,6 +794,13 @@ const MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_ICON_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<span class="anim-expand-bottom"></span>',
+  '<p>Xiumi animation style picker icon residue</p>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_ANIMATE_OPERATION_PANEL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="animate-op-btn-panel">Xiumi animate operation panel residue</div>',
@@ -11384,6 +11391,28 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi animation style picker residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi animation style picker residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi animation style picker residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi animation panel child residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi animation attribute panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi animate operation panel residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi animation style picker icon residue without style picker parents', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_ICON_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_ICON_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANIMATION_STYLE_PICKER_ICON_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('Xiumi animation style picker residue')
