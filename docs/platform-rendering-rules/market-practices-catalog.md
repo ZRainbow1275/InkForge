@@ -1595,6 +1595,11 @@ Rules:
 - Xiumi operation dark-mask surfaces such as `op-dark-mask` must fail after WeChat-cover cleanup,
   and must report the precise `Xiumi dark mask control residue` label. These editor-side mask
   overlays may surround control panels, but must never be copied as publishable body DOM.
+- Xiumi layout/form panels such as `layout-box-panel`, `form-input-panel`, `op-ce-form-input`,
+  `trigger-props-panel`, and `trigger-radio-input` must fail after operation-bar cleanup, and must
+  report the precise `Xiumi layout form panel residue` label. These editor-side layout, column,
+  option, and form-trigger controls may inform InkForge-owned form/layout schemas, but must never
+  be copied as publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1727,4 +1732,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-attribute-stack-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animate-operation-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-dark-mask-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-177.
+- `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-178.

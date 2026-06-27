@@ -6909,6 +6909,51 @@ Boundary:
 
 ---
 
+## 2026-06-28 Xiumi Layout Form Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed layout/form panel
+  controls can remain as `layout-box-panel`, `form-input-panel`, `op-ce-form-input`,
+  `trigger-props-panel`, and `trigger-radio-input`.
+- Added the static detector label `Xiumi layout form panel residue` so copied layout, column,
+  required-field, option-list, trigger-property, and form-input controls are blocked even after
+  operation-bar, generated-link, operator/depot, Angular runtime, hosted media, sidebar, and
+  meta-panel markers are absent.
+- Kept the rule anchored to source-specific class/id markers so ordinary layout/form/required/
+  option/trigger wording, radio input elements without the Xiumi class marker, and article text are
+  not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "layout form" --reporter=default`.
+- Verification:
+  adjacent generated-link, operation-bar, and operator-dock regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "generated link controls" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation bar dropdown" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operator dock child" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 284 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1261 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 33.22s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-28 Xiumi Dark Mask Control Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed operation overlay

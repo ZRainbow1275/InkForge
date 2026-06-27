@@ -8047,6 +8047,47 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 178. Xiumi Layout Form Panel Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains layout/form operation
+  panel child controls observed in a live CloakBrowser DOM readback, such as `layout-box-panel`,
+  `form-input-panel`, `op-ce-form-input`, `trigger-props-panel`, and `trigger-radio-input`.
+- The live page exposes these markers around editor-side layout alignment, column insertion,
+  required-field, option-list, trigger-property, and form-input settings. They are not article body
+  DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi layout form panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `layout-box-panel`,
+  `form-input-panel`, `op-ce-form-input`, `trigger-props-panel`, or `trigger-radio-input`.
+- A reduced fixture containing only those child panel markers must fail after operation-bar cleanup
+  even when `op-bar-menu`, `op-loader`, `op-dock`, generated-link controls, Angular runtime
+  attributes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary layout/form/required/option/trigger wording, radio input
+  elements without the Xiumi class marker, or article text by itself; the trigger is the
+  source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced layout-form fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi layout form panel residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi generated link control residue`,
+  `Xiumi operation bar dropdown residue`, and `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 177. Xiumi Dark Mask Control Residue - 2026-06-28
 
 ### 1. Scope / Trigger

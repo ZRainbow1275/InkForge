@@ -337,6 +337,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi generated link control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:layout-box-panel|form-input-panel|op-ce-form-input|trigger-props-panel|trigger-radio-input)\b[^"']*["']/i,
+    label: 'Xiumi layout form panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-dark-mask\b[^"']*["']/i,
     label: 'Xiumi dark mask control residue',
   },

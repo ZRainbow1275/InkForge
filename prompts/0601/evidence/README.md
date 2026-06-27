@@ -6278,3 +6278,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Layout Form Panel Residue
+
+- [x] xiumi-layout-form-panel-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 layout/form panel markers including
+  `layout-box-panel`, `form-input-panel`, `op-ce-form-input`, `trigger-props-panel`, and
+  `trigger-radio-input`.
+- The reduced regression intentionally keeps only those source-specific child panel classes,
+  proving the cleaned layout/form/trigger residue is blocked without relying on `op-bar-menu`,
+  `op-loader`, `op-dock`, generated-link controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary layout/form/required/option/trigger wording,
+  radio input elements without the Xiumi class marker, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
