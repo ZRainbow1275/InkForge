@@ -8002,6 +8002,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 176. Xiumi Animate Operation Panel Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the animation
+  operation-button panel observed in a live CloakBrowser DOM readback as `animate-op-btn-panel`.
+- This control hosts editor-side action extraction controls such as the visible `提取动作` surface.
+  It can inform InkForge-owned motion/action schemas, but it is not article body DOM and must not
+  appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi animate operation panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `animate-op-btn-panel`.
+- A reduced fixture containing only `animate-op-btn-panel` must fail after animation-panel-child
+  cleanup even when `anim-unit-*`, `anim-item-list`, `anim-title-bar`,
+  `op-comp-animation-attr-board`, `op-attr-view-cp-animation*`, `anim-selector-x`,
+  top-operation buttons, paper auxiliary tree controls, Angular runtime attributes, hosted media,
+  sidebar controls, and meta panels are absent.
+- `animate-op-btn-panel` must not be misclassified as `Xiumi top operation button residue`; the
+  top-operation detector must match `op-btn*` as a class/id token rather than as a hyphen-delimited
+  substring inside another vendor class.
+- The detector must not block ordinary animate/action wording, button wording, panel wording,
+  SVG `<animate>` elements, or motion-related article text by itself; the trigger is the
+  source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced animate-operation fixture fails before implementation because it
+  reports the broader `Xiumi top operation button residue` label instead of the exact
+  `Xiumi animate operation panel residue` label.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi top operation button residue`,
+  `Xiumi animation panel child residue`, and `Xiumi animation attribute panel residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger

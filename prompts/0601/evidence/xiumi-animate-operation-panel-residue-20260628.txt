@@ -1,0 +1,76 @@
+Xiumi Animate Operation Panel Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied Xiumi v5 animate operation panel residue.
+- Target platforms: WeChat, Xiaohongshu, and Zhihu quality gates.
+- No platform action, no phone preview, no sync, no upload, no public host check, no scheduled send,
+  and no publish action.
+
+Observed source:
+- A live CloakBrowser DOM readback from the Xiumi v5 paper editor exposed the animate operation
+  class animate-op-btn-panel.
+- The source panel text included action extraction controls such as 提取动作.
+- This control may inform InkForge-owned motion/action schemas, but it is editor-side control DOM
+  and must not be copied as publishable article body HTML.
+
+Implemented:
+- Added the static detector label: Xiumi animate operation panel residue.
+- Matched only class/id attributes containing animate-op-btn-panel.
+- Tightened the adjacent top-operation detector to class/id token matching so animate-op-btn-panel
+  is not misclassified as Xiumi top operation button residue.
+- Did not match ordinary animate/action wording, button wording, panel wording, SVG animate
+  elements, or motion-related article text by itself.
+- Did not alter renderer output, style availability, selectable actions, release-gate accounting,
+  clipboard behavior, account state, upload, sync, schedule, or publish behavior.
+
+Regression coverage:
+- Added a reduced fixture containing only animate-op-btn-panel.
+- The fixture proves the cleaned action-extraction residue is blocked without relying on
+  anim-unit-* controls, anim-item-list, anim-title-bar, op-comp-animation-attr-board,
+  op-attr-view-cp-animation, anim-selector-x, top operation buttons, paper auxiliary tree
+  controls, Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The test asserts the exact residue label for WeChat, Xiaohongshu, and Zhihu.
+- The test also asserts the WeChat result does not report animation child, animation attribute, or
+  top-operation labels for this reduced fixture.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animate operation" --reporter=default
+  Result: failed with 1 selected failing test because the fixture was classified as Xiumi top
+  operation button residue instead of the exact animate-operation label.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animate operation" --reporter=default
+  Result: passed with 1 selected test and 281 skipped tests after the detector update.
+- Adjacent:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "top operation buttons" --reporter=default
+  Result: passed with 1 selected test and 281 skipped tests.
+- Adjacent:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation panel child" --reporter=default
+  Result: passed with 1 selected test and 281 skipped tests.
+- Full platform rendering suite:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  Result: passed with 1 file / 282 tests.
+- Full export service suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  Result: passed with 36 files / 1259 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, transformed 4653 modules, built in 26.82s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

@@ -6246,3 +6246,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Animate Operation Panel Residue
+
+- [x] xiumi-animate-operation-panel-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 animate operation marker
+  `animate-op-btn-panel`.
+- The reduced regression intentionally keeps only that source-specific operation panel class,
+  proving the cleaned action-extraction residue is blocked without relying on `anim-unit-*`,
+  `anim-item-list`, `anim-title-bar`, `op-comp-animation-attr-board`,
+  `op-attr-view-cp-animation*`, `anim-selector-x`, top operation buttons, paper auxiliary tree
+  controls, Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary animate/action wording, button wording, panel
+  wording, SVG `<animate>` elements, or motion-related article text by itself.
+- The adjacent top-operation detector was tightened to class/id token matching so
+  `animate-op-btn-panel` is not misclassified as `Xiumi top operation button residue`.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.

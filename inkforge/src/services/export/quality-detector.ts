@@ -257,7 +257,11 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi paper auxiliary component tree residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:x3-nav-op-buttons|tn-op-btn-group|op-btn(?:-[\w-]+)?|op-more)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\banimate-op-btn-panel\b[^"']*["']/i,
+    label: 'Xiumi animate operation panel residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?:[^"']*\s)?(?:x3-nav-op-buttons|tn-op-btn-group|op-btn(?:-[\w-]+)?|op-more)(?=\s|["'])[^"']*["']/i,
     label: 'Xiumi top operation button residue',
   },
   {
