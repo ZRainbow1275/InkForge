@@ -5964,3 +5964,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   the trigger is the exact `data-name` metadata attribute.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 Xiumi Quick Input Instance Residue
+
+- [x] xiumi-quick-input-instance-residue-20260627.txt
+- Added `tn-__quick_input__-inst` to the existing `Xiumi quick input residue` quality rule after
+  CloakBrowser confirmed it in the live Xiumi v5 paper-editor DOM.
+- The reduced regression intentionally keeps only the source-specific quick-input instance class,
+  proving the cleaned instance residue is blocked without relying on `tn-quick-input-block`,
+  `tn-quick-input-comp`, `tn-from-house-*`, broader `tn-comp-*` classes,
+  component/page/template authoring trees, Angular runtime attributes, hosted media, operator
+  controls, selection overlays, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose containing quick, input, instance,
+  Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

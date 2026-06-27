@@ -1494,8 +1494,8 @@ Rules:
   gallery state wrappers are removed.
 - Xiumi sortable-pin residues such as `tn-sortable-pin` must fail after broader gallery state
   wrappers are removed.
-- Xiumi quick-input residues such as `tn-quick-input-block` must fail after broader gallery state
-  wrappers are removed.
+- Xiumi quick-input residues such as `tn-quick-input-block` and `tn-__quick_input__-inst` must
+  fail after broader gallery state wrappers are removed.
 - Xiumi state-toggle residues such as `tn-state-active` and `tn-state-frozen` must fail after
   broader gallery state wrappers are removed.
 - Xiumi editing-state residues such as `tn-on-child-editing` must fail after broader gallery
@@ -1585,6 +1585,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-group-sortable-box-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-pin-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-quick-input-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-quick-input-instance-residue-20260627.txt`
 - `prompts/0601/evidence/xiumi-state-toggle-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-editing-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-in-cell-active-state-residue-20260625.txt`
@@ -1628,4 +1629,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-157.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-158.

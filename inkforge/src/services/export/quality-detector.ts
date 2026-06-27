@@ -217,7 +217,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi sortable pin residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-quick-input(?:-block|-comp)?\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-quick-input(?:-block|-comp)?|tn-__quick_input__-inst)\b[^"']*["']/i,
     label: 'Xiumi quick input residue',
   },
   {

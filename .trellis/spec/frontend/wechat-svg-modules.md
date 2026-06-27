@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 158. Xiumi Quick Input Instance Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the quick-input
+  component instance class `tn-__quick_input__-inst` observed in a live CloakBrowser DOM
+  readback after opening the Xiumi paper editor.
+- The same live node can also carry `tn-quick-input-comp`, `tn-from-house-paper-cp`,
+  `tn-comp-anim-pin`, `tn-comp-inst`, and `tn-comp`, but the instance class must be guarded on
+  its own because cleanup can remove the broader quick-input or source-house wrappers while
+  leaving the source-specific instance marker behind.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report the existing `Xiumi quick input residue` label for
+  WeChat, Xiaohongshu, and Zhihu when `tn-__quick_input__-inst` appears in a class or id
+  attribute.
+- A reduced fixture containing only `tn-__quick_input__-inst` must fail even when
+  `tn-quick-input-block`, `tn-quick-input-comp`, `tn-from-house-*`, `tn-comp-*`, broad Xiumi
+  authoring tree classes, Angular `ng-*` attributes, hosted media, SVG content layers, operator
+  controls, selection overlays, sidebar controls, meta panels, and generic Xiumi `tn-*`
+  catch-alls are absent.
+- The detector must not block ordinary prose containing quick, input, instance, Xiumi, editor, or
+  template wording by itself; the trigger is the source-specific Xiumi class/id marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced instance-only fixture fails before implementation and reports
+  `Xiumi quick input residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component authoring tree residue`,
+  `Xiumi source-house authoring residue`, and generic `Xiumi tn-* attribute` handling
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 157. 135 SVG Builder Effect Data-Name Second Expansion - 2026-06-27
 
 ### 1. Scope / Trigger
