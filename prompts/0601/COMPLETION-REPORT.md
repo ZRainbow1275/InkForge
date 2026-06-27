@@ -6906,3 +6906,45 @@ Boundary:
   phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Animation Panel Child Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed nested animation
+  child controls can remain as `anim-unit-container`, `anim-item-list`, `anim-unit-box`,
+  `anim-clipboard`, `anim-title-bar`, and `anim-content`.
+- Added the static detector label `Xiumi animation panel child residue` so copied animation list,
+  title, unit, and clipboard surfaces are blocked even after animation-attribute panel,
+  attribute-board, operator/depot, paper auxiliary tree, Angular runtime, hosted media, sidebar,
+  and meta-panel markers are absent.
+- Kept the rule anchored to class/id markers so ordinary animation wording, CSS animation
+  properties, SVG `<animate>` elements, and motion-related article text are not blocked by
+  themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation panel child" --reporter=default`.
+- Verification:
+  adjacent animation-attribute-panel regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation attribute panel" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 280 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1257 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 29.53s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-animation-panel-child-control-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

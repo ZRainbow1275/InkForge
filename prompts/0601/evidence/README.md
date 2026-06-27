@@ -6212,3 +6212,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Animation Panel Child Control Residue
+
+- [x] xiumi-animation-panel-child-control-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 animation panel child markers including
+  `anim-unit-container`, `anim-item-list`, `anim-unit-box`, `anim-clipboard`,
+  `anim-title-bar`, and `anim-content`.
+- The reduced regression intentionally keeps only those source-specific child classes, proving the
+  cleaned animation list/title/unit/clipboard residue is blocked without relying on
+  `op-comp-animation-attr-board`, `op-attr-view-cp-animation*`, `anim-selector-x`,
+  attribute-board controls, operator-depot controls, operator-dock controls, crop/background
+  controls, paper auxiliary tree controls, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- The detector intentionally does not block ordinary animation wording, CSS animation properties,
+  SVG `<animate>` elements, or motion-related article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.

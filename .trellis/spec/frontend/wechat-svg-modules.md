@@ -7914,6 +7914,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 174. Xiumi Animation Panel Child Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains animation-panel child
+  controls observed in a live CloakBrowser DOM readback as `anim-unit-container`,
+  `anim-item-list`, `anim-unit-box`, `anim-clipboard`, `anim-title-bar`, or `anim-content`.
+- These controls are the nested editor-side animation list, title, unit, and clipboard surfaces
+  below the animation attribute panel. They can inform InkForge-owned motion/action schemas, but
+  they are not article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable
+  output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi animation panel child residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported animation
+  child-control markers.
+- A reduced fixture containing only `anim-unit-container`, `anim-item-list`, `anim-title-bar`,
+  `anim-unit-box`, and `anim-clipboard` must fail after animation-attribute-panel cleanup even
+  when `op-comp-animation-attr-board`, `op-attr-view-cp-animation*`, `anim-selector-x`,
+  attribute-board controls, operator-depot controls, operator-dock controls, crop/background
+  controls, paper auxiliary tree controls, Angular runtime attributes, hosted media, sidebar
+  controls, and meta panels are absent.
+- The detector must not block ordinary animation wording, CSS animation properties, SVG
+  `<animate>` elements, or motion-related article text by itself; the trigger is the
+  source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced animation-child fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi animation panel child residue` after
+  the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi animation attribute panel residue` and
+  `Xiumi operator depot item residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger
