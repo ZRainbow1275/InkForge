@@ -97,7 +97,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor layout control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:editor-toolbar(?:__tool)?|toolbar-tool|bar-item(?:__label)?|delete-dropdown_entry|tool-dropdown_entry|team_btn)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*(?:\b(?:editor-toolbar(?:__tool)?|toolbar-tool|delete-dropdown_entry|tool-dropdown_entry|team_btn)\b|\bbar-item(?:__label)?(?=[\s"']))[^"']*["']/i,
     label: '135 SVG editor toolbar residue',
   },
   {
@@ -267,6 +267,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-bar-(?:menu|btn|icon)|shortcut-op-bar-panel|spacing-panel|format-panel|size-list-menu|insert-text-op-bar-panel)\b[^"']*["']/i,
     label: 'Xiumi operation bar dropdown residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-menu-(?:input|icon)|op-bar-item-icon)\b[^"']*["']/i,
+    label: 'Xiumi menu input/icon control residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:color-selector-dropdown|op-theme-color-sec|text-color-btn|tn-color-circle|text-shadow-icon|text-fill-image-icon)\b[^"']*["']|\b(?:tn-color-selector(?:-x)?|hello-color-x|on-color-(?:choose|changing|choose-cancel)|support-color-category|fetch-color-from-template-panel|support-batch-change-color)\s*=)/i,

@@ -1,0 +1,69 @@
+Xiumi Menu Input/Icon Control Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for copied Xiumi v5 paper-editor menu input/icon controls.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action was performed.
+
+Observed source:
+- CloakBrowser read the live Xiumi v5 paper-editor DOM after restart.
+- The editor control surface exposed `op-menu-input` controls for font size, line spacing, letter
+  spacing, and padding.
+- The editor control surface exposed `op-menu-icon` menu image controls.
+- The editor control surface exposed `op-bar-item-icon` controls under style-brush/table operation
+  surfaces.
+
+Implemented:
+- Added `Xiumi menu input/icon control residue` to the market-editor residue detector.
+- The rule is anchored to source-specific class/id markers:
+  `op-menu-input`, `op-menu-icon`, and `op-bar-item-icon`.
+- Tightened the 135 toolbar detector so Xiumi `op-bar-item-icon` is not misreported as
+  `135 SVG editor toolbar residue`.
+
+Regression coverage:
+- Reduced fixture contains only `op-menu-input`, `op-menu-icon`, and `op-bar-item-icon`.
+- The fixture intentionally excludes operation-bar dropdown controls, scale controls, WeChat cover
+  controls, generated-link controls, attribute-board controls, operator dock/depot classes, paper
+  auxiliary tree controls, selection overlays, worker/crop controls, Angular runtime attributes,
+  hosted media, sidebar controls, and meta panels.
+- WeChat, Xiaohongshu, and Zhihu reports must all include the precise residue label.
+- The WeChat report must not include `Xiumi scale panel control residue`,
+  `Xiumi operation bar dropdown residue`, or `135 SVG editor toolbar residue` for the reduced
+  fixture.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`
+  Failed before detector update because the fixture was not reported with the Xiumi menu input/icon
+  label.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`
+  Passed with 1 selected test and 273 skipped tests after detector update.
+- Adjacent regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor toolbar" --reporter=default`
+  Passed with 1 selected test and 273 skipped tests.
+- Full platform file:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  Passed with 1 file and 274 tests.
+- Export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  Passed with 36 files and 1251 tests.
+- Targeted ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  Passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  Passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  Passed with 4653 modules transformed and Vite completed in 32.28s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  Exited 1 as expected with `status=blocked-by-external`, `canClaimComplete=false`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click behavior, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

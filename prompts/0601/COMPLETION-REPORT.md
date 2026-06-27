@@ -6651,3 +6651,42 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Menu Input/Icon Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed menu input/icon
+  controls can remain as `op-menu-input`, `op-menu-icon`, and `op-bar-item-icon`.
+- Added the static detector label `Xiumi menu input/icon control residue` so copied font-size,
+  spacing, padding, layout-menu, style-brush, and table-control editor surfaces are blocked even
+  after operation-bar dropdown, scale-panel, WeChat-cover, generated-link, attribute-board, and
+  operator/depot markers are absent.
+- Tightened the 135 toolbar detector so Xiumi `op-bar-item-icon` is not misreported as
+  `135 SVG editor toolbar residue`.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture was not reported
+  with the Xiumi menu input/icon label; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`.
+- Verification:
+  adjacent 135 toolbar regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor toolbar" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 274 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1251 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 32.28s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-menu-input-icon-control-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

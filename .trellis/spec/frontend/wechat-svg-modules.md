@@ -4904,6 +4904,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 168. Xiumi Menu Input/Icon Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains menu input or icon
+  controls observed in a live CloakBrowser DOM readback as `op-menu-input`, `op-menu-icon`, or
+  `op-bar-item-icon`.
+- These markers drive Xiumi editor-side font size, line spacing, letter spacing, padding, layout
+  menu, style-brush, and table-control surfaces. They are not article body DOM and must not appear
+  in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove layout correctness,
+  paste, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi menu input/icon control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `op-menu-input`, `op-menu-icon`, or
+  `op-bar-item-icon`.
+- A reduced fixture containing only those source-specific menu input/icon markers must fail after
+  scale-panel cleanup even when operation-bar dropdown controls, scale controls, WeChat cover
+  controls, generated-link controls, attribute-board controls, operator dock/depot controls,
+  paper auxiliary tree controls, selection overlays, worker/crop controls, Angular runtime
+  attributes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary `input`, `img`, `button`, `dropdown`, menu wording, icon
+  wording, or readable shortcut text by itself; the trigger is the source-specific Xiumi
+  class/id marker.
+- Xiumi `op-bar-item-icon` must not be misreported as `135 SVG editor toolbar residue`. The 135
+  `bar-item` toolbar rule must stay anchored to exact class words so Xiumi `op-*` operation icons
+  keep their proper source label.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced menu-input/icon fixture fails before implementation because the
+  residue is not reported with the Xiumi label, then reports
+  `Xiumi menu input/icon control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi scale panel control residue`,
+  `Xiumi operation bar dropdown residue`, and `135 SVG editor toolbar residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 167. Xiumi Scale Panel Control Residue - 2026-06-28
 
 ### 1. Scope / Trigger

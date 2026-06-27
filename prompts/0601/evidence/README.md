@@ -6111,3 +6111,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
+
+## 2026-06-28 Xiumi Menu Input/Icon Control Residue
+
+- [x] xiumi-menu-input-icon-control-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 menu input/icon markers `op-menu-input`,
+  `op-menu-icon`, and `op-bar-item-icon`.
+- The reduced regression intentionally keeps only those source-specific menu input/icon classes,
+  proving the cleaned parameter/menu residue is blocked without relying on operation-bar dropdown
+  controls, scale controls, WeChat cover controls, generated-link controls, attribute-board
+  controls, operator dock/depot classes, paper auxiliary tree controls, selection overlays,
+  worker/crop controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector intentionally does not block ordinary `input`, `img`, `button`, `dropdown`, menu
+  wording, icon wording, or readable shortcut text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.

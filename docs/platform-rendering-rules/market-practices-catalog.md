@@ -1543,6 +1543,12 @@ Rules:
   report the precise `Xiumi scale panel control residue` label. These editor-side scale, width,
   and height controls may inform InkForge-owned layout reports, but must never be copied as
   publishable body DOM.
+- Xiumi menu input/icon controls such as `op-menu-input`, `op-menu-icon`, and `op-bar-item-icon`
+  must fail after scale-panel cleanup, and must report the precise
+  `Xiumi menu input/icon control residue` label. These editor-side font-size, spacing, padding,
+  layout-menu, style-brush, and table-control surfaces may inform InkForge-owned parameter
+  schemas, but must never be copied as publishable body DOM. `op-bar-item-icon` must not be
+  misreported as 135 toolbar residue.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1665,4 +1671,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
 - `prompts/0601/evidence/xiumi-wechat-cover-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-scale-panel-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-167.
+- `prompts/0601/evidence/xiumi-menu-input-icon-control-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-168.

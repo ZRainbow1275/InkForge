@@ -8,6 +8,62 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Menu Input/Icon Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after restart. The editor control surface
+  exposed `op-menu-input` controls for font size, line spacing, letter spacing, and padding;
+  `op-menu-icon` menu image controls; and `op-bar-item-icon` controls under style-brush/table
+  operation surfaces.
+- These markers are Xiumi editor-side menu input and icon controls. They are not publishable
+  article DOM and must remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-menu-input`, `op-menu-icon`, and
+  `op-bar-item-icon`, proving copied Xiumi menu input/icon residue is blocked without relying on
+  operation-bar dropdown controls, scale controls, WeChat cover controls, generated-link controls,
+  attribute-board controls, operator dock/depot classes, paper auxiliary tree controls, selection
+  overlays, worker/crop controls, Angular runtime attributes, hosted media, sidebar controls, or
+  meta panels.
+- Added the exact `Xiumi menu input/icon control residue` detector beside the existing Xiumi
+  operation-bar dropdown and color-selector controls.
+- Tightened the 135 toolbar detector so Xiumi `op-bar-item-icon` is not misreported as
+  `135 SVG editor toolbar residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu input and icon controls" --reporter=default`
+  failed with 1 selected failing test because the reduced fixture was not reported with the Xiumi
+  menu input/icon label.
+- Green: the same focused command passed with 1 selected test and 273 skipped tests after the
+  detector update.
+- Adjacent 135 toolbar regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG editor toolbar" --reporter=default`.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 274 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1251 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 32.28s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Scale Panel Control Residue Slice
 
 Source:
