@@ -1532,6 +1532,9 @@ Rules:
   `op-attr-assemble-*`, and `op-attr-view-attr-assemble-*` must fail after operator-depot and
   `dc-*` markers are removed, and must report the precise
   `Xiumi attribute board control residue` label.
+- Xiumi generated-link controls such as `op-gen-link`, `op-cp-background-audio`, and
+  `op-cp-wx-miniprogram-link` must fail after attribute-board cleanup, and must report the
+  precise `Xiumi generated link control residue` label.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1652,4 +1655,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-164.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-165.
