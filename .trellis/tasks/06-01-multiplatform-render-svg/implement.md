@@ -52,6 +52,47 @@ Verification:
 - Release preflight stayed truthfully blocked by external gates:
   `status=blocked-by-external`, `canClaimComplete=false`.
 
+## 2026-06-27 135 SVG Editor Articles Anchor Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor center canvas and extracted only structural
+  class/id/data/src markers. The live DOM exposed the source-specific center-canvas anchor wrapper
+  class `articles-anchor`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `articles-anchor` plus a generic
+  `article-item` child without `artilce-list`, `article-item__inner/label/del`, `articles_pop`,
+  shell children, center-canvas ids, trigger overlays, known `data-name` values, layout controls,
+  toolbar classes, sidebar/navigation wrappers, material controls, material-panel controls,
+  hosted media, Ant switch controls, `svg:135` styles, or `background-size:100.1%` background
+  shells.
+- Added the `135 SVG editor articles anchor residue` detector for the source-specific wrapper.
+  The rule intentionally avoids generic `article-item`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "articles-anchor" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 259 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 260 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1237 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The production
+  build transformed 4653 modules and completed in 33.05s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
 ## Implemented Slice
 
 - [x] Add optional SMIL `id` support to primitives used by chained animation.

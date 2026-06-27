@@ -213,6 +213,10 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   `135 SVG editor article list wrapper residue` even when shell children, canvas ids, known
   `data-name` values, material controls, and trigger/layout wrappers are absent. Generic
   `article-item` remains insufficient.
+- 2026-06-27 CloakBrowser center-canvas anchor follow-up: copied `articles-anchor` must fail as
+  `135 SVG editor articles anchor residue` even when `artilce-list`, shell children, canvas ids,
+  known `data-name` values, material controls, and trigger/layout wrappers are absent. Generic
+  `article-item` remains insufficient.
 - Xiumi's SVG category exposed a broad interaction taxonomy: basic SVG, image carousel,
   click-expand, path animation, draw/lottery, playful slide, switch transition, branch transition,
   slide trigger, parallax move, click switch, flip, zoom, quiz, barrage text, click show/change/open/
@@ -1298,6 +1302,12 @@ Rules:
   sidebar/navigation wrappers, material controls, material-panel controls, trigger overlays,
   known `data-name` values, hosted media, Ant switch controls, `svg:135` styles, or
   `background-size:100.1%` background shells. Generic `article-item` is not a standalone trigger.
+- 135 SVG editor center-canvas anchor wrappers such as `articles-anchor` must fail independently
+  of `artilce-list`, `article-item__inner/label/del`, `articles_pop`, shell wrappers, builder
+  canvas markers, layout controls, toolbar classes, sidebar/navigation wrappers, material
+  controls, material-panel controls, trigger overlays, known `data-name` values, hosted media,
+  Ant switch controls, `svg:135` styles, or `background-size:100.1%` background shells. Generic
+  `article-item` is not a standalone trigger.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1568,4 +1578,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-editor-article-list-wrapper-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-153.
+- `prompts/0601/evidence/135-svg-editor-articles-anchor-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-154.

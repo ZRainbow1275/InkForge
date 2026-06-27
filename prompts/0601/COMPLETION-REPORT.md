@@ -5193,6 +5193,38 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Editor Articles Anchor Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed the center canvas can retain
+  the article/navigation anchor wrapper class `articles-anchor`.
+- Added the static detector label `135 SVG editor articles anchor residue` for that
+  source-specific center-canvas wrapper. Generic article, anchor, list, wrapper, SVG, editor
+  wording and generic `article-item` are not enough.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "articles-anchor" --reporter=default`
+  failed before the detector and passed after it.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 260 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1237 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 33.05s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-editor-articles-anchor-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Sidebar Icon Help Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed sidebar icon/help DOM can

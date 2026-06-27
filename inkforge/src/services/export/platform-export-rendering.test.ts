@@ -270,6 +270,14 @@ const MARKET_EDITOR_135_SVG_ARTILCE_LIST_WRAPPER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_ARTICLES_ANCHOR_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div class="articles-anchor">',
+  '<article class="article-item"><p>135 SVG editor center articles anchor.</p></article>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
   '<section style="margin:0;padding:0">',
   '<div class="block-spacing" style="top:10px;left:0;display:none"></div>',
@@ -9195,6 +9203,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 SVG editor shell residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 SVG builder canvas residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG editor articles-anchor wrapper without article list shell', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_ARTICLES_ANCHOR_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_ARTICLES_ANCHOR_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_ARTICLES_ANCHOR_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG editor articles anchor residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG editor articles anchor residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG editor articles anchor residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor article list wrapper residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor shell residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

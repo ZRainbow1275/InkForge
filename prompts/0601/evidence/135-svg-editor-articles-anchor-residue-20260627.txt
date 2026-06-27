@@ -1,0 +1,46 @@
+135 SVG Editor Articles Anchor Residue - 2026-06-27
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor center canvas at /svgeditor/.
+- The live center-canvas DOM exposed the article/navigation anchor wrapper class
+  `articles-anchor` adjacent to the article-list wrapper.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of this evidence.
+
+Implemented:
+- Added detector label: `135 SVG editor articles anchor residue`.
+- Added a reduced regression fixture containing only `articles-anchor` plus a generic
+  `article-item` child.
+
+Regression coverage:
+- WeChat reports `wechat-market-editor-residue`.
+- Xiaohongshu reports `xhs-market-editor-residue`.
+- Zhihu reports `zhihu-market-editor-residue`.
+- The reduced fixture does not rely on `135 SVG editor article list wrapper residue`,
+  `135 SVG editor shell residue`, or `135 SVG builder canvas residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "articles-anchor" --reporter=default`
+  FAIL: 1 failing selected test before the detector update because no market-editor-residue issue
+  was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "articles-anchor" --reporter=default`
+  PASS: 1 selected test / 259 skipped after the detector update.
+- Platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  PASS: 1 file / 260 tests.
+- Export serial: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  PASS: 36 files / 1237 tests.
+- Targeted ESLint: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- Type check: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- Build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, built in 33.05s.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCK: exit code 1, `status=blocked-by-external`, `canClaimComplete=false`.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

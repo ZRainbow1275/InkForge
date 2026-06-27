@@ -4904,6 +4904,43 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 154. 135 SVG Editor Articles Anchor Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains the center-canvas
+  `articles-anchor` wrapper observed in a live CloakBrowser 135 SVG editor DOM readback.
+- `articles-anchor` is editor-side article/canvas navigation chrome adjacent to the
+  `artilce-list` wrapper. It is not article content and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG editor articles anchor residue` for WeChat,
+  Xiaohongshu, and Zhihu when `articles-anchor` appears in class/id attributes.
+- A reduced fixture containing only `articles-anchor` plus a generic `article-item` child must
+  fail even when `artilce-list`, `article-item__inner/label/del`, `articles_pop`, center-canvas
+  ids, shell children, trigger overlays, known `data-name` values, layout controls, toolbar
+  classes, sidebar/navigation wrappers, material controls, material-panel controls, hosted media,
+  Ant switch controls, `svg:135` styles, and `background-size:100.1%` background shells are
+  absent.
+- The detector must not block ordinary prose containing article, anchor, list, wrapper, editor, or
+  SVG wording by itself, and it must not treat generic `article-item` as a standalone trigger.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `articles-anchor` fixture fails before implementation and reports
+  `135 SVG editor articles anchor residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG editor article list wrapper residue`,
+  `135 SVG editor shell residue`, `135 SVG builder canvas residue`, and
+  `135 SVG editor layout control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 153. 135 SVG Editor Article List Wrapper Residue - 2026-06-27
 
 ### 1. Scope / Trigger
