@@ -8,6 +8,50 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-27 135 SVG Editor Article List Wrapper Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor center canvas. The live DOM exposed the
+  misspelled source-specific center-canvas wrapper class `artilce-list`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- Serena activation for `D:/Desktop/Inkforge` failed because the current Serena registry only
+  exposed `CREATOR ONE`; this slice compensated with GitNexus impact, TDD, and the export
+  verification gates.
+
+Implementation:
+- Added a reduced regression fixture containing only `artilce-list` plus a generic `article-item`
+  child without shell children, center-canvas ids, trigger overlays, known `data-name` values,
+  layout controls, toolbar classes, sidebar/navigation wrappers, material controls,
+  material-panel controls, hosted media, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- Added the `135 SVG editor article list wrapper residue` detector for the source-specific
+  misspelled wrapper. The rule intentionally avoids generic `article-item`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "artilce-list" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 258 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 259 tests. The default 30s full-file run first exposed an unrelated
+  Mermaid markdown timeout; a focused rerun of that existing test passed in 1.394s, and the full
+  file passed after setting `--testTimeout=60000`.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1236 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The production
+  build transformed 4653 modules and completed in 50.73s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
 ## Implemented Slice
 
 - [x] Add optional SMIL `id` support to primitives used by chained animation.

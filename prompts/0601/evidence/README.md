@@ -5881,3 +5881,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   selectors.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Editor Article List Wrapper Residue
+
+- [x] 135-svg-editor-article-list-wrapper-residue-20260627.txt
+- Added a static quality rule for the live 135 SVG editor center-canvas article/list wrapper
+  class `artilce-list`.
+- The reduced regression intentionally keeps only the source-specific misspelled wrapper plus a
+  generic `article-item` child, proving the cleaned editor wrapper residue is blocked without
+  relying on 135 SVG canvas markers, shell children, material controls, sidebar/navigation
+  controls, toolbar controls, layout controls, material-panel controls, known 135 `data-name`
+  values, hosted media, trigger overlays, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing article, list, wrapper,
+  material, SVG, or editor wording by itself, and it does not use generic `article-item` as a
+  standalone trigger.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

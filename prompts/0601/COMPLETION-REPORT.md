@@ -5161,6 +5161,38 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Editor Article List Wrapper Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed the center canvas can retain
+  the misspelled article/list wrapper class `artilce-list`.
+- Added the static detector label `135 SVG editor article list wrapper residue` for that
+  source-specific center-canvas wrapper. Generic article, list, wrapper, SVG, editor wording and
+  generic `article-item` are not enough.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "artilce-list" --reporter=default`
+  failed before the detector and passed after it.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 259 tests after an unrelated Mermaid timeout was proven by focused rerun.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1236 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 50.73s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-editor-article-list-wrapper-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Sidebar Icon Help Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed sidebar icon/help DOM can

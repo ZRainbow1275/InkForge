@@ -4904,6 +4904,42 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 153. 135 SVG Editor Article List Wrapper Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains the center-canvas article-list
+  wrapper class `artilce-list` observed in a live CloakBrowser 135 SVG editor DOM readback.
+- The class name is intentionally the live editor's misspelled wrapper name. It is editor-side
+  canvas/list chrome, not article content, and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 SVG editor article list wrapper residue` for
+  WeChat, Xiaohongshu, and Zhihu when `artilce-list` appears in class/id attributes.
+- A reduced fixture containing only `artilce-list` plus a generic `article-item` child must fail
+  even when center-canvas ids, shell children, trigger overlays, known `data-name` values,
+  layout controls, toolbar classes, sidebar/navigation wrappers, material controls, material-panel
+  controls, hosted media, Ant switch controls, `svg:135` styles, and `background-size:100.1%`
+  background shells are absent.
+- The detector must not block ordinary prose containing article, list, wrapper, editor, or SVG
+  wording by itself, and it must not treat generic `article-item` as a standalone trigger.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `artilce-list` fixture fails before implementation and reports
+  `135 SVG editor article list wrapper residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG editor shell residue`,
+  `135 SVG builder canvas residue`, `135 SVG editor layout control residue`, and
+  `135 SVG material list item residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 152. 135 SVG Material Category Helper Asset Residue - 2026-06-27
 
 ### 1. Scope / Trigger

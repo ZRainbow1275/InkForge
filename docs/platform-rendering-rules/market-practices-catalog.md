@@ -209,6 +209,10 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   `background-svg-frame`, `image-slot-manifest`, `trigger-zone-manifest`, `motion-timing`, and
   `static/raster fallback` rules. It must not copy 135 template HTML, CDN assets, editor classes,
   ids, or authoring metadata.
+- 2026-06-27 CloakBrowser center-canvas wrapper follow-up: copied `artilce-list` must fail as
+  `135 SVG editor article list wrapper residue` even when shell children, canvas ids, known
+  `data-name` values, material controls, and trigger/layout wrappers are absent. Generic
+  `article-item` remains insufficient.
 - Xiumi's SVG category exposed a broad interaction taxonomy: basic SVG, image carousel,
   click-expand, path animation, draw/lottery, playful slide, switch transition, branch transition,
   slide trigger, parallax move, click switch, flip, zoom, quiz, barrage text, click show/change/open/
@@ -1289,6 +1293,11 @@ Rules:
   styles, or `background-size:100.1%` background shells. Generic `file_path`, path, sidebar, tab,
   item, or component wording is not enough; the detector stays anchored to that exact 135 SVG
   material component path.
+- 135 SVG editor center-canvas article-list wrappers such as `artilce-list` must fail
+  independently of shell wrappers, builder canvas markers, layout controls, toolbar classes,
+  sidebar/navigation wrappers, material controls, material-panel controls, trigger overlays,
+  known `data-name` values, hosted media, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells. Generic `article-item` is not a standalone trigger.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1558,4 +1567,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-list-loader-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-purchase-control-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-152.
+- `prompts/0601/evidence/135-svg-editor-article-list-wrapper-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-153.
