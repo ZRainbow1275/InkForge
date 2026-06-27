@@ -1006,6 +1006,16 @@ const MARKET_EDITOR_XIUMI_SOURCE_HOUSE_AUTHORING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_BASIC_STYLE_FRAGMENT_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="fragment-type-flow_page_basic_style">',
+  '<section class="flow-page-basic-style">',
+  '<div class="basic-style-desc">16px, line height 1.6, letter spacing 0</div>',
+  '</section>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_THEME_COLOR_MASK_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-theme-color-mask tn-theme-color-mask-active">Xiumi theme color mask residue</div>',
@@ -10822,6 +10832,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi source-house authoring residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi source-house authoring residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi basic style fragment classes without template tree markers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_BASIC_STYLE_FRAGMENT_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_BASIC_STYLE_FRAGMENT_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_BASIC_STYLE_FRAGMENT_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi basic style fragment residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi basic style fragment residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi basic style fragment residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi template authoring tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi source-house authoring residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi theme color mask residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

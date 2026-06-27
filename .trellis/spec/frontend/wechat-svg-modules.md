@@ -8096,6 +8096,45 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 180. Xiumi Basic Style Fragment Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains basic-style fragment
+  controls observed in a live CloakBrowser DOM readback as `basic-style-desc`,
+  `flow-page-basic-style`, or `fragment-type-flow_page_basic_style`.
+- The live page exposes these markers in the editor-side basic format fragment cards whose text
+  includes font size, line height, letter spacing, page margins, and set-as-current-format
+  affordances. They are not publishable article DOM and must not appear in WeChat, Xiaohongshu, or
+  Zhihu output.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi basic style fragment residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `basic-style-desc`,
+  `flow-page-basic-style`, or `fragment-type-flow_page_basic_style`.
+- A reduced fixture containing only those style-fragment markers must fail after template-tree and
+  source-house cleanup even when broader `tn-tpl*`, `tn-from-house*`, `tn-theme-color-mask*`,
+  Angular runtime attributes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose about basic style, font size, line height, letter
+  spacing, or page margins by itself. It must stay anchored to Xiumi-specific class/id names.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced basic-style-fragment fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi basic style fragment residue` after
+  the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi template authoring tree residue`,
+  `Xiumi source-house authoring residue`, and `Xiumi theme color mask residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

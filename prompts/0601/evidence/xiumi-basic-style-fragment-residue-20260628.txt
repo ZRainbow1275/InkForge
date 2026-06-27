@@ -1,0 +1,64 @@
+Xiumi Basic Style Fragment Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for partially cleaned Xiumi v5 basic style fragment residue.
+- The live CloakBrowser DOM readback showed `basic-style-desc`, `flow-page-basic-style`, and
+  `fragment-type-flow_page_basic_style` in editor-side basic-format fragment cards.
+- The visible source text describes basic format settings such as font size 16px, line height 1.6,
+  letter spacing 0, page margins 0, and setting the fragment as the current basic format.
+
+Implemented:
+- Added `Xiumi basic style fragment residue` to the market editor residue detector.
+- Added a reduced fixture that contains only the basic style fragment class markers and normal text.
+- Kept the rule separate from `Xiumi template authoring tree residue` and
+  `Xiumi source-house authoring residue` so partially cleaned fragments are still blocked after
+  broader template/source-house cleanup.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all report the exact market-editor residue label.
+- The reduced fixture does not rely on broader `tn-tpl*`, `tn-from-house*`,
+  `tn-theme-color-mask*`, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector remains anchored to class/id markers and does not block ordinary prose about basic
+  style, font size, line height, letter spacing, page margins, or typography by itself.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "basic style fragment" --reporter=default
+  Expected failure before detector update: no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "basic style fragment" --reporter=default
+  PASS: 1 selected test / 286 skipped tests.
+- Adjacent regressions:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-house authoring" --reporter=default
+  PASS: 1 selected test / 286 skipped tests.
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template authoring tree" --reporter=default
+  PASS: 1 selected test / 286 skipped tests.
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color mask" --reporter=default
+  PASS: 1 selected test / 286 skipped tests.
+- Full platform rendering suite:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  PASS: 1 file / 287 tests.
+- Full export service suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  PASS: 36 files / 1264 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: transformed 4653 modules; built in 30.49s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0.
+
+Boundary:
+- This proves local static quality detection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or publish
+  success.

@@ -6909,6 +6909,49 @@ Boundary:
 
 ---
 
+## 2026-06-28 Xiumi Basic Style Fragment Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side basic
+  format fragment cards can remain as `basic-style-desc`, `flow-page-basic-style`, and
+  `fragment-type-flow_page_basic_style`.
+- Added the static detector label `Xiumi basic style fragment residue` so copied basic-format
+  fragment residue is blocked even after broader `tn-tpl*`, `tn-from-house*`, and
+  `tn-theme-color-mask*` markers have been cleaned.
+- Kept the rule anchored to class/id markers so ordinary prose about basic style, font size, line
+  height, letter spacing, page margins, or typography is not blocked by itself.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "basic style fragment" --reporter=default`.
+- Verification:
+  adjacent source-house, template-authoring, and theme-color-mask regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-house authoring" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template authoring tree" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color mask" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 287 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1264 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 30.49s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-basic-style-fragment-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-28 Xiumi Animation Style Picker Icon Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the animation style

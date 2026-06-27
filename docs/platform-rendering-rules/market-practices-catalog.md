@@ -1437,6 +1437,11 @@ Rules:
 - Xiumi source-house authoring classes such as `tn-from-house` and `tn-from-house-template` must
   fail independently of component, cell, layer, page, template, hosted-media, Angular, opera
   runtime, renderer-pipeline, or SVG content-layer markers.
+- Xiumi basic style fragment classes such as `basic-style-desc`, `flow-page-basic-style`, and
+  `fragment-type-flow_page_basic_style` must fail independently of broader `tn-tpl*`,
+  `tn-from-house*`, and theme-color mask markers. These editor-side "basic format" fragment cards
+  can inform InkForge-owned default typography controls, but must never be copied as publishable
+  body DOM.
 - Xiumi theme color mask classes such as `tn-theme-color-mask` and
   `tn-theme-color-mask-active` must fail independently of component, cell, layer, page, template,
   source-house, hosted-media, Angular, opera runtime, renderer-pipeline, or SVG content-layer
@@ -1653,6 +1658,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-page-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-template-authoring-tree-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-source-house-authoring-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-basic-style-fragment-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-theme-color-mask-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-component-template-binding-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-component-identity-metadata-residue-20260626.txt`
@@ -1740,4 +1746,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-icon-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-179.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-180.

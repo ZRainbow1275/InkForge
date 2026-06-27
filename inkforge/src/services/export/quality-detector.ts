@@ -417,6 +417,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi source-house authoring residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:basic-style-desc|flow-page-basic-style|fragment-type-flow_page_basic_style)\b[^"']*["']/i,
+    label: 'Xiumi basic style fragment residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-theme-color-mask(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi theme color mask residue',
   },

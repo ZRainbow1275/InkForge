@@ -8,6 +8,66 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Basic Style Fragment Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The basic-format fragment cards exposed
+  `basic-style-desc`, `flow-page-basic-style`, and `fragment-type-flow_page_basic_style`.
+- Their visible text describes editor-side basic format settings such as font size 16px, line
+  height 1.6, letter spacing 0, page margins 0, and set-as-current-format affordances.
+- These markers are not publishable article DOM and must remain publish-blocking if copied into
+  WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the basic style fragment markers, proving
+  copied Xiumi basic-format fragment residue is blocked without relying on broader `tn-tpl*`,
+  `tn-from-house*`, `tn-theme-color-mask*`, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- Added the exact `Xiumi basic style fragment residue` detector beside the decomposed template and
+  source-house rules.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "basic style fragment" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 286 skipped tests after the
+  detector update.
+- Adjacent source-house, template-authoring, and theme-color-mask regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "source-house authoring" --reporter=default`,
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template authoring tree" --reporter=default`,
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color mask" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file / 287 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files / 1264 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, transformed 4653 modules,
+  and completed in 30.49s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Animation Style Picker Icon Residue Slice
 
 Source:

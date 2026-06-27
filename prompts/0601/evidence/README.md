@@ -6213,6 +6213,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-28 Xiumi Basic Style Fragment Residue
+
+- [x] xiumi-basic-style-fragment-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 basic style fragment markers including
+  `basic-style-desc`, `flow-page-basic-style`, and `fragment-type-flow_page_basic_style`.
+- CloakBrowser observed these markers in editor-side basic-format fragment cards whose visible
+  text contains font size, line height, letter spacing, page margins, and set-current-format
+  affordances.
+- The reduced regression intentionally keeps only those source-specific style-fragment classes,
+  proving the cleaned basic-format residue is blocked without relying on `tn-tpl*`,
+  `tn-from-house*`, `tn-theme-color-mask*`, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- The detector intentionally does not block ordinary prose about basic style, font size, line
+  height, letter spacing, page margins, or typography by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Panel Child Control Residue
 
 - [x] xiumi-animation-panel-child-control-residue-20260628.txt
