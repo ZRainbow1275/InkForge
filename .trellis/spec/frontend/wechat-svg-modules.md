@@ -4904,6 +4904,43 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 166. Xiumi WeChat Cover Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the WeChat cover
+  selection control observed in a live CloakBrowser DOM readback as `op-ce-wx-cover`.
+- The marker drives Xiumi editor-side cover selection with text such as "choose a cover from the
+  left gallery". It is not article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This contract is static publishability protection only. It does not prove WeChat cover
+  thumbnail acceptance, paste, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi WeChat cover control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `op-ce-wx-cover`.
+- A reduced fixture containing only `op-ce-wx-cover` plus an inert `op-dark-mask` child must fail
+  after generated-link cleanup even when generated-link controls, attribute-board controls,
+  operator dock/depot controls, paper auxiliary tree controls, selection overlays, worker/crop
+  controls, toolbar controls, Angular runtime attributes, hosted media, sidebar controls, and
+  meta panels are absent.
+- The detector must not block ordinary prose containing WeChat, cover, gallery, Xiumi, editor, or
+  template wording by itself; the trigger is the source-specific Xiumi class/id marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced WeChat-cover-only fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi WeChat cover control residue`
+  after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi generated link control residue` and
+  `Xiumi attribute board control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat cover thumbnail acceptance, paste, phone preview, credentialed sync, public rendering,
+  upload, or publish success.
+
 ## 165. Xiumi Generated Link Control Residue - 2026-06-28
 
 ### 1. Scope / Trigger

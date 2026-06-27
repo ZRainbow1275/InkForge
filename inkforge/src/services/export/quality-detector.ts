@@ -317,6 +317,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi generated link control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-ce-wx-cover\b[^"']*["']/i,
+    label: 'Xiumi WeChat cover control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:full-screen-mask|brim-group|box-lines|box-handles)\b[^"']*["']/i,
     label: 'Xiumi selection overlay control residue',
   },

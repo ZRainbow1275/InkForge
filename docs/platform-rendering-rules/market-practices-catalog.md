@@ -1535,6 +1535,10 @@ Rules:
 - Xiumi generated-link controls such as `op-gen-link`, `op-cp-background-audio`, and
   `op-cp-wx-miniprogram-link` must fail after attribute-board cleanup, and must report the
   precise `Xiumi generated link control residue` label.
+- Xiumi WeChat cover controls such as `op-ce-wx-cover` must fail after generated-link cleanup,
+  and must report the precise `Xiumi WeChat cover control residue` label. This protects the
+  publishable article body from copied cover-picker controls; it does not prove WeChat cover
+  thumbnail acceptance.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1655,4 +1659,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-165.
+- `prompts/0601/evidence/xiumi-wechat-cover-control-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-166.
