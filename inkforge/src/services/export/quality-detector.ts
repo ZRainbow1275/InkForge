@@ -309,6 +309,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operator depot item residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-attribute-board-entry|tn-attr-assemble-tabs|op-attr-(?:view-attr-assemble|assemble)(?:-[\w-]+)+)\b[^"']*["']/i,
+    label: 'Xiumi attribute board control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:full-screen-mask|brim-group|box-lines|box-handles)\b[^"']*["']/i,
     label: 'Xiumi selection overlay control residue',
   },

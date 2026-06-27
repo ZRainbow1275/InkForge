@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 164. Xiumi Attribute Board Control Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains attribute-board
+  markers observed in a live CloakBrowser DOM readback, including `tn-attribute-board-entry`,
+  `tn-attr-assemble-tabs`, `op-attr-assemble-*`, and `op-attr-view-attr-assemble-*`.
+- These markers drive Xiumi editor-side property controls for margin, border, shadow, formatting,
+  text decoration, action/link settings, and related component attributes. They are not article
+  body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi attribute board control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `tn-attribute-board-entry`,
+  `tn-attr-assemble-tabs`, `op-attr-assemble-*`, or `op-attr-view-attr-assemble-*`.
+- A reduced fixture containing only `tn-attribute-board-entry` and `tn-attr-assemble-tabs` must
+  fail after operator-depot cleanup even when operator dock/depot classes, `dc-*` depot markers,
+  selection overlays, worker/crop controls, paper auxiliary tree controls, toolbar controls,
+  Angular runtime attributes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose containing attribute, board, margin, border, shadow,
+  action, link, Xiumi, editor, or template wording by itself; the trigger is the source-specific
+  Xiumi class/id marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced attribute-board-only fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi attribute board control residue`
+  after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operator dock control residue`,
+  `Xiumi operator depot item residue`, `Xiumi selection overlay control residue`, and generic
+  `dc-*` depot handling independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 163. Xiumi Page Toolbar Residue - 2026-06-28
 
 ### 1. Scope / Trigger

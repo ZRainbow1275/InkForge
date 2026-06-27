@@ -6050,3 +6050,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   `booklet`, and `stop-propagation` are not standalone triggers for this rule.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Attribute Board Control Residue
+
+- [x] xiumi-attribute-board-control-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 attribute-board controls including
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-assemble-*`, and
+  `op-attr-view-attr-assemble-*`.
+- The reduced regression intentionally keeps only the source-specific attribute-board classes,
+  proving the cleaned property panel residue is blocked without relying on operator dock/depot
+  classes, `dc-*` depot markers, selection overlays, worker/crop controls, paper auxiliary tree
+  controls, toolbar controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector intentionally does not block ordinary prose containing attribute, board, margin,
+  border, shadow, action, link, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

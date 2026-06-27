@@ -1,0 +1,69 @@
+Xiumi Attribute Board Control Residue - 2026-06-28
+
+Scope:
+- Static publishability protection for copied Xiumi v5 paper-editor attribute-board residue.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action is claimed.
+
+Source:
+- Live Xiumi v5 paper-editor DOM review confirmed editor-side attribute-board markers including
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-assemble-item-slot`, and
+  `op-attr-view-attr-assemble-*`.
+- These markers represent editor controls for margin, border, shadow, formatting,
+  text-decoration, action, link, and related component attributes. They are not article body DOM.
+- No account-state material, local browser runtime material, credential material, capture artifact,
+  upload artifact, sync artifact, preview artifact, or publish artifact is part of this evidence.
+
+Implemented:
+- Added `Xiumi attribute board control residue` to market-editor residue quality detection.
+- Added a reduced three-platform regression fixture containing only `tn-attribute-board-entry` and
+  `tn-attr-assemble-tabs`.
+
+Regression behavior:
+- WeChat, Xiaohongshu, and Zhihu quality reports must fail with
+  `Xiumi attribute board control residue` when class or id attributes contain
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-assemble-*`, or
+  `op-attr-view-attr-assemble-*`.
+- The reduced fixture must not rely on operator dock/depot classes, `dc-*` depot markers,
+  selection overlays, worker/crop controls, paper auxiliary tree controls, toolbar controls,
+  Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- Ordinary prose containing attribute, board, margin, border, shadow, action, link, Xiumi, editor,
+  or template wording is not a trigger.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board" --reporter=default
+  Expected failure before the detector update: no market-editor-residue issue was emitted for the
+  reduced fixture.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board" --reporter=default
+  PASS: 1 selected test / 269 skipped.
+- Full platform file:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  PASS: 1 file / 270 tests.
+- Export serial suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  PASS: 36 files / 1247 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite build completed in 26.46s.
+- Build cache cleanup:
+  git restore -- inkforge/tsconfig.tsbuildinfo
+  PASS.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or publish
+  success.
