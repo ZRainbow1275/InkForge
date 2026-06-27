@@ -8,6 +8,56 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-27 135 SVG Builder Effect Data-Name Second Expansion Slice
+
+Source:
+- CloakBrowser clicked the remaining visible live 135 SVG free-trial effect buttons in the
+  logged-in SVG editor and selected the no-bundled-design-material option whenever prompted.
+- The center editor exposed 19 additional source-specific 135 builder `data-name` metadata
+  values: `devicephotos`, `clickopenverticalandretainimg`, `slidecardsexpand`,
+  `scrollwithclickchangeimage`, `clickpalywithsacleimageandspread`,
+  `clickspreadtrackchangeimage`, `clicktrackchangeimage`,
+  `touchmoveshowimagewithleakagecarousel`, `autoshowimagewithleakagecarousel`,
+  `clickshowimagewithleakagecarousel`, `marqueeclickpopimage`,
+  `clickplaygifwithhorizontalscroll`, `clickslideandclickswitchpop`, `doubleclickimage`,
+  `clickscaleremovechangeimgs`, `clickcoverandmoveimages`, `clickchooseonepopup`,
+  `clickrotatechangeimgswithtopandbgchange`, and `chooseonefromtwoclickimagewithcallback`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  or bundled design material is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the 19 second-batch `data-name` attributes
+  without `app-content-canvas`, `content-wrapper`, `block-img__content`, `block-img__default`,
+  `edit-placeholder`, `placeholder__name`, editor shell wrappers, trigger overlays, layout
+  controls, toolbar classes, sidebar/navigation wrappers, material controls, material-panel
+  controls, hosted media, Ant switch controls, `svg:135` styles, or `background-size:100.1%`
+  background shells.
+- Added a second same-label detector row for `135 SVG builder effect data-name`, following the
+  existing duplicated-label rule pattern used by Xiumi residue detectors instead of creating an
+  oversized single regex row.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "second-batch 135 SVG builder effect data-name" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 262 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 263 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1240 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The production
+  build transformed 4653 modules and completed in 34.05s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
 ## 2026-06-27 135 SVG Builder Effect Data-Name Expansion Slice
 
 Source:

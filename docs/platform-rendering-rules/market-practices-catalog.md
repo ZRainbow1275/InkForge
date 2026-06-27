@@ -226,6 +226,16 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   `autobounceflipcard`, `multipletouchmovetodismissimgs`, `svgscrollswithgruopsslide`,
   `clickchangecoverwithscroll`, and `clickredpakcetwithscroll`. These values must fail under
   `135 SVG builder effect data-name` without relying on canvas or shell wrappers.
+- 2026-06-27 CloakBrowser free-trial second-batch follow-up: clicking the remaining visible 135
+  SVG free-trial effects exposed `devicephotos`, `clickopenverticalandretainimg`,
+  `slidecardsexpand`, `scrollwithclickchangeimage`, `clickpalywithsacleimageandspread`,
+  `clickspreadtrackchangeimage`, `clicktrackchangeimage`,
+  `touchmoveshowimagewithleakagecarousel`, `autoshowimagewithleakagecarousel`,
+  `clickshowimagewithleakagecarousel`, `marqueeclickpopimage`,
+  `clickplaygifwithhorizontalscroll`, `clickslideandclickswitchpop`, `doubleclickimage`,
+  `clickscaleremovechangeimgs`, `clickcoverandmoveimages`, `clickchooseonepopup`,
+  `clickrotatechangeimgswithtopandbgchange`, and `chooseonefromtwoclickimagewithcallback`.
+  These values must fail under `135 SVG builder effect data-name` as exact metadata attributes.
 - Xiumi's SVG category exposed a broad interaction taxonomy: basic SVG, image carousel,
   click-expand, path animation, draw/lottery, playful slide, switch transition, branch transition,
   slide trigger, parallax move, click switch, flip, zoom, quiz, barrage text, click show/change/open/
@@ -1331,6 +1341,19 @@ Rules:
   shell wrappers, trigger overlays, layout controls, toolbar classes, sidebar/navigation wrappers,
   material controls, material-panel controls, hosted media, Ant switch controls, `svg:135` styles,
   or `background-size:100.1%` background shells.
+- 135 SVG builder effect metadata second-batch values such as `devicephotos`,
+  `clickopenverticalandretainimg`, `slidecardsexpand`, `scrollwithclickchangeimage`,
+  `clickpalywithsacleimageandspread`, `clickspreadtrackchangeimage`,
+  `clicktrackchangeimage`, `touchmoveshowimagewithleakagecarousel`,
+  `autoshowimagewithleakagecarousel`, `clickshowimagewithleakagecarousel`,
+  `marqueeclickpopimage`, `clickplaygifwithhorizontalscroll`,
+  `clickslideandclickswitchpop`, `doubleclickimage`, `clickscaleremovechangeimgs`,
+  `clickcoverandmoveimages`, `clickchooseonepopup`,
+  `clickrotatechangeimgswithtopandbgchange`, and `chooseonefromtwoclickimagewithcallback` must
+  fail under `135 SVG builder effect data-name` independently of canvas wrappers, shell wrappers,
+  trigger overlays, layout controls, toolbar classes, sidebar/navigation wrappers, material
+  controls, material-panel controls, hosted media, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1604,4 +1627,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-articles-anchor-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-156.
+- `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-157.

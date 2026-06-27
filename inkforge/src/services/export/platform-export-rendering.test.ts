@@ -216,6 +216,30 @@ const MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_SECOND_EXPANSION_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<div data-name="devicephotos">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickopenverticalandretainimg">135 SVG effect data-name expansion.</div>',
+  '<div data-name="slidecardsexpand">135 SVG effect data-name expansion.</div>',
+  '<div data-name="scrollwithclickchangeimage">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickpalywithsacleimageandspread">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickspreadtrackchangeimage">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clicktrackchangeimage">135 SVG effect data-name expansion.</div>',
+  '<div data-name="touchmoveshowimagewithleakagecarousel">135 SVG effect data-name expansion.</div>',
+  '<div data-name="autoshowimagewithleakagecarousel">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickshowimagewithleakagecarousel">135 SVG effect data-name expansion.</div>',
+  '<div data-name="marqueeclickpopimage">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickplaygifwithhorizontalscroll">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickslideandclickswitchpop">135 SVG effect data-name expansion.</div>',
+  '<div data-name="doubleclickimage">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickscaleremovechangeimgs">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickcoverandmoveimages">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickchooseonepopup">135 SVG effect data-name expansion.</div>',
+  '<div data-name="clickrotatechangeimgswithtopandbgchange">135 SVG effect data-name expansion.</div>',
+  '<div data-name="chooseonefromtwoclickimagewithcallback">135 SVG effect data-name expansion.</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_TRIGGER_RESIDUE_HTML = [
   '<section id="app-content-canvas" class="content-wrapper">',
   '<div class="content-background">',
@@ -9100,6 +9124,26 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_EXPANSION_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG builder effect data-name')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG builder canvas residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor shell residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks second-batch 135 SVG builder effect data-name values without canvas wrappers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_SECOND_EXPANSION_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_SECOND_EXPANSION_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_EFFECT_DATA_NAME_SECOND_EXPANSION_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('135 SVG builder effect data-name')
