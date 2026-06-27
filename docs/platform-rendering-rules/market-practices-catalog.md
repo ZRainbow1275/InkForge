@@ -1539,6 +1539,10 @@ Rules:
   and must report the precise `Xiumi WeChat cover control residue` label. This protects the
   publishable article body from copied cover-picker controls; it does not prove WeChat cover
   thumbnail acceptance.
+- Xiumi scale-panel controls such as `op-ce-scale` must fail after WeChat-cover cleanup, and must
+  report the precise `Xiumi scale panel control residue` label. These editor-side scale, width,
+  and height controls may inform InkForge-owned layout reports, but must never be copied as
+  publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1660,4 +1664,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
 - `prompts/0601/evidence/xiumi-wechat-cover-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-166.
+- `prompts/0601/evidence/xiumi-scale-panel-control-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-167.

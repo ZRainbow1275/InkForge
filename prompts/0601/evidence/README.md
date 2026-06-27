@@ -6096,3 +6096,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
+
+## 2026-06-28 Xiumi Scale Panel Control Residue
+
+- [x] xiumi-scale-panel-control-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 scale/size panel marker `op-ce-scale`.
+- The reduced regression intentionally keeps only the source-specific scale panel class, proving
+  the cleaned size-control residue is blocked without relying on WeChat cover controls,
+  generated-link controls, attribute-board controls, operator dock/depot classes, paper auxiliary
+  tree controls, selection overlays, worker/crop controls, toolbar controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose containing scale, width, height,
+  Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
