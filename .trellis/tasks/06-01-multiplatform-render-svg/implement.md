@@ -8,6 +8,64 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Attribute Stack Panel Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The hidden attribute-panel surface exposed
+  `tn-attribute-stack-panel-root` and `tn-attribute-stack-panel`.
+- These markers are Xiumi editor-side stacked property-panel containers. They are not publishable
+  article DOM and must remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-attribute-stack-panel-root` and
+  `tn-attribute-stack-panel`, proving copied Xiumi attribute-stack residue is blocked without
+  relying on attribute-board controls, generated-link controls, operator-depot controls,
+  operator-dock controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- Added the exact `Xiumi attribute stack panel residue` detector beside the existing Xiumi
+  attribute-board detector.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute stack panel" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 280 skipped tests after the
+  detector update.
+- Adjacent attribute-board and generated-link regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board controls" --reporter=default`
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "generated link controls" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file / 281 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files / 1258 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, transformed 4653 modules,
+  and completed in 29.02s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Animation Panel Child Control Residue Slice
 
 Source:

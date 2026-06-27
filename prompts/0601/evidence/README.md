@@ -6230,3 +6230,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Attribute Stack Panel Residue
+
+- [x] xiumi-attribute-stack-panel-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 attribute stack panel markers including
+  `tn-attribute-stack-panel-root` and `tn-attribute-stack-panel`.
+- The reduced regression intentionally keeps only those source-specific stack-panel classes,
+  proving the cleaned attribute-stack residue is blocked without relying on
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-*`, generated-link controls,
+  operator-depot controls, operator-dock controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary attribute wording, stack wording, panel
+  wording, style article text, or non-Xiumi class names by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.

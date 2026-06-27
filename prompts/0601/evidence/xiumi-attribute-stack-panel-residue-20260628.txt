@@ -1,0 +1,74 @@
+Xiumi Attribute Stack Panel Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied Xiumi v5 attribute stack panel residue.
+- Target platforms: WeChat, Xiaohongshu, and Zhihu quality gates.
+- No platform action, no phone preview, no sync, no upload, no public host check, no scheduled send,
+  and no publish action.
+
+Observed source:
+- A live CloakBrowser DOM readback from the Xiumi v5 paper editor exposed attribute stack panel
+  classes including tn-attribute-stack-panel-root and tn-attribute-stack-panel.
+- These controls are editor-side stacked property-panel containers.
+- They may inform InkForge-owned style schemas, but they are editor-side control DOM and must not
+  be copied as publishable article body HTML.
+
+Implemented:
+- Added the static detector label: Xiumi attribute stack panel residue.
+- Matched only class/id attributes containing tn-attribute-stack-panel-root or
+  tn-attribute-stack-panel.
+- Did not match ordinary attribute wording, stack wording, panel wording, style article text, or
+  non-Xiumi class names by itself.
+- Did not alter renderer output, style availability, selectable actions, release-gate accounting,
+  clipboard behavior, account state, upload, sync, schedule, or publish behavior.
+
+Regression coverage:
+- Added a reduced fixture containing only tn-attribute-stack-panel-root and
+  tn-attribute-stack-panel.
+- The fixture proves the cleaned attribute-stack residue is blocked without relying on
+  tn-attribute-board-entry, tn-attr-assemble-tabs, op-attr-* classes, generated-link controls,
+  operator-depot controls, operator-dock controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The test asserts the exact residue label for WeChat, Xiaohongshu, and Zhihu.
+- The test also asserts the WeChat result does not report the adjacent attribute-board or
+  generated-link labels for this reduced fixture.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute stack panel" --reporter=default
+  Result: failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute stack panel" --reporter=default
+  Result: passed with 1 selected test and 280 skipped tests after the detector update.
+- Adjacent:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board controls" --reporter=default
+  Result: passed with 1 selected test and 280 skipped tests.
+- Adjacent:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "generated link controls" --reporter=default
+  Result: passed with 1 selected test and 280 skipped tests.
+- Full platform rendering:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  Result: passed with 1 file / 281 tests.
+- Full export service:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  Result: passed with 36 files / 1258 tests.
+- Targeted lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, transformed 4653 modules, built in 29.02s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: expected blocked-by-external exit with canClaimComplete=false, externalHandoffRows=18,
+  safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and uniqueNextRows=3.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

@@ -656,6 +656,14 @@ const MARKET_EDITOR_XIUMI_ATTRIBUTE_BOARD_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_ATTRIBUTE_STACK_PANEL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-attribute-stack-panel-root">',
+  '<div class="tn-attribute-stack-panel">Xiumi attribute stack panel residue</div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_GENERATED_LINK_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-gen-link">Xiumi generated link control residue</div>',
@@ -11053,6 +11061,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi attribute board control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operator dock control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi attribute stack panel controls without attribute-board markers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_ATTRIBUTE_STACK_PANEL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_ATTRIBUTE_STACK_PANEL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ATTRIBUTE_STACK_PANEL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi attribute stack panel residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi attribute stack panel residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi attribute stack panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi attribute board control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi generated link control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

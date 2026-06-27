@@ -325,6 +325,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi attribute board control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-attribute-stack-panel(?:-root)?\b[^"']*["']/i,
+    label: 'Xiumi attribute stack panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-gen-link|op-cp-(?:background-audio|wx-miniprogram-link))\b[^"']*["']/i,
     label: 'Xiumi generated link control residue',
   },

@@ -1532,6 +1532,11 @@ Rules:
   `op-attr-assemble-*`, and `op-attr-view-attr-assemble-*` must fail after operator-depot and
   `dc-*` markers are removed, and must report the precise
   `Xiumi attribute board control residue` label.
+- Xiumi attribute stack panel residues such as `tn-attribute-stack-panel-root` and
+  `tn-attribute-stack-panel` must fail after attribute-board cleanup, and must report the precise
+  `Xiumi attribute stack panel residue` label. These editor-side stacked property-panel
+  containers may inform InkForge-owned style schemas, but must never be copied as publishable body
+  DOM.
 - Xiumi generated-link controls such as `op-gen-link`, `op-cp-background-audio`, and
   `op-cp-wx-miniprogram-link` must fail after attribute-board cleanup, and must report the
   precise `Xiumi generated link control residue` label.
@@ -1712,4 +1717,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-background-attribute-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-attribute-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-panel-child-control-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-174.
+- `prompts/0601/evidence/xiumi-attribute-stack-panel-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-175.

@@ -6948,3 +6948,45 @@ Boundary:
   phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Attribute Stack Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed attribute stack panel
+  controls can remain as `tn-attribute-stack-panel-root` and `tn-attribute-stack-panel`.
+- Added the static detector label `Xiumi attribute stack panel residue` so copied stacked
+  property-panel containers are blocked even after attribute-board, generated-link,
+  operator/depot, Angular runtime, hosted media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to source-specific `tn-attribute-stack-panel*` class/id markers so
+  ordinary attribute wording, stack wording, panel wording, style article text, and non-Xiumi
+  classes are not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute stack panel" --reporter=default`.
+- Verification:
+  adjacent attribute-board and generated-link regressions passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute board controls" --reporter=default`
+  and
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "generated link controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 281 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1258 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 29.02s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-attribute-stack-panel-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

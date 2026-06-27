@@ -7959,6 +7959,49 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 175. Xiumi Attribute Stack Panel Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains attribute stack panel
+  controls observed in a live CloakBrowser DOM readback as `tn-attribute-stack-panel-root` or
+  `tn-attribute-stack-panel`.
+- These controls are editor-side attribute panel containers for the stacked property UI. They can
+  inform InkForge-owned style schemas, but they are not article body DOM and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi attribute stack panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `tn-attribute-stack-panel-root` or
+  `tn-attribute-stack-panel`.
+- A reduced fixture containing only `tn-attribute-stack-panel-root` and
+  `tn-attribute-stack-panel` must fail after attribute-board cleanup even when
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-*`, generated-link controls,
+  operator-depot controls, operator-dock controls, Angular runtime attributes, hosted media,
+  sidebar controls, and meta panels are absent.
+- The detector must not block ordinary attribute wording, stack wording, panel wording, style
+  article text, or non-Xiumi class names by itself; the trigger is the source-specific Xiumi
+  `tn-attribute-stack-panel*` marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced attribute-stack fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi attribute stack panel residue` after
+  the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi attribute board control residue` and
+  `Xiumi generated link control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 125. Xiumi Paper Auxiliary Component Tree Residue - 2026-06-26
 
 ### 1. Scope / Trigger
