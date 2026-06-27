@@ -5225,6 +5225,37 @@ Boundary:
 
 ---
 
+## 2026-06-27 135 SVG Editor Gap Input Child Addendum
+
+- Reviewed the live 135 SVG editor through CloakBrowser and confirmed the layout controls can
+  retain the spacing/gap input child class `gap_input`.
+- Added `gap_input` to the static detector label `135 SVG editor layout control residue`.
+  Generic gap, spacing, input, SVG, or editor wording is not enough.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "gap input" --reporter=default`
+  failed before the detector and passed after it.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 261 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1238 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 31.97s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
+---
+
 ## 2026-06-27 135 SVG Sidebar Icon Help Addendum
 
 - Reviewed the live 135 SVG editor through CloakBrowser and confirmed sidebar icon/help DOM can

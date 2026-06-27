@@ -93,6 +93,44 @@ Verification:
 - Release preflight stayed truthfully blocked by external gates:
   `status=blocked-by-external`, `canClaimComplete=false`.
 
+## 2026-06-27 135 SVG Editor Gap Input Child Residue Slice
+
+Source:
+- CloakBrowser reviewed the logged-in 135 SVG editor center canvas and surrounding layout controls.
+  The live DOM exposed the source-specific spacing/gap input child class `gap_input`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `gap_input` without `block-spacing`,
+  `block-gap`, `gap-item-wrapper`, `article-item__editing`, Ant slider controls, shell children,
+  center-canvas ids, trigger overlays, known `data-name` values, toolbar classes,
+  sidebar/navigation wrappers, material controls, material-panel controls, hosted media, Ant
+  switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- Added `gap_input` to the existing `135 SVG editor layout control residue` detector.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "gap input" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 260 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 261 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1238 tests.
+- Targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The production
+  build transformed 4653 modules and completed in 31.97s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
 ## Implemented Slice
 
 - [x] Add optional SMIL `id` support to primitives used by chained animation.

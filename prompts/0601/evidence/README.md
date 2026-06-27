@@ -5915,3 +5915,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   as a standalone trigger.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-27 135 SVG Editor Gap Input Child Residue
+
+- [x] 135-svg-editor-gap-input-child-residue-20260627.txt
+- Added `gap_input` to the existing `135 SVG editor layout control residue` quality rule.
+- The reduced regression intentionally keeps only the source-specific gap/spacing input child,
+  proving the cleaned editor layout-control residue is blocked without relying on
+  `block-spacing`, `block-gap`, `gap-item-wrapper`, `article-item__editing`, Ant slider controls,
+  135 SVG canvas markers, shell children, material controls, sidebar/navigation controls, toolbar
+  controls, material-panel controls, known 135 `data-name` values, hosted media, trigger overlays,
+  Ant switch controls, `svg:135` styles, or `background-size:100.1%` background shells.
+- The detector intentionally does not block ordinary prose containing gap, spacing, input,
+  material, SVG, or editor wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

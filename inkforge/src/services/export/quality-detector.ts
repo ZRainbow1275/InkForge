@@ -89,7 +89,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 SVG editor articles anchor residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:block-spacing|block-gap|gap-item-wrapper|article-item__editing|ant-slider-(?:track|handle))\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:block-spacing|block-gap|gap-item-wrapper|gap_input|article-item__editing|ant-slider-(?:track|handle))\b[^"']*["']/i,
     label: '135 SVG editor layout control residue',
   },
   {

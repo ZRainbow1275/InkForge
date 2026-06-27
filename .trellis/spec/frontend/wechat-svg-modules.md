@@ -4904,6 +4904,41 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 155. 135 SVG Editor Gap Input Child Control Residue - 2026-06-27
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 SVG editor HTML contains the live gap/spacing input
+  child control class `gap_input` without its parent layout wrappers.
+- `gap_input` is an editor-side spacing control, not article content, and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report the existing
+  `135 SVG editor layout control residue` label for WeChat, Xiaohongshu, and Zhihu when
+  `gap_input` appears in class/id attributes.
+- A reduced fixture containing only `gap_input` must fail even when `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, `article-item__editing`, Ant slider controls, center-canvas ids, shell
+  children, trigger overlays, toolbar classes, sidebar/navigation wrappers, material controls,
+  material-panel controls, known `data-name` values, hosted media, Ant switch controls, `svg:135`
+  styles, and `background-size:100.1%` background shells are absent.
+- The detector must not block ordinary prose containing gap, spacing, input, editor, or SVG
+  wording by itself.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `gap_input` fixture fails before implementation and reports
+  `135 SVG editor layout control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `135 SVG editor shell residue`,
+  `135 SVG editor toolbar residue`, and `135 SVG builder canvas residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 154. 135 SVG Editor Articles Anchor Residue - 2026-06-27
 
 ### 1. Scope / Trigger

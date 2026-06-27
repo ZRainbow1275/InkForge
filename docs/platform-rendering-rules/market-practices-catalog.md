@@ -217,6 +217,10 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   `135 SVG editor articles anchor residue` even when `artilce-list`, shell children, canvas ids,
   known `data-name` values, material controls, and trigger/layout wrappers are absent. Generic
   `article-item` remains insufficient.
+- 2026-06-27 CloakBrowser layout child-control follow-up: copied `gap_input` must fail under the
+  existing `135 SVG editor layout control residue` label even when `block-spacing`, `block-gap`,
+  `gap-item-wrapper`, `article-item__editing`, Ant slider controls, shell wrappers, and canvas
+  markers are absent.
 - Xiumi's SVG category exposed a broad interaction taxonomy: basic SVG, image carousel,
   click-expand, path animation, draw/lottery, playful slide, switch transition, branch transition,
   slide trigger, parallax move, click switch, flip, zoom, quiz, barrage text, click show/change/open/
@@ -1308,6 +1312,12 @@ Rules:
   controls, material-panel controls, trigger overlays, known `data-name` values, hosted media,
   Ant switch controls, `svg:135` styles, or `background-size:100.1%` background shells. Generic
   `article-item` is not a standalone trigger.
+- 135 SVG editor gap/spacing child controls such as `gap_input` must fail under the existing
+  layout-control residue independently of `block-spacing`, `block-gap`, `gap-item-wrapper`,
+  `article-item__editing`, Ant slider controls, shell wrappers, builder canvas markers, toolbar
+  classes, sidebar/navigation wrappers, material controls, material-panel controls, trigger
+  overlays, known `data-name` values, hosted media, Ant switch controls, `svg:135` styles, or
+  `background-size:100.1%` background shells.
 - 135 SVG material list-card controls such as `item-element`, `item-element_id`,
   `item-element__box`, `item-content__tag`, `item-element__title`, `item-element__price`,
   `item-line`, `element-actions__wrap`, `element-price__wrap`, `item-summary-tag`, and
@@ -1579,4 +1589,5 @@ Evidence:
 - `prompts/0601/evidence/135-svg-material-component-path-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-editor-article-list-wrapper-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-editor-articles-anchor-residue-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-154.
+- `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-155.

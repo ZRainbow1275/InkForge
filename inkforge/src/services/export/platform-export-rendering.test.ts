@@ -290,6 +290,12 @@ const MARKET_EDITOR_135_SVG_LAYOUT_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_SVG_GAP_INPUT_CHILD_RESIDUE_HTML = [
+  '<section style="margin:0;padding:0">',
+  '<input class="gap_input" value="12">',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_135_SVG_TOOLBAR_RESIDUE_HTML = [
   '<section style="margin:0;padding:0">',
   '<div class="editor-toolbar">',
@@ -9239,6 +9245,26 @@ describe('platform native export rendering rules', () => {
       .toContain('135 SVG editor layout control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 SVG editor layout control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 SVG editor gap input child controls without layout wrappers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_SVG_GAP_INPUT_CHILD_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_SVG_GAP_INPUT_CHILD_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_SVG_GAP_INPUT_CHILD_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 SVG editor layout control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor shell residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 SVG editor toolbar residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
