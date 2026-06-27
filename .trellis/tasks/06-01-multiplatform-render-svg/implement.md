@@ -8,6 +8,54 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-28 Xiumi Editing Frozen-Toggle Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor. The page
+  editing surface exposed `tn-editing-cell-frozen-toggle-enabled`.
+- The observed page container also had broader page/container, Angular, and atom drag/drop
+  markers, but the new rule targets the frozen-toggle class independently for partially cleaned
+  copied HTML.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR
+  artifact is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-editing-cell-frozen-toggle-enabled`,
+  proving the cleaned page editing/frozen-toggle residue is blocked without relying on
+  `tn-page-container`, `tn-page-*`, `tn-scrolled-page`, `tn-on-*`, `tn-in-cell-*`, broader
+  authoring tree classes, Angular runtime attributes, atom drag/drop attributes, hosted media,
+  operator controls, selection overlays, sidebar controls, or meta panels.
+- Added the exact `Xiumi editing frozen-toggle residue` detector beside the existing Xiumi
+  editing-state rules.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing frozen-toggle" --reporter=default`
+  failed with 1 new failing test because no market-editor-residue issue was emitted.
+- Green: the same focused command passed with 1 selected test and 264 skipped tests after the
+  detector update.
+- Full platform file: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 265 tests.
+- Export serial suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1242 tests.
+- Targeted ESLint and `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite completed in 54.95s.
+- `inkforge/tsconfig.tsbuildinfo` was restored after type/build dirtied the generated cache.
+- Release preflight stayed truthfully blocked by external gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-27 Xiumi Quick Input Instance Residue Slice
 
 Source:

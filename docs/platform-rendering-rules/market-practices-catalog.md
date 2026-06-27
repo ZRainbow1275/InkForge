@@ -1500,6 +1500,8 @@ Rules:
   broader gallery state wrappers are removed.
 - Xiumi editing-state residues such as `tn-on-child-editing` must fail after broader gallery
   state wrappers are removed.
+- Xiumi page editing/frozen-toggle residues such as `tn-editing-cell-frozen-toggle-enabled` must
+  fail after broader page-container and `tn-on-*` editing-state wrappers are removed.
 - Xiumi in-cell active-state residues such as `tn-in-cell-state-active` must fail after broader
   gallery state wrappers are removed.
 - Xiumi group-box wrapper residues such as `tn-group-box-wrapper` and `tn-group-fixed-box` must
@@ -1588,6 +1590,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-quick-input-instance-residue-20260627.txt`
 - `prompts/0601/evidence/xiumi-state-toggle-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-editing-state-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-editing-frozen-toggle-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-in-cell-active-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-group-box-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-image-presenter-residue-20260625.txt`
@@ -1629,4 +1632,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-158.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-159.

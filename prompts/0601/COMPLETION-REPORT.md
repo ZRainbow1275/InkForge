@@ -6353,3 +6353,35 @@ Boundary:
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
   account upload, or publish success.
+
+---
+
+## 2026-06-28 Xiumi Editing Frozen-Toggle Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the page editing
+  surface can retain `tn-editing-cell-frozen-toggle-enabled` beside broader page/container,
+  Angular, and atom drag/drop markers.
+- Added the static detector label `Xiumi editing frozen-toggle residue` so partially cleaned
+  copied HTML that retains only this page editing-state class is blocked with a precise diagnostic.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update and focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing frozen-toggle" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 265 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1242 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 54.95s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-editing-frozen-toggle-residue-20260628.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

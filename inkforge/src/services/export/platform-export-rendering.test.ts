@@ -935,6 +935,12 @@ const MARKET_EDITOR_XIUMI_EDITING_STATE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_EDITING_FROZEN_TOGGLE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-editing-cell-frozen-toggle-enabled">Xiumi editing frozen toggle residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_IN_CELL_ACTIVE_STATE_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-in-cell-state-active">Xiumi in-cell active state residue</div>',
@@ -10635,6 +10641,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi quick input residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi component authoring tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi editing frozen-toggle classes after page-container cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_EDITING_FROZEN_TOGGLE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_EDITING_FROZEN_TOGGLE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_EDITING_FROZEN_TOGGLE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi editing frozen-toggle residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi editing frozen-toggle residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi editing frozen-toggle residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi page authoring tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi editing state residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

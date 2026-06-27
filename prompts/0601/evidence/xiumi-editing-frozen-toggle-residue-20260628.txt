@@ -1,0 +1,65 @@
+Xiumi Editing Frozen-Toggle Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor DOM.
+- No platform paste, phone preview, sync, upload, schedule, public rendering, or publish action.
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after opening the paper editor.
+- The live DOM exposed the page editing/frozen-toggle class:
+  tn-editing-cell-frozen-toggle-enabled.
+- The observed node also carried broader page/container, Angular, and atom drag/drop markers, but
+  the committed rule targets the frozen-toggle class independently for partially cleaned HTML.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  artifact, QR artifact, credential secret, or browser runtime secret is included in this evidence.
+
+Implemented:
+- Added the exact Xiumi editing frozen-toggle residue detector for
+  tn-editing-cell-frozen-toggle-enabled.
+- Added a reduced regression fixture containing only tn-editing-cell-frozen-toggle-enabled plus
+  readable text.
+
+Regression behavior:
+- WeChat output containing tn-editing-cell-frozen-toggle-enabled reports
+  wechat-market-editor-residue with Xiumi editing frozen-toggle residue.
+- Xiaohongshu output containing tn-editing-cell-frozen-toggle-enabled reports
+  xhs-market-editor-residue with Xiumi editing frozen-toggle residue.
+- Zhihu output containing tn-editing-cell-frozen-toggle-enabled reports
+  zhihu-market-editor-residue with Xiumi editing frozen-toggle residue.
+- The reduced fixture does not rely on tn-page-container, tn-page-*, tn-scrolled-page, tn-on-*,
+  tn-in-cell-*, broader authoring tree classes, Angular runtime attributes, atom drag/drop
+  attributes, hosted media, operator controls, selection overlays, sidebar controls, or meta
+  panels.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing frozen-toggle" --reporter=default
+  FAIL: 1 new failing test before the detector update because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing frozen-toggle" --reporter=default
+  PASS: 1 selected test / 264 skipped after the detector update.
+- Full platform file:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  PASS: 1 file / 265 tests.
+- Export serial suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  PASS: 36 files / 1242 tests.
+- Targeted ESLint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 54.95s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1 with status=blocked-by-external and canClaimComplete=false.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click behavior, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or publish
+  success.

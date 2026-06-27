@@ -4904,6 +4904,44 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 159. Xiumi Editing Frozen-Toggle Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the page editing
+  switch class `tn-editing-cell-frozen-toggle-enabled` observed in a live CloakBrowser DOM
+  readback after opening the Xiumi paper editor.
+- The live node also carried `tn-page-container`, `tn-scrolled-page`, `ng-*`, `tn-atom-*`, and
+  page-mode classes, but the frozen-toggle marker must be guarded on its own because cleanup can
+  remove broader page/container authoring markers while leaving the editor-side switch state.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi editing frozen-toggle residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-editing-cell-frozen-toggle-enabled` appears in a class or id
+  attribute.
+- A reduced fixture containing only `tn-editing-cell-frozen-toggle-enabled` must fail even when
+  `tn-page-container`, `tn-page-*`, `tn-scrolled-page`, `tn-on-*`, `tn-in-cell-*`, broad Xiumi
+  authoring tree classes, Angular `ng-*` attributes, `tn-atom-*` attributes, hosted media,
+  operator controls, selection overlays, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose containing editing, frozen, toggle, enabled, active,
+  Xiumi, editor, or template wording by itself; the trigger is the source-specific Xiumi class/id
+  marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced frozen-toggle-only fixture fails before implementation and reports
+  `Xiumi editing frozen-toggle residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi page authoring tree residue`,
+  `Xiumi editing state residue`, `Xiumi in-cell active state residue`, and generic
+  `Xiumi tn-* attribute` handling independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 158. Xiumi Quick Input Instance Residue - 2026-06-27
 
 ### 1. Scope / Trigger

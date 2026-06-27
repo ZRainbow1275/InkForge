@@ -5979,3 +5979,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   Xiumi, editor, or template wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Editing Frozen-Toggle Residue
+
+- [x] xiumi-editing-frozen-toggle-residue-20260628.txt
+- Added a static quality rule for the live Xiumi v5 page editing/frozen-toggle class
+  `tn-editing-cell-frozen-toggle-enabled`.
+- The reduced regression intentionally keeps only the source-specific frozen-toggle class,
+  proving the cleaned page editing state residue is blocked without relying on
+  `tn-page-container`, `tn-page-*`, `tn-scrolled-page`, `tn-on-*`, `tn-in-cell-*`, broader
+  authoring tree classes, Angular runtime attributes, atom drag/drop attributes, hosted media,
+  operator controls, selection overlays, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose containing editing, frozen, toggle,
+  enabled, active, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.

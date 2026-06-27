@@ -229,6 +229,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi editing state residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-editing-cell-frozen-toggle-enabled\b[^"']*["']/i,
+    label: 'Xiumi editing frozen-toggle residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-in-cell-state-active\b[^"']*["']/i,
     label: 'Xiumi in-cell active state residue',
   },
