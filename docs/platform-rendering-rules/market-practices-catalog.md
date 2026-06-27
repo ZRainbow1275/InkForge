@@ -1518,6 +1518,9 @@ Rules:
 - Xiumi atom drag/drop residues such as `tn-atom-dragging-source`,
   `tn-atom-dropping-sink`, and `on-atom-drop` must report a precise atom drag/drop label instead
   of falling back to the generic `Xiumi tn-* attribute` diagnostic.
+- Xiumi editing-dock residues such as `tn-editing-dock`, `tn-editing-show-data`, and
+  `tn-editing-cube-index` must fail after atom drag/drop and component authoring-tree markers are
+  removed, and must report the precise `Xiumi editing dock residue` label.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1580,6 +1583,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-atom-context-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-atom-drag-drop-residue-20260628.txt`
+- `prompts/0601/evidence/xiumi-editing-dock-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-paper-document-root-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-text-cell-class-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-layer-slot-residue-20260625.txt`
@@ -1636,4 +1640,4 @@ Evidence:
 - `prompts/0601/evidence/135-svg-editor-gap-input-child-residue-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-expansion-20260627.txt`
 - `prompts/0601/evidence/135-svg-builder-effect-data-name-second-expansion-20260627.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-160.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-161.

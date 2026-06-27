@@ -1052,6 +1052,12 @@ const MARKET_EDITOR_XIUMI_ATOM_DRAG_DROP_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_EDITING_DOCK_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-editing-dock">Xiumi editing dock residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_AUXILIARY_BINDING_METADATA_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div tn-bind-aux-prop="{ backgroundColor: compAux.bgc1 }">Xiumi auxiliary binding metadata shell</div>',
@@ -10513,6 +10519,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi atom drag-drop residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi atom context binding metadata residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi editing dock classes after atom drag-drop cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_EDITING_DOCK_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_EDITING_DOCK_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_EDITING_DOCK_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi editing dock residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi editing dock residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi editing dock residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi atom drag-drop residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component authoring tree residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

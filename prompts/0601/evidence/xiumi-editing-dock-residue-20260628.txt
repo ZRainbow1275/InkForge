@@ -1,0 +1,59 @@
+Xiumi Editing Dock Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  HTML.
+- No platform action, phone preview, sync, upload, public host, scheduled send, or publish action.
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper-editor DOM after opening the paper editor.
+- The center paper editing surface exposed `tn-editing-dock` with adjacent source-specific
+  editor attributes such as `tn-editing-show-data` and `tn-editing-cube-index`.
+- These markers bind Xiumi editor dock, selected data, and cube index state. They are not
+  publishable article DOM.
+
+Implemented:
+- Added `Xiumi editing dock residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- Added a reduced three-platform regression fixture containing only `tn-editing-dock`.
+
+Behavior:
+- `detectQuality(..., 'wechat')` reports `wechat-market-editor-residue`.
+- `detectQuality(..., 'xiaohongshu')` reports `xhs-market-editor-residue`.
+- `detectQuality(..., 'zhihu')` reports `zhihu-market-editor-residue`.
+- The reduced fixture reports `Xiumi editing dock residue` without relying on atom drag/drop
+  markers, component authoring tree classes, broader page/container wrappers, Angular runtime
+  attributes, hosted media, operator controls, selection overlays, sidebar controls, or meta
+  panels.
+- The detector stays anchored to source-specific Xiumi class/id and attribute names. Ordinary
+  prose containing editing, dock, cube, index, show, data, Xiumi, editor, or template wording is
+  not enough.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing dock" --reporter=default`
+  failed with 1 new failing test before the detector update because no market-editor-residue issue
+  was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "editing dock" --reporter=default`
+  passed with 1 selected test and 266 skipped tests.
+- Full platform file:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 267 tests.
+- Export serial suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1244 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`.
+  The build transformed 4653 modules and completed in 28.88s.
+- Release preflight stayed truthfully blocked:
+  `status=blocked-by-external`, `canClaimComplete=false`.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -4904,6 +4904,45 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 161. Xiumi Editing Dock Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editing-dock
+  authoring markers observed in a live CloakBrowser DOM readback, including `tn-editing-dock`,
+  `tn-editing-show-data`, and `tn-editing-cube-index`.
+- These markers appeared on the Xiumi center paper editing surface and bind editor-side dock,
+  selected data, and cube index state. They are not article DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove paste, phone preview,
+  schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi editing dock residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-editing-dock` appears as a class/id marker or when
+  `tn-editing-dock`, `tn-editing-show-data`, or `tn-editing-cube-index` appears as an editor
+  attribute name.
+- A reduced fixture containing only the `tn-editing-dock` class must fail even when atom drag/drop
+  markers, component authoring tree classes, broader page/container markers, Angular runtime
+  attributes, hosted media, operator controls, selection overlays, sidebar controls, and meta
+  panels are absent.
+- The detector must not block ordinary prose containing editing, dock, cube, index, show, data,
+  Xiumi, editor, or template wording by itself; the trigger is the source-specific Xiumi class/id
+  or attribute marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced editing-dock-only fixture fails before implementation and reports
+  `Xiumi editing dock residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi atom drag-drop residue`,
+  `Xiumi component authoring tree residue`, `Xiumi auxiliary binding metadata residue`, and
+  generic `Xiumi tn-* attribute` handling independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
 ## 160. Xiumi Atom Drag-Drop Residue - 2026-06-28
 
 ### 1. Scope / Trigger

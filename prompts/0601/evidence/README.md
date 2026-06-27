@@ -6007,3 +6007,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sink, Xiumi, editor, or template wording by itself.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-28 Xiumi Editing Dock Residue
+
+- [x] xiumi-editing-dock-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 editing dock markers:
+  `tn-editing-dock`, `tn-editing-show-data`, and `tn-editing-cube-index`.
+- The reduced regression intentionally keeps only the source-specific editing dock class, proving
+  the cleaned editor dock residue is blocked without relying on atom drag/drop markers,
+  component authoring tree classes, broader page/container wrappers, Angular runtime attributes,
+  hosted media, operator controls, selection overlays, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose containing editing, dock, cube, index,
+  show, data, Xiumi, editor, or template wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
