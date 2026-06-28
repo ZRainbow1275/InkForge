@@ -5211,6 +5211,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 202. Xiumi Component Drag Receiver Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side component
+  drag/drop receiver surfaces observed in a live CloakBrowser DOM readback, such as
+  `tn-comp-dragging-receiver`, `tn-comp-container-dragging-cancel`,
+  `tn-comp-container-dragging-remove`, `tn-comp-moving-canceler`, or `tn-comp-trash-receiver`.
+- The live nodes are Xiumi authoring surfaces for drag cancellation, drop-to-remove, and component
+  movement. They are not article body DOM, style semantics, or platform-safe SVG/H5 content and
+  must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component drag receiver residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the component drag receiver,
+  cancel, remove, moving-cancel, or trash receiver markers.
+- A reduced fixture containing only those component drag receiver markers must fail with the exact
+  label even when `tn-atom-dragging-source`, `tn-atom-dropping-sink`, `on-atom-drop`,
+  `tn-header`, `x3-navbar`, `x3-nav-*`, operation buttons, editor prompt banners, UI Bootstrap
+  directives, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose or article markup containing component, drag, drop,
+  receiver, cancel, remove, move, trash, or surface wording by itself.
+- The exact rule must run before the broad `Xiumi component authoring tree residue` and
+  `Xiumi tn-* attribute` fallbacks so diagnostics stay attributable to the learned authoring
+  surface.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced component-drag fixture initially reports only the broader
+  `Xiumi component authoring tree residue` / `Xiumi tn-* attribute` fallbacks, then reports
+  `Xiumi component drag receiver residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi component authoring tree residue`,
+  `Xiumi atom drag-drop residue`, and `Xiumi header shell residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 201. Xiumi Header Shell Residue - 2026-06-29
 
 ### 1. Scope / Trigger

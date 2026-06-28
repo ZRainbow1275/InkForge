@@ -1,0 +1,72 @@
+Xiumi Component Drag Receiver Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  component drag/drop receiver chrome.
+- No platform paste, no phone preview, no sync, no upload, no public host, no scheduled send, and
+  no publish action.
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after the user had logged in.
+- The editor-side component drag/drop receiver surfaces exposed source-specific class markers:
+  tn-comp-dragging-receiver, tn-comp-container-dragging-cancel,
+  tn-comp-container-dragging-remove, tn-comp-moving-canceler, and tn-comp-trash-receiver.
+- These markers describe Xiumi authoring surfaces for drag cancellation, drop-to-remove, and
+  component movement, not article body DOM.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of this committed evidence.
+
+Implemented:
+- Added the detector label: Xiumi component drag receiver residue.
+- Added a reduced regression fixture containing only component drag/drop receiver classes.
+- The reduced fixture proves the detector does not depend on tn-atom-dragging-source,
+  tn-atom-dropping-sink, on-atom-drop, tn-header, x3-navbar, x3-nav-*, operation buttons, editor
+  prompt banners, UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- The exact rule runs before the broad Xiumi component authoring tree residue and Xiumi tn-*
+  attribute fallbacks, improving diagnostic specificity without loosening the gate.
+
+False-positive boundary:
+- Ordinary component, drag, drop, receiver, cancel, remove, move, trash, surface, or article prose
+  are not triggers by themselves.
+- The rule is anchored to source-specific Xiumi component drag/drop receiver markers.
+
+Impact:
+- GitNexus impact for MARKET_EDITOR_RESIDUE_RULES: LOW, 0 direct dependents, 0 affected processes.
+- GitNexus impact for detectQuality: LOW, 4 direct dependents, 0 affected processes, Export module.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component drag receivers" --reporter=default
+  Result: failed as expected before implementation, 1 failed / 309 skipped / 310 total, because
+  the fixture reported only Xiumi component authoring tree residue and Xiumi tn-* attribute instead
+  of Xiumi component drag receiver residue.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component drag receivers|component authoring tree classes|atom drag-drop classes|header shell without navigation children" --reporter=default
+  Result: passed after implementation, 1 file / 4 selected tests passed / 306 skipped / 310 total.
+- Full validation:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  Result: passed, 1 file / 310 tests.
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  Result: passed, 36 files / 1287 tests.
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 transformed modules, Vite build 45.15s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected. canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview, external-dependency, unsafe-to-automate, mutating-platform.
+  Summary: blockerCount=4, combinedIssueCount=11, cannotClaimSteps=29, phoneOpenSteps=4,
+  externalDependencyOpenSteps=14, unsafeToAutomateOpenSteps=13, mutatingOpenSteps=13,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, ordinary Ctrl+V, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

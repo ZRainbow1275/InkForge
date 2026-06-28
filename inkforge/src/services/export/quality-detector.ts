@@ -461,6 +461,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi page layer slot residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-comp-dragging-receiver|tn-comp-container-dragging-(?:cancel|remove)|tn-comp-moving-canceler|tn-comp-trash-receiver)\b[^"']*["']/i,
+    label: 'Xiumi component drag receiver residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-comp(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi component authoring tree residue',
   },

@@ -5581,6 +5581,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Drag Receiver Residue
+
+- [x] xiumi-component-drag-receiver-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component drag/drop receiver surfaces including
+  `tn-comp-dragging-receiver`, `tn-comp-container-dragging-cancel`,
+  `tn-comp-container-dragging-remove`, `tn-comp-moving-canceler`, and `tn-comp-trash-receiver`.
+- The reduced regression intentionally keeps only those source-specific component drag/drop
+  surfaces, proving drop/cancel/remove chrome is reported precisely without relying on atom
+  drag-drop markers, header/navigation shells, operation buttons, prompt banners, UI Bootstrap
+  directives, hosted media, sidebar controls, or meta panels.
+- Before the exact rule, the same fixture was already blocked only by broader
+  `Xiumi component authoring tree residue` and `Xiumi tn-* attribute` fallbacks; this slice
+  improves diagnosability without loosening the gate.
+- The detector intentionally does not block ordinary component, drag, drop, receiver, cancel,
+  remove, move, trash, or surface wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi User Profile Menu Residue
 
 - [x] xiumi-user-profile-menu-residue-20260629.txt

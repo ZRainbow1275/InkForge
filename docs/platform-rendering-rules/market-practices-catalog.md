@@ -1649,7 +1649,10 @@ Rules:
   background child bars such as `op-cp-bg-bar`, or document selection shell markers such as
   `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`, and `dock-loader`, or cover
   placeholder shells such as `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`,
-  `play-placeholder`, and `second-placeholder`, or template card hover markers such as
+  `play-placeholder`, and `second-placeholder`, or component drag/drop receiver surfaces such as
+  `tn-comp-dragging-receiver`, `tn-comp-container-dragging-cancel`,
+  `tn-comp-container-dragging-remove`, `tn-comp-moving-canceler`, and
+  `tn-comp-trash-receiver`, or template card hover markers such as
   `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`, or layout/form
   child controls such as `cell-layout-box`, `menuitem-level`, `padding-input`,
   `attr-thin-label`, and `attr-btn`, or operation-bar
@@ -1809,4 +1812,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-editor-prompt-banner-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-navigation-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-header-shell-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-201.
+- `prompts/0601/evidence/xiumi-component-drag-receiver-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-202.

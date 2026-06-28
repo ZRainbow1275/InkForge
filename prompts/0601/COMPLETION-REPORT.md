@@ -7087,6 +7087,48 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Component Drag Receiver Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side
+  component drag/drop receiver surfaces can expose `tn-comp-dragging-receiver`,
+  `tn-comp-container-dragging-cancel`, `tn-comp-container-dragging-remove`,
+  `tn-comp-moving-canceler`, and `tn-comp-trash-receiver`.
+- Added the static detector label `Xiumi component drag receiver residue` before the broader
+  `Xiumi component authoring tree residue` and `Xiumi tn-* attribute` fallbacks so copied
+  drag/drop/cancel/remove chrome is diagnosed precisely.
+- Kept the rule anchored to source-specific class/id markers so ordinary
+  component/drag/drop/receiver/cancel/remove/move/trash/surface wording and article text are not
+  blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the fixture reported only broader
+  `Xiumi component authoring tree residue` and `Xiumi tn-* attribute` fallbacks:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component drag receivers" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component drag receivers|component authoring tree classes|atom drag-drop classes|header shell without navigation children" --reporter=default`.
+- Full validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 310 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1287 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 transformed
+  modules and a 45.15s Vite build.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-component-drag-receiver-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Header Shell Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the editor-side top
