@@ -5211,6 +5211,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 197. Xiumi Message Panel Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side message
+  notification dropdown controls observed in a live CloakBrowser DOM readback, such as
+  `usr-message-box`, `message-box-toggle`, `turn-to-message-setting`, and
+  `turn-to-message-list`.
+- The live node is Xiumi account/site-message chrome for viewing message count, message settings,
+  and all-message lists. It is not article body DOM and must not appear in WeChat, Xiaohongshu, or
+  Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi message panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `usr-message-box`,
+  `message-box-toggle`, `turn-to-message-setting`, or `turn-to-message-list`.
+- A reduced fixture containing only those message-panel markers plus generic dropdown context must
+  fail without requiring `wx-user-panel`, `usr-info`, top operation buttons, dropdown directives,
+  operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector must not block ordinary prose containing message, notification, setting, list,
+  account, dropdown, or panel wording by itself; the triggers are the source-specific Xiumi
+  message-panel class/id markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced message-panel fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi message panel residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi account sync panel residue`,
+  `Xiumi dropdown directive residue`, and `Xiumi top operation button residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 196. Xiumi Statistics Panel Residue - 2026-06-29
 
 ### 1. Scope / Trigger

@@ -1665,7 +1665,8 @@ Rules:
   `text-bgd-shadow`, and `toggle-color-btn`, or text-format brush panels such as
   `brush-panel`, or menu pin controls such as `op-cp-menu-pin` and `op-cp-menu-pin-tb`, or
   account/sync dropdown panels such as `wx-user-panel`, or statistics dropdown panels such as
-  `statistics-tool-panel`, or
+  `statistics-tool-panel`, or message notification dropdown controls such as `usr-message-box`,
+  `message-box-toggle`, `turn-to-message-setting`, and `turn-to-message-list`, or
   attribute context-menu host nodes such as
   `attr-bar-context-menu-host-for-comp-insert`,
   `attr-bar-context-menu-host-for-comp-modify`, and
@@ -1799,4 +1800,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-menu-pin-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-account-sync-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-statistics-panel-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-196.
+- `prompts/0601/evidence/xiumi-message-panel-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-197.

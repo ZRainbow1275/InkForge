@@ -7087,6 +7087,50 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Message Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the message
+  notification dropdown can expose `usr-message-box`, `message-box-toggle`,
+  `turn-to-message-setting`, and `turn-to-message-list`.
+- Added the static detector label `Xiumi message panel residue` so copied message-count,
+  message-settings, and all-message-list chrome is blocked even after `wx-user-panel`, `usr-info`,
+  top operation buttons, dropdown directives, operation-bar dropdowns, Angular runtime, hosted
+  media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to source-specific message-panel class/id markers so ordinary
+  message/notification/setting/list/account/dropdown/panel wording and article text are not
+  blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "message panel controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "message panel controls|account sync panel controls|statistics panel controls|top operation buttons" --reporter=default`.
+- Verification:
+  platform regression suite passed with 1 file and 305 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  export service suite passed with 36 files and 1282 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  ESLint passed for `src/services/export/quality-detector.ts` and
+  `src/services/export/platform-export-rendering.test.ts`; `vue-tsc --noEmit --pretty false`
+  passed; production build passed after transforming 4653 modules in 51.63s.
+- Verification:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blockerKinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`; summary included
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-message-panel-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Statistics Panel Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the page statistics

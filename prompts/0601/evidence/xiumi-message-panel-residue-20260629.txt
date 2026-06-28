@@ -1,0 +1,61 @@
+Xiumi Message Panel Residue - 2026-06-29
+
+Scope:
+- Static publishability gate for copied or partially cleaned Xiumi v5 paper-editor message
+  notification dropdown controls.
+- Applies to WeChat, Xiaohongshu, and Zhihu quality reports.
+- No platform action, phone preview, sync, upload, schedule, or publish action was performed.
+
+Live source:
+- CloakBrowser reviewed the logged-in Xiumi v5 paper editor DOM.
+- The editor exposed message notification dropdown markers including `usr-message-box`,
+  `message-box-toggle`, `turn-to-message-setting`, and `turn-to-message-list`.
+- These nodes appeared around message count, message settings, and all-message list controls.
+  They are editor chrome, not article content.
+
+Implementation:
+- Added the `Xiumi message panel residue` detector label.
+- Added a reduced regression fixture containing only the source-specific message-panel markers
+  plus generic dropdown context, without `wx-user-panel`, `usr-info`, top operation buttons,
+  dropdown directives, operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- Kept the rule anchored to class/id attributes, not prose.
+- Kept adjacent detector labels independent from `Xiumi account sync panel residue`,
+  `Xiumi dropdown directive residue`, and `Xiumi top operation button residue`.
+
+TDD:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "message panel controls" --reporter=default`
+  failed before the detector update because no `*-market-editor-residue` issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "message panel controls|account sync panel controls|statistics panel controls|top operation buttons" --reporter=default`
+  passed with 4 selected tests and 301 skipped tests after the detector update.
+
+Full verification:
+- Platform regression suite:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 305 tests.
+- Export service suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1282 tests.
+- ESLint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed after transforming 4653 modules in 51.63s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blockerKinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`; summary included `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

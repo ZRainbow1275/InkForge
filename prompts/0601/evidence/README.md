@@ -5534,6 +5534,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Message Panel Residue
+
+- [x] xiumi-message-panel-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 message notification dropdown markers including
+  `usr-message-box`, `message-box-toggle`, `turn-to-message-setting`, and
+  `turn-to-message-list`.
+- The reduced regression intentionally keeps only those source-specific message-panel markers plus
+  generic dropdown context, proving cleaned-down message chrome is blocked without relying on
+  `wx-user-panel`, `usr-info`, top operation buttons, dropdown directives, operation-bar dropdowns,
+  Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary message, notification, setting, list,
+  account, dropdown, panel, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Statistics Panel Residue
 
 - [x] xiumi-statistics-panel-residue-20260629.txt

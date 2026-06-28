@@ -373,6 +373,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi account sync panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:usr-message-box|message-box-toggle|turn-to-message-(?:setting|list))\b[^"']*["']/i,
+    label: 'Xiumi message panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:layout-box-panel|form-input-panel|op-ce-form-input|trigger-props-panel|trigger-radio-input)\b[^"']*["']/i,
     label: 'Xiumi layout form panel residue',
   },
