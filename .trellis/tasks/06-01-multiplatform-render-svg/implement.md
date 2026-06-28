@@ -8,6 +8,70 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Audio Library Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. Inside the left-side audio/video library
+  panel, the hidden editor-side audio control exposed
+  `<audio id="audio-library-control" class="bgm-audio ng-scope ng-hide" controls>`.
+- The element is editor chrome for previewing or controlling selected Xiumi library/background
+  music. It is not publishable article DOM, a platform-safe media embed, an upload manifest, or
+  target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the exact `<audio id="audio-library-control">`
+  marker, proving copied Xiumi audio-library chrome receives an exact label without relying on
+  parent `audios` wrappers, audio panel controls, hidden media upload inputs, generated-link
+  controls, account/sync panels, Angular runtime attributes, hosted media, sidebar controls, or
+  meta panels.
+- Added the exact `Xiumi audio library control residue` detector after
+  `Xiumi media upload input residue` and before `Xiumi audio panel residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "audio library controls" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "audio library controls|hidden media upload inputs|audio panel controls" --reporter=default`
+  passed with 3 selected tests and 313 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 316 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1293 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed in 38.25s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, and summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile media playback, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
+  upload, public host, or publish success.
+
 ## 2026-06-29 Xiumi Audio Panel Residue Slice
 
 Source:

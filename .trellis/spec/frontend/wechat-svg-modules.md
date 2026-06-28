@@ -10239,3 +10239,41 @@ const ruleFamilies = [
   `135 SVG trigger switch control residue` independent.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
+
+## 208. Xiumi Audio Library Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the hidden audio library control
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback:
+  `<audio id="audio-library-control" class="bgm-audio ...">`.
+- The element lives inside the Xiumi left-side audio/video library panel and is used by the editor
+  to preview or control selected background/library music. It is not publishable article audio, a
+  platform-safe media embed, an upload manifest, or target-platform proof.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi audio library control residue` for WeChat,
+  Xiaohongshu, and Zhihu when an `<audio>` element carries the exact
+  `id="audio-library-control"` marker.
+- A reduced fixture containing only that `<audio>` id must fail even when Xiumi audio panel
+  wrappers, hidden upload inputs, generated-link controls, account/sync panels, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary `<audio>` elements, article prose about audio/music/video,
+  `class="bgm-audio"` without the live Xiumi id, or media wording by itself.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced audio-library-control fixture emits no market-editor residue issue
+  before implementation and reports `Xiumi audio library control residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi media upload input residue`, `Xiumi audio panel residue`,
+  and `Xiumi generated link control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback, or
+  publish success.

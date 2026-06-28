@@ -77,10 +77,10 @@
 
 ## Research References
 
-* `prompts/0601/research/wechat-svg-capabilities.md` — 微信内联 SVG 能力与边界（待填）
-* `prompts/0601/research/wechat-svg-typesetting-patterns.md` — 秀米/135/mdnice 可复用 SVG 模式（待填）
-* `prompts/0601/research/xhs-zhihu-cjk-typography.md` — 小红书海报/知乎适配/CJK 行宽可读性（待填）
-* `prompts/0601/research/oss-md-architecture.md` — doocs/md·mdnice·Redink 架构集成借鉴（待填）
+* `prompts/0601/research/wechat-svg-capabilities.md` — 微信内联 SVG 能力与边界（已落地，后续按平台变化持续刷新）
+* `prompts/0601/research/wechat-svg-typesetting-patterns.md` — 秀米/135/mdnice 可复用 SVG 模式（已落地，后续按实机学习持续刷新）
+* `prompts/0601/research/xhs-zhihu-cjk-typography.md` — 小红书海报/知乎适配/CJK 行宽可读性（已落地，硬性数值发布前继续实测校验）
+* `prompts/0601/research/oss-md-architecture.md` — doocs/md·mdnice·Redink 架构集成借鉴（已落地，外部依赖版本变化时刷新）
 
 ## Technical Notes
 
