@@ -6227,6 +6227,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
 
+## 2026-06-29 Xiumi Cover Placeholder Residue
+
+- [x] xiumi-cover-placeholder-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 cover placeholder and mask shell markers:
+  `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`, `play-placeholder`, and
+  `second-placeholder`.
+- The reduced regression intentionally keeps only those source-specific class tokens, proving
+  cleaned-down cover placeholder residue is blocked without relying on `op-bar-menu`,
+  `cover-menu`, `dropdown-menu`, `op-ce-wx-cover`, `op-dark-mask`, generated-link controls, or
+  operation-bar controls.
+- The detector intentionally does not block ordinary cover, placeholder, mask, border, play, or
+  image wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Attribute Panel Residue
 
 - [x] xiumi-animation-attribute-panel-residue-20260628.txt

@@ -4947,6 +4947,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
   acceptance, or publish success.
 
+## 187. Xiumi Cover Placeholder Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains cover placeholder or
+  cover mask shell markers observed in a live CloakBrowser DOM readback as `cover-imgs`,
+  `cover-placeholder`, `cover-mask`, `mask-border`, `play-placeholder`, or
+  `second-placeholder`.
+- These markers drive Xiumi editor-side cover image slots, overlay masks, placeholder borders,
+  and video/play placeholder state. They are not article body DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove cover thumbnail
+  acceptance, editor paste, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi cover placeholder residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported cover
+  placeholder markers.
+- A reduced fixture containing only `cover-imgs`, `cover-placeholder`, `cover-mask`,
+  `mask-border`, `play-placeholder`, and `second-placeholder` must fail after cover-menu cleanup
+  even when `op-bar-menu`, `cover-menu`, `dropdown-menu`, `op-ce-wx-cover`, `op-ce-video-xm-cover`,
+  `svg-cover`, `op-dark-mask`, operation-bar controls, generated-link controls, and platform
+  editor chrome are absent.
+- The detector must not block ordinary prose containing cover, placeholder, mask, border, play, or
+  image wording by itself; the trigger is the source-specific class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced cover-placeholder fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi cover placeholder residue` after the
+  detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi WeChat cover control residue`,
+  `Xiumi dark mask control residue`, `Xiumi operation bar dropdown residue`, and
+  `Xiumi scale panel control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

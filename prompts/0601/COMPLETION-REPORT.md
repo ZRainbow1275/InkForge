@@ -6907,6 +6907,38 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Cover Placeholder Addendum
+
+- Added local static publishability protection for Xiumi v5 cover placeholder / mask shell
+  markers:
+  `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`, `play-placeholder`, and
+  `second-placeholder` now report the precise `Xiumi cover placeholder residue` label.
+- The rule covers cleaned-down cover placeholder class tokens that previously produced no
+  market-editor hard-block for WeChat and no market-editor hard-block for XHS/Zhihu.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "cover placeholder|WeChat cover controls|WeChat cover menu|dark mask controls|operation bar dropdown" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000`
+  passed with 1 file and 295 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000`
+  passed with 36 files and 1272 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`, and
+  `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-cover-placeholder-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Document Selection Shell Addendum
 
 - Added local static publishability protection for Xiumi v5 document selection / dock shell
