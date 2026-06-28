@@ -421,6 +421,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi template authoring tree residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:scene-paper|lighting-box)\b[^"']*["']/i,
+    label: 'Xiumi template scene marker residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-from-house(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi source-house authoring residue',
   },

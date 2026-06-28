@@ -8218,6 +8218,45 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 183. Xiumi Template Scene Marker Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains template scene/list
+  markers observed in a live CloakBrowser DOM readback, such as `tn-scene-paper` and
+  `tn-lighting-box`.
+- These class tokens appear in Xiumi template-card lists, format-extraction menu entries, and
+  editor projection surfaces. They are not standalone publishable article semantics and must not
+  remain after broader `tn-tpl*` and `tn-from-house*` cleanup.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi template scene marker residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id token is `tn-scene-paper` or `tn-lighting-box`.
+- A reduced fixture containing only single-token `tn-scene-paper` and `tn-lighting-box` classes
+  must fail even when `tn-tpl*`, `tn-from-house*`, renderer-pipeline bindings, broad Angular
+  runtime attributes, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary scene, paper, lighting, or box wording by itself. The
+  trigger is the source-specific Xiumi `tn-*` class token.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced template-scene fixture first has no market-editor hard-block, then
+  reports `Xiumi template scene marker residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi template authoring tree residue`,
+  `Xiumi source-house authoring residue`, `Xiumi basic style fragment residue`, and
+  `Xiumi tn-* attribute` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

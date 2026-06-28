@@ -1634,7 +1634,8 @@ Rules:
   `op-btn-inset-desc`, and `op-more`, or UI Bootstrap directives such as `uib-dropdown`,
   `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
   `tooltip-popup-delay`, or Xiumi dropdown directives such as `tn-dropdown`,
-  `tn-dropdown-toggle`, and `tn-dropdown-menu`, or operation-bar dropdown/menu controls such as `op-bar-menu`,
+  `tn-dropdown-toggle`, and `tn-dropdown-menu`, or cleaned-down template scene markers such as
+  `tn-scene-paper` and `tn-lighting-box`, or operation-bar dropdown/menu controls such as `op-bar-menu`,
   `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`,
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
   `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`, `tn-color-circle`,
@@ -1756,4 +1757,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animation-style-picker-icon-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-wechat-cover-menu-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-dropdown-directive-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-182.
+- `prompts/0601/evidence/xiumi-template-scene-marker-residue-20260628.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-183.
