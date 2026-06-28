@@ -6907,6 +6907,37 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Image Enhancement Crop Control Addendum
+
+- Added local static publishability protection for Xiumi v5 image enhancement, image popup, and
+  thumbnail crop child controls:
+  `op-cp-image-enhancement`, `op-ce-image-enhancement`, `op-ce-image-popup`,
+  `enhance-attr-menu`, and `thumb-crop-img` now report the precise
+  `Xiumi image enhancement crop control residue` label.
+- The rule covers cleaned-down single class tokens that previously produced no market-editor
+  hard-block.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "image enhancement and crop child controls|worker surface crop controls|crop panel child controls|WeChat cover controls|meta panel controls|operator dock child controls" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000`
+  passed with 1 file and 292 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000`
+  passed with 36 files and 1269 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, and no actionable local rows.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-image-enhancement-crop-control-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 
 
 ---

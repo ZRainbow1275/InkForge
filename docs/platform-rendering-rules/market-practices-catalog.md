@@ -1635,8 +1635,10 @@ Rules:
   `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
   `tooltip-popup-delay`, or Xiumi dropdown directives such as `tn-dropdown`,
   `tn-dropdown-toggle`, and `tn-dropdown-menu`, or cleaned-down template scene markers such as
-  `tn-scene-paper` and `tn-lighting-box`, or group/ground authoring markers such as
-  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`, or operation-bar
+  `tn-scene-paper` and `tn-lighting-box`, group/ground authoring markers such as
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`, or
+  image-enhancement/crop child controls such as `op-cp-image-enhancement`,
+  `op-ce-image-enhancement`, `op-ce-image-popup`, `enhance-attr-menu`, and `thumb-crop-img`, or operation-bar
   dropdown/menu controls such as `op-bar-menu`,
   `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`,
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
@@ -1761,4 +1763,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-dropdown-directive-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-template-scene-marker-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-group-ground-marker-residue-20260628.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-184.
+- `prompts/0601/evidence/xiumi-image-enhancement-crop-control-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-185.

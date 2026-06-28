@@ -365,6 +365,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi scale panel control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-c[pe]-image-enhancement|op-ce-image-popup|enhance-attr-menu|thumb-crop-img)\b[^"']*["']/i,
+    label: 'Xiumi image enhancement crop control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:full-screen-mask|brim-group|box-lines|box-handles)\b[^"']*["']/i,
     label: 'Xiumi selection overlay control residue',
   },

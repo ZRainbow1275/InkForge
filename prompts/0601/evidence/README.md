@@ -6258,6 +6258,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Image Enhancement Crop Control Residue
+
+- [x] xiumi-image-enhancement-crop-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 image enhancement, image popup, and thumbnail crop
+  child controls including `op-cp-image-enhancement`, `op-ce-image-enhancement`,
+  `op-ce-image-popup`, `enhance-attr-menu`, and `thumb-crop-img`.
+- The reduced regression intentionally keeps only those source-specific single class tokens,
+  proving cleaned-down image/crop panel residue is blocked without relying on `op-worker-*`,
+  `crop-*`, `cover-menu`, `tn-meta-*`, `op-dock`, `op-loader`, broad `tn-*`, broad Angular
+  runtime attributes, hosted media, sidebar controls, or template markers.
+- The detector intentionally does not block ordinary image, enhancement, popup, crop, zoom, blur,
+  brightness, contrast, sharpen, thumbnail, or cover wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi WeChat Cover Menu Residue
 
 - [x] xiumi-wechat-cover-menu-residue-20260628.txt

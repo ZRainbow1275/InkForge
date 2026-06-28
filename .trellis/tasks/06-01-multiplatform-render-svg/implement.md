@@ -17027,6 +17027,54 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-29 Xiumi Image Enhancement Crop Control Residue Slice
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM and found image enhancement, image
+  popup, and thumbnail crop child controls including `op-cp-image-enhancement`,
+  `op-ce-image-enhancement`, `op-ce-image-popup`, `enhance-attr-menu`, and `thumb-crop-img`.
+- Minimal local probing confirmed these single-token class values did not emit a
+  `*-market-editor-residue` issue before this slice.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 2` returned LOW risk with 4 direct
+  dependents and 0 affected processes.
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3` returned LOW risk with
+  0 direct dependents and 0 affected processes.
+
+Implementation:
+- Added the `Xiumi image enhancement crop control residue` detector for class/id tokens
+  `op-cp-image-enhancement`, `op-ce-image-enhancement`, `op-ce-image-popup`,
+  `enhance-attr-menu`, and `thumb-crop-img`.
+- Added a reduced three-platform regression fixture proving WeChat, Xiaohongshu, and Zhihu all
+  hard-block cleaned-down image enhancement / crop child controls under the precise label.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "image enhancement and crop child controls" --reporter=default`
+  failed before the detector because no `*-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "image enhancement and crop child controls|worker surface crop controls|crop panel child controls|WeChat cover controls|meta panel controls|operator dock child controls" --reporter=default`
+  passed with 6 selected tests and 286 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000`
+  passed with 1 file and 292 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000`
+  passed with 36 files and 1269 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed.
+- `pnpm -C inkforge style-proof:release-preflight --json` correctly exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  and no actionable local rows.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Dropdown Directive Residue Slice
 
 Source:

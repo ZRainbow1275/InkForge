@@ -8300,6 +8300,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 185. Xiumi Image Enhancement Crop Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains image enhancement,
+  image popup, or thumbnail crop child controls observed in a live CloakBrowser DOM readback, such
+  as `op-cp-image-enhancement`, `op-ce-image-enhancement`, `op-ce-image-popup`,
+  `enhance-attr-menu`, and `thumb-crop-img`.
+- These class tokens appear around editor-side image batch processing, click-to-zoom,
+  blur/brightness/contrast/sharpen settings, image popup sizing, and article thumbnail crop
+  panels. They are not article body semantics and must not remain after broader worker-surface,
+  crop-panel, cover-control, meta-panel, and operator-dock cleanup.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi image enhancement crop control residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id token is one of
+  `op-cp-image-enhancement`, `op-ce-image-enhancement`, `op-ce-image-popup`,
+  `enhance-attr-menu`, or `thumb-crop-img`.
+- A reduced fixture containing only those child-control tokens must fail even when
+  `op-worker-*`, `crop-*`, `cover-menu`, `tn-meta-*`, `op-dock`, `op-loader`, broad `tn-*`,
+  broad Angular runtime attributes, hosted media, sidebar controls, or template markers are absent.
+- The detector must not block ordinary image, enhancement, popup, crop, zoom, blur, brightness,
+  contrast, sharpen, thumbnail, or cover wording by itself. The trigger is the source-specific
+  Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced image-enhancement/crop fixture first has no market-editor
+  hard-block, then reports `Xiumi image enhancement crop control residue` after the detector
+  update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi worker surface crop control residue`,
+  `Xiumi crop panel child control residue`, `Xiumi WeChat cover control residue`,
+  `Xiumi meta panel control residue`, and `Xiumi operator dock control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger
