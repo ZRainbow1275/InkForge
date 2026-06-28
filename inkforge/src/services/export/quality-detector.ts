@@ -557,6 +557,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi editing dock residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-header\b[^"']*["']/i,
+    label: 'Xiumi header shell residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-bind-aux-prop\s*=/i,
     label: 'Xiumi auxiliary binding metadata residue',
   },

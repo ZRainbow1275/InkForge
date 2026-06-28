@@ -5211,6 +5211,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 201. Xiumi Header Shell Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the editor-side header
+  wrapper observed in a live CloakBrowser DOM readback as `tn-header`.
+- The live node is Xiumi top-level editor chrome around the page navigation surface. It is not
+  article body DOM, style semantics, or platform-safe SVG/H5 content and must not appear in
+  WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi header shell residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `tn-header`.
+- A reduced fixture containing only `tn-header` must fail with the exact header-shell label even
+  when `x3-navbar`, `x3-nav-*`, `x3-nav-op-buttons`, `tn-op-btn-group`, operation buttons, editor
+  prompt banners, Angular runtime classes, UI Bootstrap directives, hosted media, sidebar controls,
+  and meta panels are absent.
+- The detector must not block ordinary prose or article markup containing header, navigation,
+  transition, brand, path, login, or menu wording by itself. Generic `header` elements and
+  `navbar-static-top` classes are not sufficient triggers without the source-specific `tn-header`
+  marker.
+- The exact rule must run before the broad `Xiumi tn-* attribute` fallback so diagnostics stay
+  attributable to the learned source-specific shell.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced header-shell fixture initially reports only the generic
+  `Xiumi tn-* attribute` fallback, then reports `Xiumi header shell residue` after the detector
+  update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi navigation shell residue`,
+  `Xiumi top operation button residue`, and `Angular authoring class` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 200. Xiumi Navigation Shell Residue - 2026-06-29
 
 ### 1. Scope / Trigger

@@ -5565,6 +5565,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Header Shell Residue
+
+- [x] xiumi-header-shell-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 top header wrapper `tn-header`.
+- The reduced regression intentionally keeps only that source-specific header marker plus inert
+  generic navbar text, proving the editor header shell is reported precisely without relying on
+  `x3-navbar`, `x3-nav-*`, operation buttons, prompt banners, Angular runtime classes,
+  UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- Before the exact rule, the same fixture was already blocked only by the broad
+  `Xiumi tn-* attribute` fallback; this slice improves diagnosability without loosening the gate.
+- The detector intentionally does not block ordinary header, navigation, transition, brand, path,
+  login, menu wording, generic `header` tags, or `navbar-static-top` classes by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi User Profile Menu Residue
 
 - [x] xiumi-user-profile-menu-residue-20260629.txt
