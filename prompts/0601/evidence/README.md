@@ -5534,6 +5534,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Account Sync Panel Residue
+
+- [x] xiumi-account-sync-panel-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 account/authorization/sync dropdown panel
+  marker `wx-user-panel`.
+- The reduced regression intentionally keeps only that source-specific marker plus generic
+  dropdown context, proving cleaned-down account/sync panel residue is blocked without relying on
+  `usr-info`, `user-info-toggle`, dropdown directives, generated-link controls, operation-bar
+  dropdowns, account names, platform credentials, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary account, authorization, sync, public account,
+  comment, preview, user, panel, dropdown, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Menu Pin Control Residue
 
 - [x] xiumi-menu-pin-control-residue-20260629.txt

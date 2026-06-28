@@ -7087,6 +7087,52 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Account Sync Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the
+  account/authorization/sync dropdown panel can remain as `wx-user-panel`.
+- Added the static detector label `Xiumi account sync panel residue` so copied account
+  authorization, material sync, comment-permission, and preview-option chrome is blocked even
+  after `usr-info`, dropdown directive, generated-link, operation-bar, Angular runtime, hosted
+  media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to the source-specific `wx-user-panel` class/id marker so ordinary
+  account/authorization/sync/public-account/comment/preview/user/panel/dropdown wording and
+  article text are not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "account sync panel controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "account sync panel controls|dropdown directives|generated link controls|menu pin controls" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file and 303 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files and 1280 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, with 4653 modules
+  transformed and Vite build completed in 48.54s.
+- Release preflight remained correctly blocked by external/manual gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-account-sync-panel-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Menu Pin Control Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the operation-loader
