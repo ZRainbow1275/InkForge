@@ -6907,6 +6907,38 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Document Selection Shell Addendum
+
+- Added local static publishability protection for Xiumi v5 document selection / dock shell
+  markers:
+  `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`, and `dock-loader` now report the
+  precise `Xiumi document selection shell residue` label.
+- The rule covers cleaned-down single class tokens that previously produced no market-editor
+  hard-block.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "document selection shell|paper document root|group and ground markers|editing dock classes|component template binding" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000`
+  passed with 1 file and 294 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000`
+  passed with 36 files and 1271 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`, and
+  `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-document-selection-shell-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Background Bar Child Addendum
 
 - Extended local static publishability protection for the Xiumi v5 background operation child bar:

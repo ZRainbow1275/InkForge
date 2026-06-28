@@ -4904,6 +4904,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, or publish success.
 
+## 186. Xiumi Document Selection Shell Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains document selection or
+  dock shell markers observed in a live CloakBrowser DOM readback as `multi-comp-select-panel`,
+  `tn-fly-away-workaround-ios13`, or `dock-loader`.
+- These markers drive Xiumi editor-side multi-component selection, iOS fly-away workaround layout,
+  and dock loading behavior. They are not article body DOM and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, schedule, sync, upload, cover thumbnail acceptance, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi document selection shell residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported document
+  selection shell markers.
+- A reduced fixture containing only `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`,
+  and `dock-loader` must fail after paper-root cleanup even when `tn-paper-document-root`,
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, `tn-cube-inst`,
+  `tn-editing-dock`, component authoring tree classes, Angular runtime attributes, hosted media,
+  sidebar controls, and operation panels are absent.
+- The detector must not block ordinary prose containing selection, shell, dock, loader, iOS, or
+  workaround wording by itself; the trigger is the source-specific class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced document-selection-shell fixture fails before implementation
+  because no market-editor-residue issue is emitted, then reports
+  `Xiumi document selection shell residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi paper document root residue`,
+  `Xiumi group ground marker residue`, `Xiumi editing dock residue`, and
+  `Xiumi component template binding residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

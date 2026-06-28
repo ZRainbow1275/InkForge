@@ -6212,6 +6212,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
 
+## 2026-06-29 Xiumi Document Selection Shell Residue
+
+- [x] xiumi-document-selection-shell-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 document selection and dock shell markers:
+  `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`, and `dock-loader`.
+- The reduced regression intentionally keeps only those source-specific class tokens, proving
+  cleaned-down selection shell residue is blocked without relying on `tn-paper-document-root`,
+  group/ground markers, editing dock markers, component tree classes, Angular runtime attributes,
+  hosted media, or operation-panel controls.
+- The detector intentionally does not block ordinary selection, shell, dock, loader, iOS, or
+  workaround wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Attribute Panel Residue
 
 - [x] xiumi-animation-attribute-panel-residue-20260628.txt

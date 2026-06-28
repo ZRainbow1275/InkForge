@@ -449,6 +449,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi paper document root residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:multi-comp-select-panel|tn-fly-away-workaround-ios13|dock-loader)\b[^"']*["']/i,
+    label: 'Xiumi document selection shell residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-bind-comp-(?:tpl-id|index)\s*=/i,
     label: 'Xiumi component template binding residue',
   },
