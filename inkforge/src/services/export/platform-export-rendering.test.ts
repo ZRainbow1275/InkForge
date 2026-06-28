@@ -683,6 +683,16 @@ const MARKET_EDITOR_XIUMI_AUDIO_LIBRARY_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_AUDIO_ROOM_TAB_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-aud-rooms-tab">',
+  '<ul class="nav nav-tabs">',
+  '<li class="tn-aud-room-item"><a>系统音乐</a></li>',
+  '</ul>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_AUDIO_PANEL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="audios">',
@@ -11537,6 +11547,30 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi audio library control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi media upload input residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi audio panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi generated link control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi audio room tabs without panel or upload markers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_AUDIO_ROOM_TAB_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_AUDIO_ROOM_TAB_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_AUDIO_ROOM_TAB_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi audio room tab residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi audio room tab residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi audio room tab residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi media upload input residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi audio library control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi audio panel residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)

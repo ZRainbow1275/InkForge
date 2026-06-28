@@ -5581,6 +5581,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Audio Room Tab Residue
+
+- [x] xiumi-audio-room-tab-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 audio/video library room tabs:
+  `tn-aud-rooms-tab` and `tn-aud-room-item`.
+- The reduced regression intentionally keeps only those source-specific media-room tab classes,
+  proving audio/video library tab chrome is reported precisely without relying on parent `audios`
+  wrappers, audio panel controls, hidden audio-library controls, hidden upload inputs,
+  generated-link controls, account/sync panels, Angular runtime attributes, hosted media, sidebar
+  controls, or meta panels.
+- The detector intentionally does not block ordinary tab/list markup, ordinary music/video prose,
+  ordinary `<audio>` elements, or standard Bootstrap `nav nav-tabs` classes by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile media playback, mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance,
+  public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

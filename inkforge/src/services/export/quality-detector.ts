@@ -393,6 +393,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi audio library control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-aud-room(?:s-tab|-item)\b[^"']*["']/i,
+    label: 'Xiumi audio room tab residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:audios|audio-(?:panel|src|status|edit|del|group))\b[^"']*["']/i,
     label: 'Xiumi audio panel residue',
   },
