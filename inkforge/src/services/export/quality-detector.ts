@@ -377,6 +377,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi generated link control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:audioFileUploadInput|videoFileUploadInput|tn-(?:audio|video)-uploader)\b[^"']*["']/i,
+    label: 'Xiumi media upload input residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bwx-user-panel\b[^"']*["']/i,
     label: 'Xiumi account sync panel residue',
   },

@@ -5211,6 +5211,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 204. Xiumi Media Upload Input Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side hidden media
+  upload inputs observed in a live CloakBrowser DOM readback, such as `audioFileUploadInput`,
+  `videoFileUploadInput`, `tn-audio-uploader`, or `tn-video-uploader`.
+- These live nodes are Xiumi authoring surfaces for selecting audio and video files through hidden
+  `type=file` controls. They are not article body DOM, article media embeds, or platform-safe
+  upload manifests and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi media upload input residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported hidden media
+  upload markers.
+- A reduced fixture containing only those media-upload input markers must fail with the exact label
+  even when generated-link controls, account/sync panels, color-palette controls, Angular runtime
+  attributes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose or article markup containing audio, video, upload,
+  file, input, media, mp3, m4a, mp4, or mov wording by itself.
+- The exact rule must stay distinct from `Xiumi generated link control residue` and
+  `Xiumi account sync panel residue` so hidden upload controls remain attributable to the learned
+  authoring surface.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced hidden media upload fixture initially emits no
+  market-editor-residue issue, then reports `Xiumi media upload input residue` after the detector
+  update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi generated link control residue` and
+  `Xiumi account sync panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 203. Xiumi Color Palette Panel Residue - 2026-06-29
 
 ### 1. Scope / Trigger

@@ -8,6 +8,57 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Media Upload Input Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. Hidden media upload controls exposed
+  source-specific markers `audioFileUploadInput`, `videoFileUploadInput`, `tn-audio-uploader`, and
+  `tn-video-uploader`.
+- These markers are Xiumi editor chrome for audio/video file selection. They are not publishable
+  article DOM, article media embeds, or platform upload proof and must remain publish-blocking if
+  copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only hidden audio/video upload input markers,
+  proving copied media-upload chrome receives an exact label without relying on generated-link
+  controls, account/sync panels, Angular runtime attributes, hosted media, sidebar controls, or
+  meta panels.
+- Added the exact `Xiumi media upload input residue` detector after
+  `Xiumi generated link control residue` and before account/sync panel rules.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hidden media upload inputs" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hidden media upload inputs|generated link controls|account sync panel controls" --reporter=default`
+  passed with 3 selected tests and 309 skipped tests after the detector update.
+- Platform rendering suite: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 312 tests.
+- Export service suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1289 tests.
+- ESLint: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with
+  4653 transformed modules and a 34.23s Vite build.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as
+  expected with `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-29 Xiumi Color Palette Panel Residue Slice
 
 Source:
