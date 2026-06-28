@@ -8,6 +8,63 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Layout Form Child Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The layout/form child control surfaces
+  exposed `cell-layout-box`, `menuitem-level`, `padding-input`, `attr-thin-label`, and `attr-btn`.
+- These markers are Xiumi editor-side layout dropdown, table/column insertion, padding,
+  attribute-label, confirm, and reset controls. They are not publishable article DOM and must
+  remain publish-blocking if copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the source-specific layout/form child
+  markers, proving copied Xiumi child-control residue is blocked without relying on
+  `layout-box-panel`, `form-input-panel`, `op-ce-form-input`, `trigger-props-panel`,
+  `trigger-radio-input`, operation-bar dropdowns, generated-link controls, operator-dock controls,
+  Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- Added the exact `Xiumi layout form child residue` detector after the existing layout-form panel
+  detector.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "layout form child controls" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "layout form child controls|layout form panels|generated link controls|operator dock child controls|operation bar dropdown" --reporter=default`
+  passed with 5 selected tests and 292 skipped tests after the detector update.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file / 297 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files / 1274 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, transformed 4653 modules,
+  and completed in 39.11s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-28 Xiumi Basic Style Fragment Residue Slice
 
 Source:

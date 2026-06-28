@@ -6907,6 +6907,50 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+---
+
+## 2026-06-29 Xiumi Layout Form Child Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed layout/form child
+  controls can remain as `cell-layout-box`, `menuitem-level`, `padding-input`, `attr-thin-label`,
+  and `attr-btn`.
+- Added the static detector label `Xiumi layout form child residue` so copied layout dropdown,
+  table/column insertion, padding, attribute-label, confirm, and reset controls are blocked even
+  after layout-form parent panels, operation-bar, generated-link, operator/depot, Angular runtime,
+  hosted media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to source-specific class/id markers so ordinary layout/form/padding/menu/
+  attribute/layer/button/confirm/reset/option wording and article text are not blocked by
+  themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "layout form child controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "layout form child controls|layout form panels|generated link controls|operator dock child controls|operation bar dropdown" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 297 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1274 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 39.11s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-layout-form-child-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Template Card Hover Addendum
 
 - Added local static publishability protection for Xiumi v5 template card hover / feature-match

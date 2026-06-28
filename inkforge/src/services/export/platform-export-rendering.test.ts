@@ -680,6 +680,16 @@ const MARKET_EDITOR_XIUMI_LAYOUT_FORM_PANEL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_LAYOUT_FORM_CHILD_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="cell-layout-box btn-group dropdown">Settings</div>',
+  '<input class="form-control padding-input" value="12">',
+  '<li class="presentation menuitem-level">Insert column</li>',
+  '<label class="control-label attr-thin-label">Layer</label>',
+  '<button class="btn attr-btn" type="button">Confirm</button>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_DARK_MASK_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-dark-mask">Xiumi dark mask control residue</div>',
@@ -11366,6 +11376,30 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi layout form panel residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi layout form panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operation bar dropdown residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi generated link control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operator dock control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi layout form child controls without layout form parents', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_LAYOUT_FORM_CHILD_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_LAYOUT_FORM_CHILD_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_LAYOUT_FORM_CHILD_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi layout form child residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi layout form child residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi layout form child residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi layout form panel residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operation bar dropdown residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)

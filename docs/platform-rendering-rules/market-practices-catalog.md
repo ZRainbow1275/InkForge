@@ -1617,6 +1617,11 @@ Rules:
   report the precise `Xiumi layout form panel residue` label. These editor-side layout, column,
   option, and form-trigger controls may inform InkForge-owned form/layout schemas, but must never
   be copied as publishable body DOM.
+- Xiumi layout/form child controls such as `cell-layout-box`, `menuitem-level`, `padding-input`,
+  `attr-thin-label`, and `attr-btn` must fail even when layout/form parent panels are absent, and
+  must report the precise `Xiumi layout form child residue` label. These editor-side dropdown,
+  table/column insertion, padding, attribute-label, and confirm/reset controls may inform
+  InkForge-owned form/layout schemas, but must never be copied as publishable body DOM.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1643,7 +1648,9 @@ Rules:
   `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`, and `dock-loader`, or cover
   placeholder shells such as `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`,
   `play-placeholder`, and `second-placeholder`, or template card hover markers such as
-  `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`, or operation-bar
+  `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`, or layout/form
+  child controls such as `cell-layout-box`, `menuitem-level`, `padding-input`,
+  `attr-thin-label`, and `attr-btn`, or operation-bar
   dropdown/menu controls such as `op-bar-menu`,
   `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`,
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
@@ -1773,4 +1780,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-document-selection-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-cover-placeholder-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-card-hover-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-188.
+- `prompts/0601/evidence/xiumi-layout-form-child-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-189.

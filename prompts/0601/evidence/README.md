@@ -6453,6 +6453,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Layout Form Child Residue
+
+- [x] xiumi-layout-form-child-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 layout/form child controls including
+  `cell-layout-box`, `menuitem-level`, `padding-input`, `attr-thin-label`, and `attr-btn`.
+- The reduced regression intentionally keeps only those source-specific child control markers,
+  proving cleaned-down layout/form residue is blocked without relying on `layout-box-panel`,
+  `form-input-panel`, `op-ce-form-input`, `trigger-props-panel`, `trigger-radio-input`,
+  operation-bar dropdowns, generated-link controls, operator-dock controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary layout, form, padding, menu, attribute,
+  layer, button, confirm, reset, or option wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Style Picker Residue
 
 - [x] xiumi-animation-style-picker-residue-20260628.txt

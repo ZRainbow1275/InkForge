@@ -349,6 +349,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi layout form panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:cell-layout-box|menuitem-level|padding-input|attr-thin-label|attr-btn)\b[^"']*["']/i,
+    label: 'Xiumi layout form child residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-dark-mask\b[^"']*["']/i,
     label: 'Xiumi dark mask control residue',
   },
