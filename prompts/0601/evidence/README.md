@@ -5534,6 +5534,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Statistics Panel Residue
+
+- [x] xiumi-statistics-panel-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 statistics dropdown panel marker
+  `statistics-tool-panel`.
+- The reduced regression intentionally keeps only that source-specific marker plus generic
+  dropdown context, proving cleaned-down statistics panel residue is blocked without relying on
+  `content-statistics`, `tn-page-toolbar`, right-toolbar controls, account/sync panels, dropdown
+  directives, operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls,
+  or meta panels.
+- The detector intentionally does not block ordinary statistics, count, reading time, link, image,
+  library, panel, dropdown, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Account Sync Panel Residue
 
 - [x] xiumi-account-sync-panel-residue-20260629.txt

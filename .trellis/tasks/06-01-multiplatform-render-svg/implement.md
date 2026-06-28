@@ -8,6 +8,58 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Statistics Panel Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The page statistics dropdown exposed the
+  source-specific class marker `statistics-tool-panel`.
+- This marker is Xiumi editor-side text count, reading time, link count, image count, and library
+  usage chrome. It is not publishable article DOM and must remain publish-blocking if copied into
+  WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `statistics-tool-panel` plus generic
+  dropdown context, proving copied Xiumi statistics panel residue is blocked without relying on
+  `content-statistics`, `tn-page-toolbar`, right-toolbar controls, account/sync panels, dropdown
+  directives, operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls,
+  or meta panels.
+- Added the exact `Xiumi statistics panel residue` detector after the right-toolbar rule.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "statistics panel controls" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "statistics panel controls|right toolbar controls|page toolbar classes|account sync panel controls" --reporter=default`
+  passed with 4 selected tests and 300 skipped tests after the detector update.
+- Platform regression suite: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 304 tests.
+- Export service suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1281 tests.
+- ESLint passed for `src/services/export/quality-detector.ts` and
+  `src/services/export/platform-export-rendering.test.ts`.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed after transforming
+  4653 modules in 41.25s.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blockerKinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`; summary included
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-29 Xiumi Account Sync Panel Residue Slice
 
 Source:
