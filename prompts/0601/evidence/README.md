@@ -5550,6 +5550,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Navigation Shell Residue
+
+- [x] xiumi-navigation-shell-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 navigation shell wrappers including `x3-navbar`,
+  `x3-nav-brand`, `x3-nav-path`, and `x3-nav-misc`.
+- The reduced regression intentionally keeps only those source-specific shell markers, proving
+  brand/path/login navigation chrome is blocked without relying on `x3-nav-op-buttons`,
+  `tn-op-btn-group`, operation buttons, prompt banners, Angular runtime classes,
+  UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary nav, navbar, path, brand, login, breadcrumb,
+  menu, Xiumi wording, or generic `navbar` classes by themselves.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi User Profile Menu Residue
 
 - [x] xiumi-user-profile-menu-residue-20260629.txt

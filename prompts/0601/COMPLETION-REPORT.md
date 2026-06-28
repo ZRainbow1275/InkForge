@@ -7087,6 +7087,49 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Navigation Shell Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the editor-side top
+  navigation shell can expose `x3-navbar`, `x3-nav-brand`, `x3-nav-path`, and `x3-nav-misc`.
+- Added the static detector label `Xiumi navigation shell residue` so copied brand/path/login
+  navigation chrome is blocked even after `x3-nav-op-buttons`, `tn-op-btn-group`, operation
+  buttons, prompt banners, Angular runtime classes, UI Bootstrap directives, hosted media, sidebar,
+  and meta-panel markers are absent.
+- Kept the rule anchored to source-specific `x3-*` class/id markers so ordinary
+  nav/navbar/path/brand/login/breadcrumb/menu/Xiumi wording, generic `navbar` classes, and article
+  text are not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "navigation shell controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "navigation shell controls|top operation buttons|editor prompt banners|Angular runtime controls" --reporter=default`.
+- Verification:
+  platform regression suite passed with 1 file and 308 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  export service suite passed with 36 files and 1285 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  ESLint passed for `src/services/export/quality-detector.ts` and
+  `src/services/export/platform-export-rendering.test.ts`; `vue-tsc --noEmit --pretty false`
+  passed; production build passed after transforming 4653 modules in 37.66s.
+- Verification:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blockerKinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`; summary included
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-navigation-shell-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Editor Prompt Banner Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed browser-compatibility

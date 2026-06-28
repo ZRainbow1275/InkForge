@@ -273,6 +273,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi top operation button residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:x3-navbar|x3-nav-(?:brand|path|misc))\b[^"']*["']/i,
+    label: 'Xiumi navigation shell residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\b(?:uib-(?:dropdown(?:-(?:toggle|menu))?|tooltip|accordion(?:-[\w-]+)?|collapse|tab(?:set|-heading-transclude)?)|tooltip-(?:placement|popup-delay))\s*=/i,
     label: 'Xiumi UI Bootstrap control directive residue',
   },

@@ -1,0 +1,66 @@
+Xiumi Navigation Shell Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  navigation shell chrome.
+- No platform paste, no phone preview, no sync, no upload, no public host, no scheduled send, and
+  no publish action.
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM after the user had logged in.
+- The editor-side top navigation shell exposed source-specific class markers:
+  x3-navbar, x3-nav-brand, x3-nav-path, and x3-nav-misc.
+- These markers describe Xiumi brand/path/login/navigation shell chrome, not article body DOM.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of this committed evidence.
+
+Implemented:
+- Added the detector label: Xiumi navigation shell residue.
+- Added a reduced regression fixture containing only x3-navbar, x3-nav-brand, x3-nav-path, and
+  x3-nav-misc plus inert section text.
+- The reduced fixture proves the detector does not depend on x3-nav-op-buttons, tn-op-btn-group,
+  op-btn, op-more, editor prompt banners, Angular runtime classes, UI Bootstrap directives, hosted
+  media, sidebar controls, or meta panels.
+
+False-positive boundary:
+- Generic navbar, breadcrumb, nav, path, brand, login, menu, Xiumi wording, or article prose is
+  not a trigger by itself.
+- The rule is anchored to source-specific Xiumi x3-* shell markers.
+
+Impact:
+- GitNexus MCP index was refreshed before impact analysis.
+- GitNexus impact for MARKET_EDITOR_RESIDUE_RULES: LOW, 0 direct dependents, 0 affected processes.
+- GitNexus impact for detectQuality: LOW, 4 direct dependents, 0 affected processes, Export module.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "navigation shell controls" --reporter=default
+  Result: failed as expected before implementation, 1 failed / 307 skipped / 308 total, because no
+  market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "navigation shell controls|top operation buttons|editor prompt banners|Angular runtime controls" --reporter=default
+  Result: passed after implementation, 1 file / 4 selected tests passed / 304 skipped / 308 total.
+- Full validation:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  Result: passed, 1 file / 308 tests.
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  Result: passed, 36 files / 1285 tests.
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  Result: passed.
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: passed.
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  Result: passed, 4653 modules transformed, Vite built in 37.66s.
+  pnpm -C inkforge style-proof:release-preflight --json
+  Result: exited 1 as expected with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds phone-preview / external-dependency / unsafe-to-automate / mutating-platform,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5, and
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, ordinary Ctrl+V, phone preview, mobile SMIL/click,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

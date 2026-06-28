@@ -5211,6 +5211,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 200. Xiumi Navigation Shell Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the editor-side top
+  navigation shell observed in a live CloakBrowser DOM readback, such as `x3-navbar`,
+  `x3-nav-brand`, `x3-nav-path`, or `x3-nav-misc`.
+- The live nodes are Xiumi page chrome around brand/path/login navigation. They are not article
+  body DOM, style semantics, or platform-safe SVG/H5 content and must not appear in WeChat,
+  Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi navigation shell residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `x3-navbar`, `x3-nav-brand`,
+  `x3-nav-path`, or `x3-nav-misc`.
+- A reduced fixture containing only those navigation shell markers must fail without requiring
+  `x3-nav-op-buttons`, `tn-op-btn-group`, `op-btn`, `op-more`, editor prompt banners, Angular
+  runtime classes, UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- The detector must not block ordinary prose or article markup containing nav, navbar, path,
+  brand, login, breadcrumb, menu, or Xiumi wording by itself. Generic `navbar` and `breadcrumb`
+  classes are not sufficient triggers without the source-specific `x3-*` markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced navigation-shell fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi navigation shell residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi top operation button residue`,
+  `Xiumi editor prompt banner residue`, and `Angular authoring class` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 199. Xiumi Editor Prompt Banner Residue - 2026-06-29
 
 ### 1. Scope / Trigger

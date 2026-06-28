@@ -1636,7 +1636,8 @@ Rules:
   `tn-paper-aux-comps-tree`, `paper-comps-assistant`, `paper-aux-comp-tree`,
   `aux-tree-node-data`, and `on-paper-aux-tree-node-*`, or top operation buttons such as
   `x3-nav-op-buttons`, `tn-op-btn-group`, `op-btn`, `op-btn-inset-icon`,
-  `op-btn-inset-desc`, and `op-more`, or UI Bootstrap directives such as `uib-dropdown`,
+  `op-btn-inset-desc`, and `op-more`, or navigation shell wrappers such as `x3-navbar`,
+  `x3-nav-brand`, `x3-nav-path`, and `x3-nav-misc`, or UI Bootstrap directives such as `uib-dropdown`,
   `uib-dropdown-toggle`, `uib-dropdown-menu`, `uib-tooltip`, `tooltip-placement`, and
   `tooltip-popup-delay`, or Xiumi dropdown directives such as `tn-dropdown`,
   `tn-dropdown-toggle`, and `tn-dropdown-menu`, or cleaned-down template scene markers such as
@@ -1805,4 +1806,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-message-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-user-profile-menu-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-editor-prompt-banner-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-199.
+- `prompts/0601/evidence/xiumi-navigation-shell-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-200.

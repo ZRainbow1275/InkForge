@@ -986,6 +986,17 @@ const MARKET_EDITOR_XIUMI_PROMPT_BANNER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_NAVIGATION_SHELL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<nav class="x3-navbar xiumi navbar navbar-static-top">',
+  '<div class="x3-nav-brand navbar-header">',
+  '<div class="x3-nav-path navbar-left oem-off">Xiumi paper editor path</div>',
+  '</div>',
+  '<div class="x3-nav-misc oem-off">Login area</div>',
+  '</nav>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATISTICS_PANEL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="statistics-tool-panel dropdown-menu">Text, link, image, and library counters.</div>',
@@ -12163,6 +12174,28 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi editing dock residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi top operation button residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Angular authoring class')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi navigation shell controls without operation buttons', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_NAVIGATION_SHELL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_NAVIGATION_SHELL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_NAVIGATION_SHELL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi navigation shell residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi navigation shell residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi navigation shell residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi top operation button residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi editor prompt banner residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Angular authoring class')
     expect(wechat.passed).toBe(false)
