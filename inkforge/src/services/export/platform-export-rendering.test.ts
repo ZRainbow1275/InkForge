@@ -947,6 +947,14 @@ const MARKET_EDITOR_XIUMI_ATTR_CONTEXT_HOST_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_MENU_PIN_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="op-cp-menu-pin">',
+  '<div class="op-cp-menu-pin-tb"></div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_RIGHT_TOOLBAR_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="x5-right-toolbar right-toolbar-container right-toolbar-container-normal">',
@@ -12010,6 +12018,28 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi attribute board control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operation bar dropdown residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi menu pin controls without loader parents', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_MENU_PIN_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_MENU_PIN_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_MENU_PIN_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi menu pin control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi menu pin control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi menu pin control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operation panel loader residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operator depot item residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi attribute context menu host residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

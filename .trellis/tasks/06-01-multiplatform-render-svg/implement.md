@@ -8,6 +8,63 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Menu Pin Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The operation-loader area exposed empty
+  menu pin controls as `op-cp-menu-pin` and `op-cp-menu-pin-tb`.
+- These markers are Xiumi editor-side floating/pinned operation-menu controls. They are not
+  publishable article DOM and must remain publish-blocking if copied into WeChat, Xiaohongshu, or
+  Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-cp-menu-pin` and `op-cp-menu-pin-tb`,
+  proving copied Xiumi menu-pin residue is blocked without relying on `op-loader`, operator dock
+  controls, operator depot items, attribute context-menu host nodes, attribute-board controls,
+  operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- Added the exact `Xiumi menu pin control residue` detector after the operation panel loader rule.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu pin controls" --reporter=default`
+  failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu pin controls|operation panel loader classes|operator dock child controls|attribute context menu host controls" --reporter=default`
+  passed with 4 selected tests and 298 skipped tests after the detector update.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file and 302 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files and 1279 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, with 4653 modules
+  transformed and Vite build completed in 50.34s.
+- Release preflight remained correctly blocked by external/manual gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-29 Xiumi Attribute Context Menu Host Residue Slice
 
 Source:

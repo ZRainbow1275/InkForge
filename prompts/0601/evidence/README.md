@@ -5534,6 +5534,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Menu Pin Control Residue
+
+- [x] xiumi-menu-pin-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 operation menu pin controls including
+  `op-cp-menu-pin` and `op-cp-menu-pin-tb`.
+- The reduced regression intentionally keeps only those source-specific empty pin markers,
+  proving cleaned-down menu-pin residue is blocked without relying on `op-loader`, `op-dock`,
+  operator depot controls, attribute context-menu host controls, attribute-board controls,
+  operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector intentionally does not block ordinary menu, pin, fixed, floating, toolbar,
+  operation, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Attribute Context Menu Host Residue
 
 - [x] xiumi-attr-context-menu-host-residue-20260629.txt

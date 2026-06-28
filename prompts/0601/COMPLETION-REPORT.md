@@ -7087,6 +7087,52 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Menu Pin Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the operation-loader
+  area can expose empty editor-side menu pin nodes as `op-cp-menu-pin` and `op-cp-menu-pin-tb`.
+- Added the static detector label `Xiumi menu pin control residue` so copied floating/pinned
+  operation-menu chrome is blocked even after operation-loader parents, operator dock controls,
+  operator depot items, attribute context-menu hosts, attribute-board controls, operation-bar
+  menus, Angular runtime, hosted media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to source-specific `op-cp-menu-pin*` class/id markers so ordinary
+  menu/pin/fixed/floating/toolbar/operation wording and article text are not blocked by
+  themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu pin controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "menu pin controls|operation panel loader classes|operator dock child controls|attribute context menu host controls" --reporter=default`.
+- Full platform rendering suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  with 1 file and 302 tests.
+- Full export service suite passed:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  with 36 files and 1279 tests.
+- Targeted ESLint passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`.
+- Type check passed:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`.
+- Production build passed:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`, with 4653 modules
+  transformed and Vite build completed in 50.34s.
+- Release preflight remained correctly blocked by external/manual gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-menu-pin-control-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Attribute Context Menu Host Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the attribute-bar

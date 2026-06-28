@@ -5211,6 +5211,50 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 194. Xiumi Menu Pin Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side menu pin
+  controls observed in a live CloakBrowser DOM readback as `op-cp-menu-pin` and
+  `op-cp-menu-pin-tb`.
+- The live nodes are empty operation-menu pin containers under Xiumi's operation loader. They
+  drive editor-side floating/pinned operation menu affordances; they are not article body DOM and
+  must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi menu pin control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `op-cp-menu-pin` or
+  `op-cp-menu-pin-tb`.
+- A reduced fixture containing only those pin classes must fail without requiring `op-loader`,
+  `op-dock`, operator depot items, attribute context-menu host nodes, attribute-board controls,
+  operation-bar dropdowns, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector must not block ordinary prose containing menu, pin, fixed, floating, toolbar, or
+  operation wording by itself; the trigger is the source-specific `op-cp-menu-pin*` class/id
+  marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced menu-pin fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi menu pin control residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi operation panel loader residue`,
+  `Xiumi operator dock control residue`, and `Xiumi attribute context menu host residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 193. Xiumi Attribute Context Menu Host Residue - 2026-06-29
 
 ### 1. Scope / Trigger
