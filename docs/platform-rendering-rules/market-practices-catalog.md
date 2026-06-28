@@ -1663,6 +1663,8 @@ Rules:
   `hello-color-x`, `on-color-choose`, `support-color-category`, and template color-fetch flags,
   or color-palette panel controls such as `tn-color-palette-panel`,
   `tn-color-palette-panel-mask`, `tnColorPaletteInst`, and `tnColorPaletteMask`, or
+  body-level color picker triggers such as `tnColorPickerTrigger` and
+  `tnGradientColorPickerTrigger`, or
   hidden media upload inputs such as `audioFileUploadInput`, `videoFileUploadInput`,
   `tn-audio-uploader`, and `tn-video-uploader`, or
   font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
@@ -1819,4 +1821,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-drag-receiver-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-palette-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-media-upload-input-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-204.
+- `prompts/0601/evidence/xiumi-color-picker-trigger-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-205.

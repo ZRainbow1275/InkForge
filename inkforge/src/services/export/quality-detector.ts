@@ -305,6 +305,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi color palette panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn(?:Gradient)?ColorPickerTrigger\b[^"']*["']/i,
+    label: 'Xiumi color picker trigger residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:color-selector-dropdown|op-theme-color-sec|text-color-btn|tn-color-circle|text-shadow-icon|text-fill-image-icon)\b[^"']*["']|\b(?:tn-color-selector(?:-x)?|hello-color-x|on-color-(?:choose|changing|choose-cancel)|support-color-category|fetch-color-from-template-panel|support-batch-change-color)\s*=)/i,
     label: 'Xiumi color selector control residue',
   },
