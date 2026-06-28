@@ -317,6 +317,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi comment toolbar panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?:(?=[^"']*\b(?:panel-(?:handler|placeholder)|hammer-handler|comment-panel-header)\b)|(?=[^"']*\bglyphicon\b)(?=[^"']*\bpanel-close\b))[^"']*["']/i,
+    label: 'Xiumi panel header control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-page-toolbar\b[^"']*["']/i,
     label: 'Xiumi page toolbar residue',
   },

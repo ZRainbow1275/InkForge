@@ -5124,6 +5124,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 191. Xiumi Panel Header Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains panel-header control
+  children observed in a live CloakBrowser DOM readback as `panel-handler`, `panel-placeholder`,
+  `panel-close` when paired with `glyphicon`, `hammer-handler`, or `comment-panel-header`.
+- These markers drive Xiumi editor-side draggable panel handles, panel placeholder icons, close
+  buttons, color-palette drag headers, and comment-panel headers. They are not article body DOM and
+  must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi panel header control residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `panel-handler`,
+  `panel-placeholder`, `hammer-handler`, `comment-panel-header`, or the `glyphicon` +
+  `panel-close` class combination.
+- A reduced fixture containing only these panel-header child markers must fail without requiring
+  `op-cp-paper-comps-assistant`, `tn-paper-aux-comps-tree-assistant`, `tn-comment-panel`,
+  `tn-color-palette-panel`, `op-bar-menu`, color-selector controls, operation loader chrome,
+  hosted media, Angular runtime attributes, sidebar controls, or meta panels.
+- The detector must not block ordinary prose containing panel, header, close, comment, color,
+  placeholder, handler, drag, menu, or toolbar wording by itself; the trigger is the
+  source-specific class/id marker or the source-specific `glyphicon` + `panel-close` class
+  combination.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced panel-header-control fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi panel header control residue` after
+  the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi comment toolbar panel residue`,
+  `Xiumi paper auxiliary component tree residue`, `Xiumi operation bar dropdown residue`, and
+  `Xiumi color selector control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

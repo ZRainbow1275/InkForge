@@ -6053,6 +6053,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Panel Header Control Residue
+
+- [x] xiumi-panel-header-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 panel-header child controls including
+  `panel-handler`, `panel-placeholder`, `hammer-handler`, `comment-panel-header`, and the
+  `glyphicon` + `panel-close` class combination.
+- The reduced regression intentionally keeps only those source-specific child controls, proving
+  cleaned-down panel-header residue is blocked without relying on `op-cp-paper-comps-assistant`,
+  `tn-paper-aux-comps-tree-assistant`, `tn-comment-panel`, `tn-color-palette-panel`,
+  `op-bar-menu`, color-selector controls, operation loader chrome, hosted media, Angular runtime
+  attributes, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary panel, header, close, comment, color,
+  placeholder, handler, drag, menu, or toolbar wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi Page Toolbar Residue
 
 - [x] xiumi-page-toolbar-residue-20260628.txt

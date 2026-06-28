@@ -1,0 +1,56 @@
+Xiumi Panel Header Control Residue - 2026-06-29
+
+Scope:
+- Static publishability gate for copied or partially cleaned Xiumi v5 paper-editor panel-header
+  child controls.
+- Applies to WeChat, Xiaohongshu, and Zhihu quality reports.
+- No platform action, phone preview, sync, upload, schedule, or publish action was performed.
+
+Live source:
+- CloakBrowser reviewed the logged-in Xiumi v5 paper editor DOM.
+- The editor exposed panel-header controls with source-specific class markers:
+  `panel-handler`, `panel-placeholder`, `panel-close` paired with `glyphicon`,
+  `hammer-handler`, and `comment-panel-header`.
+- These nodes appeared around draggable panel handles, panel placeholder icons, close buttons,
+  color-palette drag headers, and comment-panel headers.
+
+Implementation:
+- Added the `Xiumi panel header control residue` detector label.
+- Added a reduced regression fixture containing only the child markers, without
+  `op-cp-paper-comps-assistant`, `tn-paper-aux-comps-tree-assistant`, `tn-comment-panel`,
+  `tn-color-palette-panel`, `op-bar-menu`, or color-selector parent markers.
+- Kept the rule anchored to class/id attributes and the `glyphicon` + `panel-close` class
+  combination, not prose.
+- Kept adjacent detector labels independent from `Xiumi comment toolbar panel residue`,
+  `Xiumi paper auxiliary component tree residue`, `Xiumi operation bar dropdown residue`, and
+  `Xiumi color selector control residue`.
+
+TDD:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "panel header controls" --reporter=default`
+  failed before the detector update because no `*-market-editor-residue` issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "panel header controls|comment toolbar classes|paper auxiliary component tree|operation bar dropdown|color selector controls" --reporter=default`
+  passed with 5 selected tests and 294 skipped tests after the detector update.
+
+Full verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 299 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1276 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 34.99s.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This is static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -6995,6 +6995,50 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+---
+
+## 2026-06-29 Xiumi Panel Header Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed panel-header controls
+  can remain as `panel-handler`, `panel-placeholder`, `panel-close` paired with `glyphicon`,
+  `hammer-handler`, and `comment-panel-header`.
+- Added the static detector label `Xiumi panel header control residue` so copied draggable panel
+  handles, placeholder icons, close buttons, color-palette drag headers, and comment-panel headers
+  are blocked even after paper auxiliary parents, comment-panel parents, color-palette parents,
+  operation-bar menus, Angular runtime, hosted media, sidebar, and meta-panel markers are absent.
+- Kept the rule anchored to source-specific class/id markers and the `glyphicon` + `panel-close`
+  class combination so ordinary panel/header/close/comment/color/placeholder/handler/drag/menu/
+  toolbar wording and article text are not blocked by themselves.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "panel header controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "panel header controls|comment toolbar classes|paper auxiliary component tree|operation bar dropdown|color selector controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file / 299 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files / 1276 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 34.99s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-panel-header-control-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Template Card Hover Addendum
 
 - Added local static publishability protection for Xiumi v5 template card hover / feature-match

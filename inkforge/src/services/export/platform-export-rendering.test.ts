@@ -952,6 +952,16 @@ const MARKET_EDITOR_XIUMI_COMMENT_TOOLBAR_PANEL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_PANEL_HEADER_CONTROL_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<span class="glyphicon glyphicon-menu-hamburger panel-handler"></span>',
+  '<span class="glyphicon glyphicon-tree-conifer panel-placeholder"></span>',
+  '<span class="glyphicon glyphicon-remove panel-close"></span>',
+  '<div class="panel-header text-center hammer-handler"></div>',
+  '<div class="comment-panel-header text-center">0 / 0</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_PAGE_TOOLBAR_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<ul class="tn-page-toolbar"><li>Xiumi page toolbar residue</li></ul>',
@@ -11975,6 +11985,30 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi right toolbar control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi paper auxiliary component tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi panel header controls without panel parents', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_PANEL_HEADER_CONTROL_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_PANEL_HEADER_CONTROL_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_PANEL_HEADER_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi panel header control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi panel header control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi panel header control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi comment toolbar panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi paper auxiliary component tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operation bar dropdown residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi color selector control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

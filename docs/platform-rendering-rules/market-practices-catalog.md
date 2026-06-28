@@ -1662,7 +1662,9 @@ Rules:
   text-toolbar controls where `op-text-sec` is paired with `font-size`, `font-family`,
   `text-style`, or `text-misc`, or text-editing flyout controls such as
   `in-text-cell-editing-op`, `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`,
-  `text-bgd-shadow`, and `toggle-color-btn`, or right-toolbar controls such as `x5-right-toolbar`,
+  `text-bgd-shadow`, and `toggle-color-btn`, or panel-header controls such as
+  `panel-handler`, `panel-placeholder`, `hammer-handler`, `comment-panel-header`, and the
+  `glyphicon` + `panel-close` class combination, or right-toolbar controls such as `x5-right-toolbar`,
   `right-toolbar-container`, `right-toolbar-switch`, `right-toolbar-arrow-*`,
   `content-statistics`, `page-assist-on-toolbar`, `zooming-selector`, and
   `tn-viewport-zooming-panel`, or sidebar/tab controls such as `sidebar-panel`,
@@ -1784,4 +1786,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-template-card-hover-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-layout-form-child-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-editing-flyout-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-190.
+- `prompts/0601/evidence/xiumi-panel-header-control-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-191.
