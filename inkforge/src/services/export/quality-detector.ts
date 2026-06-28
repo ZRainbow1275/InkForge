@@ -309,6 +309,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi text editing flyout residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bbrush-panel\b[^"']*["']/i,
+    label: 'Xiumi brush panel residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:x5-right-toolbar|right-toolbar-(?:container(?:-normal)?|switch(?:-container)?|arrow-(?:down|up))|content-statistics|page-assist-on-toolbar|zooming-selector|tn-viewport-zooming-panel)\b[^"']*["']/i,
     label: 'Xiumi right toolbar control residue',
   },

@@ -5170,6 +5170,47 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 192. Xiumi Brush Panel Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the text-format brush
+  panel child observed in a live CloakBrowser DOM readback as `brush-panel`.
+- The marker drives Xiumi editor-side format-list, drag-to-pin, and extracted-format affordances.
+  It is not article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable
+  output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi brush panel residue` for WeChat, Xiaohongshu,
+  and Zhihu when a class or id attribute contains `brush-panel`.
+- A reduced fixture containing only `brush-panel` plus inert child image context must fail without
+  requiring `text-format-brush`, `op-text-sec`, `in-text-cell-editing-op`, `op-bar-menu`,
+  font-format controls, operation loader chrome, hosted media, Angular runtime attributes, sidebar
+  controls, or meta panels.
+- The detector must not block ordinary prose containing brush, format, list, drag, pin, style, or
+  toolbar wording by itself; the trigger is the source-specific `brush-panel` class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced brush-panel fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi brush panel residue` after the
+  detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi text editing flyout residue`,
+  `Xiumi text toolbar control residue`, `Xiumi font and format control residue`, and
+  `Xiumi operation bar dropdown residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

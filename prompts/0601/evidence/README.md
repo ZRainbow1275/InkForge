@@ -5518,6 +5518,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Brush Panel Residue
+
+- [x] xiumi-brush-panel-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 text-format brush panel child controls including
+  `brush-panel`.
+- The reduced regression intentionally keeps only that source-specific child control plus inert
+  image context, proving cleaned-down brush-panel residue is blocked without relying on
+  `text-format-brush`, `op-text-sec`, `in-text-cell-editing-op`, `op-bar-menu`, font-format
+  controls, operation loader chrome, hosted media, Angular runtime attributes, sidebar controls,
+  or meta panels.
+- The detector intentionally does not block ordinary brush, format, list, drag, pin, style, or
+  toolbar wording by itself; `icon-image` is observed context only and is not a standalone trigger.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 Xiumi Right Toolbar Control Residue
 
 - [x] xiumi-right-toolbar-control-residue-20260626.txt
