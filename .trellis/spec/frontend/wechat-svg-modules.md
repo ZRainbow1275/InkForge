@@ -5211,6 +5211,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 198. Xiumi User Profile Menu Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains the editor-side user
+  profile dropdown observed in a live CloakBrowser DOM readback as `usr-info-desc-frame`.
+- The live node is Xiumi account profile menu chrome around account settings, invoices, and
+  sign-out commands. It is not article body DOM and must not appear in WeChat, Xiaohongshu, or
+  Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi user profile menu residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `usr-info-desc-frame`.
+- A reduced fixture containing only `usr-info-desc-frame` plus generic dropdown context must fail
+  without requiring `wx-user-panel`, `usr-message-box`, `message-box-toggle`,
+  top operation buttons, dropdown directives, operation-bar dropdowns, Angular runtime attributes,
+  hosted media, sidebar controls, or meta panels.
+- The detector must not block ordinary prose containing account, profile, settings, invoice,
+  sign out, user, dropdown, or panel wording by itself; the trigger is the source-specific
+  `usr-info-desc-frame` class/id marker. Generic child markers such as `sign-out`, `nickname`, and
+  `glyphicon` are observed context only and must not become standalone triggers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced user-profile-menu fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi user profile menu residue` after
+  the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi account sync panel residue`,
+  `Xiumi message panel residue`, and `Xiumi top operation button residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 197. Xiumi Message Panel Residue - 2026-06-29
 
 ### 1. Scope / Trigger
