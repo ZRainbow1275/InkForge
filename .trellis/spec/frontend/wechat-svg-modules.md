@@ -5211,6 +5211,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 206. Xiumi Theme Color Widget Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side theme color
+  widget nodes observed in a live CloakBrowser DOM readback, such as `color-widget`,
+  `op-color-text`, `tn-color-palette-dock`, or `tn-color-picker-mask`.
+- These live nodes belong to the left-side template/style surface for theme color selection and
+  palette docking. They are not article body DOM, platform-safe color semantics, or exported color
+  values and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi theme color widget residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `color-widget`, `op-color-text`,
+  `tn-color-palette-dock`, or `tn-color-picker-mask`.
+- A reduced fixture containing only those theme-color widget markers must fail with the exact label
+  even when `tn-color-palette-panel`, `tn-color-palette-panel-mask`, `tnColorPaletteInst`,
+  `tnColorPaletteMask`, `tnColorPickerTrigger`, `tnGradientColorPickerTrigger`, color-selector
+  controls, operation-bar controls, Angular runtime classes, hosted media, sidebar controls, and
+  meta panels are absent.
+- The detector must not block ordinary prose or article markup containing theme, color, widget,
+  palette, dock, mask, picker, or clear wording by itself.
+- The exact rule must stay distinct from `Xiumi color palette panel residue`,
+  `Xiumi color picker trigger residue`, and `Xiumi color selector control residue` so the
+  left-side theme-color widget remains attributable to the learned authoring surface.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced theme-color widget fixture initially emits no
+  market-editor-residue issue, then reports `Xiumi theme color widget residue` after the detector
+  update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi color palette panel residue`,
+  `Xiumi color picker trigger residue`, and `Xiumi color selector control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 205. Xiumi Color Picker Trigger Residue - 2026-06-29
 
 ### 1. Scope / Trigger

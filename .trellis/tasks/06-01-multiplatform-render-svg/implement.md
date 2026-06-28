@@ -8,6 +8,62 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Theme Color Widget Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The left-side template/style surface
+  exposed theme-color widget markers `color-widget`, `op-color-text`,
+  `tn-color-palette-dock`, and `tn-color-picker-mask`.
+- These markers are Xiumi editor chrome for the theme color entry and palette docking layer. They
+  are not publishable article DOM or platform color semantics and must remain publish-blocking if
+  copied into WeChat, Xiaohongshu, or Zhihu output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the four theme-color widget class markers,
+  proving copied left-side color chrome receives an exact label without relying on color-palette
+  panel classes, color picker trigger ids, color selector controls, Angular runtime classes,
+  hosted media, sidebar controls, or meta panels.
+- Added the exact `Xiumi theme color widget residue` detector before
+  `Xiumi color palette panel residue`, keeping palette panels, picker triggers, and selector
+  controls independent.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color widgets" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "theme color widgets|color palette panels|color picker triggers|color selector controls" --reporter=default`
+  passed with 4 selected tests and 310 skipped tests after the detector update.
+- Platform rendering suite: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 314 tests.
+- Export service suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1291 tests.
+- ESLint: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check: `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Build: `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with
+  4653 modules transformed in 50.28s.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as
+  expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`,
+  `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-29 Xiumi Color Picker Trigger Residue Slice
 
 Source:

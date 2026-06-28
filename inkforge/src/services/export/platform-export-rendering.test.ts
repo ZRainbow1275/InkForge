@@ -919,6 +919,17 @@ const MARKET_EDITOR_XIUMI_COLOR_PICKER_TRIGGER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_THEME_COLOR_WIDGET_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="color-widget">',
+  '<div class="op-color-text">主题色</div>',
+  '</div>',
+  '<div class="tn-color-palette-dock">',
+  '<div class="tn-color-picker-mask"></div>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="color-selector-dropdown btn-group"><button class="dropdown-toggle">文字颜色</button></div>',
@@ -12046,6 +12057,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi color picker trigger residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi color palette panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi color selector control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi theme color widgets without palette panels or picker triggers', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_THEME_COLOR_WIDGET_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_THEME_COLOR_WIDGET_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_THEME_COLOR_WIDGET_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi theme color widget residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi theme color widget residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi theme color widget residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi color palette panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi color picker trigger residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi color selector control residue')
     expect(wechat.passed).toBe(false)

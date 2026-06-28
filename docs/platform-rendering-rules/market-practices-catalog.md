@@ -1661,6 +1661,8 @@ Rules:
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
   `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`, `tn-color-circle`,
   `hello-color-x`, `on-color-choose`, `support-color-category`, and template color-fetch flags,
+  or theme-color widget controls such as `color-widget`, `op-color-text`,
+  `tn-color-palette-dock`, and `tn-color-picker-mask`,
   or color-palette panel controls such as `tn-color-palette-panel`,
   `tn-color-palette-panel-mask`, `tnColorPaletteInst`, and `tnColorPaletteMask`, or
   body-level color picker triggers such as `tnColorPickerTrigger` and
@@ -1822,4 +1824,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-color-palette-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-media-upload-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-picker-trigger-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-205.
+- `prompts/0601/evidence/xiumi-theme-color-widget-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-206.

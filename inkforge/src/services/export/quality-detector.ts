@@ -301,6 +301,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi box metrics control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:color-widget|op-color-text|tn-color-palette-dock|tn-color-picker-mask)\b[^"']*["']/i,
+    label: 'Xiumi theme color widget residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-color-palette-panel(?:-mask)?|tnColorPalette(?:Inst|Mask))\b[^"']*["']/i,
     label: 'Xiumi color palette panel residue',
   },

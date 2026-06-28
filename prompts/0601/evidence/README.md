@@ -5581,6 +5581,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Theme Color Widget Residue
+
+- [x] xiumi-theme-color-widget-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 theme-color widget chrome:
+  `color-widget`, `op-color-text`, `tn-color-palette-dock`, and `tn-color-picker-mask`.
+- The reduced regression intentionally keeps only those source-specific left-side color widget
+  classes, proving theme color widget chrome is reported precisely without relying on
+  color-palette panels, color-picker trigger ids, color-selector controls, Angular runtime
+  classes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary theme, color, widget, palette, dock, mask,
+  picker, clear, or style wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Color Picker Trigger Residue
 
 - [x] xiumi-color-picker-trigger-residue-20260629.txt
