@@ -5581,6 +5581,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Color Palette Panel Residue
+
+- [x] xiumi-color-palette-panel-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 color palette popup and mask markers including
+  `tn-color-palette-panel`, `tn-color-palette-panel-mask`, `tnColorPaletteInst`, and
+  `tnColorPaletteMask`.
+- The reduced regression intentionally keeps only those source-specific color palette markers,
+  proving popup/mask chrome is reported precisely without relying on color-selector controls,
+  operation-bar dropdown controls, panel-header controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary color, palette, panel, mask, picker, storage,
+  popup, or theme wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Component Drag Receiver Residue
 
 - [x] xiumi-component-drag-receiver-residue-20260629.txt

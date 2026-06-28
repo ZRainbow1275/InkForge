@@ -1661,7 +1661,9 @@ Rules:
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
   `color-selector-dropdown`, `op-theme-color-sec`, `text-color-btn`, `tn-color-circle`,
   `hello-color-x`, `on-color-choose`, `support-color-category`, and template color-fetch flags,
-  or font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
+  or color-palette panel controls such as `tn-color-palette-panel`,
+  `tn-color-palette-panel-mask`, `tnColorPaletteInst`, and `tnColorPaletteMask`, or
+  font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
   `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`, `text-format-brush`,
   `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks, or
   text-toolbar controls where `op-text-sec` is paired with `font-size`, `font-family`,
@@ -1813,4 +1815,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-navigation-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-header-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-drag-receiver-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-202.
+- `prompts/0601/evidence/xiumi-color-palette-panel-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-203.

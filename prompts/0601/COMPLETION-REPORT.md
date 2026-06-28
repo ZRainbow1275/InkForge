@@ -7087,6 +7087,43 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Color Palette Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side color
+  palette popup and mask surfaces can expose `tn-color-palette-panel`,
+  `tn-color-palette-panel-mask`, `tnColorPaletteInst`, and `tnColorPaletteMask`.
+- Added the static detector label `Xiumi color palette panel residue` before the broader
+  `Xiumi color selector control residue`.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no `wechat-market-editor-residue`
+  issue was emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "color palette panels" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "color palette panels|color selector controls|operation bar dropdown controls|panel header controls without panel parents" --reporter=default`.
+- Full validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 311 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1288 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 transformed
+  modules and a 42.45s Vite build.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-color-palette-panel-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Component Drag Receiver Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side
