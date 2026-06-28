@@ -6242,6 +6242,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-28 Xiumi Group Ground Marker Residue
+
+- [x] xiumi-group-ground-marker-residue-20260628.txt
+- Added a static quality rule for live Xiumi v5 group/ground/cube authoring class tokens including
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`.
+- The reduced regression intentionally keeps only those source-specific single class tokens,
+  proving cleaned-down group/ground residue is blocked without relying on `tn-page*`,
+  `tn-layer*`, `tn-comp*`, `tn-tpl*`, `tn-from-house*`, group-box wrappers, renderer-pipeline
+  bindings, broad Angular runtime attributes, hosted media, sidebar controls, meta panels, or the
+  generic `Xiumi tn-* attribute` diagnostic.
+- The detector intentionally does not block ordinary group, ground, cube, page, layer, or cell
+  wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-28 Xiumi WeChat Cover Menu Residue
 
 - [x] xiumi-wechat-cover-menu-residue-20260628.txt

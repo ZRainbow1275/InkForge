@@ -1032,6 +1032,15 @@ const MARKET_EDITOR_XIUMI_TEMPLATE_SCENE_MARKER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_GROUP_GROUND_MARKER_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-group-usage-normal">Xiumi group ground marker residue</div>',
+  '<div class="tn-ground-slot">Xiumi group ground marker residue</div>',
+  '<div class="tn-ground-inst">Xiumi group ground marker residue</div>',
+  '<article class="tn-cube-inst">Xiumi group ground marker residue</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_BASIC_STYLE_FRAGMENT_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="fragment-type-flow_page_basic_style">',
@@ -10878,6 +10887,32 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi template authoring tree residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi source-house authoring residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi tn-* attribute')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi group and ground markers after scene marker cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_GROUP_GROUND_MARKER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_GROUP_GROUND_MARKER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_GROUP_GROUND_MARKER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi group ground marker residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi group ground marker residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi group ground marker residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi template scene marker residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component authoring tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi page authoring tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi layer authoring tree residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi tn-* attribute')
     expect(wechat.passed).toBe(false)

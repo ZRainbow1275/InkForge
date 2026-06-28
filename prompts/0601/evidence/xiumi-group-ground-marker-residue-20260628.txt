@@ -1,0 +1,58 @@
+Xiumi Group Ground Marker Residue - 2026-06-28
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  group/ground/cube authoring markers.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Live DOM source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM.
+- The page exposed `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and
+  `tn-cube-inst` inside group, page, layer, cube, document-root, and selected-component editing
+  surfaces.
+- Minimal local probing showed single-token class values such as
+  `class="tn-group-usage-normal"`, `class="tn-ground-slot"`, `class="tn-ground-inst"`, and
+  `class="tn-cube-inst"` only produced generic class/id warnings before this slice and did not
+  emit a market-editor hard-block.
+
+Implemented:
+- Added the `Xiumi group ground marker residue` quality detector for class/id tokens
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`.
+- Added a reduced regression fixture that keeps only those source-specific single class tokens,
+  without `tn-page*`, `tn-layer*`, `tn-comp*`, `tn-tpl*`, `tn-from-house*`, group-box wrappers,
+  renderer-pipeline bindings, broad Angular runtime attributes, hosted media, sidebar controls, or
+  meta panels.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all report the precise `Xiumi group ground marker residue`
+  market-editor issue.
+- The WeChat assertion verifies the reduced fixture does not fall through to
+  `Xiumi template scene marker residue`, `Xiumi component authoring tree residue`,
+  `Xiumi page authoring tree residue`, `Xiumi layer authoring tree residue`, or
+  `Xiumi tn-* attribute`.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "group and ground markers" --reporter=default
+  RED: 1 selected test failed before the detector because no market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "group and ground markers|group box wrappers|template scene markers|component authoring tree|page authoring tree|layer authoring tree" --reporter=default
+  PASS: 6 selected tests / 285 skipped tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000
+  PASS: 1 file / 291 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000
+  PASS: 36 files / 1268 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, status=blocked-by-external, canClaimComplete=false,
+  blockerKinds=phone-preview,external-dependency,unsafe-to-automate,mutating-platform,
+  actionableLocalRows=0.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.

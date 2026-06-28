@@ -8257,6 +8257,49 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, or publish success.
 
+## 184. Xiumi Group Ground Marker Residue - 2026-06-28
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains group/ground/cube
+  authoring markers observed in a live CloakBrowser DOM readback, such as
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`.
+- These class tokens appear in Xiumi group, page, layer, and cube editing surfaces around cell
+  containers, document roots, selected-component panels, and paper/booklet component instances.
+  They are not publishable article semantics and must not remain after broader component,
+  page/layer, group-box, and template-scene cleanup.
+- This contract is static publishability protection only. It does not prove SVG/SMIL/click
+  interaction correctness, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi group ground marker residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id token is one of `tn-group-usage-normal`,
+  `tn-ground-slot`, `tn-ground-inst`, or `tn-cube-inst`.
+- A reduced fixture containing only those class tokens must fail even when `tn-page*`,
+  `tn-layer*`, `tn-comp*`, `tn-tpl*`, `tn-from-house*`, group-box wrappers, renderer-pipeline
+  bindings, broad Angular runtime attributes, hosted media, sidebar controls, or meta panels are
+  absent.
+- The detector must not block ordinary group, ground, cube, page, layer, or cell wording by
+  itself. The trigger is the source-specific Xiumi `tn-*` class token.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced group/ground fixture first has no market-editor hard-block, then
+  reports `Xiumi group ground marker residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi group box wrapper residue`,
+  `Xiumi component authoring tree residue`, `Xiumi page authoring tree residue`,
+  `Xiumi layer authoring tree residue`, `Xiumi template scene marker residue`, and
+  `Xiumi tn-* attribute` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, or publish success.
+
 ## 178. Xiumi Layout Form Panel Residue - 2026-06-28
 
 ### 1. Scope / Trigger

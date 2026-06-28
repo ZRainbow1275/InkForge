@@ -17128,6 +17128,53 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-06-28 Xiumi Group Ground Marker Residue Slice
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM and found group/ground/cube authoring
+  markers `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst` inside
+  group, page, layer, cube, and selected-component editing surfaces.
+- Minimal local probing confirmed these single-token class values only produced generic class/id
+  warnings and did not emit a `*-market-editor-residue` issue.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, or QR artifact
+  is part of the committed evidence.
+
+Impact:
+- `npx gitnexus impact detectQuality -r InkForge --depth 2` returned LOW risk with 4 direct
+  dependents and 0 affected processes.
+- `npx gitnexus impact MARKET_EDITOR_RESIDUE_RULES -r InkForge --depth 3` returned LOW risk with
+  0 direct dependents and 0 affected processes.
+
+Implementation:
+- Added the `Xiumi group ground marker residue` detector for class/id tokens
+  `tn-group-usage-normal`, `tn-ground-slot`, `tn-ground-inst`, and `tn-cube-inst`.
+- Added a reduced three-platform regression fixture proving WeChat, Xiaohongshu, and Zhihu all
+  hard-block cleaned-down group/ground residue under the precise group-ground label.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "group and ground markers" --reporter=default`
+  failed before the detector because no `*-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "group and ground markers|group box wrappers|template scene markers|component authoring tree|page authoring tree|layer authoring tree" --reporter=default`
+  passed with 6 selected tests and 285 skipped tests.
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=60000`
+  passed with 1 file and 291 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=60000`
+  passed with 36 files and 1268 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed.
+- `pnpm -C inkforge style-proof:release-preflight --json` correctly exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  and no actionable local rows.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
+  publish success.
+
 ## 2026-06-26 Xiumi Operator Dock Control Residue Slice
 
 Source:
