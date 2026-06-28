@@ -5211,6 +5211,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 193. Xiumi Attribute Context Menu Host Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side attribute
+  context menu host nodes observed in a live CloakBrowser DOM readback as
+  `attr-bar-context-menu-host-for-comp-insert`, `attr-bar-context-menu-host-for-comp-modify`, and
+  `attr-bar-context-menu-host-for-cell`.
+- The live nodes are empty context-menu mount points under Xiumi's attribute-bar host. They drive
+  editor-side component insert, component modify, and cell context menus; they are not article
+  body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi attribute context menu host residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id attribute contains the supported
+  `attr-bar-context-menu-host-for-*` variants.
+- A reduced fixture containing only those host classes must fail without requiring
+  `op-gl-dc-attr-bars`, `op-dc-depot`, `op-dc-hidden`, `cp-role-*`, `ce-type-*`,
+  `tn-attribute-board-entry`, `tn-attr-assemble-tabs`, `op-attr-*`, operation-bar dropdowns,
+  operator dock controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels.
+- The detector must not block ordinary prose containing attribute, context, menu, host, component,
+  insert, modify, or cell wording by itself; the trigger is the source-specific
+  `attr-bar-context-menu-host-for-*` class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced attribute-context-host fixture fails before implementation because
+  no market-editor-residue issue is emitted, then reports
+  `Xiumi attribute context menu host residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi operator depot item residue`,
+  `Xiumi attribute board control residue`, and `Xiumi operation bar dropdown residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

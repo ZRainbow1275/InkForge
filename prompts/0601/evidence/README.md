@@ -5534,6 +5534,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Attribute Context Menu Host Residue
+
+- [x] xiumi-attr-context-menu-host-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 attribute context-menu host controls including
+  `attr-bar-context-menu-host-for-comp-insert`, `attr-bar-context-menu-host-for-comp-modify`, and
+  `attr-bar-context-menu-host-for-cell`.
+- The reduced regression intentionally keeps only those source-specific empty host markers,
+  proving cleaned-down attribute context-menu residue is blocked without relying on
+  `op-gl-dc-attr-bars`, `op-dc-depot`, `op-dc-hidden`, `cp-role-*`, `ce-type-*`,
+  attribute-board controls, operation-bar dropdowns, operator-dock controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary attribute, context, menu, host, component,
+  insert, modify, cell, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 Xiumi Right Toolbar Control Residue
 
 - [x] xiumi-right-toolbar-control-residue-20260626.txt

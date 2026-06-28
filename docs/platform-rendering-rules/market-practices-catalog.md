@@ -1663,7 +1663,10 @@ Rules:
   `text-style`, or `text-misc`, or text-editing flyout controls such as
   `in-text-cell-editing-op`, `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`,
   `text-bgd-shadow`, and `toggle-color-btn`, or text-format brush panels such as
-  `brush-panel`, or panel-header controls such as
+  `brush-panel`, or attribute context-menu host nodes such as
+  `attr-bar-context-menu-host-for-comp-insert`,
+  `attr-bar-context-menu-host-for-comp-modify`, and
+  `attr-bar-context-menu-host-for-cell`, or panel-header controls such as
   `panel-handler`, `panel-placeholder`, `hammer-handler`, `comment-panel-header`, and the
   `glyphicon` + `panel-close` class combination, or right-toolbar controls such as `x5-right-toolbar`,
   `right-toolbar-container`, `right-toolbar-switch`, `right-toolbar-arrow-*`,
@@ -1789,4 +1792,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-text-editing-flyout-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-panel-header-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-brush-panel-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-192.
+- `prompts/0601/evidence/xiumi-attr-context-menu-host-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-193.
