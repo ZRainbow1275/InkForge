@@ -1669,6 +1669,8 @@ Rules:
   `tnGradientColorPickerTrigger`, or
   hidden media upload inputs such as `audioFileUploadInput`, `videoFileUploadInput`,
   `tn-audio-uploader`, and `tn-video-uploader`, or
+  audio/media panel controls such as `audios`, `audio-panel`, `audio-src`, `audio-status`,
+  `audio-edit`, `audio-del`, and `audio-group`, or
   font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
   `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`, `text-format-brush`,
   `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks, or
@@ -1825,4 +1827,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-media-upload-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-picker-trigger-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-theme-color-widget-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-206.
+- `prompts/0601/evidence/xiumi-audio-panel-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-207.

@@ -5211,6 +5211,51 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 207. Xiumi Audio Panel Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side music/video
+  or background-audio panel markers observed in a live CloakBrowser DOM readback, such as
+  `audios`, `audio-panel`, `audio-src`, `audio-status`, `audio-edit`, `audio-del`, or
+  `audio-group`.
+- These live nodes belong to the Xiumi audio/video library and page background music controls.
+  They are not article body DOM, platform-safe media embeds, or target-platform upload manifests
+  and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile media playback, mobile SMIL/click interaction, Dark Mode, cover thumbnail
+  acceptance, schedule, sync, upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi audio panel residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `audios`, `audio-panel`,
+  `audio-src`, `audio-status`, `audio-edit`, `audio-del`, or `audio-group`.
+- A reduced fixture containing only those audio-panel markers must fail with the exact label even
+  when hidden media upload inputs, generated-link controls, account/sync panels, color controls,
+  Angular runtime classes, hosted media, sidebar controls, and meta panels are absent.
+- The detector must not block ordinary prose or article markup containing audio, music, video,
+  panel, source, edit, delete, status, background, or library wording by itself. It must not block
+  ordinary `<audio>` elements without one of the Xiumi class/id markers.
+- The exact rule must stay distinct from `Xiumi media upload input residue`,
+  `Xiumi generated link control residue`, and `Xiumi account sync panel residue` so the media
+  library/panel chrome remains attributable to the learned authoring surface.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced audio-panel fixture initially emits no market-editor-residue issue,
+  then reports `Xiumi audio panel residue` after the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi media upload input residue`,
+  `Xiumi generated link control residue`, and `Xiumi account sync panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile media playback, mobile SMIL/click interaction, credentialed
+  sync, public rendering, upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 206. Xiumi Theme Color Widget Residue - 2026-06-29
 
 ### 1. Scope / Trigger

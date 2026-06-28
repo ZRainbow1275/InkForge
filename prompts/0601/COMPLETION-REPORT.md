@@ -7087,6 +7087,50 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Audio Panel Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the audio/video
+  library and background-music controls can expose `audios`, `audio-panel`, `audio-src`,
+  `audio-status`, `audio-edit`, `audio-del`, and `audio-group`.
+- Added the static detector label `Xiumi audio panel residue` after hidden media upload input
+  handling and before account/sync panel rules.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no `wechat-market-editor-residue`
+  issue was emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "audio panel controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "audio panel controls|hidden media upload inputs|generated link controls|account sync panel controls" --reporter=default`.
+- Verification:
+  full platform-rendering regression passed with 1 file and 315 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  full export service regression passed with 36 files and 1292 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  lint, type check, and production build passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  transformed 4653 modules in 39.50s.
+- Verification:
+  release preflight intentionally remains blocked by external gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-audio-panel-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile media playback, mobile SMIL/click interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Theme Color Widget Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the left-side
