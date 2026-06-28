@@ -7833,8 +7833,8 @@ const ruleFamilies = [
 ### 1. Scope / Trigger
 
 - Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains background-attribute
-  controls observed in a live CloakBrowser DOM readback as `bg-attr-menu`, `bg-repeat-select`,
-  `bg-attach-check`, or `ce-op-background`.
+  controls observed in live CloakBrowser DOM readbacks as `bg-attr-menu`, `bg-repeat-select`,
+  `bg-attach-check`, `ce-op-background`, or `op-cp-bg-bar`.
 - These controls drive editor-side background image repeat, attachment, and background operation
   menus. They can inform InkForge-owned background layout reports, but they are not article body
   DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
@@ -7846,8 +7846,9 @@ const ruleFamilies = [
 - `detectQuality(..., platform)` must report `Xiumi background attribute control residue` for
   WeChat, Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported
   background-attribute markers.
-- A reduced fixture containing only `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`, and
-  `ce-op-background` must fail after crop-panel cleanup even when crop-panel child controls,
+- A reduced fixture containing only `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`,
+  `ce-op-background`, or a later cleaned-down `op-cp-bg-bar` child marker must fail after
+  crop-panel cleanup even when crop-panel child controls,
   worker-surface crop controls, selection-overlay controls, attribute-board controls,
   operator/depot controls, paper auxiliary tree controls, Angular runtime attributes, hosted
   media, sidebar controls, and meta panels are absent.
@@ -7862,6 +7863,8 @@ const ruleFamilies = [
 - Use TDD to prove the reduced background-attribute fixture fails before implementation because
   no market-editor-residue issue is emitted, then reports
   `Xiumi background attribute control residue` after the detector update.
+- Use TDD again for later cleaned-down child controls such as `op-cp-bg-bar` instead of relying
+  on the parent background fixture to mask coverage gaps.
 - Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
   quality reports.
 - Adjacent regressions must keep `Xiumi attribute board control residue` and

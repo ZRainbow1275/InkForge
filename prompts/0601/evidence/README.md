@@ -6197,6 +6197,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
 
+## 2026-06-29 Xiumi Background Bar Child Residue
+
+- [x] xiumi-background-bar-child-residue-20260629.txt
+- Extended the existing `Xiumi background attribute control residue` rule for the live Xiumi v5
+  background operation child bar `op-cp-bg-bar`.
+- The reduced regression intentionally keeps only `op-cp-bg-bar`, proving cleaned-down background
+  bar residue is blocked without relying on `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`,
+  `ce-op-background`, crop-panel controls, worker-surface controls, attribute-board controls, or
+  operator dock/depot classes.
+- The detector intentionally does not block ordinary background, image, color, clear, or menu
+  wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Attribute Panel Residue
 
 - [x] xiumi-animation-attribute-panel-residue-20260628.txt

@@ -1,0 +1,52 @@
+Xiumi Background Bar Child Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  background operation child bars.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Live DOM source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM.
+- The page exposed `op-cp-bg-bar` around editor-side background image, background color, and
+  clear-background controls.
+- Minimal local probing showed `class="op-cp-bg-bar"` did not emit a market-editor hard-block
+  before this slice.
+
+Implemented:
+- Extended the existing `Xiumi background attribute control residue` quality detector to include
+  `op-cp-bg-bar`.
+- Added a reduced regression fixture that keeps only this source-specific single class token,
+  without `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`, `ce-op-background`,
+  crop-panel controls, worker-surface controls, attribute-board controls, or operator dock/depot
+  classes.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all report the precise
+  `Xiumi background attribute control residue` market-editor issue.
+- The WeChat assertion verifies the reduced fixture does not fall through to
+  `Xiumi operator dock control residue`, `Xiumi operator depot item residue`, or
+  `Xiumi attribute board control residue`.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "background bar child controls" --reporter=default
+  RED: 1 selected test failed before the detector because no market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "background bar child controls|background attribute controls|animation attribute panel controls|operator dock child controls|operator depot item controls|attribute board controls" --reporter=default
+  PASS: 6 selected tests / 287 skipped tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000
+  PASS: 1 file / 293 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000
+  PASS: 36 files / 1270 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 40.90s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external; canClaimComplete=false; blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform; actionableLocalRows=0.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.
