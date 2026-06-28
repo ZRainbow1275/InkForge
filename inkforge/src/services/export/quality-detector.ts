@@ -381,6 +381,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi user profile menu residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-(?:compatible|operate)-prompt\b[^"']*["']/i,
+    label: 'Xiumi editor prompt banner residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:layout-box-panel|form-input-panel|op-ce-form-input|trigger-props-panel|trigger-radio-input)\b[^"']*["']/i,
     label: 'Xiumi layout form panel residue',
   },

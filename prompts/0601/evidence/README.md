@@ -5534,6 +5534,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Editor Prompt Banner Residue
+
+- [x] xiumi-editor-prompt-banner-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 prompt banner markers including
+  `tn-compatible-prompt` and `tn-operate-prompt`.
+- The reduced regression intentionally keeps only those source-specific prompt markers, proving
+  browser-compatibility and copy/plugin operation prompts are blocked without relying on
+  `tn-working-pallet`, `tn-studio-paper`, `tn-editing-desk`, Angular runtime classes, top
+  operation buttons, user profile menus, operation-bar dropdowns, hosted media, sidebar controls,
+  or meta panels.
+- The detector intentionally does not block ordinary browser, compatibility, copy, plugin,
+  operation, prompt, close, sync, paste, or article wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi User Profile Menu Residue
 
 - [x] xiumi-user-profile-menu-residue-20260629.txt

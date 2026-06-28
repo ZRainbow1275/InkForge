@@ -979,6 +979,13 @@ const MARKET_EDITOR_XIUMI_USER_PROFILE_MENU_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_PROMPT_BANNER_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-compatible-prompt">Browser compatibility notice.</div>',
+  '<div class="tn-operate-prompt">Copy and plugin operation notice.</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_STATISTICS_PANEL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="statistics-tool-panel dropdown-menu">Text, link, image, and library counters.</div>',
@@ -12136,6 +12143,28 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi message panel residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi top operation button residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi editor prompt banners without working-pallet parents', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_PROMPT_BANNER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_PROMPT_BANNER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_PROMPT_BANNER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi editor prompt banner residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi editor prompt banner residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi editor prompt banner residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi editing dock residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi top operation button residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Angular authoring class')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -1667,7 +1667,8 @@ Rules:
   account/sync dropdown panels such as `wx-user-panel`, or statistics dropdown panels such as
   `statistics-tool-panel`, or message notification dropdown controls such as `usr-message-box`,
   `message-box-toggle`, `turn-to-message-setting`, and `turn-to-message-list`, or user profile
-  dropdown controls such as `usr-info-desc-frame`, or
+  dropdown controls such as `usr-info-desc-frame`, or editor prompt banners such as
+  `tn-compatible-prompt` and `tn-operate-prompt`, or
   attribute context-menu host nodes such as
   `attr-bar-context-menu-host-for-comp-insert`,
   `attr-bar-context-menu-host-for-comp-modify`, and
@@ -1803,4 +1804,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-statistics-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-message-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-user-profile-menu-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-198.
+- `prompts/0601/evidence/xiumi-editor-prompt-banner-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-199.

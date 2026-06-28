@@ -5211,6 +5211,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 199. Xiumi Editor Prompt Banner Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains editor-side prompt
+  banners observed in a live CloakBrowser DOM readback, such as `tn-compatible-prompt` and
+  `tn-operate-prompt`.
+- The live nodes are Xiumi browser-compatibility and copy/plugin operation prompts. They are not
+  article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi editor prompt banner residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains `tn-compatible-prompt` or
+  `tn-operate-prompt`.
+- A reduced fixture containing only those prompt banner markers must fail without requiring
+  `tn-working-pallet`, `tn-studio-paper`, `tn-editing-desk`, Angular runtime classes, top operation
+  buttons, user profile menus, operation-bar dropdowns, hosted media, sidebar controls, or meta
+  panels.
+- The detector must not block ordinary prose containing browser, compatibility, copy, plugin,
+  operation, prompt, close, sync, or paste wording by itself; the triggers are the source-specific
+  prompt banner class/id markers.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced prompt-banner fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi editor prompt banner residue` after
+  the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi editing dock residue`,
+  `Xiumi top operation button residue`, and `Angular authoring class` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 198. Xiumi User Profile Menu Residue - 2026-06-29
 
 ### 1. Scope / Trigger
