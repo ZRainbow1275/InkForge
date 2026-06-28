@@ -1660,7 +1660,9 @@ Rules:
   `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`, `text-format-brush`,
   `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks, or
   text-toolbar controls where `op-text-sec` is paired with `font-size`, `font-family`,
-  `text-style`, or `text-misc`, or right-toolbar controls such as `x5-right-toolbar`,
+  `text-style`, or `text-misc`, or text-editing flyout controls such as
+  `in-text-cell-editing-op`, `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`,
+  `text-bgd-shadow`, and `toggle-color-btn`, or right-toolbar controls such as `x5-right-toolbar`,
   `right-toolbar-container`, `right-toolbar-switch`, `right-toolbar-arrow-*`,
   `content-statistics`, `page-assist-on-toolbar`, `zooming-selector`, and
   `tn-viewport-zooming-panel`, or sidebar/tab controls such as `sidebar-panel`,
@@ -1781,4 +1783,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-cover-placeholder-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-card-hover-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-layout-form-child-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-189.
+- `prompts/0601/evidence/xiumi-text-editing-flyout-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-190.

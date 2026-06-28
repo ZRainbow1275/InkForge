@@ -5501,6 +5501,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Text Editing Flyout Residue
+
+- [x] xiumi-text-editing-flyout-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 text editing flyout child controls including
+  `in-text-cell-editing-op`, `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`,
+  `text-bgd-shadow`, and `toggle-color-btn`.
+- The reduced regression intentionally keeps only those source-specific child control markers,
+  proving cleaned-down text flyout residue is blocked without relying on `op-text-sec`,
+  `font-size`, `font-family`, `text-style`, `font-family-menu`, `op-bar-menu`,
+  `op-worker-surface`, operation loader chrome, hosted media, Angular runtime attributes, sidebar
+  controls, or meta panels.
+- The detector intentionally does not block ordinary text, color, background, shadow, quick input,
+  resize, toolbar, font, style, button, or prompt wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-26 Xiumi Right Toolbar Control Residue
 
 - [x] xiumi-right-toolbar-control-residue-20260626.txt

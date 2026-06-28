@@ -5078,6 +5078,52 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
   upload, cover thumbnail acceptance, scheduled send, or publish success.
 
+## 190. Xiumi Text Editing Flyout Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains text editing flyout
+  child controls observed in a live CloakBrowser DOM readback as `in-text-cell-editing-op`,
+  `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`, `text-bgd-shadow`, or
+  `toggle-color-btn`.
+- These markers drive Xiumi editor-side in-text floating toolbars, quick-input prompts,
+  text-image resizing surfaces, and text color/background/shadow toggles. They are not article body
+  DOM and must not appear in WeChat, Xiaohongshu, or Zhihu publishable output.
+- This contract is static publishability protection only. It does not prove editor paste, phone
+  preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance, schedule, sync,
+  upload, public rendering, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi text editing flyout residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported text flyout
+  child markers.
+- A reduced fixture containing only `in-text-cell-editing-op`, `cp-op-quick-input-prompt`,
+  `op-text-img-resizing-surface`, `text-bgd-shadow`, and `toggle-color-btn` must fail without
+  requiring `op-text-sec`, `font-size`, `font-family`, `text-style`, `font-family-menu`,
+  `op-bar-menu`, `op-worker-surface`, operation loader chrome, hosted media, Angular runtime
+  attributes, sidebar controls, or meta panels.
+- The detector must not block ordinary prose containing text, color, background, shadow, quick
+  input, resize, toolbar, font, style, button, or prompt wording by itself; the trigger is the
+  source-specific Xiumi class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced text-editing-flyout fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi text editing flyout residue` after
+  the detector update.
+- Regression tests must assert the exact residue label appears in the WeChat, Xiaohongshu, and
+  Zhihu quality reports.
+- Adjacent regressions must keep `Xiumi text toolbar control residue`,
+  `Xiumi font and format control residue`, `Xiumi operation bar dropdown residue`, and
+  `Xiumi worker surface crop control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile SMIL/click interaction, credentialed sync, public rendering,
+  upload, cover thumbnail acceptance, scheduled send, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger
