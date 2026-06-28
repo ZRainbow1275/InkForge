@@ -1,0 +1,52 @@
+Xiumi Template Card Hover Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 paper-editor
+  template card hover and feature-match markers.
+- No platform action, no phone preview, no sync, no upload, no publish.
+
+Live DOM source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor DOM.
+- The page exposed `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`
+  around editor-side template cards and feature-matched template lists.
+- Minimal local probing showed the reduced template-card-hover fixture did not emit a
+  market-editor hard-block before this slice.
+
+Implemented:
+- Added the `Xiumi template card hover residue` quality detector for `inner-image-box`,
+  `lighting-hover`, `comp-feature-matched`, and `large-tpl`.
+- Added a reduced regression fixture that keeps only these source-specific class tokens, without
+  `tn-tpl-*`, `tn-scene-paper`, `tn-lighting-box`, `tn-comp-*`, `tn-from-house-*`, template
+  renderer pipeline attributes, hosted media, Angular runtime attributes, operation controls, or
+  135 toolbar markers.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all report the precise
+  `Xiumi template card hover residue` market-editor issue.
+- The WeChat assertion verifies the reduced fixture does not fall through to
+  `Xiumi component authoring tree residue`, `Xiumi template renderer pipeline residue`, or
+  `Xiumi template scene marker residue`.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template card hover" --reporter=default
+  RED: 1 selected test failed before the detector because no market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template card hover|visible template card|template renderer pipeline|template scene markers|source-house authoring" --reporter=default
+  PASS: 5 selected tests / 291 skipped tests.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=60000
+  PASS: 1 file / 296 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=60000
+  PASS: 36 files / 1273 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite build completed in 32.31s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: status=blocked-by-external; canClaimComplete=false; blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform; actionableLocalRows=0.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.

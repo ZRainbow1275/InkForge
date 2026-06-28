@@ -4991,6 +4991,48 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
   acceptance, or publish success.
 
+## 188. Xiumi Template Card Hover Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi v5 paper-editor HTML contains template card hover or
+  feature-match markers observed in a live CloakBrowser DOM readback as `inner-image-box`,
+  `lighting-hover`, `comp-feature-matched`, or `large-tpl`.
+- These markers drive Xiumi editor-side template card hover chrome and feature-matched template
+  list layout. They are not article body DOM and must not appear in WeChat, Xiaohongshu, or Zhihu
+  publishable output.
+- This contract is static publishability protection only. It does not prove template rendering,
+  editor paste, phone preview, schedule, sync, upload, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi template card hover residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id attribute contains one of the supported template card
+  hover markers.
+- A reduced fixture containing only `inner-image-box`, `lighting-hover`, `comp-feature-matched`,
+  and `large-tpl` must fail after visible-card cleanup even when `tn-tpl-*`, `tn-scene-paper`,
+  `tn-lighting-box`, `tn-comp-*`, `tn-from-house-*`, template renderer pipeline attributes,
+  hosted media, Angular runtime attributes, operation controls, and 135 toolbar markers are absent.
+- The detector must not block ordinary prose containing template, hover, feature, card, image, or
+  list wording by itself; the trigger is the source-specific class/id marker.
+- The rule is additive. It must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced template-card-hover fixture fails before implementation because no
+  market-editor-residue issue is emitted, then reports `Xiumi template card hover residue` after
+  the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component authoring tree residue`,
+  `Xiumi template renderer pipeline residue`, `Xiumi template scene marker residue`, and
+  `Xiumi source-house authoring residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, or publish success.
+
 ## 169. Xiumi Operation Bar Input/Separator Residue - 2026-06-28
 
 ### 1. Scope / Trigger

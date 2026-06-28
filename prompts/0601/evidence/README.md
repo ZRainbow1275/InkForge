@@ -6243,6 +6243,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
 
+## 2026-06-29 Xiumi Template Card Hover Residue
+
+- [x] xiumi-template-card-hover-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 template card hover and feature-match markers:
+  `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`.
+- The reduced regression intentionally keeps only those source-specific class tokens, proving
+  cleaned-down template card residue is blocked without relying on `tn-tpl-*`, `tn-scene-paper`,
+  `tn-lighting-box`, `tn-comp-*`, `tn-from-house-*`, template renderer attributes, hosted media,
+  Angular runtime attributes, or operation controls.
+- The detector intentionally does not block ordinary template, hover, feature, card, image, or
+  list wording by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-28 Xiumi Animation Attribute Panel Residue
 
 - [x] xiumi-animation-attribute-panel-residue-20260628.txt

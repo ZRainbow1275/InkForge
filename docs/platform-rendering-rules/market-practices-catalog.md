@@ -1642,7 +1642,8 @@ Rules:
   background child bars such as `op-cp-bg-bar`, or document selection shell markers such as
   `multi-comp-select-panel`, `tn-fly-away-workaround-ios13`, and `dock-loader`, or cover
   placeholder shells such as `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`,
-  `play-placeholder`, and `second-placeholder`, or operation-bar
+  `play-placeholder`, and `second-placeholder`, or template card hover markers such as
+  `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`, or operation-bar
   dropdown/menu controls such as `op-bar-menu`,
   `op-bar-btn`, `op-bar-icon`, `shortcut-op-bar-panel`, `spacing-panel`, `format-panel`,
   `size-list-menu`, and `insert-text-op-bar-panel`, or color-selector controls such as
@@ -1771,4 +1772,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-background-bar-child-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-document-selection-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-cover-placeholder-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-187.
+- `prompts/0601/evidence/xiumi-template-card-hover-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-188.

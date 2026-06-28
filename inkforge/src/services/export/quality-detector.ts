@@ -437,6 +437,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi template scene marker residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:inner-image-box|lighting-hover|comp-feature-matched|large-tpl)\b[^"']*["']/i,
+    label: 'Xiumi template card hover residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-from-house(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi source-house authoring residue',
   },

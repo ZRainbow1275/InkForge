@@ -1310,6 +1310,13 @@ const MARKET_EDITOR_XIUMI_VISIBLE_CARD_RESIDUE_HTML = [
   '</li>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEMPLATE_CARD_HOVER_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="inner-image-box lighting-hover">Xiumi template card hover residue</div>',
+  '<li class="comp-feature-matched large-tpl"></li>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_PAPER_DOCUMENT_ROOT_HTML = [
   '<article class="tn-paper-document-root">',
   '<section style="margin:10px 0">Xiumi paper document root residue</section>',
@@ -10821,6 +10828,28 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi component authoring tree residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi component authoring tree residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi template card hover classes after visible-card cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_CARD_HOVER_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_CARD_HOVER_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_CARD_HOVER_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template card hover residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi template card hover residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi template card hover residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component authoring tree residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi template renderer pipeline residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi template scene marker residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
