@@ -401,6 +401,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi audio panel residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-login-layer\b[^"']*["']/i,
+    label: 'Xiumi login layer residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bwx-user-panel\b[^"']*["']/i,
     label: 'Xiumi account sync panel residue',
   },

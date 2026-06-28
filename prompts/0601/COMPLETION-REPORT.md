@@ -7131,6 +7131,53 @@ Boundary:
   thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Login Layer Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed login,
+  authorization, and preview overlay shells expose the source-specific `tn-login-layer` marker.
+- Kept contextual child classes such as `auth-wnd wx-auth-wnd container` and `tt-preview-wnd
+  container` in the evidence notes only; the runtime detector is anchored to `tn-login-layer` so
+  ordinary authorization/login/preview prose is not blocked by itself.
+- Added the static detector label `Xiumi login layer residue` after visible audio panel chrome and
+  before account/sync panel handling.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture emitted only the
+  broad `Xiumi tn-* attribute` residue:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells|account sync panel controls|audio panel controls|audio room tabs|audio library controls" --reporter=default`.
+- Verification:
+  full platform-rendering regression passed with 1 file and 318 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  full export service regression passed with 36 files and 1295 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  lint, type check, and production build passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  transformed 4653 modules and Vite built in 39.25s.
+- Verification:
+  release preflight intentionally remains blocked by external gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile media playback, mobile SMIL/click interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, account authorization, preview-dialog success,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the audio/video

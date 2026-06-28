@@ -8,6 +8,73 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Login Layer Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. Editor/login overlay shells exposed
+  `tn-login-layer` on authorization management, platform preview, and login-state layers.
+- Contextual child classes included `auth-wnd wx-auth-wnd container` and `tt-preview-wnd
+  container`, but those are not standalone detector triggers because authorization/login/preview
+  language can appear in legitimate article prose.
+- These markers are editor/account chrome. They are not publishable article DOM, platform-safe
+  layout, upload manifests, account authorization proof, preview-dialog proof, or target-platform
+  proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the exact `tn-login-layer` class marker plus
+  a contextual Xiumi authorization-management child, proving copied login/authorization overlay
+  chrome receives an exact label without relying on account/sync panels, audio panels, audio-room
+  tabs, hidden audio-library controls, hidden upload inputs, generated-link controls, Angular
+  runtime attributes, hosted media, sidebar controls, or meta panels.
+- Added the exact `Xiumi login layer residue` detector after `Xiumi audio panel residue` and
+  before `Xiumi account sync panel residue`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells" --reporter=default`
+  failed with 1 selected failing test because only the broad `Xiumi tn-* attribute` residue was
+  emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells|account sync panel controls|audio panel controls|audio room tabs|audio library controls" --reporter=default`
+  passed with 5 selected tests and 313 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 318 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1295 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 39.25s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, and summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile media playback, mobile interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, account authorization, preview-dialog success, scheduled send, platform
+  preview, public article rendering, XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-06-29 Xiumi Audio Room Tab Residue Slice
 
 Source:

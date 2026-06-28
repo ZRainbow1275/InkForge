@@ -1,0 +1,54 @@
+Xiumi Login Layer Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for Xiumi v5 login, authorization, and preview overlay
+  shells observed through CloakBrowser.
+- Runtime trigger is limited to the source-specific `tn-login-layer` class/id marker.
+- Contextual live child markers included `auth-wnd wx-auth-wnd container` and
+  `tt-preview-wnd container`, but those are not standalone detector triggers.
+- No platform action, no phone preview, no sync, no upload, no account authorization action, no
+  preview-dialog action, no publish, and no browser profile or account artifact is included.
+
+Implemented:
+- Added `Xiumi login layer residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- Added a reduced three-platform regression fixture:
+  `MARKET_EDITOR_XIUMI_LOGIN_LAYER_RESIDUE_HTML`.
+- The reduced fixture keeps only `tn-login-layer` plus contextual authorization child markup.
+- Adjacent labels remain independent from account/sync panels, audio panels, audio-room tabs,
+  hidden audio-library controls, hidden upload inputs, and generated-link controls.
+
+TDD:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells" --reporter=default`
+  exited 1 with 1 selected failing test because only the broad `Xiumi tn-* attribute` residue was
+  emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "login layer shells|account sync panel controls|audio panel controls|audio room tabs|audio library controls" --reporter=default`
+  passed with 5 selected tests and 313 skipped tests.
+
+Full verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  PASS: 1 file / 318 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  PASS: 36 files / 1295 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite built in 39.25s.
+- `pnpm -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCK: exited 1 with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, plus summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue classification and regression coverage only.
+- It does not prove WeChat PC paste, ordinary clipboard paste, phone preview, mobile media
+  playback, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, account authorization, preview-dialog success, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

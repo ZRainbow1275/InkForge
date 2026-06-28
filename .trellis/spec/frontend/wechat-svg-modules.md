@@ -10315,3 +10315,46 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback, or
   publish success.
+
+## 210. Xiumi Login Layer Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains login, authorization, or
+  preview overlay shells observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, using
+  the source-specific `tn-login-layer` class marker.
+- The same live shells contained contextual children such as `auth-wnd wx-auth-wnd container`,
+  `tt-preview-wnd container`, and login-state text. Those child classes are evidence context only
+  and must not become broad standalone triggers because authorization/login/preview wording can
+  appear in legitimate article prose.
+- These shells are editor/account chrome for authorization management, platform preview dialogs,
+  and login state. They are not article body DOM, platform-safe layout, upload manifests, or
+  target-platform proof.
+- This rule is additive. It must not alter renderer output, style availability, selectable
+  actions, release-gate success accounting, clipboard behavior, account state, upload, sync,
+  schedule, or publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi login layer residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id value carries `tn-login-layer`.
+- A reduced fixture containing only `tn-login-layer` must fail even when account/sync panels,
+  audio panel wrappers, audio-room tabs, hidden audio-library controls, hidden upload inputs,
+  generated-link controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels are absent.
+- The detector must not block ordinary authorization, login, preview, account, or popup wording by
+  itself. It must stay anchored to the Xiumi-specific `tn-login-layer` marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced login-layer fixture emits only the broad market-editor residue
+  classification before implementation and reports `Xiumi login layer residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi account sync panel residue`,
+  `Xiumi audio panel residue`, `Xiumi audio room tab residue`,
+  `Xiumi audio library control residue`, and `Xiumi generated link control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback, account
+  authorization, preview dialog success, or publish success.

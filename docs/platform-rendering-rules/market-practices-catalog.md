@@ -1830,4 +1830,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-audio-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-audio-library-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-audio-room-tab-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-209.
+- `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-210.
