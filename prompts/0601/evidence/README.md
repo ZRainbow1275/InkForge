@@ -7465,3 +7465,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove image availability,
   public-host acceptance, platform-host proxying, paste, phone preview, upload, sync, public
   rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 135 SVG Trial Coverage Audit
+
+- [x] 135-svg-trial-coverage-audit-20260629.txt
+- Rechecked the live 135 SVG editor through CloakBrowser by selecting a center-canvas `试用`
+  effect and reading the selected block plus the right-side settings panel.
+- Observed source-specific center markers remain covered by existing `135 SVG builder effect
+  data-name`, `135 SVG builder canvas residue`, and `135 SVG editor shell residue` diagnostics.
+- Observed right-side effect controls remain covered by existing `135 SVG material panel residue`
+  and related image-slot/animation-panel diagnostics.
+- Vue scoped `data-v-*` attributes were observed but are intentionally not promoted to an
+  independent blocker because they are too broad without a source-specific 135 anchor.
+- Boundary: this is a coverage audit only. It does not prove paste, phone preview, SVG interaction
+  fidelity, upload, sync, public rendering, public-host acceptance, scheduled send, or publish
+  success.

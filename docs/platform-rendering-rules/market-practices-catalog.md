@@ -1007,6 +1007,13 @@ Xiumi SVG/H5 rules:
   at `statics.xiumi.us` with an OSS transform query. Treat this as the same external market-editor
   asset dependency as `img` / `source` hosted materials. It must fail under
   `Xiumi third-party image source` until rewritten into InkForge-owned local/public asset records.
+- 2026-06-29 135 SVG trial coverage audit: clicking a live 135 SVG editor `试用` effect selected a
+  center block and exposed effect-specific right-panel controls. The observed `data-name`,
+  `app-content-canvas`, `content-*`, `block-*`, `edit-placeholder`, `placeholder__*`,
+  `editor-bar-*`, `editor-img__*`, `edit-image`, `edit-add-*`, `edit-animate__*`, and
+  `animate__dur` markers are already covered by existing 135 builder, shell, material-panel, and
+  image-slot diagnostics. Vue scoped `data-v-*` attributes remain non-blocking by themselves
+  because they are too broad without a source-specific 135 anchor.
 - 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
   injection/preview pipeline in the visible template list and hidden controls. Markers included
   `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,
@@ -1077,6 +1084,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-angular-uib-button-state-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-uib-tab-content-transclude-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-css-background-image-source-20260629.txt`
+- `prompts/0601/evidence/135-svg-trial-coverage-audit-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

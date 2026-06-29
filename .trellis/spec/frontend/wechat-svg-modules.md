@@ -12162,3 +12162,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, tab interaction fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
+
+## 248. 135 SVG Trial Coverage Audit - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: a live CloakBrowser pass on the 135 SVG editor selects a center-canvas `试用` effect and
+  reads the selected block plus the right-side effect settings panel.
+- Observed center markers included `data-name="multiselectpopup"`, `app-content-canvas`,
+  `content-wrapper`, `content-background`, `content-inner`, `block active`, `block-inner`,
+  `block-img`, `block-img__inner`, `edit-placeholder block-img__default`,
+  `placeholder__help`, and `placeholder__icon`.
+- Observed right-panel controls included `editor-bar-title`, `editor-bar-btn`,
+  `bar-template-name`, `editor-course__detail`, `course__intro`, `editor-img__block`,
+  `edit-image`, `image__title-bar`, `image__upload`, `image_help`, `edit-add-images`,
+  `edit-add-btn`, `edit-add__title`, `edit-animate__opt`, `animate__dur`, `input-number`,
+  `opt__value`, and counter controls.
+- This is coverage-alignment evidence for local static publishability diagnostics. It is not a
+  template source license, not reusable InkForge schema, not platform paste proof, not phone
+  preview proof, not mobile interaction proof, and not publish proof.
+
+### 2. Contract
+
+- Existing 135 SVG builder `data-name` rules must continue to cover live trial values such as
+  `multiselectpopup`.
+- Existing 135 SVG builder canvas and shell diagnostics must continue to cover
+  `app-content-canvas`, `content-*`, `block-*`, `edit-placeholder`, and `placeholder__*` markers.
+- Existing 135 material-panel diagnostics must continue to cover the right-panel
+  `editor-bar`, `editor-course`, `editor-img`, `edit-image`, `edit-add`, and `edit-animate`
+  control families.
+- Vue scoped `data-v-*` attributes must not become a standalone publishability blocker by
+  themselves. They are too broad unless paired with a source-specific 135 anchor such as known
+  `data-name`, center canvas shell, material panel, image-slot, trigger, or animation controls.
+- This audit must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 3. Required Checks
+
+- When future 135 live passes reveal a source-specific marker not covered by existing labels, add a
+  reduced regression before changing detector rules.
+- If the only new marker is `data-v-*`, document it as generic Vue implementation detail and do
+  not add a broad standalone blocker.
+- Evidence docs must state that this is coverage alignment only and does not prove WeChat paste,
+  phone preview, SVG interaction fidelity, upload, public-host acceptance, credentialed sync,
+  scheduled send, or publish success.

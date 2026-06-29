@@ -8,6 +8,46 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 135 SVG Trial Coverage Audit Slice
+
+Source:
+- CloakBrowser live visual and DOM readback on the 135 SVG editor confirmed the center canvas
+  free-trial workflow: after selecting a live `试用` effect, the first center block became active
+  and the right panel exposed the effect title, style notes, background image slot, popup image
+  slot, and animation timing controls.
+- Observed center markers included `data-name="multiselectpopup"`, `app-content-canvas`,
+  `content-wrapper`, `content-background`, `content-inner`, `block active`, `block-inner`,
+  `block-img`, `block-img__inner`, `edit-placeholder block-img__default`,
+  `placeholder__help`, `placeholder__icon`, and Ant picture icon chrome.
+- Observed right-panel markers included `editor-bar-title`, `editor-bar-btn`,
+  `bar-template-name`, `editor-course__detail`, `course__intro`, `editor-img__block`,
+  `edit-image`, `image__title-bar`, `image__upload`, `image_help`, `edit-add-images`,
+  `edit-add-btn`, `edit-add__title`, `edit-animate__opt`, `animate__dur`, `input-number`,
+  `opt__value`, and counter controls.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Result:
+- No code change was required in this slice. Existing 135 rules already cover the source-specific
+  `data-name` effect metadata, center canvas shell, placeholder/image-slot shell, trigger shell,
+  material side-panel, right-side image-slot controls, and animation controls.
+- Vue scoped `data-v-*` attributes were observed at high count, but are intentionally not promoted
+  to a standalone blocker because the marker is too broad without a source-specific 135 class,
+  `data-name`, or panel/control anchor.
+
+Verification:
+- Visual check confirmed the effect was selected in the center canvas and the right panel switched
+  from generic background settings to the selected effect's parameters.
+- DOM audit confirmed observed markers map to existing labels:
+  `135 SVG builder effect data-name`, `135 SVG builder canvas residue`,
+  `135 SVG editor shell residue`, and `135 SVG material panel residue`.
+
+Boundary:
+- This slice records coverage alignment only. It does not prove WeChat PC paste, phone preview,
+  SVG interaction fidelity, mobile SMIL/click behavior, upload, credentialed sync, scheduled send,
+  platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi CSS Background Image Source Slice
 
 Source:

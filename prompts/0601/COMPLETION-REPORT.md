@@ -10046,3 +10046,29 @@ Boundary:
   availability, public-host acceptance, platform-host proxying, WeChat PC paste, phone preview,
   upload, credentialed sync, scheduled send, platform preview, public article rendering,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 SVG Trial Coverage Audit Addendum
+
+- Rechecked the live 135 SVG editor with CloakBrowser by selecting a center-canvas `试用` effect
+  and reading the selected block plus the effect settings panel.
+- Confirmed observed center markers such as `data-name="multiselectpopup"`, `app-content-canvas`,
+  `content-wrapper`, `content-background`, `content-inner`, `block active`, `block-inner`,
+  `block-img`, `block-img__inner`, `edit-placeholder block-img__default`,
+  `placeholder__help`, and `placeholder__icon`.
+- Confirmed observed right-panel markers such as `editor-bar-title`, `editor-bar-btn`,
+  `bar-template-name`, `editor-course__detail`, `course__intro`, `editor-img__block`,
+  `edit-image`, `image__title-bar`, `image__upload`, `image_help`, `edit-add-images`,
+  `edit-add-btn`, `edit-add__title`, `edit-animate__opt`, `animate__dur`, `input-number`,
+  `opt__value`, and counter controls.
+- No code change was required: existing 135 rules already cover these markers under builder
+  effect metadata, builder canvas residue, editor shell residue, material panel residue, image-slot
+  controls, and animation controls.
+- Vue scoped `data-v-*` attributes were observed but intentionally not promoted to a standalone
+  blocker because they are too broad without a source-specific 135 anchor.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-trial-coverage-audit-20260629.txt`.
+- Boundary: this is coverage alignment only. It does not prove WeChat PC paste, phone preview,
+  SVG interaction fidelity, mobile SMIL/click behavior, upload, credentialed sync, scheduled send,
+  platform preview, public article rendering, XHS/Zhihu account upload, or publish success.

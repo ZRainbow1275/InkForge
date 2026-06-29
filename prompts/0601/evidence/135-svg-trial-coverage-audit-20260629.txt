@@ -1,0 +1,36 @@
+135 SVG Trial Coverage Audit - 2026-06-29
+
+Scope:
+- Local coverage audit for live 135 SVG editor free-trial effect selection.
+- No platform action, no phone preview, no sync, no upload, no publish, no account artifact, no
+  browser runtime artifact, no capture-location reference, no QR artifact, and no credential
+  material.
+
+Observed:
+- Center canvas selected effect markers:
+  data-name="multiselectpopup", app-content-canvas, content-wrapper, content-background,
+  content-inner, block active, block-inner, block-img, block-img__inner,
+  edit-placeholder block-img__default, placeholder__help, placeholder__icon.
+- Right-panel effect controls:
+  editor-bar-title, editor-bar-btn, bar-template-name, editor-course__detail, course__intro,
+  editor-img__block, edit-image, image__title-bar, image__upload, image_help, edit-add-images,
+  edit-add-btn, edit-add__title, edit-animate__opt, animate__dur, input-number, opt__value,
+  counter controls.
+- Vue scoped data-v-* attributes were high-volume page implementation details.
+
+Coverage result:
+- Existing 135 SVG builder effect data-name rules cover data-name="multiselectpopup".
+- Existing 135 SVG builder canvas and editor shell rules cover app-content-canvas, content-*,
+  block-*, edit-placeholder, placeholder__help, and placeholder__icon markers.
+- Existing 135 SVG material panel rules cover editor-bar, editor-course, editor-img, edit-image,
+  edit-add, and edit-animate control families.
+- No new static detector was added because every source-specific marker observed in this audit is
+  already covered.
+- data-v-* is intentionally not promoted to a standalone blocker because it is a generic Vue
+  scoped-style marker unless paired with source-specific 135 anchors.
+
+Boundary:
+- This proves coverage alignment for local static publishability diagnostics only.
+- It does not prove WeChat PC paste, phone preview, SVG interaction fidelity, mobile SMIL/click
+  behavior, upload, credentialed sync, scheduled send, public rendering, XHS/Zhihu account upload,
+  or publish success.
