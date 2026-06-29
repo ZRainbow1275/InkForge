@@ -1622,6 +1622,13 @@ Rules:
   must report the precise `Xiumi layout form child residue` label. These editor-side dropdown,
   table/column insertion, padding, attribute-label, and confirm/reset controls may inform
   InkForge-owned form/layout schemas, but must never be copied as publishable body DOM.
+- Xiumi component operation-depot actions such as `dc-cp-link`, `dc-cp-copy-to-clipboard`,
+  `dc-cp-wx-miniprogram-link`, `dc-cp-out-comp-edit`, `dc-cp-quick-input-prompt`,
+  `dc-cp-replace-template`, `dc-cp-rolling-over`, and `dc-cp-zorder` must fail with
+  `Xiumi component operation depot action residue`. They may inform InkForge-owned link,
+  clipboard, mini-program-link, replacement, carousel/rolling, z-order, H5 fallback, and
+  interaction-proof policy, but copied Xiumi operation-depot DOM is not publishable body DOM,
+  article link DOM, H5 proof, or platform proof.
 - Xiumi component-depot native/embed controls such as `dc-ce-audio-card`, `dc-ce-music-card`,
   `dc-ce-map`, `dc-ce-map-tx`, `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`,
   `dc-ce-video-card`, `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm` must fail with
@@ -1900,6 +1907,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-audio-room-tab-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-component-operation-depot-action-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-svg-animation-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-external-edit-link-residue-20260629.txt`
@@ -1911,4 +1919,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-222.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-223.

@@ -1,0 +1,70 @@
+Xiumi Component Operation Depot Action Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor DOM.
+- Source observation came from a live CloakBrowser DOM token readback of the Xiumi v5 paper editor.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of this evidence.
+
+Observed source-specific markers:
+- dc-cp-link
+- dc-cp-copy-to-clipboard
+- dc-cp-wx-miniprogram-link
+- dc-cp-out-comp-edit
+- dc-cp-quick-input-prompt
+- dc-cp-replace-template
+- dc-cp-rolling-over
+- dc-cp-zorder
+
+Implemented:
+- Added the precise `Xiumi component operation depot action residue` detector for `dc-cp-*`
+  class/id markers.
+- Kept the rule anchored to Xiumi-specific `dc-cp-*` tokens so ordinary article anchors,
+  clipboard prose, mini-program prose, replacement wording, rolling-over wording, z-index wording,
+  operation wording, and component wording are not blocked by themselves.
+- Tightened the broad `Xiumi operator depot item residue` fallback so the reduced `dc-cp-*`
+  operation-action fixture is not double-reported under the generic operator-depot label.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports all emit
+  `Xiumi component operation depot action residue` for the reduced `dc-cp-*` fixture.
+- The reduced fixture intentionally avoids `op-dc-*`, `ce-dc`, `cp-dc`, `dc-ce-*`,
+  `dc-multi-cp-*`, `tn-op-dc-item`, operator-dock parents, generated-link controls,
+  attribute-board controls, native/embed controls, SVG/animation controls, image transform
+  controls, box style controls, typography controls, table controls, layout/geometry controls,
+  form/input controls, mobile viewport controls, hosted media, sidebar controls, and meta panels.
+- Adjacent regressions keep the broad operator-depot, `dc-ce-*` native/embed, SVG animation, and
+  external edit/link labels independent.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component operation depot actions" --reporter=default`
+  failed before implementation because only `Xiumi operator depot item residue` was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component operation depot actions|operator depot item controls|component depot external edit and link controls|component depot SVG animation controls|component depot native controls" --reporter=default`
+  passed with 5 selected tests and 326 skipped tests after implementation.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 331 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1308 tests.
+- Non-mutating lint and type checks:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 52.34s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static quality detection and diagnostic label precision only.
+- It does not prove WeChat PC paste, phone preview, link fidelity, component action behavior,
+  H5 behavior, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

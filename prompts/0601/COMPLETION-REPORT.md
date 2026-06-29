@@ -6909,6 +6909,42 @@ Boundary:
 
 ---
 
+## 2026-06-29 Xiumi Component Operation Depot Action Addendum
+
+- Added local static publishability protection for Xiumi v5 component operation-depot action
+  controls: `dc-cp-link`, `dc-cp-copy-to-clipboard`, `dc-cp-wx-miniprogram-link`,
+  `dc-cp-out-comp-edit`, `dc-cp-quick-input-prompt`, `dc-cp-replace-template`,
+  `dc-cp-rolling-over`, and `dc-cp-zorder` now report the precise
+  `Xiumi component operation depot action residue` label.
+- The rule covers cleaned-down `dc-cp-*` class/id tokens that previously produced only the broad
+  `Xiumi operator depot item residue` label.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because only the broad operator-depot label
+  was emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component operation depot actions|operator depot item controls|component depot external edit and link controls|component depot SVG animation controls|component depot native controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file / 331 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files / 1308 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 52.34s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-component-operation-depot-action-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, H5 behavior, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-29 Xiumi Component Depot External Edit Link Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot
