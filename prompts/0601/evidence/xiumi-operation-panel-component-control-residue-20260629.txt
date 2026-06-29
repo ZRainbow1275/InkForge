@@ -1,0 +1,71 @@
+Xiumi Operation Panel Component Control Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor DOM.
+- Source observation came from a live CloakBrowser DOM token readback of the Xiumi v5 paper editor.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of this evidence.
+
+Observed source-specific markers:
+- op-cp-animation
+- op-cp-insert-text
+- op-cp-margin
+- op-cp-margin-tb
+- op-cp-save
+- op-cp-scale
+- op-ce-bg-bar
+- op-ce-profile-card
+
+Implemented:
+- Added the precise `Xiumi operation panel component control residue` detector for supported
+  `op-cp-*` and `op-ce-*` class/id markers.
+- Kept the rule separate from `Xiumi operator dock control residue`, which covers dock and
+  external edit panel shells, and from `Xiumi generated link control residue`, which covers
+  generated-link and link-specific operation panels.
+- Kept the rule anchored to Xiumi-specific class/id markers so ordinary animation wording,
+  insert-text wording, margin CSS, save wording, scale wording, background wording,
+  profile-card prose, and article text are not blocked by themselves.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports all emit
+  `Xiumi operation panel component control residue` for the reduced operation-panel fixture.
+- The reduced fixture intentionally avoids `op-dock`, `out-comp-*`, `op-ce-layout-*`,
+  `op-cp-pose`, `op-cp-paper-comps-assistant`, `op-gen-link`, `op-cp-background-audio`,
+  `op-cp-wx-miniprogram-link`, `dc-cp-*`, `dc-ce-*`, `tn-op-dc-item`, paper auxiliary tree
+  controls, generated-link controls, attribute-board controls, hosted media, sidebar controls,
+  and meta panels.
+- Adjacent regressions keep the operator-dock, generated-link, and component operation-depot
+  labels independent.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel component controls" --reporter=default`
+  failed before implementation because no market-editor-residue issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel component controls|operator dock child controls|generated link controls|component operation depot actions" --reporter=default`
+  passed with 5 selected tests and 327 skipped tests after implementation.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 332 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1309 tests.
+- Non-mutating lint and type checks:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 37.24s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static quality detection and diagnostic label precision only.
+- It does not prove WeChat PC paste, phone preview, profile-card fidelity, component action
+  behavior, H5 behavior, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

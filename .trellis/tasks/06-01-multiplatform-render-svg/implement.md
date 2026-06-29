@@ -8,6 +8,66 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Operation Panel Component Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The operation panel exposed component
+  controls `op-cp-animation`, `op-cp-insert-text`, `op-cp-margin`, `op-cp-margin-tb`,
+  `op-cp-save`, `op-cp-scale`, `op-ce-bg-bar`, and `op-ce-profile-card`.
+- These entries are editor-side operation panel component controls. They are not publishable
+  article components, upload manifests, platform-safe embeds, reusable InkForge source,
+  profile-card fidelity proof, H5 interaction proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only supported `op-cp-*` and `op-ce-*`
+  operation-panel component controls, proving cleaned-down panel controls receive a precise label
+  without relying on `op-dock`, `out-comp-*`, `op-ce-layout-*`, `op-cp-pose`,
+  `op-cp-paper-comps-assistant`, `op-gen-link`, `op-cp-background-audio`,
+  `op-cp-wx-miniprogram-link`, `dc-cp-*`, `dc-ce-*`, `tn-op-dc-item`, paper auxiliary tree
+  controls, generated-link controls, attribute-board controls, hosted media, sidebar controls, or
+  meta panels.
+- Added the `Xiumi operation panel component control residue` detector after the operator-dock
+  rule and before paper auxiliary tree handling.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel component controls" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was
+  emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel component controls|operator dock child controls|generated link controls|component operation depot actions" --reporter=default`
+  passed with 5 selected tests and 327 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 332 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1309 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and Vite built in 37.24s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, profile-card fidelity, component action behavior,
+  H5 behavior, Dark Mode, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Component Operation Depot Action Residue Slice
 
 Source:

@@ -5629,6 +5629,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, template reuse rights, sync, upload, cover thumbnail acceptance,
   public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Operation Panel Component Control Residue
+
+- [x] xiumi-operation-panel-component-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 operation-panel component controls including
+  `op-cp-animation`, `op-cp-insert-text`, `op-cp-margin`, `op-cp-margin-tb`,
+  `op-cp-save`, `op-cp-scale`, `op-ce-bg-bar`, and `op-ce-profile-card`.
+- The reduced regression intentionally keeps only supported `op-cp-*` and `op-ce-*` panel
+  markers, proving operation-panel component controls are reported precisely without relying on
+  `op-dock`, `out-comp-*`, `op-ce-layout-*`, `op-cp-pose`,
+  `op-cp-paper-comps-assistant`, `op-gen-link`, `op-cp-background-audio`,
+  `op-cp-wx-miniprogram-link`, `dc-cp-*`, `dc-ce-*`, `tn-op-dc-item`, paper auxiliary tree
+  controls, generated-link controls, attribute-board controls, hosted media, sidebar controls, or
+  meta panels.
+- The detector intentionally does not block ordinary animation wording, insert-text wording,
+  margin CSS, save wording, scale wording, background wording, profile-card prose, or article text
+  by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  profile-card fidelity, component action behavior, H5 behavior, sync, upload, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Component Operation Depot Action Residue
 
 - [x] xiumi-component-operation-depot-action-residue-20260629.txt

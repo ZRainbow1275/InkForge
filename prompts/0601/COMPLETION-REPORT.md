@@ -6945,6 +6945,41 @@ Boundary:
 
 ---
 
+## 2026-06-29 Xiumi Operation Panel Component Control Addendum
+
+- Added local static publishability protection for Xiumi v5 operation-panel component controls:
+  `op-cp-animation`, `op-cp-insert-text`, `op-cp-margin`, `op-cp-margin-tb`,
+  `op-cp-save`, `op-cp-scale`, `op-ce-bg-bar`, and `op-ce-profile-card` now report the precise
+  `Xiumi operation panel component control residue` label.
+- The rule covers cleaned-down `op-cp-*` / `op-ce-*` class/id tokens that previously emitted no
+  market-editor hard-block after broader operation-panel cleanup.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel component controls|operator dock child controls|generated link controls|component operation depot actions" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file / 332 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files / 1309 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 37.24s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-operation-panel-component-control-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, profile-card fidelity, component action behavior, H5 behavior, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-29 Xiumi Component Depot External Edit Link Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot

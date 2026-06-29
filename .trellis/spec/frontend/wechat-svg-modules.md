@@ -11018,3 +11018,54 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, link fidelity,
   component action behavior, H5 behavior, public-host acceptance, or publish success.
+
+## 224. Xiumi Operation Panel Component Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains operation-panel component
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `op-cp-animation`, `op-cp-insert-text`, `op-cp-margin`, `op-cp-margin-tb`,
+  `op-cp-save`, `op-cp-scale`, `op-ce-bg-bar`, and `op-ce-profile-card`.
+- These markers are editor-side operation panel controls for animation, text insertion, margin,
+  save, scale, background bar, and profile-card configuration. They are not article body
+  components, reusable InkForge source, WeChat profile-card proof, H5 interaction proof, upload
+  manifests, or target-platform proof.
+- This rule is additive and diagnostic. These single-token markers previously passed quality
+  detection after broader operation-panel cleanup; the operation-panel component-control family
+  must now receive the precise `Xiumi operation panel component control residue` label.
+- This rule must stay separate from `Xiumi operator dock control residue`, which covers dock and
+  external edit panel shells, and from `Xiumi generated link control residue`, which covers
+  generated link and selected `op-cp-*` link-specific panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi operation panel component control residue` for WeChat, Xiaohongshu, and Zhihu when a
+  class or id value carries a supported `op-cp-*` or `op-ce-*` operation-panel marker.
+- A reduced fixture containing only supported operation-panel component-control markers must fail
+  even when `op-dock`, `out-comp-*`, `op-ce-layout-*`, `op-cp-pose`,
+  `op-cp-paper-comps-assistant`, `op-gen-link`, `op-cp-background-audio`,
+  `op-cp-wx-miniprogram-link`, `dc-cp-*`, `dc-ce-*`, `tn-op-dc-item`, paper auxiliary tree
+  controls, generated-link controls, attribute-board controls, hosted media, sidebar controls, or
+  meta panels are absent.
+- The detector must not block ordinary animation wording, insert-text wording, margin CSS, save
+  wording, scale wording, background wording, profile-card prose, or article text by itself. It
+  must stay anchored to Xiumi-specific `op-cp-*` / `op-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operation-panel component-control fixture emits no
+  market-editor-residue issue before implementation and reports
+  `Xiumi operation panel component control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operator dock control residue`,
+  `Xiumi generated link control residue`, and
+  `Xiumi component operation depot action residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, profile-card fidelity,
+  component action behavior, H5 behavior, public-host acceptance, or publish success.
