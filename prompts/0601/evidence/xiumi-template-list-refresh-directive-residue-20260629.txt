@@ -1,0 +1,58 @@
+Xiumi Template List Refresh Directive Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor HTML.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Observed source family:
+- Live Xiumi v5 paper-editor DOM readback exposed the editor-side template/material list refresh
+  directive:
+  - tn-pull-to-refresh
+
+Implemented:
+- Added detector label:
+  Xiumi template list refresh directive residue
+- Added a reduced regression fixture containing only tn-pull-to-refresh.
+- Rule remains anchored to the Xiumi template/material list refresh directive attribute and does
+  not block ordinary template/list/refresh/pull wording, pagination prose, standard list markup,
+  article text, or non-Xiumi class names by itself.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit platform-specific market-editor-residue
+  ids with the precise template list refresh directive label.
+- Adjacent regressions keep template entry blocks, template authoring tree classes, source-house
+  authoring classes, and broad Xiumi tn-* fallback behavior independent.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template list refresh directives" --reporter=default
+  FAIL: 1 selected failing test before detector update because the fixture only emitted Xiumi tn-* attribute.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template list refresh directives|template entry blocks|template authoring tree|source-house authoring|Xiumi tn\\* attribute" --reporter=default
+  PASS: 1 file / 4 selected tests / 338 skipped tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000
+  PASS: 1 file / 342 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000
+  PASS: 36 files / 1319 tests.
+- Targeted lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed / built in 41.47s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1 with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform, and
+  actionableLocalRows=0.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, mobile Dark Mode, material-list loading
+  fidelity, template refresh behavior, credentialed sync, scheduled send, platform preview,
+  public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

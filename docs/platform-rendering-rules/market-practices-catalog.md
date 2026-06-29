@@ -1739,7 +1739,8 @@ Rules:
   `play-placeholder`, and `second-placeholder`, or component drag/drop receiver surfaces such as
   `tn-comp-dragging-receiver`, `tn-comp-container-dragging-cancel`,
   `tn-comp-container-dragging-remove`, `tn-comp-moving-canceler`, and
-  `tn-comp-trash-receiver`, or template card hover markers such as
+  `tn-comp-trash-receiver`, or template list refresh directives such as `tn-pull-to-refresh`, or
+  template card hover markers such as
   `inner-image-box`, `lighting-hover`, `comp-feature-matched`, and `large-tpl`, or layout/form
   child controls such as `cell-layout-box`, `menuitem-level`, `padding-input`,
   `attr-thin-label`, and `attr-btn`, or operation-bar
@@ -1926,6 +1927,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-audio-room-tab-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-template-list-refresh-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-operation-depot-action-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-component-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-background-transparency-operation-residue-20260629.txt`
@@ -1942,4 +1944,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-233.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-234.

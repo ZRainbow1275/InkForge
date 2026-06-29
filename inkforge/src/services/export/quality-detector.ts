@@ -581,6 +581,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi template entry block residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-pull-to-refresh\s*=/i,
+    label: 'Xiumi template list refresh directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-tpl(?:-[\w-]+)?\b[^"']*["']/i,
     label: 'Xiumi template authoring tree residue',
   },

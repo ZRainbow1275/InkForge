@@ -11512,3 +11512,53 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, title/author input
   fidelity, typography fidelity, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 234. Xiumi Template List Refresh Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the template/material list
+  refresh directive observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback:
+  `tn-pull-to-refresh`.
+- This marker is an editor-side template/material list loading directive. It is not article body
+  pagination, reusable InkForge source, WeChat template refresh fidelity proof, upload manifests,
+  or target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  this directive, but a cleaned-down refresh directive fragment must receive the precise
+  `Xiumi template list refresh directive residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi template entry block residue`,
+  `Xiumi template authoring tree residue`, `Xiumi source-house authoring residue`, and the broad
+  `Xiumi tn-* attribute` fallback.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi template list refresh directive residue` for WeChat, Xiaohongshu, and Zhihu when
+  `tn-pull-to-refresh` appears as an attribute.
+- A reduced fixture containing only `tn-pull-to-refresh` must fail with the precise label even
+  when template entry block classes, template authoring tree classes, source-house classes,
+  `on-refresh`, `has-more`, `trigger-threshold`, broad Angular runtime attributes/classes, hosted
+  media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary template wording, list wording, refresh wording, pull
+  wording, pagination prose, standard list markup, article text, or non-Xiumi class names by
+  itself. It must stay anchored to the Xiumi-specific directive attribute.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise template list refresh label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced template list refresh fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi template list refresh directive residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi template entry block residue`,
+  `Xiumi template authoring tree residue`, `Xiumi source-house authoring residue`, and the broad
+  `Xiumi tn-* attribute` fallback independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, material-list loading
+  fidelity, template refresh behavior, Dark Mode behavior, public-host acceptance, or publish
+  success.

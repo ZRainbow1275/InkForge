@@ -1457,6 +1457,12 @@ const MARKET_EDITOR_XIUMI_TEMPLATE_ENTRY_BLOCK_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEMPLATE_LIST_REFRESH_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div tn-pull-to-refresh="">Xiumi template list refresh directive residue</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SOURCE_HOUSE_AUTHORING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-from-house tn-from-house-template">Xiumi source-house authoring residue</div>',
@@ -11381,6 +11387,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi template renderer pipeline residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi template scene marker residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi source-house authoring residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi template list refresh directives with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_LIST_REFRESH_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_LIST_REFRESH_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEMPLATE_LIST_REFRESH_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi template list refresh directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi template list refresh directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi template list refresh directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi template entry block residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi source-house authoring residue')
     expect(wechat.passed).toBe(false)
