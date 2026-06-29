@@ -1,0 +1,49 @@
+Xiumi Hammer Pan Directive Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor fragments.
+- Covers the live Xiumi v5 Hammer gesture directive attribute hm-pan.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action is included.
+
+CloakBrowser readback:
+- The active Xiumi v5 editor surface exposed hm-pan alongside already-covered hm-panstart,
+  hm-panend, hm-panmove, hm-recognizer-options, stop-propagation, and tn-attach-to controls.
+- This is editor-side gesture routing metadata, not publishable article behavior or mobile
+  interaction proof.
+
+Implementation:
+- Added a reduced three-platform regression fixture containing only hm-pan.
+- Extended the existing Xiumi selection overlay control residue detector to include hm-pan.
+- The fixture avoids selection overlay classes, hm-panstart, hm-panend, hm-panmove,
+  hm-recognizer-options, stop-propagation, tn-attach-to, broad tn-* markers, Angular runtime
+  attributes, hosted media, sidebar controls, and meta panels, so the diagnostic is proven
+  independently.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hammer pan directive" --reporter=default
+  Result: failed with 1 selected failing test because no market-editor-residue issue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hammer pan directive|selection overlay child controls|worker surface crop controls" --reporter=default
+  Result: passed with 3 selected tests and 347 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 350 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1327 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 28.02s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exited 1 with canClaimComplete=false, status=blocked-by-external, blocker kinds
+  phone-preview, external-dependency, unsafe-to-automate, and mutating-platform.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, phone preview, mobile gesture fidelity, mobile SMIL/click
+  interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

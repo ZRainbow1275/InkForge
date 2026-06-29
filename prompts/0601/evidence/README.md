@@ -7357,3 +7357,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   input behavior fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
   acceptance, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Hammer Pan Directive Residue
+
+- [x] xiumi-hammer-pan-directive-residue-20260629.txt
+- Extended the existing static `Xiumi selection overlay control residue` quality rule for the live
+  Xiumi v5 Hammer gesture attribute `hm-pan`.
+- The reduced regression intentionally keeps only `hm-pan`, proving class-cleaned gesture routing
+  residue is blocked without relying on selection overlay classes, `hm-panstart`, `hm-panend`,
+  `hm-panmove`, `hm-recognizer-options`, `stop-propagation`, `tn-attach-to`, broad `tn-*`,
+  Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose about pan, drag, gesture, Hammer, or
+  Xiumi by itself; it remains anchored to a real tag attribute with an assignment.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile gesture fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
+  acceptance, public rendering, public-host acceptance, scheduled send, or publish success.

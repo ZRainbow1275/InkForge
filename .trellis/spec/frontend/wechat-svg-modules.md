@@ -9698,8 +9698,8 @@ const ruleFamilies = [
 - Trigger: copied or partially cleaned Xiumi editor HTML contains selected-component overlay,
   resize, or drag-handle child controls observed after a live CloakBrowser template click changed
   the center paper, such as `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`,
-  `hm-recognizer-options`, `hm-panstart`, `hm-panend`, `hm-panmove`, `stop-propagation`, or
-  `tn-attach-to`.
+  `hm-recognizer-options`, `hm-pan`, `hm-panstart`, `hm-panend`, `hm-panmove`,
+  `stop-propagation`, or `tn-attach-to`.
 - These controls are Xiumi authoring UI for selection bounding boxes, resize/rotate handles, and
   gesture routing. They are not publishable article DOM for WeChat, Xiaohongshu, or Zhihu.
 
@@ -9730,6 +9730,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
   public rendering, upload, scheduled send, or publish success.
+
+## 242. Xiumi Hammer Pan Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the Hammer gesture directive
+  attribute `hm-pan` without the broader selection overlay classes.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor counted `hm-pan` on the
+  editor surface alongside already-covered `hm-panstart`, `hm-panend`, `hm-panmove`,
+  `hm-recognizer-options`, `stop-propagation`, and `tn-attach-to` controls.
+- This marker is editor-side gesture routing metadata. It is not publishable article behavior,
+  reusable InkForge interaction source, mobile click/drag proof, public-host proof, or
+  target-platform proof.
+- This rule extends the existing `Xiumi selection overlay control residue` diagnostic. It must
+  stay separate from worker-surface crop controls, selection overlay classes, broad `tn-*`
+  fallbacks, Angular/Vue authoring attributes, and contenteditable markers.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi selection overlay control residue` for WeChat,
+  Xiaohongshu, and Zhihu when `hm-pan` appears as an attribute.
+- A reduced fixture containing only `hm-pan` must fail with the precise selection-overlay label
+  even when `full-screen-mask`, `brim-group`, `box-lines`, `box-handles`, `hm-panstart`,
+  `hm-panend`, `hm-panmove`, `hm-recognizer-options`, `stop-propagation`, `tn-attach-to`,
+  `tn-*`, `ng-*`, contenteditable, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary prose about pan, drag, gesture, or Hammer by itself. It
+  must stay anchored to the Xiumi/Hammer-style attribute form.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `hm-pan` fixture initially emits no `*-market-editor-residue`
+  issue, then emits `Xiumi selection overlay control residue` after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent selection-overlay and worker-surface crop regressions must remain green so overlay
+  gesture attributes and crop controls stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, mobile gesture fidelity, mobile Dark Mode, cover thumbnail
+  acceptance, credentialed sync, public rendering, upload, scheduled send, or publish success.
 
 ## 122. Xiumi Auxiliary Binding Metadata Residue - 2026-06-26
 

@@ -517,7 +517,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi selection overlay control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\b(?:hm-(?:recognizer-options|panstart|panend|panmove)|stop-propagation|tn-attach-to)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\b(?:hm-(?:recognizer-options|pan|panstart|panend|panmove)|stop-propagation|tn-attach-to)\s*=/i,
     label: 'Xiumi selection overlay control residue',
   },
   {

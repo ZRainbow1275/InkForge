@@ -1014,6 +1014,12 @@ Xiumi SVG/H5 rules:
   `ng-transclude`. These are runtime binding metadata, not article behavior. They remain under
   the existing `Angular/Vue authoring attribute` residue label and must be rewritten as
   InkForge-owned source behavior or omitted before any WeChat/XHS/Zhihu output is publishable.
+- 2026-06-29 Xiumi Hammer gesture refresh: the live v5 paper editor exposed class-cleaned
+  `hm-pan` gesture directives in addition to already-covered `hm-panstart`, `hm-panend`,
+  `hm-panmove`, `hm-recognizer-options`, `stop-propagation`, and `tn-attach-to`. Treat these as
+  editor-side gesture routing metadata only. They remain under the existing
+  `Xiumi selection overlay control residue` label and cannot be copied into publishable output as
+  proof of mobile drag/click fidelity.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -1034,6 +1040,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`
 - `prompts/0601/evidence/xiumi-angular-input-source-event-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-hammer-pan-directive-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract
