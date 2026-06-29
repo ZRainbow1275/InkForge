@@ -5648,6 +5648,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled send, or
   publish success.
 
+## 2026-06-29 Xiumi Component Depot SVG Animation Residue
+
+- [x] xiumi-component-depot-svg-animation-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot SVG/animation controls including
+  `dc-ce-animation`, `dc-ce-svg-animate`, and `dc-ce-svg-animation`.
+- The reduced regression intentionally keeps only supported SVG/animation `dc-ce-*` component
+  markers, proving component-depot SVG animation controls are reported precisely without relying
+  on plain `dc-ce-svg`, `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`,
+  operator-dock parents, animation attribute panels, animation style pickers, native/embed
+  controls, image transform controls, box style controls, typography controls, table controls,
+  layout/geometry controls, form/input controls, mobile viewport controls, hosted media, sidebar
+  controls, or meta panels.
+- The native `dc-ce-svg` detector no longer overmatches `dc-ce-svg-*`, and the broad
+  `Xiumi operator depot item residue` detector excludes the reduced SVG animation fixture so it is
+  not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  SVG animation fidelity, mobile SMIL/click interaction, H5 behavior, sync, upload, public
+  rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Component Depot Form Input Residue
 
 - [x] xiumi-component-depot-form-input-residue-20260629.txt

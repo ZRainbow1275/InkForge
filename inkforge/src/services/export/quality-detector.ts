@@ -361,8 +361,12 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi meta panel control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg|video-(?:card|link|tx|xm))\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg(?!-)|video-(?:card|link|tx|xm))\b[^"']*["']/i,
     label: 'Xiumi component depot native control residue',
+  },
+  {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-(?:animation|svg-animate|svg-animation)\b[^"']*["']/i,
+    label: 'Xiumi component depot SVG animation residue',
   },
   {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-input-(?:checkbox|radio|select|text|multi-line-text)\b[^"']*["']/i,
@@ -397,7 +401,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi component depot mobile viewport residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg|video-(?:card|link|tx|xm)|input-(?:checkbox|radio|select|text|multi-line-text)|layout-(?:column|fixed-aspect-ratio|free|hidden|scroll-direction|style|transparent|vertical-align)|classic-table-(?:column-width|grid|merge|quickly|style|width)|table-(?:column-width|grid|style-brush)|crop-image-crop|image-(?:animation|crop|design|enhancement|flip|for-layout-datum|library|png-size|popup|replace-color|src|straw-color|style-brush|svg-clip|to-background)|background|box-(?:border|formats|metrics|shadow)|transparency|font-size-scale|paragraph-margin|text-(?:all|code|decoration|shadow(?:-style)?)|mobile-(?:background|group|image|text|unsupport)|auto-align|frozen|height|margin|spacing|static-position-size|width)\b)[^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg|video-(?:card|link|tx|xm)|animation|svg-animate|svg-animation|input-(?:checkbox|radio|select|text|multi-line-text)|layout-(?:column|fixed-aspect-ratio|free|hidden|scroll-direction|style|transparent|vertical-align)|classic-table-(?:column-width|grid|merge|quickly|style|width)|table-(?:column-width|grid|style-brush)|crop-image-crop|image-(?:animation|crop|design|enhancement|flip|for-layout-datum|library|png-size|popup|replace-color|src|straw-color|style-brush|svg-clip|to-background)|background|box-(?:border|formats|metrics|shadow)|transparency|font-size-scale|paragraph-margin|text-(?:all|code|decoration|shadow(?:-style)?)|mobile-(?:background|group|image|text|unsupport)|auto-align|frozen|height|margin|spacing|static-position-size|width)\b)[^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },
   {

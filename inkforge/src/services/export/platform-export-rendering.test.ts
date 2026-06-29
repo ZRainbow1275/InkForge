@@ -660,6 +660,16 @@ const MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_NATIVE_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_SVG_ANIMATION_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<ul>',
+  '<li class="dc-ce-animation"></li>',
+  '<li class="dc-ce-svg-animate"></li>',
+  '<li class="dc-ce-svg-animation"></li>',
+  '</ul>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_FORM_INPUT_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<ul>',
@@ -11642,6 +11652,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi component depot native control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi component depot native control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operator depot item residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi component depot SVG animation controls with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_SVG_ANIMATION_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_SVG_ANIMATION_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_SVG_ANIMATION_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi component depot SVG animation residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi component depot SVG animation residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi component depot SVG animation residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component depot native control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operator depot item residue')
     expect(wechat.passed).toBe(false)

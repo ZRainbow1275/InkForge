@@ -10854,3 +10854,57 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, table rendering,
   column-width fidelity, grid fidelity, style-brush fidelity, public-host acceptance, or publish
   success.
+
+## 221. Xiumi Component Depot SVG Animation Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot SVG/animation
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-animation`, `dc-ce-svg-animate`, and `dc-ce-svg-animation`.
+- These markers are editor-side animation and SVG effect controls. They are not applied article
+  SVG output, reusable InkForge source, WeChat SVG fidelity proof, mobile SMIL/click proof, upload
+  manifests, or target-platform proof.
+- This rule is additive and diagnostic. `dc-ce-animation` used to fall through the broad
+  `Xiumi operator depot item residue` fallback, while `dc-ce-svg-animate` and
+  `dc-ce-svg-animation` could be overmatched by the native `dc-ce-svg` detector. The animation
+  component family must now receive `Xiumi component depot SVG animation residue` without
+  double-reporting native or generic operator-depot labels.
+- This rule must not relabel plain `dc-ce-svg`, which remains covered by
+  `Xiumi component depot native control residue`.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot SVG animation residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported SVG/animation
+  `dc-ce-*` marker.
+- A reduced fixture containing only the supported SVG/animation component markers must fail even
+  when plain `dc-ce-svg`, `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`,
+  operator-dock parents, animation attribute panels, animation style pickers, native/embed
+  controls, image transform controls, box style controls, typography controls, table controls,
+  layout/geometry controls, form/input controls, mobile viewport controls, hosted media, sidebar
+  controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector and the
+  `Xiumi component depot native control residue` detector must not double-report that reduced
+  SVG/animation component fixture.
+- The detector must not block ordinary CSS animation text, SVG prose, SVG markup, or SMIL-related
+  wording by itself. It must stay anchored to Xiumi-specific `dc-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced SVG/animation component fixture reports only broad/native residue
+  labels before implementation and reports `Xiumi component depot SVG animation residue` after
+  the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi component depot form input residue`, `Xiumi component depot table auxiliary residue`,
+  `Xiumi component depot image transform residue`, `Xiumi component depot box style residue`,
+  `Xiumi component depot typography control residue`, and `Xiumi operator depot item residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, SVG animation fidelity,
+  mobile SMIL/click interaction, H5 behavior, public-host acceptance, or publish success.

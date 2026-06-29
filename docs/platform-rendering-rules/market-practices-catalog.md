@@ -1628,6 +1628,12 @@ Rules:
   `Xiumi component depot native control residue`. They may inform InkForge-owned media, map,
   profile, action, SVG, video, manifest, and fallback schemas, but copied Xiumi component-depot DOM
   is not publishable body DOM or platform proof.
+- Xiumi component-depot SVG/animation controls such as `dc-ce-animation`,
+  `dc-ce-svg-animate`, and `dc-ce-svg-animation` must fail with
+  `Xiumi component depot SVG animation residue`. They may inform InkForge-owned SVG animation,
+  SMIL/H5 fallback, and interaction proof policy, but copied Xiumi component-depot control DOM is
+  not publishable applied SVG output or mobile interaction proof. Plain `dc-ce-svg` remains native
+  component residue and must not overmatch `dc-ce-svg-*` controls.
 - Xiumi component-depot form/input controls such as `dc-ce-input-checkbox`,
   `dc-ce-input-radio`, `dc-ce-input-select`, `dc-ce-input-text`, and
   `dc-ce-input-multi-line-text` must fail with `Xiumi component depot form input residue`. They
@@ -1891,6 +1897,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-component-depot-svg-animation-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-form-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-layout-geometry-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-table-control-residue-20260629.txt`
@@ -1899,4 +1906,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-220.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-221.
