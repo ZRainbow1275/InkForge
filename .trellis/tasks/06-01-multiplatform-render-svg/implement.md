@@ -8,6 +8,64 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Text Operation Section Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The text operation toolbar surface exposed
+  `op-text-sec` as a standalone class token in addition to the already covered
+  `op-text-sec font-size`, `op-text-sec font-family`, and `op-text-sec text-style` combinations.
+- This entry is an editor-side text operation section marker. It is not publishable article text
+  styling, upload manifests, platform-safe embeds, reusable InkForge source, typography fidelity
+  proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `op-text-sec`, proving cleaned-down text
+  operation sections receive the existing precise `Xiumi text toolbar control residue` label
+  without relying on font-size, font-family, text-style, text-misc, color-selector controls,
+  font-format controls, text editing flyouts, brush panels, hosted media, sidebar controls, or
+  meta panels.
+- Extended the existing `Xiumi text toolbar control residue` detector to include the standalone
+  `op-text-sec` class/id marker while preserving earlier color-selector rule precedence.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "text operation sections" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was
+  emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "text operation sections|text toolbar controls|text editing flyout|font and format controls|color selector controls|color selector class controls" --reporter=default`
+  passed with 7 selected tests and 329 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 336 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1313 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and Vite built in 34.15s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, typography fidelity, Dark Mode, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
 ## 2026-06-29 Xiumi Color Selector Class Residue Slice
 
 Source:

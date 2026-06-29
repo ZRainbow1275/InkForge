@@ -329,7 +329,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi font and format control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?=[^"']*\bop-text-sec\b)(?=[^"']*\b(?:font-size|font-family|text-style|text-misc)\b)[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?=[^"']*\bop-text-sec\b)(?:(?=[^"']*\b(?:font-size|font-family|text-style|text-misc)\b)|[^"']*["'])/i,
     label: 'Xiumi text toolbar control residue',
   },
   {

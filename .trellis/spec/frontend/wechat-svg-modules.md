@@ -11217,3 +11217,51 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, color fidelity,
   Dark Mode behavior, public-host acceptance, or publish success.
+
+## 228. Xiumi Text Operation Section Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains text operation section controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including standalone
+  `op-text-sec`.
+- This marker is an editor-side text operation section shell. It is not article body typography,
+  reusable InkForge source, WeChat typography fidelity proof, Dark Mode proof, upload manifests, or
+  target-platform proof.
+- This rule is additive and diagnostic. `op-text-sec` was already covered when paired with
+  `font-size`, `font-family`, `text-style`, or `text-misc`; the live editor can also leave a
+  cleaned-down standalone operation section that must receive the existing precise
+  `Xiumi text toolbar control residue` label.
+- This rule must stay separate from `Xiumi color selector control residue`,
+  `Xiumi font and format control residue`, `Xiumi text editing flyout residue`, and
+  `Xiumi brush panel residue`, which cover adjacent but different text/color UI controls.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi text toolbar control residue` for WeChat, Xiaohongshu, and Zhihu when a class or id value
+  carries standalone `op-text-sec`.
+- A reduced fixture containing only `op-text-sec` must fail even when font-size, font-family,
+  text-style, text-misc, color-selector controls, font-format controls, text editing flyouts,
+  brush panels, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary text wording, toolbar wording, CSS font properties, article
+  typography prose, generic text sections, or non-Xiumi class names by itself. It must stay
+  anchored to Xiumi-specific `op-text-sec` class/id markers and preserve earlier color-selector
+  rule precedence for color selector fixtures.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced text operation section fixture emits no market-editor-residue issue
+  before implementation and reports `Xiumi text toolbar control residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi color selector control residue`,
+  `Xiumi font and format control residue`, `Xiumi text toolbar control residue`,
+  `Xiumi text editing flyout residue`, and `Xiumi brush panel residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, typography fidelity,
+  Dark Mode behavior, public-host acceptance, or publish success.

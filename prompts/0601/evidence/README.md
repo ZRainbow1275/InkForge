@@ -5495,11 +5495,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   controls, selection overlays, crop/worker controls, operator-dock parents, operator depot items,
   `op-loader`, broad `tn-*`, `opera-tn-*`, `contenteditable`, hosted media, SVG content-layer,
   `ui-slider`, `ui-sortable`, `touch-action`, or `user-select` markers.
-- The detector intentionally does not block standalone `op-text-sec`, standalone `font-size`,
-  standalone `font-family`, ordinary text about fonts, regular inline font styles, or readable
-  toolbar labels by themselves.
+- Follow-up rule `xiumi-text-operation-section-residue-20260629.txt` extends this same precise
+  label to standalone `op-text-sec` class/id markers. The detector still does not block standalone
+  `font-size`, standalone `font-family`, ordinary text about fonts, regular inline font styles, or
+  readable toolbar labels by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Text Operation Section Residue
+
+- [x] xiumi-text-operation-section-residue-20260629.txt
+- Extended the existing static quality rule for live Xiumi v5 text-toolbar controls to cover
+  standalone `op-text-sec` class/id markers.
+- The reduced regression intentionally keeps only `op-text-sec`, proving cleaned-down text
+  operation sections are reported precisely without relying on font-size, font-family, text-style,
+  text-misc, color-selector controls, font-format controls, text editing flyouts, brush panels,
+  hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary text wording, toolbar wording, CSS font
+  properties, article typography prose, generic text sections, or non-Xiumi class names by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  typography fidelity, Dark Mode, sync, upload, public rendering, public-host acceptance,
+  scheduled send, or publish success.
 
 ## 2026-06-29 Xiumi Text Editing Flyout Residue
 
