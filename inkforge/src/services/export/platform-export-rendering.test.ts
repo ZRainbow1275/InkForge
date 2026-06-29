@@ -1638,6 +1638,12 @@ const MARKET_EDITOR_XIUMI_IMAGE_BINDING_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_PRELOAD_IMAGE_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<article tn-pre-load-image="image.asset">Xiumi preload image directive shell</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_COMPONENT_STRUCTURE_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<article tn-comp="card.instance" tn-comp-role="root" tn-comp-index="0" tn-comp-pose="static">',
@@ -11033,6 +11039,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi component binding attribute residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .not.toContain('Xiumi component binding attribute residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi preload image directives with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_PRELOAD_IMAGE_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_PRELOAD_IMAGE_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_PRELOAD_IMAGE_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi preload image directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi preload image directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi preload image directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi component binding attribute residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi image binding metadata residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

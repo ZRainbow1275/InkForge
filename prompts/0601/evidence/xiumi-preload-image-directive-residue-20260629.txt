@@ -1,0 +1,59 @@
+Xiumi Preload Image Directive Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor HTML.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Observed source family:
+- Live Xiumi v5 paper-editor DOM readback exposed the editor-side image preload directive:
+  - tn-pre-load-image
+
+Implemented:
+- Added detector label:
+  Xiumi preload image directive residue
+- Added a reduced regression fixture containing only the tn-pre-load-image directive attribute.
+- Rule remains anchored to the Xiumi preload image directive attribute name and does not block
+  ordinary preload prose, image prose, lazy-loading prose, CSS image properties, standard img
+  markup, article text, or non-Xiumi class names by itself.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit platform-specific
+  market-editor-residue ids with the precise preload image directive label.
+- Adjacent regressions keep image binding metadata, component structure binding, and the broad
+  Xiumi tn-* fallback behavior independent.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "preload image directives" --reporter=default
+  FAIL: 1 selected failing test before the detector update because the fixture only emitted
+  Xiumi tn-* attribute.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "preload image directives|image binding metadata|component structure binding|Xiumi tn\\* attribute" --reporter=default
+  PASS: 1 file / 3 selected tests / 336 skipped tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000
+  PASS: 1 file / 339 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000
+  PASS: 36 files / 1316 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 39.95s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1 with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, image loading fidelity, mobile Dark Mode,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

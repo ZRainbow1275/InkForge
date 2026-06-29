@@ -5305,6 +5305,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Preload Image Directive Residue
+
+- [x] xiumi-preload-image-directive-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 image preload directive `tn-pre-load-image`.
+- The reduced regression intentionally keeps only that source-specific directive attribute,
+  proving cleaned-down preload image residue gets a precise label instead of relying only on the
+  broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary preload wording, image wording, lazy-loading
+  prose, CSS image properties, standard `<img>` markup, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, image loading fidelity, public rendering, public-host acceptance, scheduled send,
+  or publish success.
+
 ## 2026-06-26 Xiumi Component Structure Binding Metadata Residue
 
 - [x] xiumi-component-structure-binding-metadata-residue-20260626.txt

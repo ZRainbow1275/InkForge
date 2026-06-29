@@ -1805,6 +1805,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animation-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-link-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-image-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-preload-image-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-operator-dock-control-residue-20260626.txt`
@@ -1937,4 +1938,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-230.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-231.

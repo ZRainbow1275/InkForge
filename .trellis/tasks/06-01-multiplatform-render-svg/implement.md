@@ -8,6 +8,63 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Preload Image Directive Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The image preload surface exposed the
+  `tn-pre-load-image` directive.
+- This entry is an editor-side image preload directive. It is not publishable article image markup,
+  upload manifests, platform-safe embeds, reusable InkForge source, image loading fidelity proof,
+  public-host proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-pre-load-image`, proving cleaned-down
+  preload image directives receive the precise `Xiumi preload image directive residue` label
+  without relying on `tn-image`, `tn-image-usage`, component/cell/page bindings, image presenter
+  classes, raw image cell classes, image enhancement controls, hosted media, sidebar controls, or
+  meta panels.
+- Added the `Xiumi preload image directive residue` detector before component structure binding
+  and before the broad `Xiumi tn-* attribute` fallback. The fallback may still report on the same
+  reduced fixture; the precise label is now present for actionable diagnostics.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "preload image directives" --reporter=default`
+  failed with 1 selected failing test because the fixture only emitted `Xiumi tn-* attribute`.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "preload image directives|image binding metadata|component structure binding|Xiumi tn\\* attribute" --reporter=default`
+  passed with 3 selected tests and 336 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 339 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1316 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and Vite built in 39.95s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, image loading fidelity, Dark Mode, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
 ## 2026-06-29 Xiumi Animation Picker Directive Residue Slice
 
 Source:

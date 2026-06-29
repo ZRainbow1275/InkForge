@@ -11367,3 +11367,50 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, SMIL/H5 animation
   fidelity, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 231. Xiumi Preload Image Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the image preload directive
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback: `tn-pre-load-image`.
+- This marker is an editor-side image preload directive. It is not article body image markup,
+  reusable InkForge source, image loading fidelity proof, upload manifests, public-host proof, or
+  target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  this directive, but a cleaned-down preload-image fragment must receive the precise
+  `Xiumi preload image directive residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi image binding metadata residue`, which covers
+  `tn-image` / `tn-image-usage`, and from `Xiumi component structure binding metadata residue`.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi preload image directive residue` for WeChat, Xiaohongshu, and Zhihu when
+  `tn-pre-load-image` appears as an attribute.
+- A reduced fixture containing only `tn-pre-load-image` must fail with the precise label even when
+  `tn-image`, `tn-image-usage`, component/cell/page bindings, image presenter classes, raw image
+  cell classes, image enhancement controls, hosted media, sidebar controls, or meta panels are
+  absent.
+- The detector must not block ordinary preload wording, image wording, lazy-loading prose, CSS
+  image properties, standard `<img>` markup, article text, or non-Xiumi class names by itself. It
+  must stay anchored to the Xiumi-specific `tn-pre-load-image` directive attribute.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise preload image directive label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced preload image directive fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi preload image directive residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi image binding metadata residue`,
+  `Xiumi component structure binding metadata residue`, and the broad `Xiumi tn-* attribute`
+  fallback independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, image loading
+  fidelity, Dark Mode behavior, public-host acceptance, or publish success.

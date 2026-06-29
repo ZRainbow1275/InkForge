@@ -633,6 +633,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi image binding metadata residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-pre-load-image\s*=/i,
+    label: 'Xiumi preload image directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-comp(?:-role|-index|-pose)?\s*=/i,
     label: 'Xiumi component structure binding metadata residue',
   },

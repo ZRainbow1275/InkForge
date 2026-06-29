@@ -9016,6 +9016,37 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Preload Image Directive Addendum
+
+- Added local static publishability protection for Xiumi v5 image preload directive:
+  `tn-pre-load-image` now reports the precise `Xiumi preload image directive residue` label.
+- The rule upgrades cleaned-down image preload directive fragments from only the broad
+  `Xiumi tn-* attribute` fallback to an actionable image-preload diagnostic.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture only reported
+  `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "preload image directives|image binding metadata|component structure binding|Xiumi tn\\* attribute" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 339 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1316 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The build
+  transformed 4653 modules and completed in 39.95s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`, and
+  `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-preload-image-directive-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, image loading fidelity, Dark Mode, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.
+
 ---
 
 ## 2026-06-28 Xiumi Animation Style Picker Addendum
