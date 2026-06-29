@@ -11562,3 +11562,54 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, material-list loading
   fidelity, template refresh behavior, Dark Mode behavior, public-host acceptance, or publish
   success.
+
+## 235. Xiumi Editor Interaction Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains editor interaction directives
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback: `tn-snatch-at`,
+  `tn-ui-droppable`, `tn-comp-enter-editing`, `tn-comp-exit-editing`,
+  `tn-bind-comp-inst-page-mode`, or `tn-data-list`.
+- These markers are editor-side drag/drop, component editing-state, page-mode, and data-list
+  directives. They are not publishable article interaction semantics, reusable InkForge source,
+  upload manifests, WeChat H5 fidelity proof, or target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  these directives, but a cleaned-down editor-interaction fragment must receive the precise
+  `Xiumi editor interaction directive residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi atom drag-drop residue`,
+  `Xiumi editing dock residue`, `Xiumi component drag receiver residue`, and the broad
+  `Xiumi tn-* attribute` fallback.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi editor interaction directive residue` for WeChat, Xiaohongshu, and Zhihu when any
+  supported editor interaction directive appears.
+- A reduced fixture containing only the supported directive attributes must fail with the precise
+  label even when atom drag/drop classes, editing-dock classes, component drag receiver classes,
+  broad Angular runtime attributes/classes, hosted media, sidebar controls, or meta panels are
+  absent.
+- The detector must not block ordinary interaction wording, editor wording, drag/drop prose,
+  component wording, ordered-list markup, article text, or non-Xiumi class names by itself. It
+  must stay anchored to Xiumi-specific directive attribute names.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise editor interaction directive label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced editor interaction directive fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi editor interaction directive residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi atom drag-drop residue`, `Xiumi editing dock residue`,
+  `Xiumi component drag receiver residue`, and the broad `Xiumi tn-* attribute` fallback
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, drag/drop fidelity,
+  component-editing fidelity, H5 interaction behavior, Dark Mode behavior, public-host
+  acceptance, or publish success.

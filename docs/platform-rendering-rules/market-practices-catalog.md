@@ -1917,6 +1917,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-navigation-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-header-shell-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-drag-receiver-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-editor-interaction-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-palette-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-media-upload-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-picker-trigger-residue-20260629.txt`

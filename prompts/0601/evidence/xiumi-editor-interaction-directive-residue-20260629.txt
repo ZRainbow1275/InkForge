@@ -1,0 +1,44 @@
+Xiumi Editor Interaction Directive Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor HTML.
+- Source observation came from a live CloakBrowser Xiumi v5 paper-editor DOM readback.
+- No account-state material, browser runtime material, capture-file reference, platform publish artifact,
+  export artifact, copy artifact, sync artifact, preview artifact, QR artifact, credential secret,
+  or profile-directory reference is part of this evidence.
+
+Observed markers:
+- tn-snatch-at
+- tn-ui-droppable
+- tn-comp-enter-editing
+- tn-comp-exit-editing
+- tn-bind-comp-inst-page-mode
+- tn-data-list
+
+Implemented rule:
+- Label: Xiumi editor interaction directive residue
+- Trigger: source-specific Xiumi directive attributes for editor drag/drop, component editing
+  entry/exit, component page mode, and editor data-list binding.
+- Placement: before the broad Xiumi tn-* attribute fallback.
+
+Reduced regression:
+- The fixture keeps only the supported directive attributes.
+- It intentionally avoids atom drag/drop classes, editing-dock classes, component drag receiver
+  classes, Angular runtime classes, hosted media, sidebar controls, and meta panels.
+- Before the detector update, the selected test failed because the fixture only emitted
+  Xiumi tn-* attribute.
+- After the detector update, the selected test reports the precise label for WeChat,
+  Xiaohongshu, and Zhihu.
+
+Adjacent safety:
+- Xiumi atom drag-drop residue remains separate.
+- Xiumi editing dock residue remains separate.
+- Xiumi component drag receiver residue remains separate.
+- The broad Xiumi tn-* attribute fallback remains available for unclassified tn-* directives.
+
+Boundary:
+- This is local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, mobile SMIL/click interaction, drag/drop
+  fidelity, component-editing fidelity, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  Xiaohongshu/Zhihu account upload, or publish success.

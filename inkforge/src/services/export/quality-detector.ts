@@ -669,6 +669,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi atom drag-drop residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:snatch-at|ui-droppable|comp-(?:enter|exit)-editing|bind-comp-inst-page-mode|data-list)\s*=/i,
+    label: 'Xiumi editor interaction directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\btn-editing-dock\b[^"']*["']|\btn-editing-(?:dock|show-data|cube-index)\s*=)/i,
     label: 'Xiumi editing dock residue',
   },

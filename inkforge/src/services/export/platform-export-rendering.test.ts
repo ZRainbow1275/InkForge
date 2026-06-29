@@ -1706,6 +1706,15 @@ const MARKET_EDITOR_XIUMI_ATOM_DRAG_DROP_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_EDITOR_INTERACTION_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div tn-snatch-at="paper.root" tn-ui-droppable="dropOptions">',
+  '<article tn-comp-enter-editing="enter(comp)" tn-comp-exit-editing="exit(comp)">Editing state</article>',
+  '<ol tn-data-list="tnDataList"><li tn-bind-comp-inst-page-mode="paper.mode">Template row</li></ol>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_EDITING_DOCK_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="tn-editing-dock">Xiumi editing dock residue</div>',
@@ -13189,6 +13198,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi header shell residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi navigation shell residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi editor interaction directives with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_EDITOR_INTERACTION_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_EDITOR_INTERACTION_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_EDITOR_INTERACTION_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi editor interaction directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi editor interaction directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi editor interaction directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi atom drag-drop residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi editing dock residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
