@@ -257,6 +257,66 @@ Boundary:
   thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
   article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 135 Style Panel Navigation Chrome Residue Slice
+
+Source:
+- CloakBrowser live DOM readback on the 135 ordinary editor confirmed the left-panel style
+  navigation chrome around the live style list.
+- Observed style-panel navigation markers included `style-operate-area`, `style-color-palette`,
+  `style-categories`, `style-sorts`, and `news_modal-ys`.
+- These are editor-side style-library navigation, theme-color, and sort controls, not article
+  content. They are separate from style-card operation buttons, UEditor toolbar chrome, action rail
+  chrome, hosted image sources, and SVG-builder markers.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, scan-code
+  artifact, credential secret, local browser directory, template source, or material source is
+  part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- The implementation keeps the edit to one narrow detector branch, one reduced regression fixture,
+  docs, and evidence.
+
+Implementation:
+- Added `135 style panel navigation chrome residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The new rule matches copied style-panel id/class markers observed in the live editor:
+  `style-operate-area`, `style-color-palette`, `style-categories`, `style-sorts`, and
+  `news_modal-ys`.
+- Added a reduced regression fixture that intentionally omits `_135editor`, `data-tools`,
+  `style_id/style_name/style_price`, style-card operation buttons, UEditor toolbar chrome, action
+  rail chrome, hosted image sources, and SVG-builder markers.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style panel navigation chrome" --reporter=default`
+  failed with 1 selected failing test because no `*-market-editor-residue` issue was emitted.
+- Green: the same command passed with 1 selected test and 361 skipped tests after the detector
+  update.
+- Adjacent market regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (left style library operation chrome|style panel navigation chrome|UEditor toolbar|editor action rail chrome|base markers|applied-editor text slot|SVG builder canvas blocks|mirrored _src image sources)" --reporter=default`
+  passed with 8 selected tests and 354 skipped tests.
+- Platform regression: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 362 tests.
+- Export suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1339 tests.
+- Static checks: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 27.99 seconds.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json` returned the expected
+  blocked state, with `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, plus
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic coverage. It does not
+  prove WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover
+  thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 SVG Trial Coverage Audit Slice
 
 Source:

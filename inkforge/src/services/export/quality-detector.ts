@@ -65,6 +65,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 style library operation chrome residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:\bid\s*=\s*["'](?:style-operate-area|style-color-palette|style-categories|style-sorts)["']|\bclass\s*=\s*["'][^"']*\bnews_modal-ys\b[^"']*["'])/i,
+    label: '135 style panel navigation chrome residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\bedui-(?:toolbar|editor|editor-[a-z-]+|button|button-body|splitbutton|menubutton|combox|box|default|state-[a-z-]+|for-[a-z0-9-]+|wx-input|label|iframeholder)\b[^"']*["']|\bid\s*=\s*["']edui\d+(?:_[a-z0-9_-]+)?["'])/i,
     label: '135 UEditor toolbar/editor chrome residue',
   },

@@ -272,6 +272,12 @@ construct breaks.
   market-editor residue source, even if broad `_135editor`, `data-tools`, or numeric style ids
   have already been stripped. This proves local residue coverage only, not paste, mobile preview,
   sync, upload, scheduled-send, or publish success.
+- 2026-06-29 135 ordinary style-panel navigation follow-up: live left-panel page chrome included
+  `style-operate-area`, `style-color-palette`, `style-categories`, `style-sorts`, and
+  `news_modal-ys`. These are library navigation / theme-color / sort controls, not article
+  semantics. If copied into WeChat/XHS/Zhihu publishable output, they must trigger
+  market-editor residue even when style-card operation buttons, UEditor chrome, action rail
+  chrome, hosted material URLs, and SVG-builder markers are absent.
 - 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
   rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
   text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
@@ -2410,6 +2416,8 @@ Required tests/checks:
   135 ordinary editor action rail chrome such as `editorslide`, `multiedit_agent_main`,
   `agent_btn`, `copy-editor-html`, `quick-save-template`, `save-as-template`,
   `preview-editor`, and `sync_official_accounts`,
+  135 style panel navigation chrome such as `style-operate-area`, `style-color-palette`,
+  `style-categories`, `style-sorts`, and `news_modal-ys`,
   known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,

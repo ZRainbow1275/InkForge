@@ -35,6 +35,7 @@
 | 2026-06-09 market-editor residue runtime gate | 基于 CloakBrowser 对 135 免费样式、135 SVG builder、秀米图文编辑器 DOM 的 applied-element 观察，补充三平台质量检测硬门禁 | `quality-detector.ts` 现在对 WeChat/XHS/Zhihu 分别输出 `wechat-market-editor-residue`、`xhs-market-editor-residue`、`zhihu-market-editor-residue`；阻断 `_135editor`、`135brush`、`135bg`、`data-tools="135编辑器"`、135 CDN、`.tn-*`、`tn-*` 属性、`ng-*` authoring 属性和秀米素材源进入最终产物 |
 | 2026-06-29 135 ordinary action rail chrome refresh | CloakBrowser 在 135 普通编辑器右侧操作栏读取到 `editorslide`、`multiedit_agent_main`、`agent_btn`、`import-article`、`copy-editor-html`、`quick-save-template`、`save-as-template`、`btn-new-msg`、`large-image-popover`、`btn-show-drafts`、`preview-editor` 和 `sync_official_accounts` | 这些是导入、复制、保存、草稿、预览、同步等编辑器动作入口，不是文章语义；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error，且不升级任何 copy/preview/sync/upload/publish proof |
 | 2026-06-29 135 ordinary applied image-source refresh | CloakBrowser 在 135 普通编辑器中恢复中心 UEditor iframe body 选区后点击免费样式，中心内容从 5 个顶层子节点变为 6 个，并新增 `data-id="174407"`；新块图片同时带 `src` 与 `_src` 指向 135 素材域 | `_src` 是 135 编辑器镜像素材源属性，不是可发布文章语义；`quality-detector.ts` 对 `src`、`_src`、`data-src`、`href`、`xlink:href` 指向 135 素材域的图像统一输出 `135 third-party image source`，不升级任何平台 proof |
+| 2026-06-29 135 ordinary style-panel navigation refresh | CloakBrowser 在 135 普通编辑器左侧样式面板读取到 `style-operate-area`、`style-color-palette`、`style-categories`、`style-sorts` 和 `news_modal-ys` | 这些是样式库导航、主题色和排序 chrome，不是文章内容；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error，且不依赖 style-card、UEditor、action rail、hosted image 或 SVG-builder 标记 |
 | 2026-06-19 CloakBrowser applied-rule refresh | 135 普通编辑器点击免费样式后若只插入空白 `_135editor` 占位，不足以学习 applied style；135 SVG 编辑器免费试用可暴露 trigger canvas、trigger-hot-area、`app-content-canvas`、`block-img__content`、`ant-tooltip-open`；秀米 SVG 样本可把中心纸张变成 `tn-svg-animation-carousel`、flow-canvas、`tn-yzk-font-*`、`tn-placeholder`、`opera-tn-ra-*` 和 `ng-*` 作者态树，且中心可没有 literal SVG | 强化 runtime gate：这些强特征只转译为 InkForge 自有 trigger-zone/image-slot/motion/action/schema/fallback/layout-report；若进入 WeChat/XHS/Zhihu publishable output，必须输出平台对应的 market-editor-residue error。该证据不证明手机预览、暗黑模式、同步、上传、公开预览或发布 |
 | 2026-06-20 public-source rule refresh | Exa/Grok 公开来源复核了微信官方编辑器插件规范、微信编辑器 JSAPI、doocs/md、mdnice、wx-art-formatter 和 md2red。官方规范确认结构校验接口、opacity-hidden image + SVG background、`line-height:0`、固定宽高、`text-align:start/end`、`pre` 普通段落、仅 `touchstart`、Dark Mode SVG 不被常规重着色等 bad case；OSS 工具继续收敛到 CSS inlining + `text/html` clipboard、长图/PDF fallback、XHS 图片卡片 manifest | 官方规范升级为 hard-blocker/source-of-truth；OSS/市场工具只作为架构和 artifact-family 参考。不得采纳未核验的营销排名、互动率、账号发布成功、自动发布或 `<style>`/media-query-in-SVG 建议；JSAPI/插件接口存在性不等于当前 InkForge credentialed sync、preview、scheduled-send 或 publish proof |
 | 2026-06-23 public-source rule refresh | Grok Search 重新抓取微信官方编辑器插件规范、微信 MP 编辑器 JSAPI、微信 H5 DarkMode 文档、doocs/md 架构文档，并复核小红书/知乎公开入口；小红书公开入口仍是登录态创作者平台，知乎公开检索未发现可作为硬规则的官方 Markdown/图片上传规格 | 继续把微信官方规范作为 hard-blocker/source-of-truth；doocs/md 只作为 parse -> inline CSS -> sanitize -> themed HTML 的架构参考；小红书/知乎保持保守本地 artifact manifest + 外部账号/platform proof gate，不采纳第三方尺寸指南或社区脚本作为发布成功证明 |
@@ -167,6 +168,21 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering,
   XHS/Zhihu account upload, or publish success.
 
+2026-06-29 135 ordinary style-panel navigation refresh:
+
+- CloakBrowser-only refresh read live left-panel style navigation chrome in the same 135 ordinary
+  editor page. Observed markers included `style-operate-area`, `style-color-palette`,
+  `style-categories`, `style-sorts`, and `news_modal-ys`.
+- These fields represent style-library navigation, theme-color controls, and sort controls. They
+  are not article content and must not be used as reusable InkForge element source.
+- The runtime detector must report them as `135 style panel navigation chrome residue` when they
+  appear in WeChat, Xiaohongshu, or Zhihu publishable output, even when copied output lacks
+  style-card operation buttons, UEditor toolbar chrome, action rail chrome, hosted image sources,
+  or SVG-builder markers.
+- This refresh adds a local residue contract only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering,
+  XHS/Zhihu account upload, or publish success.
+
 2026-06-09 runtime gate:
 
 - Applied 135/Xiumi evidence now feeds a real export quality detector instead of staying doc-only.
@@ -190,6 +206,9 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
 - The 135 branch blocks copied hosted image source references in `src`, `_src`, `data-src`,
   `href`, and `xlink:href`, because they are third-party material dependencies unless the asset is
   re-owned by InkForge and backed by the platform-specific manifest/public-host proof.
+- The 135 branch blocks copied left-panel navigation chrome such as `style-operate-area`,
+  `style-color-palette`, `style-categories`, `style-sorts`, and `news_modal-ys`, because those are
+  editor-side library controls rather than article content.
 - These blockers are an implementation of the no-copy boundary. They do not prove WeChat paste,
   mobile preview, Dark Mode, sync, scheduled send, or publish success.
 

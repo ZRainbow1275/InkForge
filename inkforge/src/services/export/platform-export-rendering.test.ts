@@ -217,6 +217,13 @@ const MARKET_EDITOR_135_STYLE_LIBRARY_CHROME_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_STYLE_PANEL_NAV_CHROME_RESIDUE_HTML = [
+  '<section><p>Readable article text that should not carry style-panel navigation chrome.</p></section>',
+  '<aside id="style-categories"><button>Title</button><button>Body</button><button>SVG</button></aside>',
+  '<span id="style-sorts" class="display_flex_ac icon-hover">Recent</span>',
+  '<div id="style-color-palette">Theme color</div>',
+].join('')
+
 const MARKET_EDITOR_135_UEDITOR_CHROME_RESIDUE_HTML = [
   '<section><p>Readable article text that should not carry editor toolbar controls.</p></section>',
   '<div id="edui23" class="edui-editor edui-default">',
@@ -9995,6 +10002,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 style-list metadata')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 numeric style id on copied market block')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 style panel navigation chrome without style-card metadata', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_STYLE_PANEL_NAV_CHROME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_STYLE_PANEL_NAV_CHROME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_STYLE_PANEL_NAV_CHROME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 style panel navigation chrome residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 style panel navigation chrome residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 style panel navigation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 style library operation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 UEditor toolbar/editor chrome residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
