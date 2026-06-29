@@ -7341,3 +7341,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Angular Input Source Event Residue
+
+- [x] xiumi-angular-input-source-event-residue-20260629.txt
+- Extended the existing static `Angular/Vue authoring attribute` quality rule for live Xiumi v5
+  Angular attributes including `ng-keydown`, `ng-keyup`, `ng-src`, `ng-mousedown`, `ng-mouseup`,
+  `ng-mouseenter`, `ng-copy`, `ng-readonly`, and `ng-transclude`.
+- The reduced regression intentionally keeps only input/source/mouse/copy/transclusion attributes,
+  proving class-cleaned Angular residue is blocked without relying on Angular runtime classes,
+  `tn-*`, `opera-tn-*`, contenteditable, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose about Angular, key events, source
+  images, copy, hover, readonly fields, transclusion, or Xiumi by itself; it remains anchored to
+  real tag attributes with an assignment.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  input behavior fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
+  acceptance, public rendering, public-host acceptance, scheduled send, or publish success.

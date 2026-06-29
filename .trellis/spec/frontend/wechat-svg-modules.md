@@ -11839,3 +11839,46 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, page-mode fidelity, mobile rendering, public-host acceptance,
   upload, credentialed sync, scheduled send, or publish success.
+
+## 241. Xiumi Angular Input/Source/Event Attribute Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains Angular authoring attributes
+  observed in the live Xiumi v5 paper editor, including `ng-keydown`, `ng-keyup`, `ng-src`,
+  `ng-mousedown`, `ng-mouseup`, `ng-mouseenter`, `ng-copy`, `ng-readonly`, and
+  `ng-transclude`.
+- These attributes are editor-side event, source-binding, readonly, copy, hover, and transclusion
+  directives. They are not publishable article semantics, reusable InkForge component source,
+  platform-safe media references, input behavior proof, public-host proof, or target-platform
+  proof.
+- This rule extends the existing `Angular/Vue authoring attribute` diagnostic. It must stay
+  separate from `Angular authoring class`, `Xiumi tn-* attribute`, `Xiumi third-party image
+  source`, editable-surface markers, sidebar controls, and meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Angular/Vue authoring attribute` for WeChat,
+  Xiaohongshu, and Zhihu when the above `ng-*` attributes appear on real HTML elements.
+- A reduced fixture containing only input/source/mouse/copy/transclusion Angular attributes must
+  fail with the precise Angular/Vue label even when Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary prose that mentions Angular, keydown, copy, source, hover,
+  transclusion, or Xiumi by itself. It must remain anchored to tag attributes with an assignment.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced input/source/event fixture initially emits no
+  `*-market-editor-residue` issue, then emits `Angular/Vue authoring attribute` after the detector
+  update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports while `Angular authoring class` stays absent for the reduced class-cleaned
+  fixture.
+- Adjacent Angular runtime class tests must remain green so class-based and attribute-based
+  diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, input behavior fidelity, mobile rendering, public-host acceptance,
+  upload, credentialed sync, scheduled send, or publish success.

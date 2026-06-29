@@ -1008,6 +1008,12 @@ Xiumi SVG/H5 rules:
   `renderer_accelerate`, and `validateImageTypeInHtml`. These are Xiumi authoring/rendering
   pipeline residue, not portable article HTML. They must fail as
   `Xiumi template renderer pipeline residue` if copied into WeChat/XHS/Zhihu output.
+- 2026-06-29 Xiumi Angular input/source/event refresh: the live v5 paper editor exposed
+  class-cleaned Angular authoring attributes including `ng-keydown`, `ng-keyup`, `ng-src`,
+  `ng-mousedown`, `ng-mouseup`, `ng-mouseenter`, `ng-copy`, `ng-readonly`, and
+  `ng-transclude`. These are runtime binding metadata, not article behavior. They remain under
+  the existing `Angular/Vue authoring attribute` residue label and must be rewritten as
+  InkForge-owned source behavior or omitted before any WeChat/XHS/Zhihu output is publishable.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -1027,6 +1033,7 @@ Evidence:
 - `prompts/0601/evidence/market-fallback-catalog-contract-20260620.txt`
 - `prompts/0601/evidence/xiumi-svg-recheck-recovery-modal-blocker-20260621.txt`
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`
+- `prompts/0601/evidence/xiumi-angular-input-source-event-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

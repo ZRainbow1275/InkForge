@@ -9720,3 +9720,41 @@ Boundary:
   phone preview, page-mode fidelity, mobile SMIL/click interaction, Dark Mode, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Angular Input Source Event Addendum
+
+- Extended local static publishability protection for live Xiumi v5 Angular authoring attributes:
+  `ng-keydown`, `ng-keyup`, `ng-src`, `ng-mousedown`, `ng-mouseup`, `ng-mouseenter`, `ng-copy`,
+  `ng-readonly`, and `ng-transclude` now report the existing precise
+  `Angular/Vue authoring attribute` label.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- The reduced fixture keeps only input/source/mouse/copy/transclusion attributes, so the
+  diagnostic is proven independently from Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels.
+- GitNexus: after index refresh, MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES`
+  with 0 direct dependents and LOW risk for `detectQuality` with 4 direct dependents and
+  0 affected processes.
+- Verification:
+  focused TDD red failed before the detector update because no `*-market-editor-residue` issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Angular input source and mouse event|Angular runtime controls" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 349 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1326 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 31.84s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-angular-input-source-event-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, input behavior fidelity, mobile SMIL/click interaction, Dark Mode, credentialed
+  sync, scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
