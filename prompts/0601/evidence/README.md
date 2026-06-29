@@ -5494,7 +5494,7 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   in the live Xiumi v5 paper-editor DOM: `tn-global-format-dropdown`,
   `tn-basic-format-tabset`, `font-family-menu`, `font-family-list`, `stc-family-name-yzk--1`,
   `text-format-brush`, `text-misc`, `size-input`, `tn-list-locate-active-item`,
-  `tn-number-input`, `tn-text-input-done`, `skim-value-prev`, `skim-value-next`,
+  `tn-number-input`, `tn-text-input-begin`, `tn-text-input-done`, `skim-value-prev`, `skim-value-next`,
   `skim-change`, and `skim-end`.
 - The reduced regression intentionally keeps only source-specific font/basic-format controls plus
   readable font labels, proving the cleaned typography-control residue is blocked without relying
@@ -5508,6 +5508,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   font labels by themselves.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Text Input Begin Directive Residue
+
+- [x] xiumi-text-input-begin-directive-residue-20260629.txt
+- Extended the existing `Xiumi font and format control residue` rule for the live Xiumi v5
+  text/title/author input begin callback directive `tn-text-input-begin`.
+- The reduced regression intentionally keeps only that source-specific directive attribute,
+  proving cleaned-down text input begin callbacks get the same precise font/format label instead
+  of relying only on the broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary title wording, author wording, input wording,
+  begin wording, CSS typography properties, standard text inputs, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  title/author input fidelity, typography fidelity, sync, upload, public rendering,
+  public-host acceptance, scheduled send, or publish success.
 
 ## 2026-06-26 Xiumi Text Toolbar Control Residue
 

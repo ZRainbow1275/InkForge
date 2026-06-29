@@ -9016,6 +9016,38 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Text Input Begin Directive Addendum
+
+- Extended local static publishability protection for Xiumi v5 text/title/author input begin
+  callback directives: `tn-text-input-begin` now reports the existing precise
+  `Xiumi font and format control residue` label.
+- The rule upgrades cleaned-down text input begin callback fragments from only the broad
+  `Xiumi tn-* attribute` fallback to the already established font/format diagnostic.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture only reported
+  `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "text input begin directives|font and format controls|text toolbar controls|color selector controls|Xiumi tn\\* attribute" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 341 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1318 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The build
+  transformed 4653 modules and completed in 41.77s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`, and
+  `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-text-input-begin-directive-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, title/author input fidelity, typography fidelity, Dark Mode, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
 ## 2026-06-29 Xiumi Operation Panel Directive Addendum
 
 - Added local static publishability protection for Xiumi v5 operation panel/menu directive

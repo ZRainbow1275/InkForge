@@ -11463,3 +11463,52 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, panel/menu interaction
   fidelity, H5 behavior, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 233. Xiumi Text Input Begin Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the text-input callback directive
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback: `tn-text-input-begin`.
+- This marker is an editor-side text/title/author input begin callback. It is not article body
+  typography, reusable InkForge source, WeChat title/author fidelity proof, upload manifests, or
+  target-platform proof.
+- This rule is additive and diagnostic. `tn-text-input-done` was already covered by the
+  `Xiumi font and format control residue` detector, but the live editor also emits the paired
+  begin callback. A cleaned-down begin-only fragment must receive the same precise font/format
+  label instead of relying only on the broad `Xiumi tn-* attribute` fallback.
+- This rule must stay separate from `Xiumi text toolbar control residue`,
+  `Xiumi text editing flyout residue`, `Xiumi color selector control residue`, and the broad
+  `Xiumi tn-* attribute` fallback.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi font and format control residue` for WeChat, Xiaohongshu, and Zhihu when
+  `tn-text-input-begin` appears as an attribute.
+- A reduced fixture containing only `tn-text-input-begin` must fail with the precise font/format
+  label even when font-family classes, font-size classes, `tn-text-input-done`, text toolbar
+  classes, color selector controls, operation-bar controls, broad Angular runtime
+  attributes/classes, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary title wording, author wording, input wording, begin
+  wording, CSS typography properties, standard text inputs, article text, or non-Xiumi class names
+  by itself. It must stay anchored to the Xiumi-specific directive attribute.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise font/format label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced text-input-begin fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi font and format control residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi color selector control residue`,
+  `Xiumi font and format control residue`, `Xiumi text toolbar control residue`, and the broad
+  `Xiumi tn-* attribute` fallback independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, title/author input
+  fidelity, typography fidelity, Dark Mode behavior, public-host acceptance, or publish success.

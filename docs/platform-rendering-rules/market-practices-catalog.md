@@ -1760,7 +1760,8 @@ Rules:
   `audio-edit`, `audio-del`, and `audio-group`, or
   font/basic-format controls such as `tn-global-format-dropdown`, `tn-basic-format-tabset`,
   `font-family-menu`, `font-family-list`, `stc-family-name-yzk-*`, `text-format-brush`,
-  `text-misc`, `size-input`, `tn-list-locate-active-item`, and font-size skim callbacks, or
+  `text-misc`, `size-input`, `tn-list-locate-active-item`, `tn-text-input-begin`,
+  `tn-text-input-done`, and font-size skim callbacks, or
   text-toolbar controls where `op-text-sec` is paired with `font-size`, `font-family`,
   `text-style`, or `text-misc`, or text-editing flyout controls such as
   `in-text-cell-editing-op`, `cp-op-quick-input-prompt`, `op-text-img-resizing-surface`,
@@ -1844,6 +1845,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-operation-bar-dropdown-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-color-selector-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-font-format-control-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-text-input-begin-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-toolbar-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-right-toolbar-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-sidebar-tab-control-residue-20260626.txt`
@@ -1940,4 +1942,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-232.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-233.
