@@ -8,6 +8,63 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Operation Panel Directive Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The operation panel/menu surface exposed
+  `tn-panel-move`, `tn-op-back-mask`, and `tn-op-menu` directive attributes.
+- These entries are editor-side operation panel, back-mask, and menu directives. They are not
+  publishable article panel/menu semantics, upload manifests, platform-safe embeds, reusable
+  InkForge source, H5 interaction fidelity proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-panel-move`, `tn-op-back-mask`, and
+  `tn-op-menu`, proving cleaned-down operation panel/menu directives receive the precise
+  `Xiumi operation panel directive residue` label without relying on `op-loader`, operator dock
+  controls, operation panel component controls, menu pin controls, hosted media, sidebar controls,
+  or meta panels.
+- Added the `Xiumi operation panel directive residue` detector before adjacent operation-panel
+  control rules and before the broad `Xiumi tn-* attribute` fallback. The fallback may still
+  report on the same reduced fixture; the precise label is now present for actionable diagnostics.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel directives" --reporter=default`
+  failed with 1 selected failing test because the fixture only emitted `Xiumi tn-* attribute`.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "operation panel directives|operation panel loader|operator dock child|operation panel component controls|Xiumi tn\\* attribute" --reporter=default`
+  passed with 4 selected tests and 336 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 340 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1317 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and completed in 40.49s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, H5 panel/menu interaction fidelity, Dark Mode,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Preload Image Directive Residue Slice
 
 Source:

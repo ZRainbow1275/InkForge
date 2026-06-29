@@ -257,6 +257,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operation panel loader residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:panel-move|op-(?:back-mask|menu))\s*=/i,
+    label: 'Xiumi operation panel directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bop-cp-menu-pin(?:-tb)?\b[^"']*["']/i,
     label: 'Xiumi menu pin control residue',
   },

@@ -616,6 +616,14 @@ const MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_OPERATION_PANEL_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div tn-panel-move="" tn-op-back-mask="">',
+  '<button tn-op-menu="">Xiumi operation panel directive residue</button>',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_OPERATOR_DOCK_CHILD_CONTROLS_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-dock">',
@@ -11713,6 +11721,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi operation panel loader residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi operation panel loader residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi operation panel directives with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_OPERATION_PANEL_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi operation panel directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operation panel loader residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi operator dock control residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

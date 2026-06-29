@@ -1709,7 +1709,8 @@ Rules:
   checklist design, but copied Xiumi component-depot DOM is not publishable body DOM, H5 proof, or
   phone preview proof.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
-  classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
+  classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, operation
+  panel directive attributes such as `tn-panel-move`, `tn-op-back-mask`, and `tn-op-menu`, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
   `out-comp-edit-panel`, `op-ce-layout-carousel`, `cell-group-edit-container`,
   `menu-style-input`, and `svg-animation-assistant`, operator depot/menu items such as
@@ -1839,6 +1840,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-ui-slider-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-sortable-control-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-loader-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-operation-panel-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-operation-bar-dropdown-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-color-selector-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-font-format-control-residue-20260626.txt`
@@ -1938,4 +1940,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-231.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-232.

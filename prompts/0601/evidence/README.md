@@ -4704,6 +4704,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   sync, upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Operation Panel Directive Residue
+
+- [x] xiumi-operation-panel-directive-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 operation panel/menu directive attributes
+  including `tn-panel-move`, `tn-op-back-mask`, and `tn-op-menu`.
+- The reduced regression intentionally keeps only those source-specific directive attributes,
+  proving cleaned-down operation panel/menu residue gets a precise label instead of relying only
+  on the broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary panel wording, menu wording, move wording,
+  mask wording, CSS positioning properties, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  H5 panel/menu interaction fidelity, sync, upload, public rendering, public-host acceptance,
+  scheduled send, or publish success.
+
 ## 2026-06-26 Xiumi Operator Dock Control Residue
 
 - [x] xiumi-operator-dock-control-residue-20260626.txt

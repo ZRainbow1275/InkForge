@@ -11414,3 +11414,52 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, image loading
   fidelity, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 232. Xiumi Operation Panel Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains operation panel/menu directive
+  attributes observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `tn-panel-move`, `tn-op-back-mask`, and `tn-op-menu`.
+- These markers are editor-side operation panel, back-mask, and menu directives. They are not
+  article body layout semantics, reusable InkForge source, WeChat panel/menu fidelity proof, H5
+  interaction proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  these directives, but a cleaned-down operation-panel directive fragment must receive the precise
+  `Xiumi operation panel directive residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi operation panel loader residue`,
+  `Xiumi operator dock control residue`, `Xiumi operation panel component control residue`, and
+  `Xiumi menu pin control residue`.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi operation panel directive residue` for WeChat, Xiaohongshu, and Zhihu when supported
+  operation panel/menu directive attributes appear.
+- A reduced fixture containing only `tn-panel-move`, `tn-op-back-mask`, and `tn-op-menu` must fail
+  with the precise label even when operation panel loader classes, operator dock classes,
+  operation panel component controls, menu pin controls, broad Angular runtime attributes/classes,
+  hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary panel wording, menu wording, move wording, mask wording,
+  CSS positioning properties, article text, or non-Xiumi class names by itself. It must stay
+  anchored to Xiumi-specific directive attribute names.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise operation panel directive label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced operation panel directive fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi operation panel directive residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operation panel loader residue`,
+  `Xiumi operator dock control residue`, `Xiumi operation panel component control residue`, and
+  the broad `Xiumi tn-* attribute` fallback independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, panel/menu interaction
+  fidelity, H5 behavior, Dark Mode behavior, public-host acceptance, or publish success.
