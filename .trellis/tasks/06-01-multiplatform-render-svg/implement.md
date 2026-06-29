@@ -8,6 +8,73 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Component Depot Native Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The component-depot/menu surface exposed
+  native/embed component entries such as `dc-ce-audio-card`, `dc-ce-music-card`, `dc-ce-map`,
+  `dc-ce-map-tx`, `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`,
+  `dc-ce-video-card`, `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm`.
+- These entries are editor-side insertable media, map, profile, red-packet, SVG, and video
+  controls. They are not publishable article DOM, media playback proof, upload manifests,
+  platform-safe embeds, reusable InkForge source, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes after refreshing the InkForge index.
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only supported native/embed `dc-ce-*` component
+  markers, proving cleaned-down component-depot residue receives a precise label without relying
+  on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  attribute-board controls, generated-link controls, audio panels, media upload inputs, Angular
+  runtime attributes, hosted media, sidebar controls, or meta panels.
+- Added the `Xiumi component depot native control residue` detector before the broad
+  `Xiumi operator depot item residue` fallback.
+- Tightened the broad operator-depot detector so the reduced native/embed component fixture is not
+  double-reported under the generic operator-depot label.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot native controls" --reporter=default`
+  failed with 1 selected failing test because only `Xiumi operator depot item residue` was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot native controls|operator depot item controls|operator dock child controls|attribute board controls" --reporter=default`
+  passed with 4 selected tests and 316 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 320 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1297 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 48.72s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, and summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  native/embed component acceptance, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-06-29 Xiumi Template Entry Block Residue Slice
 
 Source:

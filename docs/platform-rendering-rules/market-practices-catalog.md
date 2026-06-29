@@ -1622,6 +1622,12 @@ Rules:
   must report the precise `Xiumi layout form child residue` label. These editor-side dropdown,
   table/column insertion, padding, attribute-label, and confirm/reset controls may inform
   InkForge-owned form/layout schemas, but must never be copied as publishable body DOM.
+- Xiumi component-depot native/embed controls such as `dc-ce-audio-card`, `dc-ce-music-card`,
+  `dc-ce-map`, `dc-ce-map-tx`, `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`,
+  `dc-ce-video-card`, `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm` must fail with
+  `Xiumi component depot native control residue`. They may inform InkForge-owned media, map,
+  profile, action, SVG, video, manifest, and fallback schemas, but copied Xiumi component-depot DOM
+  is not publishable body DOM or platform proof.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1832,4 +1838,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-audio-room-tab-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-211.
+- `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-212.

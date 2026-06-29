@@ -5629,6 +5629,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, template reuse rights, sync, upload, cover thumbnail acceptance,
   public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Native Control Residue
+
+- [x] xiumi-component-depot-native-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot native/embed controls including
+  `dc-ce-audio-card`, `dc-ce-music-card`, `dc-ce-map`, `dc-ce-map-tx`,
+  `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`, `dc-ce-video-card`,
+  `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm`.
+- The reduced regression intentionally keeps only supported native/embed `dc-ce-*` component
+  markers, proving component-depot media/map/profile/red-packet/SVG/video entries are reported
+  precisely without relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`,
+  operator-dock parents, attribute-board controls, generated-link controls, audio panels, media
+  upload inputs, Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced native/embed
+  component fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile media playback, mobile SMIL/click interaction, native/embed component acceptance, sync,
+  upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled send, or
+  publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

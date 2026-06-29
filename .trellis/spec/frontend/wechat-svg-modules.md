@@ -10398,3 +10398,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, template reuse rights,
   public-host acceptance, or publish success.
+
+## 212. Xiumi Component Depot Native Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot native/embed
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-audio-card`, `dc-ce-music-card`, `dc-ce-map`, `dc-ce-map-tx`,
+  `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`, `dc-ce-video-card`,
+  `dc-ce-video-link`, `dc-ce-video-tx`, or `dc-ce-video-xm`.
+- These markers are editor-side insertable component entries for media, map, profile, red-packet,
+  SVG, and video controls. They are not article body DOM, reusable InkForge source, platform-safe
+  embeds, media playback proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the native/embed component family must now receive
+  the more precise `Xiumi component depot native control residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot native control residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported `dc-ce-*`
+  native/embed component marker.
+- A reduced fixture containing only native/embed component markers must fail even when
+  `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  attribute-board controls, generated-link controls, audio panels, media upload inputs, Angular
+  runtime attributes, hosted media, sidebar controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced
+  native/embed component fixture.
+- The detector must not block ordinary audio, music, map, profile, red packet, SVG, video, or
+  component wording by itself. It must stay anchored to Xiumi-specific `dc-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced native/embed component fixture reports only the broad operator-depot
+  label before implementation and reports `Xiumi component depot native control residue` after the
+  detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi operator depot item residue`,
+  `Xiumi operator dock control residue`, and `Xiumi attribute board control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback,
+  native/embed component acceptance, public-host acceptance, or publish success.

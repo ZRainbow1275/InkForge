@@ -6907,6 +6907,53 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Native Control Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot
+  native/embed entries such as `dc-ce-audio-card`, `dc-ce-music-card`, `dc-ce-map`,
+  `dc-ce-map-tx`, `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`,
+  `dc-ce-video-card`, `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm`.
+- Added the static detector label `Xiumi component depot native control residue` before the broad
+  `Xiumi operator depot item residue` fallback, and tightened the broad fallback so the reduced
+  native/embed component fixture is not double-reported as generic operator-depot residue.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture emitted only
+  `Xiumi operator depot item residue`:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot native controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot native controls|operator depot item controls|operator dock child controls|attribute board controls" --reporter=default`.
+- Verification:
+  full platform-rendering regression passed with 1 file and 320 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  full export service regression passed with 36 files and 1297 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  lint, type check, and production build passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  transformed 4653 modules and Vite built in 48.72s.
+- Verification:
+  release preflight intentionally remains blocked by external gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile media playback, mobile interaction, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, native/embed component acceptance, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.
+
 ---
 
 ## 2026-06-29 Xiumi Layout Form Child Addendum
