@@ -11710,3 +11710,43 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, audio playback
   fidelity, comment-system fidelity, Dark Mode behavior, public-host acceptance, or publish
   success.
+
+## 238. Xiumi Third-Party Image Source Coverage - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains image-like elements whose
+  `src`, `href`, `data-src`, or `xlink:href` points at Xiumi-hosted material domains such as
+  `statics.xiumi.us` or `xiumi.us/stc`.
+- This marker is an external market-editor asset dependency. It is not a reusable InkForge image
+  source, not a local asset-pipeline record, not public-host proof, not platform-host proof, and
+  not evidence that WeChat/XHS/Zhihu will retain or proxy the asset.
+- The detector already exists as `Xiumi third-party image source`; this section records the
+  coverage contract added after finding it was the only Xiumi market-editor detector label without
+  direct regression assertions.
+- This rule must stay separate from Xiumi `tn-*`, Angular/Vue, editable-surface, and hosted-media
+  layout diagnostics. It should report asset-source dependency, not authoring wrapper state.
+- This rule must not download remote assets, mutate export artifacts, alter renderer output, mark
+  any style as selectable, or claim public-host/publish proof.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi third-party image source` for WeChat,
+  Xiaohongshu, and Zhihu when an image-like element references the supported Xiumi material hosts.
+- A reduced fixture containing only `img` / `source` nodes with Xiumi material URLs must fail with
+  the precise label even when `tn-*`, `ng-*`, contenteditable, editor wrapper classes, sidebar
+  controls, or meta panels are absent.
+- The detector must not block ordinary local image references, ordinary public HTTPS image hosts,
+  article text mentioning Xiumi, or non-image/link attributes by itself. It must stay anchored to
+  image-like element source attributes and the supported Xiumi material hosts.
+
+### 3. Required Checks
+
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports for the reduced hosted-image fixture.
+- Adjacent editable-surface regression must remain independent so `contenteditable` is not
+  misclassified as third-party image source and third-party image source is not dependent on editor
+  runtime markers.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  image availability, public-host acceptance, platform-host proxying, WeChat paste, phone preview,
+  upload, credentialed sync, scheduled send, or publish success.

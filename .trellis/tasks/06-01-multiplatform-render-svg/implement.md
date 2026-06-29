@@ -8,6 +8,59 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Third-Party Image Source Coverage Slice
+
+Source:
+- Local detector coverage audit found `Xiumi third-party image source` was the only Xiumi
+  market-editor detector label without direct regression assertions in
+  `platform-export-rendering.test.ts`.
+- The rule covers Xiumi-hosted material image-like sources such as `statics.xiumi.us` and
+  `xiumi.us/stc`. These sources are external market-editor asset dependencies, not reusable
+  InkForge asset records, public-host proof, platform-host proof, or target-platform proof.
+
+Impact:
+- GitNexus MCP `impact` still could not resolve `MARKET_EDITOR_RESIDUE_RULES` as a graph target,
+  so pre-edit graph impact remains `UNKNOWN`; this is the same tool limitation recorded in the
+  prior detector slices.
+- The implementation is coverage hardening only: no detector logic changed. The edit adds one
+  reduced regression fixture, docs, and evidence.
+
+Implementation:
+- Added a reduced three-platform regression fixture containing only `img` / `source` nodes that
+  point to Xiumi-hosted material URLs, proving `Xiumi third-party image source` is asserted
+  without relying on `tn-*`, `ng-*`, contenteditable, editor wrapper classes, sidebar controls, or
+  meta panels.
+
+Verification:
+- Focused coverage:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted image sources|copied editor editable surfaces" --reporter=default`
+  passed with 2 selected tests and 344 skipped tests.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 346 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1323 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and completed in 35.01s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static coverage and diagnostic assurance. It does not prove WeChat
+  PC paste, phone preview, image availability, public-host acceptance, platform-host proxying,
+  mobile SMIL/click interaction, Dark Mode, credentialed sync, scheduled send, platform preview,
+  public article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Sound/Comment Binding Metadata Residue Slice
 
 Source:

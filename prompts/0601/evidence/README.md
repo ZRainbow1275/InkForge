@@ -5742,6 +5742,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   media playback fidelity, comment-system fidelity, sync, upload, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Third-Party Image Source Coverage
+
+- [x] xiumi-third-party-image-source-coverage-20260629.txt
+- Added direct three-platform regression coverage for the existing
+  `Xiumi third-party image source` detector.
+- The reduced regression intentionally keeps only `img` / `source` nodes whose source attributes
+  point to Xiumi-hosted material URLs, proving the external asset dependency diagnostic does not
+  require `tn-*`, `ng-*`, contenteditable, editor wrapper classes, sidebar controls, or meta
+  panels.
+- The detector intentionally does not block ordinary local image references, ordinary public HTTPS
+  image hosts, article text mentioning Xiumi, or non-image/link attributes by itself.
+- Boundary: this is static publishability protection only. It does not prove image availability,
+  public-host acceptance, platform-host proxying, paste, phone preview, upload, scheduled send, or
+  publish success.
+
 ## 2026-06-29 Xiumi State Loading Utility Residue
 
 - [x] xiumi-state-loading-utility-residue-20260629.txt

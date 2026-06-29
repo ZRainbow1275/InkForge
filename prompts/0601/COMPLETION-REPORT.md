@@ -9615,3 +9615,37 @@ Boundary:
   phone preview, media playback fidelity, comment-system fidelity, mobile SMIL/click interaction,
   Dark Mode, credentialed sync, scheduled send, platform preview, public article rendering,
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Third-Party Image Source Coverage Addendum
+
+- Added direct three-platform regression coverage for the existing
+  `Xiumi third-party image source` detector.
+- The coverage audit found this was the only Xiumi market-editor detector label without a direct
+  assertion in `platform-export-rendering.test.ts`.
+- The reduced fixture keeps only `img` / `source` nodes with Xiumi-hosted material URLs, so the
+  diagnostic is proven independently from `tn-*`, `ng-*`, contenteditable, editor wrapper classes,
+  sidebar controls, or meta panels.
+- GitNexus limitation: MCP impact could not resolve `MARKET_EDITOR_RESIDUE_RULES`; this slice
+  treats graph impact as unknown and compensates with narrow edits plus local verification.
+- Verification:
+  focused coverage passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted image sources|copied editor editable surfaces" --reporter=default`.
+- Full local validation passed after the coverage update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 346 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1323 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 35.01s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-third-party-image-source-coverage-20260629.txt`.
+- Boundary: this is local static coverage only. It does not prove WeChat PC paste, phone preview,
+  image availability, public-host acceptance, platform-host proxying, mobile SMIL/click
+  interaction, Dark Mode, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.

@@ -1826,6 +1826,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-child-layer-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-raw-image-cell-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-image-instance-wrapper-residue-20260625.txt`
+- `prompts/0601/evidence/xiumi-third-party-image-source-coverage-20260629.txt`
 - `prompts/0601/evidence/xiumi-overflow-hidden-state-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-page-vessel-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-group-sortable-box-residue-20260625.txt`

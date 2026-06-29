@@ -1,0 +1,49 @@
+Xiumi Third-Party Image Source Coverage - 2026-06-29
+
+Scope:
+- Local static regression coverage for the existing Xiumi third-party image source detector.
+- Covered source attributes: src, href, data-src, xlink:href.
+- Covered host markers: statics.xiumi.us and xiumi.us/stc.
+
+Implemented:
+- Added a reduced three-platform regression fixture in
+  inkforge/src/services/export/platform-export-rendering.test.ts.
+- No detector logic changed in this slice.
+
+Coverage audit:
+- Before this slice, Xiumi third-party image source was the only Xiumi market-editor detector
+  label without a direct assertion in the platform rendering test file.
+
+Focused verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted image sources|copied editor editable surfaces" --reporter=default
+  PASS: 1 file / 2 selected tests / 344 skipped tests
+
+Full verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 346 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1323 tests
+- pnpm -C inkforge exec eslint src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 35.01s
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, status blocked-by-external, canClaimComplete false,
+  blocker kinds phone-preview, external-dependency, unsafe-to-automate, mutating-platform.
+
+Expected diagnostic:
+- Xiumi third-party image source
+
+Negative boundaries:
+- The reduced fixture does not rely on tn-* attributes, ng-* attributes, contenteditable,
+  editor wrapper classes, sidebar controls, meta panels, or hosted-media layout diagnostics.
+- The detector does not block ordinary local image references, ordinary public HTTPS image hosts,
+  article text mentioning Xiumi, or non-image/link attributes by itself.
+
+Proof boundary:
+- This is local static coverage only.
+- This does not prove WeChat PC paste, phone preview, image availability, public-host acceptance,
+  platform-host proxying, mobile SMIL/click interaction, Dark Mode, credentialed sync, scheduled
+  send, platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
