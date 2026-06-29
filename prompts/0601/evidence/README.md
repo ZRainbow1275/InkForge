@@ -5706,6 +5706,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   component acceptance, sync, upload, cover thumbnail acceptance, public rendering, public-host
   acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Table Control Residue
+
+- [x] xiumi-component-depot-table-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot table controls including
+  `dc-ce-classic-table-column-width`, `dc-ce-classic-table-grid`,
+  `dc-ce-classic-table-merge`, `dc-ce-classic-table-quickly`,
+  `dc-ce-classic-table-style`, and `dc-ce-classic-table-width`.
+- The reduced regression intentionally keeps only supported `dc-ce-classic-table-*` component
+  markers, proving component-depot table controls are reported precisely without relying on
+  `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  layout/geometry controls, form/input controls, native/embed controls, mobile viewport controls,
+  attribute-board controls, generated-link controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced table control
+  component fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  complex table rendering, table merge/width fidelity, mobile SMIL/click interaction, native
+  component acceptance, sync, upload, cover thumbnail acceptance, public rendering, public-host
+  acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

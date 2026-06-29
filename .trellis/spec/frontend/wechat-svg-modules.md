@@ -10589,3 +10589,53 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, mobile viewport
   acceptance, H5 interaction, public-host acceptance, or publish success.
+
+## 216. Xiumi Component Depot Table Control Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot table controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-classic-table-column-width`, `dc-ce-classic-table-grid`,
+  `dc-ce-classic-table-merge`, `dc-ce-classic-table-quickly`,
+  `dc-ce-classic-table-style`, and `dc-ce-classic-table-width`.
+- These markers are editor-side table grid, column width, merge, quick table, style, and width
+  controls. They are not article body table DOM, reusable InkForge source, WeChat complex-table
+  proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the table control component family must now
+  receive the more precise `Xiumi component depot table control residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot table control residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported classic table
+  `dc-ce-classic-table-*` marker.
+- A reduced fixture containing only the supported table control component markers must fail even
+  when `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  layout/geometry controls, form/input controls, native/embed controls, mobile viewport controls,
+  attribute-board controls, generated-link controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced table
+  control component fixture.
+- The detector must not block ordinary `table`, `thead`, `tbody`, `tr`, `td`, `th`, table width,
+  grid, column-width, merge, style, or quick-table wording by itself. It must stay anchored to
+  Xiumi-specific `dc-ce-classic-table-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced table control component fixture reports only the broad
+  operator-depot label before implementation and reports
+  `Xiumi component depot table control residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi component depot form input residue`, `Xiumi component depot layout geometry residue`,
+  `Xiumi component depot mobile viewport residue`, and `Xiumi operator depot item residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, complex-table
+  rendering, table merge/width fidelity, public-host acceptance, or publish success.

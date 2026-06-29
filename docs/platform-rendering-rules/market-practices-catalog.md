@@ -1641,6 +1641,12 @@ Rules:
   with `Xiumi component depot layout geometry residue`. They may inform InkForge-owned layout
   reports, geometry schemas, static fallbacks, and safe rendering constraints, but copied Xiumi
   component-depot DOM is not publishable body DOM or free-layout proof.
+- Xiumi component-depot table controls such as `dc-ce-classic-table-column-width`,
+  `dc-ce-classic-table-grid`, `dc-ce-classic-table-merge`, `dc-ce-classic-table-quickly`,
+  `dc-ce-classic-table-style`, and `dc-ce-classic-table-width` must fail with
+  `Xiumi component depot table control residue`. They may inform InkForge-owned table fallback,
+  column-width, merge-fidelity, grid, and platform table policy design, but copied Xiumi
+  component-depot DOM is not publishable body DOM or complex-table proof.
 - Xiumi component-depot mobile viewport controls such as `dc-ce-mobile-background`,
   `dc-ce-mobile-group`, `dc-ce-mobile-image`, `dc-ce-mobile-text`, and
   `dc-ce-mobile-unsupport` must fail with `Xiumi component depot mobile viewport residue`. They
@@ -1860,5 +1866,6 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-form-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-layout-geometry-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-component-depot-table-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-215.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-216.

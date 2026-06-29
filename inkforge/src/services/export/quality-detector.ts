@@ -373,11 +373,15 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi component depot layout geometry residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-classic-table-(?:column-width|grid|merge|quickly|style|width)\b[^"']*["']/i,
+    label: 'Xiumi component depot table control residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\bdc-ce-mobile-(?:background|group|image|text|unsupport)\b[^"']*["']/i,
     label: 'Xiumi component depot mobile viewport residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg|video-(?:card|link|tx|xm)|input-(?:checkbox|radio|select|text|multi-line-text)|layout-(?:column|fixed-aspect-ratio|free|hidden|scroll-direction|style|transparent|vertical-align)|mobile-(?:background|group|image|text|unsupport)|auto-align|frozen|height|margin|spacing|static-position-size|width)\b)[^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'](?![^"']*\bdc-ce-(?:audio-card|music-card|map(?:-tx)?|profile-card|redpack-cover|svg|video-(?:card|link|tx|xm)|input-(?:checkbox|radio|select|text|multi-line-text)|layout-(?:column|fixed-aspect-ratio|free|hidden|scroll-direction|style|transparent|vertical-align)|classic-table-(?:column-width|grid|merge|quickly|style|width)|mobile-(?:background|group|image|text|unsupport)|auto-align|frozen|height|margin|spacing|static-position-size|width)\b)[^"']*\b(?:op-dc-(?:depot|slot|hidden)|(?:ce|cp)-dc|dc-(?:ce|cp|multi-cp)-[\w-]+|op-gl-dc-attr-bars|(?:cp-role|ce-type)-[\w-]+)\b[^"']*["']/i,
     label: 'Xiumi operator depot item residue',
   },
   {
