@@ -120,6 +120,19 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering,
   XHS/Zhihu account upload, or publish success.
 
+2026-06-29 135 ordinary UEditor toolbar/editor chrome refresh:
+
+- CloakBrowser-only refresh on the same live 135 ordinary editor read normal-editor toolbar and
+  editor shell markers including `edui-toolbar`, `edui-button`, `edui-for-source`,
+  `edui-for-bold`, `edui-for-fontsize`, `edui-wx-input`, `edui-editor`,
+  `edui-editor-mainbar`, `edui-editor-toolbarbox`, and `edui-editor-iframeholder`.
+- These fields are editor UI chrome, not article body structure or style semantics. If copied into
+  WeChat, Xiaohongshu, or Zhihu output, they must be blocked even without `_135editor`,
+  `data-tools`, style-list metadata, left-library operation chrome, or SVG-builder markers.
+- This refresh adds a runtime residue gate only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering,
+  XHS/Zhihu account upload, or publish success.
+
 2026-06-09 runtime gate:
 
 - Applied 135/Xiumi evidence now feeds a real export quality detector instead of staying doc-only.
@@ -133,6 +146,9 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, style-library `material-id`, and
   `mappaobug` / `EditorStyle` controls, because those are left-panel authoring actions rather than
   article content.
+- The 135 branch blocks copied UEditor toolbar/editor chrome such as `edui-toolbar`,
+  `edui-for-*`, `edui-wx-input`, and `edui-editor-*`, because those are normal-editor UI controls
+  rather than article content.
 - These blockers are an implementation of the no-copy boundary. They do not prove WeChat paste,
   mobile preview, Dark Mode, sync, scheduled send, or publish success.
 

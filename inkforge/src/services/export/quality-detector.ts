@@ -65,6 +65,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 style library operation chrome residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\bedui-(?:toolbar|editor|editor-[a-z-]+|button|button-body|splitbutton|menubutton|combox|box|default|state-[a-z-]+|for-[a-z0-9-]+|wx-input|label|iframeholder)\b[^"']*["']|\bid\s*=\s*["']edui\d+(?:_[a-z0-9_-]+)?["'])/i,
+    label: '135 UEditor toolbar/editor chrome residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread|autobounceflipcard|multipletouchmovetodismissimgs|svgscrollswithgruopsslide|clickchangecoverwithscroll|clickredpakcetwithscroll)["']/i,
     label: '135 SVG builder effect data-name',
   },

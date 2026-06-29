@@ -2205,6 +2205,11 @@ Contracts:
   also fail as market editor residue. These are source-library controls, not publishable article
   semantics, and they must stay blocked even when `_135editor`, `data-tools`, and
   `style_id/style_name/style_price` have been stripped.
+- 2026-06-29 135 ordinary UEditor chrome refresh: normal-editor toolbar and editor shell markers
+  such as `edui-toolbar`, `edui-button`, `edui-for-*`, `edui-wx-input`, `edui-editor`,
+  `edui-editor-mainbar`, `edui-editor-toolbarbox`, and `edui-editor-iframeholder` must fail as
+  market editor residue. These are editor UI controls, not article semantics, and they must stay
+  blocked even when ordinary style, left-library, and SVG-builder metadata are absent.
 - 135 SVG builder canvas blocks are authoring DOM, not publishable output. Known effect
   `data-name` values such as `multiselectpopup`, `carouselslide`,
   `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
@@ -2386,7 +2391,8 @@ Required tests/checks:
   `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
   `style_id/style_name/style_price`, `judgeYangShiJurisdiction(...)`,
   `similarity_recommend_entry`, 135 `material-id` style-library controls, `mappaobug` /
-  `data-model="EditorStyle"`, known 135 SVG builder `data-name` values,
+  `data-model="EditorStyle"`, 135 UEditor `edui-*` toolbar/editor chrome,
+  known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
   `trigger_tip`, `ajuster`,

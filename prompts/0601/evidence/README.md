@@ -1188,6 +1188,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
   account upload, or publish gates.
 
+## 2026-06-29 135 UEditor Chrome Residue Gate
+
+- [x] 135-ueditor-chrome-residue-20260629.txt
+- CloakBrowser-only 135 ordinary editor sampling read the visible UEditor toolbar/editor shell on
+  the live page after the central iframe was confirmed reachable.
+- Observed normal-editor chrome markers included `edui-toolbar`, `edui-button`,
+  `edui-for-bold`, `edui-for-fontsize`, `edui-wx-input`, `edui-editor`,
+  `edui-editor-mainbar`, `edui-editor-toolbarbox`, and `edui-editor-iframeholder`.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks UEditor toolbar/editor chrome across WeChat,
+  Xiaohongshu, and Zhihu even when `_135editor`, style-list metadata, left-library operation
+  chrome, and SVG-builder markers are absent.
+- Verification passed: targeted TDD red/green, adjacent 135 market-residue regression,
+  full `platform-export-rendering` with 359 tests, full export service suite with 1336 tests,
+  ESLint, `vue-tsc`, production build, and release preflight expected-blocked.
+- Boundary: local detector proof only. It does not prove WeChat PC paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
+  account upload, or publish gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt
