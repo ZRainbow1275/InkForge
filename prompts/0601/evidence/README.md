@@ -5726,6 +5726,28 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   component acceptance, sync, upload, cover thumbnail acceptance, public rendering, public-host
   acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Image Transform Residue
+
+- [x] xiumi-component-depot-image-transform-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot image transform controls including
+  `dc-ce-crop-image-crop`, `dc-ce-image-animation`, `dc-ce-image-crop`,
+  `dc-ce-image-design`, `dc-ce-image-enhancement`, `dc-ce-image-flip`,
+  `dc-ce-image-for-layout-datum`, `dc-ce-image-library`, `dc-ce-image-png-size`,
+  `dc-ce-image-popup`, `dc-ce-image-replace-color`, `dc-ce-image-src`,
+  `dc-ce-image-straw-color`, `dc-ce-image-style-brush`, `dc-ce-image-svg-clip`, and
+  `dc-ce-image-to-background`.
+- The reduced regression intentionally keeps only supported image transform `dc-ce-*` component
+  markers, proving component-depot image transform controls are reported precisely without relying
+  on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  table controls, layout/geometry controls, form/input controls, native/embed controls, mobile
+  viewport controls, crop panels, worker surfaces, hosted media, sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector and the crop-panel child detector exclude
+  the reduced image transform fixture so it is not double-reported as generic operator-depot or
+  crop-panel child residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  image crop fidelity, SVG clip fidelity, popup image behavior, cover thumbnail acceptance, sync,
+  upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

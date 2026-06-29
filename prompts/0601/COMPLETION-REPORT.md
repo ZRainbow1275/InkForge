@@ -6909,6 +6909,59 @@ Boundary:
 
 ---
 
+## 2026-06-29 Xiumi Component Depot Image Transform Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot image
+  transform controls `dc-ce-crop-image-crop`, `dc-ce-image-animation`,
+  `dc-ce-image-crop`, `dc-ce-image-design`, `dc-ce-image-enhancement`,
+  `dc-ce-image-flip`, `dc-ce-image-for-layout-datum`, `dc-ce-image-library`,
+  `dc-ce-image-png-size`, `dc-ce-image-popup`, `dc-ce-image-replace-color`,
+  `dc-ce-image-src`, `dc-ce-image-straw-color`, `dc-ce-image-style-brush`,
+  `dc-ce-image-svg-clip`, and `dc-ce-image-to-background`.
+- Added the static detector label `Xiumi component depot image transform residue` before the broad
+  `Xiumi operator depot item residue` fallback, and tightened the broad fallback plus crop-panel
+  child detector so the reduced image transform fixture is not double-reported as generic
+  operator-depot or crop-panel child residue.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture emitted
+  `Xiumi operator depot item residue` and `Xiumi crop panel child control residue`:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot image transform controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot image transform controls|component depot table controls|component depot mobile viewport controls|component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls|crop panel child controls" --reporter=default`.
+- Verification:
+  full platform-rendering regression passed with 1 file and 325 tests:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`.
+- Verification:
+  full export service regression passed with 36 files and 1302 tests:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
+- Verification:
+  lint, type check, and production build passed:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  transformed 4653 modules and Vite built in 37.39s.
+- Verification:
+  release preflight intentionally remains blocked by external gates:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-component-depot-image-transform-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, image crop fidelity, SVG clip fidelity, popup image behavior, background
+  conversion, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.
+
+---
+
 ## 2026-06-29 Xiumi Component Depot Table Control Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot table

@@ -8,6 +8,81 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Component Depot Image Transform Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The component-depot/menu surface exposed
+  image transform controls `dc-ce-crop-image-crop`, `dc-ce-image-animation`,
+  `dc-ce-image-crop`, `dc-ce-image-design`, `dc-ce-image-enhancement`,
+  `dc-ce-image-flip`, `dc-ce-image-for-layout-datum`, `dc-ce-image-library`,
+  `dc-ce-image-png-size`, `dc-ce-image-popup`, `dc-ce-image-replace-color`,
+  `dc-ce-image-src`, `dc-ce-image-straw-color`, `dc-ce-image-style-brush`,
+  `dc-ce-image-svg-clip`, and `dc-ce-image-to-background`.
+- These entries are editor-side image crop, animation, design, enhancement, flip, layout datum,
+  library, PNG sizing, popup, color replacement, source, color sampling, style brush, SVG clip,
+  and background conversion controls. They are not publishable article image DOM, cover proof,
+  upload manifests, platform-safe embeds, reusable InkForge source, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- GitNexus MCP `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only supported image transform `dc-ce-*`
+  component markers, proving cleaned-down component-depot image transform controls receive a
+  precise label without relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`,
+  operator-dock parents, table controls, layout/geometry controls, form/input controls,
+  native/embed controls, mobile viewport controls, crop panels, worker surfaces, hosted media,
+  sidebar controls, or meta panels.
+- Added the `Xiumi component depot image transform residue` detector before the broad
+  `Xiumi operator depot item residue` fallback.
+- Tightened the broad operator-depot detector and crop-panel child detector so the reduced image
+  transform component fixture is not double-reported under generic operator-depot or crop-panel
+  child labels.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot image transform controls" --reporter=default`
+  failed with 1 selected failing test because `Xiumi operator depot item residue` and
+  `Xiumi crop panel child control residue` were emitted instead of the precise image transform
+  label.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot image transform controls|component depot table controls|component depot mobile viewport controls|component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls|crop panel child controls" --reporter=default`
+  passed with 8 selected tests and 317 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 325 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1302 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 37.39s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, and summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, image crop fidelity, SVG clip fidelity, popup image
+  behavior, background conversion, cover thumbnail acceptance, mobile H5 interaction,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Component Depot Table Control Residue Slice
 
 Source:

@@ -10639,3 +10639,59 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, complex-table
   rendering, table merge/width fidelity, public-host acceptance, or publish success.
+
+## 217. Xiumi Component Depot Image Transform Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot image transform
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-crop-image-crop`, `dc-ce-image-animation`, `dc-ce-image-crop`,
+  `dc-ce-image-design`, `dc-ce-image-enhancement`, `dc-ce-image-flip`,
+  `dc-ce-image-for-layout-datum`, `dc-ce-image-library`, `dc-ce-image-png-size`,
+  `dc-ce-image-popup`, `dc-ce-image-replace-color`, `dc-ce-image-src`,
+  `dc-ce-image-straw-color`, `dc-ce-image-style-brush`, `dc-ce-image-svg-clip`, and
+  `dc-ce-image-to-background`.
+- These markers are editor-side image crop, animation, design, enhancement, flip, layout datum,
+  library, PNG sizing, popup, color replacement, source, color sampling, style brush, SVG clip,
+  and background conversion controls. They are not article body image DOM, reusable InkForge
+  source, WeChat image fidelity proof, cover proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback, and `dc-ce-crop-image-crop` also overlapped with
+  the crop-panel child detector. The image transform component family must now receive the more
+  precise `Xiumi component depot image transform residue` label without double-reporting.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot image transform residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported image transform
+  `dc-ce-*` marker.
+- A reduced fixture containing only the supported image transform component markers must fail even
+  when `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  table controls, layout/geometry controls, form/input controls, native/embed controls,
+  mobile viewport controls, crop panels, worker surfaces, hosted media, sidebar controls, or meta
+  panels are absent.
+- The broad `Xiumi operator depot item residue` detector and the `Xiumi crop panel child control
+  residue` detector must not double-report that reduced image transform component fixture.
+- The detector must not block ordinary `<img>`, `figure`, image source, crop, animation, SVG clip,
+  color, popup, background, PNG size, or picture wording by itself. It must stay anchored to
+  Xiumi-specific `dc-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced image transform component fixture reports only broad/overlapping
+  residue labels before implementation and reports
+  `Xiumi component depot image transform residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi component depot form input residue`, `Xiumi component depot layout geometry residue`,
+  `Xiumi component depot table control residue`, `Xiumi component depot mobile viewport residue`,
+  `Xiumi operator depot item residue`, and `Xiumi crop panel child control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, image crop fidelity,
+  SVG clip fidelity, popup image behavior, cover thumbnail acceptance, public-host acceptance, or
+  publish success.
