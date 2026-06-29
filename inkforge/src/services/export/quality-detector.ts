@@ -69,6 +69,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 UEditor toolbar/editor chrome residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:editorslide|multiedit_agent_main|agent_btn)\b[^"']*["']|\bid\s*=\s*["'](?:import-article|copy-editor-html|quick-save-template|save-as-template|btn-new-msg|large-image-popover|btn-show-drafts|preview-editor|sync_official_accounts)["'])/i,
+    label: '135 editor action rail chrome residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread|autobounceflipcard|multipletouchmovetodismissimgs|svgscrollswithgruopsslide|clickchangecoverwithscroll|clickredpakcetwithscroll)["']/i,
     label: '135 SVG builder effect data-name',
   },

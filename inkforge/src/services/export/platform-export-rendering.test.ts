@@ -223,6 +223,17 @@ const MARKET_EDITOR_135_UEDITOR_CHROME_RESIDUE_HTML = [
   '</div>',
 ].join('')
 
+const MARKET_EDITOR_135_ACTION_RAIL_CHROME_RESIDUE_HTML = [
+  '<section><p>Readable article text that should not carry editor action rail controls.</p></section>',
+  '<aside class="editorslide">',
+  '<a id="copy-editor-html" class="btn btn-default btn-xs">Copy</a>',
+  '<a id="quick-save-template" class="btn btn-default btn-xs">Quick save</a>',
+  '<a id="save-as-template" class="btn btn-default btn-xs">Save and sync</a>',
+  '<a id="preview-editor" class="btn btn-default btn-xs">Preview</a>',
+  '<a id="sync_official_accounts" class="btn btn-default btn-xs">Sync Official Account</a>',
+  '</aside>',
+].join('')
+
 const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
   '<div id="app-content-canvas" class="content-wrapper">',
   '<div id="block-1781688485697" class="block" data-name="coverclickmovewithspread">',
@@ -9977,6 +9988,26 @@ describe('platform native export rendering rules', () => {
       .toContain('135 UEditor toolbar/editor chrome residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 class/id authoring residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 style library operation chrome residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 editor action rail chrome without toolbar or style residues', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_ACTION_RAIL_CHROME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_ACTION_RAIL_CHROME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_ACTION_RAIL_CHROME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 editor action rail chrome residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 editor action rail chrome residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 editor action rail chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 UEditor toolbar/editor chrome residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 style library operation chrome residue')
     expect(wechat.passed).toBe(false)

@@ -257,6 +257,14 @@ construct breaks.
   `edit-animate`, `edit-animate__title`, `edit-animate__opt`, and `animate__dur`. These may inform
   InkForge-owned image slot and motion-parameter schemas, but copied controls remain
   publish-blocking residue.
+- 2026-06-29 135 ordinary editor action rail follow-up: source-specific right-side action rail
+  chrome observed in the live ordinary editor, including `editorslide`,
+  `multiedit_agent_main`, `agent_btn`, `import-article`, `copy-editor-html`,
+  `quick-save-template`, `save-as-template`, `btn-new-msg`, `large-image-popover`,
+  `btn-show-drafts`, `preview-editor`, and `sync_official_accounts`, must trigger
+  market-editor residue in WeChat/XHS/Zhihu publishable output. These are editor workflow
+  actions, not article semantics, and they must not be counted as copy, preview, sync, upload,
+  public rendering, scheduled-send, or publish proof.
 - 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
   rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
   text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
@@ -2392,6 +2400,9 @@ Required tests/checks:
   `style_id/style_name/style_price`, `judgeYangShiJurisdiction(...)`,
   `similarity_recommend_entry`, 135 `material-id` style-library controls, `mappaobug` /
   `data-model="EditorStyle"`, 135 UEditor `edui-*` toolbar/editor chrome,
+  135 ordinary editor action rail chrome such as `editorslide`, `multiedit_agent_main`,
+  `agent_btn`, `copy-editor-html`, `quick-save-template`, `save-as-template`,
+  `preview-editor`, and `sync_official_accounts`,
   known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,

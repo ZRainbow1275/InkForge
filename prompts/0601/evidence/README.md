@@ -1206,6 +1206,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
   account upload, or publish gates.
 
+## 2026-06-29 135 Editor Action Rail Chrome Residue Gate
+
+- [x] 135-action-rail-chrome-residue-20260629.txt
+- CloakBrowser-only 135 ordinary editor sampling read the right-side editor action rail next to
+  the central UEditor iframe.
+- Observed action rail markers included `editorslide`, `multiedit_agent_main`, `agent_btn`,
+  `import-article`, `copy-editor-html`, `quick-save-template`, `save-as-template`,
+  `btn-new-msg`, `large-image-popover`, `btn-show-drafts`, `preview-editor`, and
+  `sync_official_accounts`.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks those action rail controls across WeChat,
+  Xiaohongshu, and Zhihu even when `_135editor`, style-list metadata, left-library operation
+  chrome, UEditor toolbar/editor chrome, and SVG-builder markers are absent.
+- Verification passed: targeted TDD red/green, adjacent 135 market-residue regression,
+  full `platform-export-rendering`, full export service suite, ESLint, `vue-tsc`, production
+  build, and release preflight expected-blocked.
+- Boundary: local detector proof only. It does not prove WeChat PC paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
+  account upload, or publish gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt

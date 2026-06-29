@@ -10164,3 +10164,50 @@ Boundary:
   paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
   acceptance, upload, credentialed sync, scheduled send, platform preview, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Editor Action Rail Chrome Residue Addendum
+
+- Extended local static publishability protection for live 135 ordinary editor right-side action
+  rail chrome observed with CloakBrowser.
+- Observed action rail markers included `editorslide`, `multiedit_agent_main`, `agent_btn`,
+  `import-article`, `copy-editor-html`, `quick-save-template`, `save-as-template`,
+  `btn-new-msg`, `large-image-popover`, `btn-show-drafts`, `preview-editor`, and
+  `sync_official_accounts`.
+- Added `135 editor action rail chrome residue` to `MARKET_EDITOR_RESIDUE_RULES` for copied
+  action controls related to import, copy, save, draft, preview, and official-account sync.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `_135editor`, `data-tools`, `style_id/style_name/style_price`, UEditor toolbar chrome,
+  left-library operation chrome, and SVG-builder markers, so the new label is proven
+  independently from older 135 blockers.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and LOW risk for `detectQuality` with 4 direct dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `*-market-editor-residue` issue
+  was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "action rail chrome" --reporter=default`.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 360 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1337 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 29.84 seconds.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-action-rail-chrome-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
+  acceptance, upload, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
