@@ -665,7 +665,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi child layout binding metadata residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\btn-page-(?:stage-size|view-box-editor-desktop|cache-gatherer)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\b(?:tn-page-(?:stage-size|view-box-editor-desktop|cache-gatherer)|tn-bind-page-mode)\s*=/i,
     label: 'Xiumi page binding metadata residue',
   },
   {

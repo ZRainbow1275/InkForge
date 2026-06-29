@@ -5774,6 +5774,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   public-host acceptance, platform-host proxying, paste, phone preview, upload, scheduled send, or
   publish success.
 
+## 2026-06-29 Xiumi Page Mode Binding Residue
+
+- [x] xiumi-page-mode-binding-residue-20260629.txt
+- Added static quality coverage for the live Xiumi v5 page-mode binding directive
+  `tn-bind-page-mode` under the existing `Xiumi page binding metadata residue` label.
+- The reduced regression intentionally keeps only that source-specific directive attribute,
+  proving cleaned-down page-mode binding residue gets a precise page binding label instead of
+  relying only on the broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary page wording, mode wording, layout prose,
+  article text, or non-Xiumi class names by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  page-mode fidelity, sync, upload, public rendering, public-host acceptance, scheduled send, or
+  publish success.
+
 ## 2026-06-29 Xiumi State Loading Utility Residue
 
 - [x] xiumi-state-loading-utility-residue-20260629.txt

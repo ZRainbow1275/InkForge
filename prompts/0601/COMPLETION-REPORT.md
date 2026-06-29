@@ -9685,3 +9685,38 @@ Boundary:
   image availability, public-host acceptance, platform-host proxying, mobile SMIL/click
   interaction, Dark Mode, credentialed sync, scheduled send, platform preview, public article
   rendering, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Page Mode Binding Addendum
+
+- Added local static publishability protection for the live Xiumi v5 page-mode binding directive:
+  `tn-bind-page-mode` now reports the existing precise `Xiumi page binding metadata residue`
+  label.
+- The rule covers cleaned-down directive-only fragments that previously produced only the broad
+  `Xiumi tn-* attribute` diagnostic.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- GitNexus limitation: MCP impact could not resolve `MARKET_EDITOR_RESIDUE_RULES`; this slice
+  treats graph impact as unknown and compensates with narrow edits plus full local verification.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture only emitted
+  `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page mode binding|page binding metadata separately|editor interaction directives" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 348 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1325 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 29.19s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-page-mode-binding-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, page-mode fidelity, mobile SMIL/click interaction, Dark Mode, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

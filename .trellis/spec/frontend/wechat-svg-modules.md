@@ -11794,3 +11794,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   image availability, public-host acceptance, platform-host proxying, WeChat paste, phone preview,
   upload, credentialed sync, scheduled send, or publish success.
+
+## 240. Xiumi Page Mode Binding Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the live page-mode binding
+  directive `tn-bind-page-mode`.
+- CloakBrowser live DOM refresh on the Xiumi v5 paper editor observed `tn-bind-page-mode` on the
+  central editor surface alongside already-covered page binding metadata such as `tn-page-*` and
+  editor interaction directives.
+- This marker is editor-side page mode binding metadata. It is not publishable article layout
+  semantics, reusable InkForge page-mode source, mobile rendering proof, public-host proof, or
+  target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  `tn-bind-page-mode`, but a cleaned-down page-mode fragment must receive the precise
+  `Xiumi page binding metadata residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi editor interaction directive residue`, component
+  structure binding, page authoring tree classes, and the broad `Xiumi tn-* attribute` fallback.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi page binding metadata residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-bind-page-mode` appears as an attribute.
+- A reduced fixture containing only `tn-bind-page-mode` must fail with the precise page binding
+  label even when `tn-page-*`, editor interaction directives, component binding metadata, broad
+  Angular runtime attributes/classes, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary page wording, mode wording, layout prose, article text, or
+  non-Xiumi class names by itself. It must stay anchored to the Xiumi-specific page binding
+  attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced page-mode binding fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports `Xiumi page binding metadata residue` after the
+  detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep existing page binding metadata and editor interaction directive
+  diagnostics independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, page-mode fidelity, mobile rendering, public-host acceptance,
+  upload, credentialed sync, scheduled send, or publish success.

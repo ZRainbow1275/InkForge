@@ -1817,6 +1817,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-selection-overlay-control-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-child-layout-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-page-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-page-mode-binding-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-atom-context-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-atom-drag-drop-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-editing-dock-residue-20260628.txt`

@@ -1,0 +1,53 @@
+Xiumi Page Mode Binding Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor HTML.
+- Source marker: live Xiumi v5 editor-side page mode binding directive tn-bind-page-mode.
+
+Implemented:
+- Extended the existing Xiumi page binding metadata residue detector in
+  inkforge/src/services/export/quality-detector.ts.
+- Added a reduced three-platform regression fixture in
+  inkforge/src/services/export/platform-export-rendering.test.ts.
+
+TDD:
+- Red command:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page mode binding" --reporter=default
+- Red result:
+  Failed as expected because the reduced fixture only emitted Xiumi tn-* attribute.
+- Green command:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "page mode binding|page binding metadata separately|editor interaction directives" --reporter=default
+- Green result:
+  Passed after extending the page binding detector. The selected run covered 3 tests with
+  345 skipped tests.
+
+Full verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 348 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1325 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 29.19s
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, status blocked-by-external, canClaimComplete false,
+  blocker kinds phone-preview, external-dependency, unsafe-to-automate, mutating-platform.
+
+Expected diagnostic:
+- Xiumi page binding metadata residue
+
+Negative boundaries:
+- The reduced fixture does not rely on tn-page-* attributes, editor interaction directives,
+  component binding metadata, broad Angular runtime attributes/classes, hosted media, sidebar
+  controls, or meta panels.
+- The detector does not block ordinary page wording, mode wording, layout prose, article text, or
+  non-Xiumi class names by itself.
+
+Proof boundary:
+- This is local static publishability protection only.
+- This does not prove WeChat PC paste, phone preview, page-mode fidelity, mobile SMIL/click
+  interaction, Dark Mode, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
