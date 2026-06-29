@@ -6980,6 +6980,41 @@ Boundary:
 
 ---
 
+## 2026-06-29 Xiumi State Loading Utility Addendum
+
+- Added local static publishability protection for Xiumi v5 state/loading utility controls:
+  `tn-state-transition-animation`, `tn-input-sortable-group`, `tn-bar-btn-active-color`,
+  `tn-loading-overlap`, and `tn-top-loading-block` now report the precise
+  `Xiumi state loading utility residue` label.
+- The rule covers cleaned-down state/loading utility class/id tokens that previously emitted no
+  market-editor hard-block after broader state/loading cleanup.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "state loading utility controls|state toggles|sortable pin|group sortable|operation panel component controls|background transparency operation controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file / 334 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files / 1311 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 36.21s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-state-loading-utility-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, state/loading animation fidelity, mobile SMIL/click interaction, H5 behavior,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview,
+  public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-29 Xiumi Background Transparency Operation Addendum
 
 - Added local static publishability protection for Xiumi v5 background/transparency operation

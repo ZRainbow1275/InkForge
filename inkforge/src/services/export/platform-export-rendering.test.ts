@@ -683,6 +683,16 @@ const MARKET_EDITOR_XIUMI_BACKGROUND_TRANSPARENCY_OPERATION_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_STATE_LOADING_UTILITY_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-state-transition-animation"></div>',
+  '<div class="tn-input-sortable-group"></div>',
+  '<button class="tn-bar-btn-active-color"></button>',
+  '<section class="tn-loading-overlap"></section>',
+  '<div class="tn-top-loading-block"></div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_COMPONENT_DEPOT_NATIVE_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<ul>',
@@ -11730,6 +11740,22 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi background transparency operation residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi background transparency operation residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi state loading utility controls with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_STATE_LOADING_UTILITY_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_STATE_LOADING_UTILITY_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_STATE_LOADING_UTILITY_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi state loading utility residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi state loading utility residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi state loading utility residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

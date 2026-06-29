@@ -1921,6 +1921,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-operation-depot-action-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-component-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-background-transparency-operation-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-state-loading-utility-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-svg-animation-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-external-edit-link-residue-20260629.txt`
@@ -1932,4 +1933,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-225.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-226.

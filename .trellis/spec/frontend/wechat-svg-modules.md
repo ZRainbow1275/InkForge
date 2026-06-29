@@ -11115,3 +11115,55 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, background fidelity,
   transparency fidelity, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 226. Xiumi State Loading Utility Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains state/loading utility controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `tn-state-transition-animation`, `tn-input-sortable-group`, `tn-bar-btn-active-color`,
+  `tn-loading-overlap`, and `tn-top-loading-block`.
+- These markers are editor-side transition, sortable input group, toolbar active-color, overlap
+  loading, and top-loading utility controls. They are not article body state, reusable InkForge
+  source, WeChat loading animation fidelity proof, H5 interaction proof, upload manifests, or
+  target-platform proof.
+- This rule is additive and diagnostic. These single-token markers previously passed quality
+  detection after broader state/loading cleanup; the state/loading utility family must now receive
+  the precise `Xiumi state loading utility residue` label.
+- This rule must stay separate from `Xiumi quick input residue`, `Xiumi state toggle residue`,
+  `Xiumi sortable pin residue`, and `Xiumi group sortable box residue`, which cover adjacent but
+  different Xiumi authoring tokens.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi state loading utility residue` for WeChat, Xiaohongshu, and Zhihu when a class or id
+  value carries a supported `tn-*` state/loading utility marker.
+- A reduced fixture containing only supported state/loading utility markers must fail even when
+  `tn-quick-input*`, `tn-state-active`, `tn-state-frozen`, `tn-sortable-pin`,
+  `tn-group-sortable-box`, operation-panel controls, component-depot controls, hosted media,
+  sidebar controls, or meta panels are absent.
+- The detector must not block ordinary state wording, loading wording, transition wording,
+  sortable wording, active-color prose, loading UI text, CSS transition properties, CSS animation
+  properties, or article text by itself. It must stay anchored to Xiumi-specific
+  `tn-state-transition-animation`, `tn-input-sortable-group`, `tn-bar-btn-active-color`,
+  `tn-loading-overlap`, or `tn-top-loading-block` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced state/loading utility fixture emits no market-editor-residue issue
+  before implementation and reports `Xiumi state loading utility residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi quick input residue`, `Xiumi state toggle residue`,
+  `Xiumi sortable pin residue`, `Xiumi group sortable box residue`,
+  `Xiumi operation panel component control residue`, and
+  `Xiumi background transparency operation residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, state/loading
+  animation fidelity, H5 behavior, Dark Mode behavior, public-host acceptance, or publish success.

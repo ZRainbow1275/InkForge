@@ -5629,6 +5629,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, template reuse rights, sync, upload, cover thumbnail acceptance,
   public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi State Loading Utility Residue
+
+- [x] xiumi-state-loading-utility-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 state/loading utility controls including
+  `tn-state-transition-animation`, `tn-input-sortable-group`, `tn-bar-btn-active-color`,
+  `tn-loading-overlap`, and `tn-top-loading-block`.
+- The reduced regression intentionally keeps only those source-specific state/loading utility
+  markers, proving transition/loading utility controls are reported precisely without relying on
+  `tn-quick-input*`, `tn-state-active`, `tn-state-frozen`, `tn-sortable-pin`,
+  `tn-group-sortable-box`, operation-panel controls, component-depot controls, hosted media,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary state wording, loading wording, transition
+  wording, sortable wording, active-color prose, loading UI text, CSS transition properties, CSS
+  animation properties, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  state/loading animation fidelity, mobile SMIL/click interaction, H5 behavior, Dark Mode, sync,
+  upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Background Transparency Operation Residue
 
 - [x] xiumi-background-transparency-operation-residue-20260629.txt

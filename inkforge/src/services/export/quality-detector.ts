@@ -221,6 +221,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi quick input residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:tn-state-transition-animation|tn-input-sortable-group|tn-bar-btn-active-color|tn-loading-overlap|tn-top-loading-block)\b[^"']*["']/i,
+    label: 'Xiumi state loading utility residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\btn-state-(?:active|frozen)\b[^"']*["']/i,
     label: 'Xiumi state toggle residue',
   },
