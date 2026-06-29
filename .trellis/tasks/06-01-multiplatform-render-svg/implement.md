@@ -8,6 +8,65 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Angular Link/Dropzone Attribute Residue Slice
+
+Source:
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed `ng-href`,
+  `ng-dropzone`, `ng-dropzone-handler`, and `ng-dropzone-options` on the editor surface.
+- These entries are editor-side Angular link binding and drag/drop upload binding directives.
+  They are not ordinary publishable `href` attributes, reusable InkForge upload source, asset
+  upload proof, public-host proof, credentialed-channel proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents,
+  0 affected processes, and direct dependency limited to the Export module.
+- The implementation keeps the edit to one existing detector regex enum, one reduced regression
+  fixture, docs, and evidence.
+
+Implementation:
+- Added a reduced regression fixture containing only `ng-href` and `ng-dropzone*`, proving
+  class-cleaned Angular link/dropzone metadata receives the existing `Angular/Vue authoring
+  attribute` label without relying on Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels.
+- Extended the existing Angular/Vue authoring-attribute detector with `href` and `dropzone`
+  enum entries. Ordinary `href` remains out of scope unless it appears as `ng-href`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "link and dropzone" --reporter=default`
+  failed with 1 selected failing test because no `*-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "link and dropzone|input source and mouse event" --reporter=default`
+  passed with 2 selected tests and 350 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 352 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1329 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and completed in 36.88s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic coverage. It does not
+  prove WeChat PC paste, phone preview, link fidelity, drag/drop fidelity, upload, public-host
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Style Binding Metadata Residue Slice
 
 Source:

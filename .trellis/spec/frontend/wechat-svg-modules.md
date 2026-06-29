@@ -11971,3 +11971,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, input behavior fidelity, mobile rendering, public-host acceptance,
   upload, credentialed sync, scheduled send, or publish success.
+
+## 244. Xiumi Angular Link/Dropzone Attribute Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains Angular authoring attributes
+  observed in the live Xiumi v5 paper editor, including `ng-href`, `ng-dropzone`,
+  `ng-dropzone-handler`, and `ng-dropzone-options`.
+- These attributes are editor-side link binding and drag/drop upload binding directives. They are
+  not ordinary publishable `href` attributes, reusable InkForge upload source, asset upload proof,
+  public-host proof, credentialed-channel proof, or target-platform proof.
+- This rule extends the existing `Angular/Vue authoring attribute` diagnostic. It must stay
+  separate from ordinary `href`, Xiumi `tn-link`, `Xiumi atom drag-drop residue`,
+  `Xiumi editor interaction directive residue`, `Angular authoring class`, hosted-media checks,
+  sidebar controls, and meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Angular/Vue authoring attribute` for WeChat,
+  Xiaohongshu, and Zhihu when the above `ng-*` link/dropzone attributes appear on real HTML
+  elements.
+- A reduced fixture containing only `ng-href` and `ng-dropzone*` attributes must fail with the
+  precise Angular/Vue label even when Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary prose that mentions Angular, href, links, dropzone,
+  upload, handler, options, or Xiumi by itself. It must remain anchored to tag attributes with an
+  assignment.
+- The detector must not treat ordinary `href` as residue unless it is the Angular `ng-href`
+  binding attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced link/dropzone fixture initially emits no
+  `*-market-editor-residue` issue, then emits `Angular/Vue authoring attribute` after the detector
+  update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports while `Angular authoring class` stays absent for the reduced class-cleaned
+  fixture.
+- Adjacent Angular input/source/event tests must remain green so link/dropzone and event/source
+  diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, link fidelity, drag/drop fidelity, upload, public-host acceptance,
+  credentialed sync, scheduled send, or publish success.

@@ -9835,3 +9835,42 @@ Boundary:
   phone preview, style fidelity, mobile SMIL/click interaction, Dark Mode, credentialed sync,
   scheduled send, platform preview, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Angular Link Dropzone Addendum
+
+- Extended local static publishability protection for live Xiumi v5 Angular link/dropzone
+  attributes: `ng-href`, `ng-dropzone`, `ng-dropzone-handler`, and `ng-dropzone-options` now
+  report under the existing `Angular/Vue authoring attribute` label.
+- CloakBrowser readback confirmed these attributes appear on the active editor surface alongside
+  already-covered Angular, Hammer, and `tn-*` metadata.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- The reduced fixture keeps only `ng-href` and `ng-dropzone*`, so the diagnostic is proven
+  independently from ordinary `href`, Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels.
+- GitNexus CLI impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with
+  0 direct dependents and LOW risk for `detectQuality` with 4 direct dependents and
+  0 affected processes.
+- Verification:
+  focused TDD red failed before the detector update because no `*-market-editor-residue` issue
+  was emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "link and dropzone|input source and mouse event" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 352 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1329 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 36.88s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-angular-link-dropzone-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, link fidelity, drag/drop fidelity, upload, credentialed sync, scheduled send,
+  platform preview, public article rendering, public-host acceptance, XHS/Zhihu account upload,
+  or publish success.

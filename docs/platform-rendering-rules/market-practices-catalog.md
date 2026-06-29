@@ -1025,6 +1025,11 @@ Xiumi SVG/H5 rules:
   inline style and not a portable style source. They remain under the precise
   `Xiumi style binding metadata residue` label and must be translated into InkForge-owned style
   schema or removed before publishable output is allowed.
+- 2026-06-29 Xiumi Angular link/dropzone refresh: the live v5 paper editor exposed class-cleaned
+  Angular binding attributes including `ng-href`, `ng-dropzone`, `ng-dropzone-handler`, and
+  `ng-dropzone-options`. These are editor-side link and drag/drop upload bindings, not ordinary
+  publishable `href`, upload proof, public-host proof, or credentialed-channel proof. They remain
+  under the existing `Angular/Vue authoring attribute` residue label.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -1047,6 +1052,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-angular-input-source-event-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-hammer-pan-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-style-binding-metadata-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-angular-link-dropzone-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

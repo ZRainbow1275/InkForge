@@ -624,6 +624,15 @@ const MARKET_EDITOR_XIUMI_ANGULAR_INPUT_EVENT_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<a ng-href="{{item.url}}">Angular linked action</a>',
+  '<div ng-dropzone="assetDropzone" ng-dropzone-handler="onAssetDrop" ng-dropzone-options="dropOptions">',
+  'Angular dropzone residue',
+  '</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-loader">Xiumi operation panel loader residue</div>',
@@ -11870,6 +11879,28 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_INPUT_EVENT_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_INPUT_EVENT_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_INPUT_EVENT_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi Angular link and dropzone attributes after class cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('Angular/Vue authoring attribute')

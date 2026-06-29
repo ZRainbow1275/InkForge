@@ -1,0 +1,55 @@
+Xiumi Angular Link/Dropzone Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for Angular link/dropzone binding attributes observed on
+  the live Xiumi v5 paper editor surface.
+- Covered attributes: ng-href, ng-dropzone, ng-dropzone-handler, ng-dropzone-options.
+- No platform action, no phone preview, no sync, no upload, no publish, no account artifact, no
+  browser runtime artifact, no capture-location reference, no QR artifact, and no credential
+  material.
+
+Implemented:
+- Extended the existing Angular/Vue authoring attribute detector with href and dropzone enum
+  entries.
+- Added a reduced regression fixture that contains only ng-href and ng-dropzone* attributes.
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality checks report Angular/Vue authoring attribute for the
+  reduced fixture.
+- Angular authoring class stays absent for the reduced fixture.
+- Ordinary href remains out of scope unless it appears as the Angular ng-href binding attribute.
+- The rule does not treat upload, link, dropzone, handler, options, Angular, or Xiumi prose as
+  residue by itself.
+
+Regression coverage:
+- Class-cleaned Angular link/dropzone residue cannot pass publishability checks.
+- Adjacent Angular input/source/event attributes remain covered.
+- The change reuses the existing Angular/Vue authoring attribute label instead of adding a broad
+  any-ng-* detector.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "link and dropzone" --reporter=default
+  RED: 1 selected failing test before the detector update; no *-market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "link and dropzone|input source and mouse event" --reporter=default
+  PASS: 1 file / 2 selected tests / 350 skipped tests after the detector update.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 352 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1329 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; built in 36.88s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1; canClaimComplete=false; status=blocked-by-external; blocker kinds
+  phone-preview, external-dependency, unsafe-to-automate, mutating-platform; externalHandoffRows=18;
+  safeExternalRows=0; actionableLocalRows=0; nextRowRefs=5; uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic coverage only.
+- It does not prove WeChat PC paste, phone preview, link fidelity, drag/drop fidelity, upload,
+  cover thumbnail acceptance, mobile Dark Mode, mobile SMIL/click interaction, credentialed sync,
+  scheduled send, public rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

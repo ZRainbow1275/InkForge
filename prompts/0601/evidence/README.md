@@ -7386,3 +7386,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   style fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
   acceptance, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Angular Link Dropzone Residue
+
+- [x] xiumi-angular-link-dropzone-residue-20260629.txt
+- Extended the existing static `Angular/Vue authoring attribute` quality rule for live Xiumi v5
+  Angular binding attributes including `ng-href`, `ng-dropzone`, `ng-dropzone-handler`, and
+  `ng-dropzone-options`.
+- The reduced regression intentionally keeps only link/dropzone attributes, proving class-cleaned
+  Angular residue is blocked without relying on Angular runtime classes, `tn-*`, `opera-tn-*`,
+  contenteditable, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary `href`, upload prose, link prose, dropzone
+  wording, handler/options prose, or Xiumi by itself; it remains anchored to real Angular
+  `ng-*` attributes with an assignment.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  link fidelity, drag/drop fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
