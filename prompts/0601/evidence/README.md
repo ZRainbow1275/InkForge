@@ -1277,6 +1277,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
   account upload, or publish gates.
 
+## 2026-06-29 135 Helper Iframe Chrome Residue Gate
+
+- [x] 135-helper-iframe-chrome-residue-20260629.txt
+- CloakBrowser-only 135 ordinary editor sampling read helper iframe markers around the live editor
+  page.
+- Observed markers included `ai_polish_box_iframe`, `js_shared_iframe`, `svg_editor_iframe`,
+  `ueditor_0`, and `_src="/style-center?...`.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks those helper iframe controls across WeChat,
+  Xiaohongshu, and Zhihu even when full-page navigation chrome, style-panel controls, style-card
+  operation buttons, UEditor toolbar chrome, action rail chrome, hosted image sources, and
+  SVG-builder markers are absent.
+- Verification passed: targeted TDD red/green, adjacent 135 market-residue regression,
+  full `platform-export-rendering`, full export service suite, ESLint, `vue-tsc`, production
+  build, and release preflight expected-blocked.
+- Boundary: local detector proof only. It does not prove WeChat PC paste, phone preview, iframe
+  fidelity, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
+  account upload, or publish gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt

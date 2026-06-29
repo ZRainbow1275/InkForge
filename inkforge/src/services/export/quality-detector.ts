@@ -73,6 +73,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 full-page navigation chrome residue',
   },
   {
+    pattern: /<iframe\b[^>]*(?:\bid\s*=\s*["'](?:ai_polish_box_iframe|js_shared_iframe|svg_editor_iframe|ueditor_0)["']|\b_src\s*=\s*["'][^"']*\/style-center\?[^"']*["'])/i,
+    label: '135 editor helper iframe residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\bedui-(?:toolbar|editor|editor-[a-z-]+|button|button-body|splitbutton|menubutton|combox|box|default|state-[a-z-]+|for-[a-z0-9-]+|wx-input|label|iframeholder)\b[^"']*["']|\bid\s*=\s*["']edui\d+(?:_[a-z0-9_-]+)?["'])/i,
     label: '135 UEditor toolbar/editor chrome residue',
   },

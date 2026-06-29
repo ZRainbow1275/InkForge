@@ -234,6 +234,15 @@ const MARKET_EDITOR_135_PAGE_NAV_CHROME_RESIDUE_HTML = [
   '<nav class="left_side__menu"><ul id="left-operate-menu" class="nav nav-tabs n1-1"></ul></nav>',
 ].join('')
 
+const MARKET_EDITOR_135_HELPER_IFRAME_RESIDUE_HTML = [
+  '<section><p>Readable article text that should not carry editor helper iframe chrome.</p></section>',
+  '<iframe id="ai_polish_box_iframe"></iframe>',
+  '<iframe id="js_shared_iframe" src=""></iframe>',
+  '<iframe id="svg_editor_iframe"></iframe>',
+  '<iframe id="ueditor_0" src="about:blank"></iframe>',
+  '<iframe id="frame" class="main" _src="/style-center?cate_id=100&order=id#ifarme_bjq"></iframe>',
+].join('')
+
 const MARKET_EDITOR_135_UEDITOR_CHROME_RESIDUE_HTML = [
   '<section><p>Readable article text that should not carry editor toolbar controls.</p></section>',
   '<div id="edui23" class="edui-editor edui-default">',
@@ -10052,6 +10061,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 style panel navigation chrome residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 editor action rail chrome residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 helper iframe chrome without full-page navigation metadata', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_HELPER_IFRAME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_HELPER_IFRAME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_HELPER_IFRAME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 editor helper iframe residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 editor helper iframe residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 editor helper iframe residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 full-page navigation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 UEditor toolbar/editor chrome residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -2428,6 +2428,8 @@ Required tests/checks:
   135 full-page navigation chrome such as `nav-header`, `top-style-tools`,
   `site-annoucement-list`, `login-menus`, `left-operate-menu`, `left-advertises`,
   `bg-header`, `category-nav`, `left_side__menu`, and `ai_subsystem_nav`,
+  135 helper iframe chrome such as `ai_polish_box_iframe`, `js_shared_iframe`,
+  `svg_editor_iframe`, `ueditor_0`, and `_src="/style-center?...`,
   known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
@@ -12257,4 +12259,48 @@ const ruleFamilies = [
   not add a broad standalone blocker.
 - Evidence docs must state that this is coverage alignment only and does not prove WeChat paste,
   phone preview, SVG interaction fidelity, upload, public-host acceptance, credentialed sync,
+  scheduled send, or publish success.
+
+## 249. 135 Ordinary Editor Helper Iframe Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 ordinary editor page HTML contains helper iframe chrome
+  such as `ai_polish_box_iframe`, `js_shared_iframe`, `svg_editor_iframe`, `ueditor_0`, or a 135
+  style-center iframe `_src` value.
+- CloakBrowser live DOM refresh on the active 135 ordinary editor observed those iframe markers
+  around the central editor and side surfaces after the full-page navigation refresh.
+- These iframes are editor helpers, route bridges, AI panels, SVG editor mounts, or style-center
+  browser frames. They are not article semantics, reusable InkForge modules, target-platform paste
+  proof, phone preview proof, mobile interaction proof, credentialed sync proof, or publish proof.
+- This rule must stay separate from the generic unsupported `<iframe>` warning, 135 full-page
+  navigation chrome, 135 UEditor toolbar chrome, action rail chrome, style-panel controls, hosted
+  image sources, and SVG-builder markers.
+- This rule must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 editor helper iframe residue` for WeChat,
+  Xiaohongshu, and Zhihu when a reduced fixture contains the observed 135 helper iframe ids or
+  `_src="/style-center?...` marker.
+- The reduced fixture must fail with the helper-iframe label even when `_135editor`, `data-tools`,
+  `style_id/style_name/style_price`, full-page navigation chrome, style-panel controls,
+  style-card operation buttons, UEditor toolbar chrome, action rail chrome, hosted image sources,
+  and SVG-builder markers are absent.
+- The detector must not label every generic `<iframe>` as 135 residue. It must remain anchored to
+  observed 135 helper iframe ids or a 135 style-center iframe source marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced helper-iframe fixture initially emits no
+  `*-market-editor-residue` issue, then emits `135 editor helper iframe residue` after the
+  detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent 135 style-panel, full-page navigation, UEditor, and action-rail regressions must remain
+  green so each diagnostic stays independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, iframe fidelity, upload, public-host acceptance, credentialed sync,
   scheduled send, or publish success.

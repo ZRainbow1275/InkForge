@@ -10351,3 +10351,54 @@ Boundary:
   paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
   acceptance, upload, credentialed sync, scheduled send, platform preview, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Helper Iframe Chrome Residue Addendum
+
+- Extended local static publishability protection for live 135 ordinary editor helper iframe
+  chrome observed with CloakBrowser.
+- Observed helper iframe markers included `ai_polish_box_iframe`, `js_shared_iframe`,
+  `svg_editor_iframe`, `ueditor_0`, and `_src="/style-center?...`.
+- Added `135 editor helper iframe residue` to `MARKET_EDITOR_RESIDUE_RULES` for copied
+  AI/editor helper frames, shared route bridges, SVG editor mounts, the UEditor iframe surface,
+  and the 135 style-center browser frame.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `_135editor`, `data-tools`, `style_id/style_name/style_price`, full-page navigation chrome,
+  style-panel controls, style-card operation buttons, UEditor toolbar chrome, action rail chrome,
+  hosted image sources, and SVG-builder markers, so the new label is proven independently from
+  older 135 blockers.
+- The detector remains source-specific: it does not label every generic iframe as 135 residue.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `*-market-editor-residue` issue
+  was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "helper iframe chrome" --reporter=default`.
+- Adjacent 135 regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (style panel navigation chrome|full-page navigation chrome|helper iframe chrome|UEditor toolbar|editor action rail chrome)" --reporter=default`
+  passed with 5 selected tests and 359 skipped tests.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 364 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1341 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 36.48 seconds.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-helper-iframe-chrome-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, iframe fidelity, mobile interaction fidelity, mobile Dark Mode, cover
+  thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
