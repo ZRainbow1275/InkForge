@@ -178,6 +178,12 @@ const MARKET_EDITOR_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_BASE_RESIDUE_HTML = [
+  '<section class="_135editor" data-tools="135编辑器" data-id="173488">',
+  '<img src="//bcn.135editor.com/files/demo.png" alt="135 hosted material">',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_BACKGROUND_RESIDUE_HTML = [
   '<section style="background-image:url(https://image.135editor.com/files/bg.png);padding:24px">',
   '135 背景图残留',
@@ -9784,6 +9790,34 @@ describe('platform native export rendering rules', () => {
     expect(issue?.message).toContain('Xiumi cell container authoring residue')
     expect(issue?.suggestion).toContain('InkForge 自有')
     expect(report.issues.some(item => item.id === 'wechat-unsupported-css' && item.severity === 'error')).toBe(true)
+  })
+
+  it('blocks copied 135 base markers and hosted images from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_BASE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_BASE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_BASE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 data-tools marker')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 numeric style id on copied market block')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 data-tools marker')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 numeric style id on copied market block')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 data-tools marker')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 numeric style id on copied market block')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
   })
 
   it('blocks market editor hosted background sources from publishable outputs', () => {

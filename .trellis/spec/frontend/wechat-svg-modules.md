@@ -11750,3 +11750,47 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   image availability, public-host acceptance, platform-host proxying, WeChat paste, phone preview,
   upload, credentialed sync, scheduled send, or publish success.
+
+## 239. 135 Base Residue Coverage - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 editor HTML contains base authoring markers such as
+  `data-tools="135编辑器"`, a numeric `data-id` tied to a 135 market block, or image-like elements
+  whose source attributes point at 135 material hosts such as `135editor.com` or
+  `bcn.135editor.com`.
+- These markers are market-editor provenance and external material dependencies. They are not
+  reusable InkForge style source, local asset-pipeline records, public-host proof, platform-host
+  proof, WeChat paste proof, or target-platform proof.
+- The detector labels already existed as `135 data-tools marker`,
+  `135 numeric style id on copied market block`, and `135 third-party image source`; this section
+  records the coverage contract added after finding those labels lacked direct regression
+  assertions.
+- These rules must stay separate from `135 class/id authoring residue`, hosted-background
+  diagnostics, SVG builder controls, material panel controls, and ordinary article prose.
+- These rules must not download remote assets, import 135 template source, mutate export
+  artifacts, alter renderer output, mark any style as selectable, or claim public-host/publish
+  proof.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 data-tools marker`,
+  `135 numeric style id on copied market block`, and `135 third-party image source` for WeChat,
+  Xiaohongshu, and Zhihu when the reduced 135 base fixture contains those markers.
+- A reduced fixture containing only a 135 block wrapper, `data-tools`, numeric `data-id`, and a
+  135-hosted image source must fail with the precise labels even when SVG builder controls,
+  material list controls, background URL diagnostics, Xiumi markers, Angular/Vue markers,
+  contenteditable, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary prose about 135, local image references, ordinary public
+  HTTPS image hosts, or numeric ids unrelated to 135 market blocks by itself.
+
+### 3. Required Checks
+
+- Regression tests must assert all three precise labels appear in the WeChat, Xiaohongshu, and
+  Zhihu quality reports for the reduced 135 base fixture.
+- Adjacent market-residue and hosted-background regressions must remain independent, so class/id
+  authoring, base provenance, hosted-image, and hosted-background diagnostics remain separately
+  actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  image availability, public-host acceptance, platform-host proxying, WeChat paste, phone preview,
+  upload, credentialed sync, scheduled send, or publish success.

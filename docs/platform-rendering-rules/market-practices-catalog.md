@@ -1789,6 +1789,7 @@ Rules:
   raster fallback, or long-image fallback only.
 
 Evidence:
+- `prompts/0601/evidence/135-base-residue-coverage-20260629.txt`
 - `prompts/0601/evidence/style-proof-135-background-size-shell-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-flow-canvas-animation-wrapper-residue-20260625.txt`
 - `prompts/0601/evidence/xiumi-placeholder-metadata-residue-20260625.txt`

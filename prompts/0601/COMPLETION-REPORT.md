@@ -9649,3 +9649,39 @@ Boundary:
   image availability, public-host acceptance, platform-host proxying, mobile SMIL/click
   interaction, Dark Mode, credentialed sync, scheduled send, platform preview, public article
   rendering, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Base Residue Coverage Addendum
+
+- Added direct three-platform regression coverage for existing 135 base detector labels:
+  `135 data-tools marker`, `135 numeric style id on copied market block`, and
+  `135 third-party image source`.
+- The coverage audit found these were the remaining market-editor detector labels without direct
+  assertions in `platform-export-rendering.test.ts` after the Xiumi hosted image coverage slice.
+- The reduced fixture keeps only a 135 wrapper with `data-tools="135编辑器"`, a numeric `data-id`,
+  and a 135-hosted image source, so base provenance and external material diagnostics are proven
+  independently from SVG builder controls, material list controls, hosted-background diagnostics,
+  Xiumi markers, Angular/Vue markers, contenteditable, sidebar controls, or meta panels.
+- GitNexus limitation: MCP impact could not resolve `MARKET_EDITOR_RESIDUE_RULES`; this slice
+  treats graph impact as unknown and compensates with narrow edits plus local verification.
+- Verification:
+  focused coverage passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 base markers|135 and Xiumi authoring residues|market editor hosted background" --reporter=default`.
+- Full local validation passed after the coverage update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 347 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1324 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 29.51s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-base-residue-coverage-20260629.txt`.
+- Boundary: this is local static coverage only. It does not prove WeChat PC paste, phone preview,
+  image availability, public-host acceptance, platform-host proxying, mobile SMIL/click
+  interaction, Dark Mode, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.

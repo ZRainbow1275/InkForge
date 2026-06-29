@@ -5757,6 +5757,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   public-host acceptance, platform-host proxying, paste, phone preview, upload, scheduled send, or
   publish success.
 
+## 2026-06-29 135 Base Residue Coverage
+
+- [x] 135-base-residue-coverage-20260629.txt
+- Added direct three-platform regression coverage for the existing 135 base detector labels:
+  `135 data-tools marker`, `135 numeric style id on copied market block`, and
+  `135 third-party image source`.
+- The reduced regression intentionally keeps only a 135 wrapper with `data-tools="135编辑器"`, a
+  numeric `data-id`, and a 135-hosted image source, proving base provenance and external material
+  diagnostics do not require SVG builder controls, material list controls, hosted-background
+  diagnostics, Xiumi markers, Angular/Vue markers, contenteditable, sidebar controls, or meta
+  panels.
+- The detectors intentionally do not block ordinary prose about 135, local image references,
+  ordinary public HTTPS image hosts, or numeric ids unrelated to 135 market blocks by themselves.
+- Boundary: this is static publishability protection only. It does not prove image availability,
+  public-host acceptance, platform-host proxying, paste, phone preview, upload, scheduled send, or
+  publish success.
+
 ## 2026-06-29 Xiumi State Loading Utility Residue
 
 - [x] xiumi-state-loading-utility-residue-20260629.txt
