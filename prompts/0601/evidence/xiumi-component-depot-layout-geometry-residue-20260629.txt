@@ -1,0 +1,70 @@
+Xiumi Component Depot Layout Geometry Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 component-depot
+  layout/geometry controls.
+- No platform action, phone preview, sync, upload, publish, account-state artifact, QR artifact,
+  hosted material capture, or browser runtime artifact is part of this evidence.
+
+Observed source markers:
+- dc-ce-layout-column
+- dc-ce-layout-fixed-aspect-ratio
+- dc-ce-layout-free
+- dc-ce-layout-hidden
+- dc-ce-layout-scroll-direction
+- dc-ce-layout-style
+- dc-ce-layout-transparent
+- dc-ce-layout-vertical-align
+- dc-ce-auto-align
+- dc-ce-frozen
+- dc-ce-height
+- dc-ce-margin
+- dc-ce-spacing
+- dc-ce-static-position-size
+- dc-ce-width
+
+Implemented:
+- Added detector label:
+  Xiumi component depot layout geometry residue
+- The detector is anchored to supported Xiumi-specific layout/geometry dc-ce-* class/id markers.
+- The broad Xiumi operator depot item detector excludes the reduced layout/geometry component
+  fixture so the fixture is not double-reported under the generic operator-depot label.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all report the precise market-editor residue label when the
+  reduced layout/geometry component-depot fixture appears in publishable output.
+- Adjacent native component-depot, form component-depot, operator-depot, layout-form-panel, and
+  layout-form-child diagnostics remain independent.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot layout geometry controls" --reporter=default
+  FAIL: 1 selected test failed because only Xiumi operator depot item residue was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls|layout form panels|layout form child" --reporter=default
+  PASS: 6 selected tests / 316 skipped.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 322 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1299 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 35.97s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, canClaimComplete=false, status=blocked-by-external.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat paste, phone preview, mobile free-layout interaction, mobile SMIL/click
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, free-layout
+  acceptance, native component acceptance, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, public host acceptance, or publish success.
