@@ -8,6 +8,72 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Component Depot Typography Control Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The component-depot/menu surface exposed
+  typography controls `dc-ce-font-size-scale`, `dc-ce-paragraph-margin`, `dc-ce-text-all`,
+  `dc-ce-text-code`, `dc-ce-text-decoration`, `dc-ce-text-shadow`, and
+  `dc-ce-text-shadow-style`.
+- These entries are editor-side typography, paragraph spacing, full-text formatting, code text,
+  text decoration, and text shadow controls. They are not publishable article body text DOM,
+  code-block proof, upload manifests, platform-safe embeds, reusable InkForge source, or
+  target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- GitNexus function-level lookup for `detectQuality` was unavailable in this index pass; this
+  slice only edits `MARKET_EDITOR_RESIDUE_RULES`, and staged GitNexus detection remains required
+  before commit.
+
+Implementation:
+- Added a reduced regression fixture containing only supported typography `dc-ce-*` component
+  markers, proving cleaned-down component-depot typography controls receive a precise label
+  without relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock
+  parents, image transform controls, table controls, layout/geometry controls, form/input
+  controls, native/embed controls, mobile viewport controls, hosted media, text toolbars,
+  sidebar controls, or meta panels.
+- Added the `Xiumi component depot typography control residue` detector before the broad
+  `Xiumi operator depot item residue` fallback.
+- Tightened the broad operator-depot detector so the reduced typography component fixture is not
+  double-reported under the generic operator-depot label.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot typography controls" --reporter=default`
+  failed with 1 selected failing test because only `Xiumi operator depot item residue` was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot typography controls|component depot image transform controls|component depot table controls|component depot mobile viewport controls|component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls" --reporter=default`
+  passed with 8 selected tests and 318 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 326 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1303 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and Vite built in 44.39s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, paragraph spacing fidelity, code typography fidelity,
+  text-shadow rendering, Dark Mode, mobile H5 interaction, credentialed sync, scheduled send,
+  platform preview, public article rendering, public-host acceptance, XHS/Zhihu account upload,
+  or publish success.
+
 ## 2026-06-29 Xiumi Component Depot Image Transform Residue Slice
 
 Source:

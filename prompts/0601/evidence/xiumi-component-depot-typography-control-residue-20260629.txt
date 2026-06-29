@@ -1,0 +1,68 @@
+Xiumi Component Depot Typography Control Residue - 2026-06-29
+
+Scope:
+- Local static quality-detector slice for Xiumi component-depot typography controls.
+- No platform action, phone scan, mobile preview claim, sync, upload, scheduled send, or publish.
+
+Live DOM source:
+- CloakBrowser inspected the authenticated Xiumi v5 paper editor DOM.
+- The component-depot/menu surface exposed these typography markers:
+  - dc-ce-font-size-scale
+  - dc-ce-paragraph-margin
+  - dc-ce-text-all
+  - dc-ce-text-code
+  - dc-ce-text-decoration
+  - dc-ce-text-shadow
+  - dc-ce-text-shadow-style
+
+Implemented:
+- Added the detector label:
+  Xiumi component depot typography control residue
+- Added the rule before the broad Xiumi operator depot item residue fallback.
+- Excluded the supported typography component markers from the broad operator-depot fallback so
+  reduced typography fixtures are not double-reported.
+
+Regression coverage:
+- Added a reduced fixture containing only supported typography dc-ce-* component markers.
+- WeChat, Xiaohongshu, and Zhihu quality reports now fail with the precise typography label.
+- Adjacent coverage keeps native controls, form/input controls, layout/geometry controls, table
+  controls, image transform controls, mobile viewport controls, and the broad operator-depot
+  detector independent.
+
+Verification:
+- TDD red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot typography controls" --reporter=default
+  Expected failure before implementation: the reduced fixture emitted only
+  Xiumi operator depot item residue.
+- Focused green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot typography controls|component depot image transform controls|component depot table controls|component depot mobile viewport controls|component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls" --reporter=default
+  PASS: 1 file / 8 selected tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 326 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1303 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 44.39s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exited 1 with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform,
+  blockerCount=4, combinedIssueCount=11, cannotClaimSteps=29, phoneOpenSteps=4,
+  externalDependencyOpenSteps=14, unsafeToAutomateOpenSteps=13, mutatingOpenSteps=13,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, paragraph spacing fidelity, code typography
+  fidelity, text-shadow rendering, Dark Mode, credentialed sync, scheduled send, platform preview,
+  public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

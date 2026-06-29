@@ -5748,6 +5748,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   image crop fidelity, SVG clip fidelity, popup image behavior, cover thumbnail acceptance, sync,
   upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Typography Control Residue
+
+- [x] xiumi-component-depot-typography-control-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot typography controls including
+  `dc-ce-font-size-scale`, `dc-ce-paragraph-margin`, `dc-ce-text-all`,
+  `dc-ce-text-code`, `dc-ce-text-decoration`, `dc-ce-text-shadow`, and
+  `dc-ce-text-shadow-style`.
+- The reduced regression intentionally keeps only supported typography `dc-ce-*` component
+  markers, proving component-depot typography controls are reported precisely without relying on
+  `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  image transform controls, table controls, layout/geometry controls, form/input controls,
+  native/embed controls, mobile viewport controls, hosted media, text toolbars, sidebar controls,
+  or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced typography fixture
+  so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  paragraph spacing fidelity, code typography fidelity, text-shadow rendering, Dark Mode, sync,
+  upload, public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

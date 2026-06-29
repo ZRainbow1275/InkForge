@@ -1657,6 +1657,12 @@ Rules:
   crop, SVG clip, popup image, background conversion, color replacement, and raster fallback
   schemas, but copied Xiumi component-depot DOM is not publishable body DOM or image fidelity
   proof.
+- Xiumi component-depot typography controls such as `dc-ce-font-size-scale`,
+  `dc-ce-paragraph-margin`, `dc-ce-text-all`, `dc-ce-text-code`,
+  `dc-ce-text-decoration`, `dc-ce-text-shadow`, and `dc-ce-text-shadow-style` must fail with
+  `Xiumi component depot typography control residue`. They may inform InkForge-owned typography,
+  paragraph spacing, code style, text-decoration, and text-shadow fallback policy, but copied
+  Xiumi component-depot DOM is not publishable body text DOM or typography fidelity proof.
 - Xiumi component-depot mobile viewport controls such as `dc-ce-mobile-background`,
   `dc-ce-mobile-group`, `dc-ce-mobile-image`, `dc-ce-mobile-text`, and
   `dc-ce-mobile-unsupport` must fail with `Xiumi component depot mobile viewport residue`. They
@@ -1878,5 +1884,6 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-layout-geometry-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-table-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-image-transform-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-217.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-218.
