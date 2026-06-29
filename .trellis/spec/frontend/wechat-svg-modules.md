@@ -12109,3 +12109,46 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, form-control fidelity, upload, public-host acceptance, credentialed
   sync, scheduled send, or publish success.
+
+## 247. Xiumi UI Bootstrap Tab Content Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the Angular UI Bootstrap
+  tab-body transclusion directive `uib-tab-content-transclude`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed
+  `uib-tab-content-transclude` alongside already-covered `uib-tab-heading-transclude`,
+  `uib-dropdown*`, `uib-tooltip`, and `tooltip-*` controls.
+- This marker is editor-side tab panel plumbing. It is not publishable article tab semantics,
+  reusable InkForge component source, mobile interaction proof, credentialed-channel proof, or
+  target-platform proof.
+- This rule extends the existing `Xiumi UI Bootstrap control directive residue` diagnostic. It
+  must stay separate from Xiumi dropdown directives, Angular runtime classes,
+  `Xiumi tn-* attribute`, hosted-media checks, sidebar controls, and meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi UI Bootstrap control directive residue` for
+  WeChat, Xiaohongshu, and Zhihu when `uib-tab-content-transclude` appears as an attribute.
+- A reduced fixture containing only `uib-tab-content-transclude` must fail with the UI Bootstrap
+  label even when dropdown wrappers, heading transclusion, Angular runtime classes, `tn-*`,
+  operation buttons, hosted media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary tab prose, content prose, heading prose, transclusion
+  wording, or Xiumi by itself. It must remain anchored to the explicit UI Bootstrap directive
+  attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `uib-tab-content-transclude` fixture initially emits no
+  `*-market-editor-residue` issue, then emits `Xiumi UI Bootstrap control directive residue` after
+  the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent UI Bootstrap dropdown, heading-transclude, and button-state regressions must remain
+  green so tab-content, dropdown, and button-state diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, tab interaction fidelity, upload, public-host acceptance,
+  credentialed sync, scheduled send, or publish success.

@@ -7433,3 +7433,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   form-control fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi UIB Tab Content Transclude Residue
+
+- [x] xiumi-uib-tab-content-transclude-residue-20260629.txt
+- Extended the existing static `Xiumi UI Bootstrap control directive residue` quality rule for the
+  live Xiumi v5 tab-body directive `uib-tab-content-transclude`.
+- The reduced regression intentionally keeps only `uib-tab-content-transclude`, proving
+  class-cleaned tab panel plumbing is blocked without relying on dropdown wrappers, heading
+  transclusion, Angular runtime classes, `tn-*`, operation buttons, hosted media, sidebar controls,
+  or meta panels.
+- The detector intentionally does not block ordinary tab prose, content prose, heading prose,
+  transclusion wording, or Xiumi by itself; it remains anchored to the explicit UI Bootstrap
+  directive attribute.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  tab interaction fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.

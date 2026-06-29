@@ -1040,6 +1040,11 @@ Xiumi SVG/H5 rules:
   Bootstrap selection and toggle bindings, not ordinary checkbox/radio semantics, form-control
   fidelity proof, or credentialed-channel proof. They remain under the existing
   `Angular/Vue authoring attribute` and `Xiumi UI Bootstrap control directive residue` labels.
+- 2026-06-29 Xiumi UI Bootstrap tab-content refresh: the live v5 paper editor exposed
+  `uib-tab-content-transclude` alongside already-covered UI Bootstrap tab heading, dropdown,
+  tooltip, and button-state directives. This is editor-side tab panel plumbing, not publishable
+  article tab semantics, mobile interaction proof, or credentialed-channel proof. It remains under
+  the existing `Xiumi UI Bootstrap control directive residue` label.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -1065,6 +1070,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-angular-link-dropzone-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-input-done-for-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-angular-uib-button-state-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-uib-tab-content-transclude-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract
