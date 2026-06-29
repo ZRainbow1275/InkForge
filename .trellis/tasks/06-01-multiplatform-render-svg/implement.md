@@ -8,6 +8,62 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi CSS Background Image Source Slice
+
+Source:
+- CloakBrowser live visual and DOM readback on the active Xiumi v5 paper editor confirmed a
+  clicked template entered the center editing canvas and carried a hosted material background:
+  `background-image:url("//statics.xiumi.us/...?...x-oss-process=style/xmwebp")`.
+- This marker is a Xiumi-hosted market-editor asset dependency. It is not an InkForge local asset,
+  public-host proof, platform-host proxy proof, account upload proof, phone preview proof, or
+  publish proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents,
+  0 affected processes, and direct dependency limited to the Export module.
+- The implementation keeps the edit to one additional existing-label detector branch, one reduced
+  regression fixture, docs, and evidence.
+
+Implementation:
+- Added a reduced regression fixture containing only a normal element with a Xiumi-hosted
+  `background-image:url(...)`, proving hosted background material receives
+  `Xiumi third-party image source` without relying on Xiumi SVG wrapper classes, SMIL rows,
+  `tn-*`, Angular runtime attributes, editable cells, sidebar controls, or meta panels.
+- Extended the existing `Xiumi third-party image source` diagnostic to cover inline CSS
+  `background` / `background-image` URLs that reference `statics.xiumi.us` or `xiumi.us/stc|mat`.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "CSS background image sources" --reporter=default`
+  failed with 1 selected failing test because no `*-market-editor-residue` issue was emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted (CSS background image sources|image sources)" --reporter=default`
+  passed with 2 selected tests and 355 skipped tests after the detector update.
+- Platform regression: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 357 tests.
+- Export suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1334 tests.
+- Static checks: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 46.54s.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json` returned the expected
+  blocked state, with `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, plus
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic coverage. It does not
+  prove image availability, public-host acceptance, platform-host proxying, WeChat PC paste,
+  phone preview, upload, credentialed sync, scheduled send, platform preview, public article
+  rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi UI Bootstrap Tab Content Directive Residue Slice
 
 Source:

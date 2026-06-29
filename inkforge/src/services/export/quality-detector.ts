@@ -769,6 +769,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'editor editable surface attribute',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\bstyle\s*=\s*["'][^"']*\bbackground(?:-image)?\s*:[^"']*url\([^)]*(?:statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,
+    label: 'Xiumi third-party image source',
+  },
+  {
     pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:statics\.xiumi\.us|xiumi\.us\/(?:stc|mat))\b/i,
     label: 'Xiumi third-party image source',
   },

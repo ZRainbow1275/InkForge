@@ -1,0 +1,56 @@
+Xiumi CSS Background Image Source - 2026-06-29
+
+Scope:
+- Local static publishability protection for Xiumi-hosted material URLs copied through inline CSS
+  background declarations.
+- Observed source shape: background-image:url("//statics.xiumi.us/...?...x-oss-process=style/xmwebp").
+- No platform action, no phone preview, no sync, no upload, no publish, no account artifact, no
+  browser runtime artifact, no capture-location reference, no QR artifact, and no credential
+  material.
+
+Implemented:
+- Extended the existing Xiumi third-party image source diagnostic to cover inline CSS background
+  and background-image URLs that point at statics.xiumi.us or xiumi.us/stc|mat.
+- Added a reduced regression fixture containing only a normal element with a Xiumi-hosted CSS
+  background-image URL.
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality checks report Xiumi third-party image source for the
+  reduced CSS background fixture.
+- The fixture does not require Xiumi SVG wrapper classes, SMIL rows, tn-* attributes, Angular
+  runtime attributes, editable cells, sidebar controls, or meta panels.
+- The rule does not treat ordinary local image references, ordinary public HTTPS image hosts,
+  ordinary local CSS backgrounds, or prose mentioning Xiumi as residue by itself.
+
+Regression coverage:
+- Xiumi-hosted CSS background material cannot pass publishability checks.
+- Existing img/source hosted material checks remain green under the same diagnostic label.
+- The hosted background rule is independent from Xiumi applied SVG content-layer diagnostics.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "CSS background image sources" --reporter=default
+  RED: 1 selected failing test before the detector update; no *-market-editor-residue issue was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted (CSS background image sources|image sources)" --reporter=default
+  PASS: 1 file / 2 selected tests / 355 skipped tests after the detector update.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 357 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1334 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: transformed 4653 modules and completed in 46.54s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: canClaimComplete=false, status=blocked-by-external, blocker kinds
+  phone-preview, external-dependency, unsafe-to-automate, mutating-platform; blockerCount=4,
+  combinedIssueCount=11, cannotClaimSteps=29, phoneOpenSteps=4, externalDependencyOpenSteps=14,
+  unsafeToAutomateOpenSteps=13, mutatingOpenSteps=13, externalHandoffRows=18, safeExternalRows=0,
+  actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic coverage only.
+- It does not prove image availability, public-host acceptance, platform-host proxying,
+  WeChat PC paste, phone preview, upload, credentialed sync, scheduled send, public rendering,
+  XHS/Zhihu account upload, or publish success.

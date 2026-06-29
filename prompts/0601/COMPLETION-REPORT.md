@@ -10000,3 +10000,49 @@ Boundary:
   phone preview, tab interaction fidelity, upload, credentialed sync, scheduled send, platform
   preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
   success.
+
+---
+
+## 2026-06-29 Xiumi CSS Background Image Source Addendum
+
+- Extended local static publishability protection for the live Xiumi v5 CSS hosted-background
+  shape: inline `background-image:url(...)` references to Xiumi material hosts now report under the
+  existing `Xiumi third-party image source` label.
+- CloakBrowser visual and DOM readback confirmed a clicked Xiumi template entered the center
+  editing canvas and carried a title-block background URL pointing at `statics.xiumi.us` with an
+  OSS transform query.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- The reduced fixture keeps only a normal element with a Xiumi-hosted CSS background URL, so the
+  diagnostic is proven independently from Xiumi SVG wrapper classes, SMIL rows, `tn-*`, Angular
+  runtime attributes, editable cells, sidebar controls, or meta panels.
+- GitNexus CLI impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with
+  0 direct dependents and LOW risk for `detectQuality` with 4 direct dependents and
+  0 affected processes.
+- Verification:
+  focused TDD red failed before the detector update because no `*-market-editor-residue` issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "hosted (CSS background image sources|image sources)" --reporter=default`.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 357 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1334 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 46.54s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-css-background-image-source-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove image
+  availability, public-host acceptance, platform-host proxying, WeChat PC paste, phone preview,
+  upload, credentialed sync, scheduled send, platform preview, public article rendering,
+  XHS/Zhihu account upload, or publish success.

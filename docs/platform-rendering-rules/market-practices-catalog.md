@@ -1002,6 +1002,11 @@ Xiumi SVG/H5 rules:
   `tn-content-overlap`, `ui-sortable`, `ui-slider`, Angular runtime attributes, and hosted
   `statics.xiumi.us` references. This is strong applied-editor DOM evidence for InkForge-owned
   schema/fallback design, and still residue if copied into publishable output.
+- 2026-06-29 Xiumi hosted background refresh: clicking a live Xiumi v5 paper template inserted
+  center-canvas content whose visual title block used inline `background-image:url(...)` pointing
+  at `statics.xiumi.us` with an OSS transform query. Treat this as the same external market-editor
+  asset dependency as `img` / `source` hosted materials. It must fail under
+  `Xiumi third-party image source` until rewritten into InkForge-owned local/public asset records.
 - 2026-06-21 Xiumi template-renderer refresh: the live v5 paper editor exposed the template
   injection/preview pipeline in the visible template list and hidden controls. Markers included
   `tplLib.onTemplateClicked`, `tpl2BoxClasses`, `tpl2PresentType`, `tn-tpl-pose-fit-box`,
@@ -1071,6 +1076,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-text-input-done-for-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-angular-uib-button-state-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-uib-tab-content-transclude-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-css-background-image-source-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

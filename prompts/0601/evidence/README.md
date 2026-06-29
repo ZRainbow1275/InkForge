@@ -7449,3 +7449,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   tab interaction fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi CSS Background Image Source
+
+- [x] xiumi-css-background-image-source-20260629.txt
+- Extended the existing static `Xiumi third-party image source` quality rule for inline CSS
+  `background` / `background-image` URLs pointing at Xiumi material hosts.
+- The reduced regression intentionally keeps only a normal element with a Xiumi-hosted
+  `background-image:url(...)`, proving hosted background material is blocked without relying on
+  Xiumi SVG wrapper classes, SMIL rows, `tn-*`, Angular runtime attributes, editable cells,
+  sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary local image references, ordinary public HTTPS
+  image hosts, ordinary local CSS backgrounds, or prose mentioning Xiumi by itself; it remains
+  anchored to an inline CSS background URL plus a supported Xiumi material host.
+- Boundary: this is static publishability protection only. It does not prove image availability,
+  public-host acceptance, platform-host proxying, paste, phone preview, upload, sync, public
+  rendering, public-host acceptance, scheduled send, or publish success.

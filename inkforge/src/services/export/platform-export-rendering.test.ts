@@ -1919,6 +1919,14 @@ const MARKET_EDITOR_XIUMI_THIRD_PARTY_IMAGE_SOURCE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_THIRD_PARTY_BACKGROUND_IMAGE_SOURCE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div style="background-image:url(&quot;//statics.xiumi.us/stc/images/templates-assets/tpl-paper/image/demo.png?x-oss-process=style/xmwebp&quot;);background-size:100% 100%">',
+  'Xiumi hosted background material',
+  '</div>',
+  '</section>',
+].join('')
+
 function exportWechatPresetHtml(presetId: string): string {
   const preset = getPresetById(presetId)
   expect(preset).toBeDefined()
@@ -13709,6 +13717,24 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi third-party image source')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi third-party image source')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi hosted CSS background image sources from publishable outputs', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_THIRD_PARTY_BACKGROUND_IMAGE_SOURCE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_THIRD_PARTY_BACKGROUND_IMAGE_SOURCE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_THIRD_PARTY_BACKGROUND_IMAGE_SOURCE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi third-party image source')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi third-party image source')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi third-party image source')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
+      .not.toContain('Xiumi applied SVG content layer')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

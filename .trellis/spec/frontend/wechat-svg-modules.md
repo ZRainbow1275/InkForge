@@ -11806,7 +11806,8 @@ const ruleFamilies = [
 
 - Trigger: copied or partially cleaned Xiumi editor HTML contains image-like elements whose
   `src`, `href`, `data-src`, or `xlink:href` points at Xiumi-hosted material domains such as
-  `statics.xiumi.us` or `xiumi.us/stc`.
+  `statics.xiumi.us` or `xiumi.us/stc`, or inline CSS `background` / `background-image` URLs that
+  reference the same hosts.
 - This marker is an external market-editor asset dependency. It is not a reusable InkForge image
   source, not a local asset-pipeline record, not public-host proof, not platform-host proof, and
   not evidence that WeChat/XHS/Zhihu will retain or proxy the asset.
@@ -11821,21 +11822,30 @@ const ruleFamilies = [
 ### 2. Contract
 
 - `detectQuality(..., platform)` must report `Xiumi third-party image source` for WeChat,
-  Xiaohongshu, and Zhihu when an image-like element references the supported Xiumi material hosts.
+  Xiaohongshu, and Zhihu when an image-like element or inline CSS background URL references the
+  supported Xiumi material hosts.
 - A reduced fixture containing only `img` / `source` nodes with Xiumi material URLs must fail with
   the precise label even when `tn-*`, `ng-*`, contenteditable, editor wrapper classes, sidebar
   controls, or meta panels are absent.
+- A reduced fixture containing only a normal element with `background-image:url(...)` pointing at
+  a Xiumi material host must fail with the same precise label and must not rely on
+  `svg-layout-content`, `root-svg`, `rect-content`, `fade-self-animation`, `tn-*`, `ng-*`,
+  contenteditable, editor wrapper classes, sidebar controls, or meta panels.
 - The detector must not block ordinary local image references, ordinary public HTTPS image hosts,
-  article text mentioning Xiumi, or non-image/link attributes by itself. It must stay anchored to
-  image-like element source attributes and the supported Xiumi material hosts.
+  ordinary local CSS backgrounds, article text mentioning Xiumi, or non-image/link attributes by
+  itself. It must stay anchored to image-like element source attributes or inline CSS background
+  URLs plus the supported Xiumi material hosts.
 
 ### 3. Required Checks
 
 - Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
-  quality reports for the reduced hosted-image fixture.
+  quality reports for the reduced hosted-image fixture and the reduced CSS background-image
+  fixture.
 - Adjacent editable-surface regression must remain independent so `contenteditable` is not
   misclassified as third-party image source and third-party image source is not dependent on editor
   runtime markers.
+- Adjacent applied-SVG content-layer regressions must remain independent so a hosted CSS background
+  URL does not require Xiumi SVG wrapper classes or SMIL markers.
 - Evidence docs must state that this is static publishability protection only and does not prove
   image availability, public-host acceptance, platform-host proxying, WeChat paste, phone preview,
   upload, credentialed sync, scheduled send, or publish success.
