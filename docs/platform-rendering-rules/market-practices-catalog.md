@@ -1020,6 +1020,11 @@ Xiumi SVG/H5 rules:
   editor-side gesture routing metadata only. They remain under the existing
   `Xiumi selection overlay control residue` label and cannot be copied into publishable output as
   proof of mobile drag/click fidelity.
+- 2026-06-29 Xiumi style-binding refresh: the live v5 paper editor exposed class-cleaned
+  `tn-style` attributes. These are editor-side style binding metadata, not ordinary publishable
+  inline style and not a portable style source. They remain under the precise
+  `Xiumi style binding metadata residue` label and must be translated into InkForge-owned style
+  schema or removed before publishable output is allowed.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 
@@ -1041,6 +1046,7 @@ Evidence:
 - `prompts/0601/evidence/market-editor-cloakbrowser-svg-pipeline-residue-refresh-20260621.txt`
 - `prompts/0601/evidence/xiumi-angular-input-source-event-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-hammer-pan-directive-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-style-binding-metadata-residue-20260629.txt`
 - `.trellis/spec/frontend/wechat-svg-modules.md` section 16.
 
 ## 9. 2026-06-20 External Proof Freshness Contract

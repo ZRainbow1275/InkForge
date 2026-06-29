@@ -693,6 +693,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi auxiliary binding metadata residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-style\s*=/i,
+    label: 'Xiumi style binding metadata residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-(?!(?:dropdown(?:-(?:menu|toggle))?)(?:\s|=|>))[\w-]+(?:\s|=|>)/i,
     label: 'Xiumi tn-* attribute',
   },

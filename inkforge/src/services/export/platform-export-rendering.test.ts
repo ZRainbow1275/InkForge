@@ -1696,6 +1696,12 @@ const MARKET_EDITOR_XIUMI_PRELOAD_IMAGE_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_STYLE_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<article tn-style="cell.style">Xiumi style binding shell</article>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_COMPONENT_STRUCTURE_BINDING_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<article tn-comp="card.instance" tn-comp-role="root" tn-comp-index="0" tn-comp-pose="static">',
@@ -11161,6 +11167,24 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi component binding attribute residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi image binding metadata residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi style binding metadata with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_STYLE_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_STYLE_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_STYLE_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi style binding metadata residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi style binding metadata residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi style binding metadata residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -9773,6 +9773,53 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile gesture fidelity, mobile Dark Mode, cover thumbnail
   acceptance, credentialed sync, public rendering, upload, scheduled send, or publish success.
 
+## 243. Xiumi Style Binding Metadata Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the style-binding directive
+  attribute `tn-style`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed `tn-style` on the
+  editor surface alongside already-covered component/cell/page binding metadata.
+- This marker is editor-side style binding metadata. It is not ordinary publishable inline style,
+  reusable InkForge style source, WeChat style fidelity proof, public-host proof, or
+  target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  `tn-style`, but a cleaned-down style-binding fragment must receive the precise
+  `Xiumi style binding metadata residue` label for actionable diagnostics.
+- This rule must stay separate from ordinary HTML `style` attributes, component/cell/page binding
+  metadata, image/link/preload binding metadata, and the broad `Xiumi tn-* attribute` fallback.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi style binding metadata residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-style` appears as an attribute.
+- A reduced fixture containing only `tn-style` must fail with the precise style-binding label even
+  when `tn-comp*`, `tn-cell*`, `tn-page*`, `tn-link`, `tn-image*`, `tn-pre-load-image`,
+  Angular runtime attributes/classes, contenteditable, hosted media, sidebar controls, or meta
+  panels are absent.
+- The detector must not block ordinary inline `style`, style prose, CSS examples, article text,
+  or non-Xiumi class names by itself. It must stay anchored to the Xiumi-specific `tn-style`
+  directive attribute.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the precise style-binding label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-style` fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports `Xiumi style binding metadata residue` after the
+  detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent preload-image and component-structure binding regressions must remain green so style,
+  image, and component binding diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, style fidelity, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, public rendering, upload, scheduled send, or publish success.
+
 ## 122. Xiumi Auxiliary Binding Metadata Residue - 2026-06-26
 
 ### 1. Scope / Trigger

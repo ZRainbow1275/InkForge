@@ -1,0 +1,49 @@
+Xiumi Style Binding Metadata Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor fragments.
+- Covers the live Xiumi v5 style-binding directive attribute tn-style.
+- No platform action, phone preview, sync, upload, scheduled send, or publish action is included.
+
+CloakBrowser readback:
+- The active Xiumi v5 editor surface exposed tn-style alongside component, cell, page, image, link,
+  and preload binding metadata.
+- This is editor-side style binding metadata, not ordinary publishable inline style and not WeChat
+  style fidelity proof.
+
+Implementation:
+- Added a reduced three-platform regression fixture containing only tn-style.
+- Added the Xiumi style binding metadata residue detector before the broad Xiumi tn-* attribute
+  fallback.
+- The fixture avoids component/cell/page binding metadata, image/link/preload binding metadata,
+  Angular runtime attributes, contenteditable, hosted media, sidebar controls, and meta panels, so
+  the diagnostic is proven independently.
+
+TDD:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style binding metadata" --reporter=default
+  Result: failed with 1 selected failing test because the fixture only emitted Xiumi tn-* attribute.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style binding metadata|preload image directives|component structure binding metadata" --reporter=default
+  Result: passed with 3 selected tests and 348 skipped tests.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 351 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1328 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 28.34s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exited 1 with canClaimComplete=false, status=blocked-by-external, blocker kinds
+  phone-preview, external-dependency, unsafe-to-automate, and mutating-platform.
+
+Boundary:
+- This proves local static residue detection only.
+- It does not prove WeChat PC paste, phone preview, style fidelity, mobile SMIL/click interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

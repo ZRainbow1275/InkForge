@@ -9797,3 +9797,41 @@ Boundary:
   phone preview, mobile gesture fidelity, mobile SMIL/click interaction, Dark Mode, credentialed
   sync, scheduled send, platform preview, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Style Binding Metadata Addendum
+
+- Added local static publishability protection for the live Xiumi v5 style-binding attribute:
+  `tn-style` now reports the precise `Xiumi style binding metadata residue` label.
+- CloakBrowser readback confirmed `tn-style` appears on the active editor surface alongside
+  already-covered component/cell/page binding metadata.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- The reduced fixture keeps only `tn-style`, so the diagnostic is proven independently from
+  ordinary inline `style`, component/cell/page binding metadata, image/link/preload binding
+  metadata, Angular runtime attributes, hosted media, sidebar controls, or meta panels.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with
+  0 direct dependents and LOW risk for `detectQuality` with 4 direct dependents and
+  0 affected processes.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture only emitted
+  `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "style binding metadata|preload image directives|component structure binding metadata" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 351 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1328 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 28.34s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-style-binding-metadata-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, style fidelity, mobile SMIL/click interaction, Dark Mode, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

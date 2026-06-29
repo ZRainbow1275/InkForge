@@ -7372,3 +7372,17 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile gesture fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
   acceptance, public rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Style Binding Metadata Residue
+
+- [x] xiumi-style-binding-metadata-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 style binding directive `tn-style`.
+- The reduced regression intentionally keeps only `tn-style`, proving cleaned-down style-binding
+  metadata gets a precise label instead of relying only on the broad `Xiumi tn-* attribute`
+  fallback.
+- The detector intentionally does not block ordinary inline `style`, CSS examples, style prose,
+  article text, or non-Xiumi class names by itself; it remains anchored to the Xiumi-specific
+  `tn-style` attribute.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  style fidelity, mobile SMIL/click interaction, Dark Mode, sync, upload, cover thumbnail
+  acceptance, public rendering, public-host acceptance, scheduled send, or publish success.
