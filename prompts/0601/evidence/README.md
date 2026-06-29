@@ -7417,3 +7417,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   text editing fidelity, typography fidelity, upload, sync, cover thumbnail acceptance, public
   rendering, public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Angular UIB Button State Residue
+
+- [x] xiumi-angular-uib-button-state-residue-20260629.txt
+- Extended the existing static `Angular/Vue authoring attribute` and
+  `Xiumi UI Bootstrap control directive residue` quality rules for live Xiumi v5 button-state
+  directives including `ng-checked`, `uib-btn-radio`, and `uib-btn-checkbox`.
+- The reduced regressions intentionally keep only those selection/toggle attributes, proving
+  class-cleaned button-state metadata is blocked without relying on Angular runtime classes,
+  `tn-*`, dropdown wrappers, operation buttons, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary checkbox/radio prose, checked wording,
+  button wording, option prose, or Xiumi by itself; it remains anchored to real directive
+  attributes.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  form-control fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.

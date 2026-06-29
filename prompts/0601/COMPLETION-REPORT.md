@@ -9914,3 +9914,43 @@ Boundary:
   phone preview, text editing fidelity, typography fidelity, upload, credentialed sync, scheduled
   send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu account
   upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Angular UIB Button State Addendum
+
+- Extended local static publishability protection for live Xiumi v5 Angular/UI Bootstrap
+  button-state directives: `ng-checked` now reports under `Angular/Vue authoring attribute`, and
+  `uib-btn-radio` / `uib-btn-checkbox` report under
+  `Xiumi UI Bootstrap control directive residue`.
+- A local reduced-fixture coverage audit confirmed these attributes were not previously producing
+  market-editor-residue issues when isolated from Angular runtime classes and dropdown wrappers.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- The reduced fixtures keep only button-state attributes, so the diagnostics are proven
+  independently from Angular runtime classes, `tn-*`, dropdown wrappers, operation buttons, hosted
+  media, sidebar controls, or meta panels.
+- GitNexus CLI impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with
+  0 direct dependents and LOW risk for `detectQuality` with 4 direct dependents and
+  0 affected processes.
+- Verification:
+  focused TDD red failed before the detector update because no `*-market-editor-residue` issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "button directives|checked attributes|UI Bootstrap directives|dropdown directives|Angular link and dropzone" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 355 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1332 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed.
+- Production build transformed 4653 modules and completed in 27.93s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-angular-uib-button-state-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, form-control fidelity, upload, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

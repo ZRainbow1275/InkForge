@@ -12064,3 +12064,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, text editing fidelity, typography fidelity, upload, public-host
   acceptance, credentialed sync, scheduled send, or publish success.
+
+## 246. Xiumi Angular/UI Bootstrap Button State Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains Angular/UI Bootstrap button-state
+  attributes observed in the live Xiumi v5 paper editor, including `ng-checked`, `uib-btn-radio`,
+  and `uib-btn-checkbox`.
+- These attributes are editor-side selection/toggle binding directives. They are not article
+  semantics, reusable InkForge form state source, WeChat form-control fidelity proof,
+  credentialed-channel proof, or target-platform proof.
+- This rule extends the existing `Angular/Vue authoring attribute` and
+  `Xiumi UI Bootstrap control directive residue` diagnostics. It must stay separate from ordinary
+  checkbox/radio HTML, Xiumi dropdown directives, Angular runtime classes, `Xiumi tn-* attribute`,
+  hosted-media checks, sidebar controls, and meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Angular/Vue authoring attribute` for WeChat,
+  Xiaohongshu, and Zhihu when `ng-checked` appears as an attribute.
+- `detectQuality(..., platform)` must report `Xiumi UI Bootstrap control directive residue` for
+  WeChat, Xiaohongshu, and Zhihu when `uib-btn-radio` or `uib-btn-checkbox` appears as an
+  attribute.
+- Reduced fixtures containing only those attributes must fail with their precise existing labels
+  even when Angular runtime classes, `tn-*`, dropdown wrappers, operation buttons, hosted media,
+  sidebar controls, or meta panels are absent.
+- The detector must not block ordinary checkbox/radio prose, checked wording, button wording,
+  option prose, or Xiumi by itself. It must remain anchored to real directive attributes with an
+  assignment or boolean attribute marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced button-state fixtures initially emit no
+  `*-market-editor-residue` issue, then emit the expected Angular/Vue and UI Bootstrap labels after
+  the detector update.
+- Regression tests must assert the precise labels appear in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent UI Bootstrap dropdown and Angular link/dropzone regressions must remain green so button
+  state, dropdown, and link/dropzone diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, form-control fidelity, upload, public-host acceptance, credentialed
+  sync, scheduled send, or publish success.
