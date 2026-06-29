@@ -6980,6 +6980,40 @@ Boundary:
 
 ---
 
+## 2026-06-29 Xiumi Background Transparency Operation Addendum
+
+- Added local static publishability protection for Xiumi v5 background/transparency operation
+  controls: `op-background-sec` and `op-gen-transparency` now report the precise
+  `Xiumi background transparency operation residue` label.
+- The rule covers cleaned-down operation class/id tokens that previously emitted no
+  market-editor hard-block after broader background-panel cleanup.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "background transparency operation controls|background attribute controls|background bar child controls|operation panel component controls" --reporter=default`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file / 333 tests.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files / 1310 tests.
+- Verification:
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed; build
+  transformed 4653 modules and completed in 47.29s.
+- Release preflight remained correctly blocked by external proof gates:
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-background-transparency-operation-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, background fidelity, transparency rendering, Dark Mode, cover thumbnail
+  acceptance, credentialed sync, scheduled send, platform preview, public article rendering,
+  public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-29 Xiumi Component Depot External Edit Link Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed component-depot

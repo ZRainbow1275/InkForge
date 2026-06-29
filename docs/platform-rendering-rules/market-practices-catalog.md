@@ -1635,6 +1635,11 @@ Rules:
   inform InkForge-owned animation, insertion, margin, save-state, scale, background-bar, profile
   card, H5 fallback, and interaction-proof policy, but copied Xiumi operation-panel DOM is not
   publishable body DOM, profile-card proof, H5 proof, or platform proof.
+- Xiumi background/transparency operation controls such as `op-background-sec` and
+  `op-gen-transparency` must fail with `Xiumi background transparency operation residue`. They
+  may inform InkForge-owned background, transparency, raster fallback, Dark Mode, and
+  visual-fidelity proof policy, but copied Xiumi background operation DOM is not publishable body
+  DOM, background fidelity proof, transparency proof, or platform proof.
 - Xiumi component-depot native/embed controls such as `dc-ce-audio-card`, `dc-ce-music-card`,
   `dc-ce-map`, `dc-ce-map-tx`, `dc-ce-profile-card`, `dc-ce-redpack-cover`, `dc-ce-svg`,
   `dc-ce-video-card`, `dc-ce-video-link`, `dc-ce-video-tx`, and `dc-ce-video-xm` must fail with
@@ -1915,6 +1920,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-operation-depot-action-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-operation-panel-component-control-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-background-transparency-operation-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-svg-animation-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-external-edit-link-residue-20260629.txt`
@@ -1926,4 +1932,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-224.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-225.

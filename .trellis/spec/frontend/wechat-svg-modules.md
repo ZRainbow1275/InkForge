@@ -11069,3 +11069,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, profile-card fidelity,
   component action behavior, H5 behavior, public-host acceptance, or publish success.
+
+## 225. Xiumi Background Transparency Operation Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains background/transparency
+  operation controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback,
+  including `op-background-sec` and `op-gen-transparency`.
+- These markers are editor-side background section and generated transparency controls. They are
+  not article body background DOM, reusable InkForge source, WeChat background fidelity proof,
+  transparency rendering proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These single-token markers previously passed quality
+  detection after broader background-panel cleanup; the background/transparency operation family
+  must now receive the precise `Xiumi background transparency operation residue` label.
+- This rule must stay separate from `Xiumi background attribute control residue`, which covers
+  background attribute menus and `op-cp-bg-bar` child controls.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi background transparency operation residue` for WeChat, Xiaohongshu, and Zhihu when a
+  class or id value carries `op-background-sec` or `op-gen-transparency`.
+- A reduced fixture containing only supported background/transparency operation markers must fail
+  even when `bg-attr-menu`, `bg-repeat-select`, `bg-attach-check`, `ce-op-background`,
+  `op-cp-bg-bar`, crop panels, worker surfaces, operation-panel component controls,
+  generated-link controls, attribute-board controls, hosted media, sidebar controls, or meta
+  panels are absent.
+- The detector must not block ordinary background wording, transparency wording, generated-image
+  wording, CSS background properties, CSS opacity properties, or article text by itself. It must
+  stay anchored to Xiumi-specific `op-background-sec` / `op-gen-transparency` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced background/transparency operation fixture emits no
+  market-editor-residue issue before implementation and reports
+  `Xiumi background transparency operation residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi background attribute control residue` and
+  `Xiumi operation panel component control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, background fidelity,
+  transparency fidelity, Dark Mode behavior, public-host acceptance, or publish success.

@@ -5629,6 +5629,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, template reuse rights, sync, upload, cover thumbnail acceptance,
   public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Background Transparency Operation Residue
+
+- [x] xiumi-background-transparency-operation-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 background/transparency operation controls
+  including `op-background-sec` and `op-gen-transparency`.
+- The reduced regression intentionally keeps only those source-specific operation markers, proving
+  background/transparency controls are reported precisely without relying on `bg-attr-menu`,
+  `bg-repeat-select`, `bg-attach-check`, `ce-op-background`, `op-cp-bg-bar`, crop panels, worker
+  surfaces, operation-panel component controls, generated-link controls, attribute-board controls,
+  hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary background wording, transparency wording,
+  generated-image wording, CSS background properties, CSS opacity properties, or article text by
+  itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  background fidelity, transparency rendering, Dark Mode, sync, upload, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Operation Panel Component Control Residue
 
 - [x] xiumi-operation-panel-component-control-residue-20260629.txt

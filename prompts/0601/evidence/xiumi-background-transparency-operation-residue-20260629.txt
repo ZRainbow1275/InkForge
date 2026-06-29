@@ -1,0 +1,64 @@
+Xiumi Background Transparency Operation Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor DOM.
+- Source observation came from a live CloakBrowser DOM token readback of the Xiumi v5 paper editor.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of this evidence.
+
+Observed source-specific markers:
+- op-background-sec
+- op-gen-transparency
+
+Implemented:
+- Added the precise `Xiumi background transparency operation residue` detector for
+  `op-background-sec` and `op-gen-transparency` class/id markers.
+- Kept the rule separate from `Xiumi background attribute control residue`, which covers
+  background attribute menus and `op-cp-bg-bar` child controls.
+- Kept the rule anchored to Xiumi-specific markers so ordinary background wording,
+  transparency wording, generated-image wording, CSS background properties, CSS opacity
+  properties, and article text are not blocked by themselves.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports all emit
+  `Xiumi background transparency operation residue` for the reduced background/transparency
+  fixture.
+- The reduced fixture intentionally avoids `bg-attr-menu`, `bg-repeat-select`,
+  `bg-attach-check`, `ce-op-background`, `op-cp-bg-bar`, crop panels, worker surfaces,
+  operation-panel component controls, generated-link controls, attribute-board controls,
+  hosted media, sidebar controls, and meta panels.
+- Adjacent regressions keep the background-attribute and operation-panel component-control labels
+  independent.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "background transparency operation controls" --reporter=default`
+  failed before implementation because no market-editor-residue issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "background transparency operation controls|background attribute controls|background bar child controls|operation panel component controls" --reporter=default`
+  passed with 4 selected tests and 329 skipped tests after implementation.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 333 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1310 tests.
+- Non-mutating lint and type checks:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed with 4653 modules
+  transformed and Vite build completed in 47.29s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static quality detection and diagnostic label precision only.
+- It does not prove WeChat PC paste, phone preview, background fidelity, transparency rendering,
+  Dark Mode, mobile SMIL/click interaction, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
