@@ -10501,3 +10501,52 @@ Boundary:
   paste, phone preview, modal interaction fidelity, mobile interaction fidelity, mobile Dark Mode,
   cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
   article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 Xiumi Modal Runtime Directive Residue Addendum
+
+- Extended local static publishability protection for live Xiumi v5 modal runtime directive
+  residue observed with CloakBrowser.
+- Observed modal runtime markers: `modal-render`, `modal-in-class`, and `modal-animation`.
+- Extended the existing `Xiumi UI Bootstrap control directive residue` detector to cover those
+  modal runtime attributes.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `uib-*`, dropdown wrappers, tooltip attributes, tab transclusion, button-state controls,
+  Angular/Vue authoring attributes, `tn-*`, operation buttons, hosted media, sidebar controls, and
+  meta panels, so the label is proven independently from older Xiumi blockers.
+- The detector remains source-specific: it does not block ordinary modal prose, render prose,
+  animation prose, class prose, or Xiumi by itself.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `wechat-market-editor-residue`
+  issue was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "modal runtime directives" --reporter=default`.
+- Adjacent UI Bootstrap regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI Bootstrap (directives|tab content directives|button directives|modal directives)|modal runtime directives" --reporter=default`
+  passed with 5 selected tests and 362 skipped tests.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 367 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1344 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 28.25 seconds.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-modal-runtime-directive-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, modal interaction fidelity, mobile interaction fidelity, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -12393,3 +12393,48 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, modal interaction fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
+
+## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains Angular UI Bootstrap modal
+  runtime directives such as `modal-render`, `modal-in-class`, or `modal-animation`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed these attributes on
+  the modal window and backdrop alongside `uib-modal-animation-class`, `uib-modal-window`,
+  `uib-modal-backdrop`, and `uib-modal-transclude`.
+- These markers are editor-side modal runtime plumbing. They are not publishable article
+  attributes, reusable InkForge component source, modal fidelity proof, paste proof,
+  credentialed-channel proof, or target-platform proof.
+- This rule extends the existing `Xiumi UI Bootstrap control directive residue` diagnostic. It
+  must stay separate from Xiumi dropdown directives, Angular/Vue authoring attributes,
+  `Xiumi tn-* attribute`, hosted-media checks, operation panels, sidebar controls, and meta
+  panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi UI Bootstrap control directive residue` for
+  WeChat, Xiaohongshu, and Zhihu when `modal-render`, `modal-in-class`, or `modal-animation`
+  appears as an attribute.
+- A reduced fixture containing only those three modal runtime attributes must fail with the UI
+  Bootstrap label even when `uib-*`, dropdown wrappers, tooltip attributes, tab transclusion,
+  button-state controls, Angular/Vue authoring attributes, `tn-*`, operation buttons, hosted
+  media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary modal prose, render prose, animation prose, class prose, or
+  Xiumi by itself. It must remain anchored to explicit modal runtime directive attributes.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced modal runtime fixture initially emits no
+  `*-market-editor-residue` issue, then emits `Xiumi UI Bootstrap control directive residue` after
+  the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent UI Bootstrap dropdown, tab-content, button-state, and `uib-modal*` regressions must
+  remain green so modal runtime and UIB modal diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, modal interaction fidelity, upload, public-host acceptance,
+  credentialed sync, scheduled send, or publish success.

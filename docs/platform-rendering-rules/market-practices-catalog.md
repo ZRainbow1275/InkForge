@@ -1219,6 +1219,11 @@ Xiumi SVG/H5 rules:
   article modal semantics, mobile interaction proof, paste proof, or credentialed-channel proof.
   It remains under the existing `Xiumi UI Bootstrap control directive residue` label and must be
   rewritten as InkForge-owned content or removed before publishable output is allowed.
+- 2026-06-29 Xiumi modal runtime directive refresh: the same live modal shell exposed
+  `modal-render`, `modal-in-class`, and `modal-animation` attributes. These are Angular UI
+  Bootstrap runtime modal directives, not portable article attributes, modal fidelity proof, or
+  target-platform proof. They remain under the existing `Xiumi UI Bootstrap control directive
+  residue` label and must be stripped or replaced by InkForge-owned rendering.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 

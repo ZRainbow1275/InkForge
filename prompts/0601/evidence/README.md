@@ -7610,6 +7610,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   modal interaction fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Modal Runtime Directive Residue
+
+- [x] xiumi-modal-runtime-directive-residue-20260629.txt
+- Extended the existing static `Xiumi UI Bootstrap control directive residue` quality rule for the
+  live Xiumi v5 modal runtime directives `modal-render`, `modal-in-class`, and `modal-animation`.
+- The reduced regression intentionally keeps only those modal runtime attributes, proving
+  class-cleaned modal runtime plumbing is blocked without relying on `uib-*`, dropdown wrappers,
+  tooltip attributes, tab transclusion, button-state controls, Angular/Vue authoring attributes,
+  `tn-*`, operation buttons, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary modal prose, render prose, animation prose,
+  class prose, or Xiumi by itself; it remains anchored to explicit modal runtime directive
+  attributes.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  modal interaction fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi CSS Background Image Source
 
 - [x] xiumi-css-background-image-source-20260629.txt

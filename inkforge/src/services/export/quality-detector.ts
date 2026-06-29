@@ -317,7 +317,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi navigation shell residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\b(?:uib-(?:dropdown(?:-(?:toggle|menu))?|tooltip|accordion(?:-[\w-]+)?|collapse|modal(?:-[\w-]+)?|tab(?:set|-(?:heading|content)-transclude)?|btn-(?:radio|checkbox))|tooltip-(?:placement|popup-delay))\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\b(?:uib-(?:dropdown(?:-(?:toggle|menu))?|tooltip|accordion(?:-[\w-]+)?|collapse|modal(?:-[\w-]+)?|tab(?:set|-(?:heading|content)-transclude)?|btn-(?:radio|checkbox))|modal-(?:render|in-class|animation)|tooltip-(?:placement|popup-delay))\s*=/i,
     label: 'Xiumi UI Bootstrap control directive residue',
   },
   {
