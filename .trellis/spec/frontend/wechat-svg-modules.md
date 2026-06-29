@@ -10541,3 +10541,51 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, free-layout
   interaction, native component acceptance, public-host acceptance, or publish success.
+
+## 215. Xiumi Component Depot Mobile Viewport Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot mobile viewport
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-mobile-background`, `dc-ce-mobile-group`, `dc-ce-mobile-image`,
+  `dc-ce-mobile-text`, and `dc-ce-mobile-unsupport`.
+- These markers are editor-side mobile viewport, grouping, image/text preview, or unsupported
+  state controls. They are not article body DOM, reusable InkForge source, WeChat phone preview
+  proof, H5 proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the mobile viewport component family must now
+  receive the more precise `Xiumi component depot mobile viewport residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot mobile viewport residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported mobile viewport
+  `dc-ce-mobile-*` marker.
+- A reduced fixture containing only the supported mobile viewport component markers must fail even
+  when `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  layout/geometry controls, form/input controls, native/embed controls, attribute-board controls,
+  generated-link controls, Angular runtime attributes, hosted media, sidebar controls, or meta
+  panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced
+  mobile viewport component fixture.
+- The detector must not block ordinary mobile, background, group, image, text, unsupported,
+  viewport, preview, or responsive wording by itself. It must stay anchored to Xiumi-specific
+  `dc-ce-mobile-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced mobile viewport component fixture reports only the broad
+  operator-depot label before implementation and reports
+  `Xiumi component depot mobile viewport residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi component depot form input residue`, `Xiumi component depot layout geometry residue`, and
+  `Xiumi operator depot item residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, mobile viewport
+  acceptance, H5 interaction, public-host acceptance, or publish success.

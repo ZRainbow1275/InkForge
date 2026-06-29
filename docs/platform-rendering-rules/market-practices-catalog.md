@@ -1641,6 +1641,12 @@ Rules:
   with `Xiumi component depot layout geometry residue`. They may inform InkForge-owned layout
   reports, geometry schemas, static fallbacks, and safe rendering constraints, but copied Xiumi
   component-depot DOM is not publishable body DOM or free-layout proof.
+- Xiumi component-depot mobile viewport controls such as `dc-ce-mobile-background`,
+  `dc-ce-mobile-group`, `dc-ce-mobile-image`, `dc-ce-mobile-text`, and
+  `dc-ce-mobile-unsupport` must fail with `Xiumi component depot mobile viewport residue`. They
+  may inform InkForge-owned responsive fallback, mobile viewport, H5 degradation, and phone-proof
+  checklist design, but copied Xiumi component-depot DOM is not publishable body DOM, H5 proof, or
+  phone preview proof.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1854,4 +1860,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-form-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-layout-geometry-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-214.
+- `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-215.

@@ -1,0 +1,61 @@
+Xiumi Component Depot Mobile Viewport Residue - 2026-06-29
+
+Scope:
+- Local static quality-detector slice for Xiumi component-depot mobile viewport controls.
+- No platform action, phone scan, mobile preview claim, sync, upload, scheduled send, or publish.
+
+Live DOM source:
+- CloakBrowser inspected the authenticated Xiumi v5 paper editor DOM.
+- The component-depot/menu surface exposed these mobile viewport markers:
+  - dc-ce-mobile-background
+  - dc-ce-mobile-group
+  - dc-ce-mobile-image
+  - dc-ce-mobile-text
+  - dc-ce-mobile-unsupport
+
+Implemented:
+- Added the detector label:
+  Xiumi component depot mobile viewport residue
+- Added the rule before the broad Xiumi operator depot item residue fallback.
+- Excluded the supported mobile viewport component markers from the broad operator-depot fallback
+  so reduced mobile viewport fixtures are not double-reported.
+
+Regression coverage:
+- Added a reduced fixture containing only supported dc-ce-mobile-* component markers.
+- WeChat, Xiaohongshu, and Zhihu quality reports now fail with the precise mobile viewport label.
+- Adjacent coverage keeps native controls, form/input controls, layout/geometry controls, and the
+  broad operator-depot detector independent.
+
+Verification:
+- TDD red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot mobile viewport controls" --reporter=default
+  Expected failure before implementation: the reduced fixture emitted only
+  Xiumi operator depot item residue.
+- Focused green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "component depot mobile viewport controls|component depot layout geometry controls|component depot native controls|component depot form input controls|operator depot item controls" --reporter=default
+  PASS: 1 file / 5 selected tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 323 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1300 tests.
+- Static checks:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 47.78s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  Expected blocked result: canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview,external-dependency,unsafe-to-automate,mutating-platform.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, mobile viewport acceptance, mobile H5
+  interaction, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.

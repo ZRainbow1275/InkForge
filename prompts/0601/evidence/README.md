@@ -5687,6 +5687,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled send, or
   publish success.
 
+## 2026-06-29 Xiumi Component Depot Mobile Viewport Residue
+
+- [x] xiumi-component-depot-mobile-viewport-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot mobile viewport controls including
+  `dc-ce-mobile-background`, `dc-ce-mobile-group`, `dc-ce-mobile-image`,
+  `dc-ce-mobile-text`, and `dc-ce-mobile-unsupport`.
+- The reduced regression intentionally keeps only supported mobile viewport `dc-ce-mobile-*`
+  component markers, proving component-depot mobile viewport entries are reported precisely
+  without relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock
+  parents, layout/geometry controls, form/input controls, native/embed controls,
+  attribute-board controls, generated-link controls, Angular runtime attributes, hosted media,
+  sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced mobile viewport
+  component fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile viewport acceptance, mobile H5 interaction, mobile SMIL/click interaction, native
+  component acceptance, sync, upload, cover thumbnail acceptance, public rendering, public-host
+  acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt
