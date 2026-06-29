@@ -5667,6 +5667,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   SVG animation fidelity, mobile SMIL/click interaction, H5 behavior, sync, upload, public
   rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot External Edit Link Residue
+
+- [x] xiumi-component-depot-external-edit-link-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot external edit/link controls
+  including `dc-ce-out-cell-edit` and `dc-ce-play-cp-link`.
+- The reduced regression intentionally keeps only supported external edit/link `dc-ce-*`
+  component markers, proving component-depot external edit/link controls are reported precisely
+  without relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`,
+  operator-dock parents, generated-link controls, attribute-board controls, native/embed controls,
+  SVG/animation controls, image transform controls, box style controls, typography controls, table
+  controls, layout/geometry controls, form/input controls, mobile viewport controls, hosted media,
+  sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced external edit/link
+  fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  link fidelity, external component behavior, sync, upload, public rendering, public-host
+  acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Component Depot Form Input Residue
 
 - [x] xiumi-component-depot-form-input-residue-20260629.txt

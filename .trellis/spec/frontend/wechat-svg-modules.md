@@ -10908,3 +10908,54 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, SVG animation fidelity,
   mobile SMIL/click interaction, H5 behavior, public-host acceptance, or publish success.
+
+## 222. Xiumi Component Depot External Edit Link Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot external
+  edit/link controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-out-cell-edit` and `dc-ce-play-cp-link`.
+- These markers are editor-side external cell editing and component play-link controls. They are
+  not article body links, reusable InkForge source, WeChat link fidelity proof, upload manifests,
+  or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the external edit/link component family must now
+  receive the more precise `Xiumi component depot external edit link residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi component depot external edit link residue` for WeChat, Xiaohongshu, and Zhihu when a
+  class or id value carries a supported external edit/link `dc-ce-*` marker.
+- A reduced fixture containing only the supported external edit/link component markers must fail
+  even when `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  generated-link controls, attribute-board controls, native/embed controls, SVG/animation
+  controls, image transform controls, box style controls, typography controls, table controls,
+  layout/geometry controls, form/input controls, mobile viewport controls, hosted media, sidebar
+  controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced
+  external edit/link component fixture.
+- The detector must not block ordinary article anchors, table-cell text, link wording, edit
+  wording, play wording, or component wording by itself. It must stay anchored to Xiumi-specific
+  `dc-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced external edit/link component fixture reports only the broad
+  operator-depot label before implementation and reports
+  `Xiumi component depot external edit link residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot SVG animation residue`,
+  `Xiumi component depot native control residue`, `Xiumi component depot form input residue`,
+  `Xiumi component depot table auxiliary residue`,
+  `Xiumi component depot image transform residue`, `Xiumi component depot box style residue`,
+  `Xiumi component depot typography control residue`, and `Xiumi operator depot item residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, link fidelity,
+  external component behavior, public-host acceptance, or publish success.
