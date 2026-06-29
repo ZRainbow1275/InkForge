@@ -1,0 +1,53 @@
+Xiumi Template Entry Block Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for Xiumi v5 template recommendation / entry block
+  chrome observed through CloakBrowser.
+- Runtime trigger is limited to the source-specific `tn-tpl-entry-ex-block` class/id marker.
+- No platform action, no phone preview, no sync, no upload, no template import/reuse action, no
+  publish, and no browser profile or account artifact is included.
+
+Implemented:
+- Added `Xiumi template entry block residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- Added a reduced three-platform regression fixture:
+  `MARKET_EDITOR_XIUMI_TEMPLATE_ENTRY_BLOCK_RESIDUE_HTML`.
+- The reduced fixture keeps only `tn-tpl-entry-ex-block` plus inert visible text.
+- Adjacent labels remain independent from renderer-pipeline attributes, source-house markers,
+  scene markers, and template-card hover classes.
+- Broad `Xiumi template authoring tree residue` and `Xiumi tn-* attribute` fallbacks can still
+  report the same fragment; the exact label improves operator diagnosis and rule accounting.
+
+TDD:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template entry blocks" --reporter=default`
+  exited 1 with 1 selected failing test because only `Xiumi template authoring tree residue` and
+  `Xiumi tn-* attribute` were emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template entry blocks|template authoring tree|template scene markers|source-house authoring" --reporter=default`
+  passed with 4 selected tests and 315 skipped tests.
+
+Full verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  PASS: 1 file / 319 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  PASS: 36 files / 1296 tests.
+- `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  PASS.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS.
+- `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  PASS: 4653 modules transformed, Vite built in 48.10s.
+- `pnpm -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCK: exited 1 with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, plus summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static residue classification and regression coverage only.
+- It does not prove WeChat PC paste, ordinary clipboard paste, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, template import or reuse
+  rights, scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

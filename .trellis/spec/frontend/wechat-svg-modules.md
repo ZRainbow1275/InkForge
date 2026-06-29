@@ -10358,3 +10358,43 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback, account
   authorization, preview dialog success, or publish success.
+
+## 211. Xiumi Template Entry Block Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains template recommendation or
+  entry-block chrome observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, using
+  the source-specific `tn-tpl-entry-ex-block` class marker.
+- The live nodes were visible around template-library entry areas such as "latest templates" and
+  "refresh" affordances. They are not article body DOM, source-owned InkForge layout, or platform
+  proof.
+- This rule is additive and diagnostic. The broad `Xiumi template authoring tree residue` and
+  `Xiumi tn-* attribute` fallbacks may still fire for the same fragment, but the exact
+  `Xiumi template entry block residue` label must be present when this marker appears.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi template entry block residue` for WeChat,
+  Xiaohongshu, and Zhihu when a class or id value carries `tn-tpl-entry-ex-block`.
+- A reduced fixture containing only `tn-tpl-entry-ex-block` must fail even when renderer-pipeline
+  attributes, source-house markers, scene markers, template-card hover classes, hosted media,
+  Angular runtime attributes, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary template, latest, refresh, entry, recommendation, or block
+  wording by itself. It must stay anchored to the Xiumi-specific class/id marker.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced template-entry-block fixture lacks the exact label before
+  implementation and reports `Xiumi template entry block residue` after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi template authoring tree residue`,
+  `Xiumi template renderer pipeline residue`, `Xiumi template scene marker residue`, and
+  `Xiumi source-house authoring residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, template reuse rights,
+  public-host acceptance, or publish success.

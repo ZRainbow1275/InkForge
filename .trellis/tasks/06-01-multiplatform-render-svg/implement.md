@@ -8,6 +8,72 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Template Entry Block Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The template library surface exposed
+  `tn-tpl-entry-ex-block` on template recommendation / entry block chrome.
+- The visible sample text around the marker included latest-template and refresh affordances, which
+  are editor-side template-library controls rather than publishable article DOM or InkForge-owned
+  layout.
+- This marker is a diagnostic refinement above the broad `Xiumi template authoring tree residue`
+  and `Xiumi tn-* attribute` fallbacks. It does not import Xiumi templates, ids, dates, material
+  text, or DOM geometry into runtime output.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `detectQuality` reported LOW risk with 4 direct dependents and
+  0 affected processes.
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only the exact `tn-tpl-entry-ex-block` class
+  marker, proving copied template entry chrome receives a precise label without relying on
+  renderer-pipeline attributes, source-house markers, scene markers, template-card hover classes,
+  hosted media, Angular runtime attributes, sidebar controls, or meta panels.
+- Added the exact `Xiumi template entry block residue` detector before the broad
+  `Xiumi template authoring tree residue` fallback.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template entry blocks" --reporter=default`
+  failed with 1 selected failing test because only `Xiumi template authoring tree residue` and
+  `Xiumi tn-* attribute` were emitted.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "template entry blocks|template authoring tree|template scene markers|source-house authoring" --reporter=default`
+  passed with 4 selected tests and 315 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 319 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1296 tests.
+- Lint:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+- Type check:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+- Production build:
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed and Vite built in 48.10s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 as expected with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, and summary `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Scope:
+- This is static publishability protection only. It does not prove WeChat paste, phone preview,
+  mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  template reuse rights, scheduled send, platform preview, public article rendering, XHS/Zhihu
+  account upload, public host, or publish success.
+
 ## 2026-06-29 Xiumi Login Layer Residue Slice
 
 Source:

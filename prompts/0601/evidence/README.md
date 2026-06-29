@@ -5614,6 +5614,21 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   success, sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance,
   scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Template Entry Block Residue
+
+- [x] xiumi-template-entry-block-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 template recommendation / entry block chrome
+  carrying the source-specific `tn-tpl-entry-ex-block` class marker.
+- The reduced regression intentionally keeps only that marker, proving template-library entry
+  chrome is reported precisely without relying on renderer-pipeline attributes, source-house
+  markers, scene markers, template-card hover classes, hosted media, Angular runtime attributes,
+  sidebar controls, or meta panels.
+- The broad template authoring and `tn-*` fallbacks may still report the same fragment; the exact
+  label exists for operator diagnosis and rule accounting.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile SMIL/click interaction, template reuse rights, sync, upload, cover thumbnail acceptance,
+  public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt
