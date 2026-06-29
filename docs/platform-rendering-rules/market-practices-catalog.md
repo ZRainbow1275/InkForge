@@ -1214,6 +1214,11 @@ Xiumi SVG/H5 rules:
   tooltip, and button-state directives. This is editor-side tab panel plumbing, not publishable
   article tab semantics, mobile interaction proof, or credentialed-channel proof. It remains under
   the existing `Xiumi UI Bootstrap control directive residue` label.
+- 2026-06-29 Xiumi UI Bootstrap modal refresh: the live v5 paper editor exposed
+  `uib-modal-animation-class`. This is editor-side modal animation plumbing, not publishable
+  article modal semantics, mobile interaction proof, paste proof, or credentialed-channel proof.
+  It remains under the existing `Xiumi UI Bootstrap control directive residue` label and must be
+  rewritten as InkForge-owned content or removed before publishable output is allowed.
 - Effects requiring plugin, sync, or enhanced upload remain credentialed-channel work. Local
   browser evidence, market listing evidence, and applied-editor-element evidence are insufficient.
 

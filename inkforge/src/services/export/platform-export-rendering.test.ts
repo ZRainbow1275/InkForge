@@ -1251,6 +1251,12 @@ const MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_BUTTON_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_MODAL_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div uib-modal-animation-class="fade">Modal animation shell</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_ANGULAR_CHECKED_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<input type="checkbox" ng-checked="authorConfig.onlyFansCanComment == null">',
@@ -13274,6 +13280,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi UI Bootstrap control directive residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
       .not.toContain('Xiumi dropdown directive residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi UI Bootstrap modal directives after dropdown cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_MODAL_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_MODAL_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_UI_BOOTSTRAP_MODAL_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi UI Bootstrap control directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
+      .not.toContain('Xiumi dropdown directive residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular/Vue authoring attribute')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
