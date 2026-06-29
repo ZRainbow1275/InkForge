@@ -1162,6 +1162,13 @@ const MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CONTROL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CLASS_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="tn-color-selector"></div>',
+  '<div class="tn-color-selector-x"></div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_FONT_FORMAT_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="font-family-menu dropdown-menu" role="menu">',
@@ -12701,6 +12708,22 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CONTROL_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CONTROL_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CONTROL_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi color selector control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi color selector control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi color selector control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi color selector class controls after palette cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CLASS_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CLASS_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COLOR_SELECTOR_CLASS_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('Xiumi color selector control residue')

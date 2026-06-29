@@ -8024,6 +8024,48 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Color Selector Class Addendum
+
+- Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed the color selector
+  surface exposes `tn-color-selector` as a class token, not only as an authoring directive.
+- Extended the existing static detector label `Xiumi color selector control residue` so
+  `tn-color-selector` and `tn-color-selector-x` class/id markers are blocked with the same precise
+  color-selector diagnosis.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because no market-editor-residue issue was
+  emitted:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "color selector class controls" --reporter=default`.
+- Verification:
+  focused green and adjacent regressions passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "color selector class controls|color selector controls|color palette panels|color picker triggers|theme color widgets|font and format controls" --reporter=default`.
+- Full validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 335 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1312 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed with 4653 modules transformed in 38.87s.
+- Release preflight remained blocked as expected:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  exited 1 with `canClaimComplete=false`, `status=blocked-by-external`,
+  `blockerKinds=["phone-preview","external-dependency","unsafe-to-automate","mutating-platform"]`,
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`,
+  `nextRowRefs=5`, and `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-color-selector-class-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, color fidelity, Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance, XHS/Zhihu
+  account upload, or publish success.
+
 ## 2026-06-29 Xiumi Color Picker Trigger Addendum
 
 - Reviewed the live Xiumi v5 paper editor through CloakBrowser and confirmed editor-side hidden

@@ -5962,6 +5962,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Color Selector Class Residue
+
+- [x] xiumi-color-selector-class-residue-20260629.txt
+- Extended the existing static quality rule for live Xiumi v5 color selector controls to cover
+  `tn-color-selector` and `tn-color-selector-x` when they appear as class/id tokens.
+- The reduced regression intentionally keeps only those source-specific color selector classes,
+  proving color selector chrome is reported precisely without relying on color selector dropdowns,
+  theme color controls, `tn-color-circle`, color selector directives, palette panels, picker
+  triggers, theme color widgets, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary color wording, selector wording, CSS color
+  properties, palette prose, user article text, generic form controls, or non-Xiumi class names by
+  itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  color fidelity, Dark Mode, sync, upload, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-29 Xiumi Color Picker Trigger Residue
 
 - [x] xiumi-color-picker-trigger-residue-20260629.txt

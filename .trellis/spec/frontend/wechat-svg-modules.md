@@ -11167,3 +11167,53 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, state/loading
   animation fidelity, H5 behavior, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 227. Xiumi Color Selector Class Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains color selector class controls
+  observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `tn-color-selector` and `tn-color-selector-x`.
+- These markers are editor-side color selector class controls. They are not article body color
+  styling, reusable InkForge source, WeChat color fidelity proof, Dark Mode proof, upload
+  manifests, or target-platform proof.
+- This rule is additive and diagnostic. `tn-color-selector` was already covered as an authoring
+  directive/attribute, but the live editor also emits it as a class token. A cleaned-down class-only
+  fragment must now receive the existing precise `Xiumi color selector control residue` label.
+- This rule must stay separate from `Xiumi color palette panel residue`,
+  `Xiumi color picker trigger residue`, `Xiumi theme color widget residue`, and
+  `Xiumi font and format control residue`, which cover adjacent but different color/text UI
+  controls.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi color selector control residue` for WeChat, Xiaohongshu, and Zhihu when a class or id
+  value carries `tn-color-selector` or `tn-color-selector-x`.
+- A reduced fixture containing only `tn-color-selector` and `tn-color-selector-x` must fail even
+  when color selector dropdowns, theme color controls, `tn-color-circle`, color selector
+  directives, palette panels, picker triggers, theme color widgets, hosted media, sidebar controls,
+  or meta panels are absent.
+- The detector must not block ordinary color wording, selector wording, CSS color properties,
+  palette prose, user article text, generic form controls, or non-Xiumi class names by itself. It
+  must stay anchored to Xiumi-specific `tn-color-selector` / `tn-color-selector-x` class/id markers
+  or the existing color selector directives.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced color selector class fixture emits no market-editor-residue issue
+  before implementation and reports `Xiumi color selector control residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi color palette panel residue`,
+  `Xiumi color picker trigger residue`, `Xiumi theme color widget residue`,
+  `Xiumi color selector control residue`, and `Xiumi font and format control residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, color fidelity,
+  Dark Mode behavior, public-host acceptance, or publish success.

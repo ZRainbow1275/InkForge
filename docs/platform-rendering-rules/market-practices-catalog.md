@@ -1913,6 +1913,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-media-upload-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-color-picker-trigger-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-theme-color-widget-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-color-selector-class-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-audio-panel-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-audio-library-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-audio-room-tab-residue-20260629.txt`
@@ -1933,4 +1934,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-226.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-227.
