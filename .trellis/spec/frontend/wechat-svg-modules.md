@@ -278,6 +278,13 @@ construct breaks.
   semantics. If copied into WeChat/XHS/Zhihu publishable output, they must trigger
   market-editor residue even when style-card operation buttons, UEditor chrome, action rail
   chrome, hosted material URLs, and SVG-builder markers are absent.
+- 2026-06-29 135 ordinary full-page navigation follow-up: live full-page chrome included
+  `nav-header`, `top-style-tools`, `site-annoucement-list`, `login-menus`,
+  `left-operate-menu`, `left-advertises`, `bg-header`, `category-nav`,
+  `left_side__menu`, and `ai_subsystem_nav`. These are site header, announcement,
+  account menu, product navigation, and left-main-menu controls, not article semantics. If copied
+  into WeChat/XHS/Zhihu publishable output, they must trigger market-editor residue even when
+  style-panel, style-card, UEditor, action rail, hosted image, and SVG-builder markers are absent.
 - 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
   rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
   text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
@@ -2418,6 +2425,9 @@ Required tests/checks:
   `preview-editor`, and `sync_official_accounts`,
   135 style panel navigation chrome such as `style-operate-area`, `style-color-palette`,
   `style-categories`, `style-sorts`, and `news_modal-ys`,
+  135 full-page navigation chrome such as `nav-header`, `top-style-tools`,
+  `site-annoucement-list`, `login-menus`, `left-operate-menu`, `left-advertises`,
+  `bg-header`, `category-nav`, `left_side__menu`, and `ai_subsystem_nav`,
   known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,

@@ -10302,3 +10302,52 @@ Boundary:
   paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
   acceptance, upload, credentialed sync, scheduled send, platform preview, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Full-Page Navigation Chrome Residue Addendum
+
+- Extended local static publishability protection for live 135 ordinary editor full-page
+  navigation chrome observed with CloakBrowser.
+- Observed page chrome markers included `nav-header`, `top-style-tools`,
+  `site-annoucement-list`, `login-menus`, `left-operate-menu`, `left-advertises`, `bg-header`,
+  `category-nav`, `left_side__menu`, and `ai_subsystem_nav`.
+- Added `135 full-page navigation chrome residue` to `MARKET_EDITOR_RESIDUE_RULES` for copied
+  site header, announcement, account menu, product navigation, and left main menu controls.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `_135editor`, `data-tools`, `style_id/style_name/style_price`, style-panel controls,
+  style-card operation buttons, UEditor toolbar chrome, action rail chrome, hosted image sources,
+  and SVG-builder markers, so the new label is proven independently from older 135 blockers.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `*-market-editor-residue` issue
+  was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "full-page navigation chrome" --reporter=default`.
+- Adjacent 135 regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (left style library operation chrome|style panel navigation chrome|full-page navigation chrome|UEditor toolbar|editor action rail chrome|base markers|applied-editor text slot|SVG builder canvas blocks|mirrored _src image sources)" --reporter=default`
+  passed with 9 selected tests and 354 skipped tests.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 363 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1340 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 39.36 seconds.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-full-page-navigation-chrome-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
+  acceptance, upload, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

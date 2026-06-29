@@ -224,6 +224,16 @@ const MARKET_EDITOR_135_STYLE_PANEL_NAV_CHROME_RESIDUE_HTML = [
   '<div id="style-color-palette">Theme color</div>',
 ].join('')
 
+const MARKET_EDITOR_135_PAGE_NAV_CHROME_RESIDUE_HTML = [
+  '<section><p>Readable article text that should not carry full-page editor navigation chrome.</p></section>',
+  '<header id="nav-header" class="bg-header">',
+  '<div id="top-style-tools"><div id="site-annoucement-list" class="site-annoucement-list">Notice</div></div>',
+  '<ul class="fr nav editor-nav category-nav"><li class="nav-item dropdown"><a id="link-123" class="nav-link dropdown-toggle" data-toggle="dropdown">Materials</a></li></ul>',
+  '<ul id="login-menus" class="float-right nav editor-nav"></ul>',
+  '</header>',
+  '<nav class="left_side__menu"><ul id="left-operate-menu" class="nav nav-tabs n1-1"></ul></nav>',
+].join('')
+
 const MARKET_EDITOR_135_UEDITOR_CHROME_RESIDUE_HTML = [
   '<section><p>Readable article text that should not carry editor toolbar controls.</p></section>',
   '<div id="edui23" class="edui-editor edui-default">',
@@ -10022,6 +10032,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('135 style library operation chrome residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('135 UEditor toolbar/editor chrome residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 full-page navigation chrome without style panel metadata', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_PAGE_NAV_CHROME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_PAGE_NAV_CHROME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_PAGE_NAV_CHROME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 full-page navigation chrome residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 full-page navigation chrome residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 full-page navigation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 style panel navigation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 editor action rail chrome residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
