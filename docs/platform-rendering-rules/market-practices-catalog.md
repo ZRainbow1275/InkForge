@@ -1647,6 +1647,11 @@ Rules:
   `Xiumi component depot table control residue`. They may inform InkForge-owned table fallback,
   column-width, merge-fidelity, grid, and platform table policy design, but copied Xiumi
   component-depot DOM is not publishable body DOM or complex-table proof.
+- Xiumi component-depot table auxiliary controls such as `dc-ce-table-column-width`,
+  `dc-ce-table-grid`, and `dc-ce-table-style-brush` must fail with
+  `Xiumi component depot table auxiliary residue`. They may inform InkForge-owned non-classic
+  table fallback, column-width, grid, and style-brush policy, but copied Xiumi component-depot DOM
+  is not publishable body table DOM or table fidelity proof.
 - Xiumi component-depot image transform controls such as `dc-ce-crop-image-crop`,
   `dc-ce-image-animation`, `dc-ce-image-crop`, `dc-ce-image-design`,
   `dc-ce-image-enhancement`, `dc-ce-image-flip`, `dc-ce-image-for-layout-datum`,
@@ -1889,8 +1894,9 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-form-input-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-layout-geometry-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-table-control-residue-20260629.txt`
+- `prompts/0601/evidence/xiumi-component-depot-table-auxiliary-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-image-transform-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-box-style-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-219.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-220.

@@ -5748,6 +5748,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   image crop fidelity, SVG clip fidelity, popup image behavior, cover thumbnail acceptance, sync,
   upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Table Auxiliary Residue
+
+- [x] xiumi-component-depot-table-auxiliary-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot table auxiliary controls including
+  `dc-ce-table-column-width`, `dc-ce-table-grid`, and `dc-ce-table-style-brush`.
+- The reduced regression intentionally keeps only supported table auxiliary `dc-ce-*` component
+  markers, proving component-depot table auxiliary controls are reported precisely without relying
+  on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  classic-table controls, image transform controls, box style controls, typography controls,
+  layout/geometry controls, form/input controls, native/embed controls, mobile viewport controls,
+  hosted media, sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced table auxiliary
+  fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  table rendering, column-width fidelity, grid fidelity, style-brush fidelity, sync, upload,
+  public rendering, public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Component Depot Box Style Residue
 
 - [x] xiumi-component-depot-box-style-residue-20260629.txt
