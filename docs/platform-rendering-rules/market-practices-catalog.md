@@ -1628,6 +1628,11 @@ Rules:
   `Xiumi component depot native control residue`. They may inform InkForge-owned media, map,
   profile, action, SVG, video, manifest, and fallback schemas, but copied Xiumi component-depot DOM
   is not publishable body DOM or platform proof.
+- Xiumi component-depot form/input controls such as `dc-ce-input-checkbox`,
+  `dc-ce-input-radio`, `dc-ce-input-select`, `dc-ce-input-text`, and
+  `dc-ce-input-multi-line-text` must fail with `Xiumi component depot form input residue`. They
+  may inform InkForge-owned H5/form schemas and static fallback requirements, but copied Xiumi
+  component-depot DOM is not publishable body DOM or interaction proof.
 - Xiumi editor control surfaces must fail when class/id attributes contain `ui-slider` control
   classes, `ui-sortable` drag/sort controls, `op-loader` operation-panel loader state, or
   operator-dock / external-edit-panel controls such as `op-dock`, `out-comp-edit-dock`,
@@ -1839,4 +1844,5 @@ Evidence:
 - `prompts/0601/evidence/xiumi-login-layer-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-template-entry-block-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-native-control-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-212.
+- `prompts/0601/evidence/xiumi-component-depot-form-input-residue-20260629.txt`
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-213.

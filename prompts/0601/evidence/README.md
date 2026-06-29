@@ -5648,6 +5648,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled send, or
   publish success.
 
+## 2026-06-29 Xiumi Component Depot Form Input Residue
+
+- [x] xiumi-component-depot-form-input-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot form/input controls including
+  `dc-ce-input-checkbox`, `dc-ce-input-radio`, `dc-ce-input-select`, `dc-ce-input-text`, and
+  `dc-ce-input-multi-line-text`.
+- The reduced regression intentionally keeps only supported `dc-ce-input-*` component markers,
+  proving component-depot form/input entries are reported precisely without relying on
+  `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents, layout/form
+  panels, layout/form child controls, attribute-board controls, generated-link controls, Angular
+  runtime attributes, hosted media, sidebar controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced form/input component
+  fixture so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  mobile form interaction, mobile SMIL/click interaction, native component acceptance, sync,
+  upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled send, or
+  publish success.
+
 ## 2026-06-29 Xiumi Audio Library Control Residue
 
 - [x] xiumi-audio-library-control-residue-20260629.txt

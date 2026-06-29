@@ -10444,3 +10444,49 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, media playback,
   native/embed component acceptance, public-host acceptance, or publish success.
+
+## 213. Xiumi Component Depot Form Input Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot form/input
+  controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-input-checkbox`, `dc-ce-input-radio`, `dc-ce-input-select`, `dc-ce-input-text`, and
+  `dc-ce-input-multi-line-text`.
+- These markers are editor-side insertable input controls for form-like interactive components.
+  They are not article body DOM, reusable InkForge source, WeChat-safe H5 proof, form submission
+  proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the form/input component family must now receive
+  the more precise `Xiumi component depot form input residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot form input residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported
+  `dc-ce-input-*` component marker.
+- A reduced fixture containing only form/input component markers must fail even when `op-dc-*`,
+  `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents, layout/form panels,
+  layout/form child controls, attribute-board controls, generated-link controls, Angular runtime
+  attributes, hosted media, sidebar controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced
+  form/input component fixture.
+- The detector must not block ordinary checkbox, radio, select, text input, textarea, form, survey,
+  or interaction wording by itself. It must stay anchored to Xiumi-specific `dc-ce-input-*`
+  class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced form/input component fixture reports only the broad operator-depot
+  label before implementation and reports `Xiumi component depot form input residue` after the
+  detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi operator depot item residue`, and `Xiumi attribute board control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, H5/form interaction,
+  native component acceptance, public-host acceptance, or publish success.
