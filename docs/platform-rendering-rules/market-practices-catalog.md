@@ -1883,6 +1883,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-operation-bar-input-separator-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-box-metrics-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-crop-panel-child-control-residue-20260628.txt`
+- `prompts/0601/evidence/xiumi-image-crop-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-background-attribute-control-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-attribute-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-panel-child-control-residue-20260628.txt`

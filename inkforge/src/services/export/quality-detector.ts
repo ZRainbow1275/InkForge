@@ -525,6 +525,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi crop panel child control residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-img-crop\s*=/i,
+    label: 'Xiumi image crop directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:op-background-sec|op-gen-transparency)\b[^"']*["']/i,
     label: 'Xiumi background transparency operation residue',
   },

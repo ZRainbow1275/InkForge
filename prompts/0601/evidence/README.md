@@ -5715,6 +5715,19 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   drag/drop fidelity, component-editing fidelity, H5 interaction behavior, sync, upload, public
   rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Image Crop Directive Residue
+
+- [x] xiumi-image-crop-directive-residue-20260629.txt
+- Added a static quality rule for the live Xiumi v5 image crop directive `tn-img-crop`.
+- The reduced regression intentionally keeps only that source-specific directive attribute,
+  proving cleaned-down image crop residue gets a precise label instead of relying only on the
+  broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary crop wording, image wording, standard `<img>`
+  markup, standard cropping prose, or article text by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  image crop fidelity, public-host acceptance, sync, upload, cover thumbnail acceptance,
+  scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi State Loading Utility Residue
 
 - [x] xiumi-state-loading-utility-residue-20260629.txt
