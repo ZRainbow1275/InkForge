@@ -5748,6 +5748,25 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   image crop fidelity, SVG clip fidelity, popup image behavior, cover thumbnail acceptance, sync,
   upload, public rendering, public-host acceptance, scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Component Depot Box Style Residue
+
+- [x] xiumi-component-depot-box-style-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 component-depot box/background style controls
+  including `dc-ce-background`, `dc-ce-box-border`, `dc-ce-box-formats`,
+  `dc-ce-box-metrics`, `dc-ce-box-shadow`, and `dc-ce-transparency`.
+- The reduced regression intentionally keeps only supported box/background style `dc-ce-*`
+  component markers, proving component-depot box style controls are reported precisely without
+  relying on `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  image transform controls, typography controls, table controls, layout/geometry controls,
+  form/input controls, native/embed controls, mobile viewport controls, hosted media, sidebar
+  controls, or meta panels.
+- The broad `Xiumi operator depot item residue` detector excludes the reduced box style fixture
+  so it is not double-reported as generic operator-depot residue.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  visual-style fidelity, background rendering, border/shadow fidelity, transparency rendering,
+  Dark Mode, sync, upload, public rendering, public-host acceptance, scheduled send, or publish
+  success.
+
 ## 2026-06-29 Xiumi Component Depot Typography Control Residue
 
 - [x] xiumi-component-depot-typography-control-residue-20260629.txt

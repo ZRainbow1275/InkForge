@@ -10748,3 +10748,55 @@ const ruleFamilies = [
   WeChat paste, phone preview, credentialed sync, public rendering, upload, paragraph spacing
   fidelity, code typography fidelity, text-shadow rendering, Dark Mode, public-host acceptance, or
   publish success.
+
+## 219. Xiumi Component Depot Box Style Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains component-depot box/background
+  style controls observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `dc-ce-background`, `dc-ce-box-border`, `dc-ce-box-formats`, `dc-ce-box-metrics`,
+  `dc-ce-box-shadow`, and `dc-ce-transparency`.
+- These markers are editor-side background, border, box format, box metric, shadow, and
+  transparency controls. They are not article body decoration DOM, reusable InkForge source,
+  WeChat visual-style fidelity proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. These markers used to fall through the broad
+  `Xiumi operator depot item residue` fallback; the box/background style component family must
+  now receive the more precise `Xiumi component depot box style residue` label.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi component depot box style residue` for
+  WeChat, Xiaohongshu, and Zhihu when a class or id value carries a supported box/background
+  style `dc-ce-*` marker.
+- A reduced fixture containing only the supported box/background style component markers must fail
+  even when `op-dc-*`, `ce-dc`, `cp-dc`, `dc-cp-*`, `tn-op-dc-item`, operator-dock parents,
+  image transform controls, typography controls, table controls, layout/geometry controls,
+  form/input controls, native/embed controls, mobile viewport controls, hosted media, sidebar
+  controls, or meta panels are absent.
+- The broad `Xiumi operator depot item residue` detector must not double-report that reduced
+  box/background style component fixture.
+- The detector must not block ordinary CSS background, border, shadow, opacity, transparency, box
+  model, formatting, or visual-style wording by itself. It must stay anchored to Xiumi-specific
+  `dc-ce-*` class/id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced box/background style component fixture reports only the broad
+  operator-depot label before implementation and reports `Xiumi component depot box style residue`
+  after the detector update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi component depot native control residue`,
+  `Xiumi component depot form input residue`, `Xiumi component depot layout geometry residue`,
+  `Xiumi component depot table control residue`, `Xiumi component depot image transform residue`,
+  `Xiumi component depot typography control residue`,
+  `Xiumi component depot mobile viewport residue`, and `Xiumi operator depot item residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, visual-style fidelity,
+  background rendering, border/shadow fidelity, transparency rendering, Dark Mode, public-host
+  acceptance, or publish success.
