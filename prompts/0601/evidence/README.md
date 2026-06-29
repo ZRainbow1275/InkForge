@@ -6917,6 +6917,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
   send, or publish success.
 
+## 2026-06-29 Xiumi Cover Image Description Residue
+
+- [x] xiumi-cover-image-description-residue-20260629.txt
+- Extended the existing static quality rule for live Xiumi v5 cover child markers:
+  `cover-img` and `cover-desc` now report the precise `Xiumi cover placeholder residue` label.
+- The reduced regression intentionally keeps only those source-specific class tokens, proving
+  cleaned-down cover image/description residue is blocked without relying on `cover-imgs`,
+  `cover-placeholder`, `cover-mask`, `mask-border`, `play-placeholder`, `second-placeholder`,
+  `op-bar-menu`, `cover-menu`, `op-ce-wx-cover`, `op-dark-mask`, generated-link controls, or
+  operation-bar controls.
+- The detector intentionally does not block ordinary cover description, image description, article
+  cover prose, generic image classes, generic description classes, or non-Xiumi class names by
+  itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  sync, upload, cover thumbnail acceptance, public rendering, public-host acceptance, scheduled
+  send, or publish success.
+
 ## 2026-06-29 Xiumi Template Card Hover Residue
 
 - [x] xiumi-template-card-hover-residue-20260629.txt
@@ -7022,7 +7039,8 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - The generic `Xiumi operation bar dropdown residue` detector now excludes `cover-menu` so cover
   picker controls are reported under the more precise WeChat cover-control label.
 - The detector intentionally does not block ordinary WeChat cover, gallery, cover description, or
-  cover image wording by itself; `cover-desc` and `cover-imgs` are not standalone triggers.
+  cover image wording by itself. The later `Xiumi Cover Image Description Residue` slice covers
+  standalone `cover-desc` / `cover-img` child shells under the cover-placeholder label.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   mobile SMIL/click interaction, sync, upload, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.

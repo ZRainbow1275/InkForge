@@ -11265,3 +11265,52 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, typography fidelity,
   Dark Mode behavior, public-host acceptance, or publish success.
+
+## 229. Xiumi Cover Image Description Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains cover image or cover description
+  child markers observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback, including
+  `cover-img` and `cover-desc`.
+- These markers are editor-side cover child shells. They are not article body cover prose,
+  reusable InkForge source, WeChat cover thumbnail acceptance proof, Dark Mode proof, upload
+  manifests, or target-platform proof.
+- This rule is additive and diagnostic. `cover-imgs` was already covered by the
+  `Xiumi cover placeholder residue` detector, but the live editor can also leave a cleaned-down
+  single-image child marker plus a description child marker that must receive the same precise
+  cover-placeholder label.
+- This rule must stay separate from `Xiumi WeChat cover control residue`, which covers cover menu
+  and preview controls, from `Xiumi dark mask control residue`, and from
+  `Xiumi scale panel control residue`.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi cover placeholder residue` for WeChat, Xiaohongshu, and Zhihu when a class or id value
+  carries `cover-img` or `cover-desc`.
+- A reduced fixture containing only `cover-img` and `cover-desc` must fail even when
+  `cover-imgs`, `cover-placeholder`, `cover-mask`, `mask-border`, `play-placeholder`,
+  `second-placeholder`, `op-bar-menu`, `cover-menu`, `op-ce-wx-cover`, `op-dark-mask`,
+  generated-link controls, operation-bar controls, hosted media, sidebar controls, or meta panels
+  are absent.
+- The detector must not block ordinary cover wording, image wording, description wording, article
+  cover prose, generic image classes, generic description classes, or non-Xiumi class names by
+  itself. It must stay anchored to Xiumi cover placeholder / cover child class or id markers.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced cover image/description fixture emits no market-editor-residue
+  issue before implementation and reports `Xiumi cover placeholder residue` after the detector
+  update.
+- Regression tests must assert the residue label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi cover placeholder residue`,
+  `Xiumi WeChat cover control residue`, `Xiumi dark mask control residue`, and
+  `Xiumi scale panel control residue` independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
+  acceptance, Dark Mode behavior, public-host acceptance, or publish success.

@@ -497,7 +497,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi WeChat cover control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:cover-imgs|cover-placeholder|cover-mask|mask-border|play-placeholder|second-placeholder)\b[^"']*["']/i,
+    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\b(?:cover-imgs?|cover-desc|cover-placeholder|cover-mask|mask-border|play-placeholder|second-placeholder)\b[^"']*["']/i,
     label: 'Xiumi cover placeholder residue',
   },
   {

@@ -954,6 +954,13 @@ const MARKET_EDITOR_XIUMI_COVER_PLACEHOLDER_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_COVER_IMAGE_DESC_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div class="cover-img"></div>',
+  '<div class="cover-desc"></div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_SCALE_PANEL_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-ce-scale">Xiumi scale panel control residue</div>',
@@ -12275,6 +12282,22 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi dark mask control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi operation bar dropdown residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi cover image and description children after placeholder cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_COVER_IMAGE_DESC_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_COVER_IMAGE_DESC_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_COVER_IMAGE_DESC_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi cover placeholder residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi cover placeholder residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi cover placeholder residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

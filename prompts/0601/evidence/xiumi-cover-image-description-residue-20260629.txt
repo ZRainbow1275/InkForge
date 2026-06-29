@@ -1,0 +1,61 @@
+Xiumi Cover Image Description Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor HTML.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Observed source family:
+- Live Xiumi v5 paper-editor DOM readback exposed editor-side cover image and cover description
+  child markers:
+  - cover-img
+  - cover-desc
+
+Implemented:
+- Extended existing detector label:
+  Xiumi cover placeholder residue
+- Added a reduced regression fixture containing only cover-img and cover-desc.
+- Rule remains anchored to Xiumi cover placeholder / cover child class or id markers and does not
+  block ordinary cover prose, image prose, description prose, article text, generic image classes,
+  generic description classes, or non-Xiumi class names by itself.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit platform-specific
+  market-editor-residue ids for the reduced cover image/description fixture.
+- Adjacent regressions keep WeChat cover control, WeChat cover menu, dark mask, cover placeholder,
+  and scale panel labels independent.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "cover image and description" --reporter=default
+  FAIL: 1 selected failing test before the detector update because no market-editor-residue issue
+  was emitted.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "cover image and description|cover placeholder shells|WeChat cover menu|WeChat cover controls|dark mask controls|scale panel controls" --reporter=default
+  PASS: 1 file / 6 selected tests / 331 skipped tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000
+  PASS: 1 file / 337 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000
+  PASS: 36 files / 1314 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 36.15s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1 with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, cover thumbnail acceptance, mobile Dark Mode,
+  mobile SMIL/click interaction, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
