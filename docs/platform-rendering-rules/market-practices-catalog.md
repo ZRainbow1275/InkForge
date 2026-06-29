@@ -1808,6 +1808,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-animation-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-link-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-image-binding-metadata-residue-20260626.txt`
+- `prompts/0601/evidence/xiumi-sound-comment-binding-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-preload-image-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-structure-binding-metadata-residue-20260626.txt`
 - `prompts/0601/evidence/xiumi-cell-binding-metadata-residue-20260626.txt`

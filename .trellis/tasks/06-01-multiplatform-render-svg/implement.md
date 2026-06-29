@@ -8,6 +8,67 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Sound/Comment Binding Metadata Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The editing surface exposed sound/comment
+  binding metadata directives including `tn-sound` and `tn-comment`.
+- These entries are editor-side audio/comment binding metadata. They are not publishable article
+  audio semantics, comment semantics, upload manifests, platform-safe embeds, reusable InkForge
+  source, media playback proof, comment-system proof, or target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` still could not resolve `MARKET_EDITOR_RESIDUE_RULES` as a graph target,
+  so pre-edit graph impact remains `UNKNOWN`; this is the same tool limitation recorded in the
+  prior detector slices.
+- The implementation compensates by keeping the edit to one detector array entry, one reduced
+  regression fixture, docs, and evidence, then running focused, full platform-rendering, full
+  export-service, lint, type, build, release-preflight, and pre-commit diff checks.
+
+Implementation:
+- Added a reduced regression fixture containing only `tn-sound` and `tn-comment`, proving
+  cleaned-down sound/comment binding metadata receives the precise
+  `Xiumi sound/comment binding metadata residue` label without relying on audio-panel classes,
+  audio-library controls, audio-room tabs, comment-toolbar classes, broad Angular runtime
+  attributes/classes, hosted media, sidebar controls, or meta panels.
+- Added the `Xiumi sound/comment binding metadata residue` detector before the broad
+  `Xiumi tn-* attribute` fallback while keeping adjacent audio panel and comment toolbar
+  diagnostics independent.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sound and comment binding" --reporter=default`
+  failed with 1 selected failing test because the fixture only emitted `Xiumi tn-* attribute`.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sound and comment binding|audio panel controls|comment toolbar classes|Xiumi tn\\* attribute" --reporter=default`
+  passed with 3 selected tests and 342 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 345 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1322 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and completed in 34.27s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, media playback fidelity, comment-system fidelity,
+  mobile SMIL/click interaction, Dark Mode, credentialed sync, scheduled send, platform preview,
+  public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Image Crop Directive Residue Slice
 
 Source:

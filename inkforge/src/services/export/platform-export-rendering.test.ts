@@ -908,6 +908,12 @@ const MARKET_EDITOR_XIUMI_AUDIO_PANEL_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_SOUND_COMMENT_BINDING_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div tn-sound="page.sound" tn-comment="page.comment">Xiumi sound/comment binding</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_LAYOUT_FORM_PANEL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<ul class="layout-box-panel">Xiumi layout form panel residue</ul>',
@@ -12240,6 +12246,26 @@ describe('platform native export rendering rules', () => {
       .not.toContain('Xiumi generated link control residue')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi account sync panel residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi sound and comment binding metadata with a precise label', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_SOUND_COMMENT_BINDING_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_SOUND_COMMENT_BINDING_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_SOUND_COMMENT_BINDING_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi sound/comment binding metadata residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi sound/comment binding metadata residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi sound/comment binding metadata residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi audio panel residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi comment toolbar panel residue')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

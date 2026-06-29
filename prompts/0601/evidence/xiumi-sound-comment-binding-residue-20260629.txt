@@ -1,0 +1,54 @@
+Xiumi Sound/Comment Binding Metadata Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi editor HTML.
+- Source marker family: live Xiumi v5 editor-side sound/comment binding metadata directives.
+- Covered directive attributes: tn-sound, tn-comment.
+
+Implemented:
+- Added the Xiumi sound/comment binding metadata residue detector in
+  inkforge/src/services/export/quality-detector.ts.
+- Added a reduced three-platform regression fixture in
+  inkforge/src/services/export/platform-export-rendering.test.ts.
+
+TDD:
+- Red command:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sound and comment binding" --reporter=default
+- Red result:
+  Failed as expected because the reduced fixture only emitted Xiumi tn-* attribute.
+- Green command:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "sound and comment binding|audio panel controls|comment toolbar classes|Xiumi tn\\* attribute" --reporter=default
+- Green result:
+  Passed after adding the precise detector. The selected run covered 3 tests with 342 skipped tests.
+
+Full verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 345 tests
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1322 tests
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, built in 34.27s
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit code 1, status blocked-by-external, canClaimComplete false,
+  blocker kinds phone-preview, external-dependency, unsafe-to-automate, mutating-platform.
+
+Expected diagnostic:
+- Xiumi sound/comment binding metadata residue
+
+Negative boundaries:
+- The detector does not rely on audio panel classes, audio library controls, audio-room tabs,
+  comment toolbar classes, broad Angular runtime attributes/classes, hosted media, sidebar
+  controls, or meta panels.
+- The detector does not block ordinary sound wording, comment wording, ordinary audio markup,
+  article text, or non-Xiumi class names by itself.
+
+Proof boundary:
+- This is local static publishability protection only.
+- This does not prove WeChat PC paste, phone preview, media playback fidelity, comment-system
+  fidelity, mobile SMIL/click interaction, Dark Mode, credentialed sync, scheduled send, platform
+  preview, public article rendering, public-host acceptance, XHS/Zhihu account upload, or publish
+  success.

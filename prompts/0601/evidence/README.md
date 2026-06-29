@@ -5728,6 +5728,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   image crop fidelity, public-host acceptance, sync, upload, cover thumbnail acceptance,
   scheduled send, or publish success.
 
+## 2026-06-29 Xiumi Sound/Comment Binding Metadata Residue
+
+- [x] xiumi-sound-comment-binding-residue-20260629.txt
+- Added a static quality rule for live Xiumi v5 sound/comment binding metadata directives:
+  `tn-sound` and `tn-comment`.
+- The reduced regression intentionally keeps only those source-specific directive attributes,
+  proving cleaned-down sound/comment binding metadata gets a precise label instead of relying
+  only on the broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary sound wording, comment wording, ordinary
+  `<audio>` elements, article text, or non-Xiumi class names by itself.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  media playback fidelity, comment-system fidelity, sync, upload, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi State Loading Utility Residue
 
 - [x] xiumi-state-loading-utility-residue-20260629.txt
