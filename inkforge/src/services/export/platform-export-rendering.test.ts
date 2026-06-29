@@ -1249,6 +1249,12 @@ const MARKET_EDITOR_XIUMI_TEXT_INPUT_BEGIN_DIRECTIVE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_TEXT_INPUT_DONE_FOR_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<textarea tn-text-input-done-for="blur">Xiumi text done-for shell</textarea>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_TEXT_TOOLBAR_CONTROL_RESIDUE_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-text-sec font-size btn-group dropdown" title="字体大小">12 14 16 18</div>',
@@ -13142,6 +13148,26 @@ describe('platform native export rendering rules', () => {
       .toContain('Xiumi font and format control residue')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('Xiumi font and format control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('Xiumi text toolbar control residue')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi text input done-for directives under font and format controls', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_TEXT_INPUT_DONE_FOR_DIRECTIVE_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_TEXT_INPUT_DONE_FOR_DIRECTIVE_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_TEXT_INPUT_DONE_FOR_DIRECTIVE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi font and format control residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Xiumi font and format control residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Xiumi font and format control residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Xiumi tn-* attribute')
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .not.toContain('Xiumi text toolbar control residue')
     expect(wechat.passed).toBe(false)

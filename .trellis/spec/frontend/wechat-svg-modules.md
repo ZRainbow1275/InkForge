@@ -12017,3 +12017,50 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, link fidelity, drag/drop fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
+
+## 245. Xiumi Text Input Done-For Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains the text-input completion
+  directive attribute `tn-text-input-done-for`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed
+  `tn-text-input-done-for` on text/description input surfaces alongside already-covered
+  `tn-text-input-begin` and `tn-text-input-done` controls.
+- This marker is editor-side text editing event binding metadata. It is not article text,
+  publishable input behavior, reusable InkForge typography source, platform paste proof, or
+  target-platform proof.
+- This rule extends the existing `Xiumi font and format control residue` diagnostic. It must stay
+  separate from `Xiumi text toolbar control residue`, `Xiumi tn-* attribute`,
+  editable-surface markers, Angular/Vue attributes, hosted-media checks, sidebar controls, and
+  meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi font and format control residue` for WeChat,
+  Xiaohongshu, and Zhihu when `tn-text-input-done-for` appears as an attribute.
+- A reduced fixture containing only `tn-text-input-done-for` must fail with the font/format label
+  even when font-family classes, font-size classes, `tn-text-input-begin`, `tn-text-input-done`,
+  text toolbar controls, Angular runtime attributes/classes, hosted media, sidebar controls, or
+  meta panels are absent.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture; the
+  acceptance requirement is that the actionable font/format label is also present.
+- The detector must not block ordinary prose that mentions done, blur, text input, completion,
+  typography, or Xiumi by itself. It must remain anchored to the Xiumi-specific directive
+  attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `tn-text-input-done-for` fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports `Xiumi font and format control residue` after the
+  detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent font/format and `tn-text-input-begin` regressions must remain green so text-input
+  directive diagnostics stay independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, text editing fidelity, typography fidelity, upload, public-host
+  acceptance, credentialed sync, scheduled send, or publish success.

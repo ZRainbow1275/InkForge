@@ -7402,3 +7402,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   link fidelity, drag/drop fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
+
+## 2026-06-29 Xiumi Text Input Done-For Residue
+
+- [x] xiumi-text-input-done-for-residue-20260629.txt
+- Extended the existing static `Xiumi font and format control residue` quality rule for the live
+  Xiumi v5 text-input completion directive `tn-text-input-done-for`.
+- The reduced regression intentionally keeps only `tn-text-input-done-for`, proving class-cleaned
+  text input completion metadata gets an actionable font/format label instead of relying only on
+  the broad `Xiumi tn-* attribute` fallback.
+- The detector intentionally does not block ordinary text, blur wording, completion prose,
+  typography wording, or Xiumi by itself; it remains anchored to the Xiumi-specific directive
+  attribute.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  text editing fidelity, typography fidelity, upload, sync, cover thumbnail acceptance, public
+  rendering, public-host acceptance, scheduled send, or publish success.

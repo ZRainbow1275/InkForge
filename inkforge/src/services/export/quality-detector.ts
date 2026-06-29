@@ -329,7 +329,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi color selector control residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:tn-global-format-dropdown|tn-basic-format-tabset|font-family-menu|font-family-list|stc-family-name-yzk--?\d+|text-format-brush|text-misc|size-input)\b[^"']*["']|\b(?:tn-list-locate-active-item|tn-number-input|tn-text-input-(?:begin|done)|skim-(?:value-(?:prev|next)|change|end))\s*=)/i,
+    pattern: /<[a-zA-Z][^>]*(?:(?:class|id)\s*=\s*["'][^"']*\b(?:tn-global-format-dropdown|tn-basic-format-tabset|font-family-menu|font-family-list|stc-family-name-yzk--?\d+|text-format-brush|text-misc|size-input)\b[^"']*["']|\b(?:tn-list-locate-active-item|tn-number-input|tn-text-input-(?:begin|done(?:-for)?)|skim-(?:value-(?:prev|next)|change|end))\s*=)/i,
     label: 'Xiumi font and format control residue',
   },
   {

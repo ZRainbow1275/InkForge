@@ -1,0 +1,54 @@
+Xiumi Text Input Done-For Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for the Xiumi text-input completion directive observed on
+  the live Xiumi v5 paper editor surface.
+- Covered attribute: tn-text-input-done-for.
+- No platform action, no phone preview, no sync, no upload, no publish, no account artifact, no
+  browser runtime artifact, no capture-location reference, no QR artifact, and no credential
+  material.
+
+Implemented:
+- Extended the existing Xiumi font and format control detector from tn-text-input-done to
+  tn-text-input-done(?:-for)?.
+- Added a reduced regression fixture that contains only tn-text-input-done-for.
+
+Behavior:
+- WeChat, Xiaohongshu, and Zhihu quality checks report Xiumi font and format control residue for
+  the reduced fixture.
+- The broad Xiumi tn-* attribute fallback may still appear on the same fixture.
+- Xiumi text toolbar control residue stays absent for the reduced fixture.
+- The rule does not treat ordinary text, blur wording, done wording, completion prose, typography
+  wording, or Xiumi prose as residue by itself.
+
+Regression coverage:
+- Class-cleaned text input completion residue cannot pass publishability checks.
+- Adjacent font/format controls and tn-text-input-begin directives remain covered.
+- The change reuses the existing font/format control label instead of adding a broad any-tn-* rule.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "done-for directives" --reporter=default
+  RED: 1 selected failing test before the detector update; only Xiumi tn-* attribute was emitted.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "done-for directives|text input begin directives|font and format controls" --reporter=default
+  PASS: 1 file / 3 selected tests / 350 skipped tests after the detector update.
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 353 tests.
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1330 tests.
+- pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; built in 30.63s.
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCKED: exit 1; canClaimComplete=false; status=blocked-by-external; blocker kinds
+  phone-preview, external-dependency, unsafe-to-automate, mutating-platform; externalHandoffRows=18;
+  safeExternalRows=0; actionableLocalRows=0; nextRowRefs=5; uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic coverage only.
+- It does not prove WeChat PC paste, phone preview, text editing fidelity, typography fidelity,
+  upload, cover thumbnail acceptance, mobile Dark Mode, mobile SMIL/click interaction,
+  credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu account
+  upload, or publish success.
