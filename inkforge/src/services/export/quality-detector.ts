@@ -73,6 +73,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 full-page navigation chrome residue',
   },
   {
+    pattern: /<a\b[^>]*(?:\bclass\s*=\s*["'][^"']*\bannouncement\b(?=[^"']*\bunread\b)[^"']*["']|\bhref\s*=\s*["'](?:https?:\/\/www\.135editor\.com)?\/announcements\/view\/\d+(?:[?#][^"']*)?["'])/i,
+    label: '135 announcement link chrome residue',
+  },
+  {
     pattern: /<iframe\b[^>]*(?:\bid\s*=\s*["'](?:ai_polish_box_iframe|js_shared_iframe|svg_editor_iframe|ueditor_0)["']|\b_src\s*=\s*["'][^"']*\/style-center\?[^"']*["'])/i,
     label: '135 editor helper iframe residue',
   },

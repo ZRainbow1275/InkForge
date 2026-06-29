@@ -2430,6 +2430,8 @@ Required tests/checks:
   `bg-header`, `category-nav`, `left_side__menu`, and `ai_subsystem_nav`,
   135 helper iframe chrome such as `ai_polish_box_iframe`, `js_shared_iframe`,
   `svg_editor_iframe`, `ueditor_0`, and `_src="/style-center?...`,
+  135 announcement link chrome such as `announcement unread` links and
+  `/announcements/view/<id>` hrefs,
   known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
@@ -12303,4 +12305,47 @@ const ruleFamilies = [
   green so each diagnostic stays independently actionable.
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, iframe fidelity, upload, public-host acceptance, credentialed sync,
+  scheduled send, or publish success.
+
+## 250. 135 Ordinary Editor Announcement Link Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned 135 ordinary editor page HTML contains announcement-strip
+  link chrome such as `class="announcement unread"` or an `/announcements/view/<id>` link.
+- CloakBrowser live DOM refresh on the active 135 ordinary editor observed those links inside the
+  announcement area after the full-page navigation and helper-iframe refreshes.
+- These links are editor/site notice chrome. They are not article semantics, reusable InkForge
+  modules, target-platform paste proof, phone preview proof, credentialed sync proof, or publish
+  proof.
+- This rule must stay separate from 135 full-page navigation chrome, helper iframe chrome,
+  UEditor toolbar chrome, action rail chrome, style-panel controls, hosted image sources, and
+  SVG-builder markers.
+- This rule must not alter renderer output, style availability, selectable actions,
+  release-gate success accounting, clipboard behavior, account state, upload, sync, schedule, or
+  publish behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `135 announcement link chrome residue` for WeChat,
+  Xiaohongshu, and Zhihu when a reduced fixture contains the observed 135 announcement-link class
+  combination or `/announcements/view/<id>` href.
+- The reduced fixture must fail with the announcement-link label even when `_135editor`,
+  `data-tools`, `style_id/style_name/style_price`, full-page navigation chrome, helper iframe
+  chrome, style-panel controls, style-card operation buttons, UEditor toolbar chrome, action rail
+  chrome, hosted image sources, and SVG-builder markers are absent.
+- The detector must not block ordinary prose about announcements. It must remain anchored to a real
+  anchor tag with the observed 135 announcement class pair or the 135 announcement URL shape.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced announcement-link fixture initially emits no
+  `*-market-editor-residue` issue, then emits `135 announcement link chrome residue` after the
+  detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent 135 style-panel, full-page navigation, helper-iframe, UEditor, and action-rail
+  regressions must remain green so each diagnostic stays independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, link fidelity, upload, public-host acceptance, credentialed sync,
   scheduled send, or publish success.
