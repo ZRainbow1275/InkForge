@@ -2199,6 +2199,12 @@ Contracts:
 - 135 applied ordinary styles can leak text-slot metadata even if wrapper classes are removed.
   `data-brushtype`, `autonum[data-num]`, and library `style_id/style_name/style_price` metadata
   must fail as market editor residue across WeChat, Xiaohongshu, and Zhihu.
+- 2026-06-29 135 ordinary style-library refresh: left style-card operation chrome such as
+  `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, `material-id` paired with
+  `material-type="style"`, and `mappaobug="true"` paired with `data-model="EditorStyle"` must
+  also fail as market editor residue. These are source-library controls, not publishable article
+  semantics, and they must stay blocked even when `_135editor`, `data-tools`, and
+  `style_id/style_name/style_price` have been stripped.
 - 135 SVG builder canvas blocks are authoring DOM, not publishable output. Known effect
   `data-name` values such as `multiselectpopup`, `carouselslide`,
   `slidesectorclickredpacket`, `clickelementscaleimagesspread`, and
@@ -2378,7 +2384,9 @@ Required tests/checks:
   authenticated editor DOM.
 - Any future detector/parser rule must fail fast on `_135editor`, `135brush`, `135bg`,
   `data-tools`, market `data-id`, `data-brushtype`, `autonum[data-num]`,
-  `style_id/style_name/style_price`, known 135 SVG builder `data-name` values,
+  `style_id/style_name/style_price`, `judgeYangShiJurisdiction(...)`,
+  `similarity_recommend_entry`, 135 `material-id` style-library controls, `mappaobug` /
+  `data-model="EditorStyle"`, known 135 SVG builder `data-name` values,
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
   `trigger_tip`, `ajuster`,

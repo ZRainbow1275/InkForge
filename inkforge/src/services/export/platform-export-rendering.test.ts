@@ -203,6 +203,15 @@ const MARKET_EDITOR_SLOT_RESIDUE_HTML = [
   '</li>',
 ].join('')
 
+const MARKET_EDITOR_135_STYLE_LIBRARY_CHROME_RESIDUE_HTML = [
+  '<section>',
+  '<p>Readable article text that should not depend on 135 left-library controls.</p>',
+  '<a class="btn-similarity similarity_recommend_entry" material-id="174158" material-type="style"></a>',
+  '<a class="btn btn-dislike btn-xs" mappaobug="true" data-model="EditorStyle" data-id="174158"></a>',
+  '<button onclick="judgeYangShiJurisdiction(event,{ type: 0,id: 174158,tuijian: 25505 })">Use style</button>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_SVG_BUILDER_RESIDUE_HTML = [
   '<div id="app-content-canvas" class="content-wrapper">',
   '<div id="block-1781688485697" class="block" data-name="coverclickmovewithspread">',
@@ -9919,6 +9928,26 @@ describe('platform native export rendering rules', () => {
       .toContain('135 editable brush slot')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 editable brush slot')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 left style library operation chrome without style wrapper metadata', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_STYLE_LIBRARY_CHROME_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_STYLE_LIBRARY_CHROME_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_STYLE_LIBRARY_CHROME_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 style library operation chrome residue')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 style library operation chrome residue')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 style library operation chrome residue')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 style-list metadata')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 numeric style id on copied market block')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)

@@ -104,6 +104,22 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
   phone preview, sync, scheduled-send, public preview, XHS/Zhihu upload, or publish proof from this
   evidence.
 
+2026-06-29 135 ordinary style-library operation chrome refresh:
+
+- CloakBrowser-only refresh on the live 135 ordinary editor enabled the visible free filter and
+  inspected a concrete left style-card DOM. A center-empty `section#autoparagraph` insertion was
+  rejected as insufficient applied-content proof.
+- The sampled style card exposed source-library controls:
+  `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, `material-id`,
+  `material-type="style"`, `mappaobug`, and `data-model="EditorStyle"`, in addition to the
+  already-covered `style_id/style_name/style_price` metadata.
+- These fields are not title/card semantics. They must be stripped or blocked from InkForge
+  publishable output across WeChat, Xiaohongshu, and Zhihu even when broader `_135editor`,
+  `data-tools`, or style-list metadata wrappers are absent.
+- This refresh adds a runtime residue gate only. It does not prove WeChat paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, sync, scheduled-send, public rendering,
+  XHS/Zhihu account upload, or publish success.
+
 2026-06-09 runtime gate:
 
 - Applied 135/Xiumi evidence now feeds a real export quality detector instead of staying doc-only.
@@ -113,6 +129,10 @@ claim a 135/Xiumi rule was learned unless the applied-element chain above is rec
 - Plain prose that says "135编辑器" or "秀米" is not a residue. The gate only matches structural
   HTML, third-party image sources, market class/id/data metadata, `tn-*` authoring attributes, and
   Angular/Vue authoring attributes observed in market editor surfaces.
+- The 135 branch also blocks partially cleaned style-library operation chrome such as
+  `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, style-library `material-id`, and
+  `mappaobug` / `EditorStyle` controls, because those are left-panel authoring actions rather than
+  article content.
 - These blockers are an implementation of the no-copy boundary. They do not prove WeChat paste,
   mobile preview, Dark Mode, sync, scheduled send, or publish success.
 

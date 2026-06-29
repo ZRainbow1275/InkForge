@@ -61,6 +61,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 style-list metadata',
   },
   {
+    pattern: /<[a-zA-Z][^>]*(?:\bonclick\s*=\s*["'][^"']*\bjudgeYangShiJurisdiction\s*\(|\bclass\s*=\s*["'][^"']*\bsimilarity_recommend_entry\b[^"']*["']|\bmaterial-id\s*=\s*["']\d+["'][^>]*\bmaterial-type\s*=\s*["']style["']|\bmappaobug\s*=\s*["']true["'][^>]*\bdata-model\s*=\s*["']EditorStyle["'])/i,
+    label: '135 style library operation chrome residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\bdata-name\s*=\s*["'](?:multiselectpopup|carouselslide|slidesectorclickredpacket|clickelementscaleimagesspread|coverclickmovewithspread|autobounceflipcard|multipletouchmovetodismissimgs|svgscrollswithgruopsslide|clickchangecoverwithscroll|clickredpakcetwithscroll)["']/i,
     label: '135 SVG builder effect data-name',
   },

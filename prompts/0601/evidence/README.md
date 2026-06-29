@@ -1168,6 +1168,26 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, or publish
   gates.
 
+## 2026-06-29 135 Style Library Operation Chrome Residue Gate
+
+- [x] 135-style-library-operation-chrome-residue-20260629.txt
+- CloakBrowser-only 135 ordinary editor sampling enabled the visible free filter and inspected
+  concrete left style-card DOM after a center-empty click was rejected as insufficient applied
+  proof.
+- The sampled left style card exposed library operation markers such as
+  `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, `material-id`,
+  `material-type="style"`, `mappaobug`, and `data-model="EditorStyle"` in addition to the already
+  covered `style_id/style_name/style_price` metadata.
+- `MARKET_EDITOR_RESIDUE_RULES` now blocks those 135 style-library operation chrome residues
+  across WeChat, Xiaohongshu, and Zhihu even when `_135editor`, `data-tools`, and style-list
+  metadata have already been stripped.
+- Verification passed: targeted TDD red/green, adjacent 135 market-residue regression,
+  full `platform-export-rendering` with 358 tests, full export service suite with 1335 tests,
+  ESLint, `vue-tsc`, production build, and release preflight expected-blocked.
+- Boundary: local detector proof only. It does not prove WeChat PC paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
+  account upload, or publish gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt

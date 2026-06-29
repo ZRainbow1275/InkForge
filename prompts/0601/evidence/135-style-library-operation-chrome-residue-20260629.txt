@@ -1,0 +1,68 @@
+135 Style Library Operation Chrome Residue Gate - 2026-06-29
+
+Scope:
+- CloakBrowser-only sampling on the live 135 ordinary editor.
+- Local static publishability protection for WeChat, Xiaohongshu, and Zhihu export output.
+- No save, copy, sync, upload, preview, publish, QR, HAR, credential, account-state, browser
+  profile, screenshot-path, template-source, or material-source artifact is committed.
+
+Live observation:
+- The 135 ordinary editor was open with the left style panel and central UEditor iframe visible.
+- The free filter was enabled through the visible left-panel control.
+- Clicking the first visible SVG/free card produced only an empty `section#autoparagraph` in the
+  central iframe. That was recorded as insertion-risk evidence only and was not treated as an
+  applied-content proof row.
+- Switching to the title category exposed free normal style cards. The sampled left style-card DOM
+  contained stable authoring/library operation markers:
+  `judgeYangShiJurisdiction(...)`, `style_id`, `style_name`, `style_price`,
+  `similarity_recommend_entry`, `material-id`, `material-type="style"`, `mappaobug`,
+  `data-model="EditorStyle"`, `btn-dislike`, and `btn_favorite`.
+- Existing rules already covered `style_id`, `style_name`, and `style_price`, but not the
+  partially cleaned left-library operation chrome markers when wrapper metadata is absent.
+
+Implemented:
+- Added `135 style library operation chrome residue` to `MARKET_EDITOR_RESIDUE_RULES`.
+- The detector is intentionally narrow and matches:
+  `judgeYangShiJurisdiction(...)`, `similarity_recommend_entry`, `material-id` paired with
+  `material-type="style"`, or `mappaobug="true"` paired with `data-model="EditorStyle"`.
+- Added a reduced regression fixture that contains only readable article text plus those
+  left-library operation markers. It intentionally omits `_135editor`, `data-tools`,
+  `style_id`, `style_name`, `style_price`, and the numeric market-block wrapper combination.
+
+Verification:
+- Red:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "left style library operation chrome" --reporter=default`
+  failed with 1 selected failing test before the detector update because no
+  `*-market-editor-residue` issue was emitted.
+- Green:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "left style library operation chrome" --reporter=default`
+  passed with 1 selected test and 357 skipped tests after the detector update.
+- Adjacent market regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (base markers|applied-editor text slot|left style library operation chrome|SVG builder canvas blocks)" --reporter=default`
+  passed with 4 selected tests and 354 skipped tests.
+- Platform regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 358 tests.
+- Export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1335 tests.
+- Static checks and build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed. The build transformed
+  4653 modules and completed in about 1 minute.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, plus summary
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`,
+  and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static detection of copied 135 left-library operation chrome only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

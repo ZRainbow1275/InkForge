@@ -10072,3 +10072,50 @@ Boundary:
 - Boundary: this is coverage alignment only. It does not prove WeChat PC paste, phone preview,
   SVG interaction fidelity, mobile SMIL/click behavior, upload, credentialed sync, scheduled send,
   platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Style Library Operation Chrome Residue Addendum
+
+- Extended local static publishability protection for live 135 ordinary editor left style-library
+  chrome observed with CloakBrowser after enabling the visible `免费` filter.
+- A free-style click that produced only an empty `section#autoparagraph` in the center iframe was
+  kept as insertion-risk evidence only. The runtime rule is based on concrete left style-card DOM
+  readback, not on claiming an applied-content success from that empty placeholder.
+- Added `135 style library operation chrome residue` to `MARKET_EDITOR_RESIDUE_RULES` for
+  source-library controls such as `judgeYangShiJurisdiction(...)`,
+  `similarity_recommend_entry`, `material-id` paired with `material-type="style"`, and
+  `mappaobug="true"` paired with `data-model="EditorStyle"`.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `_135editor`, `data-tools`, `style_id/style_name/style_price`, and the numeric copied market
+  block pattern, so the new label is proven independently from older 135 blockers.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and LOW risk for `detectQuality` with 4 direct dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `*-market-editor-residue` issue
+  was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "left style library operation chrome" --reporter=default`.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 358 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1335 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in about 1 minute.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-style-library-operation-chrome-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
+  acceptance, upload, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
