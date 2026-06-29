@@ -8983,6 +8983,39 @@ Boundary:
   credentialed sync, scheduled send, platform preview, public article rendering, public-host
   acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 Xiumi Animation Picker Directive Addendum
+
+- Added local static publishability protection for Xiumi v5 animation picker directives:
+  `tn-animation-picker`, `tn-animation-selector`, `tn-animate-x-clipboard`,
+  `tn-animate-x-creator`, `tn-animate-x-list`, `tn-animate-x-selector`, and
+  `tn-animate-x-unit` now report the precise `Xiumi animation picker directive residue` label.
+- The rule upgrades cleaned-down animation directive fragments from only the broad
+  `Xiumi tn-* attribute` fallback to an actionable animation-picker diagnostic.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`.
+- Verification:
+  focused TDD red failed before the detector update because the reduced fixture only reported
+  `Xiumi tn-* attribute`; focused green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation picker directives|animation binding metadata|animation attribute panel|animation panel child|animation style picker|animate operation button|Xiumi tn\\* attribute" --reporter=default`.
+- Full local validation passed after the detector update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 338 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1315 tests;
+  targeted ESLint, `vue-tsc --noEmit --pretty false`, and production build passed. The build
+  transformed 4653 modules and completed in 1m 13s.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 with
+  `status=blocked-by-external`, `canClaimComplete=false`,
+  `blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform`, and
+  `actionableLocalRows=0`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-animation-picker-directive-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC paste,
+  phone preview, mobile SMIL/click interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, platform preview, public article rendering, public-host
+  acceptance, XHS/Zhihu account upload, or publish success.
+
 ---
 
 ## 2026-06-28 Xiumi Animation Style Picker Addendum

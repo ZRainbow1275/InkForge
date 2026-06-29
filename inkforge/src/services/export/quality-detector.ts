@@ -621,6 +621,10 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi animation binding metadata residue',
   },
   {
+    pattern: /<[a-zA-Z][^>]*\btn-(?:animation-(?:picker|selector)|animate-x-(?:clipboard|creator|list|selector|unit))\s*=/i,
+    label: 'Xiumi animation picker directive residue',
+  },
+  {
     pattern: /<[a-zA-Z][^>]*\btn-link\s*=/i,
     label: 'Xiumi link binding metadata residue',
   },

@@ -1,0 +1,69 @@
+Xiumi Animation Picker Directive Residue - 2026-06-29
+
+Scope:
+- Local static publishability protection for copied or partially cleaned Xiumi v5 editor HTML.
+- No platform action, no phone preview, no sync, no upload, no scheduled send, no publish.
+
+Observed source family:
+- Live Xiumi v5 paper-editor DOM readback exposed editor-side animation picker and animation
+  operation directive attributes:
+  - tn-animation-picker
+  - tn-animation-selector
+  - tn-animate-x-clipboard
+  - tn-animate-x-creator
+  - tn-animate-x-list
+  - tn-animate-x-selector
+  - tn-animate-x-unit
+
+Implemented:
+- Added detector label:
+  Xiumi animation picker directive residue
+- Added a reduced regression fixture containing only supported tn-animation-* and tn-animate-x-*
+  directive attributes.
+- Rule remains anchored to Xiumi animation picker directive attribute names and does not block
+  ordinary animation prose, picker prose, selector prose, clipboard/list/unit wording, CSS
+  animation properties, SVG animate elements, motion-related article text, or non-Xiumi class names
+  by itself.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu quality reports now emit platform-specific
+  market-editor-residue ids with the precise animation picker directive label.
+- Adjacent regressions keep animation binding metadata, animation attribute panel, animation panel
+  child, animation style picker, animate operation panel, and the broad Xiumi tn-* fallback
+  behavior independent.
+
+Verification:
+- Red:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation picker directives" --reporter=default
+  FAIL: 1 selected failing test before the detector update because the fixture only emitted
+  Xiumi tn-* attribute.
+- Green:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation picker directives|animation binding metadata|animation attribute panel|animation panel child|animation style picker|animate operation button|Xiumi tn\\* attribute" --reporter=default
+  PASS: 1 file / 7 selected tests / 331 skipped tests.
+- Full platform-rendering regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000
+  PASS: 1 file / 338 tests.
+- Full export service regression:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000
+  PASS: 36 files / 1315 tests.
+- Lint:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+- Type check:
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+- Production build:
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed; Vite built in 1m 13s.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1 with canClaimComplete=false, status=blocked-by-external,
+  blockerKinds=phone-preview/external-dependency/unsafe-to-automate/mutating-platform,
+  externalHandoffRows=18, safeExternalRows=0, actionableLocalRows=0, nextRowRefs=5,
+  uniqueNextRows=3.
+
+Boundary:
+- This proves local static publishability protection and diagnostic precision only.
+- It does not prove WeChat PC paste, phone preview, SMIL/H5 animation fidelity, mobile Dark Mode,
+  mobile SMIL/click interaction, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

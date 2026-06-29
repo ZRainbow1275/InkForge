@@ -8,6 +8,66 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-06-29 Xiumi Animation Picker Directive Residue Slice
+
+Source:
+- CloakBrowser read the live Xiumi v5 paper editor DOM. The animation picker/control surface
+  exposed `tn-animation-picker`, `tn-animation-selector`, `tn-animate-x-clipboard`,
+  `tn-animate-x-creator`, `tn-animate-x-list`, `tn-animate-x-selector`, and
+  `tn-animate-x-unit`.
+- These entries are editor-side animation picker, selector, clipboard, creator, list, and unit
+  directives. They are not publishable article animation semantics, upload manifests,
+  platform-safe embeds, reusable InkForge source, SMIL/H5 animation fidelity proof, or
+  target-platform proof.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+
+Implementation:
+- Added a reduced regression fixture containing only supported `tn-animation-*` and
+  `tn-animate-x-*` directives, proving cleaned-down animation picker directives receive the
+  precise `Xiumi animation picker directive residue` label without relying on animation list
+  classes, animation style picker classes, animation attribute panels, animate-operation panels,
+  hosted media, sidebar controls, or meta panels.
+- Added the `Xiumi animation picker directive residue` detector before the broad
+  `Xiumi tn-* attribute` fallback. The fallback may still report on the same reduced fixture; the
+  precise label is now present for actionable diagnostics.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation picker directives" --reporter=default`
+  failed with 1 selected failing test because the fixture only emitted `Xiumi tn-* attribute`.
+- Green: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "animation picker directives|animation binding metadata|animation attribute panel|animation panel child|animation style picker|animate operation button|Xiumi tn\\* attribute" --reporter=default`
+  passed with 7 selected tests and 331 skipped tests after the detector update.
+- Full platform-rendering regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --testTimeout=90000`
+  passed with 1 file and 338 tests.
+- Full export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --testTimeout=90000`
+  passed with 36 files and 1315 tests.
+- Lint, type check, and production build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`;
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  all passed. The build transformed 4653 modules and Vite built in 1m 13s.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`,
+  plus summary `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`,
+  `mutatingOpenSteps=13`, `externalHandoffRows=18`, `safeExternalRows=0`,
+  `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic precision. It does
+  not prove WeChat PC paste, phone preview, SMIL/H5 animation fidelity, Dark Mode, credentialed
+  sync, scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Cover Image Description Residue Slice
 
 Source:

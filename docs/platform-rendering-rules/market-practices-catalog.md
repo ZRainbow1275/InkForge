@@ -1886,6 +1886,7 @@ Evidence:
 - `prompts/0601/evidence/xiumi-layout-form-panel-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-animation-style-picker-icon-residue-20260628.txt`
+- `prompts/0601/evidence/xiumi-animation-picker-directive-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-wechat-cover-menu-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-dropdown-directive-residue-20260628.txt`
 - `prompts/0601/evidence/xiumi-template-scene-marker-residue-20260628.txt`
@@ -1936,4 +1937,4 @@ Evidence:
 - `prompts/0601/evidence/xiumi-component-depot-typography-control-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-component-depot-mobile-viewport-residue-20260629.txt`
 - `prompts/0601/evidence/xiumi-text-operation-section-residue-20260629.txt`
-- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-229.
+- `.trellis/spec/frontend/wechat-svg-modules.md` sections 74-230.

@@ -11314,3 +11314,56 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, credentialed sync, public rendering, upload, cover thumbnail
   acceptance, Dark Mode behavior, public-host acceptance, or publish success.
+
+## 230. Xiumi Animation Picker Directive Residue - 2026-06-29
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains animation picker / animation
+  operation directives observed in a live CloakBrowser Xiumi v5 paper-editor DOM readback,
+  including `tn-animation-picker`, `tn-animation-selector`, `tn-animate-x-clipboard`,
+  `tn-animate-x-creator`, `tn-animate-x-list`, `tn-animate-x-selector`, and
+  `tn-animate-x-unit`.
+- These markers are editor-side animation picker and animation clipboard/list/unit directives.
+  They are not article body animation semantics, reusable InkForge source, WeChat SMIL proof,
+  H5 interaction proof, upload manifests, or target-platform proof.
+- This rule is additive and diagnostic. The broad `Xiumi tn-* attribute` fallback already blocks
+  these directives, but a cleaned-down animation directive fragment must receive the precise
+  `Xiumi animation picker directive residue` label for actionable diagnostics.
+- This rule must stay separate from `Xiumi animation binding metadata residue`,
+  `Xiumi animation attribute panel residue`, `Xiumi animation panel child residue`,
+  `Xiumi animation style picker residue`, and `Xiumi animate operation panel residue`.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report
+  `Xiumi animation picker directive residue` for WeChat, Xiaohongshu, and Zhihu when supported
+  `tn-animation-*` or `tn-animate-x-*` directive attributes appear.
+- A reduced fixture containing only supported animation picker directives must fail with the
+  precise label even when animation list classes, animation style picker classes, animation
+  attribute panels, animate-operation panels, broad Angular runtime attributes/classes, hosted
+  media, sidebar controls, or meta panels are absent.
+- The detector must not block ordinary animation wording, picker wording, selector wording,
+  clipboard wording, list wording, unit wording, CSS animation properties, SVG `<animate>`
+  elements, or motion-related article text by itself. It must stay anchored to Xiumi-specific
+  directive attribute names.
+- The broad `Xiumi tn-* attribute` fallback may still be reported on the same reduced fixture;
+  the acceptance requirement is that the precise animation picker directive label is also present.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced animation picker directive fixture first reports only the broad
+  `Xiumi tn-* attribute` label, then reports the precise
+  `Xiumi animation picker directive residue` label after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent regressions must keep `Xiumi animation binding metadata residue`,
+  `Xiumi animation attribute panel residue`, `Xiumi animation panel child residue`,
+  `Xiumi animation style picker residue`, and `Xiumi animate operation panel residue`
+  independent.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, credentialed sync, public rendering, upload, SMIL/H5 animation
+  fidelity, Dark Mode behavior, public-host acceptance, or publish success.
