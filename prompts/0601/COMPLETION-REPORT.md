@@ -10211,3 +10211,49 @@ Boundary:
   paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
   acceptance, upload, credentialed sync, scheduled send, platform preview, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-06-29 135 Mirrored Image Source Residue Addendum
+
+- Continued CloakBrowser-only 135 ordinary editor applied-style sampling. A first visible free
+  style click produced no center delta, so it was not recorded as applied-content proof.
+- After restoring the center UEditor iframe body selection, the same visible free style inserted
+  a real center block: top-level children changed from 5 to 6, HTML length changed from 22552 to
+  25922, `data-id="174407"` changed from 0 to 1, `data-tools="135编辑器"` changed from 6 to 7,
+  `data-brushtype` changed from 17 to 19, and image count changed from 12 to 14.
+- The inserted block carried 135-hosted material image references on both standard `src` and
+  mirrored `_src` attributes.
+- Added explicit `_src` support to the existing `135 third-party image source` detector and added
+  a reduced three-platform regression fixture that omits `_135editor`, `data-tools`, `data-id`,
+  style-list metadata, UEditor toolbar chrome, left-library operation chrome, action rail chrome,
+  and SVG-builder markers.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and 0 affected processes.
+- Verification:
+  the focused `_src` coverage audit passed before the explicit regex edit because the older
+  attribute matcher happened to match `_src` through its `src` substring. This is recorded as
+  existing implicit coverage, not as a red TDD failure.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 361 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1338 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 31.03 seconds.
+- Release preflight remained correctly blocked:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+- Added evidence file:
+  `prompts/0601/evidence/135-mirrored-image-source-residue-20260629.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover thumbnail
+  acceptance, upload, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

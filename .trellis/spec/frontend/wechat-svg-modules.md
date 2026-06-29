@@ -265,6 +265,13 @@ construct breaks.
   market-editor residue in WeChat/XHS/Zhihu publishable output. These are editor workflow
   actions, not article semantics, and they must not be counted as copy, preview, sync, upload,
   public rendering, scheduled-send, or publish proof.
+- 2026-06-29 135 ordinary applied image-source follow-up: a live free-style insertion that
+  succeeded after the center UEditor iframe body selection was restored changed the center editor
+  from 5 to 6 top-level children and inserted `data-id="174407"` with 135-hosted images carrying
+  both `src` and `_src`. Treat `_src` pointing at 135 material hosts as an explicit
+  market-editor residue source, even if broad `_135editor`, `data-tools`, or numeric style ids
+  have already been stripped. This proves local residue coverage only, not paste, mobile preview,
+  sync, upload, scheduled-send, or publish success.
 - 2026-06-20 public-source refresh: WeChat's official editor plugin specification is a stronger
   rule source than market tutorials. Keep opacity-hidden images under SVG backgrounds,
   text-bearing `line-height:0`, fixed width/height content containers, `text-align:start/end`,
@@ -2407,6 +2414,7 @@ Required tests/checks:
   `app-content-canvas`, `block-img__content`, `block-img__default`, `block-img__trigger`,
   `edit-placeholder`, `edit-trigger`, `edit-trigger__switch`, `trigger__ajuster`,
   `trigger_tip`, `ajuster`,
+  135 hosted image references in `src`, `_src`, `data-src`, `href`, or `xlink:href`,
   `placeholder__name`, `ant-tooltip-open`, `tn-*`, `tn-svg-animation-*`,
   `tn-child-orientation="flow-canvas"`, `tn-child-orientation-flow-canvas`,
   `tn-group-usage-flow-canvas`, `tn-page-slot`, `tn-layer-slot`,

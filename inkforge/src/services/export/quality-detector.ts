@@ -197,7 +197,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: '135 numeric style id on copied market block',
   },
   {
-    pattern: /<(?:img|source|image)\b[^>]*(?:src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:135editor\.com|bcn\.135editor\.com)\b/i,
+    pattern: /<(?:img|source|image)\b[^>]*(?:src|_src|href|data-src|xlink:href)\s*=\s*["'](?:https?:)?\/\/[^"'\s<>]*(?:135editor\.com|bcn\.135editor\.com)\b/i,
     label: '135 third-party image source',
   },
   {

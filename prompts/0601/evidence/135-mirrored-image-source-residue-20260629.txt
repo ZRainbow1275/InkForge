@@ -1,0 +1,63 @@
+135 Mirrored Image Source Residue Gate - 2026-06-29
+
+Scope:
+- CloakBrowser-only sampling on the live 135 ordinary editor.
+- Local static publishability protection for WeChat, Xiaohongshu, and Zhihu export output.
+- No save, copy, sync, upload, preview, publish, scan-code artifact, account-state artifact,
+  local browser runtime directory, template source, or material source is committed.
+
+Live observation:
+- The first click on the visible free style did not change the center editor. It was treated as
+  no-delta evidence, not applied-content proof.
+- After restoring the center UEditor iframe body selection, clicking the same visible free style
+  produced a real center-editor delta:
+  `body.children.length` 5 -> 6, HTML length 22552 -> 25922, `data-id="174407"` 0 -> 1,
+  `data-tools="135编辑器"` 6 -> 7, `data-brushtype` 17 -> 19, and image count 12 -> 14.
+- The inserted block carried 135-hosted material image references on both standard `src` and
+  mirrored `_src` attributes, alongside image metadata such as `data-width`, `data-ratio`, and
+  `data-w`.
+
+Implemented:
+- Added explicit `_src` support to the existing `135 third-party image source` detector.
+- Added a reduced regression fixture containing readable article text plus a single `_src`
+  pointing at a 135 material host. It intentionally omits `_135editor`, `data-tools`,
+  `data-id`, `style_id`, `style_name`, `style_price`, UEditor toolbar chrome, left-library
+  operation chrome, action rail chrome, and SVG-builder markers.
+
+Verification:
+- Coverage audit:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "mirrored _src image sources" --reporter=default`
+  already passed before the explicit regex edit because the older attribute matcher happened to
+  match `_src` through its `src` substring. This was recorded as existing implicit coverage, not
+  as a red TDD failure.
+- Adjacent market regression after the explicit regex edit:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (base markers and hosted images|mirrored _src image sources)|market editor hosted background sources" --reporter=default`
+  passed with 3 selected tests and 358 skipped tests.
+- Platform regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 361 tests.
+- Export service regression:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1338 tests.
+- Static checks and build:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`
+  passed.
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  passed.
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build`
+  passed; Vite transformed 4653 modules and completed in 31.03 seconds.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json`
+  correctly exited 1 with `canClaimComplete=false`, `status=blocked-by-external`,
+  blocker kinds `phone-preview`, `external-dependency`, `unsafe-to-automate`, and
+  `mutating-platform`, plus `blockerCount=4`, `combinedIssueCount=11`,
+  `cannotClaimSteps=29`, `phoneOpenSteps=4`, `externalDependencyOpenSteps=14`,
+  `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`, `externalHandoffRows=18`,
+  `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and `uniqueNextRows=3`.
+
+Boundary:
+- This proves local static detection of copied 135 mirrored image source residue only.
+- It does not prove WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, Xiaohongshu account upload, Zhihu account upload, or
+  publish success.

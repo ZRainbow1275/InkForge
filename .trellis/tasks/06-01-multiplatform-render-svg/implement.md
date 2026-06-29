@@ -196,6 +196,67 @@ Boundary:
   thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
   article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-06-29 135 Mirrored Image Source Residue Slice
+
+Source:
+- CloakBrowser live DOM readback on the 135 ordinary editor confirmed that a first visible free
+  style click did not change the center editor and was therefore treated as no-delta evidence, not
+  applied-content proof.
+- After restoring the center UEditor iframe body selection, clicking the same visible free style
+  produced a real center-editor delta: top-level children changed from 5 to 6, HTML length changed
+  from 22552 to 25922, `data-id="174407"` changed from 0 to 1, `data-tools="135编辑器"` changed
+  from 6 to 7, `data-brushtype` changed from 17 to 19, and image count changed from 12 to 14.
+- The inserted block carried 135-hosted material image references on both standard `src` and
+  mirrored `_src` attributes, alongside image metadata such as `data-width`, `data-ratio`, and
+  `data-w`.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, scan-code
+  artifact, credential secret, local browser directory, template source, or material source is
+  part of the committed evidence.
+
+Impact:
+- GitNexus MCP `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- The implementation keeps the edit to one explicit detector attribute branch, one reduced
+  regression fixture, docs, and evidence.
+
+Implementation:
+- Added explicit `_src` support to the existing `135 third-party image source` detector.
+- Added a reduced regression fixture containing readable article text plus a single `_src`
+  pointing at a 135 material host. The fixture intentionally omits `_135editor`, `data-tools`,
+  `data-id`, `style_id/style_name/style_price`, UEditor toolbar chrome, left-library operation
+  chrome, action rail chrome, and SVG-builder markers.
+
+Verification:
+- Coverage audit: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "mirrored _src image sources" --reporter=default`
+  passed before the explicit regex edit because the older attribute matcher happened to match
+  `_src` through its `src` substring. This was recorded as existing implicit coverage, not as a red
+  TDD failure.
+- Adjacent market regression after the explicit regex edit:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 (base markers and hosted images|mirrored _src image sources)|market editor hosted background sources" --reporter=default`
+  passed with 3 selected tests and 358 skipped tests.
+- Platform regression: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 361 tests.
+- Export suite: `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1338 tests.
+- Static checks: `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 31.03 seconds.
+- Release preflight: `pnpm -C inkforge style-proof:release-preflight --json` returned the expected
+  blocked state, with `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds
+  `phone-preview`, `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, plus
+  `blockerCount=4`, `combinedIssueCount=11`, `cannotClaimSteps=29`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=14`, `unsafeToAutomateOpenSteps=13`, `mutatingOpenSteps=13`,
+  `externalHandoffRows=18`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=3`.
+
+Boundary:
+- This slice only adds local static publishability protection and diagnostic coverage. It does not
+  prove WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode, cover
+  thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 SVG Trial Coverage Audit Slice
 
 Source:

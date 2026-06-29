@@ -1225,6 +1225,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
   account upload, or publish gates.
 
+## 2026-06-29 135 Mirrored Image Source Residue Gate
+
+- [x] 135-mirrored-image-source-residue-20260629.txt
+- CloakBrowser-only 135 ordinary editor sampling restored the center UEditor iframe body selection
+  and clicked a visible free style. The second click produced a real center delta:
+  `body.children.length` 5 -> 6, HTML length 22552 -> 25922, `data-id="174407"` 0 -> 1, and
+  image count 12 -> 14.
+- The inserted block carried 135-hosted material image references through both `src` and `_src`.
+- `MARKET_EDITOR_RESIDUE_RULES` now explicitly treats `_src` as part of `135 third-party image
+  source` coverage across WeChat, Xiaohongshu, and Zhihu, even when broader `_135editor`,
+  `data-tools`, and numeric market style ids are absent.
+- Verification passed: existing coverage audit for `_src`, adjacent hosted image/background
+  regression, full `platform-export-rendering`, full export service suite, ESLint, `vue-tsc`,
+  production build, and release preflight expected-blocked.
+- Boundary: local detector proof only. It does not prove WeChat PC paste, phone preview, mobile
+  interaction, Dark Mode, cover thumbnail, sync, scheduled-send, upload, public host, XHS/Zhihu
+  account upload, or publish gates.
+
 ## 2026-06-18 135 SVG Builder Canvas Residue Gate
 
 - [x] 135-svg-builder-canvas-residue-gate-20260618.txt

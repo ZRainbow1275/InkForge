@@ -184,6 +184,11 @@ const MARKET_EDITOR_135_BASE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_135_MIRRORED_IMAGE_SOURCE_HTML = [
+  '<section><p>Readable article text with a partially cleaned market image reference.</p></section>',
+  '<img _src="//bcn.135editor.com/files/images/editor_styles/45a88fd235183101b65a8f54d9d0233c.png" alt="135 mirrored source">',
+].join('')
+
 const MARKET_EDITOR_BACKGROUND_RESIDUE_HTML = [
   '<section style="background-image:url(https://image.135editor.com/files/bg.png);padding:24px">',
   '135 背景图残留',
@@ -9914,6 +9919,26 @@ describe('platform native export rendering rules', () => {
       .toContain('135 numeric style id on copied market block')
     expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
       .toContain('135 third-party image source')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks 135 mirrored _src image sources without copied wrapper metadata', () => {
+    const wechat = detectQuality(MARKET_EDITOR_135_MIRRORED_IMAGE_SOURCE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_135_MIRRORED_IMAGE_SOURCE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_135_MIRRORED_IMAGE_SOURCE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('135 third-party image source')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 data-tools marker')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .not.toContain('135 numeric style id on copied market block')
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
