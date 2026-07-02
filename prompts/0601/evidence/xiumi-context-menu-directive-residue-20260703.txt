@@ -1,0 +1,67 @@
+Xiumi Context Menu Directive Residue - 2026-07-03
+
+Scope:
+- Local static publishability protection for live Xiumi v5 context-menu directive residue.
+- No platform action, no phone preview, no upload, no sync, no scheduled send, no publish.
+
+Observed source pattern:
+- Xiumi editor-side context menu directives can survive class cleanup as:
+  - context-menu
+  - context-menu-on
+- These attributes are editor invocation plumbing, not publishable article content.
+
+Implemented:
+- Extended the existing Xiumi attribute context menu host residue detector to also match
+  context-menu and context-menu-on attributes.
+- Added a reduced three-platform regression fixture containing only those attributes.
+
+Regression coverage:
+- WeChat, Xiaohongshu, and Zhihu all emit the existing precise label:
+  Xiumi attribute context menu host residue.
+- The reduced fixture intentionally omits operator depot controls, attribute-board controls,
+  operation-bar dropdowns, menu-pin controls, Angular runtime classes, UI Bootstrap directives,
+  hosted media, sidebar controls, and meta panels.
+- Split positive fixtures cover context-menu and context-menu-on independently.
+- Negative fixtures prove data-context-menu, title, aria-label, and unrelated data-note attribute
+  values that merely mention context-menu wording do not trigger market-editor residue.
+- The test asserts the new directive residue is not misclassified as operator depot,
+  attribute-board, or operation-bar dropdown residue.
+
+Verification:
+- Red TDD:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "context menu directives" --reporter=default
+  FAIL before detector update: no market-editor residue issue was emitted.
+- Green TDD:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "context menu directives" --reporter=default
+  PASS after detector update: 1 selected test.
+- Adjacent regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute context menu host|context menu directives|menu pin controls|attribute board controls" --reporter=default
+  PASS: 5 selected tests.
+- Platform regression after release-gate staleness repair:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 370 tests.
+- Export suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1347 tests.
+- Static checks:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 31.82s.
+
+Release preflight boundary:
+- pnpm -C inkforge style-proof:release-preflight --json
+  returned canClaimComplete=false and status=blocked-by-external.
+- Summary: blockerCount=4, combinedIssueCount=15, cannotClaimSteps=30,
+  phoneOpenSteps=4, externalDependencyOpenSteps=15, unsafeToAutomateOpenSteps=10,
+  mutatingOpenSteps=14, externalHandoffRows=19, safeExternalRows=0,
+  actionableLocalRows=0, nextRowRefs=5, uniqueNextRows=4.
+
+Boundary:
+- This proves local static publishability protection only.
+- It does not prove WeChat PC paste, phone preview, context-menu interaction fidelity,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  platform preview, public article rendering, public-host acceptance, XHS/Zhihu account upload,
+  or publish success.

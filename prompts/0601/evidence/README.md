@@ -3099,6 +3099,23 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled send, public preview,
   XHS/Zhihu upload, public-host acceptance, or publish success.
 
+## 2026-07-03 Style Proof Stale External Release Routing
+
+- [x] style-proof-stale-external-release-routing-20260703.txt
+- Stale committed external proof rows still emit `style-proof-manifest-proof-stale`, remain
+  acceptance-invalid, and stay visible in cannot-claim, runbook, release preflight, external
+  checklist, local-actionability, external-handoff, and redacted packet APIs.
+- Release-gate `local-conflict` now remains reserved for local proof hygiene and manifest
+  conflicts. Stale authenticated PC editor proof routes through external-dependency and
+  mutating-platform blockers instead of pretending it is locally automatable.
+- Current release preflight remains unclaimable:
+  `canClaimComplete=false`, `status=blocked-by-external`, `blockerCount=4`,
+  `combinedIssueCount=15`, `externalHandoffRows=19`, `safeExternalRows=0`,
+  and `actionableLocalRows=0`.
+- Boundary: this is local release-gate accounting only. It does not refresh stale proof or prove
+  WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail, sync, scheduled
+  send, public preview, XHS/Zhihu upload, public-host acceptance, or publish success.
+
 ## 2026-06-21 135 SVG Free Trial CloakBrowser Recheck
 
 - [x] 135-svg-free-trial-cloakbrowser-recheck-20260621.txt
@@ -7560,6 +7577,22 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   or Xiumi by itself; it remains anchored to the explicit `ui-view` directive attribute.
 - Boundary: this is static publishability protection only. It does not prove paste, phone preview,
   route rendering fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
+## 2026-07-03 Xiumi Context Menu Directive Residue
+
+- [x] xiumi-context-menu-directive-residue-20260703.txt
+- Extended the existing static `Xiumi attribute context menu host residue` quality rule for live
+  Xiumi v5 context-menu directives `context-menu` and `context-menu-on`.
+- The reduced regression intentionally keeps only those two attributes, proving class-cleaned
+  menu invocation plumbing is blocked without relying on operator depot controls,
+  attribute-board controls, operation-bar dropdowns, menu-pin wrappers, Angular runtime classes,
+  UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary context/menu/click prose, attribute wording,
+  or Xiumi by itself; it remains anchored to explicit context-menu directive attributes or the
+  known `attr-bar-context-menu-host-for-*` host classes.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  context-menu interaction fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
 ## 2026-06-29 Xiumi Text Input Done-For Residue

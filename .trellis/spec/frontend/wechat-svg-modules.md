@@ -12437,6 +12437,92 @@ const ruleFamilies = [
   WeChat paste, phone preview, route rendering fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
 
+## 254. Xiumi Context Menu Directive Residue - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains attribute-context-menu runtime
+  directives such as `context-menu` or `context-menu-on`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed these attributes on
+  attribute-bar and operation-panel context-menu hosts.
+- These markers are editor-side menu invocation plumbing. They are not publishable article body
+  structure, reusable InkForge menu source, paste proof, mobile interaction proof,
+  credentialed-channel proof, or target-platform proof.
+- This rule extends the existing `Xiumi attribute context menu host residue` diagnostic. It must
+  stay separate from operation-depot controls, attribute-board controls, operation-bar dropdowns,
+  menu-pin wrappers, Angular runtime classes, `tn-*` attributes, hosted-media checks, sidebar
+  controls, and meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Xiumi attribute context menu host residue` for
+  WeChat, Xiaohongshu, and Zhihu when `context-menu` or `context-menu-on` appears as an
+  attribute.
+- A reduced fixture containing only `context-menu` and `context-menu-on` must fail with the
+  attribute context-menu label even when operation-depot controls, attribute-board controls,
+  operation-bar dropdowns, menu-pin wrappers, `ng-*`, `uib-*`, `tn-*`, hosted media, sidebar
+  controls, and meta panels are absent.
+- Reduced fixtures containing only `context-menu` or only `context-menu-on` must also fail, so
+  both directive attributes stay independently covered.
+- The detector must not block ordinary prose about context, menus, clicks, attributes, or Xiumi by
+  itself. It must remain anchored to explicit context-menu directive attributes or the known
+  `attr-bar-context-menu-host-for-*` host classes.
+- The detector must not match `data-context-menu`, quoted attribute values such as
+  `title="ordinary context-menu=local"`, `aria-label="open context-menu= help"`, or generic
+  `data-note="foo context-menu-on=click"` prose.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `context-menu` / `context-menu-on` fixture initially emits no
+  `*-market-editor-residue` issue, then emits `Xiumi attribute context menu host residue` after
+  the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent context-host, menu-pin, attribute-board, and operation-bar dropdown regressions must
+  remain green so each diagnostic remains independently actionable.
+- Negative regressions must prove ordinary `data-*`, `title`, `aria-label`, and unrelated
+  attribute values mentioning context-menu wording do not trigger market-editor residue.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, context-menu interaction fidelity, upload, public-host acceptance,
+  credentialed sync, scheduled send, or publish success.
+
+## 255. Committed External Proof Staleness Release Routing - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: committed external proof rows for authenticated PC editor, PC paste, safe disposable
+  draft, phone preview, credentialed-channel, platform-publish, or public-host gates exceed the
+  accepted freshness window and emit `style-proof-manifest-proof-stale`.
+- A stale external proof remains acceptance-invalid and must remain visible in `cannotClaim`,
+  execution runbooks, release preflight JSON, external proof checklists, local-actionability
+  summaries, and operator handoff packets.
+- Release-gate `local-conflict` is reserved for locally fixable manifest conflicts such as exact
+  artifact mismatch, local proof hygiene, sensitive or unsafe commit artifacts, duplicate artifact
+  ids, and non-blocked local requirements.
+
+### 2. Contract
+
+- `style-proof-manifest-proof-stale` must not by itself create a `local-conflict` blocker when the
+  stale requirement is outside `COMMITTED_STYLE_PROOF_RELEASE_LOCAL_REQUIREMENTS`.
+- Stale authenticated-PC-editor proof must route through `external-dependency` and, when the step
+  mutates platform state, `mutating-platform`, while preserving `status=invalid` on the stale
+  rows and `canClaimComplete=false`.
+- The release gate must remain `blocked-by-external` when the only newly invalid rows are stale
+  external proof rows and no local exact-artifact, sensitive-artifact, unsafe-commit,
+  fingerprint, duplicate-id, or local requirement conflict is present.
+
+### 3. Required Checks
+
+- Regression tests must prove stale committed WeChat PC evidence is invalid and unclaimable
+  without being presented as a locally actionable completion blocker.
+- Release-gate, external-checklist, local-actionability, external-handoff, and redacted packet
+  tests must verify `style-proof-manifest-proof-stale` remains visible in external operator rows.
+- Release preflight must continue to return `canClaimComplete=false`; this routing fix must never
+  convert stale proof into a completion claim.
+
 ## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
 
 ### 1. Scope / Trigger

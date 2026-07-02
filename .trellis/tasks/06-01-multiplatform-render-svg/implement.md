@@ -653,6 +653,88 @@ Scope:
   credentialed sync, scheduled send, platform preview, public article rendering, XHS/Zhihu account
   upload, or publish success.
 
+## 2026-07-03 Xiumi Context Menu Directive Residue and Stale External Proof Routing Slice
+
+Source:
+- CloakBrowser live DOM inspection of the active Xiumi v5 paper editor exposed class-cleaned
+  context menu directive attributes `context-menu` and `context-menu-on`.
+- These entries are editor-side menu invocation plumbing. They are not publishable article DOM,
+  reusable InkForge menu source, paste proof, phone proof, credentialed-channel proof, or
+  target-platform proof.
+- While validating the reduced context-menu detector, the full platform regression surfaced that
+  committed WeChat PC evidence collected on 2026-06-18 / 2026-06-19 is now stale under the
+  14-day external proof freshness window. No stale proof was renewed or promoted.
+- No account-state material, local browser runtime material, capture-file reference, platform
+  publish artifact, export artifact, copy artifact, sync artifact, preview artifact, QR artifact,
+  credential secret, or local browser directory is part of the committed evidence.
+
+Impact:
+- GitNexus CLI `impact` on `MARKET_EDITOR_RESIDUE_RULES` reported LOW risk with 0 direct
+  dependents and 0 affected processes.
+- GitNexus CLI `impact` on `isCommittedStyleProofReleaseLocalConflictIssue` reported LOW risk
+  with 1 direct dependent, 0 affected processes, and affected modules limited to Export and
+  Scripts.
+- GitNexus CLI `impact` on `getCommittedStyleProofReleaseLocalConflictIssues` reported LOW risk
+  with 2 direct dependents, 0 affected processes, and affected modules limited to Export and
+  Scripts.
+
+Implementation:
+- Added a reduced regression fixture containing only `context-menu` and `context-menu-on`, proving
+  class-cleaned Xiumi context-menu metadata receives the existing
+  `Xiumi attribute context menu host residue` label without relying on operator depot controls,
+  attribute-board controls, operation-bar dropdowns, menu-pin wrappers, Angular runtime classes,
+  UI Bootstrap directives, hosted media, sidebar controls, or meta panels.
+- Added split positive fixtures for `context-menu` and `context-menu-on`, plus negative fixtures
+  for `data-context-menu`, `title`, `aria-label`, and generic `data-note` values that merely
+  mention context-menu wording.
+- Extended the existing Xiumi attribute context-menu detector to cover `context-menu` and
+  `context-menu-on` attributes only at real attribute-name boundaries.
+- Narrowed release-gate local-conflict classification so `style-proof-manifest-proof-stale` only
+  counts as local conflict for local release requirements. Stale authenticated-PC-editor proof
+  remains invalid and unclaimable, but routes through external-dependency and mutating-platform
+  blocker rows because recapture requires an external account/platform action.
+- The stale-proof regression now asserts Amber's 2026-06-18 PC proof rows are invalid for
+  authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft, and pc-editor-paste-event,
+  while Tempera's 2026-06-19 boundary proof remains satisfied for the authenticated PC editor gate.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "context menu directives" --reporter=default`
+  failed with 1 selected failing test because no `wechat-market-editor-residue` issue was emitted.
+- Green: the same focused command passed with 1 selected test after the detector update.
+- Adjacent Xiumi regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute context menu host|context menu directives|menu pin controls|attribute board controls" --reporter=default`
+  passed with 5 selected tests and 365 skipped tests.
+- Focused release-gate regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed WeChat PC evidence|release claims|external proof checklist|local actionability|external handoff|redacted operator packet" --reporter=default --test-timeout=90000`
+  passed with 6 selected tests and 364 skipped tests after stale external proof was routed out of
+  the local-conflict bucket. The committed-evidence tests pin the validation clock to 2026-07-03
+  so stale external proof accounting stays deterministic across future local runs.
+- Platform regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 370 tests.
+- Export suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1347 tests.
+- Static checks:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 31.82s. `inkforge/tsconfig.tsbuildinfo` was restored afterward.
+- Release preflight:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `canClaimComplete=false`, `status=blocked-by-external`, blocker kinds `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, plus summary
+  `blockerCount=4`, `combinedIssueCount=15`, `cannotClaimSteps=30`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=10`, `mutatingOpenSteps=14`,
+  `externalHandoffRows=19`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+
+Scope:
+- This slice only adds local static publishability protection and release-gate accounting. It does
+  not refresh stale proof and does not prove WeChat PC paste, phone preview, context-menu
+  interaction fidelity, upload, public-host acceptance, credentialed sync, scheduled send,
+  platform preview, public article rendering, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 Xiumi Angular/UI Bootstrap Button State Directive Residue Slice
 
 Source:

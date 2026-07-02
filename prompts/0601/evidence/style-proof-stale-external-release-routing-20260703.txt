@@ -1,0 +1,74 @@
+Style Proof Stale External Release Routing - 2026-07-03
+
+Scope:
+- Local release-gate accounting for stale committed external proof rows.
+- No proof rows were renewed, recaptured, simulated, or promoted.
+- No platform action, no phone preview, no upload, no sync, no scheduled send, no publish.
+
+Problem found during the Xiumi context-menu slice:
+- The full platform regression surfaced that committed WeChat PC evidence collected on
+  2026-06-18 and 2026-06-19 can now emit style-proof-manifest-proof-stale under the 14-day
+  freshness window.
+- The stale rows were truthfully invalid, but the release gate was routing stale external proof
+  into the local-conflict blocker bucket.
+- That made the operator packet less precise because recapturing authenticated PC editor evidence
+  is an external-account/platform action, not a safe local automation task.
+
+Implemented:
+- Kept style-proof-manifest-proof-stale as an acceptance-invalid issue.
+- Kept stale committed proof rows visible in cannot-claim, execution runbooks, release preflight,
+  external proof checklist, local actionability, external handoff, and redacted packet APIs.
+- Narrowed local-conflict classification so proof-stale only counts as local conflict when the
+  stale requirement is a local release requirement.
+- Routed stale authenticated PC editor proof through external-dependency and mutating-platform
+  blockers while preserving canClaimComplete=false.
+- Regression tests pin validation time to 2026-07-03 and assert Amber's 2026-06-18 PC proof rows
+  are invalid for authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft, and
+  pc-editor-paste-event, while Tempera's 2026-06-19 boundary proof remains satisfied for the
+  authenticated PC editor gate.
+
+Current local release preflight:
+- canClaimComplete=false
+- status=blocked-by-external
+- blockerKinds=phone-preview, external-dependency, unsafe-to-automate, mutating-platform
+- blockerCount=4
+- combinedIssueCount=15
+- cannotClaimSteps=30
+- phoneOpenSteps=4
+- externalDependencyOpenSteps=15
+- unsafeToAutomateOpenSteps=10
+- mutatingOpenSteps=14
+- externalHandoffRows=19
+- safeExternalRows=0
+- actionableLocalRows=0
+- nextRowRefs=5
+- uniqueNextRows=4
+
+Verification:
+- The committed-evidence regression tests pin their validation clock to 2026-07-03 so the stale
+  external proof routing remains deterministic across future test runs.
+- Focused release-gate regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed WeChat PC evidence|release claims|external proof checklist|local actionability|external handoff|redacted operator packet" --reporter=default --test-timeout=90000
+  PASS: 6 selected tests.
+- Platform regression:
+  pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 370 tests.
+- Export suite:
+  pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1347 tests.
+- Release preflight:
+  pnpm -C inkforge style-proof:release-preflight --json
+  exited non-zero as expected because canClaimComplete=false, with status=blocked-by-external.
+- Static checks:
+  pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet
+  PASS.
+  pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS.
+  NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 31.82s.
+
+Boundary:
+- This is release-gate accounting only.
+- It does not refresh stale proof and does not prove WeChat PC paste, phone preview,
+  mobile interaction, Dark Mode, cover thumbnail, credentialed sync, scheduled send,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

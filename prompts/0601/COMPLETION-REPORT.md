@@ -10504,6 +10504,79 @@ Boundary:
 
 ---
 
+## 2026-07-03 Xiumi Context Menu Directive Residue and Stale External Proof Routing Addendum
+
+- Extended local static publishability protection for live Xiumi v5 context-menu directive residue
+  observed with CloakBrowser.
+- Observed context-menu directive markers: `context-menu` and `context-menu-on`.
+- Extended the existing `Xiumi attribute context menu host residue` detector to cover those
+  directive attributes while preserving separate diagnostics for operator depot controls,
+  attribute-board controls, operation-bar dropdowns, and menu-pin controls.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  operator depot controls, attribute-board controls, operation-bar dropdowns, menu-pin wrappers,
+  Angular runtime classes, UI Bootstrap directives, hosted media, sidebar controls, and meta
+  panels, so the label is proven independently from older Xiumi blockers.
+- Split positives cover `context-menu` and `context-menu-on` independently, and negative
+  regressions cover `data-context-menu`, `title`, `aria-label`, and generic `data-note` values
+  that merely mention context-menu wording.
+- The detector remains source-specific: it does not block ordinary context/menu/click prose,
+  attribute wording, or Xiumi by itself.
+- During full regression, the committed WeChat PC evidence from 2026-06-18 / 2026-06-19 correctly
+  surfaced `style-proof-manifest-proof-stale` under the 14-day freshness window. No proof was
+  renewed or promoted.
+- Narrowed release-gate local-conflict accounting so stale external proof remains invalid and
+  unclaimable, but routes through external-dependency and mutating-platform blocker rows instead
+  of being presented as locally automatable.
+- The stale-proof regression now asserts Amber's 2026-06-18 PC proof rows are invalid for
+  authenticated-editor-url, pc-editor-dom-readback, safe-disposable-draft, and pc-editor-paste-event,
+  while Tempera's 2026-06-19 boundary proof remains satisfied for the authenticated PC editor gate.
+- GitNexus CLI impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES`, LOW risk for
+  `isCommittedStyleProofReleaseLocalConflictIssue`, and LOW risk for
+  `getCommittedStyleProofReleaseLocalConflictIssues`; affected execution processes were 0.
+- Verification:
+  targeted TDD red failed before the detector update because no `wechat-market-editor-residue`
+  issue was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "context menu directives" --reporter=default`.
+- Adjacent Xiumi regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "attribute context menu host|context menu directives|menu pin controls|attribute board controls" --reporter=default`
+  passed with 5 selected tests and 365 skipped tests.
+- Focused release-gate regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "committed WeChat PC evidence|release claims|external proof checklist|local actionability|external handoff|redacted operator packet" --reporter=default --test-timeout=90000`
+  passed with 6 selected tests and 364 skipped tests. The committed-evidence tests pin the
+  validation clock to 2026-07-03 so stale external proof accounting stays deterministic across
+  future local runs.
+- Platform regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 370 tests.
+- Export suite:
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1347 tests.
+- Static checks:
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/style-catalog.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 31.82 seconds. `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- Release preflight remained correctly unclaimable:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-external`, blocker kinds `phone-preview`, `external-dependency`,
+  `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=4`,
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=10`, `mutatingOpenSteps=14`,
+  `externalHandoffRows=19`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+- Added evidence files:
+  `prompts/0601/evidence/xiumi-context-menu-directive-residue-20260703.txt` and
+  `prompts/0601/evidence/style-proof-stale-external-release-routing-20260703.txt`.
+- Boundary: this is local static publishability protection and local release-gate accounting only.
+  It does not refresh stale proof and does not prove WeChat PC paste, phone preview,
+  context-menu interaction fidelity, mobile interaction fidelity, mobile Dark Mode, cover
+  thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-07-03 Xiumi UI Router View Directive Residue Addendum
 
 - Extended local static publishability protection for live Xiumi v5 UI Router route outlet

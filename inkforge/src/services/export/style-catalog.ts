@@ -8362,6 +8362,9 @@ function isCommittedStyleProofReleaseLocalConflictIssue(
   report: CommittedStyleProofExecutionRunbookReport,
 ): boolean {
   if (!STYLE_PROOF_MANIFEST_ISSUE_IDS.includes(issue.id as StyleProofManifestIssueId)) return false
+  if (issue.id === 'style-proof-manifest-proof-stale') {
+    return isCommittedStyleProofReleaseLocalRequirement(issue.location)
+  }
   if (issue.id === 'style-proof-manifest-requirement-missing') {
     if (!isStyleProofRequirementId(issue.location)) return false
     if (!isCommittedStyleProofReleaseLocalRequirement(issue.location)) return false

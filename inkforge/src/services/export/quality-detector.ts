@@ -457,7 +457,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi operator depot item residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\battr-bar-context-menu-host-for-(?:comp-(?:insert|modify)|cell)\b[^"']*["']/i,
+    pattern: /(?:<[a-zA-Z][^>]*(?:class|id)\s*=\s*["'][^"']*\battr-bar-context-menu-host-for-(?:comp-(?:insert|modify)|cell)\b[^"']*["']|<[a-zA-Z][\w:-]*(?:\s+[^\s=/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*\s+context-menu(?:-on)?\s*=)/i,
     label: 'Xiumi attribute context menu host residue',
   },
   {

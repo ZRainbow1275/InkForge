@@ -2,7 +2,7 @@
  * @vitest-environment happy-dom
  */
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { StyleProofManifest } from './index'
 import {
   convertToNativeFormat,
@@ -167,6 +167,18 @@ const createStaleStyleProofCollectedAt = (): string =>
   new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
 const createFutureStyleProofCollectedAt = (): string =>
   new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+const COMMITTED_STYLE_PROOF_VALIDATION_NOW = new Date('2026-07-03T00:00:00.000Z')
+const itWithCommittedStyleProofValidationClock = (name: string, fn: () => void): void => {
+  it(name, () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(COMMITTED_STYLE_PROOF_VALIDATION_NOW)
+    try {
+      fn()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+}
 
 const MARKET_EDITOR_RESIDUE_HTML = [
   '<section class="_135editor" data-tools="135编辑器" data-id="173488">',
@@ -1394,6 +1406,24 @@ const MARKET_EDITOR_XIUMI_ATTR_CONTEXT_HOST_RESIDUE_HTML = [
   '<div class="attr-bar-context-menu-host-for-comp-insert"></div>',
   '<div class="attr-bar-context-menu-host-for-comp-modify"></div>',
   '<div class="attr-bar-context-menu-host-for-cell"></div>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_CONTEXT_MENU_DIRECTIVE_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div context-menu="attributeMenu" context-menu-on="click">Xiumi context menu directive</div>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_CONTEXT_MENU_ONLY_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div context-menu="attributeMenu">Xiumi context menu directive</div>',
+  '</section>',
+].join('')
+
+const MARKET_EDITOR_XIUMI_CONTEXT_MENU_ON_ONLY_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div context-menu-on="click">Xiumi context menu trigger directive</div>',
   '</section>',
 ].join('')
 
@@ -4345,7 +4375,7 @@ describe('platform native export rendering rules', () => {
     expect(publishStep?.requiredArtifact.requiredReadbacks).toEqual(expect.arrayContaining(['published-url']))
   })
 
-  it('builds committed WeChat PC evidence manifests without claiming phone or publish proof', () => {
+  itWithCommittedStyleProofValidationClock('builds committed WeChat PC evidence manifests without claiming phone or publish proof', () => {
     const manifests = getCommittedStyleProofWechatPcEvidenceManifests()
     const secondRead = getCommittedStyleProofWechatPcEvidenceManifests()
     const amberManifest = manifests.find(manifest => manifest.choiceId === 'wechat-flagship-amber')
@@ -4409,22 +4439,42 @@ describe('platform native export rendering rules', () => {
     expect(temperaReportIssueIds).not.toContain('style-proof-manifest-choice-blocked')
     expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-sensitive-artifact')
     expect([...amberReportIssueIds, ...temperaReportIssueIds]).not.toContain('style-proof-manifest-unsafe-commit-artifact')
+    expect(issueIds).toContain('style-proof-manifest-proof-stale')
     expect(wechatProgress.ignoredManifestCount).toBe(0)
     expect(wechatProgress.summary.choicesWithManifest).toBe(2)
     expect(amberProgress?.blockedByCatalog).toBe(false)
-    expect(amberProgress?.status).toBe('missing')
+    expect(amberProgress?.status).toBe('invalid')
     expect(temperaProgress?.blockedByCatalog).toBe(false)
     expect(temperaProgress?.status).toBe('missing')
-    expect(amberProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.satisfied)
-      .toBeGreaterThan(0)
-    expect(temperaProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.satisfied)
-      .toBeGreaterThan(0)
+    expect(amberProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.status)
+      .toBe('invalid')
+    expect(temperaProgress?.gates.find(gate => gate.gate === 'authenticated-pc-editor')?.status)
+      .toBe('satisfied')
+    expect(amberReportIssueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-proof-stale',
+    ]))
+    expect(new Set(amberProgress?.report.issues.filter(issue =>
+      issue.id === 'style-proof-manifest-proof-stale'
+    ).map(issue => issue.location))).toEqual(new Set([
+      'authenticated-editor-url',
+      'pc-editor-dom-readback',
+      'safe-disposable-draft',
+      'pc-editor-paste-event',
+    ]))
+    expect(amberRequirementStatus.get('authenticated-editor-url')).toBe('invalid')
+    expect(amberRequirementStatus.get('pc-editor-dom-readback')).toBe('invalid')
+    expect(amberRequirementStatus.get('safe-disposable-draft')).toBe('invalid')
+    expect(amberRequirementStatus.get('pc-editor-paste-event')).toBe('invalid')
+    expect(amberRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(amberRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('authenticated-editor-url')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('safe-disposable-draft')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('pc-editor-paste-event')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('exact-artifact')).toBe('satisfied')
+    expect(temperaRequirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
     for (const requirementStatus of [amberRequirementStatus, temperaRequirementStatus]) {
-      expect(requirementStatus.get('authenticated-editor-url')).toBe('satisfied')
-      expect(requirementStatus.get('pc-editor-dom-readback')).toBe('satisfied')
       expect(requirementStatus.get('exact-artifact')).toBe('satisfied')
-      expect(requirementStatus.get('safe-disposable-draft')).toBe('satisfied')
-      expect(requirementStatus.get('pc-editor-paste-event')).toBe('satisfied')
       expect(requirementStatus.get('no-sensitive-artifact')).toBe('satisfied')
       expect(requirementStatus.get('phone-preview-readback')).toBe('missing')
       expect(requirementStatus.get('dark-mode-check')).toBe('missing')
@@ -4440,7 +4490,7 @@ describe('platform native export rendering rules', () => {
     expect(audit.summary.manifestCount).toBe(2)
     expect(wechatAudit.progress.summary.choicesWithManifest).toBe(2)
     expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-amber')?.status)
-      .toBe('missing')
+      .toBe('invalid')
     expect(wechatAudit.progress.choices.find(choice => choice.choice.id === 'wechat-flagship-tempera')?.status)
       .toBe('missing')
     expect(cannotClaimIds).toEqual(expect.arrayContaining([
@@ -4452,7 +4502,7 @@ describe('platform native export rendering rules', () => {
     ]))
   })
 
-  it('records committed WeChat login-state blocker evidence without upgrading PC proof', () => {
+  itWithCommittedStyleProofValidationClock('records committed WeChat login-state blocker evidence without upgrading PC proof', () => {
     const manifests = getCommittedStyleProofExternalBlockerManifests()
     const secondRead = getCommittedStyleProofExternalBlockerManifests()
     const manifest = manifests[0]
@@ -4545,7 +4595,7 @@ describe('platform native export rendering rules', () => {
     expect(getCommittedStyleProofEvidenceManifests()).toHaveLength(22)
   })
 
-  it('audits committed local and WeChat PC evidence together without merging exact-artifact claims', () => {
+  itWithCommittedStyleProofValidationClock('audits committed local and WeChat PC evidence together without merging exact-artifact claims', () => {
     const manifests = getCommittedStyleProofEvidenceManifests()
     const secondRead = getCommittedStyleProofEvidenceManifests()
     const artifactIds = manifests.flatMap(manifest => manifest.artifacts.map(artifact => artifact.id))
@@ -4638,7 +4688,7 @@ describe('platform native export rendering rules', () => {
     expect(zhihuCannotClaimIds).toContain('public-image-host')
   })
 
-  it('builds committed evidence execution runbook report without closing external gates', () => {
+  itWithCommittedStyleProofValidationClock('builds committed evidence execution runbook report without closing external gates', () => {
     const report = getCommittedStyleProofEvidenceExecutionRunbookReport()
     const wechatRunbook = report.combined.platformReports.wechat
     const xhsRunbook = report.combined.platformReports.xiaohongshu
@@ -4689,7 +4739,7 @@ describe('platform native export rendering rules', () => {
     expect(zhihuPublicHostStep?.boundary).toBe('public-host')
   })
 
-  it('blocks committed evidence release claims until external gates are actually proven', () => {
+  itWithCommittedStyleProofValidationClock('blocks committed evidence release claims until external gates are actually proven', () => {
     const report = getCommittedStyleProofEvidenceReleaseGateReport()
     const blockerKinds = report.blockers.map(blocker => blocker.kind)
     const phoneBlocker = report.blockers.find(blocker => blocker.kind === 'phone-preview')
@@ -4704,7 +4754,7 @@ describe('platform native export rendering rules', () => {
       localManifestCount: 20,
       combinedManifestCount: 22,
       hasExactArtifactFingerprintConflicts: false,
-      combinedIssueCount: 11,
+      combinedIssueCount: 15,
       cannotClaimSteps: expect.any(Number),
       phoneOpenSteps: expect.any(Number),
       externalDependencyOpenSteps: expect.any(Number),
@@ -4743,11 +4793,19 @@ describe('platform native export rendering rules', () => {
       }),
     ]))
     expect(externalBlocker?.requirementIds).toEqual(expect.arrayContaining([
+      'authenticated-editor-url',
+      'pc-editor-dom-readback',
+      'pc-editor-paste-event',
       'public-image-host',
+      'safe-disposable-draft',
       'sync-readback',
     ]))
+    expect(externalBlocker?.issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-proof-stale',
+      'style-proof-manifest-requirement-missing',
+    ]))
     expect(externalBlocker?.platformStepCounts).toEqual([
-      { platform: 'wechat', stepCount: 7 },
+      { platform: 'wechat', stepCount: 8 },
       { platform: 'xiaohongshu', stepCount: 2 },
       { platform: 'zhihu', stepCount: 5 },
     ])
@@ -4764,7 +4822,7 @@ describe('platform native export rendering rules', () => {
       'published-url-or-platform-preview',
     ]))
     expect(unsafeBlocker?.platformStepCounts).toEqual([
-      { platform: 'wechat', stepCount: 7 },
+      { platform: 'wechat', stepCount: 4 },
       { platform: 'xiaohongshu', stepCount: 2 },
       { platform: 'zhihu', stepCount: 4 },
     ])
@@ -4773,8 +4831,16 @@ describe('platform native export rendering rules', () => {
       action.requirementId === 'published-url-or-platform-preview'
     )).toBe(true)
     expect(mutatingBlocker?.requirementIds).toEqual(expect.arrayContaining([
+      'authenticated-editor-url',
+      'pc-editor-dom-readback',
+      'pc-editor-paste-event',
+      'safe-disposable-draft',
       'scheduled-send-readback',
       'published-url-or-platform-preview',
+    ]))
+    expect(mutatingBlocker?.issueIds).toEqual(expect.arrayContaining([
+      'style-proof-manifest-proof-stale',
+      'style-proof-manifest-requirement-missing',
     ]))
     expect(mutatingBlocker?.requirementStepCounts).toEqual(expect.arrayContaining([
       { requirementId: 'published-url-or-platform-preview', stepCount: 3 },
@@ -4785,7 +4851,7 @@ describe('platform native export rendering rules', () => {
     )).toBe(true)
   })
 
-  it('builds committed external proof checklist without converting blockers into proof', () => {
+  itWithCommittedStyleProofValidationClock('builds committed external proof checklist without converting blockers into proof', () => {
     const report = getCommittedStyleProofExternalProofChecklistReport()
     const groupKinds = report.groups.map(group => group.kind)
     const wechatPhoneRow = report.rows.find(row =>
@@ -4812,13 +4878,13 @@ describe('platform native export rendering rules', () => {
     expect(report.summary).toMatchObject({
       blockerCount: 4,
       groupCount: 4,
-      groupRowCount: 44,
-      uniqueChecklistRowCount: 18,
+      groupRowCount: 43,
+      uniqueChecklistRowCount: 19,
       phoneRows: 4,
-      externalAccountRows: 13,
+      externalAccountRows: 14,
       publicHostRows: 1,
-      mutatingRows: 13,
-      unsafeToAutomateRows: 13,
+      mutatingRows: 14,
+      unsafeToAutomateRows: 10,
       safeToAutomateRows: 0,
     })
     expect(report.rows.every(row => row.status !== 'completed')).toBe(true)
@@ -4827,7 +4893,7 @@ describe('platform native export rendering rules', () => {
 
     expect(phoneGroup?.rowCount).toBe(4)
     expect(phoneGroup?.rows.every(row => row.requiresPhone)).toBe(true)
-    expect(externalGroup?.rowCount).toBe(14)
+    expect(externalGroup?.rowCount).toBe(15)
     expect(externalGroup?.rows.some(row => row.boundary === 'public-host')).toBe(true)
 
     expect(wechatPhoneRow).toMatchObject({
@@ -4884,7 +4950,7 @@ describe('platform native export rendering rules', () => {
     ])
   })
 
-  it('separates committed local actionability from catalog-blocked and external proof rows', () => {
+  itWithCommittedStyleProofValidationClock('separates committed local actionability from catalog-blocked and external proof rows', () => {
     const report = getCommittedStyleProofLocalActionabilityReport()
     const rowKeys = report.rows.map(row => `${row.platform}:${row.requirementId}`)
     const wechatCatalogRow = report.catalogBlockedRows.find(row =>
@@ -4903,11 +4969,11 @@ describe('platform native export rendering rules', () => {
       safeLocalOpenRows: 11,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
-      externalChecklistRows: 18,
-      externalChecklistGroupRows: 44,
+      externalChecklistRows: 19,
+      externalChecklistGroupRows: 43,
       phoneExternalRows: 4,
-      unsafeExternalRows: 13,
-      mutatingExternalRows: 13,
+      unsafeExternalRows: 10,
+      mutatingExternalRows: 14,
       safeExternalRows: 0,
     })
 
@@ -4962,7 +5028,7 @@ describe('platform native export rendering rules', () => {
     expect(zhihuArtifactRow?.nextOperatorAction).toContain('validateZhihuImageArtifactManifest()')
   })
 
-  it('builds committed external handoff without turning blocked proof into local automation', () => {
+  itWithCommittedStyleProofValidationClock('builds committed external handoff without turning blocked proof into local automation', () => {
     const report = getCommittedStyleProofExternalHandoffReport()
 
     expect(report.canClaimComplete).toBe(false)
@@ -4978,16 +5044,16 @@ describe('platform native export rendering rules', () => {
     expect(report.localActionability.summary.actionableLocalRows).toBe(0)
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      externalHandoffRows: 18,
+      externalHandoffRows: 19,
       externalHandoffGroups: 4,
       actionableLocalRows: 0,
       catalogBlockedLocalRows: 11,
       safeLocalOpenRows: 11,
       phoneRows: 4,
-      externalAccountRows: 13,
+      externalAccountRows: 14,
       publicHostRows: 1,
-      unsafeToAutomateRows: 13,
-      mutatingRows: 13,
+      unsafeToAutomateRows: 10,
+      mutatingRows: 14,
       safeExternalRows: 0,
     })
     expect(report.nextLocalActionableRow).toBeNull()
@@ -5033,7 +5099,7 @@ describe('platform native export rendering rules', () => {
     expect(report.cannotAutoCompleteReason).toContain('no direct local proof rows')
   })
 
-  it('formats committed external handoff as a redacted operator packet', () => {
+  itWithCommittedStyleProofValidationClock('formats committed external handoff as a redacted operator packet', () => {
     const packet = getCommittedStyleProofExternalHandoffPacket()
     const markdown = formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)
     const forbiddenFragments = [
@@ -5063,13 +5129,13 @@ describe('platform native export rendering rules', () => {
     expect(packet.requiresExternalAccount).toBe(true)
     expect(packet.requiresPublicHost).toBe(true)
     expect(packet.summary).toMatchObject({
-      externalHandoffRows: 18,
+      externalHandoffRows: 19,
       safeExternalRows: 0,
       phoneRows: 4,
-      externalAccountRows: 13,
+      externalAccountRows: 14,
       publicHostRows: 1,
-      unsafeToAutomateRows: 13,
-      mutatingRows: 13,
+      unsafeToAutomateRows: 10,
+      mutatingRows: 14,
     })
     expect(packet.nextRowRefs.map(ref => ref.kind)).toEqual([
       'phone-preview',
@@ -5080,7 +5146,7 @@ describe('platform native export rendering rules', () => {
     ])
     expect(packet.nextRowRefs.every(ref => ref.row.cannotClaim)).toBe(true)
     expect(packet.nextRowRefs.every(ref => ref.row.safeToAutomate === false)).toBe(true)
-    expect(packet.nextRows).toHaveLength(3)
+    expect(packet.nextRows).toHaveLength(4)
     expect(new Set(packet.nextRows.map(row => row.id)).size).toBe(packet.nextRows.length)
     expect(packet.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(packet.nextRows.every(row => row.safeToAutomate === false)).toBe(true)
@@ -5114,9 +5180,9 @@ describe('platform native export rendering rules', () => {
     expect(markdown).toContain('xiaohongshu / published-url-or-platform-preview / platform-publish')
     expect(markdown).toContain('zhihu / public-image-host / public-host')
     expect(markdown).toContain('phone-preview: wechat / cover-thumbnail-check / phone-preview')
-    expect(markdown).toContain('external-account: wechat / pc-editor-dom-readback / authenticated-pc-editor')
-    expect(markdown).toContain('unsafe-to-automate: wechat / pc-editor-dom-readback / authenticated-pc-editor')
-    expect(markdown).toContain('mutating-platform: wechat / pc-editor-dom-readback / authenticated-pc-editor')
+    expect(markdown).toContain('external-account: wechat / authenticated-editor-url / authenticated-pc-editor')
+    expect(markdown).toContain('unsafe-to-automate: wechat / credentialed-channel-response / credentialed-channel')
+    expect(markdown).toContain('mutating-platform: wechat / authenticated-editor-url / authenticated-pc-editor')
     expect(markdown).toContain('Do not claim completion from local-only checks')
     expect(markdown).toContain('Forbidden evidence fields')
     expect(formatCommittedStyleProofExternalHandoffPacketMarkdown(packet)).toBe(markdown)
@@ -13663,6 +13729,50 @@ describe('platform native export rendering rules', () => {
     expect(wechat.passed).toBe(false)
     expect(xhs.passed).toBe(false)
     expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi context menu directives without context host classes', () => {
+    for (const html of [
+      MARKET_EDITOR_XIUMI_CONTEXT_MENU_DIRECTIVE_RESIDUE_HTML,
+      MARKET_EDITOR_XIUMI_CONTEXT_MENU_ONLY_RESIDUE_HTML,
+      MARKET_EDITOR_XIUMI_CONTEXT_MENU_ON_ONLY_RESIDUE_HTML,
+    ]) {
+      const wechat = detectQuality(html, 'wechat')
+      const xhs = detectQuality(html, 'xiaohongshu')
+      const zhihu = detectQuality(html, 'zhihu')
+
+      expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+        .toContain('Xiumi attribute context menu host residue')
+      expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+        .toContain('Xiumi attribute context menu host residue')
+      expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+        .toContain('Xiumi attribute context menu host residue')
+      expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+        .not.toContain('Xiumi operator depot item residue')
+      expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+        .not.toContain('Xiumi attribute board control residue')
+      expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+        .not.toContain('Xiumi operation bar dropdown residue')
+      expect(wechat.passed).toBe(false)
+      expect(xhs.passed).toBe(false)
+      expect(zhihu.passed).toBe(false)
+    }
+  })
+
+  it('does not block ordinary data attributes that merely mention context menu state', () => {
+    const htmlCases = [
+      '<section data-context-menu="local-note">context menu prose only</section>',
+      '<section title="ordinary context-menu=local">ordinary prose</section>',
+      '<section aria-label="open context-menu= help">ordinary prose</section>',
+      '<section data-note="foo context-menu-on=click">ordinary prose</section>',
+    ]
+
+    for (const html of htmlCases) {
+      const result = detectQuality(html, 'wechat')
+
+      expect(result.issues.find(issue => issue.id === 'wechat-market-editor-residue')).toBeUndefined()
+      expect(result.passed).toBe(true)
+    }
   })
 
   it('blocks Xiumi menu pin controls without loader parents', () => {
