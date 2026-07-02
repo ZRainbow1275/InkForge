@@ -3262,6 +3262,58 @@ Scope:
   send, platform preview, public article rendering, XHS/Zhihu account upload, public host, or
   publish success.
 
+## 2026-07-03 Xiumi SVG Category Login-Gated Taxonomy Recheck
+
+Source:
+- CloakBrowser reviewed the live Xiumi v5 paper editor at the sanitized route
+  `https://xiumi.us/studio/v5#/paper/redacted/new/cube/0`.
+- The visible top bar still exposed `登录`, so this run is login-gated/public editor-state evidence
+  only, not authenticated-account proof.
+- The SVG category was open and exposed taxonomy labels including `基础SVG`, `图片轮播`,
+  `点击展开`, `路径动画`, `抽签效果`, `趣味滑动`, `轮换转场`, `分支转场`, `滑动触发`,
+  `视差移动`, `点击切换`, `翻页/翻转`, `缩放`, `点击答题`, `文字弹幕`, `点击显示`,
+  `点击换图`, `点击打开`, `点击消失`, `点击弹出`, `点击放大`, `点击打印`, `点击跳转`,
+  `点击播放`, `点击掉落`, and `点击+自动`.
+- Visible SVG template cards exposed source-owned Xiumi wrappers/directives such as
+  `tn-tpl-item`, `tn-lighting-box`, `tn-tpl-comp`, `tn-scene-paper`,
+  `tn-tpl-categ-paper-cp`, `tn-tpl-comp-box`, `lighting-hover`,
+  `tn-tpl-comp-item`, `tn-tpl-ra-bind-box`, `tn-tpl-pose-fit-box`,
+  `disable-tn-group-flex-box`, `tn-feature-toggle`, `feature-matched-class`,
+  `feature-not-matched-class`, `ng-bind-html`, and `context-menu`.
+- No profile path, cookie, token, HAR, QR payload, account screenshot, screenshot path, private
+  material URL, upload artifact, sync artifact, or publish artifact is part of the committed
+  evidence.
+
+Finding:
+- Document-level counts after opening the SVG category included 8785 elements, 241 SVG nodes, 140
+  `foreignObject` nodes, 164 SMIL-like nodes, 5908 `ng-*` attributes, 1428 `tn-*` attributes, 147
+  `uib-*` attributes, 130 context-menu attributes, 35 `disable-tn-*` attributes, and 120
+  feature/toggle attributes.
+- Clicking the first visible SVG template card did not change the center editor:
+  `centerHtmlLength=566103`, `centerHash=9ecbbf1`, `centerSvg=0`, `centerForeignObject=0`, and
+  `centerAnimateLike=0` stayed unchanged after waiting.
+- Therefore the run is taxonomy/list-card/static-residue coverage, not applied center SVG proof.
+
+Coverage:
+- Existing diagnostics already cover the observed markers:
+  `Xiumi template renderer pipeline residue`, `Xiumi template authoring tree residue`,
+  `Xiumi template scene marker residue`, `Xiumi template card hover residue`,
+  `Xiumi component template binding residue`, `Xiumi disabled control binding residue`,
+  `Xiumi component depot SVG animation residue`, plus adjacent Angular/UI Bootstrap/context-menu
+  and editor-shell residue diagnostics.
+- No source-code detector change was required in this slice.
+
+Verification:
+- `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi (template renderer pipeline|template authoring tree|template entry blocks|template scene markers|template card hover|component template binding|disabled control binding|component depot SVG animation|Angular runtime controls|UI Bootstrap directives|attribute context menu host|group and ground markers|paper document root|document selection shell)" --reporter=default --test-timeout=90000`
+  passed with 1 file, 14 selected tests, and 358 skipped tests.
+
+Scope:
+- This is static publishability protection and market-editor DOM learning only. It does not prove
+  authenticated Xiumi account access, successful template application, WeChat paste, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
+  public host, or publish success.
+
 ## 2026-07-03 Sensitive Platform Artifact Reference Hygiene Slice
 
 Source:

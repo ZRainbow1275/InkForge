@@ -10754,3 +10754,36 @@ Boundary:
   authenticated free-trial application, WeChat PC paste, phone preview, mobile SMIL/click, mobile
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public article
   rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Xiumi SVG Category Login-Gated Taxonomy Recheck Addendum
+
+- Rechecked the live Xiumi v5 paper editor with CloakBrowser only at the sanitized route
+  `https://xiumi.us/studio/v5#/paper/redacted/new/cube/0`.
+- Current visible state was login-gated/public editor-state: the top bar still showed `登录`.
+- The open SVG category exposed the market taxonomy and list-card authoring markers used by
+  Xiumi SVG effects, including `tn-tpl-item`, `tn-lighting-box`, `tn-tpl-comp`,
+  `tn-scene-paper`, `tn-tpl-categ-paper-cp`, `tn-tpl-comp-box`, `lighting-hover`,
+  `tn-tpl-comp-item`, `tn-tpl-ra-bind-box`, `tn-tpl-pose-fit-box`,
+  `disable-tn-group-flex-box`, `tn-feature-toggle`, `feature-matched-class`,
+  `feature-not-matched-class`, `ng-bind-html`, and `context-menu`.
+- A real click on the first visible SVG template card did not mutate the center editor:
+  `centerHtmlLength=566103`, `centerHash=9ecbbf1`, `centerSvg=0`, `centerForeignObject=0`, and
+  `centerAnimateLike=0` stayed unchanged after waiting.
+- Existing static diagnostics already cover the observed markers:
+  `Xiumi template renderer pipeline residue`, `Xiumi template authoring tree residue`,
+  `Xiumi template scene marker residue`, `Xiumi template card hover residue`,
+  `Xiumi component template binding residue`, `Xiumi disabled control binding residue`,
+  `Xiumi component depot SVG animation residue`, and adjacent Angular/UI Bootstrap/context-menu
+  editor-shell diagnostics.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi (template renderer pipeline|template authoring tree|template entry blocks|template scene markers|template card hover|component template binding|disabled control binding|component depot SVG animation|Angular runtime controls|UI Bootstrap directives|attribute context menu host|group and ground markers|paper document root|document selection shell)" --reporter=default --test-timeout=90000`
+  passed with 1 file and 14 selected tests.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-svg-category-login-gate-recheck-20260703.txt`.
+- Boundary: this is Xiumi SVG category/list-card static publishability learning only. It does not
+  prove authenticated Xiumi account access, successful template application, WeChat PC paste,
+  phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload,
+  credentialed sync, scheduled send, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

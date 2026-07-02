@@ -12673,3 +12673,53 @@ const ruleFamilies = [
 - Evidence docs must state that this is static publishability protection only and does not prove
   WeChat paste, phone preview, modal interaction fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
+
+## 259. Xiumi SVG Category Login-Gated Taxonomy Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: a live CloakBrowser pass reaches the Xiumi v5 paper editor with the SVG material
+  category open while the visible top bar still exposes `登录`.
+- This state is login-gated/public editor-state evidence only. It must not be promoted to
+  authenticated account proof, successful template-application proof, WeChat paste proof,
+  phone-preview proof, credentialed-channel proof, scheduled-send proof, or publish proof.
+- SVG category taxonomy, list-card wrappers, preview SVG/SMIL nodes, and template-card directive
+  markers may be used to revalidate static publishability diagnostics only when recorded as
+  sanitized class/token names.
+
+### 2. Contract
+
+- Evidence must state whether the Xiumi session is authenticated. If `登录` is visible, the run is
+  login-gated and cannot satisfy `authenticated-pc-editor`, `platform-editor-dom`, sync, upload,
+  or publish requirements.
+- A click on a visible SVG template card must be checked against the center editor before claiming
+  applied content. If the center editor hash and inline SVG counts remain unchanged, the run must
+  be recorded as taxonomy/list-card coverage, not applied SVG proof.
+- `Xiumi template renderer pipeline residue` must continue to cover `tn-tpl-pose-fit-box` and
+  renderer-pipeline directives.
+- `Xiumi template authoring tree residue` must continue to cover `tn-tpl*` category/list/card
+  wrappers such as `tn-tpl-item`, `tn-tpl-comp`, `tn-tpl-categ-paper-cp`, `tn-tpl-comp-box`,
+  `tn-tpl-comp-item`, and `tn-tpl-ra-bind-box`.
+- `Xiumi template scene marker residue` and `Xiumi template card hover residue` must continue to
+  cover source-owned list-card state such as `tn-scene-paper`, `tn-lighting-box`,
+  `lighting-hover`, and `comp-feature-matched`.
+- `Xiumi disabled control binding residue` must continue to cover `disable-tn-*` attributes,
+  including `disable-tn-group-flex-box`.
+- Adjacent Angular, UI Bootstrap, context-menu, group/ground, paper-root, and document-selection
+  diagnostics must remain independently actionable for the same editor shell.
+
+### 3. Required Checks
+
+- Use CloakBrowser for the live page. Do not use direct Playwright browser tools for this platform
+  pass.
+- Record only sanitized route/state, counts, class names, attribute names, and non-sensitive
+  functional labels. Do not record profile paths, cookies, tokens, HAR, QR payloads, account
+  screenshots, local screenshot filesystem paths, or private material URLs.
+- Focused Xiumi static-regression tests must keep the template renderer pipeline, template
+  authoring tree, template scene marker, template card hover, component template binding, disabled
+  control binding, component depot SVG animation, Angular, UI Bootstrap, context-menu,
+  group/ground, paper-root, and document-selection diagnostics green.
+- Evidence docs must explicitly state that this recheck does not prove authenticated Xiumi account
+  access, successful center-editor application, WeChat paste, phone preview, mobile interaction
+  fidelity, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled
+  send, public rendering, XHS/Zhihu account upload, or publish success.

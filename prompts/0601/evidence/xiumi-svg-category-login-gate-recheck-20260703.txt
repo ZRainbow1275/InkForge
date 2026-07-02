@@ -1,0 +1,105 @@
+Xiumi SVG Category Login-Gated Taxonomy Recheck - 2026-07-03
+
+Scope:
+- CloakBrowser-only live recheck on the Xiumi v5 paper editor route.
+- Sanitized route recorded as https://xiumi.us/studio/v5#/paper/redacted/new/cube/0.
+- No direct Playwright tool was used.
+- No profile path, cookie, token, HAR, QR payload, account screenshot, screenshot filesystem path,
+  private material URL, sync artifact, upload artifact, or publish artifact is included.
+
+Observed state:
+- Page title: "图文: (无标题) | 秀米XIUMI".
+- The visible top bar still exposed "登录", so this run is login-gated/public editor-state
+  evidence only. It is not authenticated-account proof.
+- The SVG category was open in the left material/template panel.
+- Visible SVG taxonomy labels included:
+  SVG, 基础SVG, 图片轮播, 点击展开, 路径动画, 抽签效果, 趣味滑动, 轮换转场,
+  分支转场, 滑动触发, 视差移动, 点击切换, 翻页/翻转, 缩放, 点击答题,
+  文字弹幕, 点击显示, 点击换图, 点击打开, 点击消失, 点击弹出, 点击放大,
+  点击打印, 点击跳转, 点击播放, 点击掉落, 点击+自动.
+
+Template/list-card markers:
+- Visible SVG template cards used source-owned authoring wrappers:
+  - tn-tpl-item
+  - tn-lighting-box
+  - tn-tpl-comp
+  - tn-scene-paper
+  - tn-tpl-categ-paper-cp
+  - tn-tpl-comp-box
+  - lighting-hover
+  - tn-tpl-comp-item
+  - tn-tpl-ra-bind-box
+  - wrapper with tn-tpl-pose-fit-box
+- Visible directive attributes included:
+  - ng-repeat
+  - ng-class
+  - ng-click
+  - ng-switch
+  - ng-switch-when
+  - ng-bind-html
+  - context-menu
+  - tn-feature-toggle
+  - feature-matched-class
+  - feature-not-matched-class
+  - disable-tn-group-flex-box
+
+Quantitative sanitized readback:
+- totalElements: 8785
+- contenteditable: 2
+- document-wide svg: 241
+- document-wide foreignObject: 140
+- document-wide animate/SMIL-like nodes: 164
+- img: 159
+- iframe: 3
+- ng-* attributes: 5908
+- tn-* attributes: 1428
+- uib-* attributes: 147
+- context-menu/context-menu-on attributes: 130
+- disable-tn-* attributes: 35
+- feature/toggle attributes: 120
+- Xiumi-hosted reference count: 241
+- document htmlLength: 1190828
+
+Center-editor applied-result check:
+- Before clicking the first visible SVG template card:
+  - centerHtmlLength: 566103
+  - centerHash: 9ecbbf1
+  - centerSvg: 0
+  - centerForeignObject: 0
+  - centerAnimateLike: 0
+  - centerText: 基础格式：字号 16，行间距 1.6，字间距 0，默认图
+- After clicking the first visible SVG template card and waiting:
+  - centerHtmlLength: 566103
+  - centerHash: 9ecbbf1
+  - centerSvg: 0
+  - centerForeignObject: 0
+  - centerAnimateLike: 0
+  - centerImage: 78
+  - centerText remained the same baseline text.
+- Conclusion: this run proves current SVG taxonomy/list-card markers and a failed/no-op apply
+  attempt under the visible login-gated state. It does not prove an applied SVG effect in the
+  center editor.
+
+Existing detector coverage confirmed:
+- Xiumi template renderer pipeline residue covers tn-tpl-pose-fit-box and template renderer
+  directives.
+- Xiumi template authoring tree residue covers tn-tpl* authoring wrappers.
+- Xiumi template scene marker residue covers tn-scene-paper and tn-lighting-box.
+- Xiumi template card hover residue covers lighting-hover and comp-feature-matched.
+- Xiumi component template binding residue covers tn-bind-comp-tpl-id/index residue.
+- Xiumi disabled control binding residue covers disable-tn-* attributes.
+- Xiumi component depot SVG animation residue remains the SVG-animation-specific depot control
+  diagnostic.
+- Adjacent Angular, UI Bootstrap, context-menu, group/ground, paper-root, and document-selection
+  diagnostics remain applicable to the current Xiumi editor shell.
+
+Verification:
+- pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi (template renderer pipeline|template authoring tree|template entry blocks|template scene markers|template card hover|component template binding|disabled control binding|component depot SVG animation|Angular runtime controls|UI Bootstrap directives|attribute context menu host|group and ground markers|paper document root|document selection shell)" --reporter=default --test-timeout=90000
+- Result: 1 file passed, 14 selected tests passed, 358 tests skipped.
+
+Boundary:
+- This is static publishability and market-editor-residue learning only.
+- It does not prove authenticated Xiumi account access, successful template application,
+  WeChat PC paste, WeChat phone preview, mobile SMIL/click interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

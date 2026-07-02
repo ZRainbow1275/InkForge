@@ -7744,3 +7744,27 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   authenticated free-trial application, paste, phone preview, mobile interaction, Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, XHS/Zhihu upload,
   public-host acceptance, or publish success.
+
+## 2026-07-03 Xiumi SVG Category Login-Gated Taxonomy Recheck
+
+- [x] xiumi-svg-category-login-gate-recheck-20260703.txt
+- CloakBrowser-only live recheck stayed on the Xiumi v5 paper editor route with the visible top
+  bar still showing `登录`, so the run is login-gated/public editor-state evidence only.
+- The open SVG category exposed SVG taxonomy and list-card wrappers/directives including
+  `tn-tpl-item`, `tn-lighting-box`, `tn-tpl-comp`, `tn-scene-paper`, `tn-tpl-categ-paper-cp`,
+  `tn-tpl-comp-box`, `lighting-hover`, `tn-tpl-comp-item`, `tn-tpl-ra-bind-box`,
+  `tn-tpl-pose-fit-box`, `disable-tn-group-flex-box`, `tn-feature-toggle`,
+  `feature-matched-class`, `feature-not-matched-class`, `ng-bind-html`, and `context-menu`.
+- Clicking the first visible SVG template card did not change the center editor:
+  `centerHtmlLength=566103`, `centerHash=9ecbbf1`, `centerSvg=0`, `centerForeignObject=0`, and
+  `centerAnimateLike=0` stayed unchanged. This is taxonomy/list-card/static-residue coverage, not
+  applied center SVG proof.
+- Existing Xiumi diagnostics already cover the observed markers; no source-code detector change
+  was required.
+- Focused regression passed:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Xiumi (template renderer pipeline|template authoring tree|template entry blocks|template scene markers|template card hover|component template binding|disabled control binding|component depot SVG animation|Angular runtime controls|UI Bootstrap directives|attribute context menu host|group and ground markers|paper document root|document selection shell)" --reporter=default --test-timeout=90000`
+  with 1 file and 14 selected tests.
+- Boundary: this does not prove authenticated Xiumi account access, successful template
+  application, WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
