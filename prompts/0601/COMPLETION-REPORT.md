@@ -10787,3 +10787,33 @@ Boundary:
   phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload,
   credentialed sync, scheduled send, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 Style Proof Release Preflight Next-Row Issue Traceability Addendum
+
+- Current WeChat read-only CloakBrowser probe reached the login/scan gate:
+  `hasLoginForm=true`, `qrcodeLike=4`, `passwordInputs=1`, no backend-home markers, no editor
+  markers, and no editor DOM selectors. This could not refresh `authenticated-editor-url` or
+  `pc-editor-dom-readback` proof.
+- Fixed a real regression in `scripts/style-proof-release-preflight.test.ts`: the test still
+  expected older release-gate counts even though committed proof now reports
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `externalHandoffRows=19`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+- Extended `pnpm -C inkforge style-proof:release-preflight --json` so each `nextRows[]` entry now
+  exposes row id, choice ids, requirement label, gate, blocker kinds, issue ids, freshness issue
+  ids, requirement counters, artifact counters, cannot-claim reason, and next operator action.
+- Extended the human CLI output to print `issues=...`, `reason=...`, and `next=...` for each next
+  operator row.
+- Verification:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 3 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed;
+  JSON and text CLI modes both exited 1 as expected while showing the enriched blocker rows.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-release-preflight-nextrow-issues-20260703.txt`.
+- Boundary: this is local release gate observability and regression repair only. It does not prove
+  WeChat authenticated editor access, WeChat PC paste, phone preview, mobile SMIL/click, mobile
+  Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled send, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

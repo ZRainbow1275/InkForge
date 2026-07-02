@@ -25,13 +25,31 @@ interface ReleasePreflightSummary {
 }
 
 interface ReleasePreflightNextRow {
+  id: string
   kind: string
   platform: string
+  choiceIds: string[]
   requirementId: string
+  requirementLabel: string
+  gate: string
   boundary: string
   status: string
+  blockerKinds: string[]
+  issueIds: string[]
+  freshnessIssueIds: string[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
+  mutatesPlatform: boolean
+  requiresExternalAccount: boolean
+  requiresPhone: boolean
   cannotClaim: boolean
   safeToAutomate: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
 }
 
 interface ReleasePreflightJsonReport {
@@ -149,13 +167,35 @@ function isReleasePreflightSummary(value: unknown): value is ReleasePreflightSum
 
 function isReleasePreflightNextRow(value: unknown): value is ReleasePreflightNextRow {
   return isRecord(value) &&
+    typeof value.id === 'string' &&
     typeof value.kind === 'string' &&
     typeof value.platform === 'string' &&
+    Array.isArray(value.choiceIds) &&
+    value.choiceIds.every(choiceId => typeof choiceId === 'string') &&
     typeof value.requirementId === 'string' &&
+    typeof value.requirementLabel === 'string' &&
+    typeof value.gate === 'string' &&
     typeof value.boundary === 'string' &&
     typeof value.status === 'string' &&
+    Array.isArray(value.blockerKinds) &&
+    value.blockerKinds.every(kind => typeof kind === 'string') &&
+    Array.isArray(value.issueIds) &&
+    value.issueIds.every(issueId => typeof issueId === 'string') &&
+    Array.isArray(value.freshnessIssueIds) &&
+    value.freshnessIssueIds.every(issueId => typeof issueId === 'string') &&
+    typeof value.required === 'number' &&
+    typeof value.satisfied === 'number' &&
+    typeof value.missing === 'number' &&
+    typeof value.invalid === 'number' &&
+    typeof value.artifactCount === 'number' &&
+    typeof value.acceptedArtifactCount === 'number' &&
+    typeof value.mutatesPlatform === 'boolean' &&
+    typeof value.requiresExternalAccount === 'boolean' &&
+    typeof value.requiresPhone === 'boolean' &&
     typeof value.cannotClaim === 'boolean' &&
-    typeof value.safeToAutomate === 'boolean'
+    typeof value.safeToAutomate === 'boolean' &&
+    (typeof value.cannotClaimReason === 'string' || value.cannotClaimReason === null) &&
+    typeof value.nextOperatorAction === 'string'
 }
 
 function isReleasePreflightJsonReport(value: unknown): value is ReleasePreflightJsonReport {
@@ -204,17 +244,17 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
     expect(report.summary).toMatchObject({
       blockerCount: 4,
-      combinedIssueCount: 11,
-      cannotClaimSteps: 29,
+      combinedIssueCount: 15,
+      cannotClaimSteps: 30,
       phoneOpenSteps: 4,
-      externalDependencyOpenSteps: 14,
-      unsafeToAutomateOpenSteps: 13,
-      mutatingOpenSteps: 13,
-      externalHandoffRows: 18,
+      externalDependencyOpenSteps: 15,
+      unsafeToAutomateOpenSteps: 10,
+      mutatingOpenSteps: 14,
+      externalHandoffRows: 19,
       safeExternalRows: 0,
       actionableLocalRows: 0,
       nextRowRefs: 5,
-      uniqueNextRows: 3,
+      uniqueNextRows: 4,
     })
     expect(report.nextRows.map(row => row.kind)).toEqual([
       'phone-preview',
@@ -225,6 +265,15 @@ describe('style-proof release preflight CLI', { timeout: 60_000 }, () => {
     ])
     expect(report.nextRows.every(row => row.cannotClaim)).toBe(true)
     expect(report.nextRows.every(row => !row.safeToAutomate)).toBe(true)
+    expect(report.nextRows.every(row => row.nextOperatorAction.length > 0)).toBe(true)
+    expect(report.nextRows.some(row =>
+      row.issueIds.includes('style-proof-manifest-proof-stale')
+    )).toBe(true)
+    expect(report.nextRows.some(row =>
+      row.freshnessIssueIds.includes('style-proof-manifest-proof-stale')
+    )).toBe(true)
+    expect(report.nextRows.find(row => row.kind === 'external-account')?.cannotClaimReason)
+      .toContain('freshness window')
   })
 
   it('prints help with a successful exit code', async () => {

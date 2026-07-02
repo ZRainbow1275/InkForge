@@ -3314,6 +3314,51 @@ Scope:
   scheduled send, platform preview, public article rendering, XHS/Zhihu account upload,
   public host, or publish success.
 
+## 2026-07-03 Style Proof Release Preflight Next-Row Issue Traceability
+
+Source:
+- Current `pnpm -C inkforge style-proof:release-preflight --json` reports
+  `canClaimComplete=false`, `status=blocked-by-external`, `combinedIssueCount=15`,
+  `cannotClaimSteps=30`, `externalHandoffRows=19`, `nextRowRefs=5`, and `uniqueNextRows=4`.
+- Focused CLI regression was red because `scripts/style-proof-release-preflight.test.ts` still
+  asserted older committed counts (`combinedIssueCount=11`, `cannotClaimSteps=29`,
+  `externalHandoffRows=18`, `uniqueNextRows=3`).
+- A read-only CloakBrowser probe of `https://mp.weixin.qq.com/` reached the login/scan gate
+  (`hasLoginForm=true`, `qrcodeLike=4`, `passwordInputs=1`, editor selectors all false), so no
+  fresh WeChat authenticated-editor or PC-editor-DOM proof could be collected in this slice.
+
+Impact:
+- `npx gitnexus impact buildPreflightResult -r InkForge --depth 3` returned LOW risk with one
+  direct dependent (`main`) and 0 affected processes.
+- `npx gitnexus impact formatPreflightResult -r InkForge --depth 3` returned LOW risk with one
+  direct dependent (`main`) and 0 affected processes.
+
+Implementation:
+- Extended `scripts/style-proof-release-preflight.ts` JSON `nextRows` to include stable
+  traceability fields: row id, choice ids, requirement label, gate, blocker kinds, issue ids,
+  freshness issue ids, requirement counters, artifact counters, cannot-claim reason, and next
+  operator action.
+- Extended text output for each next operator row with `issues=...`, `reason=...`, and `next=...`.
+- Updated `scripts/style-proof-release-preflight.test.ts` to validate the richer JSON shape,
+  current blocker counts, stale proof issue visibility, freshness issue visibility, and non-empty
+  operator actions.
+
+Verification:
+- Red: `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  failed because the test expected stale summary counts.
+- Green: the same focused command passed with 1 file and 3 tests after the CLI/test update.
+- `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge style-proof:release-preflight --json` and
+  `pnpm -C inkforge style-proof:release-preflight` both exited 1 as expected while printing the
+  enriched blocker rows.
+
+Scope:
+- This is local release gate observability and regression repair only. It does not prove WeChat
+  authenticated editor access, WeChat PC paste, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, platform preview, public
+  article rendering, XHS/Zhihu account upload, public host, or publish success.
+
 ## 2026-07-03 Sensitive Platform Artifact Reference Hygiene Slice
 
 Source:

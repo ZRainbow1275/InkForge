@@ -6,6 +6,7 @@ import {
   type CommittedStyleProofExternalHandoffNextRowKind,
   type CommittedStyleProofReleaseGateBlockerKind,
   type CommittedStyleProofReleaseGateStatus,
+  type StyleProofManifestIssueId,
   type StyleProofCollectionGate,
   type StyleProofExecutionBoundary,
   type StyleProofRequirementId,
@@ -13,17 +14,31 @@ import {
 import type { Platform } from '../src/services/export/types.ts'
 
 interface StyleProofReleasePreflightNextRow {
+  id: string
   kind: CommittedStyleProofExternalHandoffNextRowKind
   platform: Platform
+  choiceIds: readonly string[]
   requirementId: StyleProofRequirementId
+  requirementLabel: string
   gate: StyleProofCollectionGate
   boundary: StyleProofExecutionBoundary
   status: string
+  blockerKinds: readonly CommittedStyleProofReleaseGateBlockerKind[]
+  issueIds: readonly StyleProofManifestIssueId[]
+  freshnessIssueIds: readonly StyleProofManifestIssueId[]
+  required: number
+  satisfied: number
+  missing: number
+  invalid: number
+  artifactCount: number
+  acceptedArtifactCount: number
   mutatesPlatform: boolean
   requiresExternalAccount: boolean
   requiresPhone: boolean
   safeToAutomate: boolean
   cannotClaim: boolean
+  cannotClaimReason: string | null
+  nextOperatorAction: string
 }
 
 interface StyleProofReleasePreflightResult {
@@ -84,17 +99,31 @@ function buildPreflightResult(): StyleProofReleasePreflightResult {
       uniqueNextRows: handoffPacket.nextRows.length,
     },
     nextRows: handoffPacket.nextRowRefs.map(ref => ({
+      id: ref.row.id,
       kind: ref.kind,
       platform: ref.row.platform,
+      choiceIds: ref.row.choiceIds,
       requirementId: ref.row.requirementId,
+      requirementLabel: ref.row.requirementLabel,
       gate: ref.row.gate,
       boundary: ref.row.boundary,
       status: ref.row.status,
+      blockerKinds: ref.row.blockerKinds,
+      issueIds: ref.row.issueIds,
+      freshnessIssueIds: ref.row.freshnessIssueIds,
+      required: ref.row.required,
+      satisfied: ref.row.satisfied,
+      missing: ref.row.missing,
+      invalid: ref.row.invalid,
+      artifactCount: ref.row.artifactCount,
+      acceptedArtifactCount: ref.row.acceptedArtifactCount,
       mutatesPlatform: ref.row.mutatesPlatform,
       requiresExternalAccount: ref.row.requiresExternalAccount,
       requiresPhone: ref.row.requiresPhone,
       safeToAutomate: ref.row.safeToAutomate,
       cannotClaim: ref.row.cannotClaim,
+      cannotClaimReason: ref.row.cannotClaimReason,
+      nextOperatorAction: ref.row.nextOperatorAction,
     })),
   }
 }
@@ -124,7 +153,10 @@ function formatPreflightResult(result: StyleProofReleasePreflightResult): string
       `status=${row.status} phone=${row.requiresPhone ? 'yes' : 'no'} ` +
       `account=${row.requiresExternalAccount ? 'yes' : 'no'} ` +
       `mutates=${row.mutatesPlatform ? 'yes' : 'no'} safe=${row.safeToAutomate ? 'yes' : 'no'} ` +
-      `cannotClaim=${row.cannotClaim ? 'yes' : 'no'}`
+      `cannotClaim=${row.cannotClaim ? 'yes' : 'no'} ` +
+      `issues=${row.issueIds.length > 0 ? row.issueIds.join('|') : 'none'} ` +
+      `reason=${row.cannotClaimReason ?? 'none'} ` +
+      `next=${row.nextOperatorAction}`
     ),
   ]
 

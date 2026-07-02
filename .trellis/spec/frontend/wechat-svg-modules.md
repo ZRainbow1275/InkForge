@@ -12723,3 +12723,43 @@ const ruleFamilies = [
   access, successful center-editor application, WeChat paste, phone preview, mobile interaction
   fidelity, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled
   send, public rendering, XHS/Zhihu account upload, or publish success.
+
+## 260. Style Proof Release Preflight Next-Row Issue Traceability - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the committed style-proof release preflight is blocked by external phone/account/public
+  host/mutating platform gates, and the compact CLI output must be sufficient for a deployment
+  operator to identify the exact current issue ids without reading internal service code.
+- This is release-gate observability only. It must not create proof artifacts, mutate committed
+  manifests, soften acceptance status, or promote external rows to local completion.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:release-preflight --json` must continue to exit non-zero while
+  `canClaimComplete=false`.
+- The JSON `nextRows[]` shape must include stable traceability fields for each next operator row:
+  `id`, `kind`, `platform`, `choiceIds`, `requirementId`, `requirementLabel`, `gate`, `boundary`,
+  `status`, `blockerKinds`, `issueIds`, `freshnessIssueIds`, `required`, `satisfied`, `missing`,
+  `invalid`, `artifactCount`, `acceptedArtifactCount`, `mutatesPlatform`,
+  `requiresExternalAccount`, `requiresPhone`, `safeToAutomate`, `cannotClaim`,
+  `cannotClaimReason`, and `nextOperatorAction`.
+- The human text output must include each next row's issue ids, cannot-claim reason, and next
+  operator action. This lets release logs show why a row remains blocked without exposing
+  sensitive browser or account artifacts.
+- `style-proof-manifest-proof-stale` must stay visible in both `issueIds` and
+  `freshnessIssueIds` for stale external proof rows.
+- Sensitive fragments such as browser profile paths, cookies, tokens, HAR references, QR payloads,
+  account screenshots, local screenshot paths, and account-state captures must never appear in
+  either compact JSON or text output.
+
+### 3. Required Checks
+
+- A focused CLI regression must first fail if committed release-gate counts drift but tests still
+  assert old counts.
+- The fixed regression must assert the current summary counts, richer `nextRows[]` shape,
+  `style-proof-manifest-proof-stale` visibility, non-empty `nextOperatorAction`, and sensitive
+  output hygiene.
+- Running the CLI directly in both JSON and text modes must remain a blocking preflight when
+  external proof rows are open; this command must not be reinterpreted as a publish, sync, upload,
+  phone, or public-host proof.

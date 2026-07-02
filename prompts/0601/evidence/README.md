@@ -7768,3 +7768,24 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   application, WeChat PC paste, phone preview, mobile interaction fidelity, mobile Dark Mode,
   cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
   article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Release Preflight Next-Row Issue Traceability
+
+- [x] style-proof-release-preflight-nextrow-issues-20260703.txt
+- Current WeChat read-only CloakBrowser probe reached the login/scan gate, not an authenticated
+  editor; therefore authenticated-editor and PC-editor-DOM proof could not be refreshed.
+- Fixed the red `scripts/style-proof-release-preflight.test.ts` count drift and enriched the
+  release-preflight CLI `nextRows[]` JSON with issue ids, freshness issue ids, cannot-claim
+  reasons, and next operator actions.
+- Current blocking summary remains `canClaimComplete=false`, `status=blocked-by-external`,
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `externalHandoffRows=19`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+- Current next rows expose:
+  `style-proof-manifest-requirement-missing` for phone/public-host/credentialed-channel rows and
+  `style-proof-manifest-proof-stale` for authenticated-editor rows.
+- Focused regression and ESLint passed. The CLI still exits 1 in JSON and text modes as a release
+  blocker.
+- Boundary: this is local release gate observability only. It does not prove WeChat authenticated
+  editor access, paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, XHS/Zhihu upload, public-host acceptance,
+  or publish success.

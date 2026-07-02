@@ -1,0 +1,111 @@
+Style Proof Release Preflight Next-Row Issue Traceability - 2026-07-03
+
+Scope:
+- Local release-preflight CLI hardening only.
+- No platform action, no phone preview, no upload, no sync, no schedule, no publish.
+- No profile path, cookie, token, HAR, QR payload, account screenshot, screenshot filesystem path,
+  local browser profile path, or account-state image is included.
+
+Why this was needed:
+- Current `pnpm -C inkforge style-proof:release-preflight --json` output had moved to
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `externalHandoffRows=19`,
+  `nextRowRefs=5`, and `uniqueNextRows=4`.
+- `scripts/style-proof-release-preflight.test.ts` still asserted older committed counts
+  (`combinedIssueCount=11`, `cannotClaimSteps=29`, `externalHandoffRows=18`,
+  `uniqueNextRows=3`), so the focused preflight CLI test was red.
+- The compact JSON next-row shape also did not expose the exact issue ids or cannot-claim reason
+  for the current operator rows, which made the deployment gate less auditable.
+
+CloakBrowser external-state check:
+- A read-only CloakBrowser probe opened `https://mp.weixin.qq.com/`.
+- Sanitized page state:
+  - title: 微信公众平台
+  - url: https://mp.weixin.qq.com/
+  - hasLoginForm: true
+  - hasHomeMarkers: false
+  - hasEditorMarkers: false
+  - qrcodeLike: 4
+  - passwordInputs: 1
+  - editor selectors (`#js_appmsg_editor`, `#js_ueditor`, `#js_editor`, `.edui-editor`,
+    `.ProseMirror`) were all false
+  - contenteditable count: 0
+- Conclusion: the current WeChat session is at a login/scan gate. It cannot refresh
+  `authenticated-editor-url` or `pc-editor-dom-readback` proof.
+
+Implemented:
+- Extended `scripts/style-proof-release-preflight.ts` JSON `nextRows` with:
+  - id
+  - choiceIds
+  - requirementLabel
+  - gate
+  - blockerKinds
+  - issueIds
+  - freshnessIssueIds
+  - required / satisfied / missing / invalid
+  - artifactCount / acceptedArtifactCount
+  - mutatesPlatform / requiresExternalAccount / requiresPhone
+  - cannotClaimReason
+  - nextOperatorAction
+- Extended the text output line for each next operator row with:
+  - `issues=...`
+  - `reason=...`
+  - `next=...`
+- Updated `scripts/style-proof-release-preflight.test.ts` to validate the richer JSON shape,
+  current blocker counts, stale-proof issue visibility, freshness issue visibility, and
+  non-empty operator actions.
+
+Current JSON preflight snapshot:
+- canClaimComplete: false
+- status: blocked-by-external
+- blockerKinds:
+  - phone-preview
+  - external-dependency
+  - unsafe-to-automate
+  - mutating-platform
+- summary:
+  - blockerCount: 4
+  - combinedIssueCount: 15
+  - cannotClaimSteps: 30
+  - phoneOpenSteps: 4
+  - externalDependencyOpenSteps: 15
+  - unsafeToAutomateOpenSteps: 10
+  - mutatingOpenSteps: 14
+  - externalHandoffRows: 19
+  - safeExternalRows: 0
+  - actionableLocalRows: 0
+  - nextRowRefs: 5
+  - uniqueNextRows: 4
+- next row issue visibility:
+  - phone-preview / wechat / cover-thumbnail-check:
+    `style-proof-manifest-requirement-missing`
+  - external-account / wechat / authenticated-editor-url:
+    `style-proof-manifest-proof-stale`
+  - public-host / zhihu / public-image-host:
+    `style-proof-manifest-requirement-missing`
+  - unsafe-to-automate / wechat / credentialed-channel-response:
+    `style-proof-manifest-requirement-missing`
+  - mutating-platform / wechat / authenticated-editor-url:
+    `style-proof-manifest-proof-stale`
+
+Verification:
+- Red before fix:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  failed because the test expected stale summary counts.
+- Green after fix:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-release-preflight.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file / 3 tests.
+- ESLint:
+  `pnpm -C inkforge exec eslint scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- Runtime CLI:
+  `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with the compact
+  enriched JSON row shape.
+  `pnpm -C inkforge style-proof:release-preflight` exited 1 as expected and printed issue ids,
+  reasons, and next operator actions for each row.
+
+Boundary:
+- This is local release gate observability and regression repair only.
+- It does not prove WeChat authenticated editor access, WeChat PC paste, phone preview, mobile
+  SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, platform preview, public article rendering, public-host acceptance,
+  XHS/Zhihu account upload, or publish success.
