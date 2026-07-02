@@ -1,0 +1,88 @@
+Style Proof External Handoff CLI - 2026-07-03
+
+Scope:
+- Local, read-only operator handoff for committed style-proof external proof rows.
+- No browser launch, upload, sync, scheduled send, publish, phone preview, clipboard write, or
+  proof artifact creation was performed by this CLI.
+
+Implemented:
+- Added package script:
+  pnpm -C inkforge style-proof:external-handoff
+- Added script:
+  inkforge/scripts/style-proof-external-handoff.ts
+- Added regression suite:
+  inkforge/scripts/style-proof-external-handoff.test.ts
+- Reused the existing service packet and formatter:
+  getCommittedStyleProofExternalHandoffPacket()
+  formatCommittedStyleProofExternalHandoffPacketMarkdown()
+
+Behavior:
+- Default output is markdown; --markdown is explicit default.
+- --json prints the committed handoff packet JSON.
+- --help exits 0.
+- Unknown arguments and conflicting --markdown/--json modes exit 2 before reading or claiming
+  proof state.
+- Markdown and JSON modes exit 1 while canClaimComplete=false.
+- Markdown proof rows now include issue ids, freshness issue ids, proof counters, artifact
+  counters, cannot-claim reason, next operator action, redaction boundary, success criteria, and
+  failure signals.
+
+Current local gate state:
+- status=blocked-by-external
+- canClaimComplete=false
+- canContinueLocally=false
+- requiresOperator=true
+- requiresPhone=true
+- requiresExternalAccount=true
+- requiresPublicHost=true
+- externalHandoffRows=19
+- phoneRows=4
+- externalAccountRows=14
+- publicHostRows=1
+- unsafeToAutomateRows=10
+- mutatingRows=14
+- safeExternalRows=0
+- actionableLocalRows=0
+- nextRowRefs=5
+- uniqueNextRows=4
+
+Traceability:
+- The current next operator rows include phone-preview, external-account, public-host,
+  unsafe-to-automate, and mutating-platform references.
+- The current stale external proof remains visible as style-proof-manifest-proof-stale in both
+  issue ids and freshness issue ids.
+- Missing phone/public-host/credentialed-channel proof remains visible as
+  style-proof-manifest-requirement-missing.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 5 tests
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 2 files / 8 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts src/services/export/style-catalog.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000
+  PASS: 36 files / 1349 tests
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 31.09s; inkforge/tsconfig.tsbuildinfo was restored afterward
+- pnpm -C inkforge style-proof:external-handoff --json
+  EXPECTED BLOCK: exit 1, canClaimComplete=false
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exit 1, status=blocked-by-external, canClaimComplete=false,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0
+
+Sensitive material policy:
+- Committed evidence records only sanitized command outcomes, counts, row kinds, issue ids, and
+  proof requirements.
+- No browser profile path, cookie, token, HAR, QR payload, account screenshot, local screenshot
+  path, raw account-state capture, private material URL, sync response, upload response, draft id,
+  scheduled-send id, or publish URL is included.
+
+Boundary:
+- This proves local handoff CLI behavior and release-gate blocking only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu
+  account upload, or publish success.

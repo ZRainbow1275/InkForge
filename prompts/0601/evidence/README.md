@@ -7856,3 +7856,31 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled
   send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish
   success.
+
+## 2026-07-03 Style Proof External Handoff CLI
+
+- [x] style-proof-external-handoff-cli-20260703.txt
+- Added `pnpm -C inkforge style-proof:external-handoff` as a read-only operator handoff CLI for
+  the committed external proof packet. The command prints markdown by default, supports explicit
+  `--markdown`, supports raw packet JSON through `--json`, rejects conflicting output modes, and
+  rejects unknown arguments before reading or claiming proof state.
+- The CLI exits 1 while `canClaimComplete=false`, preserving the current blocked release gate.
+  Current local state remains `status=blocked-by-external`, `externalHandoffRows=19`,
+  `phoneRows=4`, `externalAccountRows=14`, `publicHostRows=1`, `unsafeToAutomateRows=10`,
+  `mutatingRows=14`, `safeExternalRows=0`, and `actionableLocalRows=0`.
+- The markdown formatter now includes proof row issue ids, freshness issue ids, proof counters,
+  and artifact counters, so `style-proof-manifest-proof-stale` and
+  `style-proof-manifest-requirement-missing` are visible in handoff logs.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts src/services/export/style-catalog.ts --quiet`,
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`.
+  Export service coverage passed with 36 files and 1349 tests; production build transformed 4653
+  modules and built in 31.09s.
+- Boundary: this is local handoff observability only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

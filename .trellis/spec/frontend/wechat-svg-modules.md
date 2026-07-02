@@ -12891,3 +12891,47 @@ const ruleFamilies = [
   WeChat paste, phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload,
   or publish success.
+
+## 264. Style Proof External Handoff CLI - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the committed style-proof release gate has no actionable local rows but still has
+  phone, external account, public-host, unsafe-to-automate, or mutating platform rows open.
+- The CLI is an operator handoff surface only. It must not open a browser, upload content, sync
+  drafts, schedule sends, publish articles, mutate manifests, create artifacts, or soften release
+  gate completion rules.
+- The CLI may expose committed, redacted handoff rows, issue ids, freshness issue ids, counters,
+  cannot-claim reasons, and next operator actions so an operator can collect the missing proof
+  outside local automation.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:external-handoff` prints markdown from
+  `formatCommittedStyleProofExternalHandoffPacketMarkdown(getCommittedStyleProofExternalHandoffPacket())`.
+- `pnpm -C inkforge style-proof:external-handoff --json` prints the raw committed handoff packet
+  JSON. Both markdown and JSON modes exit non-zero while `canClaimComplete=false`.
+- `--markdown` is the explicit default output mode, `--json` is mutually exclusive with it,
+  `--help` exits 0, and unknown arguments exit 2 before reading or claiming proof state.
+- Markdown proof rows must include issue ids, freshness issue ids, proof counters, artifact
+  counters, cannot-claim reason, next operator action, redaction boundary, success criteria, and
+  failure signals.
+- Output must not contain browser profile paths, cookies, tokens, HAR references, QR payloads,
+  account screenshots, local screenshot paths, raw account-state captures, or private material
+  URLs.
+
+### 3. Required Checks
+
+- Add a focused script regression covering markdown output, JSON shape, current blocked counts,
+  `style-proof-manifest-proof-stale` visibility, help output, invalid mode handling, unknown
+  argument handling, and sensitive-fragment hygiene.
+- Run the scripts regression surface serially:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`.
+- Run ESLint on the CLI, CLI test, and touched handoff formatter.
+- Re-run `style-proof:release-preflight --json` and confirm it remains blocked with
+  `canClaimComplete=false`, proving the handoff CLI did not convert external gates into local
+  completion.
+- Evidence docs must explicitly state that the handoff CLI does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, public-host
+  acceptance, XHS/Zhihu upload, or publish success.
