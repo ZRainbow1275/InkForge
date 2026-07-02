@@ -13290,3 +13290,45 @@ const ruleFamilies = [
 - Evidence docs must explicitly state that market-editor learning does not prove WeChat paste,
   phone preview, mobile interaction, Dark Mode, cover thumbnail acceptance, credentialed sync,
   scheduled send, public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 273. Style Proof External Handoff Manifest Draft Templates - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: operators can read external handoff rows, but they also need schema-aligned empty
+  `StyleProofManifest` skeletons to avoid shape drift before later manifest-intake validation.
+- Manifest draft templates belong only to `style-proof:external-handoff --template`. They must not
+  open a browser, read browser state, write manifest files, create artifacts, upload content, sync
+  drafts, schedule sends, publish articles, or change release-gate accounting.
+- A manifest draft skeleton is not proof. It must remain `draftOnly:true`, `notProof:true`,
+  `canClaimComplete:false`, and contain `artifacts:[]` until an operator collects real redacted
+  external proof.
+
+### 2. Contract
+
+- Each `--template` row must include `manifestDraftTemplate` in addition to `artifactTemplate` and
+  `operatorWorksheet`.
+- `manifestDraftTemplate.format` is `StyleProofManifest`.
+- Choice-scoped rows emit one empty `StyleProofManifest` draft per visible style choice id, using
+  the existing `createStyleProofManifestDraft()` helper. Rows without choice ids emit one
+  platform-level empty draft.
+- Every emitted draft must keep `claimedEvidence:[]` and `artifacts:[]`. The template may repeat
+  platform, choice id, target requirement id, required fields, forbidden fields, accepted host
+  statuses, freshness window, and the sanitized `style-proof:manifest-intake` command.
+- Template output must not include completed artifacts, raw external evidence, local file paths,
+  browser runtime directories, cookie material, auth secret values, network archive references,
+  QR payload contents, account images, draft
+  URLs, publish URLs, or account/runtime material.
+- The command exit code continues to follow the committed packet. While committed external gates
+  remain open, the command exits 1 and cannot be treated as proof completion.
+
+### 3. Required Checks
+
+- Add a focused script regression proving the stale WeChat authenticated-editor worksheet includes
+  empty style-choice manifest drafts, mirrors required/forbidden artifact guidance, preserves
+  `canClaimComplete:false`, and does not include artifact rows.
+- Run focused external-handoff tests, focused ESLint, the serial scripts suite, export-service
+  regression, `vue-tsc`, production build, and release preflight before committing.
+- Evidence docs must state that manifest draft templates are collection guidance only and do not
+  prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload, or
+  publish success.

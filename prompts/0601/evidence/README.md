@@ -8082,6 +8082,30 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
 
+## 2026-07-03 Style Proof External Handoff Manifest Drafts
+
+- [x] style-proof-external-handoff-manifest-drafts-20260703.txt
+- Extended the existing `--template` worksheet with `manifestDraftTemplate` rows.
+- The draft payload is schema-aligned with `StyleProofManifest`, but remains explicitly
+  `draftOnly:true`, `notProof:true`, `canClaimComplete:false`, with `artifacts:[]` and empty
+  `claimedEvidence`.
+- Verified stale authenticated-editor worksheet generation with:
+  `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`.
+  It exited 1 as expected and returned empty WeChat style-choice draft skeletons for
+  `wechat-flagship-amber` and `wechat-flagship-tempera`, not proof completion.
+- Verification passed:
+  focused external-handoff CLI test (1 file / 10 tests), serial scripts suite (4 files / 32
+  tests), export service suite (36 files / 1350 tests), focused style-proof ESLint,
+  `vue-tsc --noEmit --pretty false`, production build (4653 modules / 28.91s), and release
+  preflight JSON.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is local manifest skeleton guidance only. It does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
+  mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
+  rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-07-03 CloakBrowser Market Editor Recheck
 
 - [x] market-editor-cloakbrowser-recheck-20260703.txt

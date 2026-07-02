@@ -103,6 +103,34 @@ interface ExternalHandoffTemplateInstructions {
   }
 }
 
+interface ExternalHandoffManifestDraft {
+  platform: string
+  scope?: string
+  choiceId?: string
+  claimedEvidence: string[]
+  artifacts: unknown[]
+}
+
+interface ExternalHandoffManifestDraftTemplate {
+  draftOnly: true
+  notProof: true
+  format: 'StyleProofManifest'
+  canClaimComplete: false
+  platform: string
+  targetRequirementId: string
+  choiceIds: string[]
+  drafts: ExternalHandoffManifestDraft[]
+  intakeCommand: string
+  artifactGuidance: {
+    appendArtifactsOnlyAfterExternalProof: true
+    keepArtifactsEmptyUntilCollected: true
+    requiredFields: string[]
+    forbiddenFields: string[]
+    acceptedHostStatuses: string[]
+    maxFreshnessDays: number | null
+  }
+}
+
 interface ExternalHandoffTemplateRow {
   id: string
   templateOnly: true
@@ -122,6 +150,7 @@ interface ExternalHandoffTemplateRow {
   nextOperatorAction: string
   artifactTemplate: ExternalHandoffArtifactTemplate
   operatorWorksheet: ExternalHandoffTemplateInstructions
+  manifestDraftTemplate: ExternalHandoffManifestDraftTemplate
 }
 
 interface ExternalHandoffTemplateNextRowRef {
@@ -399,6 +428,43 @@ function isExternalHandoffTemplateInstructions(
     value.blankFields.notes.length === 0
 }
 
+function isExternalHandoffManifestDraft(value: unknown): value is ExternalHandoffManifestDraft {
+  return isRecord(value) &&
+    typeof value.platform === 'string' &&
+    (typeof value.scope === 'string' || value.scope === undefined) &&
+    (typeof value.choiceId === 'string' || value.choiceId === undefined) &&
+    isStringArray(value.claimedEvidence) &&
+    Array.isArray(value.artifacts) &&
+    value.artifacts.length === 0
+}
+
+function isExternalHandoffManifestDraftTemplate(
+  value: unknown,
+): value is ExternalHandoffManifestDraftTemplate {
+  return isRecord(value) &&
+    value.draftOnly === true &&
+    value.notProof === true &&
+    value.format === 'StyleProofManifest' &&
+    value.canClaimComplete === false &&
+    typeof value.platform === 'string' &&
+    typeof value.targetRequirementId === 'string' &&
+    isStringArray(value.choiceIds) &&
+    Array.isArray(value.drafts) &&
+    value.drafts.length > 0 &&
+    value.drafts.every(isExternalHandoffManifestDraft) &&
+    typeof value.intakeCommand === 'string' &&
+    isRecord(value.artifactGuidance) &&
+    value.artifactGuidance.appendArtifactsOnlyAfterExternalProof === true &&
+    value.artifactGuidance.keepArtifactsEmptyUntilCollected === true &&
+    isStringArray(value.artifactGuidance.requiredFields) &&
+    isStringArray(value.artifactGuidance.forbiddenFields) &&
+    isStringArray(value.artifactGuidance.acceptedHostStatuses) &&
+    (
+      typeof value.artifactGuidance.maxFreshnessDays === 'number' ||
+      value.artifactGuidance.maxFreshnessDays === null
+    )
+}
+
 function isExternalHandoffTemplateRow(value: unknown): value is ExternalHandoffTemplateRow {
   return isRecord(value) &&
     typeof value.id === 'string' &&
@@ -418,7 +484,8 @@ function isExternalHandoffTemplateRow(value: unknown): value is ExternalHandoffT
     (typeof value.cannotClaimReason === 'string' || value.cannotClaimReason === null) &&
     typeof value.nextOperatorAction === 'string' &&
     isExternalHandoffArtifactTemplate(value.artifactTemplate) &&
-    isExternalHandoffTemplateInstructions(value.operatorWorksheet)
+    isExternalHandoffTemplateInstructions(value.operatorWorksheet) &&
+    isExternalHandoffManifestDraftTemplate(value.manifestDraftTemplate)
 }
 
 function isExternalHandoffTemplateNextRowRef(
@@ -563,6 +630,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
     expect(result.stdout).toContain('--json')
     expect(result.stdout).toContain('--template')
     expect(result.stdout).toContain('This is not proof and contains no completed artifact rows.')
+    expect(result.stdout).toContain('empty StyleProofManifest draft skeletons for intake')
     expect(result.stdout).toContain('--platform')
     expect(result.stdout).toContain('--kind')
     expect(result.stdout).toContain('--status')
@@ -794,8 +862,39 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
       artifactRef: null,
       notes: [],
     })
+    expect(row?.manifestDraftTemplate).toMatchObject({
+      draftOnly: true,
+      notProof: true,
+      format: 'StyleProofManifest',
+      canClaimComplete: false,
+      platform: 'wechat',
+      targetRequirementId: 'authenticated-editor-url',
+      artifactGuidance: {
+        appendArtifactsOnlyAfterExternalProof: true,
+        keepArtifactsEmptyUntilCollected: true,
+      },
+    })
+    expect(row?.manifestDraftTemplate.choiceIds).toEqual(row?.choiceIds)
+    expect(row?.manifestDraftTemplate.artifactGuidance.requiredFields).toEqual(
+      row?.artifactTemplate.requiredFields,
+    )
+    expect(row?.manifestDraftTemplate.artifactGuidance.forbiddenFields).toEqual(
+      row?.artifactTemplate.forbiddenFields,
+    )
+    expect(row?.manifestDraftTemplate.intakeCommand).toBe(
+      'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
+    )
+    expect(row?.manifestDraftTemplate.drafts.length).toBeGreaterThan(0)
+    for (const draft of row?.manifestDraftTemplate.drafts ?? []) {
+      expect(draft.platform).toBe('wechat')
+      expect(draft.scope).toBe('style-choice')
+      expect(row?.choiceIds).toContain(draft.choiceId)
+      expect(draft.claimedEvidence).toEqual([])
+      expect(draft.artifacts).toEqual([])
+    }
     expect(result.stdout).not.toContain('"canClaimComplete":true')
     expect(result.stdout).not.toContain('"acceptedArtifactCount"')
+    expect(result.stdout).not.toContain('"artifacts":[{')
   })
 
   it('rejects invalid filter values before reading or claiming proof success', async () => {

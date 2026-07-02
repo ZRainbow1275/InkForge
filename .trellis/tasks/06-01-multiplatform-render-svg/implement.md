@@ -8,6 +8,70 @@ This task originally operated as a research-first brainstorm and had a PRD plus 
 artifacts but no `design.md` / `implement.md`. This file records the current R5 slice so it
 can be verified and committed without redefining the larger task.
 
+## 2026-07-03 Style Proof External Handoff Manifest Drafts Slice
+
+Source:
+- The external handoff template can already tell an operator which proof rows to collect, but the
+  next failure point is redacted manifest shape drift when the operator later prepares a
+  `StyleProofManifest` JSON pack.
+- The local command must help with schema shape without creating proof artifacts or weakening the
+  external release gate.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffPacket -r InkForge --depth 3`
+  reported LOW risk with 3 direct dependents and 0 affected processes.
+- `npx gitnexus impact formatCommittedStyleProofExternalHandoffPacketMarkdown -r InkForge --depth 3`
+  reported LOW risk with 1 direct dependent and 0 affected processes.
+- `npx gitnexus impact createStyleProofManifestDraft -r InkForge --depth 3` reported LOW risk with
+  2 direct dependents and 1 affected process (`progressChoices`).
+- The slice is limited to the local external-handoff CLI template output, focused tests, docs, and
+  sanitized evidence.
+
+Implementation:
+- Added `manifestDraftTemplate` to each `--template` worksheet row.
+- Each manifest draft template is explicitly `draftOnly:true`, `notProof:true`,
+  `canClaimComplete:false`, and uses the existing `StyleProofManifest` shape with `artifacts:[]`
+  and empty `claimedEvidence`.
+- Choice-scoped rows emit one empty style-choice draft per choice id; rows without choices fall
+  back to one platform-level empty draft.
+- The template repeats the target requirement id, artifact required fields, forbidden fields,
+  accepted host statuses, freshness window, and the sanitized manifest-intake command.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 10 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 32 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 28.91s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+  exited 1 as expected with one stale authenticated-editor worksheet row and empty WeChat
+  style-choice manifest drafts for `wechat-flagship-amber` and `wechat-flagship-tempera`.
+- `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Evidence:
+- Added `prompts/0601/evidence/style-proof-external-handoff-manifest-drafts-20260703.txt`.
+- Updated `prompts/0601/evidence/README.md`, `prompts/0601/COMPLETION-REPORT.md`, and
+  `.trellis/spec/frontend/wechat-svg-modules.md`.
+
+Scope:
+- This is local manifest skeleton guidance only. It does not create artifacts, write manifests,
+  open a browser, upload, sync, schedule, publish, or change release-gate accounting.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
+  publish success.
+
 ## 2026-07-03 Style Proof External Handoff Template Slice
 
 Source:

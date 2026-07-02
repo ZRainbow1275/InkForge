@@ -11251,3 +11251,45 @@ Boundary:
   SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed sync, scheduled
   send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or
   publish success.
+
+---
+
+## 2026-07-03 Style Proof External Handoff Manifest Drafts Addendum
+
+- Extended `pnpm -C inkforge style-proof:external-handoff --template` with a
+  `manifestDraftTemplate` field on each worksheet row.
+- Each manifest draft template is explicitly non-proof: `draftOnly:true`, `notProof:true`,
+  `canClaimComplete:false`, and the contained `StyleProofManifest` skeletons have
+  `claimedEvidence:[]` and `artifacts:[]`.
+- Choice-scoped rows emit one empty style-choice draft per choice id. The stale WeChat
+  authenticated-editor row currently emits empty drafts for `wechat-flagship-amber` and
+  `wechat-flagship-tempera`.
+- The template repeats target requirement id, required fields, forbidden fields, accepted host
+  statuses, freshness window, and the sanitized manifest-intake command so operators can prepare
+  redacted packs without shape drift.
+- Verification:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 10 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 32 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests;
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed;
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 28.91s, then `inkforge/tsconfig.tsbuildinfo` was restored;
+  `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+  exited 1 as expected with one stale authenticated-editor worksheet row and empty manifest draft
+  skeletons;
+  `pnpm --silent -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`.
+- Added evidence file:
+  `prompts/0601/evidence/style-proof-external-handoff-manifest-drafts-20260703.txt`.
+- Boundary: this is local manifest skeleton guidance only. It does not create proof artifacts,
+  write manifests, prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance, upload, credentialed
+  sync, scheduled send, public article rendering, Zhihu public-host acceptance, XHS/Zhihu account
+  upload, or publish success.

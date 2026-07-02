@@ -8,6 +8,8 @@ import {
   type CommittedStyleProofExternalProofChecklistGroup,
   type CommittedStyleProofExternalProofChecklistRow,
   type StyleProofAcceptanceAuditStatus,
+  type StyleProofManifest,
+  createStyleProofManifestDraft,
   formatCommittedStyleProofExternalHandoffPacketMarkdown,
   getCommittedStyleProofExternalHandoffPacket,
 } from '../src/services/export/style-catalog.ts'
@@ -76,6 +78,26 @@ interface ExternalHandoffTemplateInstructions {
   }
 }
 
+interface ExternalHandoffManifestDraftTemplate {
+  draftOnly: true
+  notProof: true
+  format: 'StyleProofManifest'
+  canClaimComplete: false
+  platform: Platform
+  targetRequirementId: CommittedStyleProofExternalProofChecklistRow['requirementId']
+  choiceIds: readonly string[]
+  drafts: readonly StyleProofManifest[]
+  intakeCommand: string
+  artifactGuidance: {
+    appendArtifactsOnlyAfterExternalProof: true
+    keepArtifactsEmptyUntilCollected: true
+    requiredFields: ExternalHandoffArtifactTemplate['requiredFields']
+    forbiddenFields: ExternalHandoffArtifactTemplate['forbiddenFields']
+    acceptedHostStatuses: ExternalHandoffArtifactTemplate['acceptedHostStatuses']
+    maxFreshnessDays: number | null
+  }
+}
+
 interface ExternalHandoffTemplateRow {
   id: string
   templateOnly: true
@@ -95,6 +117,7 @@ interface ExternalHandoffTemplateRow {
   nextOperatorAction: string
   artifactTemplate: ExternalHandoffArtifactTemplate
   operatorWorksheet: ExternalHandoffTemplateInstructions
+  manifestDraftTemplate: ExternalHandoffManifestDraftTemplate
 }
 
 interface ExternalHandoffTemplatePacket {
@@ -152,6 +175,7 @@ function printHelp(): void {
     '  --json       Print the raw handoff packet JSON.',
     '  --template   Print a JSON operator worksheet for the visible rows.',
     '               This is not proof and contains no completed artifact rows.',
+    '               It includes empty StyleProofManifest draft skeletons for intake.',
     '  --platform   Limit rows to one platform: wechat, xiaohongshu, zhihu.',
     '  --kind       Limit rows to one gate kind: phone-preview, external-account,',
     '               public-host, unsafe-to-automate, mutating-platform.',
@@ -642,6 +666,38 @@ function buildTemplateInstructions(
   }
 }
 
+function buildManifestDraftTemplate(
+  row: CommittedStyleProofExternalProofChecklistRow,
+): ExternalHandoffManifestDraftTemplate {
+  const choiceIds = row.choiceIds.length > 0 ? row.choiceIds : []
+  const drafts = choiceIds.length > 0
+    ? choiceIds.map(choiceId => createStyleProofManifestDraft({
+        platform: row.platform,
+        choiceId,
+      }))
+    : [createStyleProofManifestDraft({ platform: row.platform })]
+
+  return {
+    draftOnly: true,
+    notProof: true,
+    format: 'StyleProofManifest',
+    canClaimComplete: false,
+    platform: row.platform,
+    targetRequirementId: row.requirementId,
+    choiceIds,
+    drafts,
+    intakeCommand: 'pnpm --silent -C inkforge style-proof:manifest-intake --file <redacted-manifest.json> --json',
+    artifactGuidance: {
+      appendArtifactsOnlyAfterExternalProof: true,
+      keepArtifactsEmptyUntilCollected: true,
+      requiredFields: row.artifactTemplate.requiredFields,
+      forbiddenFields: row.artifactTemplate.forbiddenFields,
+      acceptedHostStatuses: row.artifactTemplate.acceptedHostStatuses,
+      maxFreshnessDays: row.artifactTemplate.maxFreshnessDays,
+    },
+  }
+}
+
 function buildTemplateRow(
   row: CommittedStyleProofExternalProofChecklistRow,
 ): ExternalHandoffTemplateRow {
@@ -664,6 +720,7 @@ function buildTemplateRow(
     nextOperatorAction: row.nextOperatorAction,
     artifactTemplate: row.artifactTemplate,
     operatorWorksheet: buildTemplateInstructions(row),
+    manifestDraftTemplate: buildManifestDraftTemplate(row),
   }
 }
 

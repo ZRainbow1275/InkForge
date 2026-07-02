@@ -1,0 +1,31 @@
+Style Proof External Handoff Manifest Drafts - 2026-07-03
+
+Scope:
+- Local enhancement to the read-only external handoff template output.
+- No browser access, no phone preview, no upload, no sync, no scheduled send, no publish, no proof artifact creation.
+
+Implemented:
+- `pnpm -C inkforge style-proof:external-handoff --template` now includes `manifestDraftTemplate` on every visible worksheet row.
+- Each `manifestDraftTemplate` is explicitly `draftOnly:true`, `notProof:true`, and `canClaimComplete:false`.
+- Each draft uses the existing `StyleProofManifest` shape with `artifacts:[]` and empty `claimedEvidence`, so it is only a schema-aligned skeleton for later operator collection.
+- Choice-scoped rows emit one empty draft per choice id. Rows without choice ids fall back to one platform-level empty draft.
+- The template repeats artifact guidance from the handoff row: target requirement id, required fields, forbidden fields, accepted host statuses, freshness window, and the sanitized manifest-intake command.
+
+Verified command:
+- `pnpm --silent -C inkforge style-proof:external-handoff --template --platform=wechat --kind=external-account --status invalid --issue style-proof-manifest-proof-stale --freshness-only --next-only`
+- Result: exited 1 as expected, returned one stale authenticated-editor worksheet row, and included two empty WeChat style-choice manifest drafts for `wechat-flagship-amber` and `wechat-flagship-tempera`.
+
+Regression coverage:
+- Focused CLI test verifies the template remains non-proof, keeps blank artifact fields, preserves `canClaimComplete:false`, includes empty `StyleProofManifest` drafts, mirrors required/forbidden field guidance, and keeps artifacts empty.
+- Focused ESLint passed for the changed CLI and test files.
+- Serial scripts suite passed with 4 files and 32 tests.
+- Export service suite passed with 36 files and 1350 tests.
+- Style-proof script ESLint passed for all style-proof CLIs and tests.
+- `vue-tsc --noEmit --pretty false` passed.
+- Production build passed with 4653 modules transformed and Vite built in 28.91s.
+- `style-proof:release-preflight --json` still exits 1 with `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`, `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Boundary:
+- A manifest draft skeleton is not evidence and must not be committed as proof.
+- Operators must collect real redacted platform artifacts separately and run `style-proof:manifest-intake` or `style-proof:manifest-merge` before any pack can be considered.
+- This slice does not prove WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
