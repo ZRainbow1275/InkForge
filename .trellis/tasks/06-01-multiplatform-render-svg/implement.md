@@ -22450,3 +22450,61 @@ Scope:
   ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode, cover
   thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu public-host
   acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof External Handoff Filter Slice
+
+Source:
+- The committed release gate remains `canClaimComplete=false` and `status=blocked-by-external`.
+- The existing external-handoff CLI prints all 19 external rows, but operators need a narrower
+  read-only view to collect one platform, one blocker kind, or only the next priority rows without
+  treating that local view as proof completion.
+
+Impact:
+- `npx gitnexus impact getCommittedStyleProofExternalHandoffPacket -r InkForge --depth 3`
+  reported LOW risk with 3 direct dependents and 0 affected processes.
+- `npx gitnexus impact formatCommittedStyleProofExternalHandoffPacketMarkdown -r InkForge --depth 3`
+  reported LOW risk with 1 direct dependent and 0 affected processes.
+- The slice only changes the CLI wrapper and CLI tests. It does not modify manifest validation,
+  release-gate accounting, renderer output, style availability, upload, sync, schedule, or publish
+  behavior.
+
+Implementation:
+- Extended `pnpm -C inkforge style-proof:external-handoff` with read-only filters:
+  `--platform <wechat|xiaohongshu|zhihu>`,
+  `--kind <phone-preview|external-account|public-host|unsafe-to-automate|mutating-platform>`,
+  and `--next-only`.
+- Default markdown output and unfiltered `--json` output remain compatible with the previous raw
+  handoff packet behavior.
+- Filtered JSON adds `filters`, `committedSummary`, and `filteredSummary`, while preserving
+  `canClaimComplete=false` and exit code 1 until committed external gates are truly complete.
+- Filtered markdown prepends a CLI filter header before the handoff rows.
+- Usage errors, invalid filter values, missing filter values, conflicting modes, and unknown
+  arguments exit 2 before reading or claiming proof state.
+- Output remains sanitized and intentionally avoids account-state fields, browser profile paths,
+  cookies, tokens, HAR references, QR payloads, draft URLs, publish URLs, local paths, and raw
+  runtime material.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 8 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 29 tests.
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1350 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 33.31s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This is local external-handoff usability only. It does not prove WeChat authenticated editor
+  access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark Mode,
+  cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

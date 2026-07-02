@@ -7981,3 +7981,35 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof External Handoff Filters
+
+- [x] style-proof-external-handoff-filters-20260703.txt
+- Extended `pnpm -C inkforge style-proof:external-handoff` with read-only operator filters:
+  `--platform <wechat|xiaohongshu|zhihu>`,
+  `--kind <phone-preview|external-account|public-host|unsafe-to-automate|mutating-platform>`,
+  and `--next-only`.
+- Default markdown output remains compatible, and unfiltered `--json` still emits the raw
+  committed handoff packet.
+- Filtered JSON includes `filters`, `committedSummary`, and `filteredSummary` to keep operator
+  focus separate from committed release-gate accounting.
+- The command still exits 1 while `canClaimComplete=false`; a filtered row list is not proof that
+  phone/account/public-host/platform rows were completed.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`,
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`,
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`,
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`, and
+  `pnpm -C inkforge style-proof:release-preflight --json`.
+  Script coverage passed with 4 files and 29 tests; export service coverage passed with 36 files
+  and 1350 tests; production build transformed 4653 modules and built in 33.31s.
+- `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is local operator handoff filtering only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

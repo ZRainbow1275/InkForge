@@ -13073,3 +13073,51 @@ const ruleFamilies = [
 - Evidence docs must state that BOM compatibility is parse-boundary compatibility only and does
   not prove WeChat phone preview, account upload, sync, schedule, public-host, XHS/Zhihu upload,
   or publish success.
+
+## 268. Style Proof External Handoff CLI Filters - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: the committed release gate still has external phone/account/public-host/platform
+  blocker rows, and operators need a compact way to focus the handoff packet by platform, proof
+  kind, or immediate next-row priority.
+- Filtering belongs in the local `style-proof:external-handoff` CLI layer. It must not alter the
+  committed release gate, proof manifest schema, renderer output, style availability,
+  selectable/usable/blocking semantics, browser state, upload, sync, schedule, or publish logic.
+- Filtered output is an operator view only. It must not be treated as proof that the filtered
+  rows were completed, and it must keep the command exit code non-zero while
+  `canClaimComplete=false`.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:external-handoff` keeps the previous default markdown behavior.
+- `--json` without filters keeps emitting the raw committed handoff packet JSON.
+- `--platform <wechat|xiaohongshu|zhihu>` limits visible rows to one platform.
+- `--kind <phone-preview|external-account|public-host|unsafe-to-automate|mutating-platform>`
+  limits visible rows to one external blocker/operator kind.
+- `--next-only` limits visible rows to the deduplicated next operator rows.
+- Filters may be combined. Filtered JSON must include:
+  - the filtered packet rows, next row refs, and next rows;
+  - the applied `filters`;
+  - the original committed `committedSummary`;
+  - a `filteredSummary` with filtered counts, platforms, and kinds.
+- Filtered markdown must include a CLI filter header before the handoff body.
+- Usage errors, invalid filter values, missing filter values, conflicting `--markdown`/`--json`,
+  and unknown arguments exit `2` before reading or claiming proof state.
+- The CLI must not print local browser profile paths, cookies, tokens, HAR references, QR
+  payloads, account screenshots, draft URLs, publish URLs, input paths, output paths, or raw
+  account/runtime material.
+
+### 3. Required Checks
+
+- Add script regressions for filtered JSON, filtered markdown, invalid platform/kind values,
+  missing filter values, no-sensitive-fragment hygiene, and preserved cannot-claim exit behavior.
+- Run the focused external-handoff CLI test and the serial scripts suite.
+- Run focused ESLint on all style-proof scripts/tests, the export service regression suite,
+  `vue-tsc`, and production build.
+- Re-run `style-proof:release-preflight --json` and confirm the committed release gate remains
+  `blocked-by-external` with `canClaimComplete=false`.
+- Evidence docs must state that filtering is operator handoff usability only and does not prove
+  WeChat authenticated editor access, ordinary rich paste retention, phone preview, mobile
+  interaction, mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send,
+  public rendering, public-host acceptance, XHS/Zhihu upload, or publish success.

@@ -1,0 +1,62 @@
+Style Proof External Handoff Filters - 2026-07-03
+
+Scope:
+- Local CLI usability improvement for the committed style-proof external handoff packet.
+- No browser action, no account action, no clipboard write, no phone preview, no upload, no sync,
+  no scheduled send, no public-host verification, and no publish operation.
+
+Implemented:
+- Extended `pnpm -C inkforge style-proof:external-handoff` with read-only filters:
+  - `--platform <wechat|xiaohongshu|zhihu>`
+  - `--kind <phone-preview|external-account|public-host|unsafe-to-automate|mutating-platform>`
+  - `--next-only`
+
+Behavior:
+- Default markdown output remains compatible with the previous external handoff CLI.
+- Unfiltered `--json` still emits the raw committed handoff packet JSON.
+- Filtered JSON includes:
+  - filtered rows, next row refs, and next rows;
+  - applied `filters`;
+  - original `committedSummary`;
+  - filtered `filteredSummary`.
+- Filtered markdown prepends a CLI filter header before the handoff packet.
+- The command still exits non-zero while `canClaimComplete=false`; filtering a row list does not
+  claim proof completion.
+- Usage errors, invalid filter values, missing filter values, conflicting output modes, and
+  unknown arguments exit 2 before reading or claiming proof state.
+
+Sanitization:
+- Output is limited to committed handoff metadata and operator instructions.
+- Output must not print local browser profile paths, cookies, tokens, HAR references, QR
+  payloads, account screenshots, draft URLs, publish URLs, input paths, output paths, or raw
+  account/runtime material.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-external-handoff.test.ts --reporter=default --test-timeout=90000`
+  PASS: 1 file / 8 tests
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  PASS: 4 files / 29 tests
+- `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  PASS: 36 files / 1350 tests
+- `pnpm -C inkforge exec eslint scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  PASS
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`
+  PASS
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`
+  PASS: 4653 modules transformed; Vite built in 33.31s
+- `pnpm -C inkforge style-proof:release-preflight --json`
+  EXPECTED BLOCKED EXIT: 1
+  Status: blocked-by-external
+  canClaimComplete: false
+  externalHandoffRows: 19
+  safeExternalRows: 0
+  actionableLocalRows: 0
+
+Boundary:
+- This proves only local external-handoff filtering and cannot-claim preservation.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public article rendering, Zhihu public-host acceptance,
+  XHS/Zhihu account upload, or publish success.

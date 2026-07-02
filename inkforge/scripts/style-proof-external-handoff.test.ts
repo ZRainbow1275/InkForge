@@ -41,6 +41,28 @@ interface ExternalHandoffNextRowRef {
   row: ExternalHandoffRow
 }
 
+interface ExternalHandoffCliFilters {
+  platform: string | null
+  kind: string | null
+  nextOnly: boolean
+}
+
+interface ExternalHandoffFilteredSummary {
+  committedExternalHandoffRows: number
+  filteredRows: number
+  filteredNextRowRefs: number
+  filteredNextRows: number
+  phoneRows: number
+  externalAccountRows: number
+  publicHostRows: number
+  unsafeToAutomateRows: number
+  mutatingRows: number
+  safeExternalRows: number
+  cannotClaimRows: number
+  platforms: string[]
+  kinds: string[]
+}
+
 interface ExternalHandoffJsonPacket {
   canClaimComplete: boolean
   status: string
@@ -57,6 +79,12 @@ interface ExternalHandoffJsonPacket {
   rows: ExternalHandoffRow[]
   nextRowRefs: ExternalHandoffNextRowRef[]
   nextRows: ExternalHandoffRow[]
+}
+
+interface FilteredExternalHandoffJsonPacket extends ExternalHandoffJsonPacket {
+  filters: ExternalHandoffCliFilters
+  committedSummary: ExternalHandoffSummary
+  filteredSummary: ExternalHandoffFilteredSummary
 }
 
 const currentFilePath = fileURLToPath(import.meta.url)
@@ -187,6 +215,36 @@ function isExternalHandoffNextRowRef(value: unknown): value is ExternalHandoffNe
     isExternalHandoffRow(value.row)
 }
 
+function isExternalHandoffCliFilters(value: unknown): value is ExternalHandoffCliFilters {
+  return isRecord(value) &&
+    (typeof value.platform === 'string' || value.platform === null) &&
+    (typeof value.kind === 'string' || value.kind === null) &&
+    typeof value.nextOnly === 'boolean'
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string')
+}
+
+function isExternalHandoffFilteredSummary(value: unknown): value is ExternalHandoffFilteredSummary {
+  return isRecord(value) &&
+    hasNumberKeys(value, [
+      'committedExternalHandoffRows',
+      'filteredRows',
+      'filteredNextRowRefs',
+      'filteredNextRows',
+      'phoneRows',
+      'externalAccountRows',
+      'publicHostRows',
+      'unsafeToAutomateRows',
+      'mutatingRows',
+      'safeExternalRows',
+      'cannotClaimRows',
+    ]) &&
+    isStringArray(value.platforms) &&
+    isStringArray(value.kinds)
+}
+
 function isExternalHandoffJsonPacket(value: unknown): value is ExternalHandoffJsonPacket {
   return isRecord(value) &&
     typeof value.canClaimComplete === 'boolean' &&
@@ -209,10 +267,26 @@ function isExternalHandoffJsonPacket(value: unknown): value is ExternalHandoffJs
     value.nextRows.every(isExternalHandoffRow)
 }
 
+function isFilteredExternalHandoffJsonPacket(value: unknown): value is FilteredExternalHandoffJsonPacket {
+  return isExternalHandoffJsonPacket(value) &&
+    isExternalHandoffCliFilters(value.filters) &&
+    isExternalHandoffSummary(value.committedSummary) &&
+    isExternalHandoffFilteredSummary(value.filteredSummary)
+}
+
 function parseExternalHandoffJson(stdout: string): ExternalHandoffJsonPacket {
   const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
   if (!isExternalHandoffJsonPacket(parsed)) {
     throw new Error('style-proof external handoff JSON shape is invalid')
+  }
+
+  return parsed
+}
+
+function parseFilteredExternalHandoffJson(stdout: string): FilteredExternalHandoffJsonPacket {
+  const parsed = JSON.parse(stdout.replace(/^\uFEFF+/, '')) as unknown
+  if (!isFilteredExternalHandoffJsonPacket(parsed)) {
+    throw new Error('filtered style-proof external handoff JSON shape is invalid')
   }
 
   return parsed
@@ -300,9 +374,14 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
 
     expect(result.exitCode).toBe(0)
     expect(result.stderr.trim()).toBe('')
-    expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff [--markdown|--json]')
+    expect(result.stdout).toContain(
+      'Usage: pnpm style-proof:external-handoff [--markdown|--json] [--platform <platform>] [--kind <kind>] [--next-only]'
+    )
     expect(result.stdout).toContain('--markdown')
     expect(result.stdout).toContain('--json')
+    expect(result.stdout).toContain('--platform')
+    expect(result.stdout).toContain('--kind')
+    expect(result.stdout).toContain('--next-only')
     expect(result.stdout).toContain('--help')
     expectNoSensitiveFragments(result.stdout)
   })
@@ -312,7 +391,7 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
 
     expect(result.exitCode).toBe(2)
     expect(result.stderr).toContain('Choose only one output mode: --markdown or --json')
-    expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff [--markdown|--json]')
+    expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(result.stdout).not.toContain('Can claim complete')
     expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}`)
   })
@@ -322,8 +401,105 @@ describe('style-proof external handoff CLI', { timeout: 60_000 }, () => {
 
     expect(result.exitCode).toBe(2)
     expect(result.stderr).toContain('Unknown option: --unknown-handoff-flag')
-    expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff [--markdown|--json]')
+    expect(result.stdout).toContain('Usage: pnpm style-proof:external-handoff')
     expect(result.stdout).not.toContain('Can claim complete')
     expectNoSensitiveFragments(`${result.stdout}\n${result.stderr}`)
+  })
+
+  it('filters JSON handoff rows by platform, gate kind, and next-row priority without claiming completion', async () => {
+    const result = await runExternalHandoffCli([
+      '--json',
+      '--platform',
+      'wechat',
+      '--kind',
+      'phone-preview',
+      '--next-only',
+    ])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout.trim()).not.toContain('\n')
+    expectNoSensitiveFragments(result.stdout)
+
+    const packet = parseFilteredExternalHandoffJson(result.stdout)
+    expect(packet.status).toBe('blocked-by-external')
+    expect(packet.canClaimComplete).toBe(false)
+    expect(packet.filters).toEqual({
+      platform: 'wechat',
+      kind: 'phone-preview',
+      nextOnly: true,
+    })
+    expect(packet.committedSummary.externalHandoffRows).toBe(19)
+    expect(packet.filteredSummary).toMatchObject({
+      committedExternalHandoffRows: 19,
+      filteredRows: 1,
+      filteredNextRowRefs: 1,
+      filteredNextRows: 1,
+      phoneRows: 1,
+      externalAccountRows: 0,
+      publicHostRows: 0,
+      cannotClaimRows: 1,
+    })
+    expect(packet.filteredSummary.platforms).toEqual(['wechat'])
+    expect(packet.filteredSummary.kinds).toEqual(['phone-preview'])
+    expect(packet.rows).toHaveLength(1)
+    expect(packet.nextRowRefs).toHaveLength(1)
+    expect(packet.nextRows).toHaveLength(1)
+    expect(packet.nextRowRefs[0]?.kind).toBe('phone-preview')
+    expect(packet.rows[0]?.platform).toBe('wechat')
+    expect(packet.rows[0]?.requiresPhone).toBe(true)
+    expect(packet.rows[0]?.cannotClaim).toBe(true)
+    expect(packet.rows[0]?.safeToAutomate).toBe(false)
+  })
+
+  it('prints a filtered markdown handoff view for operator collection focus', async () => {
+    const result = await runExternalHandoffCli([
+      '--platform=wechat',
+      '--kind=phone-preview',
+      '--next-only',
+    ])
+
+    expect(result.exitCode).toBe(1)
+    expect(result.stderr.trim()).toBe('')
+    expect(result.stdout).toContain('# Committed Style Proof External Handoff Filtered View')
+    expect(result.stdout).toContain('- Platform: wechat')
+    expect(result.stdout).toContain('- Kind: phone-preview')
+    expect(result.stdout).toContain('- Next only: yes')
+    expect(result.stdout).toContain('- Committed external handoff rows: 19')
+    expect(result.stdout).toContain('- Filtered rows: 1')
+    expect(result.stdout).toContain('- phone-preview: wechat / cover-thumbnail-check / phone-preview:')
+    expect(result.stdout).not.toContain('- external-account:')
+    expect(result.stdout).not.toContain('xiaohongshu /')
+    expect(result.stdout).not.toContain('zhihu /')
+    expectNoSensitiveFragments(result.stdout)
+  })
+
+  it('rejects invalid filter values before reading or claiming proof success', async () => {
+    const invalidPlatform = await runExternalHandoffCli(['--platform', 'unknown-platform'])
+    const invalidKind = await runExternalHandoffCli(['--kind=unknown-kind'])
+    const missingPlatform = await runExternalHandoffCli(['--platform'])
+
+    expect(invalidPlatform.exitCode).toBe(2)
+    expect(invalidPlatform.stderr).toContain('Invalid platform filter: unknown-platform')
+    expect(invalidPlatform.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(invalidPlatform.stdout).not.toContain('Can claim complete')
+
+    expect(invalidKind.exitCode).toBe(2)
+    expect(invalidKind.stderr).toContain('Invalid kind filter: unknown-kind')
+    expect(invalidKind.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(invalidKind.stdout).not.toContain('Can claim complete')
+
+    expect(missingPlatform.exitCode).toBe(2)
+    expect(missingPlatform.stderr).toContain('Missing value for --platform')
+    expect(missingPlatform.stdout).toContain('Usage: pnpm style-proof:external-handoff')
+    expect(missingPlatform.stdout).not.toContain('Can claim complete')
+    expectNoSensitiveFragments([
+      invalidPlatform.stdout,
+      invalidPlatform.stderr,
+      invalidKind.stdout,
+      invalidKind.stderr,
+      missingPlatform.stdout,
+      missingPlatform.stderr,
+    ].join('\n'))
   })
 })
