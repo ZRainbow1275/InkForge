@@ -7729,3 +7729,18 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Boundary: this is repository hygiene only. It does not prove paste, phone preview, mobile
   interaction, Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   article rendering, XHS/Zhihu upload, public-host acceptance, or publish success.
+
+## 2026-07-03 135 SVG Public Panel Login-Gate Recheck
+
+- [x] 135-svg-public-panel-login-gate-recheck-20260703.txt
+- Rechecked the live 135 SVG editor through CloakBrowser. The page was in public login-gated
+  state (`登录/注册`), and clicking a visible `免费试用` button opened a login tab instead of
+  applying a center-canvas effect.
+- Recorded sanitized public shell markers for sidebar/category/list/free-trial controls and the
+  center canvas shell.
+- Existing `135 SVG sidebar navigation`, material filter/category, material list/loader/purchase,
+  and builder canvas/editor shell diagnostics already cover the observed source-specific markers.
+- Boundary: this is public-shell coverage and login-gate evidence only. It does not prove
+  authenticated free-trial application, paste, phone preview, mobile interaction, Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, public rendering, XHS/Zhihu upload,
+  public-host acceptance, or publish success.

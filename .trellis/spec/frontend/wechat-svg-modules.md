@@ -12591,6 +12591,44 @@ const ruleFamilies = [
   must not include the actual PNG contents, local browser profile paths, account screenshots,
   QR payloads, cookies, tokens, HAR files, or screenshot filesystem paths.
 
+## 258. 135 SVG Public Panel Login-Gated Coverage Recheck - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: a live CloakBrowser pass on `https://www.135editor.com/svgeditor/` reaches the public
+  135 SVG editor state where the header still shows `登录/注册`.
+- A public `免费试用` click that opens a login tab is useful as login-gate evidence only. It must
+  not be promoted to applied-center, paste, phone, sync, scheduled-send, or publish proof.
+- Public sidebar/list/canvas shell markers can still be used to revalidate static publishability
+  diagnostics when recorded as sanitized class/token names only.
+
+### 2. Contract
+
+- `135 SVG sidebar navigation residue` must cover public sidebar shell markers such as
+  `side-bar`, `side_bar__wrap`, `side-tab-menu`, `side-tab-content`, and `side_tab__content`.
+- `135 SVG material filter control residue` and `135 SVG material category wrapper residue` must
+  cover public category/filter controls such as `svg-types`, `tab-special__tap`, and
+  `tab-special__list`.
+- `135 SVG material list loader residue`, `135 SVG material list item residue`, and
+  `135 SVG material purchase control residue` must cover public list/card/free-trial commerce
+  controls such as `list-loader__inner`, `item-element`, `element-actions__wrap`, and
+  `btn-buy`.
+- `135 SVG builder canvas residue` and `135 SVG editor shell residue` must cover the center shell
+  when it contains `app-content-canvas`, `content-wrapper`, and `content-background`, but this
+  shell alone must not claim that an authenticated SVG effect has been applied.
+
+### 3. Required Checks
+
+- Evidence must state that CloakBrowser was used and Playwright was not used.
+- Evidence must state whether the session was authenticated. If the page is public/login-gated, the
+  evidence must explicitly mark applied-center proof as unavailable.
+- Focused 135 SVG static-regression tests must keep sidebar, filter/category, list/card,
+  purchase-control, and center-shell diagnostics green.
+- Evidence docs must state that this recheck does not prove authenticated free-trial application,
+  WeChat paste, phone preview, mobile interaction fidelity, Dark Mode, cover thumbnail acceptance,
+  upload, credentialed sync, scheduled send, public rendering, XHS/Zhihu account upload, or publish
+  success.
+
 ## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
 
 ### 1. Scope / Trigger

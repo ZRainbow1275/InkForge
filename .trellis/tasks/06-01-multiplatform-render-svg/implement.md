@@ -3357,6 +3357,46 @@ Scope:
   sync, scheduled send, platform preview, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
 
+## 2026-07-03 135 SVG Public Panel Login-Gate Recheck Slice
+
+Source:
+- Live CloakBrowser recheck of `https://www.135editor.com/svgeditor/` reached the public 135 SVG
+  editor state after the earlier restart/profile churn.
+- The header showed `登录/注册`. Clicking the first visible `免费试用` control opened a login tab
+  instead of applying an SVG effect to the center canvas.
+- This run is therefore coverage evidence for the public shell and an external account gate, not
+  applied-center proof.
+
+Observed sanitized markers:
+- Sidebar/category shell:
+  `side-bar open`, `side-bar-wrap`, `side_bar__wrap`, `side-tab-menu active special`,
+  `side-tab-content side-bar-content-wrap`, `side_tab__content`, `tab-special`, `svg-types`,
+  `tab-special__tap`, and `tab-special__list`.
+- List/card/free-trial controls:
+  `list-loader black`, `list-loader__inner`, `list-item`, `item-element`, `item-element__box`,
+  `item-element__price`, `item-line`, `element-actions__wrap`, and `btn btn-buy ant-btn`.
+- Center shell:
+  `editor-content`, `content-canvas`, `app-content-canvas`, `content-wrapper`, and
+  `content-background`.
+
+Coverage:
+- Existing 135 SVG sidebar, material filter/category, material list/loader/purchase, and
+  canvas/shell diagnostics already cover the observed public markers.
+- No new detector was added because the source-specific markers were already covered and the run
+  did not apply authenticated trial content.
+
+Verification:
+- CloakBrowser was used; Playwright was not used.
+- Focused 135 SVG regression command:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG (builder canvas blocks|sidebar navigation controls|material list item actions|material filter controls|material category wrappers|material list loader state|material purchase child controls)" --reporter=default`.
+  Result: 1 file passed, 7 selected tests passed, 365 tests skipped.
+
+Scope:
+- This is public-shell coverage and login-gate evidence only. It does not prove authenticated
+  free-trial application, WeChat paste, phone preview, mobile interaction, mobile Dark Mode, cover
+  thumbnail acceptance, credentialed sync, scheduled send, platform preview, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
 ## 2026-06-29 135 Helper Iframe Chrome Residue Slice
 
 Source:

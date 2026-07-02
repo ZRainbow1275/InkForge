@@ -10728,3 +10728,29 @@ Boundary:
   paste, phone preview, mobile SMIL/click, mobile Dark Mode, cover thumbnail acceptance,
   credentialed sync, scheduled send, public article rendering, public-host acceptance,
   XHS/Zhihu account upload, or publish success.
+
+---
+
+## 2026-07-03 135 SVG Public Panel Login-Gate Recheck Addendum
+
+- Rechecked the live 135 SVG editor with CloakBrowser only at
+  `https://www.135editor.com/svgeditor/`.
+- Current visible state was public/login-gated: the header showed `登录/注册`.
+- A visible `免费试用` click opened a login tab instead of applying a center-canvas SVG effect.
+  This run is therefore not counted as authenticated free-trial application proof.
+- Sanitized public DOM markers were recorded for the 135 SVG sidebar/category shell, material
+  list, free-trial commerce controls, and center canvas shell.
+- Existing static diagnostics already cover the observed markers:
+  `135 SVG sidebar navigation residue`, `135 SVG material filter control residue`,
+  `135 SVG material category wrapper residue`, `135 SVG material list loader residue`,
+  `135 SVG material list item residue`, `135 SVG material purchase control residue`,
+  `135 SVG builder canvas residue`, and `135 SVG editor shell residue`.
+- Verification:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG (builder canvas blocks|sidebar navigation controls|material list item actions|material filter controls|material category wrappers|material list loader state|material purchase child controls)" --reporter=default`.
+  Result: 1 file passed, 7 selected tests passed, 365 tests skipped.
+- Added evidence file:
+  `prompts/0601/evidence/135-svg-public-panel-login-gate-recheck-20260703.txt`.
+- Boundary: this is public-shell coverage and login-gate evidence only. It does not prove
+  authenticated free-trial application, WeChat PC paste, phone preview, mobile SMIL/click, mobile
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public article
+  rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -1,0 +1,57 @@
+135 SVG Public Panel Login-Gate Recheck - 2026-07-03
+
+Scope:
+- Read-only CloakBrowser recheck of the live 135 SVG editor public panel at
+  https://www.135editor.com/svgeditor/.
+- No account artifact, no profile path, no cookie, no token, no HAR, no QR, no screenshot, no
+  platform upload, no sync, no scheduled send, and no publish action.
+
+Observed state:
+- The header exposed the public login state as "登录/注册".
+- The SVG effect sidebar was visible and listed SVG categories plus public material cards.
+- A visible "免费试用" button existed on the first public material card.
+- Clicking the first visible "免费试用" button opened a login tab instead of applying an effect to
+  the center canvas.
+- Therefore this run must not be counted as applied free-trial canvas proof, WeChat paste proof,
+  phone proof, sync proof, scheduled-send proof, or publish proof.
+
+Sanitized DOM markers observed on the public SVG editor surface:
+- Sidebar and category shell:
+  `side-bar open`, `side-bar-wrap`, `side_bar__wrap`, `side-tab-menu active special`,
+  `side-tab-menu__content`, `side-tab-menu__label`, `side-tab-content side-bar-content-wrap`,
+  `side_tab__content`, `tab-special`, `svg-types`, `tab-special__tap`, and
+  `tab-special__list`.
+- Public material list and commerce controls:
+  `list-loader black`, `list-loader__inner`, `list-item`, `item-element`,
+  `item-element__box`, `item-element__price`, `item-line`, `element-actions__wrap`,
+  `btn btn-buy ant-btn`.
+- Center shell without applied trial content:
+  `editor-content`, `content-canvas`, `app-content-canvas`, `content-wrapper`, and
+  `content-background`.
+
+Coverage result:
+- Existing `135 SVG sidebar navigation residue` covers the sidebar shell.
+- Existing `135 SVG material filter control residue` and
+  `135 SVG material category wrapper residue` cover the visible filter/category controls.
+- Existing `135 SVG material list loader residue`, `135 SVG material list item residue`, and
+  `135 SVG material purchase control residue` cover the visible list and free-trial commerce
+  controls.
+- Existing `135 SVG builder canvas residue` and `135 SVG editor shell residue` cover the center
+  editor shell markers.
+- No new detector was added because the source-specific public markers observed in this run are
+  already covered by existing static publishability diagnostics.
+
+Verification:
+- CloakBrowser was used; Playwright was not used.
+- The run was read-only except for clicking the public "免费试用" control, which redirected to a
+  login tab and did not apply a center-canvas effect.
+- Focused 135 SVG static-regression tests were run after the evidence update:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "135 SVG (builder canvas blocks|sidebar navigation controls|material list item actions|material filter controls|material category wrappers|material list loader state|material purchase child controls)" --reporter=default`.
+  PASS: 1 file passed, 7 selected tests passed, 365 tests skipped.
+
+Boundary:
+- This proves current public 135 SVG editor shell coverage and login-gated trial behavior only.
+- It does not prove authenticated free-trial application, WeChat PC paste, phone preview,
+  mobile SMIL/click behavior, mobile Dark Mode, cover thumbnail acceptance, credentialed sync,
+  scheduled send, public article rendering, XHS/Zhihu account upload, public-host acceptance, or
+  publish success.
