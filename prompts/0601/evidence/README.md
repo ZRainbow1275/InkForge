@@ -7548,6 +7548,20 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   link fidelity, drag/drop fidelity, upload, sync, cover thumbnail acceptance, public rendering,
   public-host acceptance, scheduled send, or publish success.
 
+## 2026-07-03 Xiumi UI Router View Directive Residue
+
+- [x] xiumi-ui-router-view-directive-residue-20260703.txt
+- Extended the existing static `Angular/Vue authoring attribute` quality rule for the live Xiumi
+  v5 UI Router route outlet directive `ui-view`.
+- The reduced regression intentionally keeps only `ui-view`, proving class-cleaned route outlet
+  plumbing is blocked without relying on `ng-*`, Angular runtime classes, `uib-*`, modal runtime
+  directives, `tn-*`, operation buttons, hosted media, sidebar controls, or meta panels.
+- The detector intentionally does not block ordinary prose about routing, views, headers, actions,
+  or Xiumi by itself; it remains anchored to the explicit `ui-view` directive attribute.
+- Boundary: this is static publishability protection only. It does not prove paste, phone preview,
+  route rendering fidelity, upload, sync, cover thumbnail acceptance, public rendering,
+  public-host acceptance, scheduled send, or publish success.
+
 ## 2026-06-29 Xiumi Text Input Done-For Residue
 
 - [x] xiumi-text-input-done-for-residue-20260629.txt

@@ -10504,6 +10504,54 @@ Boundary:
 
 ---
 
+## 2026-07-03 Xiumi UI Router View Directive Residue Addendum
+
+- Extended local static publishability protection for live Xiumi v5 UI Router route outlet
+  directive residue observed with CloakBrowser.
+- Observed route outlet marker: `ui-view`.
+- Extended the existing `Angular/Vue authoring attribute` detector to cover `ui-view`.
+- Added three-platform regression coverage in
+  `inkforge/src/services/export/platform-export-rendering.test.ts`. The reduced fixture omits
+  `ng-*`, Angular runtime classes, `uib-*`, modal runtime directives, dropdown wrappers, hosted
+  media, sidebar controls, and meta panels, so the label is proven independently from older Xiumi
+  blockers.
+- The detector remains source-specific: it does not block ordinary prose about routing, views,
+  headers, actions, or Xiumi by itself.
+- GitNexus MCP impact reported LOW risk for `MARKET_EDITOR_RESIDUE_RULES` with 0 direct
+  dependents and 0 affected processes.
+- Verification:
+  targeted TDD red failed before the detector update because no `wechat-market-editor-residue`
+  issue was emitted; targeted green passed after it:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "UI Router view directives" --reporter=default`.
+- Adjacent Angular regression:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts -t "Angular (runtime controls|input source|link and dropzone)|UI Router view directives" --reporter=default`
+  passed with 4 selected tests and 364 skipped tests.
+- Full local validation:
+  `pnpm -C inkforge exec vitest run src/services/export/platform-export-rendering.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 368 tests;
+  `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
+  passed with 36 files and 1345 tests;
+  `pnpm -C inkforge exec eslint src/services/export/quality-detector.ts src/services/export/platform-export-rendering.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`, and
+  `NODE_OPTIONS=--max-old-space-size=4096 pnpm -C inkforge build` passed; the build transformed
+  4653 modules and completed in 35.45 seconds after the interrupted run was restarted cleanly.
+- Release preflight remained correctly unclaimable:
+  `pnpm -C inkforge style-proof:release-preflight --json` returned `canClaimComplete=false`,
+  `status=blocked-by-local-conflict`, blocker kinds `local-conflict`, `phone-preview`,
+  `external-dependency`, `unsafe-to-automate`, and `mutating-platform`, with `blockerCount=5`,
+  `combinedIssueCount=15`, `cannotClaimSteps=30`, `phoneOpenSteps=4`,
+  `externalDependencyOpenSteps=15`, `unsafeToAutomateOpenSteps=10`, `mutatingOpenSteps=14`,
+  `externalHandoffRows=19`, `safeExternalRows=0`, `actionableLocalRows=0`, `nextRowRefs=5`, and
+  `uniqueNextRows=4`.
+- Added evidence file:
+  `prompts/0601/evidence/xiumi-ui-router-view-directive-residue-20260703.txt`.
+- Boundary: this is local static publishability protection only. It does not prove WeChat PC
+  paste, phone preview, route rendering fidelity, mobile interaction fidelity, mobile Dark Mode,
+  cover thumbnail acceptance, upload, credentialed sync, scheduled send, platform preview, public
+  article rendering, public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+---
+
 ## 2026-06-29 Xiumi Modal Runtime Directive Residue Addendum
 
 - Extended local static publishability protection for live Xiumi v5 modal runtime directive

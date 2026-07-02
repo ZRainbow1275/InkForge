@@ -700,6 +700,12 @@ const MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML = [
   '</section>',
 ].join('')
 
+const MARKET_EDITOR_XIUMI_UI_ROUTER_VIEW_RESIDUE_HTML = [
+  '<section style="margin:10px 0">',
+  '<div ui-view="header">Xiumi router outlet shell</div>',
+  '</section>',
+].join('')
+
 const MARKET_EDITOR_XIUMI_OPERATION_PANEL_LOADER_HTML = [
   '<section style="margin:10px 0">',
   '<div class="op-loader">Xiumi operation panel loader residue</div>',
@@ -12173,6 +12179,28 @@ describe('platform native export rendering rules', () => {
     const wechat = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'wechat')
     const xhs = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'xiaohongshu')
     const zhihu = detectQuality(MARKET_EDITOR_XIUMI_ANGULAR_LINK_DROPZONE_RESIDUE_HTML, 'zhihu')
+
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(xhs.issues.find(issue => issue.id === 'xhs-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message)
+      .toContain('Angular/Vue authoring attribute')
+    expect(zhihu.issues.find(issue => issue.id === 'zhihu-market-editor-residue')?.message ?? '')
+      .not.toContain('Angular authoring class')
+    expect(wechat.passed).toBe(false)
+    expect(xhs.passed).toBe(false)
+    expect(zhihu.passed).toBe(false)
+  })
+
+  it('blocks Xiumi UI Router view directives after Angular cleanup', () => {
+    const wechat = detectQuality(MARKET_EDITOR_XIUMI_UI_ROUTER_VIEW_RESIDUE_HTML, 'wechat')
+    const xhs = detectQuality(MARKET_EDITOR_XIUMI_UI_ROUTER_VIEW_RESIDUE_HTML, 'xiaohongshu')
+    const zhihu = detectQuality(MARKET_EDITOR_XIUMI_UI_ROUTER_VIEW_RESIDUE_HTML, 'zhihu')
 
     expect(wechat.issues.find(issue => issue.id === 'wechat-market-editor-residue')?.message)
       .toContain('Angular/Vue authoring attribute')

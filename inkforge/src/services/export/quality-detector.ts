@@ -785,7 +785,7 @@ const MARKET_EDITOR_RESIDUE_RULES = [
     label: 'Xiumi cell runtime path binding residue',
   },
   {
-    pattern: /<[a-zA-Z][^>]*\b(?:(?:data-)?ng-(?:click|style|repeat|class|show|hide|if|switch|bind|model|include|controller|change|blur|focus|dblclick|keydown|keyup|mousedown|mouseup|mouseenter|copy|href|src|readonly|transclude|options|disabled|checked|value|submit|dropzone)[\w-]*|v-(?:if|show|for|model|bind|on|html|text|cloak|slot)[\w-]*)\s*=/i,
+    pattern: /<[a-zA-Z][^>]*\b(?:(?:data-)?ng-(?:click|style|repeat|class|show|hide|if|switch|bind|model|include|controller|change|blur|focus|dblclick|keydown|keyup|mousedown|mouseup|mouseenter|copy|href|src|readonly|transclude|options|disabled|checked|value|submit|dropzone)[\w-]*|ui-view|v-(?:if|show|for|model|bind|on|html|text|cloak|slot)[\w-]*)\s*=/i,
     label: 'Angular/Vue authoring attribute',
   },
   {

@@ -1199,6 +1199,10 @@ Xiumi SVG/H5 rules:
   `ng-dropzone-options`. These are editor-side link and drag/drop upload bindings, not ordinary
   publishable `href`, upload proof, public-host proof, or credentialed-channel proof. They remain
   under the existing `Angular/Vue authoring attribute` residue label.
+- 2026-07-03 Xiumi UI Router view refresh: the live v5 paper editor exposed `ui-view` route
+  outlet attributes on page-shell regions such as header and action-button containers. These are
+  Angular UI Router view placeholders, not article structure, platform preview proof, or portable
+  layout semantics. They remain under the existing `Angular/Vue authoring attribute` residue label.
 - 2026-06-29 Xiumi text-input completion refresh: the live v5 paper editor exposed
   `tn-text-input-done-for` alongside already-covered `tn-text-input-begin` and
   `tn-text-input-done`. This is editor-side text editing event binding metadata, not article text,

@@ -12394,6 +12394,49 @@ const ruleFamilies = [
   WeChat paste, phone preview, modal interaction fidelity, upload, public-host acceptance,
   credentialed sync, scheduled send, or publish success.
 
+## 253. Xiumi UI Router View Directive Residue - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: copied or partially cleaned Xiumi editor HTML contains Angular UI Router route outlet
+  attributes such as `ui-view`.
+- CloakBrowser live DOM refresh on the active Xiumi v5 paper editor observed `ui-view` on page
+  shell regions including the root route outlet, header, and action-button containers.
+- These markers are editor-side route placeholders. They are not publishable article structure,
+  reusable InkForge layout source, paste proof, platform preview proof, credentialed-channel proof,
+  or target-platform proof.
+- This rule extends the existing `Angular/Vue authoring attribute` diagnostic. It must stay
+  separate from Angular runtime classes, `ng-*` authoring attributes, Xiumi UI Bootstrap modal
+  directives, `Xiumi tn-* attribute`, hosted-media checks, operation panels, sidebar controls, and
+  meta panels.
+- This rule must not alter renderer output, style availability, selectable actions, release-gate
+  success accounting, clipboard behavior, account state, upload, sync, schedule, or publish
+  behavior.
+
+### 2. Contract
+
+- `detectQuality(..., platform)` must report `Angular/Vue authoring attribute` for WeChat,
+  Xiaohongshu, and Zhihu when `ui-view` appears as an attribute.
+- A reduced fixture containing only `ui-view` must fail with the Angular/Vue label even when
+  `ng-*`, Angular runtime classes, `uib-*`, modal runtime directives, dropdown wrappers,
+  tooltip attributes, `tn-*`, operation buttons, hosted media, sidebar controls, or meta panels
+  are absent.
+- The detector must not block ordinary prose about routing, views, headers, actions, or Xiumi by
+  itself. It must remain anchored to the explicit `ui-view` directive attribute.
+
+### 3. Required Checks
+
+- Use TDD to prove the reduced `ui-view` fixture initially emits no `*-market-editor-residue`
+  issue, then emits `Angular/Vue authoring attribute` after the detector update.
+- Regression tests must assert the precise label appears in the WeChat, Xiaohongshu, and Zhihu
+  quality reports.
+- Adjacent Angular runtime, Angular input/event, and Angular link/dropzone regressions must remain
+  green so UI Router, normal Angular authoring attributes, and Angular runtime classes stay
+  independently actionable.
+- Evidence docs must state that this is static publishability protection only and does not prove
+  WeChat paste, phone preview, route rendering fidelity, upload, public-host acceptance,
+  credentialed sync, scheduled send, or publish success.
+
 ## 252. Xiumi Modal Runtime Directive Residue - 2026-06-29
 
 ### 1. Scope / Trigger
