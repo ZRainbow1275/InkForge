@@ -7916,3 +7916,37 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
   editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
   Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
   public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Merge CLI
+
+- [x] style-proof-manifest-merge-cli-20260703.txt
+- Added `pnpm -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> [--file <...>]`
+  as a local merge validator for multiple operator-supplied redacted `StyleProofManifest` packs.
+- The command reuses `getStyleProofManifestJsonIntakeReport()` per input file, merges accepted
+  manifest rows in memory, and revalidates the merged `{ manifests: [...] }` pack through
+  `getStyleProofManifestIntakeReport()`.
+- Text and JSON outputs are sanitized summaries only. They include source counts, per-source
+  ordinal summaries, merged counts, issue-id counts, blockers, `canWritePack`, `canClaimComplete`,
+  and whether `--out` wrote a file. They do not print input paths, output paths, raw artifact
+  references, browser profile paths, cookies, tokens, HAR references, QR payloads, draft URLs, or
+  publish URLs.
+- Optional `--out` writes only when the merged pack is schema-clean and semantic-clean, at least
+  one manifest was accepted, and the output path is not already present unless `--force` is used.
+- Verification passed:
+  `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet`,
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`,
+  `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`,
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false`,
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`,
+  `pnpm -C inkforge style-proof:manifest-merge --help`, and
+  `pnpm -C inkforge style-proof:release-preflight --json`.
+  Script coverage passed with 4 files and 25 tests; production build transformed 4653 modules
+  and built in 31.51s.
+- `pnpm -C inkforge style-proof:release-preflight --json` still exits 1 with
+  `canClaimComplete=false`, `status=blocked-by-external`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+- Boundary: this is local manifest merge validation only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

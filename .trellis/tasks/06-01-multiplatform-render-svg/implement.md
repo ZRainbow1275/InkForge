@@ -22345,3 +22345,59 @@ Scope:
   authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
   mobile Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public
   rendering, Zhihu public-host acceptance, XHS/Zhihu account upload, or publish success.
+
+## 2026-07-03 Style Proof Manifest Merge CLI Slice
+
+Source:
+- The committed release gate remains `canClaimComplete=false` and `status=blocked-by-external`.
+- The manifest-intake CLI verifies one redacted pack at a time, but external proof collection can
+  produce separate phone/account/public-host packs that need a single local merge check before any
+  output pack is considered for committed evidence.
+
+Impact:
+- `npx gitnexus impact getStyleProofManifestIntakeReport -r InkForge --depth 3` reported LOW risk
+  with 1 direct dependent and 0 affected processes.
+- `npx gitnexus impact getStyleProofManifestJsonIntakeReport -r InkForge --depth 3` reported LOW
+  risk with 0 direct dependents and 0 affected processes.
+- The slice adds a script around existing intake services and does not modify manifest validation,
+  acceptance audit, release-gate, renderer, availability, upload, sync, schedule, or publish logic.
+
+Implementation:
+- Added `pnpm -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> [--file <...>]`.
+- The CLI reads each input file through `getStyleProofManifestJsonIntakeReport()`, merges accepted
+  manifest rows in memory, and revalidates the merged `{ manifests: [...] }` pack with
+  `getStyleProofManifestIntakeReport()`.
+- Text and JSON outputs are sanitized summaries only: source count, per-source ordinal summaries,
+  merged counts, issue-id counts, blockers, `canWritePack`, `canClaimComplete`, and output write
+  status.
+- Optional `--out <path>` writes a merged redacted pack only when all source and merged schema
+  checks have no errors or warnings, semantic issue count is zero, at least one manifest was
+  accepted, and the output file does not already exist unless `--force` is present.
+- The CLI intentionally does not echo input paths, output paths, raw artifact references,
+  account-state fields, browser profile paths, cookies, tokens, HAR references, QR payloads,
+  draft URLs, or publish URLs.
+
+Verification:
+- `pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000`
+  passed with 1 file and 9 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`
+  passed with 4 files and 25 tests.
+- `pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet`
+  passed.
+- `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed.
+- `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 31.51s; `inkforge/tsconfig.tsbuildinfo` was restored
+  afterward.
+- `pnpm -C inkforge style-proof:manifest-merge --help` exited 0 and printed the read-only merge
+  boundary and exit-code contract.
+- `pnpm -C inkforge style-proof:release-preflight --json` exited 1 as expected with
+  `status=blocked-by-external`, `canClaimComplete=false`, `externalHandoffRows=19`,
+  `safeExternalRows=0`, and `actionableLocalRows=0`.
+
+Scope:
+- This is local manifest merge and hygiene validation only. It does not prove WeChat authenticated
+  editor access, ordinary rich paste retention, phone preview, mobile interaction, mobile Dark
+  Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering, Zhihu
+  public-host acceptance, XHS/Zhihu account upload, or publish success.

@@ -16,6 +16,7 @@
     "style-proof:release-preflight": "tsx scripts/style-proof-release-preflight.ts",
     "style-proof:external-handoff": "tsx scripts/style-proof-external-handoff.ts",
     "style-proof:manifest-intake": "tsx scripts/style-proof-manifest-intake.ts",
+    "style-proof:manifest-merge": "tsx scripts/style-proof-manifest-merge.ts",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

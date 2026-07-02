@@ -12984,3 +12984,58 @@ const ruleFamilies = [
   authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
   Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
   public-host acceptance, XHS/Zhihu upload, or publish success.
+
+## 266. Style Proof Manifest Merge CLI - 2026-07-03
+
+### 1. Scope / Trigger
+
+- Trigger: an operator has collected multiple redacted `StyleProofManifest` JSON packs from
+  phone, account, public-host, or platform proof collection and needs one local merge/audit step
+  before any pack is considered for committed evidence.
+- The CLI is a local merge and validation surface only. It must not open a browser, upload
+  content, sync drafts, schedule sends, publish articles, mutate committed manifests, or claim
+  external proof completion.
+- The CLI must treat every input file as untrusted. Text and JSON output must not print input
+  paths, output paths, raw artifact references, browser profile paths, cookies, tokens, HAR
+  references, QR payloads, account screenshots, draft URLs, publish URLs, or account/runtime
+  material.
+
+### 2. Contract
+
+- `pnpm -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> [--file <...>]`
+  reads one or more local UTF-8 JSON packs and passes each through
+  `getStyleProofManifestJsonIntakeReport()`.
+- The CLI merges only accepted manifest rows into an in-memory `{ manifests: [...] }` pack and
+  then runs `getStyleProofManifestIntakeReport()` on the merged pack.
+- Default `--text` output and explicit `--json` output are sanitized summaries only. They may
+  include source count, per-source ordinal summaries, merged counts, issue-id counts, blockers,
+  `canWritePack`, `canClaimComplete`, and whether an output file was written.
+- Optional `--out <path>` may write the merged pack only when all of these are true:
+  - at least one manifest was accepted;
+  - all source packs have zero schema errors, zero rejected rows, and zero schema warnings;
+  - the merged pack has zero schema errors, zero schema warnings, and zero semantic issues;
+  - the target path does not already exist, unless `--force` is present.
+- Exit codes are part of the contract:
+  - `0`: merged pack is schema-clean and semantic-clean; `--out` write succeeded if requested.
+  - `1`: JSON parsed, but merge/write is blocked by schema, warning, semantic, hygiene,
+    empty-pack, or output-exists issues.
+  - `2`: CLI usage, unreadable input file, or output write failure.
+- `--help` exits 0; missing `--file`, conflicting `--text`/`--json`, `--force` without `--out`,
+  missing option values, and unknown arguments exit 2 before reading or claiming proof state.
+
+### 3. Required Checks
+
+- Add a script regression that writes temporary redacted JSON files, invokes the CLI through the
+  package-local `tsx` entrypoint, and verifies clean merge, JSON mode, optional `--out`, overwrite
+  blocking, sensitive artifact blocking, malformed JSON, usage errors, output-mode conflicts,
+  unknown arguments, unreadable files, and sensitive-fragment hygiene.
+- Run the scripts regression surface serially:
+  `pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism`.
+- Run ESLint on all style-proof scripts and their tests.
+- Re-run `style-proof:release-preflight --json` and confirm it remains blocked when committed
+  external proof rows are still open. Manifest merge readiness must not be treated as proof of
+  phone preview, account upload, sync, schedule, or publish success.
+- Evidence docs must explicitly state that the manifest-merge CLI does not prove WeChat
+  authenticated editor access, ordinary rich paste retention, phone preview, mobile interaction,
+  Dark Mode, cover thumbnail acceptance, credentialed sync, scheduled send, public rendering,
+  public-host acceptance, XHS/Zhihu upload, or publish success.

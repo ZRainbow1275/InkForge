@@ -1,0 +1,60 @@
+Style Proof Manifest Merge CLI - 2026-07-03
+
+Scope:
+- Local merge validation for multiple redacted StyleProofManifest JSON packs.
+- No browser automation, no phone preview, no sync, no upload, no schedule, no publish.
+
+Implemented:
+- pnpm -C inkforge style-proof:manifest-merge --file <redacted-manifest.json> [--file <...>]
+- Optional --out <merged-pack.json> with --force overwrite opt-in.
+
+Behavior:
+- Reads each input file with getStyleProofManifestJsonIntakeReport().
+- Merges accepted manifest rows in memory.
+- Revalidates the merged { manifests: [...] } pack with getStyleProofManifestIntakeReport().
+- Prints sanitized text or JSON summaries only.
+- Blocks --out when source schema errors, rejected rows, schema warnings, merged schema errors,
+  merged schema warnings, semantic issues, empty packs, or existing output files are present.
+- Does not print input paths, output paths, raw artifact references, browser profile paths,
+  cookies, tokens, HAR references, QR payloads, account screenshots, draft URLs, or publish URLs.
+
+Exit codes:
+- 0: merged pack is schema-clean and semantic-clean; --out write succeeded if requested.
+- 1: JSON parsed, but merge/write is blocked by schema, warning, semantic, hygiene, empty-pack,
+  or output-exists issues.
+- 2: CLI usage, unreadable input file, or write failure.
+
+Regression coverage:
+- Clean multi-file text merge.
+- JSON output shape and sensitive-fragment hygiene.
+- Optional --out writes only a clean merged pack.
+- Existing output path blocks unless --force is supplied.
+- Sensitive artifact references block merge output before writing.
+- Malformed JSON returns a sanitized merge-blocked report.
+- Missing --file, conflicting output modes, unknown arguments, and unreadable files exit 2.
+
+Verification:
+- pnpm -C inkforge exec vitest run scripts/style-proof-manifest-merge.test.ts --reporter=default --test-timeout=90000
+  PASS: 1 file / 9 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vitest run scripts --reporter=default --test-timeout=90000 --maxWorkers=1 --no-file-parallelism
+  PASS: 4 files / 25 tests
+- pnpm -C inkforge exec eslint scripts/style-proof-manifest-merge.ts scripts/style-proof-manifest-merge.test.ts scripts/style-proof-manifest-intake.ts scripts/style-proof-manifest-intake.test.ts scripts/style-proof-external-handoff.ts scripts/style-proof-external-handoff.test.ts scripts/style-proof-release-preflight.ts scripts/style-proof-release-preflight.test.ts --quiet
+  PASS
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  PASS
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  PASS: 4653 modules transformed, Vite built in 31.51s
+- pnpm -C inkforge style-proof:manifest-merge --help
+  PASS: exits 0 and prints read-only merge boundary
+- pnpm -C inkforge style-proof:release-preflight --json
+  EXPECTED BLOCK: exits 1 with canClaimComplete=false, status=blocked-by-external,
+  externalHandoffRows=19, safeExternalRows=0, actionableLocalRows=0
+
+Boundary:
+- This proves local merge validation and sensitive-output discipline only.
+- It does not prove WeChat authenticated editor access, ordinary rich paste retention, phone
+  preview, mobile SMIL/click interaction, mobile Dark Mode, cover thumbnail acceptance,
+  credentialed sync, scheduled send, public rendering, public-host acceptance, XHS/Zhihu account
+  upload, or publish success.
