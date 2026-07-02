@@ -10833,6 +10833,11 @@ Boundary:
 - Re-ran the full export service suite serially:
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`.
   Result: 36 files passed and 1349 tests passed.
+- Re-ran typecheck and production build:
+  `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` passed;
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build` passed with 4653
+  modules transformed and Vite built in 38.30s. The generated `inkforge/tsconfig.tsbuildinfo`
+  diff was restored afterward.
 - Added evidence file:
   `prompts/0601/evidence/style-proof-postcommit-local-validation-20260703.txt`.
 - Boundary: this is post-commit local validation only. It does not prove WeChat authenticated

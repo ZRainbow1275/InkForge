@@ -7803,6 +7803,10 @@ pnpm test:e2e      # wdio.conf.cjs 收集 tests/e2e/specs/*.spec.cjs，含 svg-r
 - Re-ran the full export service suite serially:
   `pnpm -C inkforge exec vitest run src/services/export --reporter=default --maxWorkers=1 --no-file-parallelism --test-timeout=90000`
   passed with 36 files and 1349 tests.
+- Re-ran `pnpm -C inkforge exec vue-tsc --noEmit --pretty false` and
+  `$env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build`; both passed. The
+  build transformed 4653 modules, completed in 38.30s, and the generated
+  `inkforge/tsconfig.tsbuildinfo` diff was restored afterward.
 - Recorded expected non-fatal diagnostics: KaTeX quirks-mode warnings and hard-limit safety
   warnings for the oversize 510641-character input test.
 - Boundary: this is local validation evidence only. It does not prove authenticated WeChat editor

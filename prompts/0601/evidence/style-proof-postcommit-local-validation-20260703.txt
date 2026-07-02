@@ -42,6 +42,15 @@ Commands and results:
   - 36 test files passed
   - 1349 tests passed
 
+- pnpm -C inkforge exec vue-tsc --noEmit --pretty false
+  Result: PASS.
+
+- $env:NODE_OPTIONS='--max-old-space-size=4096'; pnpm -C inkforge build
+  Result: PASS.
+  - 4653 modules transformed
+  - Vite built in 38.30s
+  - The generated inkforge/tsconfig.tsbuildinfo diff was restored after the build.
+
 Expected non-fatal diagnostics during the export suite:
 - KaTeX warned about quirks mode in formula export tests.
 - Oversize hard-limit tests logged normalizeImageAttributes and fixNestedLists safety warnings for
